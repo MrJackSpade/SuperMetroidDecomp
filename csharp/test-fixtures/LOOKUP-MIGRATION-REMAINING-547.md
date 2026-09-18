@@ -278,7 +278,10 @@ not relabeling as mutable state. Low-bank aliases genuinely remain mutable.
   All 357 selector words and 40 damage headers are compiled, every translated
   beam/missile/bomb/SBA initializer uses those definitions, and an unknown address
   fails explicitly instead of interpreting adjacent animation or executable bytes
-  as mechanics. The selected mixed animation programs remain ROM-backed. Coordinate
+  as mechanics. All 805 timed-frame collision-radius pairs now follow the same rule:
+  every production projectile and bomb frame uses the compiled physical bytes, while
+  an address outside those records fails rather than reading mixed program/art data.
+  The selected mixed animation programs remain ROM-backed. Coordinate
   ownership with the companion gameplay-definition tickets; shared scope does
   not mean the runtime dependency is already removed.
 

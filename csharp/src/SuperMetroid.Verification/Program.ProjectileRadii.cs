@@ -83,11 +83,13 @@ internal static partial class Program
         var guard = new ProjectileRadiusReadGuard(rom, addresses);
         foreach (int address in addresses)
         {
-            AssertEqual(rom.ReadByte(address), SamusProjectileRadiusDefinitions.ReadByte(guard, address), "Native X radius");
-            AssertEqual(rom.ReadByte(address + 1), SamusProjectileRadiusDefinitions.ReadByte(guard, address + 1), "Native Y radius");
+            AssertEqual(rom.ReadByte(address), SamusProjectileRadiusDefinitions.ReadByte(address), "Native X radius");
+            AssertEqual(rom.ReadByte(address + 1), SamusProjectileRadiusDefinitions.ReadByte(address + 1), "Native Y radius");
         }
-        for (int address = 0x938000; address <= 0x93ffff; address++)
-            AssertEqual(rom.ReadByte(address), SamusProjectileRadiusDefinitions.ReadByte(rom, address), "Sparse radius selection preserves every adjacent byte");
+        foreach (int address in new[] { 0x938000, 0x9386de, 0x9386e1, 0x93ffff })
+            AssertThrows<InvalidDataException>(
+                () => SamusProjectileRadiusDefinitions.ReadByte(address),
+                "Unknown radius address fails instead of reading mixed cartridge data");
 
         var projectiles = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
@@ -125,7 +127,7 @@ internal static partial class Program
                 bombFrames++;
             }
         }
-        Console.WriteLine($"Projectile radii: 805 native pairs, 32768 byte addresses, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
+        Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
     }
 
     private sealed class ProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses) : ISnesAddressSpace

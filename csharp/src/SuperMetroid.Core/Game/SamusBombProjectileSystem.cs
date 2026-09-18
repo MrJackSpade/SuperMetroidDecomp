@@ -1072,11 +1072,11 @@ public sealed class SamusBombProjectileSystem
                     bus,
                     SamusProjectileRomData.Banks.Projectile |
                         unchecked((ushort)(pointer + 2)));
-                slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
+                slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
                         unchecked((ushort)(pointer + 4))));
-                slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
+                slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
                         unchecked((ushort)(pointer + 5))));

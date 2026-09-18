@@ -1,6 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical collision extents from bank-$93 timed projectile records, separate from spritemap artwork.</summary>
@@ -226,11 +224,11 @@ internal static class SamusProjectileRadiusDefinitions
         return result.ToFrozenDictionary();
     }
 
-    internal static byte ReadByte(ISnesAddressSpace bus, int address)
+    internal static byte ReadByte(int address)
     {
         if (Radii.TryGetValue(address, out ushort pair)) return (byte)pair;
         if (Radii.TryGetValue(address - 1, out pair)) return (byte)(pair >> 8);
-        // Native out-of-table/unaligned instruction traversal still observes the bus.
-        return bus.ReadByte(address);
+        throw new InvalidDataException(
+            $"Projectile radius byte ${address:X6} is outside the compiled timed-frame definitions.");
     }
 }

@@ -28,11 +28,11 @@ public sealed partial class SamusProjectileSystem
                 slot.SpritemapPointer = ReadWord(
                     bus,
                     SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
-                slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
+                slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
                         unchecked((ushort)AddWithinBank(pointer, 4))));
-                slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
+                slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
                         unchecked((ushort)AddWithinBank(pointer, 5))));

@@ -177,7 +177,7 @@ internal sealed class IntroBabyDiscoveryState
                 // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < 6; index++)
-                    eggParticles.Add(new IntroEggParticle(bus, index));
+                    eggParticles.Add(new IntroEggParticle(index));
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.EggHatch,
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);

@@ -1,25 +1,18 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>One of the six cartridge-authored shell fragments spawned by egg opcode $A918.</summary>
 internal sealed class IntroEggParticle
 {
-    private const int InitialPositionTable = 0x8ba97c;
     private readonly IntroDiscoverySprite sprite;
 
-    public IntroEggParticle(ISnesAddressSpace bus, byte index)
+    public IntroEggParticle(byte index)
     {
-        if (index >= 6)
-            throw new ArgumentOutOfRangeException(nameof(index));
-
         // $A958 indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
-        // the two documented biases. Reading the table prevents six plausible host values
-        // from becoming another unauditable transcription.
-        int table = InitialPositionTable + index * 4;
-        ushort x = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, table) + 0x0010));
-        ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, table + 2) + 0x003b));
+        // the two fixed biases. The compiled catalog is independently checked against all
+        // twelve native words so this physical spawn does not require a cartridge read.
+        var (x, y) = IntroEggMotionDefinitions.FragmentInitialPosition(index);
         sprite = new IntroDiscoverySprite(
             x,
             y,

@@ -199,6 +199,10 @@ colors too. All signed 16-bit comparisons preserve the native one-band-per-frame
 progression, while odd or out-of-range restored phase offsets fail before they can
 select adjacent bank-$B3 code as threshold data.
 
+The intro egg's six shell-fragment spawn positions are compiled with its physical motion
+definitions too. Every final biased X/Y pair matches the cartridge, and all six complete
+actor lifetimes run without reading either the position or velocity tables.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

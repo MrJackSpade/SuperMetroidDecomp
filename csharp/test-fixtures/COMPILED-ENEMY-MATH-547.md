@@ -2573,3 +2573,13 @@ phase and advances at most one two-byte phase per frame.
 Verification compares all 524,288 phase/health combinations with the cartridge's
 signed CMP/BPL result. Every hold/advance boundary, the completed phase, and malformed
 restored offsets run through the production updater with the threshold range forbidden.
+
+# Intro egg-fragment origins
+
+The six interleaved shell-fragment origin pairs at `$8B:A97C-$A993` now live beside
+their already-compiled motion curves in `IntroEggMotionDefinitions`. The catalog stores
+the final positions after the cartridge's fixed $10 X and $3B Y biases, while retaining
+the native address solely for independent parity verification.
+
+Verification compares all twelve source words and runs every fragment from construction
+through deletion with both the origin table and all velocity tables forbidden.

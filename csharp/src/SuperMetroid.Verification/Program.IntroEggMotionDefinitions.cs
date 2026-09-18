@@ -16,6 +16,15 @@ internal static partial class Program
                 AssertEqual(Word(address + index * 4 + 2), actual.Fraction, "Egg motion native fraction word");
             }
         }
+        for (int index = 0; index < 6; index++)
+        {
+            var actual = IntroEggMotionDefinitions.FragmentInitialPosition(index);
+            int address = IntroEggMotionDefinitions.InitialPositionReferenceAddress + index * 4;
+            AssertEqual(unchecked((ushort)(Word(address) + 0x0010)), actual.X,
+                $"Egg fragment {index} initial X");
+            AssertEqual(unchecked((ushort)(Word(address + 2) + 0x003b)), actual.Y,
+                $"Egg fragment {index} initial Y");
+        }
         Compare(0x8ba9ea, 6, IntroEggMotionDefinitions.FragmentX);
         Compare(0x8baa02, 41, IntroEggMotionDefinitions.FragmentY);
         Compare(0x8bab35, 5, IntroEggMotionDefinitions.SlimeX);
@@ -30,7 +39,7 @@ internal static partial class Program
             {
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
-                object actor = fragment ? new IntroEggParticle(guarded, actorIndex) : new IntroEggSlimeDrop(128, 96, actorIndex);
+                object actor = fragment ? new IntroEggParticle(actorIndex) : new IntroEggSlimeDrop(128, 96, actorIndex);
                 var sprite = (IntroDiscoverySprite)actor.GetType().GetField("sprite", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(actor)!;
                 sprite.XSubPosition = sprite.YSubPosition = fraction;
                 uint x = ((uint)sprite.XPosition << 16) | fraction;
@@ -59,18 +68,24 @@ internal static partial class Program
                 AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");
             }
         }
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.FragmentInitialPosition(6), "Fragment initial-position boundary");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.FragmentY(41), "Fragment curve boundary after native overread");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SlimeY(62, true), "Odd slime curve boundary");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SlimeY(69, false), "Even slime curve boundary");
-        Console.WriteLine($"Egg motion definitions: 366 native words and {checkedFrames} real actor frames match with velocity-table reads forbidden.");
+        Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 
     private sealed class EggMotionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
-            if (address is >= 0x8ba9ea and < 0x8baaa6 or >= 0x8bab35 and < 0x8bad55)
-                throw new InvalidOperationException($"Runtime read compiled egg velocity at {address:X6}.");
+            if (address is >= 0x8ba97c and < 0x8ba994 or
+                >= 0x8ba9ea and < 0x8baaa6 or
+                >= 0x8bab35 and < 0x8bad55)
+            {
+                throw new InvalidOperationException(
+                    $"Runtime read compiled egg physical definition at {address:X6}.");
+            }
             return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -12,11 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CeresDoorVariantCount = 7;
     private const ushort CeresDoorInitialSpritemap = 0xfac7;
-    private const ushort CeresDoorInitializerFunctionTable = 0xf72b;
-    private const ushort CeresDoorInitialInstructionTable = 0xf52c;
-    private const ushort CeresDoorRotatingDefaultFunction = 0xf7bd;
     private const ushort CeresDoorRotatingRumbleFunction = 0xf7dc;
     private const ushort CeresDoorElevatorAnimationFunction = 0xf850;
     private const ushort CeresDoorRumbleDuration = 0x0030;
@@ -52,27 +48,16 @@ public sealed partial class RoomEnemySystem
         // it is not the variant despite its host-side historical name.
         ushort variant = slot.Parameter1;
 
-        // Both ROM tables contain one word per initialization variant. Variants five and six
-        // are the left/right OBJ walls spawned at $A6:A9A5 for Ridley's Mode-7 departure;
-        // accepting all seven entries is required for the live escape sequence.
-        if (variant >= CeresDoorVariantCount)
-        {
-            throw new InvalidDataException(
-                $"Ceres door initialization variant ${variant:X4} exceeds its seven variants.");
-        }
+        CeresDoorInitializationDefinition initialization =
+            CeresDoorInitializationDefinitions.For(variant);
 
         slot.SpritemapPointer = CeresDoorInitialSpritemap;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.VramTilesIndex = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        int tableOffset = variant * 2;
-        slot.VariableA = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(CeresDoorInitializerFunctionTable + tableOffset)));
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(CeresDoorInitialInstructionTable + tableOffset)));
+        slot.VariableA = initialization.MainFunction;
+        slot.CurrentInstruction = initialization.InstructionList;
         slot.VariableB = 0;
 
         // CeresDoor_Func_1 performs this extra direct transfer only for variant two. The
@@ -126,7 +111,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case CeresDoorRotatingDefaultFunction:
+            case CeresDoorInitializationDefinitions.RotatingElevatorRoomDefaultFunction:
                 RunCeresDoorPaletteAnimation();
                 if (CeresStatus >= 2)
                 {

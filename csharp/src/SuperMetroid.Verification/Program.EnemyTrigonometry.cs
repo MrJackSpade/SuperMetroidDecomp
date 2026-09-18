@@ -87,6 +87,7 @@ internal static partial class Program
         VerifyCrocomireRumbleDefinitions(rom);
         VerifyRoomShakeDefinitions(rom);
         VerifyCeresDoorQuakeDefinitions(rom);
+        VerifyCeresDoorInitializationDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

@@ -489,6 +489,12 @@ Ridley's private Ceres-door draw hook now compiles all four effective signed X o
 created by the cartridge's byte-indexing bug at `$A6:A321`. Every timer phase runs through
 the real OAM producer with the malformed source table forbidden.
 
+Ceres doors' seven population variants now compile their paired main-function and initial
+instruction-list selectors. All fourteen native words match the pinned cartridge, and all
+seven real initializers run with `$A6:F52C-$F539` and `$A6:F72B-$F738` forbidden. Variant
+two's graphics transfer and the selected mixed instruction programs remain separate
+presentation/integration dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

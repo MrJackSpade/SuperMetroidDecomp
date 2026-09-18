@@ -204,6 +204,12 @@ if (args is ["--enemy-death-explosion-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--ceres-door-initialization-definitions"])
+{
+    VerifyCeresDoorInitializationDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--baby-metroid-route-definitions"])
 {
     VerifyBabyMetroidCutsceneEntrance();

@@ -1,0 +1,46 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>Compiled program selection and launch-speed definitions for Cacatac spikes.</summary>
+internal static class CacatacProjectileDefinitions
+{
+    /// <summary>
+    /// Cacatac spike instruction-list pointers at $86:D96A: ten word entries
+    /// selected by the even <see cref="CacatacSpikeDirection"/> byte offset.
+    /// The selected mixed instruction programs remain separate runtime dependencies.
+    /// </summary>
+    private static ReadOnlySpan<ushort> InstructionLists =>
+    [
+        0xd92e, 0xd93a, 0xd946, 0xd94c, 0xd958,
+        0xd964, 0xd934, 0xd940, 0xd952, 0xd95e,
+    ];
+
+    /// <summary>$86:D9AD/$86:D9C4: cardinal signed 8.8 speed pair.</summary>
+    private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(0xfe00, 0x0200);
+
+    /// <summary>$86:D9B7/$86:D9CD: diagonal signed 8.8 speed pair.</summary>
+    private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(0xfe80, 0x0180);
+
+    internal static ushort InstructionList(CacatacSpikeDirection direction)
+    {
+        ushort raw = (ushort)direction;
+        if ((raw & 1) != 0 || raw > (ushort)CacatacSpikeDirection.DownRight)
+        {
+            throw new InvalidDataException(
+                $"Cacatac spike direction ${raw:X4} is outside the ten even native selectors.");
+        }
+
+        return InstructionLists[raw >> 1];
+    }
+
+    internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction)
+    {
+        _ = InstructionList(direction); // Apply the identical native direction domain.
+        return direction >= CacatacSpikeDirection.UpLeft
+            ? DiagonalSpeeds
+            : CardinalSpeeds;
+    }
+}
+
+internal readonly record struct CacatacSpikeSpeedPair(
+    ushort Negative,
+    ushort Positive);

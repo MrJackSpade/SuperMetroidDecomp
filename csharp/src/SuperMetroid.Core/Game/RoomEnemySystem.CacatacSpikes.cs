@@ -5,11 +5,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort CacatacSpikePreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CacatacSpike;
-    private const int CacatacSpikeInstructionListTable = 0x86d96a;
-    private const ushort CacatacSpikeCardinalYVelocity = 0xfe00;
-    private const ushort CacatacSpikeCardinalXVelocity = 0x0200;
-    private const ushort CacatacSpikeDiagonalYVelocity = 0xfe80;
-    private const ushort CacatacSpikeDiagonalXVelocity = 0x0180;
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.
@@ -33,19 +28,15 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
         projectile.DirectionParameter = rawDirection;
         projectile.Variable0 = rawDirection;
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            CacatacSpikeInstructionListTable + rawDirection);
+        var direction = (CacatacSpikeDirection)rawDirection;
+        projectile.InstructionPointer = CacatacProjectileDefinitions.InstructionList(direction);
         projectile.XPosition = source.XPosition;
         projectile.XSubposition = source.XSubposition;
         projectile.YPosition = source.YPosition;
         projectile.YSubposition = source.YSubposition;
-        projectile.YVelocity = rawDirection >= (ushort)CacatacSpikeDirection.UpLeft
-            ? CacatacSpikeDiagonalYVelocity
-            : CacatacSpikeCardinalYVelocity;
-        projectile.XVelocity = rawDirection >= (ushort)CacatacSpikeDirection.UpLeft
-            ? CacatacSpikeDiagonalXVelocity
-            : CacatacSpikeCardinalXVelocity;
+        CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
+        projectile.YVelocity = speeds.Negative;
+        projectile.XVelocity = speeds.Positive;
     }
 
     /// <summary>Ports pre-instruction $86:D9DB and all ten movement-table entries.</summary>

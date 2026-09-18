@@ -91,6 +91,10 @@ Cacatac's six parameter-selected patrol distances are compiled as physical
 definitions as well. All eighteen selector/wrapped-origin initializer cases run
 with `$A2:9F36-$9F41` forbidden; invalid restored selectors no longer consume
 adjacent code as a distance.
+Cacatac's ten spike-program selectors and cardinal/diagonal signed 8.8 launch
+speed pairs are compiled too. All ten actual production spawns retain their
+definition loading, allocator order and copied origin while `$86:D96A-$D97D` is
+forbidden. The selected mixed animation programs remain separate dependencies.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

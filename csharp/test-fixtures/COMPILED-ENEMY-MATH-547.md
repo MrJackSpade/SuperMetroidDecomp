@@ -1956,3 +1956,16 @@ Verification independently compares every word to the pinned cartridge and runs
 the production initializer for all six selectors at zero, ordinary and maximum
 spawn coordinates while the old table range is forbidden. Out-of-domain restored
 selectors fail explicitly rather than treating adjacent enemy code as distance.
+
+# Cacatac spike selectors and launch speeds
+
+`CacatacProjectileDefinitions` compiles the ten instruction-list selectors at
+`$86:D96A-$D97D` and the cardinal/diagonal signed 8.8 speed pairs. The selected
+mixed instruction programs remain separate runtime dependencies; the catalog
+owns which program and physical speed class each even direction chooses.
+
+Verification independently compares every pointer to the pinned cartridge and
+spawns all ten directions through the production allocator/definition initializer
+while the selector table is forbidden. It asserts program identity, both stored
+velocity words and copied world/subpixel origins. Odd and out-of-range directions
+continue to fail explicitly.

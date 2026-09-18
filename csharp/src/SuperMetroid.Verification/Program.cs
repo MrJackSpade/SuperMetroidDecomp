@@ -219,6 +219,12 @@ if (args is ["--mama-turtle-shell-contour"])
     VerifyMamaTurtleShellContourDefinitions();
     return 0;
 }
+if (args is ["--maridia-large-snail-instruction-definitions"])
+{
+    VerifyMaridiaLargeSnailInstructionDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

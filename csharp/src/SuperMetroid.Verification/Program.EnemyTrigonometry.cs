@@ -62,6 +62,7 @@ internal static partial class Program
         VerifyMotherBrainDoorFragmentDefinitions(rom);
         VerifyMotherBrainTurretDefinitions(rom);
         VerifyTourianStatueUnlockDefinitions(rom);
+        VerifyMaridiaLargeSnailInstructionDefinitions(rom);
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);
         VerifyWaverAnimationDefinitions(rom);

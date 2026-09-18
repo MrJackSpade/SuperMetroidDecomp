@@ -128,7 +128,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MaridiaLargeSnailDefinition = 0xd37f;
 
     private const ushort MaridiaLargeSnailInitialInstructionList = 0xca4b;
-    private const int MaridiaLargeSnailInstructionListTable = 0xa2cb77;
     private const ushort MaridiaLargeSnailSplashInstruction = 0xcb6b;
     private const ushort MaridiaLargeSnailAttackFinishedInstruction = 0xccb3;
     private const ushort MaridiaLargeSnailAllowRotationInstruction = 0xccbe;
@@ -331,7 +330,7 @@ public sealed partial class RoomEnemySystem
         MoveMaridiaLargeSnailHorizontally(slot, state, level);
     }
 
-    private void RunMaridiaLargeSnailAttack(
+    private static void RunMaridiaLargeSnailAttack(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
     {
@@ -586,7 +585,7 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
-    private void InstallMaridiaLargeSnailInstructionList(
+    private static void InstallMaridiaLargeSnailInstructionList(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
     {
@@ -600,10 +599,8 @@ public sealed partial class RoomEnemySystem
         }
 
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            MaridiaLargeSnailInstructionListTable +
-                state.RequestedInstructionListIndex * 2);
+        slot.CurrentInstruction = MaridiaLargeSnailInstructionDefinitions
+            .InstructionPointer(state.RequestedInstructionListIndex);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

@@ -310,6 +310,11 @@ Viola, Sciser, Zero, and HZoomer consume typed family/surface selectors with all
 source words forbidden. Their selected instruction programs and spritemaps remain
 separate program/presentation dependencies.
 
+Maridia's large snail/Oum now compiles all eight mutually-exclusive facing/action
+instruction selectors at `$A2:CB77-$A2:CB86`. Every production install consumes the
+named definition catalog with the pointer table forbidden. The selected mixed
+instruction programs and extended spritemaps remain separate dependencies.
+
 Botwoon's four fixed hole rectangles and 32 fixed path descriptors are now compiled
 in `BotwoonNavigationDefinitions`. The real target movement, hole collision, and path
 handoff consumers no longer read `$B3:949B-$94BA` or `$B3:E150-$E24F`; native byte

@@ -2980,12 +2980,10 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX when slot.EnemyDefinitionPointer == MetroidDefinition:
-                    // Eight ROM words supply the idle cry. GenerateRandomNumber advances
-                    // exactly once and the low three result bits choose the table entry.
-                    int soundIndex = _nextRandom!() & 7;
-                    LastMetroidSoundEffectLibrary2 = ReadWord(
-                        _bus!,
-                        MetroidRandomSoundTable + soundIndex * 2);
+                    // GenerateRandomNumber advances exactly once and the low three result
+                    // bits choose one of the eight cartridge-defined idle cries.
+                    LastMetroidSoundEffectLibrary2 =
+                        MetroidBehaviorDefinitions.RandomCrySoundEffect(_nextRandom!());
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY:

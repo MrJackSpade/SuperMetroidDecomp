@@ -118,8 +118,6 @@ public sealed partial class RoomEnemySystem
     private const ushort MetroidFrozenDuration = 400;
     private const ushort MetroidEscapeDuration = 4;
     private const int MetroidMaximumVelocity = 3;
-    private const int MetroidShakeOffsetTable = 0xa3ea3f;
-    private const int MetroidRandomSoundTable = 0xa3ead6;
     private const int MetroidSpecialDropCount = 5;
 
     private readonly MetroidEnemyState?[] _metroidStates =
@@ -272,15 +270,12 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
-    private void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
+    private static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        int tableIndex = state.EscapeTimer & 3;
-        slot.XPosition = unchecked((ushort)(slot.XPosition + ReadWord(
-            _bus!,
-            MetroidShakeOffsetTable + tableIndex * 2)));
-        slot.YPosition = unchecked((ushort)(slot.YPosition + ReadWord(
-            _bus!,
-            MetroidShakeOffsetTable + (tableIndex + 4) * 2)));
+        MetroidEscapeDisplacement displacement =
+            MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer);
+        slot.XPosition = unchecked((ushort)(slot.XPosition + displacement.X));
+        slot.YPosition = unchecked((ushort)(slot.YPosition + displacement.Y));
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 

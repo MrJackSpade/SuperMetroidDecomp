@@ -328,6 +328,14 @@ All 128 random/inherited-index combinations run through the real producer with
 `$8F:C1D6-$C1E5` forbidden, including the cartridge's high-random-nibble inherited-X
 quirk. Sprite-object bytecode and artwork remain separate dependencies.
 
+Ordinary Metroid behavior now compiles the four Power Bomb escape displacement
+pairs at `$A3:EA3F-$EA4E` and the eight random cry sound IDs at `$A3:EAD6-$EAE5`.
+The typed catalog accepts the complete countdown or RNG word and preserves the
+native low-two- and low-three-bit selectors. All 65,536 countdowns run through the
+real escape state transition and all eight cries run through the real instruction
+interpreter with both source ranges forbidden. Mixed instruction programs and sprite
+presentation remain separate dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

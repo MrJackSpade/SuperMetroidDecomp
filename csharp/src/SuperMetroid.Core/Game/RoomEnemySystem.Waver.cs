@@ -28,10 +28,10 @@ public sealed class WaverEnemyState
     }
 
     /// <summary>The instruction-list index currently installed in the common enemy slot.</summary>
-    public ushort CurrentInstructionListIndex
+    public WaverAnimationSelector CurrentInstructionListIndex
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => (WaverAnimationSelector)_slot.VariableC;
+        internal set => _slot.VariableC = (ushort)value;
     }
 
     /// <summary>Byte angle advanced by two per unobstructed frame.</summary>
@@ -51,10 +51,10 @@ public sealed class WaverEnemyState
     /// <summary>
     /// Requested list: bit zero selects facing, bit one selects the temporary spin family.
     /// </summary>
-    public ushort RequestedInstructionListIndex
+    public WaverAnimationSelector RequestedInstructionListIndex
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => (WaverAnimationSelector)_slot.VariableF;
+        internal set => _slot.VariableF = (ushort)value;
     }
 }
 
@@ -63,7 +63,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort WaverDefinition = 0xd63f;
 
-    private const int WaverInstructionListPointers = 0xa386db;
     private const int WaverHorizontalSpeedFixed = 0x00018000;
     private const int WaverVerticalRadius = 4;
 
@@ -84,10 +83,11 @@ public sealed partial class RoomEnemySystem
         {
             XSubvelocity = unchecked((ushort)signedSpeed),
             XVelocity = unchecked((short)(signedSpeed >> 16)),
-            CurrentInstructionListIndex = 0,
+            CurrentInstructionListIndex = WaverAnimationSelector.None,
             Angle = 0,
             SpinFinished = false,
-            RequestedInstructionListIndex = unchecked((ushort)(slot.Parameter1 & 1)),
+            RequestedInstructionListIndex =
+                (WaverAnimationSelector)(slot.Parameter1 & 1),
         };
         _waverStates[slot.SlotIndex] = state;
 
@@ -120,8 +120,9 @@ public sealed partial class RoomEnemySystem
             horizontalDisplacement = unchecked(-horizontalDisplacement);
             state.XSubvelocity = unchecked((ushort)horizontalDisplacement);
             state.XVelocity = unchecked((short)(horizontalDisplacement >> 16));
-            state.RequestedInstructionListIndex = unchecked((ushort)(
-                (state.RequestedInstructionListIndex ^ 1) & 1));
+            state.RequestedInstructionListIndex =
+                (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
+                WaverAnimationSelector.FacingRight;
             SetWaverInstructionList(slot, state);
         }
         else
@@ -145,8 +146,7 @@ public sealed partial class RoomEnemySystem
         // the four-map spin list without changing the facing bit.
         if ((state.Angle & 0x7f) == 0x38)
         {
-            state.RequestedInstructionListIndex = unchecked((ushort)(
-                state.RequestedInstructionListIndex | 2));
+            state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
             SetWaverInstructionList(slot, state);
         }
 
@@ -155,27 +155,19 @@ public sealed partial class RoomEnemySystem
         if (state.SpinFinished)
         {
             state.SpinFinished = false;
-            state.RequestedInstructionListIndex = unchecked((ushort)(
-                state.RequestedInstructionListIndex & 1));
+            state.RequestedInstructionListIndex &= WaverAnimationSelector.FacingRight;
             SetWaverInstructionList(slot, state);
         }
     }
 
-    private void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)
+    private static void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)
     {
-        ushort requested = state.RequestedInstructionListIndex;
+        WaverAnimationSelector requested = state.RequestedInstructionListIndex;
         if (requested == state.CurrentInstructionListIndex)
             return;
-        if (requested >= 4)
-        {
-            throw new InvalidDataException(
-                $"Waver instruction-list index {requested} exceeds its four-entry table.");
-        }
 
         state.CurrentInstructionListIndex = requested;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            WaverInstructionListPointers + requested * 2);
+        slot.CurrentInstruction = WaverAnimationDefinitions.InstructionList(requested);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

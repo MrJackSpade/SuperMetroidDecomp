@@ -360,6 +360,11 @@ Mother Brain's three body-relative death-explosion instruction selectors at
 All three native words and all three real production spawns pass with the selector
 table forbidden, including body-relative placement and retained signed offsets.
 
+Waver's four facing/spin instruction selectors at `$A3:86DB-$86E2` are compiled
+behind a proven flags enum: bit zero is facing-right and bit one is spinning. All
+four real list handoffs and both production initial facing paths run with the pointer
+table forbidden. The mixed animation programs remain separate dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

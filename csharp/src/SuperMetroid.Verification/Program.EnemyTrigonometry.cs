@@ -63,6 +63,7 @@ internal static partial class Program
         VerifyTourianStatueUnlockDefinitions(rom);
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);
+        VerifyWaverAnimationDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

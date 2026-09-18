@@ -48,7 +48,8 @@ internal static class WaverAudit
             ?? throw new InvalidDataException("Terminator Waver has no typed state.");
         if (audited.XPosition != 0x0316 || audited.YPosition != 0x015c ||
             audited.Parameter1 != 1 || state.XVelocity != 1 ||
-            state.XSubvelocity != 0x8000 || state.CurrentInstructionListIndex != 1 ||
+            state.XSubvelocity != 0x8000 ||
+            state.CurrentInstructionListIndex != WaverAnimationSelector.FacingRight ||
             audited.CurrentInstruction != 0x86ad)
         {
             throw new InvalidDataException(
@@ -95,7 +96,7 @@ internal static class WaverAudit
             minimumY = Math.Min(minimumY, audited.YPosition);
             maximumY = Math.Max(maximumY, audited.YPosition);
             sawWallReversal |= Math.Sign(state.XVelocity) != Math.Sign(initialVelocity);
-            if (state.CurrentInstructionListIndex >= 2)
+            if ((state.CurrentInstructionListIndex & WaverAnimationSelector.Spinning) != 0)
                 sawSpinList = true;
             else if (sawSpinList)
                 sawSteadyAfterSpin = true;

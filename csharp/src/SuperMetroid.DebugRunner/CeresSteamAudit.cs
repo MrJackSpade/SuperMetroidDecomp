@@ -39,7 +39,7 @@ internal static class CeresSteamAudit
     {
         RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
             bus,
-            RoomEnemySystem.CeresSteamDefinition);
+            CeresSteamDefinitions.EnemyDefinition);
         if (definition.Bank != 0xa6 || definition.Health != 0x7fff ||
             definition.Damage != 0 || definition.InitializationAiPointer != 0xefb1 ||
             definition.MainAiPointer != 0xf00d || definition.TouchAiPointer != 0xf03f ||
@@ -63,7 +63,7 @@ internal static class CeresSteamAudit
                 ushort enemyDefinition = ReadWord(bus, address);
                 if (enemyDefinition == 0xffff)
                     break;
-                if (enemyDefinition == RoomEnemySystem.CeresSteamDefinition)
+                if (enemyDefinition == CeresSteamDefinitions.EnemyDefinition)
                 {
                     steamRecordCount++;
                     variants.Add(ReadWord(bus, address + 12));
@@ -132,7 +132,7 @@ internal static class CeresSteamAudit
 
         RoomEnemySlot[] steam = enemies.Slots
             .Take(enemies.EnemyCount)
-            .Where(slot => slot.EnemyDefinitionPointer == RoomEnemySystem.CeresSteamDefinition)
+            .Where(slot => slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             .ToArray();
         if (enemies.EnemyCount != 13 || steam.Length != 11 ||
             steam.Any(slot => slot.Health != 0x7fff || slot.PaletteIndex != 0x0a00 ||

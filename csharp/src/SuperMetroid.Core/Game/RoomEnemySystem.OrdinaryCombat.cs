@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == BotwoonTouchAi;
             bool isSporeSpawn = slot.EnemyDefinitionPointer == SporeSpawnDefinition &&
                 slot.Definition.TouchAiPointer == SporeSpawnTouchAi;
-            bool isCeresSteam = slot.EnemyDefinitionPointer == CeresSteamDefinition &&
+            bool isCeresSteam = slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition &&
                 slot.Definition.TouchAiPointer == CeresSteamTouchAi;
             bool isBombTorizo = slot.EnemyDefinitionPointer == BombTorizoDefinition &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
@@ -739,7 +739,7 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BotwoonShotAi;
             bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
                 enemy.Definition.ShotAiPointer == SporeSpawnShotAi;
-            bool isCeresSteam = enemy.EnemyDefinitionPointer == CeresSteamDefinition &&
+            bool isCeresSteam = enemy.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition &&
                 enemy.Definition.ShotAiPointer == CeresSteamNoOpShotAi;
             bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
                 enemy.Definition.ShotAiPointer == RidleyShotAi;
@@ -2832,7 +2832,7 @@ public sealed partial class RoomEnemySystem
             CrocomireDefinition or
             CrocomireTongueDefinition or
             SporeSpawnDefinition or
-            CeresSteamDefinition or
+            CeresSteamDefinitions.EnemyDefinition or
             PhantoonBodyDefinition or
             DraygonBodyDefinition);
 
@@ -2855,7 +2855,7 @@ public sealed partial class RoomEnemySystem
             CrocomireDefinition or
             CrocomireTongueDefinition or
             SporeSpawnDefinition or
-            CeresSteamDefinition or
+            CeresSteamDefinitions.EnemyDefinition or
             KraidDefinition or
             KraidArmDefinition or
             KraidFootDefinition or

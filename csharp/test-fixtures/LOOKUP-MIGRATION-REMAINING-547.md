@@ -385,6 +385,12 @@ The six enemy-pickup selectors at `$86:EF04-$EF0F` are compiled in
 offsets. All five live pickup initialization paths now avoid the pointer table;
 the no-drop identity remains outside that authored table and fails explicitly.
 
+Ceres steam's six parallel instruction/function selections at `$A6:EFF5-$F00C`
+are compiled as typed initialization records. All twelve source words match the
+pinned cartridge, and all six production initialization paths run with both tables
+forbidden. The selected mixed animation programs and extended spritemaps remain
+separate program/presentation dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

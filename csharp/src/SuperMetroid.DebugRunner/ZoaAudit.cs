@@ -71,8 +71,9 @@ internal static class ZoaAudit
         enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
         if (leftState.Function != ZoaEnemyFunction.Rising ||
             rightState.Function != ZoaEnemyFunction.Rising ||
-            leftState.InstructionListTableIndex != 1 ||
-            rightState.InstructionListTableIndex != 3)
+            leftState.InstructionListTableIndex != ZoaAnimationSelector.Rising ||
+            rightState.InstructionListTableIndex !=
+                (ZoaAnimationSelector.FacingRight | ZoaAnimationSelector.Rising))
         {
             throw new InvalidDataException(
                 $"Zoa wake/facing failed: left=$A3:{(ushort)leftState.Function:X4}/" +
@@ -99,9 +100,9 @@ internal static class ZoaAudit
             minimumX = Math.Min(minimumX, leftLaunchingSlot.XPosition);
             maximumX = Math.Max(maximumX, rightLaunchingSlot.XPosition);
             sawLeftShooting |= leftState.Function == ZoaEnemyFunction.Shooting &&
-                leftState.InstructionListTableIndex == 0;
+                leftState.InstructionListTableIndex == ZoaAnimationSelector.None;
             sawRightShooting |= rightState.Function == ZoaEnemyFunction.Shooting &&
-                rightState.InstructionListTableIndex == 2;
+                rightState.InstructionListTableIndex == ZoaAnimationSelector.FacingRight;
             leftReset |= sawLeftShooting && leftState.Function == ZoaEnemyFunction.WaitForSamus;
             rightReset |= sawRightShooting && rightState.Function == ZoaEnemyFunction.WaitForSamus;
         }

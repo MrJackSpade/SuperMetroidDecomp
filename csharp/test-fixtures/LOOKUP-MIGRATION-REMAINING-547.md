@@ -370,6 +370,11 @@ Skree and Metaree's four animation-phase selectors at `$A3:C69C-$C6A3` and
 All eight list installs and both live attack transitions per family run with both
 pointer tables forbidden. Their animation programs remain separate dependencies.
 
+Zoa's four facing/rise instruction selectors at `$A3:B40D-$B414` are compiled
+behind a proven flags enum: bit zero selects rising versus shooting and bit one
+selects right versus left. All four installs and both complete live directional
+rise-to-shoot handoffs run with the pointer table forbidden.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

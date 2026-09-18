@@ -32,16 +32,16 @@ public sealed class ZoaEnemyState
     }
 
     /// <summary>Element index zero through three in the instruction-list pointer table.</summary>
-    public ushort InstructionListTableIndex
+    public ZoaAnimationSelector InstructionListTableIndex
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => (ZoaAnimationSelector)_slot.VariableC;
+        internal set => _slot.VariableC = (ushort)value;
     }
 
-    public ushort PreviousInstructionListTableIndex
+    public ZoaAnimationSelector PreviousInstructionListTableIndex
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => (ZoaAnimationSelector)_slot.VariableD;
+        internal set => _slot.VariableD = (ushort)value;
     }
 
     public ZoaEnemyFunction Function
@@ -59,8 +59,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort ZoaDefinition = 0xda7f;
 
-    private const ushort ZoaFacingLeftShootingInstructionList = 0xb3c1;
-    private const int ZoaInstructionListPointerTable = 0xa3b40d;
     private const int ZoaActivationColumnDistance = 0x0080;
     private const int ZoaRisingSubpixelSpeed = 0x00008000;
 
@@ -75,8 +73,8 @@ public sealed partial class RoomEnemySystem
         var state = new ZoaEnemyState(slot)
         {
             Function = ZoaEnemyFunction.WaitForSamus,
-            InstructionListTableIndex = 0,
-            PreviousInstructionListTableIndex = 0,
+            InstructionListTableIndex = ZoaAnimationSelector.None,
+            PreviousInstructionListTableIndex = ZoaAnimationSelector.None,
             XSpeedTableIndex = 0,
             SpawnXPosition = slot.XPosition,
             SpawnYPosition = slot.YPosition,
@@ -85,12 +83,13 @@ public sealed partial class RoomEnemySystem
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
-        slot.CurrentInstruction = ZoaFacingLeftShootingInstructionList;
+        slot.CurrentInstruction = ZoaAnimationDefinitions.InstructionList(
+            ZoaAnimationSelector.None);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
     /// <summary>Ports <c>MainAI_Zoa</c> and its complete three-entry indirect dispatch.</summary>
-    private void RunZoaMain(
+    private static void RunZoaMain(
         RoomEnemySlot slot,
         ZoaEnemyState state,
         SamusState? samus,
@@ -117,7 +116,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunZoaWait(RoomEnemySlot slot, ZoaEnemyState state, SamusState samus)
+    private static void RunZoaWait(
+        RoomEnemySlot slot,
+        ZoaEnemyState state,
+        SamusState samus)
     {
         ushort signedDistance = unchecked((ushort)(samus.XPosition - slot.XPosition));
         ushort absoluteDistance = unchecked((short)signedDistance) < 0
@@ -128,14 +130,18 @@ public sealed partial class RoomEnemySystem
 
         // Odd indexes are rising lists: one faces left and three faces right. The sign test
         // uses the same wrapped Samus-minus-enemy word as the common bank-$A0 helper.
-        state.InstructionListTableIndex = unchecked((short)signedDistance) < 0
-            ? (ushort)1
-            : (ushort)3;
+        state.InstructionListTableIndex = ZoaAnimationSelector.Rising |
+            (unchecked((short)signedDistance) < 0
+                ? ZoaAnimationSelector.None
+                : ZoaAnimationSelector.FacingRight);
         SetZoaInstructionList(slot, state);
         state.Function = ZoaEnemyFunction.Rising;
     }
 
-    private void RunZoaRising(RoomEnemySlot slot, ZoaEnemyState state, SamusState samus)
+    private static void RunZoaRising(
+        RoomEnemySlot slot,
+        ZoaEnemyState state,
+        SamusState samus)
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         if (unchecked((short)(samus.YPosition - slot.YPosition)) < 0)
@@ -146,14 +152,13 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.InstructionListTableIndex = unchecked((ushort)(
-            state.InstructionListTableIndex - 1));
+        state.InstructionListTableIndex &= ZoaAnimationSelector.FacingRight;
         SetZoaInstructionList(slot, state);
         slot.VariableE = 0; // Native Enemy.var5; shared instruction-loop scratch word.
         state.Function = ZoaEnemyFunction.Shooting;
     }
 
-    private void RunZoaShooting(
+    private static void RunZoaShooting(
         RoomEnemySlot slot,
         ZoaEnemyState state,
         ushort cameraX,
@@ -163,7 +168,7 @@ public sealed partial class RoomEnemySystem
 
         // Shooting list zero travels left by subtraction; list two travels right by
         // addition. The instruction bytecode changes speed at 64-, 8-, and 48-frame marks.
-        int xDisplacement = state.InstructionListTableIndex == 0
+        int xDisplacement = state.InstructionListTableIndex == ZoaAnimationSelector.None
             ? -unsignedDisplacement
             : unsignedDisplacement;
         AddZoaDisplacement(slot, xDisplacement, yDisplacement: 0);
@@ -180,7 +185,7 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = state.SpawnYPosition;
         slot.XSubposition = 0;
         slot.YSubposition = 0;
-        state.InstructionListTableIndex = 0;
+        state.InstructionListTableIndex = ZoaAnimationSelector.None;
         SetZoaInstructionList(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
@@ -215,20 +220,13 @@ public sealed partial class RoomEnemySystem
         !IsNegative16(slot.YPosition - cameraY) &&
         !IsNegative16(cameraY + 0x0100 - slot.YPosition);
 
-    private void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
+    private static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
     {
         if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
             return;
-        if (state.InstructionListTableIndex > 3)
-        {
-            throw new InvalidDataException(
-                $"Zoa instruction-list index {state.InstructionListTableIndex} exceeds its four-entry table.");
-        }
-
         state.PreviousInstructionListTableIndex = state.InstructionListTableIndex;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            ZoaInstructionListPointerTable + state.InstructionListTableIndex * 2);
+        slot.CurrentInstruction = ZoaAnimationDefinitions.InstructionList(
+            state.InstructionListTableIndex);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

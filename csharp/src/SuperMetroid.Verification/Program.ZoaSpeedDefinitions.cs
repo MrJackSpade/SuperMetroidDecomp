@@ -14,8 +14,9 @@ internal static partial class Program
             AssertEqual(expected, ZoaSpeedDefinitions.Displacement(offset), "Zoa byte-indexed native split velocity");
         }
         var enemies = new RoomEnemySystem();
-        var shoot = typeof(RoomEnemySystem).GetMethod("RunZoaShooting", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Action<RoomEnemySlot, ZoaEnemyState, ushort, ushort>>(enemies);
+        var shoot = typeof(RoomEnemySystem).GetMethod(
+                "RunZoaShooting", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Action<RoomEnemySlot, ZoaEnemyState, ushort, ushort>>();
         RoomEnemySlot actor = enemies.Slots[0];
         var state = new ZoaEnemyState(actor);
         for (ushort offset = 0; offset <= 16; offset += 4)
@@ -26,7 +27,8 @@ internal static partial class Program
             for (ushort direction = 0; direction <= 2; direction += 2)
             {
                 // Keep the same animation installed: this exercises movement without an art-data bus.
-                state.InstructionListTableIndex = state.PreviousInstructionListTableIndex = direction;
+                state.InstructionListTableIndex = state.PreviousInstructionListTableIndex =
+                    (ZoaAnimationSelector)direction;
                 int displacement = direction == 0 ? -magnitude : magnitude;
                 for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
                 {

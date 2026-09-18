@@ -280,7 +280,7 @@ public static partial class SamusGrappleMovement
                 ? SamusGrappleRomData.Connections.CrouchingTable
                 : SamusGrappleRomData.Connections.DefaultTable;
         int recordAddress = connectionTable + grapple.FireDirection * 4;
-        var connection = ReadConnectionRecord(bus, recordAddress);
+        var connection = GrappleConnectionDefinitions.ResolveConnection(recordAddress);
         ushort nextFunction = connection.Function;
         ushort handler = connection.Handler;
 
@@ -435,7 +435,7 @@ public static partial class SamusGrappleMovement
             // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            var origin = ReadFiringOrigin(bus, grapple.FireDirection, running: false);
+            var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, running: false);
             var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, running: false);
             samus.XPosition = unchecked((ushort)(grapple.RopeStartX - origin.X));
             samus.YPosition = unchecked((ushort)(grapple.RopeStartY - origin.Y));
@@ -527,7 +527,7 @@ public static partial class SamusGrappleMovement
         SamusGrappleState grapple)
     {
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        var origin = ReadFiringOrigin(bus, grapple.FireDirection, useRunOffsets);
+        var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, useRunOffsets);
         var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, useRunOffsets);
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
         byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
@@ -557,28 +557,6 @@ public static partial class SamusGrappleMovement
         int x = running ? SamusGrappleRomData.Firing.RunningFlareX : SamusGrappleRomData.Firing.DefaultFlareX;
         int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
         return (unchecked((short)ReadWord(bus, x + direction * 2)), unchecked((short)ReadWord(bus, y + direction * 2)));
-    }
-
-    private static (short X, short Y) ReadFiringOrigin(ISnesAddressSpace bus, byte direction, bool running)
-    {
-        if (GrappleFiringDefinitions.TryGetOrigin(direction, running, out var origin))
-            return origin;
-
-        // A restored out-of-domain direction previously indexed adjacent ROM data.
-        // Preserve that fallback; compiling authored mechanics is not a new clamp.
-        int xTable = running ? SamusGrappleRomData.Firing.RunningOriginX : SamusGrappleRomData.Firing.DefaultOriginX;
-        int yTable = running ? SamusGrappleRomData.Firing.RunningOriginY : SamusGrappleRomData.Firing.DefaultOriginY;
-        return (unchecked((short)ReadWord(bus, xTable + direction * 2)),
-            unchecked((short)ReadWord(bus, yTable + direction * 2)));
-    }
-
-    private static (ushort Function, ushort Handler) ReadConnectionRecord(ISnesAddressSpace bus, int address)
-    {
-        if (GrappleConnectionDefinitions.TryResolveConnection(address, out var connection))
-            return connection;
-        // Address selection occurs before classification so native cross-table indexes
-        // remain intact. Non-catalog and unaligned records keep their original reader.
-        return (ReadWord(bus, address), ReadWord(bus, address + 2));
     }
 
 }

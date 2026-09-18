@@ -87,7 +87,7 @@ public static partial class SamusGrappleMovement
         // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        var origin = ReadFiringOrigin(bus, direction, useRunOffsets);
+        var origin = GrappleFiringDefinitions.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(bus, grapple, direction, useRunOffsets);
         sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.ReadGraphicsYOffset(bus);
         int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :

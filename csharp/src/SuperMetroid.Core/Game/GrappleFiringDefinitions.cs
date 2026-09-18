@@ -24,14 +24,13 @@ internal static class GrappleFiringDefinitions
     internal static (short XVelocity, short YVelocity, ushort Angle) Launch(byte direction) =>
         (XVelocities[direction], YVelocities[direction], Angles[direction]);
 
-    internal static bool TryGetOrigin(byte direction, bool running, out (short X, short Y) origin)
+    internal static (short X, short Y) Origin(byte direction, bool running)
     {
         if (direction >= OriginX.Length)
         {
-            origin = default;
-            return false;
+            throw new InvalidDataException(
+                $"Grapple firing direction {direction} is outside the ten compiled origin records.");
         }
-        origin = (OriginX[direction], (running ? RunningOriginY : DefaultOriginY)[direction]);
-        return true;
+        return (OriginX[direction], (running ? RunningOriginY : DefaultOriginY)[direction]);
     }
 }

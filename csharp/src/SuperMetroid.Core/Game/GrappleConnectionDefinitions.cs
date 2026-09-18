@@ -59,17 +59,16 @@ internal static class GrappleConnectionDefinitions
     internal static bool CancelsFiring(SamusMovementType movement) => Cancellation[(byte)movement] != 0;
     internal static byte DroppedPose(byte direction, bool compact) => (compact ? CrouchingDrops : StandingDrops)[direction];
 
-    internal static bool TryResolveConnection(int address, out (ushort Function, ushort Handler) connection)
+    internal static (ushort Function, ushort Handler) ResolveConnection(int address)
     {
         int offset = address - DefaultTable;
         if (offset < 0 || offset >= Handlers.Length * 4 || (offset & 3) != 0)
         {
-            connection = default;
-            return false;
+            throw new InvalidDataException(
+                $"Grapple connection record ${address:X6} is outside the compiled definitions.");
         }
         ushort handler = Handlers[offset / 4];
         ushort function = handler is SwingClockwiseHandler or SwingAnticlockwiseHandler ? SwingingHandler : LockedInPlaceHandler;
-        connection = (function, handler);
-        return true;
+        return (function, handler);
     }
 }

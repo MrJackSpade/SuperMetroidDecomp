@@ -202,11 +202,12 @@ those readers outside the enemy-table catalog scan.
 Grapple's ten launch velocity/angle triples and both ten-direction physical hand
 origin pairs are now compiled, including the locked-connection and late-draw
 consumers. Flare placement remains presentation data for #540. Out-of-domain
-restored origin indexes preserve adjacent-ROM reads and remain an explicit
-dependency. The 28 cancellation bytes, 30 connection function/handler pairs,
+restored physical-origin indexes now fail explicitly instead of reading adjacent
+bank-$9B data. The 28 cancellation bytes, 30 connection function/handler pairs,
 eight special-angle/pose/offset/function records and 20 dropped-pose selectors
 are now compiled too. Tests exercise actual dispatch with their source ranges
-forbidden. Non-catalog connection pointers still retain adjacent-ROM reads.
+forbidden. Cross-table connection indexes remain native within the 30 compiled
+records; non-catalog and unaligned pointers now fail explicitly.
 The shared charge/Grapple flare cadence is now bus-free as well: six compiled
 list-pointer bytes and 46 delay/loop bytes drive both production owners, while
 addresses outside that bounded program fail explicitly instead of consuming

@@ -10,8 +10,6 @@ internal static partial class Program
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        var readOrigin = typeof(SamusGrappleMovement).GetMethod("ReadFiringOrigin", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, byte, bool, (short X, short Y)>>();
         var connect = typeof(SamusGrappleMovement).GetMethod("ConnectAcceptedFiring", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult>>();
         var bus = new GrappleFiringReadGuard(rom);
@@ -147,21 +145,23 @@ internal static partial class Program
         }
         AssertEqual(54, locked, "All six locked directions in three source movement families at three boundaries");
         foreach (bool running in new[] { false, true })
-        for (int direction = 0; direction <= byte.MaxValue; direction++)
+        for (byte direction = 0; direction < 10; direction++)
         {
-            bus.ForbidMechanics = direction < 10;
-            AssertEqual(direction < 10, GrappleFiringDefinitions.TryGetOrigin((byte)direction, running, out _), "Authored origin boundary");
             AssertEqual((Word((running ? 0x9bc172 : 0x9bc122) + direction * 2), Word((running ? 0x9bc186 : 0x9bc136) + direction * 2)),
-                readOrigin(bus, (byte)direction, running), "Restored direction preserves non-catalog read");
+                GrappleFiringDefinitions.Origin(direction, running), "Authored physical origin words");
         }
-        Console.WriteLine("Grapple firing definitions: 70 native words, 655360 launch/late-origin cases, 131072 held launches, 200 trajectory frames with flare overrides, 54 locked snaps and all 512 origin selections pass; authored mechanics reads forbidden.");
+        foreach (bool running in new[] { false, true })
+        foreach (byte direction in new byte[] { 10, byte.MaxValue })
+            AssertThrows<InvalidDataException>(
+                () => GrappleFiringDefinitions.Origin(direction, running),
+                "Unknown Grapple origin direction fails instead of reading adjacent ROM");
+        Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, 655360 launch/late-origin cases, 131072 held launches, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
     private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte GraphicsY, Direction;
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
-        public bool ForbidMechanics = true;
         public bool ReplaceFlare;
         public byte ReadByte(int address)
         {
@@ -171,8 +171,8 @@ internal static partial class Program
             if (address == pose + 4) return GraphicsY;
             if (ReplaceFlare && (address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2))
                 return (address & 1) == 0 ? (byte)0xaa : (byte)0x55;
-            if (ForbidMechanics && (address is >= 0x9bc0db and < 0x9bc103 or >= 0x9bc104 and < 0x9bc118 or
-                >= 0x9bc122 and < 0x9bc14a or >= 0x9bc172 and < 0x9bc19a))
+            if (address is >= 0x9bc0db and < 0x9bc103 or >= 0x9bc104 and < 0x9bc118 or
+                >= 0x9bc122 and < 0x9bc14a or >= 0x9bc172 and < 0x9bc19a)
                 throw new InvalidOperationException($"Compiled Grapple mechanics read ROM ${address:X6}.");
             return source.ReadByte(address);
         }

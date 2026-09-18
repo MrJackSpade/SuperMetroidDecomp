@@ -12,8 +12,7 @@ internal static partial class Program
             ushort pointer = checked((ushort)(
                 EnemyDropChanceDefinitions.FirstPointer +
                 record * EnemyDropChanceDefinitions.RecordSize));
-            AssertTrue(EnemyDropChanceDefinitions.TryCopy(pointer, actual),
-                $"enemy drop record ${pointer:X4} is catalogued");
+            EnemyDropChanceDefinitions.Copy(pointer, actual);
             for (int field = 0; field < actual.Length; field++)
             {
                 int address = EnemyDropChanceDefinitions.NativeBank |
@@ -23,18 +22,21 @@ internal static partial class Program
             }
         }
 
-        AssertTrue(!EnemyDropChanceDefinitions.TryCopy(
-                unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer - 1)), actual),
+        AssertThrows<InvalidDataException>(
+            () => EnemyDropChanceDefinitions.Copy(
+                unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer - 1)), new byte[6]),
             "enemy drop pointer below table is rejected");
-        AssertTrue(!EnemyDropChanceDefinitions.TryCopy(
-                unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer + 1)), actual),
+        AssertThrows<InvalidDataException>(
+            () => EnemyDropChanceDefinitions.Copy(
+                unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer + 1)), new byte[6]),
             "unaligned enemy drop pointer is rejected");
-        AssertTrue(!EnemyDropChanceDefinitions.TryCopy(
+        AssertThrows<InvalidDataException>(
+            () => EnemyDropChanceDefinitions.Copy(
                 unchecked((ushort)(EnemyDropChanceDefinitions.LastPointer +
-                    EnemyDropChanceDefinitions.RecordSize)), actual),
+                    EnemyDropChanceDefinitions.RecordSize)), new byte[6]),
             "enemy drop pointer above table is rejected");
         AssertThrows<ArgumentException>(
-            () => EnemyDropChanceDefinitions.TryCopy(
+            () => EnemyDropChanceDefinitions.Copy(
                 EnemyDropChanceDefinitions.FirstPointer, new byte[5]),
             "short enemy drop destination");
 
@@ -63,8 +65,21 @@ internal static partial class Program
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production enemy drop selection never reads the compiled native table");
+
+        projectile.ItemDropChancesPointerOverride = unchecked((ushort)(
+            EnemyDropChanceDefinitions.FirstPointer + 1));
+        AssertThrows<InvalidDataException>(
+            () => fixture.System.SelectRandomEnemyDrop(projectile),
+            "production enemy drop rejects an unaligned restored probability pointer");
+        projectile.ItemDropChancesPointerOverride = 0x8000;
+        AssertThrows<InvalidDataException>(
+            () => fixture.System.SelectRandomEnemyDrop(projectile),
+            "production enemy drop rejects an external restored probability pointer");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "invalid production enemy drop pointers fail without a bank-$B4 fallback read");
         Console.WriteLine(
-            "Enemy drop chance definitions: all 118 native records match ROM and execute through production selection with the source table forbidden.");
+            "Enemy drop chance definitions: all 118 native records match ROM and execute " +
+            "through production selection with the source table forbidden; invalid pointers reject without a ROM fallback.");
     }
 
     private sealed class EnemyDropChanceReadGuard(ISnesAddressSpace source) :

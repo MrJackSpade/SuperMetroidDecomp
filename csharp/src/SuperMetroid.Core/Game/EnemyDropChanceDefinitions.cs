@@ -42,10 +42,10 @@ internal static class EnemyDropChanceDefinitions
 
     /// <summary>
     /// Copies one aligned native probability record into <paramref name="destination"/>.
-    /// Returns false for pointers outside the authored table or between record boundaries,
-    /// allowing explicit diagnostic fixtures to retain their address-space-backed data.
+    /// Pointers outside the complete 118-record retail catalog fail explicitly rather
+    /// than interpreting adjacent bank-$B4 executable or presentation bytes as weights.
     /// </summary>
-    internal static bool TryCopy(ushort pointer, Span<byte> destination)
+    internal static void Copy(ushort pointer, Span<byte> destination)
     {
         if (destination.Length < RecordSize)
         {
@@ -59,10 +59,11 @@ internal static class EnemyDropChanceDefinitions
             byteOffset % RecordSize != 0 ||
             byteOffset >= RecordCount * RecordSize)
         {
-            return false;
+            throw new InvalidDataException(
+                $"Enemy drop chance pointer $B4:{pointer:X4} is outside the compiled " +
+                $"{RecordCount}-record catalog.");
         }
 
         PackedChances.AsSpan(byteOffset, RecordSize).CopyTo(destination);
-        return true;
     }
 }

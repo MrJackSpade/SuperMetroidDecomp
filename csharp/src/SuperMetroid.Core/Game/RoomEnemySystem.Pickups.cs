@@ -299,18 +299,7 @@ public sealed partial class RoomEnemySystem
             return EnemyPickupKind.NoDrop;
 
         Span<byte> chances = stackalloc byte[6];
-        if (!EnemyDropChanceDefinitions.TryCopy(chancesPointer, chances))
-        {
-            // Non-retail pointers remain useful to constructed rooms and diagnostics. They
-            // deliberately retain the address-space path instead of being coerced into an
-            // unrelated native record.
-            for (int index = 0; index < chances.Length; index++)
-            {
-                chances[index] = _bus!.ReadByte(
-                    EnemyDropChanceDefinitions.NativeBank |
-                    unchecked((ushort)(chancesPointer + index)));
-            }
-        }
+        EnemyDropChanceDefinitions.Copy(chancesPointer, chances);
 
         byte random;
         do

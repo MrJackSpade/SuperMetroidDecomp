@@ -180,6 +180,10 @@ reachable during its native 1,232-frame owner are compiled. Malformed restored
 stream indexes now fail at that bounded catalog instead of reading arbitrary
 adjacent bank-$A5 cartridge bytes.
 
+All 118 aligned six-byte enemy item-drop probability records are compiled too.
+The production selector rejects misaligned and external restored pointers instead
+of interpreting adjacent bank-$B4 code or presentation data as drop weights.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

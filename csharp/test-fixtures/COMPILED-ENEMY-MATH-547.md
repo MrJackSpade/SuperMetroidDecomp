@@ -2525,3 +2525,15 @@ Verification compares every decoded X/Y/delete result with the pinned cartridge,
 replays the complete production trajectory with both source ranges forbidden, and
 injects malformed restored state through the production dispatcher to prove it
 fails at the typed catalog boundary without touching ROM.
+
+# Enemy item-drop probability boundary
+
+`EnemyDropChanceDefinitions` compiles all 118 aligned six-byte probability
+records at `$B4:F1F4-$B4:F4B7`, including the two unused cartridge definitions.
+The real random-drop selector no longer falls back to arbitrary bank-$B4 bytes
+for constructed or restored pointers outside that complete catalog.
+
+Verification compares all 708 bytes with the pinned cartridge and executes every
+record through production with the source range forbidden. Misaligned and external
+pointers are also injected through the real selector; both fail explicitly without
+advancing into an address-space-backed probability read.

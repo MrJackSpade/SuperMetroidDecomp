@@ -9,15 +9,6 @@ public static class ShaktoolAngularVelocityDefinitions
     public const int InitialSubtractionReferenceAddress = 0xaadef7;
 
     /// <summary>Used unchanged at initialization and when synchronizing the group's orbit target.</summary>
-    public static ushort ForSegment(int index) => index switch
-    {
-        0 => 0,
-        1 => 0x20,
-        2 => 0x60,
-        3 => 0xc0,
-        4 => 0x140,
-        5 => 0x1a0,
-        6 => 0x1e0,
-        _ => throw new InvalidDataException($"Shaktool segment {index} is outside the seven native angular records."),
-    };
+    public static ushort ForSegment(int index) =>
+        ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity;
 }

@@ -469,19 +469,25 @@ with the native three-draw launch, trajectory, cooldown underflow, contact and
 rendering checks. Full Release Verification and Windows Release build pass. The remaining family-table
 inventory is still open under #547.
 
-## Shaktool angular velocities
+## Shaktool segment definitions
 
-`ShaktoolAngularVelocityDefinitions` replaces the seven angular words at
-$AA:DEE9 and their all-zero initialization subtrahends at $AA:DEF7. Both the
-initializer and group-target synchronization use the catalog. Live convergence
-speeds, aliased segment state and instruction/graphics tables are unchanged.
+`ShaktoolSegmentDefinitions` transposes all seven parallel initialization records
+at `$AA:DE95-$DEF6`: collision/property masks, owner offsets, initial orbit angles,
+initial instruction selectors, layers, pre-instruction callbacks, and angular
+velocities. `ShaktoolAngularVelocityDefinitions` remains a compatibility facade
+over the shared record catalog. The seven all-zero initialization subtrahends at
+`$AA:DEF7` remain explicitly verified rather than represented as meaningful state.
 
-All fourteen native words are verified. A constructed seven-segment group runs
-the real synchronization routine without a bus across every 16-bit target,
-rotating callers across all seven members and asserting every angle/velocity.
+All 56 native words are verified. The real initializer runs for every linked
+segment and the animation callback resets all seven pre-instructions with the
+entire source range forbidden. A constructed seven-segment group also runs the
+real synchronization routine without a bus across every 16-bit target, rotating
+callers across all seven members and asserting every angle/velocity.
 The complete Shaktool audit passes, including initialization, linked placement,
 movement/reversal, contact, rendering, fatal teardown and unused attack circles.
-Full Release Verification and Windows Release build pass. This does not complete the broader #547 inventory.
+Collision/attack/orientation instruction-selector tables remain authored program
+metadata and are not claimed by this initialization slice. Full Release Verification
+and Windows Release build pass. This does not complete the broader #547 inventory.
 
 ## Ceres Ridley getaway curves
 

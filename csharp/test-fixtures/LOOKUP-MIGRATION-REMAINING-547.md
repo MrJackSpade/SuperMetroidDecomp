@@ -309,6 +309,13 @@ The Norfair lava-jumping enemy's four signed 8.8 launch velocities at
 native RNG selectors run through the production state transition with that ROM range
 forbidden; animation programs remain separate presentation/program dependencies.
 
+Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
+compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
+orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.
+All seven real initializers and the group callback reset run with the source range
+forbidden. The separate collision, attack, and orientation instruction-selector
+tables remain authored program metadata requiring an explicit migration decision.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

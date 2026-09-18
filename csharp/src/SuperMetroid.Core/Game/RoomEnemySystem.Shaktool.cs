@@ -82,11 +82,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort ShaktoolShotAi = EnemyAiCodePointers.BankAA.ShaktoolShot;
 
     private const int ShaktoolSegmentCount = 7;
-    private const int ShaktoolPropertyTable = 0xaade95;
-    private const int ShaktoolOwnerOffsetTable = 0xaadea3;
-    private const int ShaktoolInitialAngleAndListTable = 0xaadeb1;
-    private const int ShaktoolLayerTable = 0xaadecd;
-    private const int ShaktoolPreInstructionTable = 0xaadedb;
     private const int ShaktoolCollisionListTable = 0xaadf13;
     private const int ShaktoolAttackListTable = 0xaadf21;
     private const int ShaktoolOrientationListTable = 0xaadd15;
@@ -112,6 +107,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int segmentIndex = slot.Parameter2 >> 1;
+        ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(segmentIndex);
         var state = new ShaktoolSegmentState(slot);
         _shaktoolSegments[slot.SlotIndex] = state;
 
@@ -119,26 +115,19 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         state.TargetAngle = 0;
         state.OrientationAndAcceleration = 0;
-        slot.Properties = unchecked((ushort)(slot.Properties |
-            ReadWord(_bus!, ShaktoolPropertyTable + segmentIndex * 2)));
+        slot.Properties = unchecked((ushort)(slot.Properties | definition.PropertyMask));
         state.OwnerNativeIndex = unchecked((ushort)(slot.NativeIndex -
-            ReadWord(_bus!, ShaktoolOwnerOffsetTable + segmentIndex * 2)));
-        state.PreInstruction = (ShaktoolPreInstruction)ReadWord(
-            _bus!,
-            ShaktoolPreInstructionTable + segmentIndex * 2);
+            definition.OwnerNativeOffset));
+        state.PreInstruction = definition.PreInstruction;
         // Native initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
-        state.AngularVelocity = ShaktoolAngularVelocityDefinitions.ForSegment(segmentIndex);
-        state.OrbitAngle = ReadWord(
-            _bus!,
-            ShaktoolInitialAngleAndListTable + segmentIndex * 2);
+        state.AngularVelocity = definition.AngularVelocity;
+        state.OrbitAngle = definition.InitialOrbitAngle;
 
         // The second half of $DEB1 is a parallel list-pointer table. Parameter two is
         // already a byte offset, so +14+p2 selects exactly entries seven through thirteen.
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            ShaktoolInitialAngleAndListTable + 14 + slot.Parameter2);
-        slot.Layer = ReadWord(_bus!, ShaktoolLayerTable + segmentIndex * 2);
+        slot.CurrentInstruction = definition.InitialInstruction;
+        slot.Layer = definition.Layer;
 
         // Slot zero is the fixed head/anchor. Every later segment's curious drawing-queue
         // read aliases the preceding enemy record's X/sub-X/Y/sub-Y words in WRAM. Express
@@ -425,7 +414,7 @@ public sealed partial class RoomEnemySystem
         {
             ShaktoolSegmentState state = RequireShaktoolState(group[index]);
             state.OrbitAngle = target;
-            state.AngularVelocity = ShaktoolAngularVelocityDefinitions.ForSegment(index);
+            state.AngularVelocity = ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity;
         }
     }
 
@@ -547,9 +536,7 @@ public sealed partial class RoomEnemySystem
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
                 {
                     RequireShaktoolState(group[index]).PreInstruction =
-                        (ShaktoolPreInstruction)ReadWord(
-                            _bus!,
-                            ShaktoolPreInstructionTable + index * 2);
+                        ShaktoolSegmentDefinitions.ForIndex(index).PreInstruction;
                 }
                 break;
             }

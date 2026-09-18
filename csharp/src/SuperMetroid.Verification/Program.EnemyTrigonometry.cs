@@ -52,6 +52,7 @@ internal static partial class Program
         VerifyCompiledCrawlerSpeeds(rom);
         VerifyCompiledPolypLaunchDefinitions(rom);
         VerifyCompiledShaktoolAngularVelocities(rom);
+        VerifyShaktoolSegmentDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

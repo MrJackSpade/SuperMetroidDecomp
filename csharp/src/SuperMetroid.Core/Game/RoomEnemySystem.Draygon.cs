@@ -15,7 +15,6 @@ public sealed partial class RoomEnemySystem
     private const int DraygonIntroPalette = 0xa5a217;
     private const int DraygonIntroEvirTiles = 0xb19400;
     private const int DraygonFightIntroDanceData = 0xa5ce07;
-    private const int DraygonEvirMovementLatencies = 0xa5a19f;
 
     private DraygonEnemyState? _draygon;
 
@@ -291,7 +290,7 @@ public sealed partial class RoomEnemySystem
         byte nmiFrameCounter8)
     {
         ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
-        if (state.FunctionTimer >= 0x04d0)
+        if (state.FunctionTimer >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;
             state.FunctionTimer = 0;
@@ -304,9 +303,9 @@ public sealed partial class RoomEnemySystem
         for (int slotIndex = 31; slotIndex >= 28; slotIndex--)
         {
             RoomSpriteObjectSlot sprite = _roomSpriteObjects[slotIndex];
-            int latencyAddress = DraygonEvirMovementLatencies + (slotIndex - 28) * 2;
             ushort streamIndex = unchecked((ushort)(
-                state.FightIntroDanceIndex + ReadWord(_bus!, latencyAddress)));
+                state.FightIntroDanceIndex +
+                DraygonIntroDanceDefinitions.MovementLatencyForSlot(slotIndex)));
             if (unchecked((short)streamIndex) < 0 || !sprite.IsActive)
                 continue;
 
@@ -323,7 +322,8 @@ public sealed partial class RoomEnemySystem
             sprite.YPosition = unchecked((ushort)(sprite.YPosition + unchecked((sbyte)yDelta)));
         }
 
-        state.FightIntroDanceIndex = unchecked((ushort)(state.FightIntroDanceIndex + 4));
+        state.FightIntroDanceIndex = unchecked((ushort)(
+            state.FightIntroDanceIndex + DraygonIntroDanceDefinitions.StreamIndexAdvance));
         state.IntroDanceFrames++;
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 1));
     }

@@ -375,6 +375,11 @@ behind a proven flags enum: bit zero selects rising versus shooting and bit one
 selects right versus left. All four installs and both complete live directional
 rise-to-shoot handoffs run with the pointer table forbidden.
 
+Dragon's six body/wing/attack selectors at `$A2:E5EF-$E5FA` are compiled behind
+a mutually-exclusive selector enum with an explicit reinstall sentinel. All six
+installs, phase/facing mappings, and both live directional body/wing/attack paths
+run with the pointer table forbidden. The animation programs remain separate.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

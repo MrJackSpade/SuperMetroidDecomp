@@ -66,6 +66,7 @@ internal static partial class Program
         VerifyWaverAnimationDefinitions(rom);
         VerifySkreeMetareeAnimationDefinitions(rom);
         VerifyZoaAnimationDefinitions(rom);
+        VerifyDragonAnimationDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

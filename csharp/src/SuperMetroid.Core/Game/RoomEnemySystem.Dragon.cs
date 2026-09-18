@@ -70,17 +70,17 @@ public sealed class DragonEnemyState
     }
 
     /// <summary>Extended enemy word $7E:7800,x: index into the six-entry list table.</summary>
-    public ushort RequestedInstructionListIndex
+    public DragonAnimationSelector RequestedInstructionListIndex
     {
-        get => _requestedInstructionLists[_slot.SlotIndex];
-        internal set => _requestedInstructionLists[_slot.SlotIndex] = value;
+        get => (DragonAnimationSelector)_requestedInstructionLists[_slot.SlotIndex];
+        internal set => _requestedInstructionLists[_slot.SlotIndex] = (ushort)value;
     }
 
     /// <summary>Extended enemy word $7E:7802,x: list index already installed in the slot.</summary>
-    public ushort InstalledInstructionListIndex
+    public DragonAnimationSelector InstalledInstructionListIndex
     {
-        get => _installedInstructionLists[_slot.SlotIndex];
-        internal set => _installedInstructionLists[_slot.SlotIndex] = value;
+        get => (DragonAnimationSelector)_installedInstructionLists[_slot.SlotIndex];
+        internal set => _installedInstructionLists[_slot.SlotIndex] = (ushort)value;
     }
 
     /// <summary>Extended enemy word $7E:7804,x, set by instruction opcode $A2:E5FB.</summary>
@@ -104,9 +104,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort DragonShotAi = EnemyAiCodePointers.BankA2.DragonShot;
     internal const ushort DragonPowerBombAi = EnemyAiCodePointers.BankA2.DragonPowerBomb;
 
-    private const ushort DragonIdleFacingLeftInstruction = 0xe59b;
-    private const ushort DragonWingsFacingLeftInstruction = 0xe5a1;
-    private const int DragonInstructionListPointerTable = 0xa2e5ef;
     private const ushort DragonAnimationFinishedInstruction = 0xe5fb;
     private const ushort DragonRiseOrSinkFrames = 0x0030;
     private const ushort DragonShotCount = 3;
@@ -144,17 +141,19 @@ public sealed partial class RoomEnemySystem
         {
             // The wing begins on table index two (left-facing wings) and never runs body AI.
             // Property $0400 keeps the cosmetic record out of touch/shot collision passes.
-            state.RequestedInstructionListIndex = 2;
-            state.InstalledInstructionListIndex = 2;
-            slot.CurrentInstruction = DragonWingsFacingLeftInstruction;
+            state.RequestedInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
+            state.InstalledInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
+            slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
+                DragonAnimationSelector.WingsFacingLeft);
             slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
             state.Function = DragonEnemyFunction.WingNoOp;
             return;
         }
 
-        state.RequestedInstructionListIndex = 0;
-        state.InstalledInstructionListIndex = 0;
-        slot.CurrentInstruction = DragonIdleFacingLeftInstruction;
+        state.RequestedInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
+        state.InstalledInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
+        slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
+            DragonAnimationSelector.IdleFacingLeft);
         state.Function = DragonEnemyFunction.WaitToRise;
     }
 
@@ -215,10 +214,10 @@ public sealed partial class RoomEnemySystem
         bool facingLeft = unchecked((short)(samus.XPosition - body.XPosition)) < 0;
         bodyState.DirectionWord = unchecked((ushort)(
             (bodyState.DirectionWord & 0x7fff) | (facingLeft ? 0x8000 : 0)));
-        bodyState.RequestedInstructionListIndex = SetDragonFacingBit(
+        bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
             bodyState.RequestedInstructionListIndex,
             facingLeft);
-        wingState.RequestedInstructionListIndex = SetDragonFacingBit(
+        wingState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
             wingState.RequestedInstructionListIndex,
             facingLeft);
         InstallDragonInstructionList(body, bodyState);
@@ -231,8 +230,9 @@ public sealed partial class RoomEnemySystem
         bodyState.FunctionTimer = unchecked((ushort)(bodyState.FunctionTimer - 1));
         if (unchecked((short)bodyState.FunctionTimer) < 0)
         {
-            bodyState.RequestedInstructionListIndex = unchecked((ushort)(
-                bodyState.RequestedInstructionListIndex + 4));
+            bodyState.RequestedInstructionListIndex =
+                DragonAnimationDefinitions.AttackingWithSameFacing(
+                    bodyState.RequestedInstructionListIndex);
             bodyState.AttackCounter = DragonShotCount;
             bodyState.Function = DragonEnemyFunction.Attacking;
         }
@@ -255,21 +255,24 @@ public sealed partial class RoomEnemySystem
 
         // $FFFF forces the same attack list to reinstall after each animation reaches its
         // sleep opcode. That restart is what spaces the three fireballs by a full ROM list.
-        bodyState.InstalledInstructionListIndex = 0xffff;
+        bodyState.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
         SpawnDragonFireball(body, bodyState);
         LastDragonSoundEffect = DragonFireballSound;
         bodyState.AttackCounter = unchecked((ushort)(bodyState.AttackCounter - 1));
         if (bodyState.AttackCounter != 0)
             return;
 
-        bodyState.RequestedInstructionListIndex = unchecked((ushort)(
-            bodyState.RequestedInstructionListIndex - 4));
+        bodyState.RequestedInstructionListIndex =
+            DragonAnimationDefinitions.IdleWithSameFacing(
+                bodyState.RequestedInstructionListIndex);
         bodyState.FunctionTimer = DragonWaitBeforeSinkFrames;
         bodyState.Function = DragonEnemyFunction.WaitToSink;
     }
 
     /// <summary>Ports Dragon function $A2:E734.</summary>
-    private void RunDragonWaitToSink(RoomEnemySlot body, DragonEnemyState bodyState)
+    private static void RunDragonWaitToSink(
+        RoomEnemySlot body,
+        DragonEnemyState bodyState)
     {
         bodyState.FunctionTimer = unchecked((ushort)(bodyState.FunctionTimer - 1));
         if (bodyState.FunctionTimer != 0)
@@ -339,20 +342,15 @@ public sealed partial class RoomEnemySystem
         following.AiHandlerBits = actor.AiHandlerBits;
     }
 
-    private void InstallDragonInstructionList(RoomEnemySlot slot, DragonEnemyState state)
+    private static void InstallDragonInstructionList(
+        RoomEnemySlot slot,
+        DragonEnemyState state)
     {
         if (state.RequestedInstructionListIndex == state.InstalledInstructionListIndex)
             return;
-        if (state.RequestedInstructionListIndex >= 6)
-        {
-            throw new InvalidDataException(
-                $"Dragon list index {state.RequestedInstructionListIndex} is outside the six-entry ROM table.");
-        }
-
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            DragonInstructionListPointerTable + state.RequestedInstructionListIndex * 2);
+        slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
+            state.RequestedInstructionListIndex);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }
@@ -387,8 +385,4 @@ public sealed partial class RoomEnemySystem
         _dragonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Dragon state.");
 
-    private static ushort SetDragonFacingBit(ushort listIndex, bool facingLeft) =>
-        facingLeft
-            ? unchecked((ushort)(listIndex & 0xfffe))
-            : unchecked((ushort)(listIndex | 0x0001));
 }

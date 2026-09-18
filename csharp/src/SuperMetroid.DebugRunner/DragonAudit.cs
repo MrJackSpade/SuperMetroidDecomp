@@ -125,10 +125,14 @@ internal static class DragonAudit
             body.CurrentInstruction != 0xe59b || wing.CurrentInstruction != 0xe5a1 ||
             bodyState.Function != DragonEnemyFunction.WaitToRise ||
             wingState.Function != DragonEnemyFunction.WingNoOp ||
-            bodyState.RequestedInstructionListIndex != 0 ||
-            bodyState.InstalledInstructionListIndex != 0 ||
-            wingState.RequestedInstructionListIndex != 2 ||
-            wingState.InstalledInstructionListIndex != 2 ||
+            bodyState.RequestedInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingLeft ||
+            bodyState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingLeft ||
+            wingState.RequestedInstructionListIndex !=
+                DragonAnimationSelector.WingsFacingLeft ||
+            wingState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.WingsFacingLeft ||
             body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
             !wing.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
         {
@@ -145,10 +149,14 @@ internal static class DragonAudit
         StepEnemies(loaded, assets);
         if (bodyState.Function != DragonEnemyFunction.Rising ||
             bodyState.FunctionTimer != 0x0030 || bodyState.DirectionWord != 0 ||
-            bodyState.RequestedInstructionListIndex != 1 ||
-            bodyState.InstalledInstructionListIndex != 1 ||
-            wingState.RequestedInstructionListIndex != 3 ||
-            wingState.InstalledInstructionListIndex != 3 ||
+            bodyState.RequestedInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingRight ||
+            bodyState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingRight ||
+            wingState.RequestedInstructionListIndex !=
+                DragonAnimationSelector.WingsFacingRight ||
+            wingState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.WingsFacingRight ||
             body.SpritemapPointer != 0xe8c2 || wing.SpritemapPointer != 0xe96a ||
             body.YPosition != 0x01e8 || wing.YPosition != 0x01e8)
         {
@@ -166,7 +174,8 @@ internal static class DragonAudit
             StepEnemies(loaded, assets);
         if (bodyState.Function != DragonEnemyFunction.Attacking ||
             bodyState.AttackCounter != 3 ||
-            bodyState.RequestedInstructionListIndex != 5 ||
+            bodyState.RequestedInstructionListIndex !=
+                DragonAnimationSelector.AttackingFacingRight ||
             body.YPosition != 0x01b7 || wing.YPosition != 0x01b7)
         {
             throw new InvalidDataException(
@@ -177,7 +186,8 @@ internal static class DragonAudit
         }
 
         StepEnemies(loaded, assets);
-        if (bodyState.InstalledInstructionListIndex != 5 ||
+        if (bodyState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.AttackingFacingRight ||
             body.SpritemapPointer != 0xe8ec)
         {
             throw new InvalidDataException(
@@ -204,8 +214,10 @@ internal static class DragonAudit
         if (volleyCount != 3 ||
             bodyState.Function != DragonEnemyFunction.WaitToSink ||
             bodyState.FunctionTimer != 0x0060 ||
-            bodyState.RequestedInstructionListIndex != 1 ||
-            bodyState.InstalledInstructionListIndex != 0xffff)
+            bodyState.RequestedInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingRight ||
+            bodyState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.ForceReinstall)
         {
             throw new InvalidDataException(
                 $"Dragon volley mismatch: shots={volleyCount}, function=" +
@@ -218,7 +230,8 @@ internal static class DragonAudit
             StepEnemies(loaded, assets);
         if (bodyState.Function != DragonEnemyFunction.Sinking ||
             bodyState.FunctionTimer != 0x0030 ||
-            bodyState.InstalledInstructionListIndex != 1)
+            bodyState.InstalledInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingRight)
         {
             throw new InvalidDataException(
                 $"Dragon sink-delay mismatch: function=${(ushort)bodyState.Function:X4}, " +
@@ -244,8 +257,10 @@ internal static class DragonAudit
         DragonEnemyState leftBody = GetState(left.Enemies, left.Body);
         DragonEnemyState leftWing = GetState(left.Enemies, left.Wing);
         if (leftBody.DirectionWord != 0x8000 ||
-            leftBody.RequestedInstructionListIndex != 0 ||
-            leftWing.RequestedInstructionListIndex != 2 ||
+            leftBody.RequestedInstructionListIndex !=
+                DragonAnimationSelector.IdleFacingLeft ||
+            leftWing.RequestedInstructionListIndex !=
+                DragonAnimationSelector.WingsFacingLeft ||
             left.Body.SpritemapPointer != 0xe80c || left.Wing.SpritemapPointer != 0xe8b4)
         {
             throw new InvalidDataException(

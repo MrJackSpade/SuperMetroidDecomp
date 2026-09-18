@@ -72,6 +72,7 @@ internal static partial class Program
         VerifyPipeBugAnimationDefinitions(rom);
         VerifyDraygonBurialEvirDefinitions(rom);
         VerifyFakeKraidProjectileDefinitions(rom);
+        VerifyEscapeEtecoonDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

@@ -85,12 +85,6 @@ public sealed partial class RoomEnemySystem
     private const ushort EscapeEtecoonDelayedEscapeList = 0xe5da;
     private const ushort EscapeDachoraNormalList = 0xe964;
 
-    private const ushort EscapeEtecoonXPositionTable = 0xe718;
-    private const ushort EscapeEtecoonYPositionTable = 0xe71e;
-    private const ushort EscapeEtecoonPreInstructionTable = 0xe724;
-    private const ushort EscapeEtecoonInstructionTable = 0xe72a;
-    private const ushort EscapeEtecoonSpeedTable = 0xe730;
-
     private const ushort EscapeEtecoonLavaBranchInstruction = 0xe545;
     private const ushort EscapeEtecoonAddXInstruction = 0xe610;
     private const ushort EscapeDachoraLavaBranchInstruction = 0xeaa8;
@@ -149,21 +143,13 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         slot.PaletteIndex = 0;
 
-        // Parameter 1 is an even byte offset in every retail record (0, 2, 4). The native
-        // C expression shifts right to a word index and then indexes ushort tables, which is
-        // exactly equivalent to clearing a possible low bit before adding the byte offset.
-        // Retaining ROM reads also preserves the cartridge's unchecked behavior for a
-        // debugger-edited parameter instead of imposing a host-only three-value restriction.
-        ushort tableOffset = unchecked((ushort)(slot.Parameter1 & 0xfffe));
-        slot.XPosition = ReadEscapeAnimalWord(EscapeEtecoonXPositionTable, tableOffset);
-        slot.YPosition = ReadEscapeAnimalWord(EscapeEtecoonYPositionTable, tableOffset);
-        state.PreInstruction = (EscapeEtecoonPreInstruction)ReadEscapeAnimalWord(
-            EscapeEtecoonPreInstructionTable,
-            tableOffset);
-        slot.CurrentInstruction = ReadEscapeAnimalWord(
-            EscapeEtecoonInstructionTable,
-            tableOffset);
-        state.HorizontalSpeed = ReadEscapeAnimalWord(EscapeEtecoonSpeedTable, tableOffset);
+        EscapeEtecoonInitialization initialization =
+            EscapeEtecoonDefinitions.Initialization(_bus!, slot.Parameter1);
+        slot.XPosition = initialization.XPosition;
+        slot.YPosition = initialization.YPosition;
+        state.PreInstruction = initialization.PreInstruction;
+        slot.CurrentInstruction = initialization.InstructionList;
+        state.HorizontalSpeed = initialization.HorizontalSpeed;
     }
 
     /// <summary>Ports <c>EscapeDachora_Init</c> at <c>$B3:EAE5</c>.</summary>

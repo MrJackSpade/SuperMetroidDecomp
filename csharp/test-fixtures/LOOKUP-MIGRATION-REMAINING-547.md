@@ -407,6 +407,12 @@ compiled as projectile physics definitions. Both spit facings and all six
 facing/row spike combinations run through the real projectile allocator with
 `$A6:9A48-$A6:9A57` and `$86:9E7D-$86:9E82` forbidden.
 
+The escape Etecoons' three position/pre-instruction/list/speed records are
+compiled too. All six low-bit-masked retail selectors use typed definitions and
+run through the production initializer with `$B3:E718-$B3:E735` forbidden.
+Out-of-domain restored parameters deliberately retain the cartridge's unchecked
+adjacent-data reads; the first such selector is independently compared with ROM.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

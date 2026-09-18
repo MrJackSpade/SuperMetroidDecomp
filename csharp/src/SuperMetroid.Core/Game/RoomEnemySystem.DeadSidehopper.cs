@@ -14,7 +14,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadSidehopperLandingInstruction = 0xecac;
     private const ushort DeadSidehopperCorpseInstruction = 0xece9;
     private const ushort DeadSidehopperAlternateInstruction = 0xecef;
-    private const ushort DeadMonsterFinishedFunction = 0xdc08;
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
     private const int DeadMonsterTileDataAddress = 0xb7c000;
     private const ushort DeadMonsterSolidProperty = 0x8000;

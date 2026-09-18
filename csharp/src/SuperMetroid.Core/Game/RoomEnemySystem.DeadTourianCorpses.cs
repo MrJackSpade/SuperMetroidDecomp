@@ -16,9 +16,6 @@ public sealed partial class RoomEnemySystem
     private static readonly DeadTourianCorpseProfile DeadZoomerProfile = new(
         DeadTourianCorpseSpecies.Zoomer,
         DeadZoomerDefinition,
-        InstructionPointerTable: 0xd86a,
-        ConfigurationPointerTable: 0xd870,
-        VariantCount: 3,
         WaitFunction: 0xda69,
         PreRotFunction: 0xda94,
         RottingFunction: 0xdad0,
@@ -26,17 +23,17 @@ public sealed partial class RoomEnemySystem
         PowerBombFunction: 0xdced,
         Variants:
         [
-            new(0xe6b9, 0xe66a, 0xdf4f, 14, [1184, 1200, 1216],
+            new(14, [1184, 1200, 1216],
             [
                 new(0x0a60, 0x0940, 0x0060),
                 new(0x0c60, 0x09a0, 0x0060),
             ]),
-            new(0xe745, 0xe6f6, 0xdf6c, 14, [1280, 1296, 1312],
+            new(14, [1280, 1296, 1312],
             [
                 new(0x0ac0, 0x0a00, 0x0060),
                 new(0x0cc0, 0x0a60, 0x0060),
             ]),
-            new(0xe7d1, 0xe782, 0xdf89, 14, [1376, 1392, 1408],
+            new(14, [1376, 1392, 1408],
             [
                 new(0x0b20, 0x0ac0, 0x0060),
                 new(0x0d20, 0x0b20, 0x0060),
@@ -46,9 +43,6 @@ public sealed partial class RoomEnemySystem
     private static readonly DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
         DeadRipperDefinition,
-        InstructionPointerTable: 0xd897,
-        ConfigurationPointerTable: 0xd89b,
-        VariantCount: 2,
         WaitFunction: 0xda73,
         PreRotFunction: 0xda99,
         RottingFunction: 0xdae6,
@@ -56,12 +50,12 @@ public sealed partial class RoomEnemySystem
         PowerBombFunction: 0xdcfd,
         Variants:
         [
-            new(0xe85d, 0xe80e, 0xdfa6, 14, [1472, 1488, 1504],
+            new(14, [1472, 1488, 1504],
             [
                 new(0x0a00, 0x0b80, 0x0060),
                 new(0x0c00, 0x0be0, 0x0060),
             ]),
-            new(0xe8e9, 0xe89a, 0xdfc3, 14, [1568, 1584, 1600],
+            new(14, [1568, 1584, 1600],
             [
                 new(0x0b80, 0x0c40, 0x0060),
                 new(0x0d80, 0x0ca0, 0x0060),
@@ -71,9 +65,6 @@ public sealed partial class RoomEnemySystem
     private static readonly DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
         DeadSkreeDefinition,
-        InstructionPointerTable: 0xd8c0,
-        ConfigurationPointerTable: 0xd8c6,
-        VariantCount: 3,
         WaitFunction: 0xda6e,
         PreRotFunction: 0xda9e,
         RottingFunction: 0xdafc,
@@ -81,21 +72,21 @@ public sealed partial class RoomEnemySystem
         PowerBombFunction: 0xdd0d,
         Variants:
         [
-            new(0xe95b, 0xe926, 0xdfe0, 30, [800, 816],
+            new(30, [800, 816],
             [
                 new(0x02a0, 0x0640, 0x0040),
                 new(0x04a0, 0x0680, 0x0040),
                 new(0x06a0, 0x06c0, 0x0040),
                 new(0x08a0, 0x0700, 0x0040),
             ]),
-            new(0xe9b9, 0xe984, 0xe019, 30, [928, 944],
+            new(30, [928, 944],
             [
                 new(0x00e0, 0x0740, 0x0040),
                 new(0x02e0, 0x0780, 0x0040),
                 new(0x04e0, 0x07c0, 0x0040),
                 new(0x06e0, 0x0800, 0x0040),
             ]),
-            new(0xea17, 0xe9e2, 0xe052, 30, [1056, 1072],
+            new(30, [1056, 1072],
             [
                 new(0x01c0, 0x0840, 0x0040),
                 new(0x03c0, 0x0880, 0x0040),
@@ -155,7 +146,7 @@ public sealed partial class RoomEnemySystem
     {
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer);
-        if ((slot.Parameter1 & 1) != 0 || slot.Parameter1 / 2 >= profile.VariantCount)
+        if ((slot.Parameter1 & 1) != 0 || slot.Parameter1 / 2 >= profile.Variants.Length)
         {
             throw new InvalidDataException(
                 $"Dead {profile.Species} parameter 1 ${slot.Parameter1:X4} has no retail variant.");
@@ -163,62 +154,39 @@ public sealed partial class RoomEnemySystem
 
         int variantIndex = slot.Parameter1 / 2;
         DeadTourianCorpseVariant variant = profile.Variants[variantIndex];
-        ushort instructionPointer = ReadWord(
-            _bus!,
-            0xa90000 | unchecked((ushort)(profile.InstructionPointerTable + variantIndex * 2)));
-        ushort configurationPointer = ReadWord(
-            _bus!,
-            0xa90000 | unchecked((ushort)(profile.ConfigurationPointerTable + variantIndex * 2)));
-        int configurationAddress = 0xa90000 | configurationPointer;
-        ushort tablePointer = ReadWord(_bus!, configurationAddress);
-        ushort vramTablePointer = ReadWord(_bus!, configurationAddress + 2);
-        ushort copyFunction = ReadWord(_bus!, configurationAddress + 4);
-        ushort moveFunction = ReadWord(_bus!, configurationAddress + 6);
-        ushort entryCount = ReadWord(_bus!, configurationAddress + 8);
-        ushort graphicsInitFunction = ReadWord(_bus!, configurationAddress + 10);
-        ushort rotationTablePointer = ReadWord(_bus!, configurationAddress + 12);
-        ushort finishFunction = ReadWord(_bus!, configurationAddress + 14);
+        DeadTourianCorpseDefinition definition =
+            DeadTourianCorpseDefinitions.For(profile.Species, variantIndex);
+        if (definition.EntryCount == 0)
+            throw new InvalidDataException($"Dead {profile.Species} has zero corpse rows.");
 
-        if (copyFunction != variant.CopyFunction ||
-            moveFunction != variant.MoveFunction ||
-            graphicsInitFunction != variant.GraphicsInitFunction ||
-            finishFunction != DeadMonsterFinishedFunction ||
-            entryCount == 0)
-        {
-            throw new InvalidDataException(
-                $"Dead {profile.Species} variant {variantIndex} configuration " +
-                $"$A9:{configurationPointer:X4} selected callbacks " +
-                $"${copyFunction:X4}/${moveFunction:X4}/${graphicsInitFunction:X4}/" +
-                $"${finishFunction:X4} and {entryCount} rows.");
-        }
-
-        ushort yLimit = unchecked((ushort)(entryCount - 1));
+        ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        ushort wrapOffset = unchecked((ushort)(
-            ReadWord(_bus!, 0xa90000 | unchecked((ushort)(rotationTablePointer + 2))) - 12));
         var state = new DeadTourianCorpseEnemyState(
             slot,
             profile.Species,
             variantIndex,
-            configurationPointer,
-            tablePointer,
-            vramTablePointer,
-            copyFunction,
-            moveFunction,
-            rotationTablePointer,
-            finishFunction,
-            entryCount,
+            definition.ConfigurationPointer,
+            definition.RottingTablePointer,
+            definition.VramTransferPointer,
+            definition.CopyFunction,
+            definition.MoveFunction,
+            definition.RotationTablePointer,
+            definition.FinishFunction,
+            definition.EntryCount,
             yLimit,
             lateMoveEntryIndex,
-            wrapOffset,
+            definition.WrapOffset,
             profile,
             variant);
         _deadTourianCorpseStates[slot.SlotIndex] = state;
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.VariableA = profile.WaitFunction;
-        SetDeadSidehopperInstruction(slot, instructionPointer);
-        CorpseRottingTableProcessor.Initialize(_bus!, 0x7e0000 | tablePointer, entryCount);
+        SetDeadSidehopperInstruction(slot, definition.InitialInstructionPointer);
+        CorpseRottingTableProcessor.Initialize(
+            _bus!,
+            0x7e0000 | definition.RottingTablePointer,
+            definition.EntryCount);
         InitializeDeadTourianCorpseGraphics(variant);
     }
 
@@ -393,9 +361,6 @@ public sealed partial class RoomEnemySystem
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         ushort DefinitionPointer,
-        ushort InstructionPointerTable,
-        ushort ConfigurationPointerTable,
-        int VariantCount,
         ushort WaitFunction,
         ushort PreRotFunction,
         ushort RottingFunction,
@@ -404,9 +369,6 @@ public sealed partial class RoomEnemySystem
         DeadTourianCorpseVariant[] Variants);
 
     internal sealed record DeadTourianCorpseVariant(
-        ushort CopyFunction,
-        ushort MoveFunction,
-        ushort GraphicsInitFunction,
         ushort MaximumY,
         ushort[] ColumnWordOffsets,
         DeadTourianCorpseGraphicsCopy[] InitialGraphicsCopies);

@@ -48,6 +48,12 @@ derived wrap offset match the pinned cartridge, and both real initializers run
 with those metadata sources forbidden. The mutable WRAM rotting table, variable
 rotation-row lookup, VRAM transfer streams, graphics payloads, and animation
 programs remain separate live dependencies.
+The same migration now covers all eight dead Zoomer, Ripper, and Skree variants:
+sixteen initial-instruction/configuration selectors, sixty-four configuration
+words, and eight derived wrap offsets are compiled as typed definitions. All
+eight real initializers run with the selector, configuration, and derived-offset
+sources forbidden. Their mutable rotting state and variable streams remain live
+for the same reason as the sidehopper streams.
 KiHunter's proximity, gravity and detached-wing radius constants are compiled;
 the misleading attack-radius reference names are corrected. Its instruction
 programs, populations and presentation still belong to the broader integration.

@@ -138,9 +138,9 @@ public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCom
 
 /// <summary>
 /// Cartridge-faithful translation of Botwoon definition <c>$F293</c>. Movement remains
-/// table-driven: the four hole rectangles, phase speeds, random path descriptors, signed
-/// path deltas, head animation lists, spit speeds, and health palettes are all read from the
-/// retail ROM instead of being approximated with host curves.
+/// table-driven: the four hole rectangles and random path descriptors are compiled as fixed
+/// mechanics metadata, while signed path deltas, head animation lists, and health palettes
+/// remain authored cartridge programs/data rather than host approximations.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
@@ -152,10 +152,8 @@ public sealed partial class RoomEnemySystem
     private const ushort BotwoonInitialInstruction = 0x9389;
     private const int BotwoonMovementInstructionTable = 0xb3946b;
     private const int BotwoonSpitInstructionTable = 0xb3948b;
-    private const int BotwoonHoleRectangleTable = 0xb3949b;
     private const int BotwoonPaletteTable = 0xb3971b;
     private const int BotwoonPaletteThresholdTable = 0xb3981b;
-    private const int BotwoonPathDescriptorTable = 0xb3e150;
     private const int BotwoonSpecialDropCount = 16;
 
     private BotwoonEnemyState? _botwoonState;
@@ -432,13 +430,14 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        int rectangle = BotwoonHoleRectangleTable + state.TargetHoleOffset;
+        BotwoonHoleDefinition hole =
+            BotwoonNavigationDefinitions.HoleForByteOffset(state.TargetHoleOffset);
         short dx = ClampBotwoonTargetDelta(
-            unchecked((short)(ReadWord(_bus!, rectangle) + 4 - head.XPosition)));
+            unchecked((short)(hole.TargetX - head.XPosition)));
         short dy = ClampBotwoonTargetDelta(
-            unchecked((short)(ReadWord(_bus!, rectangle + 4) + 4 - head.YPosition)));
+            unchecked((short)(hole.TargetY - head.YPosition)));
         byte angle = CalculateCartridgeAngle(dx, dy);
         state.TargetAngle = angle;
         state.MovementAngle = unchecked((byte)(64 - angle));
@@ -483,12 +482,13 @@ public sealed partial class RoomEnemySystem
         state.SegmentSpacingBytes = speed.SegmentSpacingBytes;
     }
 
-    private void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
+    private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
     {
-        int descriptor = BotwoonPathDescriptorTable + state.PathChoiceOffset;
-        state.PathPointer = ReadWord(_bus!, descriptor);
-        state.PathDirection = unchecked((short)ReadWord(_bus!, descriptor + 2));
-        state.TargetHoleOffset = ReadWord(_bus!, descriptor + 4);
+        BotwoonPathDescriptorDefinition descriptor =
+            BotwoonNavigationDefinitions.PathForChoiceByteOffset(state.PathChoiceOffset);
+        state.PathPointer = descriptor.PathPointer;
+        state.PathDirection = descriptor.Direction;
+        state.TargetHoleOffset = descriptor.TargetHoleByteOffset;
         if (state.PathDirection < 0)
             state.PathPointer = unchecked((ushort)(state.PathPointer - 4));
         state.PathComplete = false;
@@ -607,22 +607,19 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void DetectBotwoonHole(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void DetectBotwoonHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.HoleLatch)
             return;
 
         for (int rectangleOffset = 24; rectangleOffset >= 0; rectangleOffset -= 8)
         {
-            int rectangle = BotwoonHoleRectangleTable + rectangleOffset;
-            ushort left = ReadWord(_bus!, rectangle);
-            ushort right = ReadWord(_bus!, rectangle + 2);
-            ushort top = ReadWord(_bus!, rectangle + 4);
-            ushort bottom = ReadWord(_bus!, rectangle + 6);
-            if (unchecked((short)(head.XPosition - left)) >= 0 &&
-                unchecked((short)(head.XPosition - right)) < 0 &&
-                unchecked((short)(head.YPosition - top)) >= 0 &&
-                unchecked((short)(head.YPosition - bottom)) < 0)
+            BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleForByteOffset(
+                unchecked((ushort)rectangleOffset));
+            if (unchecked((short)(head.XPosition - hole.Left)) >= 0 &&
+                unchecked((short)(head.XPosition - hole.Right)) < 0 &&
+                unchecked((short)(head.YPosition - hole.Top)) >= 0 &&
+                unchecked((short)(head.YPosition - hole.Bottom)) < 0)
             {
                 state.HoleLatch = true;
                 state.InsideHole = !state.InsideHole;

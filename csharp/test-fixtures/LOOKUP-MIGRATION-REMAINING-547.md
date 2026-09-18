@@ -297,6 +297,13 @@ Viola, Sciser, Zero, and HZoomer consume typed family/surface selectors with all
 source words forbidden. Their selected instruction programs and spritemaps remain
 separate program/presentation dependencies.
 
+Botwoon's four fixed hole rectangles and 32 fixed path descriptors are now compiled
+in `BotwoonNavigationDefinitions`. The real target movement, hole collision, and path
+handoff consumers no longer read `$B3:949B-$94BA` or `$B3:E150-$E24F`; native byte
+offsets remain visible in saved/debugger state. Botwoon's variable-length signed path
+streams are still live mechanical program data and require a separate migration
+decision rather than being conflated with their fixed descriptors.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

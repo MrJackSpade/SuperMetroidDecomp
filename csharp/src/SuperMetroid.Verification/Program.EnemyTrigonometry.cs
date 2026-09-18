@@ -47,6 +47,7 @@ internal static partial class Program
         VerifyShotCallbackDefinitions(rom);
         VerifyCompiledPuyoHops(rom);
         VerifyCompiledBotwoonSpeeds(rom);
+        VerifyBotwoonNavigationDefinitions(rom);
         VerifyCompiledCrawlerSpeeds(rom);
         VerifyCompiledPolypLaunchDefinitions(rom);
         VerifyCompiledShaktoolAngularVelocities(rom);

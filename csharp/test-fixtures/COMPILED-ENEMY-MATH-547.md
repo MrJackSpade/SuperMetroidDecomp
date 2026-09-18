@@ -2151,3 +2151,20 @@ Verification independently compares all 44 words with the pinned cartridge. It
 runs every family/orientation initializer and all 24 shared species/surface handoffs
 through production code while every source table is forbidden. Odd or out-of-range
 species offsets and invalid restored family/orientation values fail explicitly.
+
+# Botwoon navigation metadata
+
+`BotwoonNavigationDefinitions` compiles the four eight-byte hole rectangles at
+`$B3:949B-$94BA` and all 32 eight-byte path descriptors at `$B3:E150-$E24F`.
+The catalog deliberately retains native byte-offset selectors in Botwoon's saved
+state while exposing the rectangle bounds, path pointer, signed traversal direction,
+and destination hole as typed records. The fourth descriptor word is verified as
+zero alignment padding rather than promoted into invented state.
+
+Verification independently compares all 144 words with the pinned cartridge. It
+runs every descriptor through the real movement dispatcher, every rectangle through
+the real hole detector (including exclusive right/bottom edges), and all four exact
+movement targets while both fixed source ranges are forbidden. Invalid or unaligned
+restored selectors fail before mutating Botwoon's path state. The variable-length
+signed path streams remain authored mechanical programs and continue to be read from
+the cartridge.

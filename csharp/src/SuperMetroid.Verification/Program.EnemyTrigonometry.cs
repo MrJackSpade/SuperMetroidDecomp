@@ -74,6 +74,7 @@ internal static partial class Program
         VerifyFakeKraidProjectileDefinitions(rom);
         VerifyEscapeEtecoonDefinitions(rom);
         VerifyZebetiteDefinitions(rom);
+        VerifyMotherBrainBabyMetroidDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

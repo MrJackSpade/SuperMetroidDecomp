@@ -1525,7 +1525,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_MotherBrainTubes when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 InitializeMotherBrainFallingTube(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+            case EnemyAiCodePointers.InitAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinitions.EnemyDefinition:
                 InitializeMotherBrainBabyMetroid(slot);
                 return;
             case EnemyAiCodePointers.InitAI_CorpseTorizo when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
@@ -1673,7 +1673,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_MotherBrainTubes when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 RunMotherBrainFallingTubeMain(slot);
                 return;
-            case EnemyAiCodePointers.MainAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+            case EnemyAiCodePointers.MainAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinitions.EnemyDefinition:
                 RunMotherBrainBabyMetroidMain(slot, samus, cameraX, cameraY);
                 return;
             case EnemyAiCodePointers.MainAI_CorpseTorizo when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
@@ -2598,9 +2598,9 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial
-                    when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                    when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinitions.EnemyDefinition:
                 case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain
-                    when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                    when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinitions.EnemyDefinition:
                     _ = TryRunMotherBrainBabyInstruction(word, ref cursor);
                     break;
                 case EnemyInstructionCodePointers.RTL_A288C5 when slot.EnemyDefinitionPointer == BoyonDefinition:

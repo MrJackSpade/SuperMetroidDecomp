@@ -11,9 +11,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainBabyMetroidDefinition = 0xecbf;
-    private const ushort MotherBrainBabyMetroidPopulation = 0xbe28;
-    private const int MotherBrainBabyMetroidPopulationBank = 0xa90000;
     private const int MotherBrainBabyMetroidInitialPalette = 0xa994d4;
     private const int MotherBrainBabyMetroidPaletteByteDestination = 0x01e2;
 
@@ -32,21 +29,12 @@ public sealed partial class RoomEnemySystem
         if (slotIndex < 0)
             return; // Generic SpawnEnemy returns $FFFF and X=$0800 when the pool is full.
 
-        int record = MotherBrainBabyMetroidPopulationBank |
-            MotherBrainBabyMetroidPopulation;
-        RoomEnemyPopulationRecord population = new(
-            ReadWord(_bus!, record),
-            ReadWord(_bus!, record + 2),
-            ReadWord(_bus!, record + 4),
-            ReadWord(_bus!, record + 6),
-            ReadWord(_bus!, record + 8),
-            ReadWord(_bus!, record + 10),
-            ReadWord(_bus!, record + 12),
-            ReadWord(_bus!, record + 14));
-        if (population.DefinitionPointer != MotherBrainBabyMetroidDefinition)
+        RoomEnemyPopulationRecord population =
+            MotherBrainBabyMetroidDefinitions.SpawnPopulation;
+        if (population.DefinitionPointer != MotherBrainBabyMetroidDefinitions.EnemyDefinition)
         {
             throw new InvalidDataException(
-                $"Mother Brain Baby record $A9:{MotherBrainBabyMetroidPopulation:X4} " +
+                "Mother Brain Baby spawn record " +
                 $"names enemy ${population.DefinitionPointer:X4}, not $ECBF.");
         }
 

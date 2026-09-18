@@ -419,6 +419,11 @@ All primary/linked initializers, every tier boundary, and both real respawn path
 run with `$A6:FC03-$A6:FC32`, the two spawn records, and `$A6:FD4A-$A6:FD5D`
 forbidden. Palette animation and the selected instruction programs remain separate.
 
+Mother Brain's embedded Baby Metroid population at `$A9:BE28-$A9:BE37` is compiled
+as a complete physical spawn record. The real first-free-slot allocator,
+initialization AI, palette load, immutable spawn snapshot and duplicate guard run
+with the record forbidden. The Baby's route definitions remain separately compiled.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

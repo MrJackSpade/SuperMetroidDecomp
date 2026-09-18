@@ -20,7 +20,7 @@ internal static partial class Program
         {
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
-                EscapeEtecoonDefinitions.Initialization(rom, parameter);
+                EscapeEtecoonDefinitions.Initialization(parameter);
             AssertEqual(ReadWord(rom, xTable + parameter), initialization.XPosition,
                 $"escape Etecoon role {role} X");
             AssertEqual(ReadWord(rom, yTable + parameter), initialization.YPosition,
@@ -38,22 +38,12 @@ internal static partial class Program
                 $"escape Etecoon role {role} speed");
         }
 
-        // Parameter six is the first non-authored selector. Its five native reads overlap
-        // subsequent tables and code differently, so compare the deliberate fallback with
-        // the old unchecked address arithmetic rather than normalizing it to role zero.
-        EscapeEtecoonInitialization adjacent =
-            EscapeEtecoonDefinitions.Initialization(rom, 6);
-        AssertEqual(ReadWord(rom, xTable + 6), adjacent.XPosition,
-            "escape Etecoon adjacent X");
-        AssertEqual(ReadWord(rom, yTable + 6), adjacent.YPosition,
-            "escape Etecoon adjacent Y");
-        AssertEqual((EscapeEtecoonPreInstruction)ReadWord(rom, preInstructionTable + 6),
-            adjacent.PreInstruction,
-            "escape Etecoon adjacent pre-instruction");
-        AssertEqual(ReadWord(rom, instructionTable + 6), adjacent.InstructionList,
-            "escape Etecoon adjacent instruction");
-        AssertEqual(ReadWord(rom, speedTable + 6), adjacent.HorizontalSpeed,
-            "escape Etecoon adjacent speed");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EscapeEtecoonDefinitions.Initialization(6),
+            "escape Etecoon selector after authored roles");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EscapeEtecoonDefinitions.Initialization(0xffff),
+            "escape Etecoon wrapping restored selector");
 
         var guarded = new EscapeEtecoonDefinitionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
@@ -73,7 +63,7 @@ internal static partial class Program
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
-                EscapeEtecoonDefinitions.Initialization(guarded, parameter);
+                EscapeEtecoonDefinitions.Initialization(parameter);
             EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
                 throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
             AssertEqual(expected.XPosition, slot.XPosition,
@@ -91,7 +81,7 @@ internal static partial class Program
         }
 
         Console.WriteLine(
-            "Escape Etecoon definitions: fifteen native values, all six masked retail selectors and the first adjacent-data fallback pass with the authored tables forbidden during production initialization.");
+            "Escape Etecoon definitions: fifteen native values and all six masked retail selectors pass with the authored tables forbidden during production initialization; malformed restored selectors fail explicitly.");
     }
 
     private sealed class EscapeEtecoonDefinitionReadGuard(ISnesAddressSpace source)

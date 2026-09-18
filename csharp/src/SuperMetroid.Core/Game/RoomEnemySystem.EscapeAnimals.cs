@@ -144,7 +144,7 @@ public sealed partial class RoomEnemySystem
         slot.PaletteIndex = 0;
 
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoonDefinitions.Initialization(_bus!, slot.Parameter1);
+            EscapeEtecoonDefinitions.Initialization(slot.Parameter1);
         slot.XPosition = initialization.XPosition;
         slot.YPosition = initialization.YPosition;
         state.PreInstruction = initialization.PreInstruction;

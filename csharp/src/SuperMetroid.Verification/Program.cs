@@ -193,6 +193,12 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--escape-etecoon-definitions"])
+{
+    VerifyEscapeEtecoonDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--ridley-explosion-definitions"])
 {
     VerifyRidleyExplosionDefinitions(

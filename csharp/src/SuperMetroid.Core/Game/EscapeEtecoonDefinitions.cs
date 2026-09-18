@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -16,23 +14,6 @@ public enum EscapeEtecoonRole : ushort
 /// <summary>Fixed initialization definitions for the three escape Etecoon actors.</summary>
 internal static class EscapeEtecoonDefinitions
 {
-    private const int DefinitionBank = 0xb30000;
-
-    /// <summary>Three authored X positions at <c>$B3:E718-$B3:E71D</c>.</summary>
-    private const ushort XPositionTable = 0xe718;
-
-    /// <summary>Three authored Y positions at <c>$B3:E71E-$B3:E723</c>.</summary>
-    private const ushort YPositionTable = 0xe71e;
-
-    /// <summary>Three authored pre-instruction pointers at <c>$B3:E724-$B3:E729</c>.</summary>
-    private const ushort PreInstructionTable = 0xe724;
-
-    /// <summary>Three authored instruction-list pointers at <c>$B3:E72A-$B3:E72F</c>.</summary>
-    private const ushort InstructionTable = 0xe72a;
-
-    /// <summary>Three authored signed 8.8 horizontal speeds at <c>$B3:E730-$B3:E735</c>.</summary>
-    private const ushort HorizontalSpeedTable = 0xe730;
-
     /// <summary>
     /// Left walker, right walker, and event-waiting records compiled from the five parallel
     /// tables at <c>$B3:E718-$B3:E735</c>.
@@ -45,34 +26,21 @@ internal static class EscapeEtecoonDefinitions
     ];
 
     /// <summary>
-    /// Returns the cartridge-selected initialization. Authored offsets zero, two, and four
-    /// use compiled records. Other restored/debugger values retain the native unchecked
-    /// parallel-table reads instead of gaining a host-only bounds rule.
+    /// Returns the cartridge-selected initialization for authored offsets zero, two, and
+    /// four. The cartridge clears bit zero, so the paired odd selectors choose the same
+    /// records. Values outside the retail domain fail instead of reading adjacent code.
     /// </summary>
-    internal static EscapeEtecoonInitialization Initialization(
-        ISnesAddressSpace bus,
-        ushort parameter1)
+    internal static EscapeEtecoonInitialization Initialization(ushort parameter1)
     {
         ushort byteOffset = unchecked((ushort)(parameter1 & 0xfffe));
         int index = byteOffset >> 1;
         if ((uint)index < Initializations.Length)
             return Initializations[index];
 
-        return new EscapeEtecoonInitialization(
-            ReadWord(bus, XPositionTable, byteOffset),
-            ReadWord(bus, YPositionTable, byteOffset),
-            (EscapeEtecoonPreInstruction)ReadWord(bus, PreInstructionTable, byteOffset),
-            ReadWord(bus, InstructionTable, byteOffset),
-            ReadWord(bus, HorizontalSpeedTable, byteOffset));
-    }
-
-    private static ushort ReadWord(
-        ISnesAddressSpace bus,
-        ushort basePointer,
-        ushort byteOffset)
-    {
-        int address = DefinitionBank | unchecked((ushort)(basePointer + byteOffset));
-        return (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        throw new ArgumentOutOfRangeException(
+            nameof(parameter1),
+            parameter1,
+            "Escape Etecoon parameter must select one of the three authored roles.");
     }
 }
 

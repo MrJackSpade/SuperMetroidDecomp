@@ -193,7 +193,7 @@ public static partial class SamusGrappleMovement
         if (unchecked((short)grapple.FlareAnimationTimer) < 0)
         {
             grapple.FlareAnimationFrame = unchecked((ushort)(grapple.FlareAnimationFrame + 1));
-            byte delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
+            byte delay = ChargeFlareAnimationDefinitions.ReadByte(
                 SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     grapple.FlareAnimationFrame);
             if (delay == ChargeFlareAnimationDefinitions.Rewind)
@@ -201,12 +201,12 @@ public static partial class SamusGrappleMovement
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
-                byte rewind = ChargeFlareAnimationDefinitions.ReadByte(bus,
+                byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
                     SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     unchecked((ushort)(grapple.FlareAnimationFrame + 1)));
                 grapple.FlareAnimationFrame = unchecked((ushort)(
                     grapple.FlareAnimationFrame - rewind));
-                delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
+                delay = ChargeFlareAnimationDefinitions.ReadByte(
                     SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                         grapple.FlareAnimationFrame);
             }

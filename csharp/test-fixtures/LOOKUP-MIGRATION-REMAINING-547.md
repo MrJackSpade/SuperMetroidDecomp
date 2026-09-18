@@ -207,6 +207,11 @@ dependency. The 28 cancellation bytes, 30 connection function/handler pairs,
 eight special-angle/pose/offset/function records and 20 dropped-pose selectors
 are now compiled too. Tests exercise actual dispatch with their source ranges
 forbidden. Non-catalog connection pointers still retain adjacent-ROM reads.
+The shared charge/Grapple flare cadence is now bus-free as well: six compiled
+list-pointer bytes and 46 delay/loop bytes drive both production owners, while
+addresses outside that bounded program fail explicitly instead of consuming
+arbitrary adjacent bank-$90 movement code. Flare placement and composition remain
+presentation data for #540/#541.
 The separate bank-$90 HUD movement-handler table and twelve authored posture
 flags are now compiled in `SamusHudDefinitions`, shared by Grapple admission
 and projectile charge-preservation dispatch. All pose bytes retain native

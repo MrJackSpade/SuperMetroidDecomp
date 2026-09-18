@@ -680,7 +680,7 @@ public sealed partial class SamusProjectileSystem
         int componentCount = FlareCounter < 30 ? 1 : 3;
         for (int component = 0; component < componentCount; component++)
         {
-            AdvanceFlareComponent(bus, component);
+            AdvanceFlareComponent(component);
             DrawFlareComponent(
                 bus, oam, samus, layer1X, layer1Y, component, mode7Transform, placement, compositions);
         }

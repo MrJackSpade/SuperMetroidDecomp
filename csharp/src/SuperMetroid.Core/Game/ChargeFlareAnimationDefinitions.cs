@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>NTSC cartridge charge-flare cadence and loop commands, independent of sprite composition.</summary>
@@ -28,15 +26,18 @@ internal static class ChargeFlareAnimationDefinitions
         4, 3, 2, 2, 2, 2, Restart,
     ];
 
-    internal static byte ReadByte(ISnesAddressSpace bus, int address)
+    internal static byte ReadByte(int address)
     {
         int pointerByte = address - SamusProjectileRomData.Beams.ChargeFlareDelayListPointers;
         if ((uint)pointerByte < Pointers.Length * 2)
             return (byte)(Pointers[pointerByte / 2] >> (pointerByte % 2 * 8));
         int delay = address - (SamusProjectileRomData.Banks.Movement | MainFlare);
-        return (uint)delay < Delays.Length ? Delays[delay] : bus.ReadByte(address);
+        return (uint)delay < Delays.Length
+            ? Delays[delay]
+            : throw new InvalidDataException(
+                $"Charge-flare cadence byte ${address:X6} is outside the compiled definitions.");
     }
 
-    internal static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(ReadByte(bus, address) | ReadByte(bus, (address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+    internal static ushort ReadWord(int address) =>
+        (ushort)(ReadByte(address) | ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
 }

@@ -7,15 +7,19 @@ internal static partial class Program
 {
     private static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
     {
-        var guard = new ChargeFlareDefinitionGuard(bus);
-        for (int address = 0x908000; address <= 0x90ffff; address++)
+        for (int address = 0x90c481; address < 0x90c4b5; address++)
         {
-            AssertEqual(bus.ReadByte(address), ChargeFlareAnimationDefinitions.ReadByte(guard, address), "Flare cadence retains every native byte and adjacent read");
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ChargeFlareAnimationDefinitions.ReadWord(guard, address), "Flare cadence retains unaligned and bank-wrapped words");
+            AssertEqual(bus.ReadByte(address), ChargeFlareAnimationDefinitions.ReadByte(address), "Compiled flare cadence byte matches cartridge");
+            if (address < 0x90c4b4)
+                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ChargeFlareAnimationDefinitions.ReadWord(address), "Compiled flare cadence word matches cartridge");
         }
+        foreach (int address in new[] { 0x908000, 0x90c480, 0x90c4b5, 0x90ffff })
+            AssertThrows<InvalidDataException>(
+                () => ChargeFlareAnimationDefinitions.ReadByte(address),
+                "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
         var system = new SamusProjectileSystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        var advance = typeof(SamusProjectileSystem).GetMethod("AdvanceFlareComponent", flags)!.CreateDelegate<Action<ISnesAddressSpace, int>>(system);
+        var advance = typeof(SamusProjectileSystem).GetMethod("AdvanceFlareComponent", flags)!.CreateDelegate<Action<int>>(system);
         var frames = (ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!.GetValue(system)!;
         var timers = (ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(system)!;
         for (int component = 0; component < 3; component++)
@@ -25,20 +29,21 @@ internal static partial class Program
             for (int tick = 0; tick < 1024; tick++)
             {
                 Reference(component, ref expectedFrame, ref expectedTimer);
-                advance(guard, component);
+                advance(component);
                 AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component]), "Flare production cadence matches native repeated rewind/restart trajectory");
             }
+            int maximumLiveFrame = component == 0 ? 29 : 5;
             foreach (ushort timer in new ushort[] { 0, 1, 2, 0x8000, 0xffff })
-            for (int frame = 0; frame <= 256; frame++)
+            for (int frame = 0; frame <= maximumLiveFrame; frame++)
             {
                 expectedFrame = frames[component] = frame == 256 ? ushort.MaxValue : (ushort)frame;
                 expectedTimer = timers[component] = timer;
                 Reference(component, ref expectedFrame, ref expectedTimer);
-                advance(guard, component);
-                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component]), "Flare timer sign, frame wrap and adjacent stream reads match native");
+                advance(component);
+                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component]), "Flare timer sign and authored frame boundaries match native");
             }
         }
-        Console.WriteLine("Charge flare: 52 compiled bytes, every upper-bank byte/word, 3072 loop ticks and 3855 boundary-state advances preserve native cadence with timing ROM reads forbidden.");
+        Console.WriteLine("Charge flare: 52 compiled bytes, loud non-catalog rejection, 3072 loop ticks and 210 authored boundary-state advances preserve native cadence with timing ROM reads forbidden.");
 
         void Reference(int component, ref ushort frame, ref ushort timer)
         {
@@ -54,14 +59,4 @@ internal static partial class Program
         }
     }
 
-    private sealed class ChargeFlareDefinitionGuard(ISnesAddressSpace source) : ISnesAddressSpace
-    {
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x90c481 and < 0x90c4b5)
-                throw new InvalidDataException("Charge flare still reads cadence ROM.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

@@ -51,10 +51,10 @@ internal static partial class Program
                 native.Grapple.FlareCounter = actual.Grapple.FlareCounter = changed.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
             }
         }
-        // Exercise negative timers and non-main delay bytes while vertically culled,
-        // so adjacent instruction data is tested without inventing valid sprite IDs.
+        // Exercise negative timers across the complete authored main-flare frame domain
+        // while vertically culled, without inventing valid sprite IDs.
         foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
-        foreach (ushort frame in new ushort[] { 0, 15, 16, 29, 30, 31, 36, 37, 43, 44, 45, 255, 65535 })
+        foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
             var samus = new SamusState { Pose = 1 };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;

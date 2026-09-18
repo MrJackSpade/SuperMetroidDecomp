@@ -99,7 +99,7 @@ public sealed partial class SamusProjectileSystem
             screenY);
     }
 
-    private void AdvanceFlareComponent(ISnesAddressSpace bus, int component)
+    private void AdvanceFlareComponent(int component)
     {
         // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
         // value of zero therefore survives one visible call; testing equality here would
@@ -110,27 +110,26 @@ public sealed partial class SamusProjectileSystem
 
         ushort frame = unchecked((ushort)(_flareFrames[component] + 1));
         ushort delayList = ChargeFlareAnimationDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.Beams.ChargeFlareDelayListPointers + component * 2);
-        byte delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
+        byte delay = ChargeFlareAnimationDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.MovementNumber,
                 unchecked((ushort)(delayList + frame))));
         if (delay == ChargeFlareAnimationDefinitions.Restart)
         {
             frame = 0;
-            delay = ChargeFlareAnimationDefinitions.ReadByte(bus, (int)new SnesAddress(
+            delay = ChargeFlareAnimationDefinitions.ReadByte((int)new SnesAddress(
                 SamusProjectileRomData.Banks.MovementNumber,
                 delayList));
         }
         else if (delay == ChargeFlareAnimationDefinitions.Rewind)
         {
-            byte rewind = ChargeFlareAnimationDefinitions.ReadByte(bus,
+            byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
                 (int)new SnesAddress(
                     SamusProjectileRomData.Banks.MovementNumber,
                     unchecked((ushort)(delayList + frame + 1))));
             frame = unchecked((ushort)(frame - rewind));
-            delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
+            delay = ChargeFlareAnimationDefinitions.ReadByte(
                 (int)new SnesAddress(
                     SamusProjectileRomData.Banks.MovementNumber,
                     unchecked((ushort)(delayList + frame))));

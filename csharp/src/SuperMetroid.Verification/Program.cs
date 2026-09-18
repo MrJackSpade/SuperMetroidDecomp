@@ -246,6 +246,13 @@ if (args is ["--dead-torizo-corpse-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--gunship-motion-definitions"])
+{
+    VerifyGunshipMotionDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyPostCeresGunshipLanding();
+    return 0;
+}
 if (args is ["--crocomire-bridge-fragment-definitions"])
 {
     VerifyCrocomireBridgeFragmentDefinitions(

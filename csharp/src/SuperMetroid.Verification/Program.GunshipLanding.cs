@@ -50,22 +50,16 @@ internal static partial class Program
         WriteWord(bus, 0xa00000 | (bottomDefinition + 18), 0xa6d2);
         WriteWord(bus, 0xa00000 | (bottomDefinition + 24), 0x804c);
 
-        // The exact gunship lists are animation owners, not phase timers. Small looping
-        // fixture maps keep ProcessInstructions alive while the main-AI assertions below
-        // prove that opening/closing selects the cartridge's $A5BE/$A5EE entry addresses.
+        // The exact gunship lists are animation owners, not phase timers. Small sleeping
+        // fixture maps keep ProcessInstructions alive without borrowing the adjacent
+        // $A622 motion table as a synthetic Goto operand. The main-AI assertions below
+        // still prove that opening/closing selects cartridge entries $A5BE/$A5EE.
         foreach (ushort list in new ushort[] { 0xa616, 0xa61c, 0xa60e, 0xa5be, 0xa5ee })
         {
             WriteWord(bus, 0xa20000 | list, 1);
             WriteWord(bus, (0xa20000 | list) + 2, 0xa700);
-            WriteWord(bus, (0xa20000 | list) + 4, 0x80ed);
-            WriteWord(bus, (0xa20000 | list) + 6, list);
+            WriteWord(bus, (0xa20000 | list) + 4, CommonEnemyInstructionCodes.Sleep);
         }
-
-        // A signed bounce table makes both positive and negative rigid translations
-        // observable and has a zero sum, so the post-bounce top returns to Y=$045F.
-        short[] bounce = [3, 3, 2, 2, 1, 1, 0, -1, -2, -3, -3, -2, -1, 0, 0, 0, 0];
-        for (int index = 0; index < bounce.Length; index++)
-            WriteWord(bus, 0xa2a622 + index * 2, unchecked((ushort)bounce[index]));
 
         // Function 17 uploads five consecutive $400-byte dust-cloud chunks from bank $94.
         for (int index = 0; index < 5; index++)
@@ -73,12 +67,6 @@ internal static partial class Program
             WriteWord(bus, 0xa2ac07 + index * 2, unchecked((ushort)(0x8000 + index * 0x0400)));
             WriteWord(bus, 0xa2ac11 + index * 2, unchecked((ushort)(0x7600 + index * 0x0200)));
         }
-
-        // Bobbing begins only after the bounce. Durations and signed deltas are interleaved
-        // bytes at the native odd address, so seed all four records explicitly.
-        byte[] bob = [2, 1, 2, 0xff, 2, 1, 2, 0xff];
-        for (int index = 0; index < bob.Length; index++)
-            bus.WriteByte(0xa2a7cf + index, bob[index]);
 
         WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
         int population = 0xa10000 | populationPointer;
@@ -99,7 +87,7 @@ internal static partial class Program
         };
         var enemies = new RoomEnemySystem();
         enemies.Load(
-            bus,
+            new GunshipMotionDefinitionReadGuard(bus),
             populationPointer,
             tilesetPointer,
             vram,

@@ -2238,8 +2238,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
-        int tableAddress = GunshipRomData.LandingBrakeMovementTable + top.VariableE * 2;
-        short yDelta = unchecked((short)ReadWord(_bus!, tableAddress));
+        short yDelta = GunshipMotionDefinitions.LandingBrakeYDelta(top.VariableE);
         samus.YPosition = unchecked((ushort)(samus.YPosition + yDelta));
         for (int component = 0; component < 3; component++)
         {
@@ -2305,9 +2304,10 @@ public sealed partial class RoomEnemySystem
         if (oldTimer != 1 && (short)top.VariableD >= 0)
             return;
 
-        int tableAddress = GunshipRomData.IdleBobTable + (top.VariableC & 3) * 2;
-        top.VariableD = _bus!.ReadByte(tableAddress);
-        sbyte yDelta = unchecked((sbyte)_bus.ReadByte(tableAddress + 1));
+        GunshipIdleBobDefinition bob = GunshipMotionDefinitions.IdleBob(
+            unchecked((ushort)(top.VariableC & 3)));
+        top.VariableD = bob.Timer;
+        sbyte yDelta = bob.YDelta;
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slots[top.SlotIndex + component];

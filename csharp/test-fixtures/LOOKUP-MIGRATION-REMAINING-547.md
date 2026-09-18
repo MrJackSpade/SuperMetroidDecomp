@@ -160,6 +160,10 @@ Bomb/Golden Torizo's two initial position/radius/property/instruction records ar
 also compiled. Their instruction programs and presentation remain separate work.
 Gunship liftoff dust's six X-offset/list-selection records are compiled as well;
 their reference constants now reside under Gunship rather than the old Ceres label.
+The gunship's seventeen landing-brake Y deltas and four byte-packed idle-bob
+timer/delta records are compiled too. The complete post-Ceres landing fixture now
+uses cartridge-exact motion instead of patched synthetic tables, and both production
+consumers reject reads from the retired source ranges.
 Ridley's four pogo launch-speed rows and both six-stage acceleration arrays are
 compiled, including the native pointer indirection. Side targets, carry/release
 anchors and both health-stage divisor tables are also compiled. All six attack

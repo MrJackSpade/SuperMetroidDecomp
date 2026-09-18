@@ -118,6 +118,7 @@ internal static partial class Program
         VerifyCompiledSquareSlopes(rom);
         VerifyCompiledTorizoInitialization(rom);
         VerifyCompiledGunshipDust(rom);
+        VerifyGunshipMotionDefinitions(rom);
         VerifyCompiledRidleyPogo(rom);
         VerifyRidleyMovementTargets(rom);
         VerifyRidleyAttackChoices(rom);

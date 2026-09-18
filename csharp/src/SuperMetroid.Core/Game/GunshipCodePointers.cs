@@ -59,12 +59,3 @@ internal static class GunshipInstructionLists
     /// <summary>Entrance-pad closing instruction list at $A2:A5EE.</summary>
     public const ushort EntrancePadClosing = 0xa5ee;
 }
-
-/// <summary>Bank-$A2 motion tables used by the Landing Site gunship.</summary>
-internal static class GunshipRomData
-{
-    /// <summary>Seventeen-entry landing-brake delta table at $A2:A622.</summary>
-    public const int LandingBrakeMovementTable = 0xa2a622;
-    /// <summary>Four-entry idle bob timer/delta table at $A2:A7CF.</summary>
-    public const int IdleBobTable = 0xa2a7cf;
-}

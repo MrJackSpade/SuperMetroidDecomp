@@ -50,10 +50,19 @@ internal static partial class Program
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves native words, appearance gaps and odd reads");
-            if (ProjectileTrailProgramDefinitions.TryRead(address, out _)) programWords++;
+            if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
+            {
+                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves every authored mechanics word");
+                programWords++;
+            }
+            else
+            {
+                int rejectedAddress = address;
+                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+            }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
         int draws = 0;
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })

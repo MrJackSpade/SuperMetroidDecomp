@@ -2460,3 +2460,16 @@ Verification compares all 103 aligned words with the pinned cartridge, rejects
 preceding, unaligned, and following addresses, and executes all 64 real spawn
 selections while the complete source window is forbidden. Trail animation programs,
 coordinate placement, and editable artwork retain their separate owners.
+
+# Projectile-trail program boundary
+
+`ProjectileTrailProgramDefinitions` compiles the 42 duration words, 20 inline
+movement commands, and five terminators that advance the fixed trail scheduler.
+Appearance words remain under the editable trail catalog. Non-catalog upper-bank
+addresses now fail explicitly instead of reading arbitrary bank-$90 cartridge data;
+only genuine mutable bank-$90 low-half aliases retain live reads.
+
+Verification compares all 67 mechanics words with the pinned cartridge, rejects
+every presentation gap, odd address, boundary, and wrong-bank alias in the source
+window, and exercises the mutable alias through the real command dispatcher. Native
+and catalog-backed live/frozen trail animation comparisons remain byte-identical.

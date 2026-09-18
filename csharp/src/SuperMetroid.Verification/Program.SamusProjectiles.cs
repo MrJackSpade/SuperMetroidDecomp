@@ -982,6 +982,8 @@ static void VerifySamusPowerBeamProjectiles()
     // Commands identify the destination side, not the stream executing them. Charged
     // Wave's right stream uses MoveLeftDown; rejecting that cross-side write crashes
     // the first fully integrated special attack even though particle motion is correct.
+    // Use bank $90's mutable low-half alias for the synthetic stream: fixed high-bank
+    // program data is compiled and deliberately cannot be rewritten by a test fixture.
     foreach (bool executeOnLeft in new[] { false, true })
     foreach (ushort command in new[] { SamusProjectileRomData.Trails.MoveLeftDown,
         SamusProjectileRomData.Trails.MoveRightDown, SamusProjectileRomData.Trails.MoveLeftUp })
@@ -992,10 +994,10 @@ static void VerifySamusPowerBeamProjectiles()
         pair.Right.YPosition = 120;
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         executingSide.InstructionTimer = 1;
-        executingSide.InstructionPointer = 0x8000;
-        WriteTestWord(bus, 0x908000, command);
-        WriteTestWord(bus, 0x908002, 1);
-        WriteTestWord(bus, 0x908004, 0x2c38);
+        executingSide.InstructionPointer = 0x0000;
+        WriteTestWord(bus, 0x900000, command);
+        WriteTestWord(bus, 0x900002, 1);
+        WriteTestWord(bus, 0x900004, 0x2c38);
         trailOam.BeginFrame();
         commandProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
         AssertEqual(command == SamusProjectileRomData.Trails.MoveLeftDown ? 101 :
@@ -1003,7 +1005,7 @@ static void VerifySamusPowerBeamProjectiles()
             pair.Left.YPosition, "trail command targets named left side regardless of executing stream");
         AssertEqual(command == SamusProjectileRomData.Trails.MoveRightDown ? 121 : 120,
             pair.Right.YPosition, "trail command targets named right side regardless of executing stream");
-        AssertEqual(0x8006, executingSide.InstructionPointer,
+        AssertEqual(0x0006, executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");
     }
 

@@ -321,12 +321,15 @@ verify current content is rebound without embedding it in the saved graph.
 
 `ProjectileTrailProgramDefinitions` now compiles 42 durations, 20 inline movement
 commands and five terminators. It excludes appearance words and instruction-body
-bytes; odd/gap/non-catalog reads retain the bus path. All 67 words and intervening
-reads match the pinned ROM. The existing 320 live/frozen animation comparisons now
-run the catalog-backed owner with every bus access forbidden, while checking
-native output, timing, cursors and sibling movement. On record advancement,
+bytes. All 67 mechanics words match the pinned ROM; presentation gaps, odd addresses,
+wrong-bank aliases, and unrelated high-bank words now fail explicitly instead of
+being interpreted as program metadata. Only genuine mutable bank-$90 low-half aliases
+retain live reads, and the command-dispatch fixture exercises that path. The existing
+320 live/frozen animation comparisons run the catalog-backed owner with every bus
+access forbidden, while checking native output, timing, cursors and sibling movement. On record advancement,
 appearance attributes come from the selected catalog; the animation scheduler
-is never supplied by editable JSON. Spawn coordinate lookups remain ROM-backed.
+is never supplied by editable JSON. Spawn coordinate lookups are covered by the
+compiled coordinate catalog below.
 
 `ProjectileTrailAtlasExtractor` now produces a 96x8 indexed PNG containing the
 twelve trail-owned tiles. `ProjectileTrailAtlas` compiles it into separate ice/wave

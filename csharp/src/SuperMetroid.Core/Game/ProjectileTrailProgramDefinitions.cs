@@ -29,6 +29,21 @@ public static class ProjectileTrailProgramDefinitions
         return true;
     }
 
-    public static ushort Read(ISnesAddressSpace bus, int address) => TryRead(address, out ushort word)
-        ? word : RomDataReader.ReadWordFixedBank(bus, address);
+    /// <summary>
+    /// Reads compiled high-bank mechanics or a genuine mutable bank-$90 low-half alias.
+    /// Presentation words and unrelated cartridge bytes are not valid program entries.
+    /// </summary>
+    public static ushort Read(ISnesAddressSpace bus, int address)
+    {
+        if (TryRead(address, out ushort word))
+            return word;
+
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        if (source.Bank == 0x90 && !source.IsUpperLoRomWindow)
+            return RomDataReader.ReadWordFixedBank(bus, address);
+
+        throw new InvalidDataException(
+            $"Projectile trail program word {source} is outside compiled mechanics data " +
+            "and is not a mutable bank-$90 low-half alias.");
+    }
 }

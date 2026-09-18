@@ -8,7 +8,7 @@ internal static class FirefleaRoomFx
 {
     public static void Initialize(ISnesAddressSpace bus)
     {
-        WriteWord(bus, FirefleaFxData.Timer, FirefleaFxData.FlashDuration);
+        WriteWord(bus, FirefleaFxData.Timer, FirefleaFxDefinitions.FlashDuration);
         WriteWord(bus, FirefleaFxData.Index, 0);
         WriteWord(bus, FirefleaFxData.Darkness, 0);
     }
@@ -23,23 +23,24 @@ internal static class FirefleaRoomFx
         ushort index = ReadWord(bus, FirefleaFxData.Index);
         if (timer == 0)
         {
-            timer = FirefleaFxData.FlashDuration;
-            if (unchecked((short)(darkness - FirefleaFxData.SteadyDarknessThreshold)) < 0)
+            timer = FirefleaFxDefinitions.FlashDuration;
+            if (unchecked((short)(darkness - FirefleaFxDefinitions.SteadyDarknessThreshold)) < 0)
             {
                 index = unchecked((ushort)(index + 1));
-                if (index >= FirefleaFxData.FlashCount) index = 0;
+                if (index >= FirefleaFxDefinitions.FlashCount) index = 0;
             }
-            else index = FirefleaFxData.SteadyFlashIndex;
+            else index = FirefleaFxDefinitions.SteadyFlashIndex;
             WriteWord(bus, FirefleaFxData.Index, index);
         }
         WriteWord(bus, FirefleaFxData.Timer, timer);
 
-        // Read the ROM, including its adjacent bytes if the death counter exceeds the
-        // six-entry table. The cartridge permits offset twelve; clamping it invents
-        // behavior. Preserve the 16-bit addition before taking its high byte.
+        // The cartridge permits darkness offset twelve, where it observes the adjacent
+        // opcode word rather than clamping to the six authored shade records. That exact
+        // seventh value is part of the compiled domain. Preserve the 16-bit addition
+        // before taking its high byte.
         ushort combined = unchecked((ushort)(
-            ReadWord(bus, FirefleaFxData.FlashingShades + index * 2) +
-            ReadWord(bus, FirefleaFxData.DarknessShades + darkness)));
+            FirefleaFxDefinitions.FlashingShade(index) +
+            FirefleaFxDefinitions.DarknessShade(darkness)));
         byte shade = (byte)(combined >> 8);
         bus.WriteByte(PpuFixedColorMirrors.Green, (byte)(shade | 0x80));
         bus.WriteByte(PpuFixedColorMirrors.Blue, (byte)(shade | 0x40));

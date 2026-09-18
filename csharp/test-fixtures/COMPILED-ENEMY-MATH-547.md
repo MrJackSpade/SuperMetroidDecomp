@@ -1917,3 +1917,18 @@ Verification: full Release Verification passed, including 655,360 Grapple
 launch/late-origin cases, 131,072 held launches and 1,536 flare OAM comparisons.
 The player's CWJ movie still matches all 262 native checkpoints exactly. Windows
 Release builds with zero warnings and errors.
+
+# Fireflea fixed-color shade definitions
+
+`FirefleaFxDefinitions` compiles the twelve flashing shade words at
+`$88:B058-$B06F` and the seven darkness states reachable from retail enemy
+deaths. The seventh darkness value deliberately preserves the cartridge's
+offset-twelve read of the adjacent `$C208` opcode word; it is not clamped or
+normalized into a fabricated shade. The six-frame timer, cycle index and current
+darkness offset remain mutable WRAM and therefore remain on the address bus.
+
+The focused Fireflea verifier independently compares all nineteen words with the
+pinned cartridge, rejects odd/out-of-domain selectors, and executes initialization,
+144 flashing frames, every retail death offset and frozen-time retention while
+all reads from `$88:B058-$B07D` throw. This removes only the immutable shade-table
+dependency; enemy populations, graphics and the wider ROM-free integration remain.

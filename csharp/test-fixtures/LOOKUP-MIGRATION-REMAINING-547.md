@@ -77,6 +77,12 @@ Phantoon's inspected movement, attack selection and death-schedule data are now
 compiled; its palette, eye instruction-list and materialization-sound selectors
 remain presentation readers requiring their respective integration audit.
 The shared Ceres/Norfair inertia bytes ($A6:D712/$A6:D61F) are now compiled.
+The Fireflea room effect's twelve flashing shades and all seven retail darkness
+states are compiled as well. The maximum-death state preserves the cartridge's
+intentional offset-twelve observation of the adjacent `$C208` opcode word; the
+mutable phase timer, cycle index and darkness counter remain WRAM. The full
+effect runs with `$88:B058-$B07D` forbidden after all nineteen definitions are
+independently compared with the pinned cartridge.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

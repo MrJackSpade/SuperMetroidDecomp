@@ -10,11 +10,7 @@ public sealed partial class RoomEnemySystem
 
     private bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
-        ushort header = ReadWord(_bus!, EnemyBreakableTerrainDefinitions.ReactionTable +
-            (block.Behavior & EnemyBreakableTerrainDefinitions.ReactionIndexMask) * 2);
-        if (header == 0) return true;
-        if (header != EnemyBreakableTerrainDefinitions.Header)
-            throw new NotSupportedException($"Enemy spike BTS ${block.Behavior:X2} selects untranslated PLM ${header:X4}.");
+        if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Behavior)) return true;
         var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
         plms.TrySpawnEnemyBreakableBlock(level, blockIndex);
         return false; // $A0:C2D6 clears carry even if the PLM pool was full.

@@ -348,6 +348,13 @@ zero, two, four, and six. All eight source words match the pinned cartridge, and
 the real eye-glow and soul spawns run for every boss with position reads forbidden.
 Eye colors and projectile animation programs remain presentation/program dependencies.
 
+The sixteen-entry enemy spike-reaction table at `$A0:C2DA-$C2F9` is compiled as a
+bounded rule: indexes zero through fourteen remain solid, index fifteen spawns the
+enemy-breakable PLM, and BTS bit seven is ignored. All sixteen native words and all
+32 authored/high-bit production collision paths pass with the old table forbidden.
+The 224 low-seven-bit selectors beyond the authored table now fail explicitly instead
+of interpreting adjacent executable bytes as PLM headers.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

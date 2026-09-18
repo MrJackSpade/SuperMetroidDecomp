@@ -2114,3 +2114,15 @@ cartridge and runs all eight variant/orientation combinations through the real
 initializer, jump handoff, and landing handoff while the full source range is
 forbidden. Invalid restored variants fail explicitly instead of consuming the
 following initializer code.
+
+# Phantoon eye-direction selectors
+
+`PhantoonPatternDefinitions` now also compiles the nine eye instruction selectors
+at `$A7:D40D-$D41E`. All eight reachable Samus-relative octants use this catalog;
+the authored but unreachable direction-five duplicate remains represented rather
+than being dropped or reinterpreted.
+
+Verification independently compares all nine words with the pinned cartridge and
+runs every reachable octant through `PointPhantoonEyeAtSamus` while the old source
+range is forbidden. Invalid restored direction values fail explicitly instead of
+reading the code following the table.

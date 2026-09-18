@@ -16,7 +16,6 @@ public sealed partial class RoomEnemySystem
         PhantoonInstructionLists.FullHitboxBody;
     private const ushort PhantoonEyeClosedInstruction = PhantoonInstructionLists.EyeClosed;
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionLists.EyeCentered;
-    private const int PhantoonEyeDirectionTable = 0xa7d40d;
     private const int PhantoonFadeOutPalette = 0xa7ca41;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
@@ -402,6 +401,10 @@ public sealed partial class RoomEnemySystem
             body.YPosition = 216;
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Performance",
+        "CA1822:Mark members as static",
+        Justification = "Retains instance ownership inside the native Phantoon phase dispatcher without forcing unrelated phase methods static.")]
     private void PointPhantoonEyeAtSamus(
         RoomEnemySlot body,
         RoomEnemySlot eye,
@@ -421,7 +424,7 @@ public sealed partial class RoomEnemySystem
 
         InstallPhantoonInstruction(
             eye,
-            ReadWord(_bus!, PhantoonEyeDirectionTable + direction * 2));
+            PhantoonPatternDefinitions.EyeInstruction(direction));
     }
 
     private void AdvancePhantoonFadeOut(

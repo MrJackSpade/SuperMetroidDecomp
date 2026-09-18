@@ -280,6 +280,11 @@ Every floor/ceiling initializer, jump, and landing consumer uses that catalog wi
 the source span forbidden. The selected animation programs and their spritemaps
 remain separate program/presentation dependencies.
 
+Phantoon's nine eye-direction instruction selectors at `$A7:D40D-$D41E` are now
+compiled in `PhantoonPatternDefinitions`. All eight reachable tracking octants
+consume the catalog with the source range forbidden; the selected eye animation
+programs and sprite presentation remain separate dependencies.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

@@ -3,6 +3,15 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed Phantoon rain placements and shot-response markers.</summary>
 public static class PhantoonPatternDefinitions
 {
+    /// <summary>
+    /// <c>$A7:D40D-$D41E</c>, the nine eye-direction instruction lists selected from the
+    /// computed Samus octant. Direction five is unreachable but remains authored data.
+    /// </summary>
+    private static readonly ushort[] EyeInstructions =
+    [
+        0xcca7, 0xccad, 0xccb3, 0xccb9, 0xccbf, 0xccbf, 0xccc5, 0xcccb, 0xccd1,
+    ];
+
     /// <summary>$A7:CDAD, Phantoon_FlameRain_PositionTable: figure-eight cursor and world X/Y; each native record also has an unused zero word.</summary>
     public static (ushort Cursor, ushort X, ushort Y) RainPlacement(int pattern) => pattern switch
     {
@@ -21,4 +30,16 @@ public static class PhantoonPatternDefinitions
 
     /// <summary>$A7:CDA5, Phantoon_Unknown0FEAValues: shot writes to eye variable B. No native reader is known; preserve the exact exposed state without inventing direction semantics.</summary>
     public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
+
+    /// <summary>Returns the authored eye instruction list for direction zero through eight.</summary>
+    public static ushort EyeInstruction(ushort direction)
+    {
+        if (direction >= EyeInstructions.Length)
+        {
+            throw new InvalidDataException(
+                $"Phantoon eye direction {direction} exceeds nine authored selectors.");
+        }
+
+        return EyeInstructions[direction];
+    }
 }

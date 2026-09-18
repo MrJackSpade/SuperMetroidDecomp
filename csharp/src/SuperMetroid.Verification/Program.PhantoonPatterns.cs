@@ -17,7 +17,8 @@ internal static partial class Program
             AssertEqual(rom.ReadByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
             AssertEqual(rom.ReadByte(0xa7cda5 + i), PhantoonPatternDefinitions.ShotEyeMarkers[i], "Native shot eye marker");
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
+            BindingFlags.NonPublic;
         var busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         var randomField = typeof(RoomEnemySystem).GetField("_nextRandom", flags)!;
         var rainMethod = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!;
@@ -51,6 +52,40 @@ internal static partial class Program
                 AssertEqual((ushort)((i + 1) * 8), flames[i].XVelocity, "Actual staggered rain delay");
             }
         }
+
+        (short X, short Y, ushort Direction)[] eyeTargets =
+        [
+            (0, -100, 0), (100, -100, 1), (100, 0, 2), (100, 100, 3),
+            (0, 100, 4), (-100, 100, 6), (-100, 0, 7), (-100, -100, 8),
+        ];
+        for (ushort direction = 0; direction < 9; direction++)
+        {
+            AssertEqual(Word(0xa7d40d + direction * 2),
+                PhantoonPatternDefinitions.EyeInstruction(direction),
+                $"native Phantoon eye direction {direction}");
+        }
+        var eyeEnemies = new RoomEnemySystem();
+        busField.SetValue(eyeEnemies, new PhantoonPatternReadGuard(rom));
+        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>(eyeEnemies);
+        RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
+        RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
+        eyeBody.XPosition = 0x4000;
+        eyeBody.YPosition = 0x4000;
+        foreach ((short x, short y, ushort direction) in eyeTargets)
+        {
+            pointEye(eyeBody, trackingEye, new SamusState
+            {
+                XPosition = unchecked((ushort)(eyeBody.XPosition + x)),
+                YPosition = unchecked((ushort)(eyeBody.YPosition + y)),
+            });
+            AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
+                trackingEye.CurrentInstruction,
+                $"production Phantoon eye direction {direction}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => PhantoonPatternDefinitions.EyeInstruction(9),
+            "Phantoon eye direction beyond authored table");
         var shotEnemies = new RoomEnemySystem();
         var shotBody = shotEnemies.Slots[0];
         var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.Slots[1], Tentacles = shotEnemies.Slots[2], Mouth = shotEnemies.Slots[3] };
@@ -73,14 +108,16 @@ internal static partial class Program
             AssertEqual((ushort)16, shotBody.VariableE, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }
-        Console.WriteLine("Phantoon patterns: 32 native record words, 16 bytes, 2048 real eight-flame rain handoffs and 65536 bus-free shot reactions match.");
+        Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
     private sealed class PhantoonPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
-            if (address is >= 0xa7cda5 and < 0xa7cded or >= 0xa7cfc2 and < 0xa7cfca)
+            if (address is >= 0xa7cda5 and < 0xa7cded or
+                >= 0xa7cfc2 and < 0xa7cfca or
+                >= 0xa7d40d and < 0xa7d41f)
                 throw new InvalidOperationException($"Migrated Phantoon pattern ROM read at {address:X6}.");
             return source.ReadByte(address);
         }

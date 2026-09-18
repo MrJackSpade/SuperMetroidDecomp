@@ -485,9 +485,21 @@ real synchronization routine without a bus across every 16-bit target, rotating
 callers across all seven members and asserting every angle/velocity.
 The complete Shaktool audit passes, including initialization, linked placement,
 movement/reversal, contact, rendering, fatal teardown and unused attack circles.
-Collision/attack/orientation instruction-selector tables remain authored program
-metadata and are not claimed by this initialization slice. Full Release Verification
-and Windows Release build pass. This does not complete the broader #547 inventory.
+Full Release Verification and Windows Release build pass. This does not complete
+the broader #547 inventory.
+
+## Shaktool mechanics instruction selectors
+
+`ShaktoolInstructionDefinitions` compiles the eight center-orientation selectors at
+`$AA:DD15-$DD24` and the parallel seven-segment collision and dormant-attack lists at
+`$AA:DF13-$DF2E`. These values remain program identities selected by mechanics rather
+than being misclassified as editable sprite art.
+
+Verification independently compares all 22 words with the pinned cartridge. All eight
+direction buckets run through the real center-orientation routine, wall-collision
+reversal installs all seven collision lists, and the otherwise-unused retail attack
+entrypoint installs all seven attack lists while both source ranges are forbidden.
+Unaligned/out-of-range direction buckets and segment indexes fail explicitly.
 
 ## Ceres Ridley getaway curves
 

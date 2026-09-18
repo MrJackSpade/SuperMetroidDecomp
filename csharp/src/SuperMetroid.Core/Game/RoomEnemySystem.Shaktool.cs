@@ -82,9 +82,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort ShaktoolShotAi = EnemyAiCodePointers.BankAA.ShaktoolShot;
 
     private const int ShaktoolSegmentCount = 7;
-    private const int ShaktoolCollisionListTable = 0xaadf13;
-    private const int ShaktoolAttackListTable = 0xaadf21;
-    private const int ShaktoolOrientationListTable = 0xaadd15;
 
     private readonly ShaktoolSegmentState?[] _shaktoolSegments =
         new ShaktoolSegmentState?[MaximumEnemyCount];
@@ -237,9 +234,8 @@ public sealed partial class RoomEnemySystem
         ushort directionBucket = unchecked((ushort)(((midpoint >> 8) + 8) & 0x00e0));
         state.OrientationAndAcceleration = unchecked((ushort)(
             (state.OrientationAndAcceleration & 0xff00) | directionBucket));
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            ShaktoolOrientationListTable + (directionBucket >> 5) * 2);
+        slot.CurrentInstruction =
+            ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket);
         slot.InstructionTimer = 1;
     }
 
@@ -354,9 +350,8 @@ public sealed partial class RoomEnemySystem
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
             CalculateShaktoolAngularVelocity(segment, segmentState);
             segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
-            segment.CurrentInstruction = ReadWord(
-                _bus!,
-                ShaktoolCollisionListTable + index * 2);
+            segment.CurrentInstruction =
+                ShaktoolInstructionDefinitions.CollisionForSegment(index);
             segment.InstructionTimer = 1;
         }
     }
@@ -592,9 +587,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot segment = group[index];
             RequireShaktoolState(segment).PreInstruction =
                 ShaktoolPreInstruction.IdleAfterAttack;
-            segment.CurrentInstruction = ReadWord(
-                _bus!,
-                ShaktoolAttackListTable + index * 2);
+            segment.CurrentInstruction =
+                ShaktoolInstructionDefinitions.AttackForSegment(index);
             segment.InstructionTimer = 1;
         }
     }

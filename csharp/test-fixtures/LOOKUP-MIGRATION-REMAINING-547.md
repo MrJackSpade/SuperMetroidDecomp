@@ -313,8 +313,10 @@ Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.
 All seven real initializers and the group callback reset run with the source range
-forbidden. The separate collision, attack, and orientation instruction-selector
-tables remain authored program metadata requiring an explicit migration decision.
+forbidden. Its eight center-orientation selectors and both seven-segment collision/
+dormant-attack tables are now compiled separately in `ShaktoolInstructionDefinitions`;
+the real orientation, reversal, and dormant attack consumers run with those source
+ranges forbidden.
 
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby

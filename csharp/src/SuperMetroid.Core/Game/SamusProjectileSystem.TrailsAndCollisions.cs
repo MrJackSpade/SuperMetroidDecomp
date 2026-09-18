@@ -261,10 +261,8 @@ public sealed partial class SamusProjectileSystem
         trail.Left.InstructionTimer = 1;
         trail.Right.InstructionTimer = 1;
         trail.Left.InstructionPointer = ProjectileTrailDefinitions.ReadSelector(
-            bus,
             SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2);
         trail.Right.InstructionPointer = ProjectileTrailDefinitions.ReadSelector(
-            bus,
             SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2);
 
         // Retail reads the previously installed record, even when the animation timer

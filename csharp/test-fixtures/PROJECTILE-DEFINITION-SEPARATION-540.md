@@ -280,14 +280,17 @@ this catalog is not a claim that all weapon palette ROM dependencies are removed
 
 ### Compiled trail selection (#540/#547)
 
-`ProjectileTrailDefinitions` replaces the 78 fixed selector words at $90:B5BB
-and $90:B609 with named instruction-list identities. Resolution uses the physical
-address so left-table overflow still selects right-table entries; reads outside
-the authored words and unaligned accesses retain the bus path. Tests compare all
-words, byte-aligned overlaps and adjacent boundaries against the pinned ROM, then
-exercise the real spawn method for all 64 low-six-bit selections with authored
-selector reads forbidden. Allocation timer and fixed-origin assertions accompany
-the selected pointers. Coordinate tables and trail PNG artwork remain unfinished.
+`ProjectileTrailDefinitions` replaces the 78 authored selector words at $90:B5BB
+and $90:B609 plus all 25 adjacent-code words reachable from the right base by the
+projectile type's complete low six bits. Resolution uses the physical address, so
+left-table overflow still selects right-table entries and the bounded malformed
+right selections remain byte-exact. Reads outside those 103 aligned words now fail
+explicitly instead of treating arbitrary bank-$90 bytes as selector metadata. Tests
+compare the complete reachable window against the pinned ROM, reject preceding,
+unaligned and following addresses, then exercise the real spawn method for all 64
+low-six-bit selections with the complete window forbidden. Allocation timer and
+fixed-origin assertions accompany the selected pointers. Coordinate tables and
+trail PNG artwork are covered separately below.
 
 ### Installed gameplay trail appearance catalog
 

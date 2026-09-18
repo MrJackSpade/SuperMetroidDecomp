@@ -2447,3 +2447,16 @@ explicitly; field indexes outside the 22-byte record still fail at the field bou
 Verification compares all 1,496 bytes with the pinned cartridge and covers both
 invalid pointer classes plus negative/past-record fields. The exhaustive compiled-
 mechanics suite and full Release solution build pass.
+
+# Projectile-trail selector boundary
+
+`ProjectileTrailDefinitions` compiles the complete selector window reachable by
+the native projectile producer's low-six-bit index. This includes the 39 authored
+left words, 39 authored right words, and 25 exact adjacent-code words observed by
+malformed right-side selections. Production no longer falls back to arbitrary
+bank-$90 reads for selector metadata.
+
+Verification compares all 103 aligned words with the pinned cartridge, rejects
+preceding, unaligned, and following addresses, and executes all 64 real spawn
+selections while the complete source window is forbidden. Trail animation programs,
+coordinate placement, and editable artwork retain their separate owners.

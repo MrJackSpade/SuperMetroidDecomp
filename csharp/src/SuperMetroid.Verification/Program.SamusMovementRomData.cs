@@ -107,12 +107,6 @@ internal static partial class Program
                 $"standalone speed record ${speedRecord:X6}");
         }
 
-        TouchRange(bus, SamusMovementRomData.Environment.WaterSplashTypes,
-            movementTypeCount, "water-splash movement-type table");
-        TouchRange(bus, SamusMovementRomData.Environment.RunningFootstepFrames,
-            10, "running footstep frames");
-        TouchRange(bus, SamusMovementRomData.Environment.CrateriaFootstepTypes,
-            64, "Crateria room footstep table");
         TouchRange(bus, SamusMovementRomData.Environment.AtmosphericAnimationFrameCounts,
             16, "atmospheric frame-count table");
         TouchRange(bus, SamusMovementRomData.Slopes.HorizontalMultipliers,

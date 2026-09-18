@@ -55,6 +55,7 @@ internal static partial class Program
         VerifyShaktoolSegmentDefinitions(rom);
         VerifyShaktoolInstructionDefinitions(rom);
         VerifySporeSpawnProjectileDefinitions(rom);
+        VerifySamusAtmosphericEffectDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

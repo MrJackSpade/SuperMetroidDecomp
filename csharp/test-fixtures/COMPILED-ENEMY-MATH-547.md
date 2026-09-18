@@ -2209,3 +2209,17 @@ Verification independently compares all four words with the pinned cartridge and
 runs all 65,536 RNG values through the real Squeept jump transition while the source
 table is forbidden. It also asserts the single RNG advance, off-screen-processing
 handoff, next function, and jump-sound publication for every input.
+
+# Samus atmospheric-effect policy
+
+`SamusAtmosphericEffectDefinitions` compiles the 28 movement-type water-splash
+selectors at `$90:81A4-$81BF`, the ten running foot-contact flags at
+`$90:A424-$A42D`, and the 16 room-policy bytes duplicated at `$90:EDC9-$EDD8`
+and `$91:F0F3-$F102`. The room policy is represented by a real flags enum because
+the cartridge uses prioritized `BIT` tests and combined bits remain meaningful.
+
+Verification independently compares all 70 source bytes, proves the two native
+Crateria copies agree, and runs every selector through the real splash, running-
+footstep, and landing-effect production consumers while all four source ranges are
+forbidden. Invalid restored movement, animation-frame, and room selectors fail
+explicitly instead of consuming adjacent executable code.

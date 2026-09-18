@@ -301,7 +301,7 @@ public sealed partial class SamusLiquidPhysicsState
             if (enteredWater)
             {
                 QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0d), maximumQueued: 6);
-                SpawnWaterSplash(bus, samus, movementType, bottom);
+                SpawnWaterSplash(samus, movementType, bottom);
             }
 
             TrySpawnAirBubbles(
@@ -374,7 +374,7 @@ public sealed partial class SamusLiquidPhysicsState
             if (!gravitySuit && movementType is
                 SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x30), maximumQueued: 6);
-            SpawnWaterSplash(bus, samus, movementType, bottom);
+            SpawnWaterSplash(samus, movementType, bottom);
             TrySpawnAirBubbles(
                 samus,
                 top,
@@ -436,7 +436,7 @@ public sealed partial class SamusLiquidPhysicsState
         switch (AreaIndex)
         {
             case AreaId.Crateria:
-                HandleCrateriaLandingGraphics(bus, samus);
+                HandleCrateriaLandingGraphics(samus);
                 return;
 
             case AreaId.Brinstar:
@@ -474,7 +474,7 @@ public sealed partial class SamusLiquidPhysicsState
         }
     }
 
-    private void HandleCrateriaLandingGraphics(ISnesAddressSpace bus, SamusState samus)
+    private void HandleCrateriaLandingGraphics(SamusState samus)
     {
         // Crateria's cinematic path deletes both landing-owned slots before consulting room
         // data. This is distinct from the sound suppression already applied by the caller.
@@ -498,12 +498,11 @@ public sealed partial class SamusLiquidPhysicsState
             return;
         }
 
-        // Read the literal inline flags at `$91:F0F3`, rather than maintaining a second C#
-        // room list. BIT priority is 1 (Landing Site), 2 (Wrecked Ship entrance), then 4
-        // (wet-footstep rooms), even if a modified/private image combines those bits.
-        byte roomFlags = bus.ReadByte(
-            SamusMovementRomData.Environment.RoomAtmosphericEffectFlags + RoomIndex);
-        if ((roomFlags & 1) != 0)
+        // The cartridge duplicates this room policy for running footsteps and landing
+        // effects. Preserve its BIT priority even though retail rows contain one bit each.
+        CrateriaAtmosphericEffectFlags roomFlags =
+            SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIndex);
+        if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
             // sky type deletes the pair. This exact comparison is not a generic water test.
@@ -514,7 +513,7 @@ public sealed partial class SamusLiquidPhysicsState
             return;
         }
 
-        if ((roomFlags & 2) != 0)
+        if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
         {
             // Above Y=$03B0 the entrance is dry and deletes; at/below it, use wet splashes.
             if (samus.YPosition >= 0x03b0)
@@ -524,7 +523,7 @@ public sealed partial class SamusLiquidPhysicsState
             return;
         }
 
-        if ((roomFlags & 4) != 0)
+        if ((roomFlags & CrateriaAtmosphericEffectFlags.WetFootsteps) != 0)
         {
             SpawnLandingPairUnlessSubmerged(samus, type: 1);
             return;
@@ -639,14 +638,12 @@ public sealed partial class SamusLiquidPhysicsState
     }
 
     private void SpawnWaterSplash(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusMovementType movementType,
         ushort bottom)
     {
-        bool groundedSplash = bus.ReadByte(
-            SamusMovementRomData.Environment.WaterSplashTypes + (byte)movementType) != 0;
-        if (!groundedSplash)
+        if (SamusAtmosphericEffectDefinitions.WaterSplashFor(movementType) ==
+            WaterSplashKind.Diving)
         {
             AtmosphericEffects.SetSlot(
                 0, type: 3, animationFrame: 0, animationTimer: 2,
@@ -723,8 +720,7 @@ public sealed partial class SamusLiquidPhysicsState
     {
         if (movementType != SamusMovementType.Running ||
             samus.AnimationFrameTimer != 1 ||
-            bus.ReadByte(
-                SamusMovementRomData.Environment.RunningFootstepFrames + samus.AnimationFrame) == 0)
+            !SamusAtmosphericEffectDefinitions.IsRunningFootContact(samus.AnimationFrame))
         {
             return;
         }
@@ -738,15 +734,15 @@ public sealed partial class SamusLiquidPhysicsState
             }
             else if (RoomIndex < 0x10)
             {
-                byte specialType = bus.ReadByte(
-                    SamusMovementRomData.Environment.CrateriaFootstepTypes + RoomIndex);
+                CrateriaAtmosphericEffectFlags specialType =
+                    SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIndex);
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
-                if ((specialType & 1) != 0)
+                if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                     useWetFootsteps = FxType == RoomFxType.Rain;
-                else if ((specialType & 2) != 0)
+                else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
                     useWetFootsteps = samus.YPosition >= 0x03b0;
-                else if ((specialType & 4) != 0)
+                else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != 0)
                     useWetFootsteps = true;
             }
         }

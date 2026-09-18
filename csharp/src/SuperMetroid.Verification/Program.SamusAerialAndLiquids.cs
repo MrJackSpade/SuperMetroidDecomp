@@ -1189,9 +1189,8 @@ static void VerifySamusAtmosphericEffects()
     };
     samus.InitializeAnimation(bus);
 
-    // Movement type one is a diving splash according to the real `$81A4` table. Keep NMI
+    // Movement type one is a diving splash according to the compiled `$81A4` policy. Keep NMI
     // away from the 128-frame bubble cadence so entry has exactly one sound request.
-    bus.WriteByte(0x9081a4 + 1, 0);
     samus.LiquidPhysics.ConfigureWater(surfaceY: 110);
     samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 1);
     SamusAtmosphericEffectSlot entrySplash = samus.LiquidPhysics.AtmosphericEffects.Slots[0];
@@ -1287,7 +1286,6 @@ static void VerifySamusAtmosphericEffects()
     runner.RefreshCollisionRadii(bus);
     runner.InitializeAnimation(bus, initialFrame: 2);
     runner.HorizontalSpeed.SpeedBoostCounter = 0x0400;
-    bus.WriteByte(0x90a424 + 2, 1);
     runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
     AssertEqual(7, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
         "boost-stage-four foot contact creates dust");

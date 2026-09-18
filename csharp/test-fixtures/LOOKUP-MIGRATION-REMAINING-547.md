@@ -150,6 +150,13 @@ substituting a catalog; do not assume every table is a smooth formula.
 
 ## Additional inventory still required
 
+Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type
+water-splash selectors, ten running foot-contact flags, and both identical 16-byte
+Crateria room classifications. The real splash, running-footstep, and landing
+consumers run with all four source ranges forbidden. Animation timer lists,
+spritemaps, and liquid damage rates remain separate authored data and are not folded
+into this policy catalog.
+
 Samus ordinary/Hi-Jump and wall-jump launch pairs plus air/water/lava gravity
 are now compiled in `SamusVerticalMotionDefinitions`. Their production setup
 calls reject all ROM access in the regression. Bomb-jump and knockback launch

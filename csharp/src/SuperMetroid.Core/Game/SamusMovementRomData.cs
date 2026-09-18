@@ -152,15 +152,6 @@ public static class SamusMovementRomData
     /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>
     public static class Environment
     {
-        /// <summary>Running animation frames that emit a footstep atmospheric effect.</summary>
-        public const int RunningFootstepFrames = 0x90a424;
-
-        /// <summary>Movement-type table selecting grounded versus airborne water splashes.</summary>
-        public const int WaterSplashTypes = 0x9081a4;
-
-        /// <summary>Crateria room-index table selecting special footstep types.</summary>
-        public const int CrateriaFootstepTypes = 0x90edc9;
-
         /// <summary>Per-frame fractional lava damage.</summary>
         public const int LavaSubdamagePerFrame = 0x909e8b;
 
@@ -172,9 +163,6 @@ public static class SamusMovementRomData
 
         /// <summary>Per-frame whole acid damage.</summary>
         public const int AcidDamagePerFrame = 0x909e91;
-
-        /// <summary>Room-index flags controlling rain and other atmospheric effects.</summary>
-        public const int RoomAtmosphericEffectFlags = 0x91f0f3;
 
         /// <summary>Animation-timer-list pointers indexed by atmospheric-effect type.</summary>
         public const int AtmosphericAnimationTimerListPointers = 0x908b93;

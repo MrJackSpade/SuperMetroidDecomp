@@ -99,6 +99,10 @@ Atomic's four population-selected initial instruction lists are compiled too.
 All four production initializers retain the previously compiled shared linear
 speed pairs while `$A8:E380-$E387` is forbidden. The selected mixed animation
 programs remain separate dependencies.
+Sbug's eight direction-selected instruction lists and seven activation callbacks
+are compiled too. All eight production initializers preserve the cartridge's
+odd-index normalization, and all seven proximity activations run with
+`$A3:A111-$A12E` forbidden. Mixed animation programs remain separate dependencies.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

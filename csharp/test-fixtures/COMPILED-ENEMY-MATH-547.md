@@ -1983,3 +1983,17 @@ cartridge and invokes the production initializer with representative speed
 indexes while the old selector table is forbidden. It checks the selected
 program and all four copied whole/fraction speed words. Out-of-domain restored
 selectors fail explicitly instead of consuming adjacent initializer code.
+
+# Sbug facing and activation selectors
+
+`SbugMovementDefinitions` compiles the eight direction-selected instruction
+lists at `$A3:A111-$A120` and the seven proximity-activation function identities
+at `$A3:A121-$A12E`. The catalog preserves the cartridge's odd direction-index
+normalization: indexes zero through fifteen select words after discarding bit
+zero. The selected mixed instruction programs remain separate dependencies.
+
+Verification independently compares all sixteen accepted raw direction indexes
+and all seven activation callbacks to the pinned cartridge. It runs all eight
+initial facing selections and all seven proximity activations through production
+code while both source ranges are forbidden. Out-of-domain restored selectors
+fail explicitly instead of consuming adjacent executable bytes.

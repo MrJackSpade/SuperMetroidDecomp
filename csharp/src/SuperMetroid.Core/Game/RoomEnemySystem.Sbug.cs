@@ -135,8 +135,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort SbugDefinition = 0xd87f;
     internal const ushort Sbug2Definition = 0xd8bf;
 
-    private const int SbugInstructionPointerTable = 0xa3a111;
-    private const int SbugActivationFunctionTable = 0xa3a121;
     private const ushort SbugRandomSeed = 0x000b;
     private const ushort SbugMovementSegmentFrames = 0x0020;
     private const ushort SbugLongRandomLifetime = 0x0200;
@@ -167,8 +165,8 @@ public sealed partial class RoomEnemySystem
         };
         _sbugStates[slot.SlotIndex] = state;
 
-        // $A3:A183 uses unsigned quarter-circle magnitudes and lets $A0:B691 apply signs
-        // later from the original angle. The side velocities instead use the signed,
+        // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
+        // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
         // intentionally imperfect eight-bit multiply routine at $A0:B0B2/$B0C6.
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
             state.InitialAngle,
@@ -273,7 +271,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
+    private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
         int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
@@ -281,15 +279,10 @@ public sealed partial class RoomEnemySystem
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
-        // Retain the ROM pointer table as the authority instead of duplicating a host-only
-        // behavior-to-function map. Validation in initialization bounds this word read.
-        int tableOffset = (byte)state.ActivationBehavior * 2;
-        state.Function = (SbugEnemyFunction)ReadWord(
-            _bus!,
-            SbugActivationFunctionTable + tableOffset);
+        state.Function = SbugMovementDefinitions.ActivationFunction(state.ActivationBehavior);
     }
 
-    private void ActivateSbugTowardOrAway(
+    private static void ActivateSbugTowardOrAway(
         RoomEnemySlot slot,
         SbugEnemyState state,
         SamusState samus,
@@ -308,7 +301,7 @@ public sealed partial class RoomEnemySystem
             : SbugEnemyFunction.MoveTowardSamus;
     }
 
-    private void RunSbugZigZag(RoomEnemySlot slot, SbugEnemyState state)
+    private static void RunSbugZigZag(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
         // legs. It is sampled before the scheduler increments it for the current frame.
@@ -365,7 +358,7 @@ public sealed partial class RoomEnemySystem
             state.Function = SbugEnemyFunction.WaitForSamus;
     }
 
-    private void RunSbugStraightReverseSegment(
+    private static void RunSbugStraightReverseSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
         SamusState samus)
@@ -408,7 +401,7 @@ public sealed partial class RoomEnemySystem
             : SbugEnemyFunction.MoveRandomlyUntilCollision;
     }
 
-    private void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
+    private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
             unchecked((byte)state.CustomAngle),
@@ -422,7 +415,7 @@ public sealed partial class RoomEnemySystem
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
-    private void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
+    private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The original negates pixel and subpixel words separately. For a nonzero low word
         // that is off by exactly 1.0 compared with a proper 32-bit two's complement; this
@@ -538,7 +531,7 @@ public sealed partial class RoomEnemySystem
     private static ushort CalculateSbugInstructionIndex(byte angle) =>
         unchecked((ushort)(2 * (unchecked((byte)(angle - 0x30)) >> 5)));
 
-    private void SetSbugFacing(
+    private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
         ushort instructionIndex)
@@ -547,12 +540,10 @@ public sealed partial class RoomEnemySystem
         // retail mask can fold it to $0000-$0007, so do not normalize it to even values.
         // Native code indexes a word table with [index >> 1]. Multiplying that element
         // index back into a byte address clears bit zero. This only matters after the
-        // cartridge's odd `(index + 4) & 7` reversal mask, but preserving it avoids a
-        // one-byte unaligned ROM read for the affected directions.
-        int tableByteOffset = (instructionIndex >> 1) * 2;
-        state.RequestedInstructionList = ReadWord(
-            _bus!,
-            SbugInstructionPointerTable + tableByteOffset);
+        // cartridge's odd `(index + 4) & 7` reversal mask; the compiled selector must
+        // choose the same word rather than treating an odd index as a distinct direction.
+        state.RequestedInstructionList =
+            SbugMovementDefinitions.FacingInstructionList(instructionIndex);
         if (state.RequestedInstructionList == state.InstalledInstructionList)
             return;
 

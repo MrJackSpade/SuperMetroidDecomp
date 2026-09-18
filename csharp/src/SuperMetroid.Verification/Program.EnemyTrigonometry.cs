@@ -39,6 +39,7 @@ internal static partial class Program
         VerifyFuneNamiheDefinitions(rom);
         VerifyMiscDustProjectileDefinitions(rom);
         VerifyHopperAnimationDefinitions(rom);
+        VerifyChootPatternDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);
         VerifyPowerBombCallbackDefinitions(rom);

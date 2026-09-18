@@ -150,8 +150,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort ChootDefinition = 0xd3bf;
 
-    private const int ChootPatternPointerTable = 0xa2df5e;
-    private const int ChootPatternDistancePointerTable = 0xa2df6a;
     private const ushort ChootIdleInstruction = 0xd82c;
     private const ushort ChootJumpingInstruction = 0xd834;
     private const ushort ChootFallingInstruction = 0xd840;
@@ -194,19 +192,10 @@ public sealed partial class RoomEnemySystem
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
-        int patternIndex = (slot.Parameter1 >> 8) & 0xff;
-        if (patternIndex >= 5)
-        {
-            throw new InvalidDataException(
-                $"Choot falling-pattern index {patternIndex} exceeds its five real streams.");
-        }
-        state.FallingPatternPointer = ReadWord(
-            _bus!,
-            ChootPatternPointerTable + patternIndex * 2);
-        ushort distancePointer = ReadWord(
-            _bus!,
-            ChootPatternDistancePointerTable + patternIndex * 2);
-        state.FallingPatternYDistance = ReadWord(_bus!, 0xa20000 | distancePointer);
+        ushort patternIndex = unchecked((byte)(slot.Parameter1 >> 8));
+        ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
+        state.FallingPatternPointer = pattern.FallingPatternPointer;
+        state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
         // The SNES multiplier consumes only the low bytes. Retail loop counts are nonzero,
         // but byte multiplication also preserves the native result for debugger corruption.

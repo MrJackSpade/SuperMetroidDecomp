@@ -2126,3 +2126,16 @@ Verification independently compares all nine words with the pinned cartridge and
 runs every reachable octant through `PointPhantoonEyeAtSamus` while the old source
 range is forbidden. Invalid restored direction values fail explicitly instead of
 reading the code following the table.
+
+# Choot falling-pattern definitions
+
+`ChootPatternDefinitions` compiles the five genuine falling-stream selectors at
+`$A2:DF5E-$DF67` together with the per-loop Y distances indirectly selected by
+`$A2:DF6A-$DF73`. The sixth pattern-pointer word is a native alias back into the
+pointer table, not a retail pattern, and remains outside the typed domain.
+
+Verification independently compares every pointer, distance pointer, and resolved
+distance with the pinned cartridge. Twenty real initializers cover all five patterns
+and representative loop counts while both selector tables and all five indirect
+distance words are forbidden. The variable-length falling streams remain separate
+mechanical program data and continue to be read by the frame runner.

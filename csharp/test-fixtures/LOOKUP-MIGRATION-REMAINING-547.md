@@ -285,6 +285,12 @@ compiled in `PhantoonPatternDefinitions`. All eight reachable tracking octants
 consume the catalog with the source range forbidden; the selected eye animation
 programs and sprite presentation remain separate dependencies.
 
+Choot's five real fall-stream selectors and their five indirectly selected loop
+distances are now compiled in `ChootPatternDefinitions`; all initializer consumers
+run with the pointer tables and distance words forbidden. The variable-length X/Y
+fall streams themselves remain live mechanical program data and still require an
+explicit migration decision.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

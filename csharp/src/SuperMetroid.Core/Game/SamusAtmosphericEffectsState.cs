@@ -101,9 +101,11 @@ public sealed class SamusAtmosphericEffectsState
                 // `$90:8A86` reloads using the OLD frame and only then increments the
                 // packed word. That ordering is why a newly created timer-three frame is
                 // visible for two calls before frame one begins.
-                slot.AnimationTimer = ReadFrameTimer(bus, type, frameBeforeTimer);
+                slot.AnimationTimer =
+                    SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer);
                 slot.FrameAndType = unchecked((ushort)(slot.FrameAndType + 1));
-                if (slot.AnimationFrame >= ReadFrameCount(bus, type))
+                if (slot.AnimationFrame >=
+                    SamusAtmosphericAnimationDefinitions.FrameCount(type))
                 {
                     slot.FrameAndType = 0;
                     continue;
@@ -115,7 +117,8 @@ public sealed class SamusAtmosphericEffectsState
                 // delayed-start marker: reload the current frame's ROM duration and draw it.
                 if (slot.AnimationTimer != 0x8000)
                     continue;
-                slot.AnimationTimer = ReadFrameTimer(bus, type, frameBeforeTimer);
+                slot.AnimationTimer =
+                    SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer);
             }
 
             switch (type)
@@ -207,22 +210,6 @@ public sealed class SamusAtmosphericEffectsState
             screenX,
             screenY);
     }
-
-    private static ushort ReadFrameTimer(ISnesAddressSpace bus, byte type, byte frame)
-    {
-        ushort timerList = ReadWord(
-            bus,
-            SamusMovementRomData.Environment.AtmosphericAnimationTimerListPointers + type * 2);
-        return ReadWord(
-            bus,
-            SamusMovementRomData.Banks.Movement |
-                unchecked((ushort)(timerList + frame * 2)));
-    }
-
-    private static ushort ReadFrameCount(ISnesAddressSpace bus, byte type) =>
-        ReadWord(
-            bus,
-            SamusMovementRomData.Environment.AtmosphericAnimationFrameCounts + type * 2);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));

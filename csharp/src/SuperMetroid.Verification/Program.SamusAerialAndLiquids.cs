@@ -1224,8 +1224,6 @@ static void VerifySamusAtmosphericEffects()
 
     // Surface spray uses four type-four slots and exact asymmetric X positions. A half-unit
     // lava rate then borrows from fractional health on the same `$E9CE` consumer call.
-    WriteTestWord(bus, 0x909e8b, 0x8000);
-    WriteTestWord(bus, 0x909e8d, 0);
     samus.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     samus.Health = 99;
     samus.SubunitHealth = 0;

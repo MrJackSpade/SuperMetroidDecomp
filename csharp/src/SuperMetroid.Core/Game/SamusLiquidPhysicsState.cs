@@ -342,14 +342,10 @@ public sealed partial class SamusLiquidPhysicsState
                 return;
             }
 
-            AccumulateLiquidDamage(
-                bus,
-                fxKind == RoomFxType.Lava
-                    ? SamusMovementRomData.Environment.LavaSubdamagePerFrame
-                    : SamusMovementRomData.Environment.AcidSubdamagePerFrame,
-                fxKind == RoomFxType.Lava
-                    ? SamusMovementRomData.Environment.LavaDamagePerFrame
-                    : SamusMovementRomData.Environment.AcidDamagePerFrame);
+            SamusLiquidDamageRate damageRate = fxKind == RoomFxType.Lava
+                ? SamusLiquidDamageDefinitions.Lava
+                : SamusLiquidDamageDefinitions.Acid;
+            AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
             if ((nmiFrameCounter & 7) == 0 && samus.Health >= 0x0047)
                 QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
 
@@ -777,16 +773,6 @@ public sealed partial class SamusLiquidPhysicsState
         ushort y = unchecked((ushort)(samus.YPosition + 16));
         AtmosphericEffects.SetSlot(0, type, 0, 0x8002, firstX, y);
         AtmosphericEffects.SetSlot(1, type, 0, 3, secondX, y);
-    }
-
-    private void AccumulateLiquidDamage(
-        ISnesAddressSpace bus,
-        int subDamageAddress,
-        int damageAddress)
-    {
-        AccumulatePeriodicDamage(
-            ReadWord(bus, subDamageAddress),
-            ReadWord(bus, damageAddress));
     }
 
     private void QueueSound(SoundEffectId soundEffect, byte maximumQueued) =>

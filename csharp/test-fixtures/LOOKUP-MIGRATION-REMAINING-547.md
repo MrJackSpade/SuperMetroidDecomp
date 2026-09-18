@@ -157,6 +157,12 @@ consumers run with all four source ranges forbidden. Animation timer lists,
 spritemaps, and liquid damage rates remain separate authored data and are not folded
 into this policy catalog.
 
+The neighboring atmospheric animation cadence and liquid damage rates are now
+compiled as mechanics as well: 37 frame timers, seven frame counts, and the four
+lava/acid fixed-point words. The complete real update paths run with those ranges
+forbidden. The direct OAM attribute pointer/list data at `$90:8BFF+` remains
+presentation data and is deliberately still ROM-backed pending its asset owner.
+
 Samus ordinary/Hi-Jump and wall-jump launch pairs plus air/water/lava gravity
 are now compiled in `SamusVerticalMotionDefinitions`. Their production setup
 calls reject all ROM access in the regression. Bomb-jump and knockback launch

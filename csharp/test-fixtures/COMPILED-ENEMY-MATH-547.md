@@ -2223,3 +2223,17 @@ Crateria copies agree, and runs every selector through the real splash, running-
 footstep, and landing-effect production consumers while all four source ranges are
 forbidden. Invalid restored movement, animation-frame, and room selectors fail
 explicitly instead of consuming adjacent executable code.
+
+# Samus atmospheric cadence and liquid damage
+
+`SamusAtmosphericAnimationDefinitions` compiles all 37 frame timers selected by
+the seven active atmospheric types at `$90:8B93-$8BED` and derives the seven
+frame counts formerly read from `$90:8BEF-$8BFD`. The visual attribute pointer
+table beginning at `$90:8BFF` remains a presentation dependency rather than being
+mixed into the mechanics catalog.
+
+`SamusLiquidDamageDefinitions` separately compiles lava's 0.5-energy and acid's
+1.5-energy fixed-point rates from `$90:9E8B-$9E92`. Verification compares the
+complete native pointer/timer/count structure and all four damage words, then runs
+every atmospheric type/frame through both timer-expiry paths and both liquid
+damage producers with the migrated mechanics ranges forbidden.

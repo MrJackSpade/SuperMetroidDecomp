@@ -152,24 +152,6 @@ public static class SamusMovementRomData
     /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>
     public static class Environment
     {
-        /// <summary>Per-frame fractional lava damage.</summary>
-        public const int LavaSubdamagePerFrame = 0x909e8b;
-
-        /// <summary>Per-frame whole lava damage.</summary>
-        public const int LavaDamagePerFrame = 0x909e8d;
-
-        /// <summary>Per-frame fractional acid damage.</summary>
-        public const int AcidSubdamagePerFrame = 0x909e8f;
-
-        /// <summary>Per-frame whole acid damage.</summary>
-        public const int AcidDamagePerFrame = 0x909e91;
-
-        /// <summary>Animation-timer-list pointers indexed by atmospheric-effect type.</summary>
-        public const int AtmosphericAnimationTimerListPointers = 0x908b93;
-
-        /// <summary>Animation frame counts indexed by atmospheric-effect type.</summary>
-        public const int AtmosphericAnimationFrameCounts = 0x908bef;
-
         /// <summary>Direct OAM attribute-list pointers indexed by atmospheric-effect type.</summary>
         public const int AtmosphericSpriteAttributeListPointers = 0x908bff;
     }

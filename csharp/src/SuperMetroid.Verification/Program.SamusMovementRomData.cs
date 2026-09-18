@@ -107,8 +107,6 @@ internal static partial class Program
                 $"standalone speed record ${speedRecord:X6}");
         }
 
-        TouchRange(bus, SamusMovementRomData.Environment.AtmosphericAnimationFrameCounts,
-            16, "atmospheric frame-count table");
         TouchRange(bus, SamusMovementRomData.Slopes.HorizontalMultipliers,
             32 * 2 * sizeof(ushort), "non-square slope multipliers");
         TouchRange(bus, SamusMovementRomData.Slopes.AlignmentHeights,

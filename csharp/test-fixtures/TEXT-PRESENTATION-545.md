@@ -201,3 +201,30 @@ forbids installed reads across the native compressed-font range, proves a pixel 
 changes live opening VRAM, and covers deterministic extraction, override identity and
 corrupt PNG failure. The unused Japanese font-two staging stream is not presented as
 editable content until the corresponding Japanese narration owner is translated.
+
+## Completion boundary
+
+The string-bearing scope requested by #545 is complete at catalog version 36:
+
+- all translated gameplay message families use the three named message catalogs;
+- both Ceres and Zebes warning owners use the escape typewriter catalog;
+- all six translated opening pages use the narration catalog and editable font;
+- the producer/copyright/result strings, item percentage, final message, 67 staff
+  lines, and their shared ending font are installed content;
+- map, station, pause, reserve, equipment, HUD, file-select, options and game-over
+  labels are already installed through the shared map/menu resources documented by
+  #282 and #544.
+
+Lettering baked into title cards, logos, Mode-7 scenes, or other illustrations remains
+pixel artwork rather than duplicate UTF-8 text. Its extraction and visual composition
+belong to #543 (cinematic artwork) or #544 (HUD/menu artwork). The cartridge's optional
+Japanese opening uses untranslated Japanese Mode-7 glyph actors and font-two staging;
+that visual scene owner also remains under #543. Exposing its unused bytes here would
+create an override that the current application cannot render, violating the requirement
+that a real edit have an observable production effect.
+
+Timing, input, save behavior, gameplay triggers, scene progression, percentage math and
+native callback semantics remain compiled throughout. No JSON resource can inject an
+engine instruction. Stock hashes, override precedence, active-content rebinds, missing or
+corrupt resource failures, native layout/frame parity, and observable edits are covered by
+the focused suites and the complete presentation-catalog regression.

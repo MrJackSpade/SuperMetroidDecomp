@@ -318,6 +318,12 @@ dormant-attack tables are now compiled separately in `ShaktoolInstructionDefinit
 the real orientation, reversal, and dormant attack consumers run with those source
 ranges forbidden.
 
+Spore Spawn's four stalk offsets, four emitter positions, and complete 256-byte
+wrapped signed spore movement stream are now compiled in
+`SporeSpawnProjectileDefinitions`. All production spawn and movement/mirroring
+consumers run with `$86:DCB9-$DCC0`, `$86:DCE6-$DCED`, and `$86:DD6C-$DE6B`
+forbidden; animation programs and palettes remain separate dependencies.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

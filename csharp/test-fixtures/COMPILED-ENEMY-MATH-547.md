@@ -501,6 +501,18 @@ reversal installs all seven collision lists, and the otherwise-unused retail att
 entrypoint installs all seven attack lists while both source ranges are forbidden.
 Unaligned/out-of-range direction buckets and segment indexes fail explicitly.
 
+## Spore Spawn projectile geometry and movement
+
+`SporeSpawnProjectileDefinitions` compiles the four stalk Y offsets at
+`$86:DCB9-$DCC0`, four ceiling-emitter X coordinates at `$86:DCE6-$DCED`, and
+the complete 256-byte wrapped signed movement stream at `$86:DD6C-$DE6B`.
+Animation programs and palette presentation remain separate dependencies.
+
+Verification independently compares all eight words and 256 bytes with the pinned
+cartridge. Every stalk/emitter spawn and all 256 movement offsets in both horizontal
+mirror states run through production code while all three source ranges are forbidden;
+position integration, doubled Y delta, and low-byte cursor wrapping are asserted.
+
 ## Ceres Ridley getaway curves
 
 `CeresRidleyGetawayDefinitions` compiles the 112 zoom/X/Y records and zoom

@@ -7,9 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int SporeSpawnStalkYOffsetTable = 0x86dcb9;
-    private const int SporeSpawnSpawnerXTable = 0x86dce6;
-    private const int SporeSpawnMovementTable = 0x86dd6c;
     private const ushort SporeSpawnSpawnerSpawnInstruction = 0xdc06;
     private const ushort SporeSpawnGraphicsIndex = 0x0200;
 
@@ -29,7 +26,7 @@ public sealed partial class RoomEnemySystem
         stalk.XPosition = body.XPosition;
         stalk.YPosition = unchecked((ushort)(
             body.YPosition +
-            ReadWord(_bus!, SporeSpawnStalkYOffsetTable + spawnArgument * 2)));
+            SporeSpawnProjectileDefinitions.StalkYOffset(spawnArgument)));
     }
 
     /// <summary>Ports projectile definition $86:DE88 and initializer $86:DCD4.</summary>
@@ -45,9 +42,7 @@ public sealed partial class RoomEnemySystem
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
             unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
-        spawner.XPosition = ReadWord(
-            _bus!,
-            SporeSpawnSpawnerXTable + spawnArgument * 2);
+        spawner.XPosition = SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument);
         spawner.YPosition = 520;
     }
 
@@ -71,17 +66,17 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_Spores</c> at $86:DCEE.</summary>
-    private void RunSporeSpawnSporePreInstruction(RoomEnemyProjectileSlot spore)
+    private static void RunSporeSpawnSporePreInstruction(RoomEnemyProjectileSlot spore)
     {
-        int movementOffset = spore.Variable0 & 0x00ff;
-        int xDelta = unchecked((sbyte)_bus!.ReadByte(
-            SporeSpawnMovementTable + movementOffset));
+        byte movementOffset = unchecked((byte)spore.Variable0);
+        SporeSpawnMovementDelta movement =
+            SporeSpawnProjectileDefinitions.MovementAt(movementOffset);
+        int xDelta = movement.X;
         if ((spore.Variable1 & 0x0080) != 0)
             xDelta = -xDelta;
         spore.XPosition = unchecked((ushort)(spore.XPosition + xDelta));
 
-        int yDelta = unchecked((sbyte)_bus.ReadByte(
-            SporeSpawnMovementTable + ((movementOffset + 1) & 0x00ff)));
+        int yDelta = movement.Y;
         spore.YPosition = unchecked((ushort)(spore.YPosition + yDelta + yDelta));
         if (unchecked((short)(spore.YPosition - 768)) >= 0)
             spore.Clear();

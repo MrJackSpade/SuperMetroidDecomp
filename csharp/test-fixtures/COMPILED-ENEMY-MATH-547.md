@@ -2547,6 +2547,6 @@ for both touch and shot callbacks instead of probing opcode `$6B` from executabl
 
 Verification inventories 163 headers, 221 named hitbox lists, 309 hitboxes, 71
 distinct touch callbacks, and 80 distinct shot callbacks from the pinned sources.
-All 16,777,216 bank/pointer pairs preserve exactly four touch and twelve shot RTL
+All 16,777,216 bank/pointer pairs preserve exactly fifteen touch and twelve shot RTL
 identities. All twenty-seven identities additionally pass through their real contact or
 projectile admission path with every callback entry address forbidden to the bus.

@@ -85,7 +85,6 @@ public sealed partial class RoomEnemySystem
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
     private const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
-    private const int NorfairLavaJumpingEnemyVelocityTableAddress = 0xa2be86;
 
     private readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
         new NorfairLavaJumpingEnemyState?[MaximumEnemyCount];
@@ -150,11 +149,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case NorfairLavaJumpingEnemyFunction.BeginJump:
-                // HIBYTE(random) & 6 is already the byte offset into the four-word table.
-                // Do not divide it again when constructing the SNES address.
-                int velocityAddress = NorfairLavaJumpingEnemyVelocityTableAddress +
-                    ((random >> 8) & 0x0006);
-                state.YVelocity = ReadWord(_bus!, velocityAddress);
+                state.YVelocity = NorfairLavaJumpDefinitions.InitialVerticalVelocity(random);
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
                 LastNorfairLavaJumpingEnemySoundEffect = NorfairLavaJumpingEnemyJumpSound;

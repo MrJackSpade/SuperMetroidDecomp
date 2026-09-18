@@ -2168,3 +2168,14 @@ movement targets while both fixed source ranges are forbidden. Invalid or unalig
 restored selectors fail before mutating Botwoon's path state. The variable-length
 signed path streams remain authored mechanical programs and continue to be read from
 the cartridge.
+
+# Norfair lava-jumper launch velocities
+
+`NorfairLavaJumpDefinitions` compiles the four signed 8.8 launch velocities at
+`$A2:BE86-$BE8D`. The selector accepts the complete RNG word and preserves the
+native `HIBYTE(random) & 6` record selection instead of exposing a host-only index.
+
+Verification independently compares all four words with the pinned cartridge and
+runs all 65,536 RNG values through the real Squeept jump transition while the source
+table is forbidden. It also asserts the single RNG advance, off-screen-processing
+handoff, next function, and jump-sound publication for every input.

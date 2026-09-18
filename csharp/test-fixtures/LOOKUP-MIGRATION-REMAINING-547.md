@@ -304,6 +304,11 @@ offsets remain visible in saved/debugger state. Botwoon's variable-length signed
 streams are still live mechanical program data and require a separate migration
 decision rather than being conflated with their fixed descriptors.
 
+The Norfair lava-jumping enemy's four signed 8.8 launch velocities at
+`$A2:BE86-$BE8D` are now compiled in `NorfairLavaJumpDefinitions`. All 65,536
+native RNG selectors run through the production state transition with that ROM range
+forbidden; animation programs remain separate presentation/program dependencies.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

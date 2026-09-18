@@ -41,6 +41,7 @@ internal static partial class Program
         VerifyHopperAnimationDefinitions(rom);
         VerifyChootPatternDefinitions(rom);
         VerifyCrawlerAnimationDefinitions(rom);
+        VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);
         VerifyPowerBombCallbackDefinitions(rom);

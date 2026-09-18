@@ -114,9 +114,11 @@ internal static class SamusProjectileSelectionDefinitions
         return pointers.ToFrozenDictionary();
     }
 
-    internal static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    internal static ushort ReadWord(int address) =>
         Pointers.TryGetValue(address, out ushort value) ? value :
         // Over-indexed selectors can read a neighboring damage header. Retain its
-        // compiled identity, then the damage reader's exact-address bus fallback.
-        SamusProjectileDamageDefinitions.Read(bus, address);
+        // compiled identity. Any other address is not a translated projectile
+        // selector: interpreting adjacent animation or executable bytes as a pointer
+        // would recreate an arbitrary slice of the cartridge instead of a domain model.
+        SamusProjectileDamageDefinitions.Read(address);
 }

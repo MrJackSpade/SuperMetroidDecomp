@@ -274,8 +274,11 @@ not relabeling as mutable state. Low-bank aliases genuinely remain mutable.
   death trajectories and other indirect family definitions.
 - Samus movement, combo and grapple definition readers. Bomb Spread's twenty
   launch words are now compiled and checked through the actual five-slot producer;
-  its shared damage/animation initializer still reads ROM and is not covered by
-  that migration. Coordinate
+  its shared damage and selector metadata are now cartridge-independent as well.
+  All 357 selector words and 40 damage headers are compiled, every translated
+  beam/missile/bomb/SBA initializer uses those definitions, and an unknown address
+  fails explicitly instead of interpreting adjacent animation or executable bytes
+  as mechanics. The selected mixed animation programs remain ROM-backed. Coordinate
   ownership with the companion gameplay-definition tickets; shared scope does
   not mean the runtime dependency is already removed.
 

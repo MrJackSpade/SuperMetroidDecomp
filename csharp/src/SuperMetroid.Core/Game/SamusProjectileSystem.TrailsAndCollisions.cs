@@ -102,11 +102,10 @@ public sealed partial class SamusProjectileSystem
                 $"Projectile family ${slot.PackedType.FamilyValue:X3} is not reflectable.");
         }
 
-        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(bus, dataPointerTable + dataPointerIndex * 2);
+        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(dataPointerTable + dataPointerIndex * 2);
         int data = SamusProjectileRomData.Banks.Projectile | dataPointer;
-        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, data);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(data);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));
         slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             SamusProjectileRomData.Banks.Projectile |
@@ -770,7 +769,6 @@ public sealed partial class SamusProjectileSystem
 
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.NonBeam.BeamExplosionInstructionPointer);
         slot.InstructionTimer = 1;
         slot.Damage = 8;
@@ -800,7 +798,6 @@ public sealed partial class SamusProjectileSystem
         bool wasSuperMissile = slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile);
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.MissileExplosion);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             wasSuperMissile
                 ? SamusProjectileRomData.NonBeam.SuperMissileExplosionInstructionPointer
                 : SamusProjectileRomData.NonBeam.MissileExplosionInstructionPointer);

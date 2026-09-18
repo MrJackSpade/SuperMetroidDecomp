@@ -14,15 +14,19 @@ internal static partial class Program
             0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681,
             0x938685, 0x938689, 0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7,
         }).ToArray();
-        var bus = new ProjectileDamageReadGuard(rom, headers);
+        var bus = new ProjectileDamageReadGuard(rom);
         foreach (int address in headers)
-            AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(bus, address), "Compiled native damage header");
+            AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(address), "Compiled native damage header");
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
-            AssertEqual(Word(address), SamusProjectileSelectionDefinitions.ReadWord(bus, address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
-        for (int address = 0x938000; address <= 0x93ffff; address++)
+            AssertEqual(Word(address), SamusProjectileSelectionDefinitions.ReadWord(address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
+        foreach (int address in new[] { 0x938000, 0x938432, 0x9386db, 0x93ffff })
         {
-            AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(rom, address), "Exact header selection preserves adjacent/unaligned/bank-wrapped reads");
-            AssertEqual(Word(address), SamusProjectileSelectionDefinitions.ReadWord(rom, address), "Selection preserves adjacent/unaligned/bank-wrapped reads");
+            AssertThrows<InvalidDataException>(
+                () => SamusProjectileDamageDefinitions.Read(address),
+                "Unknown damage address fails instead of reading arbitrary cartridge data");
+            AssertThrows<InvalidDataException>(
+                () => SamusProjectileSelectionDefinitions.ReadWord(address),
+                "Unknown selector address fails instead of reading arbitrary cartridge data");
         }
 
         var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
@@ -93,7 +97,7 @@ internal static partial class Program
             rejectedMarker = true;
         }
         AssertTrue(rejectedMarker, "Compiled unused negative marker still reaches the existing loud rejection");
-        Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, complete high-bank address scan and all seven initializer paths pass with selection/damage reads forbidden.");
+        Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
     private static void VerifyComboMechanicsDefinitions(
@@ -185,11 +189,11 @@ internal static partial class Program
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
-    private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source, int[] headers) : ISnesAddressSpace
+    private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
-            if (address is >= 0x9383c1 and < 0x9386db || headers.Contains(address) || headers.Contains(address - 1))
+            if (address is >= 0x9383c1 and < 0x9386db)
                 throw new InvalidDataException($"Projectile damage still reads compiled ROM header ${address:X6}.");
             return source.ReadByte(address);
         }

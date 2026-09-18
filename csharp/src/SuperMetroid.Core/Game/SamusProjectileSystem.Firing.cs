@@ -276,13 +276,11 @@ public sealed partial class SamusProjectileSystem
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             (charged
                 ? SamusProjectileRomData.Beams.ChargedDataPointers
                 : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + direction * 2)));
         slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
@@ -381,11 +379,9 @@ public sealed partial class SamusProjectileSystem
         slot.Type = 0x9018;
         const int hyperBeamType = 8;
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
         slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
@@ -486,11 +482,9 @@ public sealed partial class SamusProjectileSystem
         InitializeDirectionalVelocity(bus, slot, baseSpeed: 0);
 
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
-        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
         slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,

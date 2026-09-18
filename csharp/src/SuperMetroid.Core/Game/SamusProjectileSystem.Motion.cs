@@ -366,11 +366,9 @@ public sealed partial class SamusProjectileSystem
         // call matters for moving/transition poses whose cartridge origin tables can change.
         InitializePosition(bus, samus, link);
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
-        link.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        link.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         link.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2)));
         link.InstructionTimer = 1;

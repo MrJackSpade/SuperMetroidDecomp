@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native projectile damage headers, independent of their adjacent animation pointers.</summary>
@@ -54,7 +52,7 @@ internal static class SamusProjectileDamageDefinitions
     /// <summary>$93:86D7 ProjectileDataTable_NonBeam_Projectile27: damage header identity.</summary>
     private const int Projectile27 = 0x9386d7;
 
-    internal static ushort Read(ISnesAddressSpace bus, int address)
+    internal static ushort Read(int address)
     {
         int offset = address - BeamHeaderStart;
         if (offset >= 0 && offset % BeamHeaderStride == 0 && offset / BeamHeaderStride < BeamDamage.Length)
@@ -73,7 +71,8 @@ internal static class SamusProjectileDamageDefinitions
             PlasmaSBA or WaveSBA or SpazerSBA or SpazerSBATrail => 300,
             Projectile25 => 0xf000,
             ShinesparkEcho => 0x1000,
-            _ => (ushort)(bus.ReadByte(address) | bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8),
+            _ => throw new InvalidDataException(
+                $"Projectile damage header ${address:X6} is outside the compiled cartridge definitions."),
         };
     }
 }

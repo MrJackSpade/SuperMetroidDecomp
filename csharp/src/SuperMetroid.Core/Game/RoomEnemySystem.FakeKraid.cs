@@ -91,8 +91,6 @@ public sealed partial class RoomEnemySystem
     private const ushort FakeKraidRightSpitInstruction = 0x9a2a;
     private const ushort FakeKraidSpitSound = 0x0016;
     private const ushort FakeKraidSpikeSound = 0x003f;
-    private const int FakeKraidSpitVelocityTable = 0xa69a48;
-    private const int FakeKraidSpikeYOffsetTable = 0x869e7d;
 
     private readonly FakeKraidEnemyState?[] _fakeKraidStates =
         new FakeKraidEnemyState?[MaximumEnemyCount];
@@ -253,17 +251,16 @@ public sealed partial class RoomEnemySystem
         FakeKraidEnemyState state,
         bool movingRight)
     {
-        int tableOffset = movingRight ? 8 : 0;
         short xOffset = movingRight ? (short)4 : (short)-4;
         for (int projectile = 0; projectile < 2; projectile++)
         {
-            ushort xVelocity = ReadWord(
-                _bus!,
-                FakeKraidSpitVelocityTable + tableOffset + projectile * 4);
-            ushort yVelocity = ReadWord(
-                _bus!,
-                FakeKraidSpitVelocityTable + tableOffset + projectile * 4 + 2);
-            if (SpawnFakeKraidSpit(slot, xOffset, xVelocity, yVelocity))
+            FakeKraidSpitLaunch launch =
+                FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
+            if (SpawnFakeKraidSpit(
+                    slot,
+                    xOffset,
+                    launch.XVelocity,
+                    launch.YVelocity))
                 state.SpawnedSpitCount++;
         }
     }
@@ -307,9 +304,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             kind,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
-        short yOffset = unchecked((short)ReadWord(
-            _bus!,
-            FakeKraidSpikeYOffsetTable + row * 2));
+        short yOffset = FakeKraidProjectileDefinitions.SpikeYOffset(row);
         projectile.XPosition = source.XPosition;
         projectile.YPosition = unchecked((ushort)(source.YPosition + yOffset));
         projectile.XSubposition = 0;

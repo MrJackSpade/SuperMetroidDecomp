@@ -402,6 +402,11 @@ physical definition per actor. The real descending sprite-object allocation and
 movement paths run with `$A5:A1AF-$A5:A1F6` forbidden; the unused zero word in
 each native angle record is independently checked rather than exposed as data.
 
+Fake Kraid's four signed 8.8 spit launches and three body-spike Y offsets are
+compiled as projectile physics definitions. Both spit facings and all six
+facing/row spike combinations run through the real projectile allocator with
+`$A6:9A48-$A6:9A57` and `$86:9E7D-$86:9E82` forbidden.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

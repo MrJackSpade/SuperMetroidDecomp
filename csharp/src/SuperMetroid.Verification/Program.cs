@@ -212,6 +212,12 @@ if (args is ["--enemy-drop-chance-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--enemy-vulnerability-definitions"])
+{
+    VerifyEnemyVulnerabilityDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--escape-etecoon-definitions"])
 {
     VerifyEscapeEtecoonDefinitions(

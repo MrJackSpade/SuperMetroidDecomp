@@ -78,7 +78,6 @@ public sealed partial class RoomEnemySystem
     private const ushort ShitroidTouchAi = EnemyAiCodePointers.BankA9.ShitroidTouch;
     private const ushort ShitroidShotAi = EnemyAiCodePointers.BankA9.ShitroidShot;
     private const ushort ShitroidPowerBombAi = EnemyAiCodePointers.BankA9.ShitroidPowerBomb;
-    private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
     /// <param name="samus">Live player state receiving the native touch callback.</param>
@@ -2352,9 +2351,9 @@ public sealed partial class RoomEnemySystem
     {
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
-            : DefaultEnemyVulnerability;
-        byte vulnerability = _bus!.ReadByte(
-            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 14)));
+            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        byte vulnerability = EnemyVulnerabilityDefinitions.Read(
+            _bus!, vulnerabilityPointer, EnemyVulnerabilityDefinitions.BombOffset);
         int damage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
@@ -2639,29 +2638,28 @@ public sealed partial class RoomEnemySystem
     {
         ushort pointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
-            : DefaultEnemyVulnerability;
+            : EnemyVulnerabilityDefinitions.DefaultPointer;
         SamusProjectileFamily family = projectileType.Family;
         if (family != SamusProjectileFamily.Beam)
         {
             int byteOffset = family switch
             {
-                SamusProjectileFamily.Missile => 12,
-                SamusProjectileFamily.SuperMissile => 13,
-                SamusProjectileFamily.Bomb => 14,
-                SamusProjectileFamily.PowerBomb => 15,
+                SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
+                SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
+                SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
+                SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
                 _ => throw new InvalidDataException(
                     $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
             };
-            byte familyEntry = bus.ReadByte(
-                0xb40000 | unchecked((ushort)(pointer + byteOffset)));
+            byte familyEntry = EnemyVulnerabilityDefinitions.Read(bus, pointer, byteOffset);
             return new NormalShotVulnerability(
                 Multiplier: familyEntry & 0x7f,
                 FreezeImmediately: false,
                 RawBeamEntry: 0);
         }
 
-        byte beamEntry = bus.ReadByte(
-            0xb40000 | unchecked((ushort)(pointer + projectileType.BeamCombinationIndex)));
+        byte beamEntry = EnemyVulnerabilityDefinitions.Read(
+            bus, pointer, projectileType.BeamCombinationIndex);
         if (beamEntry == 0xff)
         {
             return new NormalShotVulnerability(
@@ -2676,8 +2674,8 @@ public sealed partial class RoomEnemySystem
             // Charged-beam vulnerability is a dedicated byte, not another beam-combination
             // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
             // than that sentinel do not contribute to the damage multiplier.
-            byte chargedEntry = bus.ReadByte(
-                0xb40000 | unchecked((ushort)(pointer + 19)));
+            byte chargedEntry = EnemyVulnerabilityDefinitions.Read(
+                bus, pointer, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
             multiplier = chargedEntry == 0xff ? 0 : chargedEntry & 0x0f;
         }
 
@@ -2713,20 +2711,19 @@ public sealed partial class RoomEnemySystem
     {
         ushort pointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
-            : DefaultEnemyVulnerability;
+            : EnemyVulnerabilityDefinitions.DefaultPointer;
         SamusProjectileFamily family = projectileType.Family;
         int byteOffset = family switch
         {
             SamusProjectileFamily.Beam => projectileType.BeamCombinationIndex,
-            SamusProjectileFamily.Missile => 12,
-            SamusProjectileFamily.SuperMissile => 13,
-            SamusProjectileFamily.Bomb => 14,
-            SamusProjectileFamily.PowerBomb => 15,
+            SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
+            SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
+            SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
+            SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
             _ => throw new InvalidDataException(
                 $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
         };
-        return bus.ReadByte(
-            (int)new SnesAddress(0xb4, unchecked((ushort)(pointer + byteOffset))));
+        return EnemyVulnerabilityDefinitions.Read(bus, pointer, byteOffset);
     }
 
     private readonly record struct NormalShotVulnerability(
@@ -2901,12 +2898,18 @@ public sealed partial class RoomEnemySystem
 
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
-            : DefaultEnemyVulnerability;
-        int vulnerabilityOffset = family == SamusProjectileFamily.Beam
-            ? projectile.Type & 0x000f
-            : 11 + ((ushort)family >> 8);
-        int multiplier = bus.ReadByte(
-            0xb40000 | unchecked((ushort)(vulnerabilityPointer + vulnerabilityOffset))) & 0x0f;
+            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        int vulnerabilityOffset = family switch
+        {
+            SamusProjectileFamily.Beam => projectile.Type & 0x000f,
+            SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
+            SamusProjectileFamily.SuperMissile =>
+                EnemyVulnerabilityDefinitions.SuperMissileOffset,
+            _ => throw new InvalidDataException(
+                $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
+        };
+        int multiplier = EnemyVulnerabilityDefinitions.Read(
+            bus, vulnerabilityPointer, vulnerabilityOffset) & 0x0f;
         return multiplier is not (0 or 15)
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;
@@ -2982,14 +2985,18 @@ public sealed partial class RoomEnemySystem
             3 => 2000, // Screw Attack
             _ => 200,  // Pseudo-Screw and the native fallback
         };
-        int vulnerabilityOffset = contactDamageIndex <= 3
-            ? contactDamageIndex + 15
-            : contactDamageIndex + 16;
+        int vulnerabilityOffset = contactDamageIndex switch
+        {
+            1 => EnemyVulnerabilityDefinitions.SpeedBoosterOffset,
+            2 => EnemyVulnerabilityDefinitions.ShinesparkOffset,
+            3 => EnemyVulnerabilityDefinitions.ScrewAttackOffset,
+            _ => EnemyVulnerabilityDefinitions.PseudoScrewOffset,
+        };
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
-            : DefaultEnemyVulnerability;
-        byte vulnerability = _bus!.ReadByte(
-            0xb40000 | unchecked((ushort)(vulnerabilityPointer + vulnerabilityOffset)));
+            : EnemyVulnerabilityDefinitions.DefaultPointer;
+        byte vulnerability = EnemyVulnerabilityDefinitions.Read(
+            _bus!, vulnerabilityPointer, vulnerabilityOffset);
         int damage = (baseDamage >> 1) * (vulnerability & 0x7f);
         if (damage == 0)
             return;

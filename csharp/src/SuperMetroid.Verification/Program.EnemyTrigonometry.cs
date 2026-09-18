@@ -77,6 +77,7 @@ internal static partial class Program
         VerifyDragonAnimationDefinitions(rom);
         VerifyEnemyPickupDefinitions(rom);
         VerifyEnemyDropChanceDefinitions(rom);
+        VerifyEnemyVulnerabilityDefinitions(rom);
         VerifyEnemyDeathExplosionDefinitions(rom);
         VerifyRoomSpriteObjectDefinitions(rom);
         VerifyCeresSteamDefinitions(rom);

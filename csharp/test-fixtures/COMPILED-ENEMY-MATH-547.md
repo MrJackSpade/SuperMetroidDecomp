@@ -2512,3 +2512,16 @@ the pinned cartridge, asserts the 22-definition union, and guards both complete
 bank-$94 source regions plus every non-quicksand header word. The real Maridia
 inside/collision paths still cover suit, movement-direction, sinking-contact, pose-
 clearance, and sandfall behavior while every migrated source is forbidden.
+
+# Draygon intro-dance boundary
+
+`DraygonIntroDanceDefinitions` owns the complete four-byte-aligned movement
+domain reachable by the four Evir actors during Draygon's 1,232-frame opening:
+1,104 records at `$A5:CE07-$A5:DF44`, plus the four signed sprite latencies.
+The real dispatcher no longer falls back to arbitrary bank-$A5 bytes when a
+restored stream index is unaligned or beyond that retail trajectory.
+
+Verification compares every decoded X/Y/delete result with the pinned cartridge,
+replays the complete production trajectory with both source ranges forbidden, and
+injects malformed restored state through the production dispatcher to prove it
+fails at the typed catalog boundary without touching ROM.

@@ -3,10 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled fixed timing definitions for Draygon's opening Evir dance.</summary>
 internal static class DraygonIntroDanceDefinitions
 {
-    /// <summary>
-    /// Native start of <c>DraygonFightIntroDanceData</c> at <c>$A5:CE07</c>. This
-    /// remains public to the runtime only for explicit malformed-state fallback reads.
-    /// </summary>
+    /// <summary>Native start of <c>DraygonFightIntroDanceData</c> at <c>$A5:CE07</c>.</summary>
     public const int NativeMovementStreamAddress = 0xa5ce07;
 
     /// <summary>
@@ -65,34 +62,36 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>
     /// Resolves one normally reachable, four-byte-aligned Evir movement record from the
-    /// compiled <c>$A5:CE07-$A5:DF44</c> trajectory. Returns false for malformed restored
-    /// indexes so the caller can retain the cartridge-address-space diagnostic fallback.
+    /// compiled <c>$A5:CE07-$A5:DF44</c> trajectory. The native 1,232-frame owner can
+    /// select exactly these 1,104 records after applying the four sprite latencies.
+    /// A restored index outside that domain is corrupt state, not permission to interpret
+    /// adjacent executable or presentation bytes as signed movement.
     /// </summary>
-    public static bool TryGetMovement(
-        ushort streamOffset,
-        out sbyte xDelta,
-        out sbyte yDelta,
-        out bool deletesSprite)
+    public static DraygonIntroMovement ResolveMovement(ushort streamOffset)
     {
         if ((streamOffset & 3) != 0 || streamOffset > LastMovementStreamOffset)
         {
-            xDelta = 0;
-            yDelta = 0;
-            deletesSprite = false;
-            return false;
+            throw new InvalidDataException(
+                $"Draygon intro movement offset ${streamOffset:X4} is outside the compiled " +
+                "four-byte-aligned retail trajectory.");
         }
 
         byte packed = PackedMovement[streamOffset / 4];
-        deletesSprite = packed == DeleteSentinel;
-        if (deletesSprite)
-        {
-            xDelta = 0;
-            yDelta = 0;
-            return true;
-        }
+        if (packed == DeleteSentinel)
+            return new DraygonIntroMovement(0, 0, DeletesSprite: true);
 
-        xDelta = unchecked((sbyte)((packed >> 4) - 8));
-        yDelta = unchecked((sbyte)((packed & 0x0f) - 8));
-        return true;
+        return new DraygonIntroMovement(
+            unchecked((sbyte)((packed >> 4) - 8)),
+            unchecked((sbyte)((packed & 0x0f) - 8)),
+            DeletesSprite: false);
     }
 }
+
+/// <summary>
+/// One decoded Evir movement record from Draygon's fixed opening dance stream.
+/// The delete sentinel is kept distinct from the otherwise valid zero-delta record.
+/// </summary>
+internal readonly record struct DraygonIntroMovement(
+    sbyte XDelta,
+    sbyte YDelta,
+    bool DeletesSprite);

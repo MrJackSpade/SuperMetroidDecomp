@@ -45,29 +45,24 @@ internal static partial class Program
         {
             byte nativeX = rom.ReadByte(source + offset);
             byte nativeY = rom.ReadByte(source + offset + 1);
-            bool found = DraygonIntroDanceDefinitions.TryGetMovement(
-                offset,
-                out sbyte actualX,
-                out sbyte actualY,
-                out bool actualDelete);
-            AssertEqual(true, found, $"Draygon intro movement ${offset:X4} is compiled");
+            DraygonIntroMovement actual =
+                DraygonIntroDanceDefinitions.ResolveMovement(offset);
 
             bool expectedDelete = nativeX == 0x80 && nativeY == 0x80;
-            AssertEqual(expectedDelete, actualDelete,
+            AssertEqual(expectedDelete, actual.DeletesSprite,
                 $"Draygon intro movement ${offset:X4} delete sentinel");
-            AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeX), actualX,
+            AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeX), actual.XDelta,
                 $"Draygon intro movement ${offset:X4} X delta");
-            AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeY), actualY,
+            AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeY), actual.YDelta,
                 $"Draygon intro movement ${offset:X4} Y delta");
         }
 
-        AssertEqual(false,
-            DraygonIntroDanceDefinitions.TryGetMovement(1, out _, out _, out _),
+        AssertThrows<InvalidDataException>(
+            () => DraygonIntroDanceDefinitions.ResolveMovement(1),
             "Draygon intro rejects a non-native unaligned restored stream index");
-        AssertEqual(false,
-            DraygonIntroDanceDefinitions.TryGetMovement(
-                unchecked((ushort)(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4)),
-                out _, out _, out _),
+        AssertThrows<InvalidDataException>(
+            () => DraygonIntroDanceDefinitions.ResolveMovement(
+                unchecked((ushort)(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4))),
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
 
@@ -155,6 +150,28 @@ internal static partial class Program
             "Draygon intro transitions to right-swoop setup after the native duration");
         AssertEqual((ushort)0, state.FunctionTimer,
             "Draygon intro clears the function timer at the native handoff");
+
+        // A restored index can be corrupt while the owner is still inside its native
+        // duration. Exercise the production dispatcher so this cannot regress into an
+        // arbitrary bank-$A5 read hidden behind a catalog-only unit test.
+        var malformedEnemies = new RoomEnemySystem();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+            malformedEnemies,
+            new DraygonIntroDefinitionReadGuard(rom));
+        var malformedRun = typeof(RoomEnemySystem).GetMethod(
+            "RunDraygonIntroDance",
+            flags)!.CreateDelegate<Action<DraygonEnemyState, SamusState?, byte>>(malformedEnemies);
+        var malformedState = new DraygonEnemyState(malformedEnemies.Slots[0])
+        {
+            // Slot 31 subtracts $0200, selecting invalid offset one immediately.
+            FightIntroDanceIndex = 0x0201,
+        };
+        RoomSpriteObjectSlot malformedSprite = malformedEnemies.RoomSpriteObjects[31];
+        malformedSprite.Kind = RoomSpriteObjectKind.DraygonIntroEvir;
+        malformedSprite.InstructionPointer = 1;
+        AssertThrows<InvalidDataException>(
+            () => malformedRun(malformedState, null, 1),
+            "Production Draygon intro rejects malformed restored movement without a ROM fallback");
     }
 
     private sealed class DraygonIntroDefinitionReadGuard(ISnesAddressSpace source) :

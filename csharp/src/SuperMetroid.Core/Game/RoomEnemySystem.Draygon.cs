@@ -307,33 +307,17 @@ public sealed partial class RoomEnemySystem
             if (unchecked((short)streamIndex) < 0 || !sprite.IsActive)
                 continue;
 
-            sbyte xDelta;
-            sbyte yDelta;
-            bool deletesSprite;
-            if (!DraygonIntroDanceDefinitions.TryGetMovement(
-                    streamIndex,
-                    out xDelta,
-                    out yDelta,
-                    out deletesSprite))
-            {
-                byte nativeXDelta = _bus!.ReadByte(
-                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress + streamIndex);
-                byte nativeYDelta = _bus.ReadByte(
-                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress +
-                    unchecked((ushort)(streamIndex + 1)));
-                xDelta = unchecked((sbyte)nativeXDelta);
-                yDelta = unchecked((sbyte)nativeYDelta);
-                deletesSprite = nativeXDelta == 0x80 && nativeYDelta == 0x80;
-            }
+            DraygonIntroMovement movement =
+                DraygonIntroDanceDefinitions.ResolveMovement(streamIndex);
 
-            if (deletesSprite)
+            if (movement.DeletesSprite)
             {
                 sprite.Clear();
                 continue;
             }
 
-            sprite.XPosition = unchecked((ushort)(sprite.XPosition + xDelta));
-            sprite.YPosition = unchecked((ushort)(sprite.YPosition + yDelta));
+            sprite.XPosition = unchecked((ushort)(sprite.XPosition + movement.XDelta));
+            sprite.YPosition = unchecked((ushort)(sprite.YPosition + movement.YDelta));
         }
 
         state.FightIntroDanceIndex = unchecked((ushort)(

@@ -175,6 +175,11 @@ separate parity review; a table migration does not establish those host bounds
 as native rules. Inspect authored bounds and adjacent-data behavior before
 substituting a catalog; do not assume every table is a smooth formula.
 
+Draygon's four signed opening-dance latencies and all 1,104 movement records
+reachable during its native 1,232-frame owner are compiled. Malformed restored
+stream indexes now fail at that bounded catalog instead of reading arbitrary
+adjacent bank-$A5 cartridge bytes.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

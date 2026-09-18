@@ -58,9 +58,134 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
             "out-of-range door-closing direction fails loudly");
+        VerifyResidentDoorClosingDefinitions(rom);
         VerifySequentialRoomPlmPopulationLoader();
         Console.WriteLine(
-            "Door-closing fallback definitions: all twelve direction/header/list selections match.");
+            "Door-closing definitions: all twelve fallback and seventeen resident selections match.");
+    }
+
+    /// <summary>
+    /// Verifies the fixed header+4 relationship for every resident grey/coloured door,
+    /// then exercises the real room-population and transition redirect with that source
+    /// word deliberately absent from the sparse bus.
+    /// </summary>
+    private static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
+    {
+        static ushort ReadWord(ISnesAddressSpace source, int address) =>
+            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+
+        AssertEqual(ResidentDoorClosingDefinitions.Count,
+            ResidentDoorClosingDefinitions.All.Length,
+            "resident-door definition count");
+
+        int definitionIndex = 0;
+        foreach (ResidentDoorClosingDefinition definition in
+                 ResidentDoorClosingDefinitions.All)
+        {
+            ushort expected = ReadWord(
+                rom,
+                0x840000 | unchecked((ushort)(definition.Header + 4)));
+            AssertEqual(expected, definition.ClosingInstructionList,
+                $"resident door $84:{definition.Header:X4} closing list matches cartridge");
+            AssertEqual(expected,
+                ResidentDoorClosingDefinitions.Resolve(definition.Header),
+                $"resident door $84:{definition.Header:X4} resolves by identity");
+
+            // Only header+2 is present. If production regresses to reading header+4,
+            // TestAddressSpace supplies zero and the redirect fails the exact assertion.
+            var bus = new TestAddressSpace();
+            const ushort population = 0x9000;
+            const ushort initialList = 0x9100;
+            const ushort closedBlueList = 0x9200;
+            const ushort familyList = 0x9300;
+            const ushort openTriggerList = 0x9400;
+            const ushort openingList = 0x9500;
+            const ushort closedDraw = 0x9600;
+            WriteWord(bus,
+                0x840000 | unchecked((ushort)(definition.Header + 2)),
+                initialList);
+            WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)),
+                closedBlueList);
+            WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)),
+                familyList);
+
+            bool grey = definition.Header == RoomPlmHeaders.BombTorizoGreyDoor ||
+                definition.Header is >= RoomPlmHeaders.GreyDoorFacingLeft and
+                    <= RoomPlmHeaders.GreyDoorFacingDown;
+            if (grey)
+            {
+                WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 12)),
+                    closedDraw);
+                WriteWord(bus, 0x840000 | unchecked((ushort)(familyList + 2)),
+                    openTriggerList);
+                bus.WriteBytes(
+                    0x840000 | unchecked((ushort)(openTriggerList + 2)),
+                    [0x01, unchecked((byte)openingList), unchecked((byte)(openingList >> 8))]);
+            }
+            else
+            {
+                WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 14)),
+                    closedDraw);
+                bus.WriteBytes(
+                    0x840000 | unchecked((ushort)(familyList + 2)),
+                    [0x01, unchecked((byte)openingList), unchecked((byte)(openingList >> 8))]);
+            }
+
+            byte blockX = (byte)(1 + definitionIndex % 4);
+            byte blockY = (byte)(1 + definitionIndex / 4);
+            bus.WriteBytes(0x8f0000 | population,
+            [
+                unchecked((byte)definition.Header),
+                unchecked((byte)(definition.Header >> 8)),
+                blockX,
+                blockY,
+                0x00,
+                0x80, // Negative argument bypasses persistence and always closes.
+                0x00,
+                0x00,
+            ]);
+
+            RoomLevelData level = CreateRoom(
+                8,
+                8,
+                new ushort[64],
+                new byte[64],
+                blockDefinitions: new byte[0x400 * 8]);
+            var system = new Bank80SystemState();
+            var plms = new RoomPlmSystem();
+            AssertEqual(1, plms.LoadRoomPopulation(
+                    bus,
+                    level,
+                    level.CreateBackgroundStreamer(),
+                    new SnesVram(),
+                    population,
+                    system,
+                    AreaId.Crateria,
+                    () => new SamusState(),
+                    () => false),
+                $"resident door $84:{definition.Header:X4} loads through production setup");
+
+            var enteringDoor = new CartridgeDoorHeader(
+                Pointer: 0,
+                DestinationRoomPointer: 0,
+                BitFlags: 0,
+                Orientation: 5,
+                PlmX: blockX,
+                PlmY: blockY,
+                DestinationScreenX: 0,
+                DestinationScreenY: 0,
+                SamusDistance: 0,
+                SetupCodePointer: 0);
+            AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+                $"resident door $84:{definition.Header:X4} accepts transition redirect");
+            AssertEqual(expected, plms.PopulationSlots.Single().InstructionPointer,
+                $"resident door $84:{definition.Header:X4} installs compiled closing list");
+            definitionIndex++;
+        }
+
+        AssertThrows<InvalidDataException>(
+            () => ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.BlueDoorFacingLeft),
+            "nonresident blue-door collision header is outside resident closing domain");
     }
 
     private static void VerifySpeedBoosterEscapeStageDefinitions(

@@ -2291,5 +2291,23 @@ Verification compares every header and initial-list word with the pinned cartrid
 then allocates every fallback through production code using a synthetic bus that
 does not contain the header metadata. The complete sequential room-PLM suite also
 runs with `$84:C8D2` absent, covering the Mother Brain escape fallback and resident
-gate handoff. Out-of-range directions fail explicitly. Resident-door secondary
-lists and all closing animation/draw streams remain cartridge-backed follow-up work.
+gate handoff. Out-of-range directions fail explicitly. The resident-door header
+mapping is covered separately below; all closing animation/draw streams remain
+cartridge-backed mixed programs.
+
+# Resident door-closing metadata
+
+`ResidentDoorClosingDefinitions` compiles the second instruction-list identity
+stored at header+4 for Bomb Torizo's exceptional grey door, all four ordinary grey
+doors, and all twelve yellow/green/red doors. This is the complete seventeen-header
+retail resident-door domain. The selected mixed timer/sound/draw/branch programs
+remain cartridge-backed and are not misclassified as fixed lookup data.
+
+Verification compares every compiled list with the pinned cartridge, then loads
+each header through the real room-population setup and redirects the resident actor
+through `TrySpawnDoorClosingPlm`. The sparse production bus includes header+2 and
+the minimum family setup metadata but deliberately omits every header+4 word, so a
+runtime fallback to executable-header reads fails the exact selected-list assertion.
+The nonresident blue-door collision headers are rejected by the catalog rather than
+silently entering the resident domain. Focused door verification, the exhaustive
+compiled-definition suite, and the full Release solution build pass.

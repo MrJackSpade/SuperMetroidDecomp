@@ -122,6 +122,7 @@ internal static partial class Program
         VerifyRidleyClawOffsets(rom);
         VerifyFallingSparkLaunchDefinitions(rom);
         VerifyDeadSidehopperLaunchDefinitions(rom);
+        VerifyDeadSidehopperCorpseDefinitions(rom);
         VerifyKiHunterMotionDefinitions(rom);
         VerifyKraidRockLaunchDefinitions(rom);
         VerifyKraidMovementChoices(rom);

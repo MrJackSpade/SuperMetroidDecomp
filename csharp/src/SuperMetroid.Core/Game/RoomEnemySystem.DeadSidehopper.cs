@@ -14,14 +14,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadSidehopperLandingInstruction = 0xecac;
     private const ushort DeadSidehopperCorpseInstruction = 0xece9;
     private const ushort DeadSidehopperAlternateInstruction = 0xecef;
-    private const ushort DeadSidehopperConfiguration0 = 0xdd68;
-    private const ushort DeadSidehopperConfiguration2 = 0xdd78;
-    private const ushort DeadSidehopperCopyFunction0 = 0xe4f5;
-    private const ushort DeadSidehopperMoveFunction0 = 0xe468;
-    private const ushort DeadSidehopperGraphicsInitFunction0 = 0xdec1;
-    private const ushort DeadSidehopperCopyFunction2 = 0xe5f6;
-    private const ushort DeadSidehopperMoveFunction2 = 0xe564;
-    private const ushort DeadSidehopperGraphicsInitFunction2 = 0xdf08;
     private const ushort DeadMonsterFinishedFunction = 0xdc08;
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
     private const int DeadMonsterTileDataAddress = 0xb7c000;
@@ -134,10 +126,7 @@ public sealed partial class RoomEnemySystem
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
             graphicsVariant: 0,
-            DeadSidehopperConfiguration0,
-            DeadSidehopperCopyFunction0,
-            DeadSidehopperMoveFunction0,
-            DeadSidehopperGraphicsInitFunction0);
+            DeadSidehopperCorpseDefinitions.InitiallyAlive);
         state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
         state.PaletteStage = 0;
         state.HorizontalVelocity = 96;
@@ -153,10 +142,7 @@ public sealed partial class RoomEnemySystem
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
             graphicsVariant: 2,
-            DeadSidehopperConfiguration2,
-            DeadSidehopperCopyFunction2,
-            DeadSidehopperMoveFunction2,
-            DeadSidehopperGraphicsInitFunction2);
+            DeadSidehopperCorpseDefinitions.InitiallyDead);
         state.PaletteStage = 0xffff;
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
@@ -164,58 +150,33 @@ public sealed partial class RoomEnemySystem
     private DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
         RoomEnemySlot slot,
         ushort graphicsVariant,
-        ushort configurationPointer,
-        ushort expectedCopyFunction,
-        ushort expectedMoveFunction,
-        ushort expectedGraphicsInitFunction)
+        DeadSidehopperCorpseDefinition definition)
     {
-        int configurationAddress = 0xa90000 | configurationPointer;
-        ushort tablePointer = ReadWord(_bus!, configurationAddress);
-        ushort vramTablePointer = ReadWord(_bus!, configurationAddress + 2);
-        ushort copyFunction = ReadWord(_bus!, configurationAddress + 4);
-        ushort moveFunction = ReadWord(_bus!, configurationAddress + 6);
-        ushort entryCount = ReadWord(_bus!, configurationAddress + 8);
-        ushort graphicsInitFunction = ReadWord(_bus!, configurationAddress + 10);
-        ushort rotationTablePointer = ReadWord(_bus!, configurationAddress + 12);
-        ushort finishFunction = ReadWord(_bus!, configurationAddress + 14);
-
-        if (copyFunction != expectedCopyFunction ||
-            moveFunction != expectedMoveFunction ||
-            graphicsInitFunction != expectedGraphicsInitFunction ||
-            finishFunction != DeadMonsterFinishedFunction)
-        {
-            throw new InvalidDataException(
-                $"Dead sidehopper configuration $A9:{configurationPointer:X4} selected " +
-                $"callbacks ${copyFunction:X4}/${moveFunction:X4}/" +
-                $"${graphicsInitFunction:X4}/${finishFunction:X4}.");
-        }
-        if (entryCount == 0)
+        if (definition.EntryCount == 0)
             throw new InvalidDataException("Dead sidehopper corpse configuration has zero rows.");
 
-        ushort yLimit = unchecked((ushort)(entryCount - 1));
+        ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        ushort wrapOffset = unchecked((ushort)(
-            ReadWord(_bus!, 0xa90000 | unchecked((ushort)(rotationTablePointer + 2))) - 12));
         var state = new DeadSidehopperEnemyState(
             slot,
             graphicsVariant,
-            configurationPointer,
-            tablePointer,
-            vramTablePointer,
-            copyFunction,
-            moveFunction,
-            rotationTablePointer,
-            finishFunction,
-            entryCount,
+            definition.ConfigurationPointer,
+            definition.RottingTablePointer,
+            definition.VramTransferPointer,
+            definition.CopyFunction,
+            definition.MoveFunction,
+            definition.RotationTablePointer,
+            definition.FinishFunction,
+            definition.EntryCount,
             yLimit,
             lateMoveEntryIndex,
-            wrapOffset);
+            definition.WrapOffset);
         _deadSidehopperStates[slot.SlotIndex] = state;
 
         CorpseRottingTableProcessor.Initialize(
             _bus!,
-            0x7e0000 | tablePointer,
-            entryCount);
+            0x7e0000 | definition.RottingTablePointer,
+            definition.EntryCount);
         InitializeDeadSidehopperGraphics(graphicsVariant);
         return state;
     }

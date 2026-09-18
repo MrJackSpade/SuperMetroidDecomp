@@ -42,6 +42,12 @@ Actual spawn and horizontal-motion tests reject reads of the migrated table.
 Dead-sidehopper launch pairs are also compiled. The actual post-landing dispatcher
 is verified for every timer word, all four ordinary phases, and both palette gates
 with a throwing bus; the rest of its corpse/animation system remains separate.
+The two dead-sidehopper corpse-rotting configuration records are now compiled as
+typed metadata too. Their sixteen pointer/count/callback words and the shared
+derived wrap offset match the pinned cartridge, and both real initializers run
+with those metadata sources forbidden. The mutable WRAM rotting table, variable
+rotation-row lookup, VRAM transfer streams, graphics payloads, and animation
+programs remain separate live dependencies.
 KiHunter's proximity, gravity and detached-wing radius constants are compiled;
 the misleading attack-radius reference names are corrected. Its instruction
 programs, populations and presentation still belong to the broader integration.

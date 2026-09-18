@@ -222,6 +222,12 @@ if (args is ["--room-sprite-object-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--dead-sidehopper-corpse-definitions"])
+{
+    VerifyDeadSidehopperCorpseDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--baby-metroid-route-definitions"])
 {
     VerifyBabyMetroidCutsceneEntrance();

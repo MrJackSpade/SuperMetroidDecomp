@@ -435,6 +435,11 @@ physical records, preserving the native eight-row wrap for Y position, velocity,
 acceleration. Every real room-graphics projectile allocation and initializer runs with
 the five source tables forbidden; selected animation programs remain separate.
 
+Bomb/Golden Torizo's eight randomized Chozo-orb, egg, and eye-beam launch tuples are
+compiled as typed physical records. The shared real initializer retains independent
+signed-byte velocity jitter, while the eye beam still replaces those base velocities
+with its aimed launch. All family/facing spawn paths run with the eight tuples forbidden.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

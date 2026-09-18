@@ -147,20 +147,11 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BombTorizoChozoOrb,
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
 
-        // $86:AC08/$AC12 are five-word {list,x,xVelocity,y,yVelocity} records. The
-        // initializer adds a signed random byte minus $80 to each velocity.
-        int tuple = (torizo.Parameter1 & 0x8000) != 0 ? 0x86ac08 : 0x86ac12;
-        projectile.InstructionPointer = ReadWord(_bus!, tuple);
-        projectile.XPosition = unchecked((ushort)(torizo.XPosition +
-            unchecked((short)ReadWord(_bus!, tuple + 2))));
-        projectile.XVelocity = unchecked((ushort)(
-            unchecked((short)ReadWord(_bus!, tuple + 4)) +
-            (unchecked((byte)_nextRandom!()) - 0x80)));
-        projectile.YPosition = unchecked((ushort)(torizo.YPosition +
-            unchecked((short)ReadWord(_bus!, tuple + 6))));
-        projectile.YVelocity = unchecked((ushort)(
-            unchecked((short)ReadWord(_bus!, tuple + 8)) +
-            (unchecked((byte)_nextRandom!()) - 0x80)));
+        InitializeTorizoRandomizedProjectile(
+            projectile,
+            torizo,
+            TorizoRandomizedProjectileDefinitions.BombChozoOrb(
+                facingRight: (torizo.Parameter1 & 0x8000) != 0));
     }
 
     private void SpawnBombTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
@@ -217,10 +208,11 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
-        InitializeTorizoRandomizedProjectileTuple(
+        InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            (torizo.Parameter1 & 0x8000) != 0 ? 0x86ac99 : 0x86aca3);
+            TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(
+                facingRight: (torizo.Parameter1 & 0x8000) != 0));
     }
 
     private void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
@@ -238,10 +230,11 @@ public sealed partial class RoomEnemySystem
         // not a random value, producing a fixed 66-frame timer. Preserve that behavior.
         projectile.Variable1 = (0x00e2 & 0x001f) + 64;
         projectile.Variable0 = torizo.Parameter1;
-        InitializeTorizoRandomizedProjectileTuple(
+        InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            unchecked((short)torizo.Parameter1) < 0 ? 0x86b02f : 0x86b039);
+            TorizoRandomizedProjectileDefinitions.GoldenEgg(
+                movingRight: unchecked((short)torizo.Parameter1) < 0));
     }
 
     private void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
@@ -274,10 +267,10 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
         projectile.DirectionParameter = parameter;
         bool facingRight = (torizo.Parameter1 & 0x8000) != 0;
-        InitializeTorizoRandomizedProjectileTuple(
+        InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
-            facingRight ? 0x86b376 : 0x86b380);
+            TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(facingRight));
 
         int angle = ((_nextRandom!() & 0x001e) - 16 + 192 + (facingRight ? 0 : 128)) & 0x01ff;
         int sineIndex = angle >> 1;
@@ -289,23 +282,21 @@ public sealed partial class RoomEnemySystem
             EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)));
     }
 
-    private void InitializeTorizoRandomizedProjectileTuple(
+    private void InitializeTorizoRandomizedProjectile(
         RoomEnemyProjectileSlot projectile,
         RoomEnemySlot torizo,
-        int tupleAddress)
+        TorizoRandomizedProjectileDefinition definition)
     {
-        // Bank $86 stores {list, x offset, x velocity, y offset, y velocity}. Each
-        // velocity receives its own signed random-byte displacement in [-128, 127].
-        projectile.InstructionPointer = ReadWord(_bus!, tupleAddress);
+        projectile.InstructionPointer = definition.InstructionList;
         projectile.XPosition = unchecked((ushort)(torizo.XPosition +
-            unchecked((short)ReadWord(_bus!, tupleAddress + 2))));
+            definition.XOffset));
         projectile.XVelocity = unchecked((ushort)(
-            unchecked((short)ReadWord(_bus!, tupleAddress + 4)) +
+            definition.BaseXVelocity +
             unchecked((byte)_nextRandom!()) - 128));
         projectile.YPosition = unchecked((ushort)(torizo.YPosition +
-            unchecked((short)ReadWord(_bus!, tupleAddress + 6))));
+            definition.YOffset));
         projectile.YVelocity = unchecked((ushort)(
-            unchecked((short)ReadWord(_bus!, tupleAddress + 8)) +
+            definition.BaseYVelocity +
             unchecked((byte)_nextRandom!()) - 128));
     }
 

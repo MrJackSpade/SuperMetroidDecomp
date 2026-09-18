@@ -193,6 +193,12 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--ridley-explosion-definitions"])
+{
+    VerifyRidleyExplosionDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--choot-pattern-definitions"])
 {
     VerifyChootPatternDefinitions(
@@ -1256,6 +1262,8 @@ VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
+VerifyRidleyExplosionDefinitions(
+    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();
 VerifyRipperEnemy(verifyXrayTimers: true);

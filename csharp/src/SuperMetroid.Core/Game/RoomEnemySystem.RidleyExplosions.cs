@@ -7,16 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort NorfairRidleyExplosionDefinition = 0xe1bf;
-
-    private static readonly ushort[] NorfairRidleyBreakupParameters =
-    [
-        // $A6:C932 deliberately spawns tail tip back toward the base, then wings, legs,
-        // torso, head, and claw in this non-numeric order. Slot/OAM order is observable.
-        0x000c, 0x000a, 0x0008, 0x0006, 0x0004, 0x0002, 0x0000,
-        0x000e, 0x0010, 0x0014, 0x0012, 0x0016,
-    ];
-
     private void SpawnNorfairRidleyBreakupActors(
         RoomEnemySlot body,
         RidleyEnemyState state)
@@ -27,8 +17,8 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemyDefinition definition = ReadDefinition(
             _bus!,
-            NorfairRidleyExplosionDefinition);
-        foreach (ushort parameter in NorfairRidleyBreakupParameters)
+            RidleyExplosionDefinitions.EnemyDefinition);
+        foreach (ushort parameter in RidleyExplosionDefinitions.SpawnOrder)
         {
             int slotIndex = Array.FindIndex(
                 _slots,
@@ -43,7 +33,7 @@ public sealed partial class RoomEnemySystem
             // property $2C00, and one even parameter. Initialization replaces position and
             // instruction from the still-live shared Ridley joints below.
             RoomEnemyPopulationRecord population = new(
-                NorfairRidleyExplosionDefinition,
+                RidleyExplosionDefinitions.EnemyDefinition,
                 XPosition: 0,
                 YPosition: 0,
                 InitializationParameter: 0,
@@ -78,9 +68,7 @@ public sealed partial class RoomEnemySystem
         fragment.Timer = 0;
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
-        fragment.VariableF = ReadWord(
-            _bus!,
-            RidleyExplosionRomData.TailVelocityTable + fragment.Parameter1);
+        fragment.VariableF = RidleyExplosionDefinitions.GetPart(fragment.Parameter1).Lifetime;
 
         ushort random = _nextRandom!();
         ushort horizontalMagnitude = unchecked((ushort)(random & 0x0130));
@@ -96,84 +84,23 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.XPosition = tail.XPosition;
             fragment.YPosition = tail.YPosition;
-            fragment.CurrentInstruction = parameter switch
-            {
-                RidleyExplosionParts.Tail0 or RidleyExplosionParts.Tail1 => RidleyExplosionRomData.LargeTailInstructionList,
-                RidleyExplosionParts.Tail2 or RidleyExplosionParts.Tail3 => RidleyExplosionRomData.MediumTailInstructionList,
-                RidleyExplosionParts.Tail4 or RidleyExplosionParts.Tail5 => RidleyExplosionRomData.SmallTailInstructionList,
-                _ => ReadWord(
-                    _bus!,
-                    RidleyExplosionRomData.TailAngleInstructionListTable +
-                    ((((tail.Angle & 0x00ff) +
-                        (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4) * 2),
-            };
+            int tailTipOrientation =
+                (((tail.Angle & 0x00ff) +
+                    (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4;
+            fragment.CurrentInstruction = RidleyExplosionDefinitions.SelectTailInstructionList(
+                parameter,
+                tailTipOrientation);
             return;
         }
 
-        int facingIndex = state.FacingDirection == 0 ? 0 : 1;
-        switch (parameter)
-        {
-            case RidleyExplosionParts.Wings:
-                fragment.XPosition = body.XPosition;
-                fragment.YPosition = body.YPosition;
-                fragment.CurrentInstruction = ReadWord(
-                    _bus!,
-                    RidleyExplosionRomData.WingInstructionListTable + facingIndex * 2);
-                return;
-
-            case RidleyExplosionParts.Legs:
-                fragment.XPosition = AddRidleyExplosionOffset(
-                    body.XPosition,
-                    RidleyExplosionRomData.LegXOffsetTable,
-                    facingIndex);
-                fragment.YPosition = unchecked((ushort)(body.YPosition + 22));
-                fragment.CurrentInstruction = ReadWord(
-                    _bus!,
-                    RidleyExplosionRomData.LegInstructionListTable + facingIndex * 2);
-                return;
-
-            case RidleyExplosionParts.OpenHeadAndNeck:
-                fragment.XPosition = AddRidleyExplosionOffset(
-                    body.XPosition,
-                    RidleyExplosionRomData.OpenHeadXOffsetTable,
-                    facingIndex);
-                fragment.YPosition = unchecked((ushort)(body.YPosition - 24));
-                fragment.CurrentInstruction = ReadWord(
-                    _bus!,
-                    RidleyExplosionRomData.OpenHeadInstructionListTable + facingIndex * 2);
-                return;
-
-            case RidleyExplosionParts.Torso:
-                fragment.XPosition = AddRidleyExplosionOffset(
-                    body.XPosition,
-                    RidleyExplosionRomData.TorsoXOffsetTable,
-                    facingIndex);
-                fragment.YPosition = body.YPosition;
-                fragment.CurrentInstruction = ReadWord(
-                    _bus!,
-                    RidleyExplosionRomData.TorsoInstructionListTable + facingIndex * 2);
-                return;
-
-            case RidleyExplosionParts.Claw:
-                fragment.XPosition = AddRidleyExplosionOffset(
-                    body.XPosition,
-                    RidleyExplosionRomData.ClawXOffsetTable,
-                    facingIndex);
-                fragment.YPosition = unchecked((ushort)(body.YPosition + 7));
-                fragment.CurrentInstruction = ReadWord(
-                    _bus!,
-                    RidleyExplosionRomData.ClawInstructionListTable + facingIndex * 2);
-                return;
-        }
+        RidleyExplosionBodyPartDefinition bodyPart =
+            RidleyExplosionDefinitions.SelectBodyPart(
+                parameter,
+                facingRight: state.FacingDirection != 0);
+        fragment.XPosition = unchecked((ushort)(body.XPosition + bodyPart.XOffset));
+        fragment.YPosition = unchecked((ushort)(body.YPosition + bodyPart.YOffset));
+        fragment.CurrentInstruction = bodyPart.InstructionList;
     }
-
-    private ushort AddRidleyExplosionOffset(
-        ushort origin,
-        int tableAddress,
-        int facingIndex) =>
-        unchecked((ushort)(origin + unchecked((short)ReadWord(
-            _bus!,
-            tableAddress + facingIndex * 2))));
 
     /// <summary>Ports main AI $A6:C8D4: flicker, drag, gravity, movement, and lifetime.</summary>
     private void RunNorfairRidleyExplosionMain(RoomEnemySlot fragment)

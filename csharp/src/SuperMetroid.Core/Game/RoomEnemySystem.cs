@@ -1295,7 +1295,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Ridley when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
                 InitializeNorfairRidley(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_RidleyExplosion when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
+            case EnemyAiCodePointers.InitAI_RidleyExplosion when slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition:
                 InitializeNorfairRidleyExplosion(
                     slot,
                     _slots[0],
@@ -1850,7 +1850,7 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
+            case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition:
                 RunNorfairRidleyExplosionMain(slot);
                 return;
             case EnemyAiCodePointers.MainAI_Boulder when slot.EnemyDefinitionPointer == BoulderDefinition:

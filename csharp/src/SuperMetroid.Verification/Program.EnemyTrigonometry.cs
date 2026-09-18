@@ -96,6 +96,9 @@ internal static partial class Program
         VerifyCeresDoorQuakeDefinitions(rom);
         VerifyCeresDoorInitializationDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
+        VerifyRidleyExplosionDefinitions(rom);
+        VerifyCrocomireMeltingDefinitions(rom);
+        VerifyDraygonIntroDanceDefinitions(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);
         VerifyCompiledEnemyFireballLaunches(rom);

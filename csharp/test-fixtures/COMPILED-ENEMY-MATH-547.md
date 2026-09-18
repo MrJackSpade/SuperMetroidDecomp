@@ -2407,3 +2407,19 @@ index, rejects a value beyond the low nibble, and fires all 24 ordinary charged
 and uncharged combinations through production with both source ranges forbidden.
 The previous synthetic test that rewrote executable callback tables was removed;
 the catalog is now the authoritative immutable dispatcher.
+
+# Complete posture-transition HUD observations
+
+`SamusHudDefinitions` now owns the complete bounded pose-indexed byte domain used
+by `$90:DD8C HUDSelectionHandler_TransitionPoses`. The cartridge subtracts pose
+`$35` before indexing twelve authored flags at `$90:DDAA`; restored combinations
+therefore observe the preceding/following code for poses `$00-$34` and `$41-$DA`.
+All 219 exact observations at `$90:DD75-$DE4F` are compiled. Poses `$DB-$F0` and
+`$F1-$FF` retain their earlier native prefilter branches and do not enter the
+lookup. Grapple admission and projectile charge preservation no longer read this
+bank-$90 window at runtime.
+
+Verification compares every reachable observation with the pinned cartridge,
+checks every pose with both Grapple-active states, exercises every authored pose
+through the real Grapple and charge-preservation consumers, rejects the prefiltered
+range at the catalog boundary, and forbids the complete retired source window.

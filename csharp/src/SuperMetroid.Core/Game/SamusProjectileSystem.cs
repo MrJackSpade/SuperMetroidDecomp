@@ -418,7 +418,7 @@ public sealed partial class SamusProjectileSystem
         // Posture-transition dispatch preserves the carried charge during morph art;
         // ordinary crouch/stand transitions still run their native beam producer.
         bool preservesPostureCharge = hudHandler == SamusHudRomData.TransitionHandler &&
-            !SamusHudInput.PostureTransitionAdmitsWeapons(bus, samus.Pose,
+            !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
                 grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive);
         if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
             !SamusState.IsStableBallPose(samus.Pose))

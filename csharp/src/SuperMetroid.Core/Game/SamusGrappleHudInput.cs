@@ -20,6 +20,6 @@ internal static class SamusGrappleHudInput
             return samus.PoseTransitionShotDirection != 0;
         if (handler != SamusHudRomData.TransitionHandler)
             return false;
-        return SamusHudInput.PostureTransitionAdmitsWeapons(bus, samus.Pose, grappleActive: false);
+        return SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false);
     }
 }

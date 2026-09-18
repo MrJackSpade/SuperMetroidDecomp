@@ -7,17 +7,23 @@ internal static partial class Program
     private static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        bool Transition(byte pose, bool active) => pose >= 0xf1 ||
-            (pose < 0xdb && (rom.ReadByte(0x90ddaa + pose - 0x35) == 0 || active));
+        bool Transition(byte pose, bool active) => pose >= SamusHudRomData.StandardTransitionStart ||
+            (pose < SamusHudRomData.NonFiringTransitionStart &&
+                (rom.ReadByte(SamusHudRomData.TransitionFlags + pose -
+                    SamusHudRomData.FirstTransitionPose) == 0 || active));
         var metadata = new GrappleFiringReadGuard(rom);
         var bus = new HudPolicyReadGuard(metadata);
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         foreach (bool active in new[] { false, true })
         {
-            bool authored = pose is >= 0x35 and <= 0x40;
-            AssertEqual(authored, SamusHudDefinitions.TryGetPostureFlag((byte)pose, out byte flag), "Twelve authored posture flags only");
-            if (authored) AssertEqual(rom.ReadByte(0x90ddaa + pose - 0x35), flag, "Native posture flag byte");
-            AssertEqual(Transition((byte)pose, active), SamusHudInput.PostureTransitionAdmitsWeapons(bus, (byte)pose, active), "Every posture pose and active-Grapple branch");
+            if (pose < SamusHudRomData.NonFiringTransitionStart)
+                AssertEqual(rom.ReadByte(SamusHudRomData.TransitionFlags + pose -
+                        SamusHudRomData.FirstTransitionPose),
+                    SamusHudDefinitions.PostureObservation((byte)pose),
+                    "Complete bounded posture-index observation");
+            AssertEqual(Transition((byte)pose, active),
+                SamusHudInput.PostureTransitionAdmitsWeapons((byte)pose, active),
+                "Every posture pose and active-Grapple branch");
         }
         var samus = new SamusState();
         var setTurn = typeof(SamusState).GetProperty(nameof(SamusState.PoseTransitionShotDirection))!.SetMethod!
@@ -67,14 +73,24 @@ internal static partial class Program
             AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={pose:X2} turn={turn}");
             AssertEqual((int?)null, result.FiredSlot, "Held partial charge does not emit shot");
         }
-        Console.WriteLine("Samus HUD definitions: 28 handler words, 12 posture bytes, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with authored reads forbidden.");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusHudDefinitions.PostureObservation(
+                SamusHudRomData.NonFiringTransitionStart),
+            "posture observation rejects the native prefiltered range");
+        Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
     }
 
     private sealed class HudPolicyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
-            if (address is >= 0x90dd05 and < 0x90dd3d or >= 0x90ddaa and < 0x90ddb6)
+            int postureStart = SamusHudRomData.TransitionFlags -
+                SamusHudRomData.FirstTransitionPose;
+            int postureEnd = SamusHudRomData.TransitionFlags +
+                SamusHudRomData.NonFiringTransitionStart -
+                SamusHudRomData.FirstTransitionPose;
+            if (address >= SamusHudRomData.MovementHandlers && address < 0x90dd3d ||
+                address >= postureStart && address < postureEnd)
                 throw new InvalidOperationException($"Compiled HUD policy read ROM ${address:X6}.");
             return source.ReadByte(address);
         }

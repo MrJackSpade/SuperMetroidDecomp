@@ -430,6 +430,11 @@ typed physical definitions. All eight real initializers and turns plus both-faci
 detach, contact-kick, and shot-launch paths run with every migrated source forbidden.
 Animation programs selected by these definitions remain separate dependencies.
 
+Bomb Torizo's sixteen statue-hand fragment selections are compiled as complete
+physical records, preserving the native eight-row wrap for Y position, velocity, and
+acceleration. Every real room-graphics projectile allocation and initializer runs with
+the five source tables forbidden; selected animation programs remain separate.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

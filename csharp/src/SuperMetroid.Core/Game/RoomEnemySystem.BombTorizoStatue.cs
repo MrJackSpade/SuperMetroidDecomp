@@ -4,13 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
-    private const ushort BombTorizoStatueInstructionTable = 0xa7ab;
-    private const ushort BombTorizoStatueXOffsetTable = 0xa7cb;
-    private const ushort BombTorizoStatueYOffsetTable = 0xa7eb;
-    private const ushort BombTorizoStatueYVelocityTable = 0xa7fb;
-    private const ushort BombTorizoStatueAccelerationTable = 0xa80b;
-
     /// <summary>
     /// Allocates the room-graphics enemy projectile requested by PLM instruction
     /// <c>$84:D357</c>, then runs initializer <c>$86:A764</c> against the publishing PLM's
@@ -20,20 +13,16 @@ public sealed partial class RoomEnemySystem
         BombTorizoStatueProjectileRequest request)
     {
         EnsureLoaded();
-        if (request.DefinitionPointer != BombTorizoStatueBreakingDefinition)
+        if (request.DefinitionPointer !=
+            BombTorizoStatueFragmentDefinitions.ProjectileDefinition)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(request),
                 $"Bomb Torizo statue projectile must use definition $A993, not " +
                 $"${request.DefinitionPointer:X4}.");
         }
-        if ((request.Parameter & 1) != 0 || request.Parameter > 0x001e)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(request),
-                $"Bomb Torizo statue parameter ${request.Parameter:X4} is outside " +
-                "the sixteen-entry even parameter table.");
-        }
+        BombTorizoStatueFragmentDefinition definition =
+            BombTorizoStatueFragmentDefinitions.ForParameter(request.Parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -44,30 +33,13 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BombTorizoStatueBreaking,
             graphicsIndex: 0);
 
-        int parameterIndex = request.Parameter >> 1;
-        int rowIndex = (request.Parameter & 0x000f) >> 1;
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(
-                BombTorizoStatueInstructionTable + parameterIndex * 2)));
+        projectile.InstructionPointer = definition.InstructionList;
         projectile.XPosition = unchecked((ushort)(
-            request.PlmBlockX * 16 + unchecked((short)ReadWord(
-                _bus!,
-                0x860000 | unchecked((ushort)(
-                    BombTorizoStatueXOffsetTable + parameterIndex * 2))))));
+            request.PlmBlockX * 16 + definition.XOffset));
         projectile.YPosition = unchecked((ushort)(
-            request.PlmBlockY * 16 + unchecked((short)ReadWord(
-                _bus!,
-                0x860000 | unchecked((ushort)(
-                    BombTorizoStatueYOffsetTable + rowIndex * 2))))));
-        projectile.YVelocity = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(
-                BombTorizoStatueYVelocityTable + rowIndex * 2)));
-        projectile.Variable1 = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(
-                BombTorizoStatueAccelerationTable + rowIndex * 2)));
+            request.PlmBlockY * 16 + definition.YOffset));
+        projectile.YVelocity = definition.YVelocity;
+        projectile.Variable1 = definition.Acceleration;
         return projectile;
     }
 

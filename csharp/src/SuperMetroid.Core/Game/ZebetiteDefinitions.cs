@@ -1,0 +1,79 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>Fixed generation, health-tier, and respawn definitions for Tourian's Zebetites.</summary>
+internal static class ZebetiteDefinitions
+{
+    /// <summary>
+    /// Four parallel generation rows at <c>$A6:FC03-$A6:FC32</c>: multipart flag,
+    /// collision half-height, initial list, X, primary Y, and linked-half Y.
+    /// </summary>
+    private static readonly ZebetiteGenerationDefinition[] Generations =
+    [
+        new(0x0000, 0x0018, 0xfdcc, 0x0338, 0x006f, 0x006f),
+        new(0x8000, 0x0008, 0xfdea, 0x0278, 0x0047, 0x0097),
+        new(0x0000, 0x0018, 0xfdcc, 0x01b8, 0x006f, 0x006f),
+        new(0x8000, 0x0008, 0xfdea, 0x00f8, 0x0047, 0x0097),
+    ];
+
+    /// <summary>
+    /// Big-barrier health-tier instruction lists at <c>$A6:FD4A-$A6:FD53</c>, ordered
+    /// from at least 800 HP through less than 200 HP.
+    /// </summary>
+    private static readonly ushort[] BigHealthInstructionLists =
+        [0xfdcc, 0xfdd2, 0xfdd8, 0xfdde, 0xfde4];
+
+    /// <summary>
+    /// Linked-pair health-tier instruction lists at <c>$A6:FD54-$A6:FD5D</c>, ordered
+    /// from at least 800 HP through less than 200 HP.
+    /// </summary>
+    private static readonly ushort[] LinkedHealthInstructionLists =
+        [0xfdea, 0xfdf0, 0xfdf6, 0xfdfc, 0xfe02];
+
+    /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
+    private static readonly RoomEnemyPopulationRecord PrimarySpawn =
+        new(0xe27f, 0, 0, 0, 0x2000, 0, 0, 0);
+
+    /// <summary>Embedded linked-half spawn record at <c>$A6:FCF9-$A6:FD08</c>.</summary>
+    private static readonly RoomEnemyPopulationRecord LinkedSpawn =
+        new(0xe27f, 0, 0, 0, 0x2000, 0, 2, 0);
+
+    /// <summary>Returns one of the four active cartridge generation rows.</summary>
+    internal static ZebetiteGenerationDefinition Generation(ushort generation)
+    {
+        if (generation >= Generations.Length)
+        {
+            throw new InvalidDataException(
+                $"Zebetite generation {generation} exceeds its four active records.");
+        }
+
+        return Generations[generation];
+    }
+
+    /// <summary>Returns the animation list selected by multipart form and current health.</summary>
+    internal static ushort HealthInstruction(bool linkedPair, ushort health)
+    {
+        int tier = health < 200 ? 4 :
+            health < 400 ? 3 :
+            health < 600 ? 2 :
+            health < 800 ? 1 : 0;
+        return (linkedPair ? LinkedHealthInstructionLists : BigHealthInstructionLists)[tier];
+    }
+
+    /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>
+    internal static RoomEnemyPopulationRecord SpawnPopulation(bool linkedHalf) =>
+        linkedHalf ? LinkedSpawn : PrimarySpawn;
+}
+
+/// <summary>One active Zebetite generation's geometry and initial presentation binding.</summary>
+internal readonly record struct ZebetiteGenerationDefinition(
+    ushort GenerationFlags,
+    ushort YRadius,
+    ushort InstructionList,
+    ushort XPosition,
+    ushort PrimaryYPosition,
+    ushort LinkedYPosition)
+{
+    /// <summary>Returns the Y coordinate for the primary or linked physical half.</summary>
+    internal ushort YPosition(bool linkedHalf) =>
+        linkedHalf ? LinkedYPosition : PrimaryYPosition;
+}

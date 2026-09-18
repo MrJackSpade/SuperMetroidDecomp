@@ -413,6 +413,12 @@ run through the production initializer with `$B3:E718-$B3:E735` forbidden.
 Out-of-domain restored parameters deliberately retain the cartridge's unchecked
 adjacent-data reads; the first such selector is independently compared with ROM.
 
+Zebetites' four six-word generation records, ten health-tier instruction selectors,
+and two embedded respawn populations are compiled as one barrier definition set.
+All primary/linked initializers, every tier boundary, and both real respawn paths
+run with `$A6:FC03-$A6:FC32`, the two spawn records, and `$A6:FD4A-$A6:FD5D`
+forbidden. Palette animation and the selected instruction programs remain separate.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

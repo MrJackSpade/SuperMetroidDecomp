@@ -6,9 +6,9 @@ using SuperMetroid.Core.Rooms;
 /// <summary>
 /// ROM-backed audit for the four persistent Zebetite generations in Mother Brain's room.
 /// The population prefix retains the untouched $E27F record while excluding the two boss
-/// actors that precede it and the Rinkas that follow it. Generation tables, embedded spawn
-/// records, event bits, health animation, palette data, and projectile vulnerability remain
-/// cartridge sourced.
+/// actors that precede it and the Rinkas that follow it. The audit compares the compiled
+/// generation, embedded-spawn, and health-animation definitions with the cartridge while
+/// event bits, palette data, and projectile vulnerability remain runtime cartridge inputs.
 /// </summary>
 internal static class ZebetiteAudit
 {
@@ -245,9 +245,9 @@ internal static class ZebetiteAudit
                 loaded.Enemies.Slots[i].Clear();
                 if (i != hole) loaded.Enemies.Slots[i].EnemyDefinitionPointer = 0xd47f;
             }
-            var spawn = typeof(RoomEnemySystem).GetMethod("SpawnZebetiteFromRecord",
+            var spawn = typeof(RoomEnemySystem).GetMethod("SpawnZebetite",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
-            var actor = (RoomEnemySlot)spawn.Invoke(loaded.Enemies, [(ushort)0xfce1])!;
+            var actor = (RoomEnemySlot)spawn.Invoke(loaded.Enemies, [false])!;
             if (actor.SlotIndex != hole || actor.Health != 1000 || actor.XPosition != 824 || actor.YPosition != 111)
                 throw new InvalidDataException($"Native Zebetite spawn chose hole {hole}; C# chose {actor.SlotIndex}.");
             for (int i = 0; i < 4; i++)

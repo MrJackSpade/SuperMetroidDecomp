@@ -70,16 +70,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort ZebetiteDefinition = 0xe27f;
 
-    private const ushort ZebetiteGenerationFlagsTable = 0xfc03;
-    private const ushort ZebetiteYRadiusTable = 0xfc0b;
-    private const ushort ZebetiteInstructionTable = 0xfc13;
-    private const ushort ZebetiteXPositionTable = 0xfc1b;
-    private const ushort ZebetiteUpperYPositionTable = 0xfc23;
-    private const ushort ZebetiteLowerYPositionTable = 0xfc2b;
-    private const ushort ZebetitePrimarySpawnRecord = 0xfce1;
-    private const ushort ZebetiteSecondarySpawnRecord = 0xfcf9;
-    private const ushort ZebetiteUpperHealthInstructionTable = 0xfd4a;
-    private const ushort ZebetiteLowerHealthInstructionTable = 0xfd54;
     private const ushort ZebetiteMaximumHealth = 1000;
     private const ushort ZebetiteShotSound = 9;
     private const int ZebetitePaletteDestination = 0x0158 / 2;
@@ -129,25 +119,12 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        int tableOffset = generation * 2;
-        state.GenerationFlags = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(ZebetiteGenerationFlagsTable + tableOffset)));
-        slot.YRadius = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(ZebetiteYRadiusTable + tableOffset)));
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(ZebetiteInstructionTable + tableOffset)));
-        slot.XPosition = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(ZebetiteXPositionTable + tableOffset)));
-        ushort yTable = state.IsSecondaryHalf
-            ? ZebetiteLowerYPositionTable
-            : ZebetiteUpperYPositionTable;
-        slot.YPosition = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(yTable + tableOffset)));
+        ZebetiteGenerationDefinition definition = ZebetiteDefinitions.Generation(generation);
+        state.GenerationFlags = definition.GenerationFlags;
+        slot.YRadius = definition.YRadius;
+        slot.CurrentInstruction = definition.InstructionList;
+        slot.XPosition = definition.XPosition;
+        slot.YPosition = definition.YPosition(state.IsSecondaryHalf);
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
@@ -177,7 +154,7 @@ public sealed partial class RoomEnemySystem
     {
         if ((state.GenerationFlags & 0x8000) != 0)
         {
-            RoomEnemySlot secondary = SpawnZebetiteFromRecord(ZebetiteSecondarySpawnRecord);
+            RoomEnemySlot secondary = SpawnZebetite(linkedHalf: true);
             secondary.Parameter2 = slot.NativeIndex;
             state.LinkedNativeIndex = secondary.NativeIndex;
         }
@@ -220,7 +197,7 @@ public sealed partial class RoomEnemySystem
         PublishZebetiteGenerationEvents(nextGeneration);
         FinishZebetiteDeath(slot);
         if (nextGeneration < 4)
-            SpawnZebetiteFromRecord(ZebetitePrimarySpawnRecord);
+            SpawnZebetite(linkedHalf: false);
     }
 
     private void CycleZebetitePalette(RoomEnemySlot slot)
@@ -242,23 +219,18 @@ public sealed partial class RoomEnemySystem
             destinationIndex: ZebetitePaletteDestination);
     }
 
-    private void SelectZebetiteHealthAnimation(RoomEnemySlot slot, ZebetiteEnemyState state)
+    private static void SelectZebetiteHealthAnimation(
+        RoomEnemySlot slot,
+        ZebetiteEnemyState state)
     {
-        int tier = slot.Health < 200 ? 4 :
-            slot.Health < 400 ? 3 :
-            slot.Health < 600 ? 2 :
-            slot.Health < 800 ? 1 : 0;
-        ushort table = (state.GenerationFlags & 0x8000) != 0
-            ? ZebetiteLowerHealthInstructionTable
-            : ZebetiteUpperHealthInstructionTable;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(table + tier * 2)));
+        slot.CurrentInstruction = ZebetiteDefinitions.HealthInstruction(
+            linkedPair: (state.GenerationFlags & 0x8000) != 0,
+            slot.Health);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }
 
-    private RoomEnemySlot SpawnZebetiteFromRecord(ushort recordPointer)
+    private RoomEnemySlot SpawnZebetite(bool linkedHalf)
     {
         // A0:9275 scans physical slots from zero. In particular, a primary's
         // death vacates its slot before spawning the next generation; surviving
@@ -267,20 +239,12 @@ public sealed partial class RoomEnemySystem
         if (slotIndex < 0)
             throw new InvalidOperationException("Zebetite progression exhausted the 32-slot enemy pool.");
 
-        int record = 0xa60000 | recordPointer;
-        RoomEnemyPopulationRecord population = new(
-            ReadWord(_bus!, record),
-            ReadWord(_bus!, record + 2),
-            ReadWord(_bus!, record + 4),
-            ReadWord(_bus!, record + 6),
-            ReadWord(_bus!, record + 8),
-            ReadWord(_bus!, record + 10),
-            ReadWord(_bus!, record + 12),
-            ReadWord(_bus!, record + 14));
+        RoomEnemyPopulationRecord population =
+            ZebetiteDefinitions.SpawnPopulation(linkedHalf);
         if (population.DefinitionPointer != ZebetiteDefinition)
         {
             throw new InvalidDataException(
-                $"Zebetite spawn record $A6:{recordPointer:X4} names enemy " +
+                $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn record names enemy " +
                 $"${population.DefinitionPointer:X4}.");
         }
 

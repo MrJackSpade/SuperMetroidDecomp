@@ -55,8 +55,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort SparkDefinition = 0xea3f;
     internal const ushort SparkShotAi = EnemyAiCodePointers.BankA8.SparkShot;
 
-    private const int SparkInstructionListTable = 0xa8e682;
-    private const int SparkFunctionTable = 0xa8e688;
     private const ushort SparkFlickerOnInstructionList = 0xe5a7;
     private const ushort SparkFlickerOutInstructionList = 0xe5e5;
 
@@ -72,21 +70,16 @@ public sealed partial class RoomEnemySystem
         var state = new SparkEnemyState(slot);
         _sparkStates[slot.SlotIndex] = state;
 
-        // Native masks the selector to two bits, but both tables contain only three words.
-        // Reading the ROM directly preserves selector three's real adjacent-code overread;
-        // a later main pass will report the exact nonsensical function if malformed/custom
-        // population data actually selects it.
-        int selectorOffset = (slot.Parameter1 & 3) * 2;
-        state.Function = (SparkEnemyFunction)ReadWord(
-            _bus!,
-            SparkFunctionTable + selectorOffset);
+        // Native masks the selector to two bits, but both tables contain only three authored
+        // words. The compiled definition preserves selector three's two adjacent-code reads;
+        // a later main pass still reports its exact nonsensical function if selected.
+        SparkMovementDefinition definition = SparkMovementDefinitions.InitialState(slot.Parameter1);
+        state.Function = definition.Function;
         state.BaseFunctionTime = slot.Parameter2;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.InstructionTimer = 1;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            SparkInstructionListTable + selectorOffset);
+        slot.CurrentInstruction = definition.InstructionList;
         slot.Timer = 0;
 
         if (RequireAreaBossDefeated())

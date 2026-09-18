@@ -1997,3 +1997,17 @@ and all seven activation callbacks to the pinned cartridge. It runs all eight
 initial facing selections and all seven proximity activations through production
 code while both source ranges are forbidden. Out-of-domain restored selectors
 fail explicitly instead of consuming adjacent executable bytes.
+
+# Wrecked Ship Spark initial selectors
+
+`SparkMovementDefinitions` compiles the paired instruction-list and function
+selectors at `$A8:E682/$A8:E688`. Each table has three authored words even though
+the cartridge masks population parameter one to two bits. The fourth compiled
+record intentionally retains both adjacent-word observations: instruction list
+`$E694` from the function table and function `$54AE` from the following opcodes.
+
+Verification independently compares all eight observed words to the pinned
+cartridge, invokes the production initializer for all four selectors while the
+complete source span is forbidden, and checks the two-bit mask for additional
+parameter values. No malformed/custom selector is silently normalized to an
+authored state.

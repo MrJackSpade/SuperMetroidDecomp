@@ -18,7 +18,6 @@ public sealed partial class RoomEnemySystem
     private const ushort CrocomireSkeletonFallsApartList = 0xe158;
     private const ushort CrocomireSkeletonStableList = 0xe1c6;
     private const ushort CrocomireSkeletonRiverList = 0xe1d2;
-    private const int CrocomireBridgeFragmentGraphicsTable = 0xa49156;
     private const int CrocomireFirstMeltingTilemap = 0xa49c79;
     private const int CrocomireSecondMeltingTilemap = 0xa49e7b;
 

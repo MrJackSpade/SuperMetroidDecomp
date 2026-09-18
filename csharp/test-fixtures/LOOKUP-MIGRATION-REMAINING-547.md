@@ -54,6 +54,11 @@ words, and eight derived wrap offsets are compiled as typed definitions. All
 eight real initializers run with the selector, configuration, and derived-offset
 sources forbidden. Their mutable rotting state and variable streams remain live
 for the same reason as the sidehopper streams.
+Crocomire's eleven bridge-fragment X positions are compiled as physical launch
+definitions. Every authored word, all eleven real descending-pool allocations,
+their RNG-derived vertical velocities, and the cursor-22 cutoff run with
+`$A4:9156-$A4:916B` forbidden. The projectile definition and graphics
+program remain separate dependencies.
 KiHunter's proximity, gravity and detached-wing radius constants are compiled;
 the misleading attack-radius reference names are corrected. Its instruction
 programs, populations and presentation still belong to the broader integration.

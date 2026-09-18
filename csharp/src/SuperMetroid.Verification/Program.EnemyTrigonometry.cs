@@ -87,6 +87,7 @@ internal static partial class Program
         VerifyBombTorizoAttackDefinitions(rom);
         VerifyBombTorizoMovementDefinitions(rom);
         VerifyCrocomireRumbleDefinitions(rom);
+        VerifyCrocomireBridgeFragmentDefinitions(rom);
         VerifyRoomShakeDefinitions(rom);
         VerifyCeresDoorQuakeDefinitions(rom);
         VerifyCeresDoorInitializationDefinitions(rom);

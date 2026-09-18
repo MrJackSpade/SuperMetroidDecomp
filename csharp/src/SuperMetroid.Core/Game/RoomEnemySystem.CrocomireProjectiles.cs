@@ -115,7 +115,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
             graphicsIndex: 0);
-        projectile.XPosition = ReadWord(_bus!, CrocomireBridgeFragmentGraphicsTable + cursor);
+        projectile.XPosition = CrocomireBridgeFragmentDefinitions.XPosition(cursor);
         projectile.YPosition = 187;
         projectile.XSubposition = 0;
         projectile.YSubposition = 0;

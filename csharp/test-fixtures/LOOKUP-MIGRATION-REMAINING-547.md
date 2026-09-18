@@ -424,6 +424,12 @@ as a complete physical spawn record. The real first-free-slot allocator,
 initialization AI, palette load, immutable spawn snapshot and duplicate guard run
 with the record forbidden. The Baby's route definitions remain separately compiled.
 
+Yard's eight fixed direction records, opposite-direction selectors, movement-function
+selectors, and the three identical airborne animation-list copies are compiled as
+typed physical definitions. All eight real initializers and turns plus both-facing
+detach, contact-kick, and shot-launch paths run with every migrated source forbidden.
+Animation programs selected by these definitions remain separate dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

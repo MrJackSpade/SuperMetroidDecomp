@@ -87,10 +87,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort YardDefinition = 0xdbbf;
 
-    private const int YardDirectionData = 0xa3cd42;
-    private const int YardOppositeDirectionTable = 0xa3cdc2;
-    private const int YardMovementFunctionTable = 0xa3cdd2;
-    private const int YardAirborneListTable = 0xa3d1ab;
     private const ushort YardNothingSpritemap = 0x804d;
 
     private readonly YardEnemyState?[] _yardStates =
@@ -126,14 +122,12 @@ public sealed partial class RoomEnemySystem
         slot.SpritemapPointer = YardNothingSpritemap;
         slot.InstructionTimer = 1;
 
-        // Each eight-byte direction record owns the visible crawl list, the two low
-        // population-property bits, the matching hidden list, and airborne facing.
-        int directionRecord = YardDirectionData + direction * 8;
-        slot.CurrentInstruction = ReadWord(_bus!, directionRecord);
+        YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
+        slot.CurrentInstruction = definition.CrawlingInstructionList;
         slot.Properties = unchecked((ushort)(
-            slot.Properties | ReadWord(_bus!, directionRecord + 2)));
-        state.HidingInstructionList = ReadWord(_bus!, directionRecord + 4);
-        state.AirborneFacingDirection = ReadWord(_bus!, directionRecord + 6);
+            slot.Properties | definition.PropertyBits));
+        state.HidingInstructionList = definition.HidingInstructionList;
+        state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, direction);
     }
 
@@ -269,7 +263,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the hidden-list movement owner at $A3:CF60.</summary>
-    private void RunYardHidingMovement(
+    private static void RunYardHidingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
         RoomLevelData level)
@@ -415,13 +409,13 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the common detach path at $A3:D164.</summary>
-    private void DropYard(RoomEnemySlot slot, YardEnemyState state)
+    private static void DropYard(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == 3)
             return;
         state.Behavior = 3;
         state.MovementFunction = YardMovementFunction.Airborne;
-        SetYardAirborneLists(slot, state, YardAirborneListTable);
+        SetYardAirborneLists(slot, state);
         state.AirborneXSubvelocity = 0;
         state.AirborneXVelocity = 0;
         state.AirborneYSubvelocity = 0;
@@ -494,7 +488,7 @@ public sealed partial class RoomEnemySystem
             state.AirborneYVelocity = acceleratedWhole;
     }
 
-    private void LandYard(RoomEnemySlot slot, YardEnemyState state, SamusState samus)
+    private static void LandYard(RoomEnemySlot slot, YardEnemyState state, SamusState samus)
     {
         state.AirborneXVelocity = 0;
         state.AirborneXSubvelocity = 0;
@@ -513,7 +507,7 @@ public sealed partial class RoomEnemySystem
             state.Behavior = 1;
             slot.Parameter1 = 8;
             MakeYardFaceSamusHorizontally(slot, state, samus);
-            SetYardAirborneLists(slot, state, YardAirborneListTable);
+            SetYardAirborneLists(slot, state);
         }
 
         // Yard deliberately tail-calls the common crawler initializer after landing, but
@@ -530,19 +524,19 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
-    private void SetYardAirborneLists(
+    private static void SetYardAirborneLists(
         RoomEnemySlot slot,
-        YardEnemyState state,
-        int pointerTable)
+        YardEnemyState state)
     {
-        int record = pointerTable + state.AirborneFacingDirection * 4;
-        slot.CurrentInstruction = ReadWord(_bus!, record);
-        state.HidingInstructionList = ReadWord(_bus!, record + 2);
+        YardAirborneInstructionDefinition definition =
+            YardDirectionDefinitions.ForAirborneFacing(state.AirborneFacingDirection);
+        slot.CurrentInstruction = definition.VisibleInstructionList;
+        state.HidingInstructionList = definition.HidingInstructionList;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }
 
-    private bool MakeYardFaceSamusHorizontally(
+    private static bool MakeYardFaceSamusHorizontally(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -553,7 +547,7 @@ public sealed partial class RoomEnemySystem
         return shouldTurn && TurnYardAround(slot, state);
     }
 
-    private bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
+    private static bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == 2 ||
             state.MovementFunction == YardMovementFunction.InstructionPending)
@@ -561,19 +555,15 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        state.Direction = ReadWord(
-            _bus!,
-            YardOppositeDirectionTable + state.Direction * 2);
-        int record = YardDirectionData + state.Direction * 8;
-        slot.CurrentInstruction = ReadWord(_bus!, record);
+        state.Direction = YardDirectionDefinitions.ForDirection(state.Direction).OppositeDirection;
+        YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(state.Direction);
+        slot.CurrentInstruction = definition.CrawlingInstructionList;
         slot.Properties = unchecked((ushort)(
-            (slot.Properties & 0xfffc) | ReadWord(_bus!, record + 2)));
-        state.HidingInstructionList = ReadWord(_bus!, record + 4);
-        state.AirborneFacingDirection = ReadWord(_bus!, record + 6);
+            (slot.Properties & 0xfffc) | definition.PropertyBits));
+        state.HidingInstructionList = definition.HidingInstructionList;
+        state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, state.Direction);
-        state.MovementFunction = (YardMovementFunction)ReadWord(
-            _bus!,
-            YardMovementFunctionTable + state.Direction * 2);
+        state.MovementFunction = definition.MovementFunction;
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
         return true;
@@ -587,7 +577,7 @@ public sealed partial class RoomEnemySystem
     {
         state.Behavior = 4;
         state.MovementFunction = YardMovementFunction.Airborne;
-        SetYardAirborneLists(slot, state, 0xa3d50f);
+        SetYardAirborneLists(slot, state);
 
         uint samusDistance = samus.AbsoluteMovedLastFrameXFixed;
         state.AirborneXSubvelocity = unchecked((ushort)samusDistance);
@@ -610,7 +600,7 @@ public sealed partial class RoomEnemySystem
     {
         state.Behavior = 5;
         state.MovementFunction = YardMovementFunction.Airborne;
-        SetYardAirborneLists(slot, state, 0xa3d5a4);
+        SetYardAirborneLists(slot, state);
         state.AirborneYVelocity = 0xffff;
         state.AirborneXVelocity = samus.ReadPoseXDirection(_bus!) ==
             (byte)SamusFacingDirection.Left

@@ -2926,9 +2926,9 @@ public sealed partial class RoomEnemySystem
                         throw new InvalidDataException(
                             $"Yard instruction selected invalid direction {yard.Direction}.");
                     }
-                    yard.AirborneFacingDirection = ReadWord(
-                        _bus!,
-                        YardDirectionData + yard.Direction * 8 + 6);
+                    yard.AirborneFacingDirection =
+                        YardDirectionDefinitions.ForDirection(yard.Direction)
+                            .AirborneFacingDirection;
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }

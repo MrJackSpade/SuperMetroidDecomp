@@ -33,16 +33,16 @@ public sealed class SkreeEnemyState
         internal set => _slot.VariableB = (ushort)value;
     }
 
-    public ushort RequestedInstructionIndex
+    public SkreeMetareeAnimationPhase RequestedInstructionIndex
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => (SkreeMetareeAnimationPhase)_slot.VariableC;
+        internal set => _slot.VariableC = (ushort)value;
     }
 
-    public ushort InstalledInstructionIndex
+    public SkreeMetareeAnimationPhase InstalledInstructionIndex
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => (SkreeMetareeAnimationPhase)_slot.VariableD;
+        internal set => _slot.VariableD = (ushort)value;
     }
 
     public bool AttackReady
@@ -57,7 +57,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort SkreeDefinition = 0xdb7f;
 
-    private const int SkreeInstructionPointerTable = 0xa3c69c;
     private readonly SkreeEnemyState?[] _skreeStates =
         new SkreeEnemyState?[MaximumEnemyCount];
 
@@ -68,8 +67,8 @@ public sealed partial class RoomEnemySystem
     {
         var state = new SkreeEnemyState(slot)
         {
-            RequestedInstructionIndex = 0,
-            InstalledInstructionIndex = 0,
+            RequestedInstructionIndex = SkreeMetareeAnimationPhase.Idling,
+            InstalledInstructionIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             Function = SkreeEnemyFunction.Idling,
         };
@@ -87,7 +86,8 @@ public sealed partial class RoomEnemySystem
             case SkreeEnemyFunction.Idling:
                 if (Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) < 0x30)
                 {
-                    state.RequestedInstructionIndex++;
+                    state.RequestedInstructionIndex =
+                        SkreeMetareeAnimationPhase.PreparingAttack;
                     InstallRequestedSkreeInstruction(slot, state);
                     state.Function = SkreeEnemyFunction.PreparingAttack;
                 }
@@ -97,7 +97,7 @@ public sealed partial class RoomEnemySystem
                 if (!state.AttackReady)
                     return;
                 state.AttackReady = false;
-                state.RequestedInstructionIndex++;
+                state.RequestedInstructionIndex = SkreeMetareeAnimationPhase.Diving;
                 InstallRequestedSkreeInstruction(slot, state);
                 state.Function = SkreeEnemyFunction.Diving;
                 // `$A3:C70F` queues library-two sound $5B on the exact frame the wind-up
@@ -165,20 +165,16 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
     }
 
-    private void InstallRequestedSkreeInstruction(RoomEnemySlot slot, SkreeEnemyState state)
+    private static void InstallRequestedSkreeInstruction(
+        RoomEnemySlot slot,
+        SkreeEnemyState state)
     {
         if (state.RequestedInstructionIndex == state.InstalledInstructionIndex)
             return;
-        if (state.RequestedInstructionIndex >= 4)
-        {
-            throw new InvalidDataException(
-                $"Skree instruction index {state.RequestedInstructionIndex} exceeds $A3:C69C.");
-        }
 
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            SkreeInstructionPointerTable + state.RequestedInstructionIndex * 2);
+        slot.CurrentInstruction = SkreeMetareeAnimationDefinitions.SkreeInstructionList(
+            state.RequestedInstructionIndex);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

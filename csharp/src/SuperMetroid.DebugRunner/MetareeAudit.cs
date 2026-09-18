@@ -65,8 +65,8 @@ internal static class MetareeAudit
             diving.Definition.Damage != 50 || diving.XRadius != 8 ||
             diving.YRadius != 12 || diving.CurrentInstruction != 0x8910 ||
             divingState.Function != MetareeEnemyFunction.Idling ||
-            divingState.RequestedInstructionListIndex != 0 ||
-            divingState.InstalledInstructionListIndex != 0)
+            divingState.RequestedInstructionListIndex != SkreeMetareeAnimationPhase.Idling ||
+            divingState.InstalledInstructionListIndex != SkreeMetareeAnimationPhase.Idling)
         {
             throw new InvalidDataException(
                 $"First Dachora Metaree init failed: slot={diving.SlotIndex}, " +
@@ -225,7 +225,8 @@ internal static class MetareeAudit
         animationMaps.Add(diving.SpritemapPointer);
         if (divingState.Function != MetareeEnemyFunction.PreparingAttack ||
             divingState.YVelocity != 8 ||
-            divingState.RequestedInstructionListIndex != 1 ||
+            divingState.RequestedInstructionListIndex !=
+                SkreeMetareeAnimationPhase.PreparingAttack ||
             diving.CurrentInstruction != 0x8928)
         {
             throw new InvalidDataException(

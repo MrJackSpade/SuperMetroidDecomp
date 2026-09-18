@@ -365,6 +365,11 @@ behind a proven flags enum: bit zero is facing-right and bit one is spinning. Al
 four real list handoffs and both production initial facing paths run with the pointer
 table forbidden. The mixed animation programs remain separate dependencies.
 
+Skree and Metaree's four animation-phase selectors at `$A3:C69C-$C6A3` and
+`$A3:894E-$8955` are compiled behind their shared mutually-exclusive phase enum.
+All eight list installs and both live attack transitions per family run with both
+pointer tables forbidden. Their animation programs remain separate dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

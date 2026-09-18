@@ -37,17 +37,17 @@ public sealed class MetareeEnemyState
     }
 
     /// <summary>Instruction-list index requested by AI.</summary>
-    public ushort RequestedInstructionListIndex
+    public SkreeMetareeAnimationPhase RequestedInstructionListIndex
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => (SkreeMetareeAnimationPhase)_slot.VariableC;
+        internal set => _slot.VariableC = (ushort)value;
     }
 
     /// <summary>Instruction-list index currently installed in the common slot.</summary>
-    public ushort InstalledInstructionListIndex
+    public SkreeMetareeAnimationPhase InstalledInstructionListIndex
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => (SkreeMetareeAnimationPhase)_slot.VariableD;
+        internal set => _slot.VariableD = (ushort)value;
     }
 
     /// <summary>Set by instruction <c>$A3:8956</c> after the launch crouch completes.</summary>
@@ -73,7 +73,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort MetareeDefinition = 0xd67f;
 
-    private const int MetareeInstructionListPointers = 0xa3894e;
     private const ushort MetareeHorizontalActivationDistance = 0x48;
     private const ushort MetareeDiveDivisorNtsc = 24;
     private const ushort MetareeMinimumYVelocity = 4;
@@ -94,8 +93,8 @@ public sealed partial class RoomEnemySystem
         {
             BurrowTimer = 0,
             Function = MetareeEnemyFunction.Idling,
-            RequestedInstructionListIndex = 0,
-            InstalledInstructionListIndex = 0,
+            RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
+            InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             YVelocity = 0,
         };
@@ -146,7 +145,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunMetareeIdle(
+    private static void RunMetareeIdle(
         RoomEnemySlot slot,
         MetareeEnemyState state,
         SamusState samus)
@@ -165,7 +164,7 @@ public sealed partial class RoomEnemySystem
         ushort verticalDifference = unchecked((ushort)(samus.YPosition - slot.YPosition));
         state.YVelocity = unchecked((ushort)(
             verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity));
-        state.RequestedInstructionListIndex++;
+        state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.PreparingAttack;
         InstallRequestedMetareeInstruction(slot, state);
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
@@ -176,7 +175,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.AttackReady = false;
-        state.RequestedInstructionListIndex++;
+        state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Diving;
         InstallRequestedMetareeInstruction(slot, state);
         state.Function = MetareeEnemyFunction.LaunchedAttack;
 
@@ -246,23 +245,17 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
     }
 
-    private void InstallRequestedMetareeInstruction(
+    private static void InstallRequestedMetareeInstruction(
         RoomEnemySlot slot,
         MetareeEnemyState state)
     {
-        ushort requested = state.RequestedInstructionListIndex;
+        SkreeMetareeAnimationPhase requested = state.RequestedInstructionListIndex;
         if (requested == state.InstalledInstructionListIndex)
             return;
-        if (requested >= 4)
-        {
-            throw new InvalidDataException(
-                $"Metaree instruction-list index {requested} exceeds its four-entry table.");
-        }
 
         state.InstalledInstructionListIndex = requested;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            MetareeInstructionListPointers + requested * 2);
+        slot.CurrentInstruction =
+            SkreeMetareeAnimationDefinitions.MetareeInstructionList(requested);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

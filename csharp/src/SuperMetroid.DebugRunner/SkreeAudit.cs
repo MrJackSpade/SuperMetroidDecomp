@@ -141,7 +141,8 @@ internal static class SkreeAudit
             actor.Properties != 0x2000 || actor.Parameter1 != 0 || actor.Parameter2 != 0 ||
             actor.CurrentInstruction != 0xc65e || actor.InstructionTimer != 1 ||
             state.Function != SkreeEnemyFunction.Idling || state.BurrowTimer != 0 ||
-            state.RequestedInstructionIndex != 0 || state.InstalledInstructionIndex != 0 ||
+            state.RequestedInstructionIndex != SkreeMetareeAnimationPhase.Idling ||
+            state.InstalledInstructionIndex != SkreeMetareeAnimationPhase.Idling ||
             state.AttackReady || definition.Bank != 0xa3 ||
             definition.InitializationAiPointer != 0xc6ae ||
             definition.MainAiPointer != 0xc6c7 ||

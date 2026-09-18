@@ -588,12 +588,13 @@ The real sleeping-parent path passes every in-range distance plus both outside
 boundaries through a helper that no longer accepts a ROM bus; sprite presentation
 remains independent.
 
-Maridia's sixteen inside-reaction and sixteen collision-reaction special-air
-headers are now compiled together with the six Gravity-Suit-dependent quicksand
-surface physics words. Real surface movement runs with the two dispatch rows,
-their pointer words, and all physical words forbidden. Other areas and restored
-BTS indexes beyond the authored sixteen-entry domain retain explicit ROM fallback
-instead of being silently clamped or reinterpreted.
+Both complete retail special-air dispatch tables are now compiled: seven areas by
+sixteen inside-reaction entries and seven areas by sixteen collision-reaction
+entries, resolving to 22 distinct typed bank-$84 header/setup identities. Real
+Maridia surface movement runs with the dispatch rows, pointer words, setup words,
+and all physical words forbidden. Restored BTS indexes beyond the authored
+sixteen-entry domain fail explicitly instead of reading the following bank-$94
+code as PLM pointers; the non-retail debug-area row is outside the typed domain.
 
 All 68 aligned enemy-vulnerability records at `$B4:EC1C-$B4:F1F3` are compiled.
 Common projectile, bomb, Power Bomb, contact-damage, boss, and Space Pirate paths

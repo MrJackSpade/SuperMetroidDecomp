@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -39,24 +38,18 @@ public static class SamusInsideBlockReactions
                 ApplyConveyor(block.Behavior);
                 return;
             }
-            ushort header;
-            if (!QuicksandDefinitions.TryGetInsideHeader(
+            SpecialAirReactionDefinition areaReaction =
+                SpecialAirReactionDefinitions.ResolveInside(
                     area,
-                    block.Bts.AreaReactionIndex,
-                    out header))
-            {
-                ushort table = Word(
-                    QuicksandRomData.InsideAreaTables + AreaIds.ToIndex(area) * 2);
-                header = Word(QuicksandRomData.CollisionBank |
-                    unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
-            }
+                    block.Bts.AreaReactionIndex);
+            ushort header = areaReaction.HeaderPointer;
             if (header == 0) return;
             bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
                 header,
                 out QuicksandReactionDefinition reaction);
             ushort setup = hasCompiledReaction
                 ? reaction.SetupPointer
-                : Word(QuicksandRomData.PlmBank | header);
+                : areaReaction.SetupPointer;
             if (hasCompiledReaction && plms is not null &&
                 !plms.TrySpawnQuicksandReaction(block.Index, header))
             {
@@ -116,7 +109,6 @@ public static class SamusInsideBlockReactions
                     break;
             }
         }
-        ushort Word(int address) => RomDataReader.ReadWordFixedBank(bus, address);
         void ApplyConveyor(byte bts)
         {
             bool groundedOnly = bts is ConveyorBlockRomData.GroundedRight or ConveyorBlockRomData.GroundedLeft;
@@ -150,27 +142,18 @@ public static class SamusInsideBlockReactions
     {
         surfaceContact = false;
         if (!block.Bts.UsesAreaReactionTable) return false;
-        ushort header;
-        if (!QuicksandDefinitions.TryGetCollisionHeader(
+        SpecialAirReactionDefinition areaReaction =
+            SpecialAirReactionDefinitions.ResolveCollision(
                 body.SandCollisionArea,
-                block.Bts.AreaReactionIndex,
-                out header))
-        {
-            ushort table = RomDataReader.ReadWordFixedBank(bus,
-                QuicksandRomData.CollisionAreaTables +
-                    AreaIds.ToIndex(body.SandCollisionArea) * 2);
-            header = RomDataReader.ReadWordFixedBank(
-                bus,
-                QuicksandRomData.CollisionBank |
-                    unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
-        }
+                block.Bts.AreaReactionIndex);
+        ushort header = areaReaction.HeaderPointer;
         if (header == 0) return false;
         bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
             header,
             out QuicksandReactionDefinition reaction);
         ushort setup = hasCompiledReaction
             ? reaction.SetupPointer
-            : RomDataReader.ReadWordFixedBank(bus, QuicksandRomData.PlmBank | header);
+            : areaReaction.SetupPointer;
         if (hasCompiledReaction && plms is not null &&
             !plms.TrySpawnQuicksandReaction(block.Index, header))
         {

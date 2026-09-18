@@ -2489,3 +2489,24 @@ Verification compares every compiled byte with the pinned cartridge, classifies
 all bank-$9B word starts, and checks all 196,608 absolute-indexed operand/index
 combinations for compiled parity, preserved live-memory behavior, or loud ROM
 rejection. The 6,600 real trail spawns still match all four native coordinates.
+
+# Complete retail special-air dispatch
+
+`SpecialAirReactionDefinitions` now compiles both complete seven-area by
+sixteen-entry special-air tables selected by Samus inside-body and movement-
+collision probes. Each of the 224 dispatch records resolves to one of 22 typed
+bank-$84 header/setup identities, including Crateria ice physics, Brinstar Samus
+Eaters and Speed Booster blocks, both Chozo-hand triggers, Maridia quicksand, and
+the distinct native no-op headers.
+
+Production no longer walks the bank-$94 pointer tables or rereads the setup word
+from an arbitrary bank-$84 header. Retail area/index selections preserve their
+exact cartridge identity; restored BTS indexes sixteen through 127 fail loudly
+instead of interpreting the following bank-$94 code as PLM pointers. The debug
+area is likewise outside the typed seven-area retail domain.
+
+Verification compares all 224 header selections and all selected setup words with
+the pinned cartridge, asserts the 22-definition union, and guards both complete
+bank-$94 source regions plus every non-quicksand header word. The real Maridia
+inside/collision paths still cover suit, movement-direction, sinking-contact, pose-
+clearance, and sandfall behavior while every migrated source is forbidden.

@@ -88,14 +88,6 @@ public sealed class NuclearWaffleEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort NuclearWaffleDefinition = 0xe0bf;
-
-    private const ushort NuclearWaffleInstructionList = 0x9490;
-    private const ushort NuclearWaffleTurnSoundEffect = 0x005e;
-    private const int NuclearWaffleSweepEndpointTable = 0xa695f6;
-    private const int NuclearWaffleSegmentSpacingTable = 0xa695fe;
-    private const int NuclearWaffleTurnThresholdTable = 0xa69606;
-
     private readonly NuclearWaffleEnemyState?[] _nuclearWaffleStates =
         new NuclearWaffleEnemyState?[MaximumEnemyCount];
 
@@ -111,7 +103,7 @@ public sealed partial class RoomEnemySystem
         var state = new NuclearWaffleEnemyState(slot);
         _nuclearWaffleStates[slot.SlotIndex] = state;
 
-        slot.CurrentInstruction = NuclearWaffleInstructionList;
+        slot.CurrentInstruction = NuclearWaffleDefinitions.InitialInstructionList;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
@@ -122,29 +114,14 @@ public sealed partial class RoomEnemySystem
         state.WaitingTimer = state.WaitingTimerReset;
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 
-        // Each direction selects a consecutive pair from all three tables. The native C
-        // view's `(4 * direction) >> 1` is simply a two-word index after byte addressing is
-        // converted to a ushort array.
-        int directionByteOffset = state.Direction * 4;
-        state.SweepStartAngle = ReadWord(
-            _bus!,
-            NuclearWaffleSweepEndpointTable + directionByteOffset);
+        NuclearWaffleSweepDefinition sweep = NuclearWaffleDefinitions.Sweep(state.Direction);
+        state.SweepStartAngle = sweep.StartAngle;
         state.CurrentAngle = state.SweepStartAngle;
-        state.SweepEndAngle = ReadWord(
-            _bus!,
-            NuclearWaffleSweepEndpointTable + directionByteOffset + 2);
-        state.SegmentSpacing = unchecked((short)ReadWord(
-            _bus!,
-            NuclearWaffleSegmentSpacingTable + directionByteOffset));
-        state.InterleavedSegmentOffset = unchecked((short)ReadWord(
-            _bus!,
-            NuclearWaffleSegmentSpacingTable + directionByteOffset + 2));
-        state.SecondTurnThreshold = ReadWord(
-            _bus!,
-            NuclearWaffleTurnThresholdTable + directionByteOffset);
-        state.FirstTurnThreshold = ReadWord(
-            _bus!,
-            NuclearWaffleTurnThresholdTable + directionByteOffset + 2);
+        state.SweepEndAngle = sweep.EndAngle;
+        state.SegmentSpacing = sweep.SegmentSpacing;
+        state.InterleavedSegmentOffset = sweep.InterleavedSegmentOffset;
+        state.SecondTurnThreshold = sweep.SecondTurnThreshold;
+        state.FirstTurnThreshold = sweep.FirstTurnThreshold;
 
         // Speed parameter N selects the N-pixel positive 16.16 record. Reverse direction
         // adds four bytes to select its ROM-stored negative half rather than host-negating.
@@ -412,7 +389,7 @@ public sealed partial class RoomEnemySystem
 
         // State two is the silent second half-turn. State one queues SFX $5E in library two.
         if (orientation.State != 2)
-            LastNuclearWaffleSoundEffect = NuclearWaffleTurnSoundEffect;
+            LastNuclearWaffleSoundEffect = NuclearWaffleDefinitions.TurnSoundEffect;
     }
 
     private static void PositionNuclearWaffleHead(

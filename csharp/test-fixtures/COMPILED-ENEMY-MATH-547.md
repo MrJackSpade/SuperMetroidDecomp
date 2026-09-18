@@ -2036,3 +2036,17 @@ and runs 144 production initializers across zero, ordinary, and wrapping spawn X
 coordinates while both source tables are forbidden. It asserts the exact timer
 and wrapped minimum/maximum patrol bounds. Invalid restored selectors fail
 explicitly instead of consuming adjacent initializer code.
+
+# Nuclear Waffle sweep geometry
+
+`NuclearWaffleDefinitions` combines each authored direction's paired sweep
+endpoints at `$A6:95F6`, articulated-link spacing at `$A6:95FE`, and joint-turn
+thresholds at `$A6:9606` into a typed physical record. The enemy definition,
+initial instruction identity, and turn sound identity live in the same domain
+catalog rather than the functional state machine.
+
+Verification independently compares all twelve words to the pinned cartridge and
+runs both complete production initializers while `$A6:95F6-$A6:960D` is forbidden.
+Each path must allocate all four damaging projectile links and three cosmetic
+sprite links while retaining the exact geometry. Invalid restored directions fail
+explicitly instead of consuming the following main-AI code.

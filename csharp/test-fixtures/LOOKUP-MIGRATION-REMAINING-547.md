@@ -115,6 +115,10 @@ Owtch's eight patrol half-widths and six underground durations are compiled as
 physical definitions. All 144 representative/wrapped production initializers
 retain their shared linear speeds, state-specific burial setup and exact bounds
 while `$A2:A3DD-$A3F8` is forbidden.
+Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
+and joint-turn words into typed physical records. Both complete production
+initializers retain their seven allocated articulated links while
+`$A6:95F6-$A6:960D` is forbidden; invalid directions cannot consume main-AI code.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

@@ -1456,7 +1456,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinition:
                 InitializeHibashi(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
+            case EnemyAiCodePointers.InitAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinitions.EnemyDefinition:
                 InitializeNuclearWaffle(slot);
                 return;
             case EnemyAiCodePointers.InitAI_MiniKraid when slot.EnemyDefinitionPointer == FakeKraidDefinition:
@@ -2014,7 +2014,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinition:
                 RunHibashiMain(slot, RequireHibashiState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
+            case EnemyAiCodePointers.MainAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinitions.EnemyDefinition:
                 RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
                 return;
             case EnemyAiCodePointers.MainAI_MiniKraid when slot.EnemyDefinitionPointer == FakeKraidDefinition:

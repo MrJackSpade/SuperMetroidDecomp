@@ -216,7 +216,6 @@ public sealed partial class RoomEnemySystem
                     RequireBombTorizoLevel(level),
                     cursor,
                     operand0,
-                    velocityTable: 0xaac4bd,
                     collisionFacingRight: 0xb962,
                     collisionFacingLeft: 0xbdd8);
                 return true;
@@ -229,7 +228,6 @@ public sealed partial class RoomEnemySystem
                     RequireBombTorizoLevel(level),
                     cursor,
                     operand0,
-                    velocityTable: 0xaac532,
                     collisionFacingRight: 0xbd0e,
                     collisionFacingLeft: 0xc188);
                 return true;
@@ -622,17 +620,17 @@ public sealed partial class RoomEnemySystem
         samus ?? throw new InvalidOperationException(
             "Golden Torizo instruction selection requires the active Samus actor.");
 
-    private void ApplyBombTorizoMapOffset(
+    private static void ApplyBombTorizoMapOffset(
         RoomEnemySlot torizo,
         ushort tableOffset,
         bool subtract)
     {
-        int xTable = subtract ? 0xaac440 : 0xaac3ee;
-        int yTable = subtract ? 0xaac460 : 0xaac40e;
-        short xDelta = unchecked((short)ReadWord(_bus!, xTable + tableOffset));
-        short yDelta = unchecked((short)ReadWord(_bus!, yTable + (tableOffset & 0x000f)));
-        torizo.XPosition = unchecked((ushort)(torizo.XPosition + (subtract ? -xDelta : xDelta)));
-        torizo.YPosition = unchecked((ushort)(torizo.YPosition + (subtract ? -yDelta : yDelta)));
+        BombTorizoPostureDisplacement displacement =
+            BombTorizoMovementDefinitions.Posture(tableOffset);
+        torizo.XPosition = unchecked((ushort)(
+            torizo.XPosition + (subtract ? -displacement.X : displacement.X)));
+        torizo.YPosition = unchecked((ushort)(
+            torizo.YPosition + (subtract ? -displacement.Y : displacement.Y)));
     }
 
     private ushort ProcessBombTorizoWalkInstruction(
@@ -642,11 +640,10 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level,
         ushort cursor,
         ushort tableOffset,
-        int velocityTable,
         ushort collisionFacingRight,
         ushort collisionFacingLeft)
     {
-        state.HorizontalVelocity = ReadWord(_bus!, velocityTable + tableOffset);
+        state.HorizontalVelocity = BombTorizoMovementDefinitions.WalkVelocity(tableOffset);
         int displacement = unchecked((short)state.HorizontalVelocity) << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {

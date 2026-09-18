@@ -445,6 +445,11 @@ compiled as paired physical records rather than anonymous runtime arrays. Every 
 swipe and every bounded facing/parameter explosion selection is checked against the ROM
 and exercised through the real projectile allocators with both source tables forbidden.
 
+Bomb Torizo's standing/sitting displacement copies and normal/faceless walking-velocity
+copies are compiled as shared typed movement definitions. All authored offsets run
+through the real posture and collision-aware walking consumers with the six native table
+ranges forbidden; invalid odd or out-of-domain byte offsets fail explicitly.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

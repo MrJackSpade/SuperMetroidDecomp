@@ -23,5 +23,6 @@ public sealed partial class SuperMetroidGame
         if (intro is not null) intro.NarrationPresentation = catalog?.IntroNarration;
         endingCredits?.BindEndingText(catalog?.EndingText);
         endingCredits?.BindEndingFont(catalog?.EndingFont);
+        endingCredits?.BindStaffCredits(catalog?.StaffCredits);
     }
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -16,6 +17,10 @@ internal static class RetailEndingTests
             var leftAudio = new CartridgeAudioState(); var rightAudio = new CartridgeAudioState();
             var legacy = new EndingCreditsState(leftBus, leftAudio, hours, 59);
             var captured = new EndingCreditsState(rightBus, rightAudio, hours, 59);
+            var credits = CreditsPresentation.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(leftBus)));
+            legacy.BindStaffCredits(credits);
+            captured.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();
             for (int tick = 0; tick < 60000; tick++)
             {

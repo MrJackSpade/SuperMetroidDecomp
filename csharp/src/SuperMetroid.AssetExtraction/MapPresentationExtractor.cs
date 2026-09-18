@@ -201,6 +201,11 @@ public static class MapPresentationExtractor
             file.Write(endingFontBytes);
         hashes.Add(EndingFontAtlasFormat.FileName,
             Convert.ToHexString(SHA256.HashData(endingFontBytes)));
+        byte[] creditsBytes = CreditsPresentationExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, CreditsPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(creditsBytes);
+        hashes.Add(CreditsPresentationDefinitions.FileName,
+            Convert.ToHexString(SHA256.HashData(creditsBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

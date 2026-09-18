@@ -155,5 +155,30 @@ ROM-compressed font is only the stock extraction source.
 
 Verification compares every compiled stock byte with the decompressed cartridge,
 proves a pixel edit changes installed VRAM data, and covers deterministic extraction,
-override identity, and corrupt PNG failure. The scrolling staff-credit text/layout,
-other cinematic labels, and opening/cinematic font sheets remain open under #545.
+override identity, and corrupt PNG failure. Other cinematic labels and
+opening/cinematic font sheets remain open under #545.
+
+## Editable scrolling staff credits (catalog version 35)
+
+`ending-credits.json`, schema version 1, exposes all 67 retail staff-credit lines
+as ordered UTF-8 text with explicit columns and palettes. Small headings support
+spaces and `A` through `Z`; large names additionally support ampersand and period.
+Each line must fit the fixed 32-column tilemap and never wraps. Stable line IDs and
+ordering are required so an edit cannot change cinematic control flow.
+
+Extraction mechanically interprets the retail `$8C:D91B` row program and validates
+its compressed `$97:EEFF` source, timer loops, row offsets, blank gaps, glyph halves,
+palettes, and terminating opcode. The resulting installed asset always compiles to
+the native 520-row schedule: initial, inter-section, inter-line and trailing waits,
+one-row headings, and two-row names remain application behavior rather than editable
+instructions.
+
+Playback preserves the cartridge's half-pixel scroll, one-row-per-16-frame cadence,
+32-row circular tilemap, and post-final-row completion boundary. It consumes only the
+installed compiled rows; it no longer reads compressed credit text or bank `$8C`
+instructions at runtime. Debugger restoration explicitly rebinds the current catalog.
+
+Verification compares all 520 stock rows with the native interpreter, then exercises
+all 8,336 playback frames through completion. It covers text/column/palette edits,
+deterministic extraction, override precedence and identity, stock restoration, corrupt
+JSON, missing or reordered IDs, unsupported glyphs, overflow, and palette bounds.

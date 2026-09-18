@@ -405,6 +405,11 @@ if (args is ["--ending-text-presentation", var endingTextRom])
     VerifyEndingTextPresentation(endingTextRom);
     return 0;
 }
+if (args is ["--credits-presentation", var creditsRom])
+{
+    VerifyCreditsPresentation(creditsRom);
+    return 0;
+}
 if (args is ["--pause-reserve-hud"])
 {
     VerifyPauseReserveHud();

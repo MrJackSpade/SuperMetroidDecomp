@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <remarks>
 /// This is deliberately a cinematic state machine rather than a video or a host-authored
-/// slideshow. Backgrounds, character art, palettes, spritemaps, animation durations, and
-/// credits rows all come from the cartridge. The named phases merely replace the native
+/// slideshow. Backgrounds, character art, palettes, spritemaps, and animation durations
+/// preserve cartridge behavior; editable text and fonts come from installed assets. The named phases merely replace the native
 /// <c>cinematic_function</c> address, making the same coroutine boundaries debuggable in C#.
 /// </remarks>
 internal sealed partial class EndingCreditsState
@@ -53,6 +53,7 @@ internal sealed partial class EndingCreditsState
     private RoomPaletteFxSystem paletteFx = new();
     [NonSerialized] private EndingTextPresentation? endingText;
     [NonSerialized] private EndingFontAtlas? endingFont;
+    [NonSerialized] private CreditsPresentation? staffCredits;
 
     public EndingCreditsState(
         ISnesAddressSpace bus,
@@ -507,7 +508,8 @@ internal sealed partial class EndingCreditsState
         // Func126 clears palette objects before installing credits/reward palettes.
         paletteFx = new RoomPaletteFxSystem();
         LoadCreditsAndPostCreditsAssets();
-        credits = new CreditsObjectState(bus);
+        credits = new CreditsObjectState(staffCredits ?? throw new InvalidOperationException(
+            "Ending credits require installed ending-credits.json content."));
         credits.UploadTilemap(vram);
         Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile);
         sprites.Clear();
@@ -524,6 +526,13 @@ internal sealed partial class EndingCreditsState
 
     /// <summary>Rebinds the host-owned ending font after catalog reload or restoration.</summary>
     public void BindEndingFont(EndingFontAtlas? value) => endingFont = value;
+
+    /// <summary>Rebinds host-owned staff credits after catalog reload or restoration.</summary>
+    public void BindStaffCredits(CreditsPresentation? value)
+    {
+        staffCredits = value;
+        credits?.BindPresentation(value);
+    }
 
     private EndingFontAtlas ResolveEndingFont()
     {

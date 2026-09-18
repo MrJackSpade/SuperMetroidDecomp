@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
+    <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Content Include="../../test-fixtures/issue-321-tile-byte-selection/frame.smframe" Link="fixtures/tile-byte-selection.smframe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <!-- Debugger graphs are shared with Android; consume their owning assembly
          instead of linking files from the former Windows-only location. -->

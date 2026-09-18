@@ -18,6 +18,10 @@ internal static partial class Program
             var audio = new CartridgeAudioState(); var otherAudio = new CartridgeAudioState();
             var legacy = new EndingCreditsState(bus, audio, hours, 59);
             var captured = new EndingCreditsState(otherBus, otherAudio, hours, 59);
+            var credits = CreditsPresentation.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus)));
+            legacy.BindStaffCredits(credits);
+            captured.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();

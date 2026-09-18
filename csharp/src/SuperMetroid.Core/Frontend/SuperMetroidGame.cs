@@ -993,6 +993,7 @@ public sealed partial class SuperMetroidGame
                         runtime.JapaneseText);
                     endingCredits.BindEndingText(mapPresentation?.EndingText);
                     endingCredits.BindEndingFont(mapPresentation?.EndingFont);
+                    endingCredits.BindStaffCredits(mapPresentation?.StaffCredits);
                     GameState = SuperMetroidGameState.EndingAndCredits;
                     PublishBlack();
                 }

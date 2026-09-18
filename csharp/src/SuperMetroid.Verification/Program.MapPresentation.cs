@@ -166,6 +166,7 @@ internal static partial class Program
         VerifyIntroNarrationAssets(bus, stock, Path.Combine(root, "intro-narration-overrides"), original);
         VerifyEndingTextAssets(bus, stock, Path.Combine(root, "ending-text-overrides"), original);
         VerifyEndingFontAssets(bus, stock, Path.Combine(root, "ending-font-overrides"), original);
+        VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);

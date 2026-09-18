@@ -322,55 +322,32 @@ static void VerifyDoorOpeningTrajectories()
 
 static void VerifyCreditsObjectInterpreter()
 {
-    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
-    WriteRepeatedCompressedStream(
-        rom,
-        EndingCreditsRomData.Assets.CreditsTilemap,
-        EndingCreditsRomData.Rendering.CreditsSourceBytes,
-        0);
-
-    // A compact stream exercises all production control-flow opcodes: timer assignment,
-    // a looping row, timer exhaustion/fallthrough, another row, and the end-credits seam.
-    WriteRomWord(
-        rom,
-        (int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
-            EndingCreditsRomData.Instructions.CreditsInitial),
-        CinematicCodePointers.CreditsObject_Instruction_SetTimer);
-    WriteRomWord(rom, 0x8cd91d, 0x0002);
-    WriteRomWord(rom, 0x8cd91f, 0x0000);
-    WriteRomWord(rom, 0x8cd921, 0x0000);
-    WriteRomWord(rom, 0x8cd923, 0x9a0d);
-    WriteRomWord(rom, 0x8cd925, 0xd91f);
-    WriteRomWord(rom, 0x8cd927, 0x0000);
-    WriteRomWord(rom, 0x8cd929, 0x0040);
-    WriteRomWord(rom, 0x8cd92b, 0xf6fe);
-
-    var credits = new CreditsObjectState(new SuperMetroidAddressSpace(rom));
+    ushort[][] rows = Enumerable.Range(0, 33)
+        .Select(index => Enumerable.Repeat((ushort)(0x0100 + index), 32).ToArray())
+        .ToArray();
+    var credits = new CreditsObjectState(
+        CreditsPresentation.FromCompiledRowsForVerification(rows));
     for (int frame = 0; frame < 15; frame++)
         AssertTrue(!credits.Step().CopiedRow, "credits waits sixteen half-pixel frames");
     CreditsObjectStepResult first = credits.Step();
     AssertTrue(first.CopiedRow, "credits copies first row at eight-pixel boundary");
     AssertEqual(1, credits.DestinationRow, "credits advances circular destination row");
-    AssertEqual((ushort)2, credits.InstructionTimer, "credits timer is assigned before first row");
+    AssertEqual((ushort)0x0100, credits.Tilemap[0], "credits copies installed first row");
 
-    for (int frame = 0; frame < 16; frame++)
-        credits.Step();
-    AssertEqual(2, credits.DestinationRow, "credits loop copies the repeated source row");
-    AssertEqual((ushort)1, credits.InstructionTimer, "first decrement retains loop");
-
-    for (int frame = 0; frame < 16; frame++)
-        credits.Step();
-    AssertEqual(3, credits.DestinationRow, "expired timer falls through to next row");
-    AssertEqual((ushort)0, credits.InstructionTimer, "credits loop timer exhausts exactly");
+    for (int row = 1; row < rows.Length; row++)
+        for (int frame = 0; frame < 16; frame++)
+            credits.Step();
+    AssertEqual(1, credits.DestinationRow, "credits destination wraps after thirty-two rows");
+    AssertEqual((ushort)0x0120, credits.Tilemap[0], "wrapped row replaces circular row zero");
 
     CreditsObjectStepResult ending = default;
     for (int frame = 0; frame < 16; frame++)
         ending = credits.Step();
     AssertTrue(ending.Finished && !credits.Enabled,
-        "end-credits opcode disables the row object at its next boundary");
+        "compiled credits disable the row object one boundary after the final row");
 
     Console.WriteLine(
-        "  Credits: half-pixel scroll, circular rows, timer loop, fallthrough, and end opcode agree.");
+        "  Credits: half-pixel scroll, installed rows, circular staging, and completion agree.");
 }
 
 static void VerifyEndingCreditsState()
@@ -393,6 +370,8 @@ static void VerifyEndingCreditsState()
     var bus = new SuperMetroidAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
     var ending = new EndingCreditsState(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
+    ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus))));
     EndingCreditsPhase previous = ending.Phase;
     var reached = new HashSet<EndingCreditsPhase> { previous };
     int renderedTransitions = 0;

@@ -43,32 +43,19 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex));
     }
 
-    private static void SetupDownwardGateShotBlock(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot)
+    private static void SetupDownwardGateShotBlock(RoomLevelData level, PlmSlot slot)
     {
-        if ((slot.RoomArgument & 1) != 0 ||
-            slot.RoomArgument > DownwardGatePlmRomData.LastShotBlockTableByteOffset)
-        {
-            throw new InvalidDataException(
-                $"Downward gate shot-block argument ${slot.RoomArgument:X4} is not an even table offset from $84:C70A.");
-        }
+        DownwardGateShotBlockDefinition definition =
+            DownwardGateShotBlockDefinitions.Resolve(slot.RoomArgument);
+        slot.InstructionPointer = definition.InstructionList;
 
-        slot.InstructionPointer = ReadBank84Word(
-            bus,
-            unchecked((ushort)(DownwardGatePlmRomData.ShotBlockInstructionListTable + slot.RoomArgument)));
-        ushort leftWord = ReadBank84Word(
-            bus,
-            unchecked((ushort)(DownwardGatePlmRomData.LeftShotBlockWordTable + slot.RoomArgument)));
-        ushort rightWord = ReadBank84Word(
-            bus,
-            unchecked((ushort)(DownwardGatePlmRomData.RightShotBlockWordTable + slot.RoomArgument)));
-
-        // Setup $C7B1 installs at most one side for every retail table row. Retaining two
-        // independent writes nevertheless mirrors the routine and makes malformed ROM data
-        // observable rather than silently choosing a side.
-        if (leftWord != 0)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, leftWord);
-        if (rightWord != 0)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, rightWord);
+        // Setup $C7B1 performs independent left and right writes even though every authored
+        // row installs exactly one side. Preserve that ordering instead of deriving the side
+        // from the trigger's low bit.
+        if (definition.LeftBlockWord != 0)
+            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, definition.LeftBlockWord);
+        if (definition.RightBlockWord != 0)
+            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, definition.RightBlockWord);
     }
 
     private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, ushort word)

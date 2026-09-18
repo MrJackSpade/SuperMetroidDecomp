@@ -4,6 +4,41 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
+    {
+        static ushort ReadWord(ISnesAddressSpace source, int address) =>
+            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+
+        for (ushort roomArgument = 0; roomArgument <= 14; roomArgument += 2)
+        {
+            DownwardGateShotBlockDefinition definition =
+                DownwardGateShotBlockDefinitions.Resolve(roomArgument);
+            AssertEqual(
+                ReadWord(rom, DownwardGateShotBlockDefinitions.InstructionListTableAddress + roomArgument),
+                definition.InstructionList,
+                $"gate row ${roomArgument:X2} instruction list matches the cartridge");
+            AssertEqual(
+                ReadWord(rom, DownwardGateShotBlockDefinitions.LeftBlockWordTableAddress + roomArgument),
+                definition.LeftBlockWord,
+                $"gate row ${roomArgument:X2} left block matches the cartridge");
+            AssertEqual(
+                ReadWord(rom, DownwardGateShotBlockDefinitions.RightBlockWordTableAddress + roomArgument),
+                definition.RightBlockWord,
+                $"gate row ${roomArgument:X2} right block matches the cartridge");
+        }
+
+        AssertThrows<InvalidDataException>(
+            () => DownwardGateShotBlockDefinitions.Resolve(1),
+            "odd downward-gate table offsets fail loudly");
+        AssertThrows<InvalidDataException>(
+            () => DownwardGateShotBlockDefinitions.Resolve(16),
+            "out-of-range downward-gate table offsets fail loudly");
+
+        // The synthetic address space intentionally omits all three source tables. Running
+        // every row through production setup proves room loading no longer reads them.
+        VerifyDownwardGatePlms();
+    }
+
     /// <summary>
     /// Reproduces all eight gate-trigger dispatches in constructed rooms and checks the
     /// resident gate plus bank-$86 actor handoff independently of any long controller route.
@@ -190,26 +225,6 @@ internal static partial class Program
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
         SeedDownwardGateInstructionLists(bus);
         SeedDownwardGateProjectileRom(bus);
-
-        ushort[] lists =
-        [
-            RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockBlueRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockYellowLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockYellowRight,
-        ];
-        for (int index = 0; index < lists.Length; index++)
-        {
-            WriteWord(bus, 0x84c70a + index * 2, lists[index]);
-            WriteWord(bus, 0x84c71a + index * 2,
-                (index & 1) == 0 ? unchecked((ushort)(0xc000 | 0x46 + index)) : (ushort)0);
-            WriteWord(bus, 0x84c72a + index * 2,
-                (index & 1) != 0 ? unchecked((ushort)(0xc000 | 0x46 + index)) : (ushort)0);
-        }
 
         RoomLevelData level = CreateRoom(
             roomWidth,

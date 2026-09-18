@@ -1,14 +1,9 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Named cartridge identities and table locations for bank-$84 downward gates.</summary>
+/// <summary>Named cartridge constants for bank-$84 downward gates.</summary>
 internal static class DownwardGatePlmRomData
 {
-    public const ushort ShotBlockInstructionListTable = 0xc70a;
-    public const ushort LeftShotBlockWordTable = 0xc71a;
-    public const ushort RightShotBlockWordTable = 0xc72a;
-
     public const byte GateHeightInBlocks = 5;
-    public const byte LastShotBlockTableByteOffset = 14;
     public const byte ClosedGateBts = 0x10;
     public const byte RejectedShotSound = 0x57;
     public const byte MovementSound = 0x0e;

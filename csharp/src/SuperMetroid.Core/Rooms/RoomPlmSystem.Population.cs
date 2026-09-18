@@ -348,7 +348,7 @@ public sealed partial class RoomPlmSystem
 
         if (header == RoomPlmHeaders.DownwardGateShotBlock)
         {
-            SetupDownwardGateShotBlock(bus, level, slot);
+            SetupDownwardGateShotBlock(level, slot);
             return true;
         }
 

@@ -2251,3 +2251,45 @@ all 128 combinations of the sixteen random nibbles and eight inherited indexes
 through the real finite sprite-object pool and sound queue while both source
 tables are forbidden. The selected sprite programs and artwork remain separate
 program/presentation dependencies.
+
+# Downward-gate shot-block definitions
+
+`DownwardGateShotBlockDefinitions` compiles the eight instruction-list selectors
+at `$84:C70A-$C719` and their parallel left/right shootable-block words at
+`$84:C71A-$C739`. Each typed row preserves the exact blue, red, green, or yellow
+trigger side and BTS without deriving either from color or parity at the call site.
+
+Verification compares all 24 words with the pinned cartridge and runs the real
+room-population setup plus all eight projectile filters while all three source
+tables are absent from the synthetic address space. Odd and out-of-range room
+arguments fail explicitly. The selected PLM instruction streams and draw records
+remain cartridge-backed program/presentation data.
+
+# Speed Booster escape lava stages
+
+`SpeedBoosterEscapeStageDefinitions` compiles the three physical records at
+`$84:B876-$B887`: Samus X threshold, maximum FX Y position, and packed vertical
+velocity. The following `$8000` word is represented as the terminal event row
+rather than padded into an invented fourth physical record.
+
+Verification compares all ten words with the pinned cartridge and completes the
+real synthetic controller with `$84:B876-$B889` absent. A retail production load
+of room/state `$ACF0/$ACFD` additionally covers collected and missing Speed Booster,
+the initial lavaquake, all three threshold handoffs, earthquake cleanup, and event
+`$15`. Invalid timer offsets fail explicitly. The installed PLM program and FX
+presentation remain cartridge-backed.
+
+# Fallback door-closing metadata
+
+`DoorClosingPlmRomData` now pairs all twelve headers selected by `$8F:E68A-$E6A1`
+with the initial instruction-list identity stored by each nonzero bank-$84 header.
+Directions zero through three retain explicit empty definitions, four through seven
+retain the four blue-door orientations, and eight through eleven retain the four
+duplicated post-Mother-Brain escape-gate selections.
+
+Verification compares every header and initial-list word with the pinned cartridge,
+then allocates every fallback through production code using a synthetic bus that
+does not contain the header metadata. The complete sequential room-PLM suite also
+runs with `$84:C8D2` absent, covering the Mother Brain escape fallback and resident
+gate handoff. Out-of-range directions fail explicitly. Resident-door secondary
+lists and all closing animation/draw streams remain cartridge-backed follow-up work.

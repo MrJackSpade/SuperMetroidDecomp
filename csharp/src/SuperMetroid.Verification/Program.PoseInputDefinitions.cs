@@ -64,7 +64,17 @@ internal static partial class Program
         AssertEqual(86, unique.Count, "All distinct native list identities");
         AssertEqual(598, conditionCount, "All distinct-list conditions");
         for (int pose = 253; pose <= byte.MaxValue; pose++)
-            AssertTrue(!SamusPoseInputDefinitions.TryGet((byte)pose, out _, out _), "Trailing pose indexes retain explicit bus lookup");
+        {
+            byte invalidPose = (byte)pose;
+            AssertTrue(!SamusPoseInputDefinitions.TryGet(invalidPose, out _, out _), "Trailing pose indexes have no authored graph");
+            AssertThrows<InvalidDataException>(
+                () => SamusPoseTransitionTable.Lookup(forbidden, invalidPose, 1, 1),
+                "Non-authored pose graph rejects adjacent code");
+            AssertEqual(
+                new SamusPoseTransitionLookup(null, true),
+                SamusPoseTransitionTable.Lookup(forbidden, invalidPose, 0, 0),
+                "Raw zero input returns before the cartridge would inspect a pose graph");
+        }
 
         // Extra held bits are admitted by the native subset matcher. With both horizontal
         // bits set, the first authored condition wins: the direction opposite the current
@@ -94,6 +104,6 @@ internal static partial class Program
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");
-        Console.WriteLine($"Pose input graph: 253 mappings, 86 lists, 598 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden.");
+        Console.WriteLine($"Pose input graph: 253 mappings, 86 lists, 598 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
     }
 }

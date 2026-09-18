@@ -216,9 +216,9 @@ presentation data for #540/#541.
 The separate bank-$90 HUD movement-handler table and twelve authored posture
 flags are now compiled in `SamusHudDefinitions`, shared by Grapple admission
 and projectile charge-preservation dispatch. All pose bytes retain native
-posture threshold/adjacent-data behavior; out-of-table flags remain explicit
-ROM dependencies. Grapple's swing body offsets and their physical angle selector
-are now compiled separately from the displayed art frame. Flare animation and
+posture threshold/adjacent-data behavior in a bounded compiled observation window;
+there is no remaining runtime ROM fallback. Grapple's swing body offsets and their
+physical angle selector are now compiled separately from the displayed art frame. Flare animation and
 drawing pointers remain presentation readers for #540/#541; editable assets and
 their restart/update behavior are not yet implemented by this separation.
 
@@ -231,22 +231,21 @@ remain explicit dependencies; per-pose animation commands and artwork are still
 outside this completed cadence group.
 
 Pose byte four is shared by artwork and projectile origins. Its physical copy
-for all 253 authored poses is now compiled independently for beam/missile setup,
-Grapple launch and the late physical-origin update. Visual body/cannon/flare
-readers remain separate presentation dependencies. The three trailing pose bytes
-$FD..$FF still read adjacent executable data. Facing, movement type and no-input
-fallback pose are now compiled for all 253 authored poses in
-`SamusPoseDispatchDefinitions`. Shot direction and per-pose instruction programs
-remain live mechanical readers; these completed fields do not complete metadata.
+for all 253 authored poses plus the three exact adjacent-code observations is
+compiled independently for beam/missile setup, Grapple launch and the late
+physical-origin update. Visual body/cannon/flare readers remain separate
+presentation dependencies. Facing, movement type, no-input fallback pose, shot
+direction, and collision radius likewise compile all 256 byte indexes. Per-pose
+animation programs remain live readers; these completed fields do not complete metadata.
 The authored input graph is now compiled separately in `SamusPoseInputDefinitions`:
 253 pose mappings, 86 list identities and 598 ordered conditions. The production
 matcher consumes those typed conditions directly, preserving empty/self-match
-fallback semantics and native diagnostic entry addresses. The three trailing pose
-indexes still use the explicit pointer/record reader; animation programs are separate.
-Collision radii are now separately compiled for all 253 authored poses, including
-the prospective larger-pose and crouch-fallback consumers. The three trailing
-pose indexes still retain explicit adjacent-data reads. This physical catalog
-does not consume or replace the presentation offset.
+fallback semantics and native diagnostic entry addresses. Non-authored indexes
+`$FD..$FF` retain the native raw-zero-input early return, but otherwise fail loudly
+instead of parsing adjacent bank-$91 code as a graph. Animation programs are separate.
+Collision radii are compiled for all 256 byte indexes, including the prospective
+larger-pose and crouch-fallback consumers and three exact adjacent-code observations.
+This physical catalog does not consume or replace the presentation offset.
 
 The forty direction-specific beam/missile origin words at $90:C204..C253 are
 now compiled too, with the standing/running and two special Moonwalk pose

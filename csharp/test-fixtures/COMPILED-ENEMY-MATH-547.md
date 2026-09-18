@@ -1911,13 +1911,15 @@ catalogs own private arrays constructed once; lookup does not allocate a new lis
 `SamusPoseTransitionTable.Lookup` consumes these conditions through its existing
 matcher. Raw zero input, empty-list direct return, exhaustion fallback, first-match
 priority and self-match suppression remain distinct. Non-authored `$FD..$FF`
-indexes retain the old fixed-bank pointer/record path. A synthetic priority test
-now uses `$FD` explicitly instead of replacing the authored standing input graph.
+indexes return through the native raw-zero-input branch when appropriate, but any
+attempt to select a graph now fails explicitly instead of parsing adjacent bank-$91
+code as mechanics.
 
 The independent verifier reads all reference conditions from the pinned ROM and
 compares the complete held/new-input condition space, including independent
 ignored-bit variants, against the production lookup with every bus read forbidden.
-It also checks all mapping/list identities, condition order and targets, and a
+It also checks all mapping/list identities, condition order and targets, loud
+non-authored rejection, the raw-zero bypass, and a
 warmed-up 65,536-call allocation probe. This removes the authored input-graph
 dependency, not shot-direction, animation-program, artwork or general ROM-free
 integration dependencies. The broad issues remain open.

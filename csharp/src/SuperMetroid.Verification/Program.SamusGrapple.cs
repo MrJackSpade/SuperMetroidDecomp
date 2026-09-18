@@ -469,12 +469,18 @@ static void VerifySamusGrappleSwingAndRelease()
     {
         for (byte direction = 0; direction < 10; direction++)
         {
-            byte sourceMovementType = family == 1 ? (byte)5 : (byte)6;
-            // Exercise the whole connection-table cross-product through an explicit
-            // non-authored pose. Authored pose aim/movement cannot be rewritten as art.
-            byte sourcePose = 0xfd;
-            WritePoseDefinition(bus, sourcePose,
-                [0x08, sourceMovementType, 0xff, direction, 0x00, 0x00, 0x05, 0x15]);
+            SamusMovementType sourceMovementType = family == 1
+                ? SamusMovementType.Crouching
+                : SamusMovementType.Falling;
+            // Exercise the whole connection-table cross-product through real authored
+            // aim/movement combinations. Immutable mechanics metadata is not test input.
+            int sourcePoseIndex = Enumerable.Range(0, 253).FirstOrDefault(pose =>
+                SamusPoseDispatchDefinitions.ReadMovement((byte)pose) == (byte)sourceMovementType &&
+                SamusPoseAimDefinitions.Read((byte)pose) == direction,
+                -1);
+            if (sourcePoseIndex < 0)
+                continue;
+            byte sourcePose = (byte)sourcePoseIndex;
 
             var connectionSamus = new SamusState
             {

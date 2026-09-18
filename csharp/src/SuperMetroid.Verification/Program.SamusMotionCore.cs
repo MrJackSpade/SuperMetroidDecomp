@@ -15,19 +15,11 @@ internal static partial class Program
 static void VerifySamusPoseTransitionMatching()
 {
     var bus = new TestAddressSpace();
-    byte fixturePose = 0xfd; // Non-authored pose keeps the explicit adjacent-data reader.
+    byte fixturePose = SamusPoseIds.FacingRightNormalPose;
 
-    // A non-authored pose points at a compact synthetic table shaped like $91:A0EC.
-    // Jump+Up outranks plain Up, which outranks Right because the matcher stops at the
-    // first record whose complete required masks are present.
-    WriteTestWord(bus, SamusMovementRomData.Poses.TransitionListPointers + fixturePose * 2, 0xa0ec);
-    bus.WriteBytes(0x91a0ec, [
-        0x80, 0x00, 0x00, 0x08, 0x55, 0x00,
-        0x00, 0x00, 0x00, 0x08, 0x03, 0x00,
-        0x00, 0x00, 0x00, 0x01, 0x09, 0x00,
-        0x00, 0x00, 0x00, 0x02, 0xfd, 0x00,
-        0xff, 0xff,
-    ]);
+    // The authored standing-right table at $91:A0EC demonstrates priority and subset
+    // matching: Jump+Up outranks plain Up, which outranks Right because the matcher stops
+    // at the first record whose complete required masks are present.
 
     SamusPoseTransition jumpUp = SamusPoseTransitionTable.Find(
         bus,
@@ -40,9 +32,9 @@ static void VerifySamusPoseTransitionMatching()
     SamusPoseTransition up = SamusPoseTransitionTable.Find(
         bus,
         currentPose: fixturePose,
-        canonicalHeldInput: 0x0900,
+        canonicalHeldInput: (ushort)(SnesButton.Up | SnesButton.Y),
         canonicalNewInput: 0)!.Value;
-    AssertEqual(0x03, up.ProspectivePose, "Samus transition permits extra held direction");
+    AssertEqual(0x03, up.ProspectivePose, "Samus transition permits extra held action");
 
     SamusPoseTransition right = SamusPoseTransitionTable.Find(
         bus,
@@ -55,7 +47,11 @@ static void VerifySamusPoseTransitionMatching()
         SamusPoseTransitionTable.Find(bus, fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0),
         "Samus zero input bypasses transition table");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(bus, fixturePose, canonicalHeldInput: 0x0200, canonicalNewInput: 0),
+        SamusPoseTransitionTable.Find(
+            bus,
+            (byte)SamusPoseId.MovingRightGunExtendedPose,
+            canonicalHeldInput: (ushort)(SnesButton.Right | SnesButton.X),
+            canonicalNewInput: 0),
         "Samus same-pose transition is suppressed");
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(bus, fixturePose, canonicalHeldInput: 0x0400, canonicalNewInput: 0),
@@ -64,7 +60,10 @@ static void VerifySamusPoseTransitionMatching()
     SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
         bus, fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0);
     SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
-        bus, fixturePose, canonicalHeldInput: 0x0200, canonicalNewInput: 0);
+        bus,
+        (byte)SamusPoseId.MovingRightGunExtendedPose,
+        canonicalHeldInput: (ushort)(SnesButton.Right | SnesButton.X),
+        canonicalNewInput: 0);
     SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
         bus, fixturePose, canonicalHeldInput: 0x0400, canonicalNewInput: 0);
     AssertTrue(zeroInput.UsesPoseDefinitionFallback,
@@ -74,12 +73,12 @@ static void VerifySamusPoseTransitionMatching()
     AssertTrue(terminator.UsesPoseDefinitionFallback,
         "Samus unmatched nonzero input enters pose-definition fallback");
 
-    // Aerial turns have empty lists. The first-word terminator is a direct return
-    // for held input, unlike exhaustion after at least one unmatched record.
-    WriteTestWord(bus, 0x91a0ec, 0xffff);
-    AssertTrue(!SamusPoseTransitionTable.Lookup(bus, fixturePose, (ushort)SnesButton.A, 0).UsesPoseDefinitionFallback,
+    // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
+    // direct return for held input, unlike exhaustion after at least one unmatched record.
+    const byte emptyListPose = 0x2f;
+    AssertTrue(!SamusPoseTransitionTable.Lookup(bus, emptyListPose, (ushort)SnesButton.A, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
-    AssertTrue(SamusPoseTransitionTable.Lookup(bus, fixturePose, 0, 0).UsesPoseDefinitionFallback,
+    AssertTrue(SamusPoseTransitionTable.Lookup(bus, emptyListPose, 0, 0).UsesPoseDefinitionFallback,
         "releasing all input still invokes fallback before reading an empty table");
 
     Console.WriteLine(

@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// This matcher deliberately stops before applying a prospective pose. The runtime owns the
-/// transition side effects. Authored conditions are compiled; trailing pose indexes retain
-/// explicit adjacent-ROM behavior. The returned record remains valuable debugger state: it
-/// proves which cartridge entry won for a precise held/newly-pressed input chord.
+/// transition side effects. Authored conditions are compiled; non-authored pose indexes fail
+/// explicitly instead of parsing adjacent bank-$91 code as a transition list. The returned
+/// record remains valuable debugger state: it proves which cartridge entry won for a precise
+/// held/newly-pressed input chord.
 /// </remarks>
 public static class SamusPoseTransitionTable
 {
@@ -65,29 +66,27 @@ public static class SamusPoseTransitionTable
         ushort held = (ushort)(canonicalHeldInput & ~StartAndSelectMask);
         ushort newlyPressed = (ushort)(canonicalNewInput & ~StartAndSelectMask);
 
-        bool compiled = SamusPoseInputDefinitions.TryGet(currentPose, out ushort tablePointer, out var rules);
-        if (!compiled)
-            tablePointer = ReadWord(bus,
-                AddWithinBank(SamusMovementRomData.Poses.TransitionListPointers, currentPose * 2));
+        if (!SamusPoseInputDefinitions.TryGet(currentPose, out ushort tablePointer, out var rules))
+        {
+            throw new InvalidDataException(
+                $"Pose ${currentPose:X2} has no authored input-transition graph; " +
+                "adjacent bank-$91 code is not mechanics metadata.");
+        }
         int entryAddress = SamusMovementRomData.Banks.Pose | tablePointer;
 
-        // A valid table ends with a single $FFFF word. The retail bank cannot contain more
-        // than 10,923 six-byte records, so this guard diagnoses corrupt/synthetic data while
-        // retaining fixed-bank wrapping in every actual address calculation.
-        for (int entryIndex = 0; entryIndex < 10_923; entryIndex++)
+        for (int entryIndex = 0; ; entryIndex++)
         {
-            ushort requiredNew = compiled
-                ? entryIndex == rules.Length ? ushort.MaxValue : rules[entryIndex].RequiredNewInput
-                : ReadWord(bus, entryAddress);
-            if (requiredNew == 0xffff)
+            if (entryIndex == rules.Length)
             {
                 return new SamusPoseTransitionLookup(
                     null,
                     UsesPoseDefinitionFallback: entryIndex != 0);
             }
 
-            ushort requiredHeld = compiled ? rules[entryIndex].RequiredHeldInput : ReadWord(bus, AddWithinBank(entryAddress, 2));
-            ushort prospectivePose = compiled ? rules[entryIndex].TargetPose : ReadWord(bus, AddWithinBank(entryAddress, 4));
+            SamusPoseInputRule rule = rules[entryIndex];
+            ushort requiredNew = rule.RequiredNewInput;
+            ushort requiredHeld = rule.RequiredHeldInput;
+            ushort prospectivePose = rule.TargetPose;
 
             // Assembly complements the actual inputs and rejects an entry if any required
             // bit is absent. Expressing that as (required & actual)==required is equivalent
@@ -117,13 +116,7 @@ public static class SamusPoseTransitionTable
 
             entryAddress = AddWithinBank(entryAddress, 6);
         }
-
-        throw new InvalidDataException(
-            $"Samus pose ${currentPose:X2} transition table did not terminate within bank $91.");
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
 
 }
 

@@ -834,11 +834,12 @@ public sealed class SamusHorizontalSpeedState
         // Bank $90's low half aliases live SNES memory rather than immutable cartridge ROM.
         // Retain that native indirection for deliberately restored/corrupted pointer state,
         // but never reinterpret unrelated high-bank code or presentation bytes as physics.
-        if ((address & 0xff0000) != SamusMovementRomData.Banks.Movement ||
-            (address & 0xffff) >= 0x8000)
+        SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
+        if (sourceAddress.Bank != (byte)(SamusMovementRomData.Banks.Movement >> 16) ||
+            sourceAddress.IsUpperLoRomWindow)
         {
             throw new InvalidDataException(
-                $"Samus horizontal speed entry ${address >> 16:X2}:{address & 0xffff:X4} " +
+                $"Samus horizontal speed entry {sourceAddress} " +
                 "is not an authored mechanics record or mutable low-bank alias.");
         }
 

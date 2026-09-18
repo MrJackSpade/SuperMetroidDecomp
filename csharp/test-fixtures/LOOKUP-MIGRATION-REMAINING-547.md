@@ -495,6 +495,12 @@ seven real initializers run with `$A6:F52C-$F539` and `$A6:F72B-$F738` forbidden
 two's graphics transfer and the selected mixed instruction programs remain separate
 presentation/integration dependencies.
 
+Botwoon's complete fixed instruction-selector metadata is compiled too: eight visible head
+orientations, the eight duplicated hidden-head entries, eight spit orientations, and all
+32 visible/hidden body-and-tail orientations. All 56 native words match, while the real
+movement, aim, and articulated-body consumers run with `$B3:946B-$949A` and
+`$86:E9F1-$EA30` forbidden. The selected instruction programs remain separate dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

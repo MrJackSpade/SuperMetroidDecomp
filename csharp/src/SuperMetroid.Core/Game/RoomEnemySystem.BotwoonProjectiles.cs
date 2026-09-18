@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int BotwoonBodyInstructionTable = 0x86e9f1;
     private const ushort BotwoonBodyMainFunction = 0xea98;
     private const ushort BotwoonBodyBeginDyingFunction = 0xeaf4;
     private const ushort BotwoonBodyDyingDelayFunction = 0xeb04;
@@ -45,8 +44,7 @@ public sealed partial class RoomEnemySystem
         // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
         // $10; argument zero is the tail cap and begins at $30.
         ushort orientation = spawnArgument != 0 ? (ushort)16 : (ushort)48;
-        ushort instruction = ReadWord(
-            _bus!, BotwoonBodyInstructionTable + orientation);
+        ushort instruction = BotwoonInstructionDefinitions.BodyInstruction(orientation);
         segment.InstructionPointer = instruction;
         segment.InstructionTimer = 1;
         segment.Variable0 = instruction;
@@ -109,8 +107,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
     {
-        ushort instruction = ReadWord(
-            _bus!, BotwoonBodyInstructionTable + segment.DirectionParameter);
+        ushort instruction =
+            BotwoonInstructionDefinitions.BodyInstruction(segment.DirectionParameter);
         if (instruction != segment.Variable0)
         {
             segment.InstructionPointer = instruction;

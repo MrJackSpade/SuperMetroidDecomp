@@ -138,9 +138,9 @@ public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCom
 
 /// <summary>
 /// Cartridge-faithful translation of Botwoon definition <c>$F293</c>. Movement remains
-/// table-driven: the four hole rectangles and random path descriptors are compiled as fixed
-/// mechanics metadata, while signed path deltas, head animation lists, and health palettes
-/// remain authored cartridge programs/data rather than host approximations.
+/// table-driven: the four hole rectangles, random path descriptors, and instruction selectors
+/// are compiled as fixed mechanics metadata, while signed path deltas, selected instruction
+/// programs, and health palettes remain authored cartridge data rather than host approximations.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
@@ -149,9 +149,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort BotwoonShotAi = EnemyAiCodePointers.BankB3.BotwoonShot;
     internal const ushort BotwoonPowerBombAi = EnemyAiCodePointers.BankB3.BotwoonPowerBomb;
 
-    private const ushort BotwoonInitialInstruction = 0x9389;
-    private const int BotwoonMovementInstructionTable = 0xb3946b;
-    private const int BotwoonSpitInstructionTable = 0xb3948b;
     private const int BotwoonPaletteTable = 0xb3971b;
     private const int BotwoonPaletteThresholdTable = 0xb3981b;
     private const int BotwoonSpecialDropCount = 16;
@@ -195,7 +192,7 @@ public sealed partial class RoomEnemySystem
     {
         var state = new BotwoonEnemyState(head);
         _botwoonState = state;
-        head.CurrentInstruction = BotwoonInitialInstruction;
+        head.CurrentInstruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
         head.InstructionTimer = 1;
         head.Timer = 0;
 
@@ -233,7 +230,7 @@ public sealed partial class RoomEnemySystem
         state.PreviousHealth = head.Health;
         state.PaletteDestinationByteOffset =
             unchecked((ushort)((head.PaletteIndex >> 4) + 256));
-        state.InstalledHeadInstruction = BotwoonInitialInstruction;
+        state.InstalledHeadInstruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
         head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
 
         for (int history = 0; history < 4; history++)
@@ -670,7 +667,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         short dx = unchecked((short)(head.XPosition - state.HeadHistoryX[3]));
         short dy = unchecked((short)(head.YPosition - state.HeadHistoryY[3]));
@@ -681,15 +678,14 @@ public sealed partial class RoomEnemySystem
             {
                 head.Layer = 7;
                 head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
-                instruction = BotwoonInitialInstruction;
+                instruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
             }
             else
             {
                 head.Layer = 2;
                 head.Properties = head.Properties.Without(EnemyProperties.SolidToSamus);
                 byte angle = CalculateCartridgeAngle(dx, dy);
-                instruction = ReadWord(
-                    _bus!, BotwoonMovementInstructionTable + (angle >> 5) * 2);
+                instruction = BotwoonInstructionDefinitions.HeadMovementInstruction(angle);
             }
             InstallBotwoonHeadInstruction(head, state, instruction);
         }
@@ -712,8 +708,7 @@ public sealed partial class RoomEnemySystem
         byte angle = CalculateCartridgeAngle(
             unchecked((short)(samus.XPosition - head.XPosition)),
             unchecked((short)(samus.YPosition - head.YPosition)));
-        ushort instruction = ReadWord(
-            _bus!, BotwoonSpitInstructionTable + (unchecked((byte)(angle + 16)) >> 5) * 2);
+        ushort instruction = BotwoonInstructionDefinitions.HeadSpitInstruction(angle);
         InstallBotwoonHeadInstruction(head, state, instruction);
         state.SpitAngle = unchecked((byte)(64 - angle));
         state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden

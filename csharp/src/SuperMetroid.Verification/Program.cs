@@ -210,6 +210,12 @@ if (args is ["--ceres-door-initialization-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--botwoon-instruction-definitions"])
+{
+    VerifyBotwoonInstructionDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--baby-metroid-route-definitions"])
 {
     VerifyBabyMetroidCutsceneEntrance();

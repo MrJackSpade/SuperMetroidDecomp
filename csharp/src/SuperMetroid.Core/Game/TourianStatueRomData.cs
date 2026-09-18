@@ -37,10 +37,6 @@ public static class TourianStatueRomData
     public const ushort Tail = 0xba86;
     /// <summary>$86:BA5C water splash definition.</summary>
     public const ushort Splash = 0xba5c;
-    /// <summary>$86:B90E eye/soul X positions, indexed by statue parameter.</summary>
-    public const int EyeX = 0x86b90e;
-    /// <summary>$86:B916 eye/soul Y positions.</summary>
-    public const int EyeY = 0x86b916;
     /// <summary>$86:B91E eye glow colors, four words per statue.</summary>
     public const int EyeColors = 0x86b91e;
     /// <summary>$86:B9FD soul motion pre-instruction.</summary>

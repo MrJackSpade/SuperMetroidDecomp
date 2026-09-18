@@ -19,13 +19,14 @@ public sealed partial class RoomEnemySystem
     /// <summary>$87:8320/832F use the native bank-$86 definitions and eye-position tables.</summary>
     public void SpawnTourianUnlockEffect(ushort parameter, bool soul)
     {
-        if (parameter > 6 || (parameter & 1) != 0) throw new ArgumentOutOfRangeException(nameof(parameter));
+        TourianStatueEyePosition position =
+            TourianStatueUnlockDefinitions.EyePosition(parameter);
         var projectile = AllocateEnemyProjectile();
         if (projectile is null) return;
         InitializeEnemyProjectileFromDefinition(projectile,
             (RoomEnemyProjectileKind)(soul ? TourianStatueRomData.Soul : TourianStatueRomData.EyeGlow), 0);
-        projectile.XPosition = ReadWord(_bus!, TourianStatueRomData.EyeX + parameter);
-        projectile.YPosition = ReadWord(_bus!, TourianStatueRomData.EyeY + parameter);
+        projectile.XPosition = position.X;
+        projectile.YPosition = position.Y;
         if (soul) projectile.YVelocity = unchecked((ushort)-1024);
         else _cgram!.LoadFromBus(_bus!, TourianStatueRomData.EyeColors + parameter * 4, 4, 249);
     }

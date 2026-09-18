@@ -60,6 +60,7 @@ internal static partial class Program
         VerifyZebesEscapeExplosionDefinitions(rom);
         VerifyMetroidBehaviorDefinitions(rom);
         VerifyMotherBrainDoorFragmentDefinitions(rom);
+        VerifyTourianStatueUnlockDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

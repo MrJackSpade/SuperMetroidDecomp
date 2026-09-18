@@ -342,6 +342,12 @@ its signed world offset from `$86:C992-$C9B1` with its signed 8.8 launch velocit
 spawns run with both physical tables forbidden. Fragment animation bytecode remains a
 separate program/presentation dependency.
 
+The four Tourian statue eye/soul world positions at `$86:B90E-$B91D` are compiled
+as paired physical records. The catalog retains the native doubled boss parameters
+zero, two, four, and six. All eight source words match the pinned cartridge, and both
+the real eye-glow and soul spawns run for every boss with position reads forbidden.
+Eye colors and projectile animation programs remain presentation/program dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

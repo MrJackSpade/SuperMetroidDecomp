@@ -34,6 +34,7 @@ internal static partial class Program
         VerifyElevatorInputDefinitions(rom);
         VerifyOwtchMovementDefinitions(rom);
         VerifyNuclearWaffleDefinitions(rom);
+        VerifyHibashiDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);
         VerifyPowerBombCallbackDefinitions(rom);

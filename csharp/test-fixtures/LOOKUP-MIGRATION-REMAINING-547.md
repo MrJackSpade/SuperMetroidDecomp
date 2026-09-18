@@ -119,6 +119,9 @@ Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while
 `$A6:95F6-$A6:960D` is forbidden; invalid directions cannot consume main-AI code.
+Hibashi's 22 eruption Y offsets and collision half-heights are compiled as paired
+physical frames. Every production activity command retains exact placement,
+radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

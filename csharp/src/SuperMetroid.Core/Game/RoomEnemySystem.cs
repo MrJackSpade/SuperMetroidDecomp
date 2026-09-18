@@ -1453,7 +1453,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_KzanBottom when slot.EnemyDefinitionPointer == KzanBottomDefinition:
                 InitializeKzanBottom(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinition:
+            case EnemyAiCodePointers.InitAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
                 InitializeHibashi(slot);
                 return;
             case EnemyAiCodePointers.InitAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinitions.EnemyDefinition:
@@ -2011,7 +2011,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_KzanBottom when slot.EnemyDefinitionPointer == KzanBottomDefinition:
                 RunKzanBottomMain(slot);
                 return;
-            case EnemyAiCodePointers.MainAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinition:
+            case EnemyAiCodePointers.MainAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
                 RunHibashiMain(slot, RequireHibashiState(slot));
                 return;
             case EnemyAiCodePointers.MainAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinitions.EnemyDefinition:
@@ -3122,32 +3122,32 @@ public sealed partial class RoomEnemySystem
                     slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyInstructionCodePointers.Instruction_Hibashi_PlaySFX when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_PlaySFX when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
                     PlayHibashiEruptionSound();
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame0 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame1 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame2 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame3 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame4 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame5 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame6 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame7 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame8 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame9 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameA when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameB when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameC when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameD when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameE when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameF when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame10 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame11 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame12 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame13 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame14 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame15 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame0 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame1 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame2 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame3 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame4 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame5 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame6 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame7 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame8 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame9 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameA when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameB when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameC when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameD when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameE when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameF when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame10 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame11 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame12 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame13 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame14 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame15 when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
                     // These 22 bank-$A6 routines are laid out at an exact $14-byte stride.
                     // Each routine selects the correspondingly indexed Y-offset/radius pair;
                     // deriving that index from the executed ROM address keeps the dispatcher
@@ -3155,7 +3155,7 @@ public sealed partial class RoomEnemySystem
                     ApplyHibashiActivityFrame(slot, (word - 0x8e13) / 0x14);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyInstructionCodePointers.Instruction_Hibashi_FinishActivity when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_FinishActivity when slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition:
                     FinishHibashiActivity(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;

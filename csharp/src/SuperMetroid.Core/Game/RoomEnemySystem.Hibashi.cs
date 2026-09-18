@@ -60,14 +60,6 @@ public sealed class HibashiEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort HibashiDefinition = 0xe07f;
-
-    private const ushort HibashiGraphicsInstructionList = 0x8d1b;
-    private const ushort HibashiHitboxInstructionList = 0x8da9;
-    private const ushort HibashiEruptionSoundEffect = 0x0061;
-    private const int HibashiYOffsets = 0xa68dbb;
-    private const int HibashiYRadiusTable = 0xa68de7;
-
     private readonly HibashiEnemyState?[] _hibashiStates =
         new HibashiEnemyState?[MaximumEnemyCount];
 
@@ -82,13 +74,13 @@ public sealed partial class RoomEnemySystem
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the instruction-driven eruption list and initializes the state-machine words below.
-        slot.CurrentInstruction = HibashiHitboxInstructionList;
+        slot.CurrentInstruction = HibashiDefinitions.HitboxInstructionList;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         if (state.Part != 0)
             return;
 
-        slot.CurrentInstruction = HibashiGraphicsInstructionList;
+        slot.CurrentInstruction = HibashiDefinitions.GraphicsInstructionList;
         state.Function = HibashiEnemyFunction.Inactive;
         state.SpawnYPosition = slot.YPosition;
 
@@ -133,7 +125,7 @@ public sealed partial class RoomEnemySystem
         state.FinishedActivityFlag = 0;
         graphics.InstructionTimer = 1;
         graphics.Timer = 0;
-        graphics.CurrentInstruction = HibashiGraphicsInstructionList;
+        graphics.CurrentInstruction = HibashiDefinitions.GraphicsInstructionList;
 
         // Property $0100 controls rendering only. Property $0400 controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
@@ -156,14 +148,13 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports instruction <c>$A6:8DAF</c>.</summary>
     private void PlayHibashiEruptionSound()
     {
-        LastHibashiSoundEffect = HibashiEruptionSoundEffect;
+        LastHibashiSoundEffect = HibashiDefinitions.EruptionSoundEffect;
     }
 
     /// <summary>
     /// Ports activity instructions $A6:8E13-$8FBD. The 22 commands differ only by their
-    /// direct word-table index; frame zero additionally restores the fixed eight-pixel X
-    /// radius. Reading both tables from the cartridge keeps their shrinking final radii
-    /// inspectable without duplicating ROM data as host constants.
+    /// direct activity index; frame zero additionally restores the fixed eight-pixel X
+    /// radius.
     /// </summary>
     private void ApplyHibashiActivityFrame(RoomEnemySlot graphics, int frameIndex)
     {
@@ -173,10 +164,10 @@ public sealed partial class RoomEnemySystem
         LastHibashiActivityFrameIndex = frameIndex;
         HibashiEnemyState state = RequireHibashiState(graphics);
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
-        int tableOffset = frameIndex * 2;
+        HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
         hitbox.YPosition = unchecked((ushort)(
-            state.SpawnYPosition - ReadWord(_bus!, HibashiYOffsets + tableOffset)));
-        hitbox.YRadius = ReadWord(_bus!, HibashiYRadiusTable + tableOffset);
+            state.SpawnYPosition - frame.YOffset));
+        hitbox.YRadius = frame.YRadius;
         if (frameIndex == 0)
             hitbox.XRadius = 8;
     }

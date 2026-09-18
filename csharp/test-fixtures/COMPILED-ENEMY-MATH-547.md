@@ -2050,3 +2050,17 @@ runs both complete production initializers while `$A6:95F6-$A6:960D` is forbidde
 Each path must allocate all four damaging projectile links and three cosmetic
 sprite links while retaining the exact geometry. Invalid restored directions fail
 explicitly instead of consuming the following main-AI code.
+
+# Hibashi eruption hitboxes
+
+`HibashiDefinitions` compiles the 22 eruption Y offsets at `$A6:8DBB` and
+collision half-heights at `$A6:8DE7` into paired physical frame definitions. The
+enemy definition, graphics/hitbox instruction identities, and eruption sound
+identity are catalogued alongside them instead of living in the functional state
+machine.
+
+Verification independently compares all 44 words to the pinned cartridge and
+runs every real `ApplyHibashiActivityFrame` path against a paired graphics/hitbox
+actor with `$A6:8DBB-$A6:8E12` forbidden. It asserts exact world Y, Y radius,
+published frame index, and the frame-zero-only eight-pixel X radius. Invalid frame
+indexes fail explicitly before any actor state changes.

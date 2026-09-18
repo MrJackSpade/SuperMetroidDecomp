@@ -94,8 +94,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort FirefleaDefinition = 0xd6bf;
 
-    private const int FirefleaMovementRadii = 0xa38d1d;
-
     private readonly ushort[] _firefleaMinimumYPositions =
         new ushort[MaximumEnemyCount];
     private readonly ushort[] _firefleaMaximumYPositions =
@@ -128,10 +126,8 @@ public sealed partial class RoomEnemySystem
         state.SpeedTableIndex = speedTableIndex;
         (state.AngleDelta, state.SubAngleDelta) = ReadLinearEnemySpeed(speedTableIndex);
 
-        int radiusIndex = (slot.Parameter2 >> 8) & 0xff;
-        state.Radius = unchecked((ushort)(ReadWord(
-            _bus!,
-            FirefleaMovementRadii + radiusIndex * 2) & 0x00ff));
+        byte radiusIndex = (byte)(slot.Parameter2 >> 8);
+        state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
 
         if (state.UsesCircularMovement)
         {

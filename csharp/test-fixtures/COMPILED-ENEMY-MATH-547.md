@@ -1932,3 +1932,15 @@ pinned cartridge, rejects odd/out-of-domain selectors, and executes initializati
 144 flashing frames, every retail death offset and frozen-time retention while
 all reads from `$88:B058-$B07D` throw. This removes only the immutable shade-table
 dependency; enemy populations, graphics and the wider ROM-free integration remain.
+
+# Fireflea movement-radius definitions
+
+`FirefleaMovementDefinitions` compiles all eight physical radius words at
+`$A3:8D1D-$8D2C`. The population record's parameter-two high byte selects one
+radius for both circular movement and vertical extrema. This table does not own
+sprite collision bounds or presentation.
+
+Verification independently compares every word to the pinned cartridge and
+invokes the production Fireflea initializer for every authored selector with the
+complete source range forbidden. Selectors outside zero through seven now fail
+explicitly rather than interpreting adjacent enemy code as a movement radius.

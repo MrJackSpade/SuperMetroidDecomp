@@ -4,10 +4,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const int CrocomireMeltingTable = 0xa49bc5;
-    private const int CrocomireMeltingXOrderTable = 0xa49697;
-
-    private static ReadOnlySpan<byte> CrocomireEraseColumnMasks =>
-    [0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe];
 
     private void InitializeCrocomireMeltingTilemap(
         CrocomireEnemyState state,
@@ -204,17 +200,12 @@ public sealed partial class RoomEnemySystem
             // coordinates while the distortion coefficient finishes its last few frames.
             // Returning success is important: it keeps the HDMA contraction running; false
             // would skip directly to the next death state several frames too early.
-            if (cursor > 48)
+            if (cursor >= CrocomireMeltingDefinitions.ColumnCount)
             {
                 death.MeltingColumnCursor = unchecked((ushort)cursor);
                 return true;
             }
-            if (cursor >= CrocomireDeathState.MeltingColumnCount)
-            {
-                death.MeltingColumnCursor = 0;
-                return false;
-            }
-            xColumn = _bus!.ReadByte(CrocomireMeltingXOrderTable + cursor);
+            xColumn = CrocomireMeltingDefinitions.SelectColumn(cursor);
             if (heights[xColumn] < death.TargetHeightOrSkeletonTileIndex)
                 break;
             cursor++;
@@ -223,7 +214,7 @@ public sealed partial class RoomEnemySystem
 
         // The shipped routine masks by [table index & 7], not [selected X & 7]. This is one
         // of its documented indexing bugs and materially changes the dissolve silhouette.
-        byte mask = CrocomireEraseColumnMasks[cursor & 7];
+        byte mask = CrocomireMeltingDefinitions.SelectMask(cursor);
         int remaining = death.PixelsToErasePerColumn;
         do
         {

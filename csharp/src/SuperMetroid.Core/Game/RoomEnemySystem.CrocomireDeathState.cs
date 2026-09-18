@@ -56,7 +56,7 @@ public sealed class CrocomireDeathState
     /// <summary>Eight-byte VRAM record cursor relative to the active transfer subtable.</summary>
     public ushort MeltingTransferOffset { get; internal set; }
 
-    /// <summary>Current byte index into the cartridge's 128-entry random X-order table.</summary>
+    /// <summary>Current byte index into the cartridge's 49-entry authored X-order table.</summary>
     public ushort MeltingColumnCursor { get; internal set; }
 
     /// <summary>Native constant $30 pixels erased from the selected column in one frame.</summary>

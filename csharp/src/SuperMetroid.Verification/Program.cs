@@ -273,6 +273,12 @@ if (args is ["--crocomire-bridge-fragment-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--crocomire-melting-definitions"])
+{
+    VerifyCrocomireMeltingDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--phantoon-sound-definitions"])
 {
     VerifyPhantoonSoundDefinitions(
@@ -1263,6 +1269,8 @@ VerifyRoomEnemyLoading();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(
+    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+VerifyCrocomireMeltingDefinitions(
     SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();

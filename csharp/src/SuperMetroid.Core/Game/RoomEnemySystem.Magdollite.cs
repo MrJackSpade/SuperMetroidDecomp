@@ -117,14 +117,9 @@ public sealed partial class RoomEnemySystem
     private const ushort MagdolliteRightThrowList = 0xad50;
     private const ushort MagdolliteRightAttackList = 0xad7e;
     private const ushort MagdolliteRightReturnList = 0xadac;
-    private const ushort MagdolliteBodyBaseList = 0xaddc;
     private const ushort MagdolliteOverlayIdleList = 0xae0c;
 
     private const int MagdollitePaletteTable = 0xa8ac1c;
-    private const int MagdolliteRiseThresholdTable = 0xa8af55;
-    private const int MagdolliteBodyListTable = 0xa8af67;
-    private const int MagdolliteVerticalOffsetTable = 0xa8af79;
-    private const ushort MagdolliteMaximumRise = 108;
 
     private readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[MaximumEnemyCount];
@@ -238,7 +233,7 @@ public sealed partial class RoomEnemySystem
         state.InstalledInstructionList = 0;
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
-        state.DesiredInstructionList = MagdolliteBodyBaseList;
+        state.DesiredInstructionList = MagdollitePhaseDefinitions.Phase(0).BodyInstructionList;
         InstallMagdolliteInstructionList(slot, state);
         slot.YPosition = unchecked((ushort)(slot.YPosition + 32));
         state.Function = MagdolliteEnemyFunction.BodyDormant;
@@ -421,13 +416,12 @@ public sealed partial class RoomEnemySystem
 
         ushort upwardDistance = unchecked((ushort)-state.VerticalWholeDisplacement);
         int phaseIndex = state.BodyPhaseOffset >> 1;
-        ushort bodyToOverlayOffset = ReadWord(
-            _bus!,
-            MagdolliteVerticalOffsetTable + phaseIndex * 2);
-        bool roseMaximum = !IsNegative16(upwardDistance - MagdolliteMaximumRise);
+        MagdollitePhaseDefinition phase = MagdollitePhaseDefinitions.Phase(phaseIndex);
+        bool roseMaximum = !IsNegative16(
+            upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null && IsNegative16(unchecked((ushort)(
-            body.YPosition - bodyToOverlayOffset - samus.YPosition)));
-        ushort threshold = ReadWord(_bus!, MagdolliteRiseThresholdTable + phaseIndex * 2);
+            body.YPosition - phase.OverlayYOffset - samus.YPosition)));
+        ushort threshold = phase.DistanceThreshold;
 
         if (roseMaximum || rosePastSamus)
         {
@@ -443,9 +437,8 @@ public sealed partial class RoomEnemySystem
 
         state.BodyPhaseOffset = unchecked((ushort)(state.BodyPhaseOffset + 2));
         body.YPosition = unchecked((ushort)(body.YPosition + 8));
-        state.DesiredInstructionList = ReadWord(
-            _bus!,
-            MagdolliteBodyListTable + (state.BodyPhaseOffset >> 1) * 2);
+        state.DesiredInstructionList = MagdollitePhaseDefinitions
+            .Phase(state.BodyPhaseOffset >> 1).BodyInstructionList;
         InstallMagdolliteInstructionList(body, state);
     }
 
@@ -473,15 +466,14 @@ public sealed partial class RoomEnemySystem
 
         ushort downwardDistanceRemaining = unchecked((ushort)-state.VerticalWholeDisplacement);
         int priorPhaseIndex = unchecked((ushort)(state.BodyPhaseOffset - 2)) >> 1;
-        ushort threshold = ReadWord(_bus!, MagdolliteRiseThresholdTable + priorPhaseIndex * 2);
+        ushort threshold = MagdollitePhaseDefinitions.Phase(priorPhaseIndex).DistanceThreshold;
         if (!IsNegative16(downwardDistanceRemaining - threshold))
             return;
 
         state.BodyPhaseOffset = unchecked((ushort)(state.BodyPhaseOffset - 2));
         body.YPosition = unchecked((ushort)(body.YPosition - 8));
-        state.DesiredInstructionList = ReadWord(
-            _bus!,
-            MagdolliteBodyListTable + (state.BodyPhaseOffset >> 1) * 2);
+        state.DesiredInstructionList = MagdollitePhaseDefinitions
+            .Phase(state.BodyPhaseOffset >> 1).BodyInstructionList;
         InstallMagdolliteInstructionList(body, state);
     }
 
@@ -539,9 +531,9 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            overlay.YPosition = unchecked((ushort)(body.YPosition - ReadWord(
-                _bus!,
-                MagdolliteVerticalOffsetTable + (bodyState.BodyPhaseOffset >> 1) * 2)));
+            ushort offset = MagdollitePhaseDefinitions
+                .Phase(bodyState.BodyPhaseOffset >> 1).OverlayYOffset;
+            overlay.YPosition = unchecked((ushort)(body.YPosition - offset));
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -560,9 +552,9 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            overlay.YPosition = unchecked((ushort)(body.YPosition - ReadWord(
-                _bus!,
-                MagdolliteVerticalOffsetTable + (bodyState.BodyPhaseOffset >> 1) * 2)));
+            ushort offset = MagdollitePhaseDefinitions
+                .Phase(bodyState.BodyPhaseOffset >> 1).OverlayYOffset;
+            overlay.YPosition = unchecked((ushort)(body.YPosition - offset));
         }
 
         UpdateMagdolliteHeadRadius(overlay);

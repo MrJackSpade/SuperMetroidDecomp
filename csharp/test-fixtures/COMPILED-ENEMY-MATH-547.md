@@ -2064,3 +2064,17 @@ runs every real `ApplyHibashiActivityFrame` path against a paired graphics/hitbo
 actor with `$A6:8DBB-$A6:8E12` forbidden. It asserts exact world Y, Y radius,
 published frame index, and the frame-zero-only eight-pixel X radius. Invalid frame
 indexes fail explicitly before any actor state changes.
+
+# Magdollite rising-body phases
+
+`MagdollitePhaseDefinitions` combines the nine distance thresholds at `$A8:AF55`,
+body instruction selectors at `$A8:AF67`, and body-to-overlay Y offsets at
+`$A8:AF79` into typed physical phase records. The 108-pixel maximum rise is named
+in the same domain catalog.
+
+Verification independently compares all 27 words to the pinned cartridge, then
+runs the real composite initializer and the body-rise, body-fall, and overlay-
+tracking consumers with `$A8:AF55-$A8:AF8A` forbidden. It covers the base list,
+all overlay placements, every reachable upward list transition, seven downward
+list transitions, and the bounded terminal phase. Invalid phases fail explicitly
+instead of consuming the following initializer code.

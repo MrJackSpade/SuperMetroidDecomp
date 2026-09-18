@@ -122,6 +122,9 @@ initializers retain their seven allocated articulated links while
 Hibashi's 22 eruption Y offsets and collision half-heights are compiled as paired
 physical frames. Every production activity command retains exact placement,
 radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden.
+Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
+compiled as typed phase records. Real initialization, rising, falling and overlay
+tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

@@ -274,6 +274,12 @@ ranges forbidden. The animation programs and spritemaps selected by those fixed
 mechanics identities remain presentation/program dependencies for the wider
 #530/#540/#541 contract; this completed slice does not relabel them as editable art.
 
+The four Sidehopper/Dessgeega animation-selector tables at `$A3:AAC2-$AAE1`
+are now compiled as four typed variant records in `HopperAnimationDefinitions`.
+Every floor/ceiling initializer, jump, and landing consumer uses that catalog with
+the source span forbidden. The selected animation programs and their spritemaps
+remain separate program/presentation dependencies.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

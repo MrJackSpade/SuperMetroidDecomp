@@ -2101,3 +2101,16 @@ production allocators, every placement through the real Eye Door initializer,
 and Ridley's clamped selector path while both source ranges are forbidden. Invalid
 selectors and placement indexes fail explicitly instead of reading the initializer
 and pre-instruction code that follows either authored table.
+
+# Sidehopper and Dessgeega animation selection
+
+`HopperAnimationDefinitions` compiles the four variant columns from the parallel
+landed-floor, landed-ceiling, jumping-floor, and jumping-ceiling tables at
+`$A3:AAC2-$AAE1`. The typed records preserve the shared Sidehopper/Dessgeega
+variant identity while removing raw pointer-table addresses from the state machine.
+
+Verification independently compares all sixteen selector words to the pinned
+cartridge and runs all eight variant/orientation combinations through the real
+initializer, jump handoff, and landing handoff while the full source range is
+forbidden. Invalid restored variants fail explicitly instead of consuming the
+following initializer code.

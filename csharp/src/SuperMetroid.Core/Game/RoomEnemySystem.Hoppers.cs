@@ -92,10 +92,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort TourianSidehopperDefinition = 0xd9ff;
     internal const ushort LargeDessgeegaDefinition = 0xda3f;
 
-    private const int HopperLandedUpsideUpPointerTable = 0xa3aac2;
-    private const int HopperLandedUpsideDownPointerTable = 0xa3aaca;
-    private const int HopperJumpingUpsideUpPointerTable = 0xa3aad2;
-    private const int HopperJumpingUpsideDownPointerTable = 0xa3aada;
     private const ushort HopperRandomSeed = 0x0025;
     private const ushort MaximumHopperYSpeedTableIndex = 0x0040;
 
@@ -145,10 +141,7 @@ public sealed partial class RoomEnemySystem
         _hopperStates[slot.SlotIndex] = state;
 
         SetHopperInstructionList(slot, state, ReadHopperInstructionList(
-            state,
-            state.UpsideDown
-                ? HopperLandedUpsideDownPointerTable
-                : HopperLandedUpsideUpPointerTable));
+            state, state.UpsideDown, jumping: false));
 
         // Both physics rows currently contain the same constants, but the header-dependent
         // byte offset and two independent calculations are part of the ROM contract.
@@ -262,7 +255,7 @@ public sealed partial class RoomEnemySystem
         };
     }
 
-    private void StartHopperJump(
+    private static void StartHopperJump(
         RoomEnemySlot slot,
         HopperEnemyState state,
         bool upsideDown,
@@ -274,10 +267,7 @@ public sealed partial class RoomEnemySystem
             state.XVelocity = unchecked((short)-state.XVelocity);
 
         SetHopperInstructionList(slot, state, ReadHopperInstructionList(
-            state,
-            upsideDown
-                ? HopperJumpingUpsideDownPointerTable
-                : HopperJumpingUpsideUpPointerTable));
+            state, upsideDown, jumping: true));
         state.Function = (upsideDown, backward) switch
         {
             (false, true) => HopperEnemyFunction.JumpingUpsideUpBackward,
@@ -287,13 +277,10 @@ public sealed partial class RoomEnemySystem
         };
     }
 
-    private void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
+    private static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
         SetHopperInstructionList(slot, state, ReadHopperInstructionList(
-            state,
-            state.UpsideDown
-                ? HopperLandedUpsideDownPointerTable
-                : HopperLandedUpsideUpPointerTable));
+            state, state.UpsideDown, jumping: false));
         state.Function = HopperEnemyFunction.WaitToHop;
     }
 
@@ -387,8 +374,12 @@ public sealed partial class RoomEnemySystem
             "Hopper initial-speed calculation did not reach its ROM jump height.");
     }
 
-    private ushort ReadHopperInstructionList(HopperEnemyState state, int pointerTable) =>
-        ReadWord(_bus!, pointerTable + state.VariantTableOffset);
+    private static ushort ReadHopperInstructionList(
+        HopperEnemyState state,
+        bool upsideDown,
+        bool jumping) =>
+        HopperAnimationDefinitions.InstructionList(
+            (ushort)(state.VariantTableOffset >> 1), upsideDown, jumping);
 
     private static void SetHopperInstructionList(
         RoomEnemySlot slot,

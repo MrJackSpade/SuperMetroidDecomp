@@ -200,6 +200,24 @@ internal static class ProjectileTrailCoordinateDefinitions
     private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F = 0x9bb38f;
     /// <summary>$9BB39B: UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B, left X/Y and right X/Y placement frames.</summary>
     private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B = 0x9bb39b;
+    /// <summary>$9B:B3A7, first adjacent-code byte reachable by a restored low-six-bit projectile type paired with a cataloged animation frame.</summary>
+    private const int ReachableAdjacentCodeStart = 0x9bb3a7;
+    /// <summary>$9B:B3C2, final adjacent-code byte reachable by the bounded projectile-type/frame cross-product.</summary>
+    private const int ReachableAdjacentCodeEnd = 0x9bb3c2;
+    /// <summary>$9B:FFFF, wrapped low byte read by an empty trail family on animation frame zero.</summary>
+    private const int EmptyFamilyWrappedCoordinateByte = 0x9bffff;
+
+    /// <summary>
+    /// Exact cartridge observations after the authored trail-coordinate data. These are
+    /// physical results of the bounded saved-state type/frame domain, not executable code.
+    /// </summary>
+    private static ReadOnlySpan<byte> ReachableAdjacentCode =>
+    [
+        0x08, 0x8b, 0x4b, 0xab, 0xc2, 0x30, 0xad, 0x1f,
+        0x0a, 0x29, 0xff, 0x00, 0x48, 0xc9, 0x03, 0x00,
+        0xd0, 0x07, 0xa9, 0x32, 0x00, 0x22, 0x49, 0x90,
+        0x80, 0x68, 0xaa, 0xbd,
+    ];
     private readonly record struct Offset(sbyte LeftX, sbyte LeftY, sbyte RightX, sbyte RightY);
     private static readonly FrozenDictionary<int, ushort> Pointers = CreatePointers();
     private static readonly FrozenDictionary<int, Offset> Frames = CreateFrames();
@@ -721,6 +739,18 @@ internal static class ProjectileTrailCoordinateDefinitions
 
     internal static bool TryReadByte(int address, out byte value)
     {
+        if (address == EmptyFamilyWrappedCoordinateByte)
+        {
+            value = 0xff;
+            return true;
+        }
+
+        if (address is >= ReachableAdjacentCodeStart and <= ReachableAdjacentCodeEnd)
+        {
+            value = ReachableAdjacentCode[address - ReachableAdjacentCodeStart];
+            return true;
+        }
+
         // Native pointer tables start on odd bytes. Every coordinate record has
         // the same four-byte alignment as the first default frame, even across
         // intervening pointer tables. Dictionary membership excludes those gaps.
@@ -736,12 +766,38 @@ internal static class ProjectileTrailCoordinateDefinitions
         value = 0; return false;
     }
 
-    internal static ushort ReadWord(ISnesAddressSpace bus, int address)
+    internal static ushort ReadCompiledWord(int address)
     {
         int next = (address & 0xff0000) | ((address + 1) & 0xffff);
-        byte low = TryReadByte(address, out byte a) ? a : bus.ReadByte(address);
-        byte high = TryReadByte(next, out byte b) ? b : bus.ReadByte(next);
-        return (ushort)(low | high << 8);
+        if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
+            return (ushort)(low | high << 8);
+
+        throw new InvalidDataException(
+            $"Projectile trail pointer word ${address:X6} is outside the compiled coordinate catalog.");
+    }
+
+    /// <summary>Reads one beam-family selector from the compiled high-bank pointer catalog.</summary>
+    internal static ushort ReadFamilyPointer(int address) => ReadCompiledWord(address);
+
+    /// <summary>
+    /// Reads a direction-list pointer from compiled data or the genuine bank-$9B low-half
+    /// alias selected by empty trail families.
+    /// </summary>
+    internal static ushort ReadDirectionPointer(ISnesAddressSpace bus, int address)
+    {
+        int next = (address & 0xff0000) | ((address + 1) & 0xffff);
+        if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
+            return (ushort)(low | high << 8);
+
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        SnesAddress following = SnesAddress.FromBusAddress(next);
+        if (source.Bank == 0x9b && !source.IsUpperLoRomWindow &&
+            following.Bank == 0x9b && !following.IsUpperLoRomWindow)
+            return (ushort)(bus.ReadByte(address) | bus.ReadByte(next) << 8);
+
+        throw new InvalidDataException(
+            $"Projectile trail direction pointer {source} is outside compiled data " +
+            "and is not a mutable bank-$9B low-half alias.");
     }
 
     internal static ushort ReadCoordinateWord(ISnesAddressSpace bus, ushort operand, ushort index)
@@ -750,15 +806,28 @@ internal static class ProjectileTrailCoordinateDefinitions
         bool hasLow = TryReadByte(address, out byte low);
         bool hasHigh = TryReadByte((address + 1) & SnesCpuAddressLayout.AddressMask, out byte high);
         if (hasLow && hasHigh) return (ushort)(low | high << 8);
-        // Only a boundary read needs an adapter. Unknown hardware still uses native
-        // operand-driven MDR/open-bus rules; normal compiled reads allocate nothing.
-        return SnesCpuOperandRead.ReadAbsoluteIndexedWord(hasLow || hasHigh ? new BoundaryBus(bus) : bus,
+        // Only a live-memory boundary read needs an adapter. Unknown hardware still uses
+        // native operand-driven MDR/open-bus rules; normal compiled reads allocate nothing.
+        // The adapter rejects uncompiled upper-ROM addresses rather than treating unrelated
+        // cartridge bytes as physical trail coordinates.
+        return SnesCpuOperandRead.ReadAbsoluteIndexedWord(new BoundaryBus(bus),
             (byte)(SamusProjectileRomData.Banks.PaletteAndTrailData >> 16), operand, index);
     }
 
     private sealed class BoundaryBus(ISnesAddressSpace bus) : ISnesAddressSpace
     {
-        public byte ReadByte(int address) => TryReadByte(address, out byte value) ? value : bus.ReadByte(address);
+        public byte ReadByte(int address)
+        {
+            if (TryReadByte(address, out byte value))
+                return value;
+
+            SnesAddress source = SnesAddress.FromBusAddress(address);
+            if (source.IsUpperLoRomWindow)
+                throw new InvalidDataException(
+                    $"Projectile trail coordinate read reached uncompiled cartridge address {source}.");
+            return bus.ReadByte(address);
+        }
+
         public void WriteByte(int address, byte value) => bus.WriteByte(address, value);
     }
 }

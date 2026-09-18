@@ -2473,3 +2473,19 @@ Verification compares all 67 mechanics words with the pinned cartridge, rejects
 every presentation gap, odd address, boundary, and wrong-bank alias in the source
 window, and exercises the mutable alias through the real command dispatcher. Native
 and catalog-backed live/frozen trail animation comparisons remain byte-identical.
+
+# Projectile-trail coordinate boundary
+
+`ProjectileTrailCoordinateDefinitions` retains all 174 pointer words, 870
+signed four-coordinate records, and 28 exact adjacent-code bytes reachable by the
+bounded saved-state projectile-type/frame cross-product. The wrapped `$9B:FFFF`
+byte read by an empty family on frame zero is a separate exact observation.
+Production pointer-family selection no longer accepts a bus; empty families retain their genuine
+bank-$9B low-half direction-list alias. Operand-driven coordinate reads still
+model genuine low-half WRAM, hardware, and MDR/open-bus behavior, but uncompiled
+upper-ROM addresses now fail explicitly instead of becoming physical placement.
+
+Verification compares every compiled byte with the pinned cartridge, classifies
+all bank-$9B word starts, and checks all 196,608 absolute-indexed operand/index
+combinations for compiled parity, preserved live-memory behavior, or loud ROM
+rejection. The 6,600 real trail spawns still match all four native coordinates.

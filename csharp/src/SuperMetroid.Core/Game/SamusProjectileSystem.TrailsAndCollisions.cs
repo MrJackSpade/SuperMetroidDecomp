@@ -274,10 +274,9 @@ public sealed partial class SamusProjectileSystem
             : projectile.PackedType.IsChargedBeam
                 ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
                 : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
-        ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadWord(
-            bus,
+        ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
             familyTable + projectile.PackedType.BeamCombinationIndex * 2);
-        ushort offsetList = ProjectileTrailCoordinateDefinitions.ReadWord(
+        ushort offsetList = ProjectileTrailCoordinateDefinitions.ReadDirectionPointer(
             bus,
             SamusProjectileRomData.Banks.PaletteAndTrailData |
                 unchecked((ushort)(directionTable + direction * 2)));

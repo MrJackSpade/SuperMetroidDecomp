@@ -12,13 +12,41 @@ internal static partial class Program
         {
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out byte value))
             { AssertEqual(bus.ReadByte(address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailCoordinateDefinitions.ReadWord(guard, address), "Compiled trail read retains odd/gap/boundary and wrapped words");
+            int next = (address & 0xff0000) | ((address + 1) & 0xffff);
+            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
+                ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
+                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
+            else
+            {
+                int rejectedAddress = address;
+                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
+            }
         }
-        AssertEqual(3828, bytes, "174 pointer words and 870 four-coordinate records cover exactly the native region");
+        AssertEqual(3857, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations and the empty-family wrapped byte cover the reachable native region");
         VerifyCoordinateSpawn(bus);
         for (int index = 0; index <= ushort.MaxValue; index++)
         foreach (ushort operand in new ushort[] { 0, 1, 2 })
         {
+            int address = (0x9b0000 + operand + index) & SnesCpuAddressLayout.AddressMask;
+            int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
+            bool lowCompiled = ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _);
+            bool highCompiled = ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _);
+            bool reachesUncompiledRom =
+                (!lowCompiled && SnesAddress.FromBusAddress(address).IsUpperLoRomWindow) ||
+                (!highCompiled && SnesAddress.FromBusAddress(next).IsUpperLoRomWindow);
+            if (reachesUncompiledRom)
+            {
+                // An earlier low-half access can hit strict, unimplemented hardware before
+                // the CPU reaches the following ROM byte. Preserve that ordering.
+                try { _ = SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, operand, (ushort)index); }
+                catch (InvalidOperationException)
+                {
+                    AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Unknown hardware still fails before a following unrelated ROM byte");
+                    continue;
+                }
+                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Coordinate operand rejects unrelated upper-ROM data");
+                continue;
+            }
             ushort expected;
             try { expected = SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, operand, (ushort)index); }
             catch (InvalidOperationException)
@@ -28,7 +56,7 @@ internal static partial class Program
             }
             AssertEqual(expected, ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Compiled coordinate operand retains MDR/open bus, unaligned and carry behavior");
         }
-        Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 32768 fixed-bank words and 196608 CPU operands match native reads with the compiled region forbidden.");
+        Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands preserve compiled/live-memory behavior while rejecting unrelated upper ROM.");
     }
 
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)

@@ -361,13 +361,19 @@ does not change the cart's unconditional `(instructionPointer - 2)` selection
 or change bank-$9B coordinate semantics.
 
 `ProjectileTrailCoordinateDefinitions` now compiles the complete $9B:A4B3..B3A6
-region as 174 pointer words and 870 signed left-X/Y, right-X/Y records. Named
-native table identities are retained, including the unused SBA selections.
+region as 174 pointer words and 870 signed left-X/Y, right-X/Y records, plus the
+28 exact adjacent-code bytes reachable when a restored low-six-bit projectile type
+is paired with any cataloged animation frame and the wrapped `$9B:FFFF` byte read
+by an empty family on frame zero. Named native table identities are
+retained, including the unused SBA selections.
 Both pointer selection and coordinate reads use these definitions; normal reads
-allocate nothing. Partial boundary reads retain the native CPU operand/MDR model,
-and unknown hardware still fails through the strict bus rather than being clamped.
-Verification checks all 3,828 authored bytes, 32,768 fixed-bank word reads and
-196,608 absolute-indexed operands with the compiled region forbidden on the bus.
+allocate nothing. Partial boundaries into genuine low-half WRAM/hardware retain the
+native CPU operand/MDR/open-bus model, while uncompiled upper-ROM addresses fail
+explicitly instead of becoming physical coordinates. Unknown hardware still fails
+through the strict bus rather than being clamped. Verification checks all 3,828
+authored bytes, the 29 bounded external observations, every possible bank-$9B
+word start, and 196,608 absolute-indexed operands with the compiled region
+forbidden on the bus.
 Another 6,600 actual SpawnTrail calls compare all four positions against independent
 cartridge lookups across beam/charged/SBA/missile types, directions, animation
 frames and coordinate wrap boundaries. This compiles placement, not editable art.

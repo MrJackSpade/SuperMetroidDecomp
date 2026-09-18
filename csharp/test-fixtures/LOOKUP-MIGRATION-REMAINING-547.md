@@ -355,6 +355,11 @@ enemy-breakable PLM, and BTS bit seven is ignored. All sixteen native words and 
 The 224 low-seven-bit selectors beyond the authored table now fail explicitly instead
 of interpreting adjacent executable bytes as PLM headers.
 
+Mother Brain's three body-relative death-explosion instruction selectors at
+`$86:C929-$C92E` are compiled independently of their mixed animation programs.
+All three native words and all three real production spawns pass with the selector
+table forbidden, including body-relative placement and retained signed offsets.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

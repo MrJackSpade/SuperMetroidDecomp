@@ -31,8 +31,6 @@ public static class MotherBrainDeathRomData
     public const ushort ExplosionDefinition = 0xcb13;
     /// <summary>$86:C914, reattaches a death explosion to the current body position each frame.</summary>
     public const ushort ExplosionPreInstruction = 0xc914;
-    /// <summary>$86:C929, animation pointers indexed by the explosion spawn parameter.</summary>
-    public const int ExplosionLists = 0x86c929;
     /// <summary>$A9:B203 loads music data index $24 through the delayed queue.</summary>
     public const byte EscapeMusicData = 0x24;
     /// <summary>$A9:B280 starts track seven through the eight-frame-delay music queue.</summary>

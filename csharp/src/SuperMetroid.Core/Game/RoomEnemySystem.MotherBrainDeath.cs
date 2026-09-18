@@ -125,10 +125,12 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
+        ushort instructionList =
+            MotherBrainDeathExplosionDefinitions.InstructionList(request.ProjectileParameter);
         var projectile = AllocateEnemyProjectile();
         if (projectile is null) return; // Native shared-pool exhaustion drops the spawn.
         InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphicsIndex: 0);
-        projectile.InstructionPointer = ReadWord(_bus!, MotherBrainDeathRomData.ExplosionLists + request.ProjectileParameter * 2);
+        projectile.InstructionPointer = instructionList;
         projectile.InstructionTimer = 1;
         projectile.XVelocity = unchecked((ushort)request.XOffset);
         projectile.YVelocity = unchecked((ushort)request.YOffset);

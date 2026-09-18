@@ -993,13 +993,21 @@ static void VerifyCeresRidleyRoomEntry()
     overlayDoor.XPosition = 100;
     overlayDoor.YPosition = 80;
     enemies.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
-    enemies.EarthquakeTimer = 2;
-    var doorOam = new OamBuffer();
-    doorOam.BeginFrame();
-    enemies.DrawCeresRidleyImmediateBabyAndDoor(doorOam, 0, 0);
-    doorOam.FinalizeFrame();
-    AssertEqual(96, doorOam.GetEntry(0).X,
-        "Ceres private door hook consumes byte-indexed -4 quake offset");
+    typeof(RoomEnemySystem).GetField(
+        "_bus",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+        .SetValue(enemies, new CeresDoorQuakeReadGuard(bus));
+    short[] expectedDoorOffsets = [0, 0, -4, -1];
+    for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
+    {
+        enemies.EarthquakeTimer = timer;
+        var doorOam = new OamBuffer();
+        doorOam.BeginFrame();
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(doorOam, 0, 0);
+        doorOam.FinalizeFrame();
+        AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).X,
+            $"Ceres private door hook byte-indexed quake phase {timer}");
+    }
     overlayDoor.EnemyDefinitionPointer = 0;
     enemies.CeresStatus = 0;
     enemies.EarthquakeTimer = 0;

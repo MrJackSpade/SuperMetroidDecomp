@@ -475,8 +475,7 @@ public sealed partial class RoomEnemySystem
             // index is the low two bits of the earthquake timer, but the table contains
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
-            int quakeTableByte = 0xa6a321 + (EarthquakeTimer & 3);
-            int quakeXOffset = unchecked((sbyte)_bus!.ReadByte(quakeTableByte));
+            int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(EarthquakeTimer);
             oam.AddEnemySpritemap(
                 _bus!,
                 bank: 0xa6,

@@ -460,6 +460,10 @@ records in one compiled physical catalog. Both real consumers are exercised with
 and alternating-negative phases while the complete bank-$A0 and bank-$86 source tables
 are forbidden; frozen, expired, and non-rendered type boundaries remain unchanged.
 
+Ridley's private Ceres-door draw hook now compiles all four effective signed X offsets
+created by the cartridge's byte-indexing bug at `$A6:A321`. Every timer phase runs through
+the real OAM producer with the malformed source table forbidden.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

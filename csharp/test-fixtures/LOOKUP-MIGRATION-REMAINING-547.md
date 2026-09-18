@@ -184,6 +184,11 @@ All 118 aligned six-byte enemy item-drop probability records are compiled too.
 The production selector rejects misaligned and external restored pointers instead
 of interpreting adjacent bank-$B4 code or presentation data as drop weights.
 
+Ordinary-combat callback admission is now cartridge-independent. The complete
+retail inventory proves fifteen literal no-op touch identities and twelve literal
+no-op shot identities; both production gates classify the bank-qualified callback
+without probing its executable opcode byte.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

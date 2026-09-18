@@ -2537,3 +2537,16 @@ Verification compares all 708 bytes with the pinned cartridge and executes every
 record through production with the source range forbidden. Misaligned and external
 pointers are also injected through the real selector; both fail explicitly without
 advancing into an address-space-backed probability read.
+
+# Complete ordinary-combat callback admission
+
+`EnemyTouchCallbackDefinitions` compiles the fifteen literal RTL identities found in
+the complete retail header and extended-hitbox touch-callback inventory. The two
+ordinary-combat admission gates now use compiled bank-qualified identity catalogs
+for both touch and shot callbacks instead of probing opcode `$6B` from executable ROM.
+
+Verification inventories 163 headers, 221 named hitbox lists, 309 hitboxes, 71
+distinct touch callbacks, and 80 distinct shot callbacks from the pinned sources.
+All 16,777,216 bank/pointer pairs preserve exactly four touch and twelve shot RTL
+identities. All twenty-seven identities additionally pass through their real contact or
+projectile admission path with every callback entry address forbidden to the bus.

@@ -190,14 +190,13 @@ public sealed partial class RoomEnemySystem
             bool isDeadTourianCorpse = HasDeadTourianCorpseTouchOrShotCallback(slot);
             bool isShitroid = slot.EnemyDefinitionPointer == ShitroidDefinition &&
                 slot.Definition.TouchAiPointer == ShitroidTouchAi;
-            // A handful of utility/terrain enemies intentionally point touch AI at an RTL
-            // in their own bank. Detect the native opcode instead of adding a name-specific
-            // exception for every inert actor. The collision is still reported, but the
-            // callback performs no damage, knockback, or actor reaction.
-            bool isLiteralNoOpTouchAi = slot.Definition.TouchAiPointer != 0 &&
-                _bus!.ReadByte(
-                    (slot.Definition.Bank << 16) |
-                    slot.Definition.TouchAiPointer) == 0x6b;
+            // Fifteen inventoried header/hitbox callbacks are literal RTL routines. Classify
+            // their bank-qualified identities rather than probing executable ROM bytes at
+            // runtime. The collision is still reported, but the callback performs no
+            // damage, knockback, or actor reaction.
+            bool isLiteralNoOpTouchAi = EnemyTouchCallbackDefinitions.IsLiteralNoOp(
+                slot.Definition.Bank,
+                slot.Definition.TouchAiPointer);
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -774,11 +773,10 @@ public sealed partial class RoomEnemySystem
             // the engine's canonical `$804B/$804C` header pointers suppress the rectangle
             // walk, while a species-local RTL such as Kraid's `$94B5` remains a valid header
             // whose individual hitboxes may select a different callback. Recognize the
-            // executable opcode for admission, then apply that exact pointer gate below.
-            bool isLiteralNoOpShotAi = enemy.Definition.ShotAiPointer != 0 &&
-                bus.ReadByte(
-                    (enemy.Definition.Bank << 16) |
-                    enemy.Definition.ShotAiPointer) == 0x6b;
+            // compiled callback identity for admission, then apply that exact pointer gate below.
+            bool isLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
+                enemy.Definition.Bank,
+                enemy.Definition.ShotAiPointer);
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||

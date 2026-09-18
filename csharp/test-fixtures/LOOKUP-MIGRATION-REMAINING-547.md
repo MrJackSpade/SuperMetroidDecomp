@@ -90,9 +90,11 @@ presentation/integration tickets; classifying them separately does not remove th
 
 These were selected indirect `EnemyRomTablePointers` consumer groups, not an
 exhaustive list. Classify instruction selectors separately from artwork payloads.
-Phantoon's inspected movement, attack selection and death-schedule data are now
-compiled; its palette, eye instruction-list and materialization-sound selectors
-remain presentation readers requiring their respective integration audit.
+Phantoon's inspected movement, attack selection, death-schedule data, and all
+three materialization-sound selectors are now compiled. Two complete real
+callback cycles preserve the native sound order and 0/1/2 wrap with
+`$A7:CDED-$A7:CDF2` forbidden. Its palette and eye instruction-list readers
+remain presentation dependencies requiring their respective integration audit.
 The shared Ceres/Norfair inertia bytes ($A6:D712/$A6:D61F) are now compiled.
 The Fireflea room effect's twelve flashing shades and all seven retail darkness
 states are compiled as well. The maximum-death state preserves the cartridge's

@@ -112,6 +112,7 @@ internal static partial class Program
         VerifyCompiledPhantoonPatterns(rom);
         VerifyCompiledPhantoonPath(rom);
         VerifyCompiledPhantoonDeathExplosions(rom);
+        VerifyPhantoonSoundDefinitions(rom);
         VerifyCompiledSlopeHeights(rom);
         VerifyCompiledSlopeSpeeds(rom);
         VerifyCompiledSquareSlopes(rom);

@@ -240,6 +240,12 @@ if (args is ["--crocomire-bridge-fragment-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--phantoon-sound-definitions"])
+{
+    VerifyPhantoonSoundDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--baby-metroid-route-definitions"])
 {
     VerifyBabyMetroidCutsceneEntrance();

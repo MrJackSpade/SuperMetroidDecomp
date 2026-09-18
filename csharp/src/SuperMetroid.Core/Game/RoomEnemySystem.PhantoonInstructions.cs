@@ -17,9 +17,9 @@ public sealed partial class RoomEnemySystem
         switch (function)
         {
             case PhantoonInstructionCodes.PlayPhantoonMaterializationSFX:
-                state.LastMaterializationSound = ReadWord(
-                    _bus!,
-                    0xa7cded + state.MaterializationSoundIndex * 2);
+                state.LastMaterializationSound =
+                    PhantoonSoundDefinitions.MaterializationSound(
+                        state.MaterializationSoundIndex);
                 state.MaterializationSoundIndex++;
                 if (state.MaterializationSoundIndex >= 3)
                     state.MaterializationSoundIndex = 0;

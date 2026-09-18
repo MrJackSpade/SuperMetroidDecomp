@@ -22,7 +22,6 @@ public sealed partial class RoomEnemySystem
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup;
     private const ushort EnemyPickupLifetime = 400;
     private const ushort EnemyPickupGrappleDelay = 16;
-    private const int EnemyDropChancesBank = 0xb40000;
 
     // Indexes zero through five are the accumulator order used by $86:F106. Notice that
     // power bombs are last even though their returned pickup identity is three.
@@ -300,10 +299,17 @@ public sealed partial class RoomEnemySystem
             return EnemyPickupKind.NoDrop;
 
         Span<byte> chances = stackalloc byte[6];
-        for (int index = 0; index < chances.Length; index++)
+        if (!EnemyDropChanceDefinitions.TryCopy(chancesPointer, chances))
         {
-            chances[index] = _bus!.ReadByte(
-                EnemyDropChancesBank | unchecked((ushort)(chancesPointer + index)));
+            // Non-retail pointers remain useful to constructed rooms and diagnostics. They
+            // deliberately retain the address-space path instead of being coerced into an
+            // unrelated native record.
+            for (int index = 0; index < chances.Length; index++)
+            {
+                chances[index] = _bus!.ReadByte(
+                    EnemyDropChanceDefinitions.NativeBank |
+                    unchecked((ushort)(chancesPointer + index)));
+            }
         }
 
         byte random;

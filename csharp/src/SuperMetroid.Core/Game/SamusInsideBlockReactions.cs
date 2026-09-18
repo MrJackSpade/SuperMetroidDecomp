@@ -63,8 +63,7 @@ public static class SamusInsideBlockReactions
                 case SamusEaterPlmRomData.FloorSetup:
                 case SamusEaterPlmRomData.CeilingSetup:
                     (plms ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
-                        .TrySpawnSamusEater(bus, level, block, header,
-                            setup == SamusEaterPlmRomData.CeilingSetup, samus);
+                        .TrySpawnSamusEater(level, block, header, samus);
                     break;
                 case QuicksandRomData.SurfaceSetup:
                     // Native setup cancels running momentum even for center/top samples,

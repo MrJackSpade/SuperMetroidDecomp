@@ -2353,3 +2353,17 @@ block placement, exact header/list/timer state, and the Wrecked Ship hand's setu
 collision/BTS mutation. Collision-only trigger header `$D6F2` remains outside the
 terrain-spawn domain. The selected mixed instruction and draw programs remain
 cartridge-backed.
+
+# Samus Eater PLM definitions
+
+`SamusEaterPlmDefinitions` compiles the two complete block-actor identities used
+by the Brinstar floor and ceiling plants: `$B6CB/$ACB8` and `$B6CF/$ACF8`.
+The aligned-contact allocator now derives mounting direction and the initial
+instruction list from that bounded domain instead of accepting a caller boolean
+and rereading each header's adjacent bank-$84 word.
+
+Verification compares both initial-list words with the pinned cartridge and runs
+both definitions through the real highest-slot allocator. It asserts exact block,
+header, instruction-list and timer state, plus native trigger deactivation. A map-
+station header is rejected rather than entering the plant domain. The selected
+mixed animation, damage, release, and draw program remains cartridge-backed.

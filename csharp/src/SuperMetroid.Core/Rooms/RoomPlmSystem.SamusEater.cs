@@ -1,19 +1,19 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
 public sealed partial class RoomPlmSystem
 {
     /// <summary>Runs the native feet/head alignment gate and allocates the ordinary ROM coroutine.</summary>
-    internal void TrySpawnSamusEater(ISnesAddressSpace bus, RoomLevelData level,
-        RoomCollisionBlock block, ushort header, bool ceiling, SamusState samus)
+    internal void TrySpawnSamusEater(RoomLevelData level,
+        RoomCollisionBlock block, ushort header, SamusState samus)
     {
+        SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(header);
         // Rejected native setups clear their just-allocated slot without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
-        int edge = ceiling ? samus.YPosition - samus.Kinematics.YRadius
+        int edge = definition.Ceiling ? samus.YPosition - samus.Kinematics.YRadius
             : samus.YPosition + samus.Kinematics.YRadius - 1;
-        if ((edge & 15) != (ceiling ? 0 : 15)) return;
+        if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
         for (int index = _slots.Length - 1; index >= 0; index--)
         {
             var slot = _slots[index];
@@ -22,10 +22,10 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = block.Index;
-            slot.InstructionPointer = ReadBank84Word(bus, unchecked((ushort)(header + 2)));
+            slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
             slot.PlantHeldX = samus.XPosition;
-            slot.PlantHeldY = unchecked((ushort)(samus.YPosition + (ceiling ? 1 : -1)));
+            slot.PlantHeldY = unchecked((ushort)(samus.YPosition + (definition.Ceiling ? 1 : -1)));
             level.SetForegroundEntry(block.Index, (ushort)(block.LevelWord & SamusEaterPlmRomData.DeactivatedTriggerMask));
             return;
         }

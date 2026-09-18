@@ -229,6 +229,12 @@ if (args is ["--chozo-plm-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--samus-eater-plm-definitions"])
+{
+    VerifySamusEaterPlmDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--quicksand-definitions"])
 {
     VerifyQuicksandDefinitions(

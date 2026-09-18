@@ -2432,3 +2432,18 @@ Verification compares every reachable observation with the pinned cartridge,
 checks every pose with both Grapple-active states, exercises every authored pose
 through the real Grapple and charge-preservation consumers, rejects the prefiltered
 range at the catalog boundary, and forbids the complete retired source window.
+
+# Enemy vulnerability definition boundary
+
+`EnemyVulnerabilityDefinitions` contains all 68 aligned 22-byte records from
+`$B4:EC1C-$B4:F1F3`, including the three unused cartridge definitions. Ordinary
+beam, charged-beam, missile, Super Missile, bomb, Power Bomb, Speed Booster,
+shinespark, Screw Attack, and pseudo-Screw combat now consume the catalog without
+passing an address space through their vulnerability helpers.
+
+The former synthetic-pointer fallback could interpret any bank-$B4 executable or
+presentation byte as a damage multiplier. External and unaligned pointers now fail
+explicitly; field indexes outside the 22-byte record still fail at the field boundary.
+Verification compares all 1,496 bytes with the pinned cartridge and covers both
+invalid pointer classes plus negative/past-record fields. The exhaustive compiled-
+mechanics suite and full Release solution build pass.

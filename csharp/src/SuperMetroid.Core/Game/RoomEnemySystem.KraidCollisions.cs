@@ -69,7 +69,7 @@ public sealed partial class RoomEnemySystem
 
                 if (packedProjectileType.IsChargedBeam)
                     state.MouthFlags |= 1;
-                byte vulnerability = ReadProjectileVulnerability(bus, body, projectileType);
+                byte vulnerability = ReadProjectileVulnerability(body, projectileType);
                 int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
                 if (damage != 0)
                 {

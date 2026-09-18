@@ -595,6 +595,13 @@ their pointer words, and all physical words forbidden. Other areas and restored
 BTS indexes beyond the authored sixteen-entry domain retain explicit ROM fallback
 instead of being silently clamped or reinterpreted.
 
+All 68 aligned enemy-vulnerability records at `$B4:EC1C-$B4:F1F3` are compiled.
+Common projectile, bomb, Power Bomb, contact-damage, boss, and Space Pirate paths
+consume the catalog without an address-space parameter. External and unaligned
+pointers fail explicitly instead of treating adjacent bank-$B4 code or presentation
+data as damage multipliers. Enemy headers/populations remain ordinary cartridge
+content; this completes only their fixed vulnerability-policy target domain.
+
 - Bank/indirect reads and definitions whose names do not contain speed, curve,
   angle or math. Trace intermediate addresses rather than treating search hits
   as complete coverage.

@@ -113,7 +113,7 @@ public sealed partial class RoomEnemySystem
             // override. SBA particles retain that bit; reading only the uncharged
             // combination row made Wave Shield disappear without damaging the boss.
             NormalShotVulnerability vulnerability =
-                ReadNormalShotVulnerability(bus, body, new SamusProjectileTypeWord(projectileType));
+                ReadNormalShotVulnerability(body, new SamusProjectileTypeWord(projectileType));
             if (vulnerability.FreezeImmediately)
             {
                 body.FrozenTimer = 400;

@@ -1203,7 +1203,6 @@ public sealed partial class RoomEnemySystem
                 if (isOrdinarySpacePirate && usesExtendedHitboxes)
                 {
                     PirateHitboxShotAction pirateAction = SelectPirateHitboxShotAction(
-                        bus,
                         enemy,
                         projectile,
                         hitboxShotAi);
@@ -1304,7 +1303,6 @@ public sealed partial class RoomEnemySystem
                         }
 
                         byte frozenVulnerability = ReadProjectileVulnerability(
-                            bus,
                             enemy,
                             projectileType);
                         int frozenDamage = (projectileDamage >> 1) *
@@ -1498,7 +1496,7 @@ public sealed partial class RoomEnemySystem
                 }
 
                 NormalShotVulnerability shotVulnerability =
-                    ReadNormalShotVulnerability(bus, enemy, projectileType);
+                    ReadNormalShotVulnerability(enemy, projectileType);
 
                 if (shotVulnerability.FreezeImmediately)
                 {
@@ -2353,7 +2351,7 @@ public sealed partial class RoomEnemySystem
             ? enemy.Definition.VulnerabilityPointer
             : EnemyVulnerabilityDefinitions.DefaultPointer;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(
-            _bus!, vulnerabilityPointer, EnemyVulnerabilityDefinitions.BombOffset);
+            vulnerabilityPointer, EnemyVulnerabilityDefinitions.BombOffset);
         int damage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
@@ -2417,7 +2415,6 @@ public sealed partial class RoomEnemySystem
             // family `$0500`. Using `$0500` silently indexed byte 14 and made every enemy
             // whose bomb and power-bomb vulnerabilities differ behave incorrectly.
             byte vulnerability = ReadProjectileVulnerability(
-                bus,
                 enemy,
                 (ushort)SamusProjectileFamily.PowerBomb);
             if ((vulnerability & 0x7f) == 0)
@@ -2632,7 +2629,6 @@ public sealed partial class RoomEnemySystem
     /// Missile, Super Missile, bomb, and Power Bomb families use bytes 12..15 directly.
     /// </summary>
     private static NormalShotVulnerability ReadNormalShotVulnerability(
-        ISnesAddressSpace bus,
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
     {
@@ -2651,7 +2647,7 @@ public sealed partial class RoomEnemySystem
                 _ => throw new InvalidDataException(
                     $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
             };
-            byte familyEntry = EnemyVulnerabilityDefinitions.Read(bus, pointer, byteOffset);
+            byte familyEntry = EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
             return new NormalShotVulnerability(
                 Multiplier: familyEntry & 0x7f,
                 FreezeImmediately: false,
@@ -2659,7 +2655,7 @@ public sealed partial class RoomEnemySystem
         }
 
         byte beamEntry = EnemyVulnerabilityDefinitions.Read(
-            bus, pointer, projectileType.BeamCombinationIndex);
+            pointer, projectileType.BeamCombinationIndex);
         if (beamEntry == 0xff)
         {
             return new NormalShotVulnerability(
@@ -2675,7 +2671,7 @@ public sealed partial class RoomEnemySystem
             // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
             // than that sentinel do not contribute to the damage multiplier.
             byte chargedEntry = EnemyVulnerabilityDefinitions.Read(
-                bus, pointer, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
+                pointer, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
             multiplier = chargedEntry == 0xff ? 0 : chargedEntry & 0x0f;
         }
 
@@ -2705,7 +2701,6 @@ public sealed partial class RoomEnemySystem
     }
 
     private static byte ReadProjectileVulnerability(
-        ISnesAddressSpace bus,
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
     {
@@ -2723,7 +2718,7 @@ public sealed partial class RoomEnemySystem
             _ => throw new InvalidDataException(
                 $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
         };
-        return EnemyVulnerabilityDefinitions.Read(bus, pointer, byteOffset);
+        return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
     }
 
     private readonly record struct NormalShotVulnerability(
@@ -2865,7 +2860,6 @@ public sealed partial class RoomEnemySystem
     /// through to normal shot AI even when it displays one of the shared Ninja maps.
     /// </summary>
     private static PirateHitboxShotAction SelectPirateHitboxShotAction(
-        ISnesAddressSpace bus,
         RoomEnemySlot enemy,
         SamusProjectileSlot projectile,
         ushort hitboxShotAi)
@@ -2909,7 +2903,7 @@ public sealed partial class RoomEnemySystem
                 $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
         };
         int multiplier = EnemyVulnerabilityDefinitions.Read(
-            bus, vulnerabilityPointer, vulnerabilityOffset) & 0x0f;
+            vulnerabilityPointer, vulnerabilityOffset) & 0x0f;
         return multiplier is not (0 or 15)
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;
@@ -2996,7 +2990,7 @@ public sealed partial class RoomEnemySystem
             ? enemy.Definition.VulnerabilityPointer
             : EnemyVulnerabilityDefinitions.DefaultPointer;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(
-            _bus!, vulnerabilityPointer, vulnerabilityOffset);
+            vulnerabilityPointer, vulnerabilityOffset);
         int damage = (baseDamage >> 1) * (vulnerability & 0x7f);
         if (damage == 0)
             return;

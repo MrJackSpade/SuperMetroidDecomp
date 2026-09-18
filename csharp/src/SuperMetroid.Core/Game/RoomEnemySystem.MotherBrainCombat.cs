@@ -172,7 +172,7 @@ public sealed partial class RoomEnemySystem
             ? (ushort)14
             : (ushort)13;
 
-        byte vulnerability = ReadProjectileVulnerability(bus, head, projectileType);
+        byte vulnerability = ReadProjectileVulnerability(head, projectileType);
         if (vulnerability == 0xff)
         {
             head.FrozenTimer = 400;
@@ -265,7 +265,7 @@ public sealed partial class RoomEnemySystem
         // The native callback tail-calls common no-death shot damage. In particular,
         // charged beams use the separate charged vulnerability byte after the ordinary
         // beam freeze check; Hyper would otherwise inherit the immune plasma entry.
-        NormalShotVulnerability vulnerability = ReadNormalShotVulnerability(bus, head, projectileType);
+        NormalShotVulnerability vulnerability = ReadNormalShotVulnerability(head, projectileType);
         if (vulnerability.FreezeImmediately)
         {
             head.FrozenTimer = 400;

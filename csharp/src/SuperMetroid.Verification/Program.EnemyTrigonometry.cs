@@ -36,6 +36,7 @@ internal static partial class Program
         VerifyNuclearWaffleDefinitions(rom);
         VerifyHibashiDefinitions(rom);
         VerifyMagdollitePhaseDefinitions(rom);
+        VerifyFuneNamiheDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);
         VerifyPowerBombCallbackDefinitions(rom);

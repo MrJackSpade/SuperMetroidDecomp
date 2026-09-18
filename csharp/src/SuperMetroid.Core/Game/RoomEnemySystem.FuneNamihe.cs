@@ -85,15 +85,6 @@ public sealed class FuneNamiheEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort FuneDefinition = 0xe6ff;
-    internal const ushort NamiheDefinition = 0xe73f;
-
-    private const ushort FuneIdleLeftPointerTableEntry = 0x96d7;
-    private const ushort NamiheIdleLeftPointerTableEntry = 0x96df;
-    private const ushort ActivePointerTableDelta = 4;
-    private const ushort FacingRightPointerTableDelta = 2;
-    private const ushort FuneNamiheSpitSound = 0x001f;
-
     private readonly FuneNamiheEnemyState?[] _funeNamiheStates =
         new FuneNamiheEnemyState?[MaximumEnemyCount];
 
@@ -107,14 +98,15 @@ public sealed partial class RoomEnemySystem
     public ushort? LastFuneNamiheSoundEffect { get; private set; }
 
     private static bool IsFuneNamiheDefinition(ushort definitionPointer) =>
-        definitionPointer is FuneDefinition or NamiheDefinition;
+        definitionPointer is FuneNamiheDefinitions.FuneEnemyDefinition or
+            FuneNamiheDefinitions.NamiheEnemyDefinition;
 
     /// <summary>Ports shared initializer <c>$A8:96E3</c>.</summary>
     private void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheEnemyState state = new(slot)
         {
-            InstructionListPointerTableCursor = FuneIdleLeftPointerTableEntry,
+            InstructionListPointerTableCursor = FuneNamiheDefinitions.FuneIdleLeftCursor,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = unchecked((ushort)(slot.Parameter1 & 0x000f)),
             YProximity = unchecked((byte)(slot.Parameter2 >> 8)),
@@ -127,7 +119,7 @@ public sealed partial class RoomEnemySystem
         // populations exhibit the same cross-species behavior as the retail routine.
         if (state.IsNamihe)
         {
-            state.InstructionListPointerTableCursor = NamiheIdleLeftPointerTableEntry;
+            state.InstructionListPointerTableCursor = FuneNamiheDefinitions.NamiheIdleLeftCursor;
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
         }
 
@@ -136,7 +128,7 @@ public sealed partial class RoomEnemySystem
         if ((slot.Parameter1 & 0x00f0) != 0)
         {
             state.InstructionListPointerTableCursor = unchecked((ushort)(
-                state.InstructionListPointerTableCursor + FacingRightPointerTableDelta));
+                state.InstructionListPointerTableCursor + FuneNamiheDefinitions.FacingRightCursorDelta));
         }
 
         _funeNamiheStates[slot.SlotIndex] = state;
@@ -144,7 +136,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports shared main dispatcher <c>$A8:9730</c>.</summary>
-    private void RunFuneNamiheMain(
+    private static void RunFuneNamiheMain(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state,
         SamusState? samus)
@@ -160,7 +152,7 @@ public sealed partial class RoomEnemySystem
                     return;
 
                 state.InstructionListPointerTableCursor = unchecked((ushort)(
-                    state.InstructionListPointerTableCursor - ActivePointerTableDelta));
+                    state.InstructionListPointerTableCursor - FuneNamiheDefinitions.ActiveCursorDelta));
                 InstallFuneNamiheInstructionList(slot, state);
                 state.Function = FuneNamiheEnemyFunction.FuneActivityNoOp;
                 state.CooldownTimer = 0;
@@ -184,7 +176,7 @@ public sealed partial class RoomEnemySystem
                 }
 
                 state.InstructionListPointerTableCursor = unchecked((ushort)(
-                    state.InstructionListPointerTableCursor - ActivePointerTableDelta));
+                    state.InstructionListPointerTableCursor - FuneNamiheDefinitions.ActiveCursorDelta));
                 InstallFuneNamiheInstructionList(slot, state);
                 state.Function = FuneNamiheEnemyFunction.NamiheActivityNoOp;
                 return;
@@ -205,7 +197,7 @@ public sealed partial class RoomEnemySystem
     /// Models <c>SetFuneNamiheInstList</c>: the state word points to a ROM word which in
     /// turn points to the actual bytecode list. Both instruction timers are reset together.
     /// </summary>
-    private void InstallFuneNamiheInstructionList(
+    private static void InstallFuneNamiheInstructionList(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
@@ -219,18 +211,18 @@ public sealed partial class RoomEnemySystem
     /// The table lives at $A8:96D3; callers carry a same-bank cursor. This overload makes
     /// that two-stage address explicit without allowing a host addition to cross banks.
     /// </summary>
-    private ushort ReadFuneNamiheInstructionList(ushort tableCursor) =>
-        ReadWord(_bus!, 0xa80000 | tableCursor);
+    private static ushort ReadFuneNamiheInstructionList(ushort tableCursor) =>
+        FuneNamiheDefinitions.InstructionList(tableCursor);
 
     /// <summary>Instruction $A8:9625.</summary>
     private void QueueFuneNamiheSpitSound() =>
-        LastFuneNamiheSoundEffect = FuneNamiheSpitSound;
+        LastFuneNamiheSoundEffect = FuneNamiheDefinitions.SpitSoundEffect;
 
     /// <summary>Instructions $A8:9695/$96B4, which differ only by address.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
         state.InstructionListPointerTableCursor = unchecked((ushort)(
-            state.InstructionListPointerTableCursor + ActivePointerTableDelta));
+            state.InstructionListPointerTableCursor + FuneNamiheDefinitions.ActiveCursorDelta));
         state.Function = state.IsNamihe
             ? FuneNamiheEnemyFunction.NamiheWaitForSamus
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;

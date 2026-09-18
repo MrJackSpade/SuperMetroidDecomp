@@ -125,6 +125,9 @@ radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden.
 Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
 compiled as typed phase records. Real initialization, rising, falling and overlay
 tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
+Fune/Namihe's eight active/idle and facing instruction selectors are compiled;
+all eight real production installs retain their cartridge identities while
+`$A8:96D3-$A8:96E2` is forbidden.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

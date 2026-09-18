@@ -2078,3 +2078,11 @@ tracking consumers with `$A8:AF55-$A8:AF8A` forbidden. It covers the base list,
 all overlay placements, every reachable upward list transition, seven downward
 list transitions, and the bounded terminal phase. Invalid phases fail explicitly
 instead of consuming the following initializer code.
+
+# Fune/Namihe instruction selection
+
+`FuneNamiheDefinitions` compiles the eight active/idle and left/right instruction
+selectors at `$A8:96D3-$A8:96E2`, along with their species definitions, cursor
+deltas, and spit-sound identity. Verification compares all eight words and runs
+all four real species/facing initializers into both idle and active installation
+with the source range forbidden. Unaligned and out-of-range cursors fail explicitly.

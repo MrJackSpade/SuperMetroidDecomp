@@ -223,6 +223,12 @@ if (args is ["--tourian-access-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--chozo-plm-definitions"])
+{
+    VerifyChozoStatuePlmDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--quicksand-definitions"])
 {
     VerifyQuicksandDefinitions(

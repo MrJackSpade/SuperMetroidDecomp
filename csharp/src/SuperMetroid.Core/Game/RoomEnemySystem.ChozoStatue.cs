@@ -103,11 +103,11 @@ public sealed partial class RoomEnemySystem
         _chozoStatuePlmRequests;
 
     /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
-    public void ApplyPendingChozoStatuePlms(ISnesAddressSpace bus, RoomLevelData level, RoomPlmSystem plms)
+    public void ApplyPendingChozoStatuePlms(RoomLevelData level, RoomPlmSystem plms)
     {
         while (_chozoStatuePlmRequests.Count != 0)
         {
-            plms.TrySpawnChozoStatuePlm(bus, level, _chozoStatuePlmRequests[0]);
+            plms.TrySpawnChozoStatuePlm(level, _chozoStatuePlmRequests[0]);
             _chozoStatuePlmRequests.RemoveAt(0);
         }
     }

@@ -1114,7 +1114,7 @@ public sealed partial class SuperMetroidRuntime
     {
         Plms.BindChozoStatueContext(Enemies, RoomLayer3Fx);
         if (LevelData is not null)
-            Enemies.ApplyPendingChozoStatuePlms(_addressSpace, LevelData, Plms);
+            Enemies.ApplyPendingChozoStatuePlms(LevelData, Plms);
     }
 
     /// <summary>

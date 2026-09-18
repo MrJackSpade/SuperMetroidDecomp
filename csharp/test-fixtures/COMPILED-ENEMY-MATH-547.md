@@ -2338,3 +2338,18 @@ both real PLM allocation paths. Each occupies native slot 39, targets block
 `(6,12)`, installs the matching header/list pair, and starts on timer one. The
 mixed crumble/clear instruction streams and their draw data remain cartridge-
 backed program/presentation data.
+
+# Chozo-statue terrain PLM definitions
+
+`ChozoStatuePlmDefinitions` compiles all five header/list identities accepted by
+the translated Chozo terrain spawn seam: the Lower Norfair hand, Wrecked Ship
+hand, clear/block slope-access actors, and crumbling Lower Norfair plug. The
+enemy publication chain and collision-trigger handoff no longer carry an address
+space solely to reread each header's initial-list word.
+
+Verification compares all five header+2 words with the pinned cartridge and runs
+every definition through the real highest-slot allocator. It asserts requested
+block placement, exact header/list/timer state, and the Wrecked Ship hand's setup
+collision/BTS mutation. Collision-only trigger header `$D6F2` remains outside the
+terrain-spawn domain. The selected mixed instruction and draw programs remain
+cartridge-backed.

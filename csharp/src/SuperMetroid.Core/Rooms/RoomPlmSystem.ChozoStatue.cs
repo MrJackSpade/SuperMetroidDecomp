@@ -19,7 +19,7 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Runs the native one-shot special-block setup; the caller still clips to solid.</summary>
-    public void NotifyChozoStatueHandCollision(ISnesAddressSpace bus, RoomLevelData level,
+    public void NotifyChozoStatueHandCollision(RoomLevelData level,
         RoomCollisionBlock block, SamusState samus, byte collisionPose, bool movingDown)
     {
         bool wreckedShip = _activeAreaIndex == AreaId.WreckedShip &&
@@ -51,7 +51,7 @@ public sealed partial class RoomPlmSystem
                     throw new InvalidOperationException("Chozo hand has no bound enemy owner.");
                 enemies.ActivateChozoStatueHandTrigger(level, block.Index);
                 // The nested hardcoded spawn occurs while the reaction slot is occupied.
-                enemies.ApplyPendingChozoStatuePlms(bus, level, this);
+                enemies.ApplyPendingChozoStatuePlms(level, this);
             }
             ClearSlot(reaction);
             return;
@@ -59,13 +59,10 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Allocates the native descending PLM slot, runs setup, then leaves its ROM list live.</summary>
-    public bool TrySpawnChozoStatuePlm(ISnesAddressSpace bus, RoomLevelData level,
-        ChozoStatuePlmRequest request)
+    public bool TrySpawnChozoStatuePlm(RoomLevelData level, ChozoStatuePlmRequest request)
     {
-        if (request.HeaderPointer is not (ChozoStatuePlmRomData.WreckedShipHand or
-            ChozoStatuePlmRomData.ClearSlopeAccess or ChozoStatuePlmRomData.BlockSlopeAccess or
-            ChozoStatuePlmRomData.LowerNorfairHand or ChozoStatuePlmRomData.CrumblePlug))
-            throw new InvalidDataException($"Unsupported Chozo PLM ${request.HeaderPointer:X4}.");
+        ChozoStatuePlmDefinition definition =
+            ChozoStatuePlmDefinitions.Resolve(request.HeaderPointer);
         int index = level.GetBlockIndex(request.BlockX, request.BlockY);
         for (int i = _slots.Length - 1; i >= 0; i--)
         {
@@ -73,9 +70,9 @@ public sealed partial class RoomPlmSystem
             if (slot.Active) continue;
             ClearSlot(slot);
             slot.Active = true;
-            slot.HeaderPointer = request.HeaderPointer;
+            slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = index;
-            slot.InstructionPointer = ReadBank84Word(bus, (ushort)(request.HeaderPointer + 2));
+            slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
             if (request.HeaderPointer == ChozoStatuePlmRomData.WreckedShipHand)
                 WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,

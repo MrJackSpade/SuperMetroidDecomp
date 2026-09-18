@@ -450,6 +450,11 @@ copies are compiled as shared typed movement definitions. All authored offsets r
 through the real posture and collision-aware walking consumers with the six native table
 ranges forbidden; invalid odd or out-of-domain byte offsets fail explicitly.
 
+Crocomire's hidden-wall rumble stream is compiled as typed target/timing records. The
+complete retail schedule is compared word-for-word and replayed frame-for-frame against
+an independent ROM-backed reference with `$A4:98CA-$A4:9909` forbidden to production.
+The duplicate trailing terminator remains available to restored/debugger state.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

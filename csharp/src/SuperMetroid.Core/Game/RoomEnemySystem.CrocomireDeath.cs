@@ -21,7 +21,6 @@ public sealed partial class RoomEnemySystem
     private const int CrocomireBridgeFragmentGraphicsTable = 0xa49156;
     private const int CrocomireFirstMeltingTilemap = 0xa49c79;
     private const int CrocomireSecondMeltingTilemap = 0xa49e7b;
-    private const int CrocomireRumbleTable = 0xa498ca;
 
     private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState? samus)
     {
@@ -419,8 +418,10 @@ public sealed partial class RoomEnemySystem
     private void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        ushort target = ReadWord(_bus!, CrocomireRumbleTable + state.StepCounter);
-        if (target == 0x8080)
+        CrocomireRumbleDefinition definition =
+            CrocomireRumbleDefinitions.AtOffset(state.StepCounter);
+        ushort target = unchecked((ushort)definition.TargetYOffset);
+        if (definition.IsTerminator)
         {
             death.RumbleYOffset = 0x8080;
             state.StepCounter = 0x0080;
@@ -441,12 +442,10 @@ public sealed partial class RoomEnemySystem
                     return;
                 }
 
-                state.StepCounter += 2;
-                death.RumbleCooldown = ReadWord(_bus!, CrocomireRumbleTable + state.StepCounter);
-                state.StepCounter += 2;
-                death.RumbleDelta = ReadWord(_bus!, CrocomireRumbleTable + state.StepCounter);
+                death.RumbleCooldown = definition.Cooldown;
+                death.RumbleDelta = definition.Delta;
             }
-            state.StepCounter += 2;
+            state.StepCounter = definition.NextTargetOffset;
             return;
         }
 

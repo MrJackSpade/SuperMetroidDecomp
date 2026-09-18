@@ -88,10 +88,8 @@ public sealed partial class RoomEnemySystem
             explosion.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(enemy.NativeIndex | 0x8000))
                 : enemy.NativeIndex;
-            explosion.InstructionPointer = ReadWord(
-                _bus!,
-                0x860000 | unchecked((ushort)(
-                    EnemyDeathInstructionPointerTable + deathAnimation * 2)));
+            explosion.InstructionPointer =
+                EnemyDeathExplosionDefinitions.InstructionPointer(deathAnimation);
             explosion.InstructionTimer = 1;
         }
 
@@ -278,7 +276,8 @@ public sealed partial class RoomEnemySystem
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
-        projectile.InstructionPointer = EnemyDeathNoDropTail;
+        projectile.InstructionPointer =
+            EnemyDeathExplosionDefinitions.NoDropTailInstruction;
         projectile.InstructionTimer = 1;
         projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86EFDF;
         projectile.CanDamageSamus = false;

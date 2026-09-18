@@ -289,9 +289,8 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition = slot.YPosition;
             projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = slot.NativeIndex;
-            projectile.InstructionPointer = ReadWord(
-                _bus!,
-                0x860000 | EnemyDeathInstructionPointerTable);
+            projectile.InstructionPointer = EnemyDeathExplosionDefinitions
+                .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);
             projectile.InstructionTimer = 1;
         }
 

@@ -7,10 +7,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort RinkaDustAnimationIndex = 3;
-    private const ushort RinkaDeathAnimationIndex = 0;
-    private const ushort EnemyDeathInstructionPointerTable = 0xefd5;
-    private const ushort EnemyDeathNoDropTail = 0xeca3;
-
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
     private void SpawnRinkaDustExplosion(ushort xPosition, ushort yPosition)
         => SpawnRoomGraphicsDustExplosion(xPosition, yPosition, RinkaDustAnimationIndex);
@@ -68,10 +64,8 @@ public sealed partial class RoomEnemySystem
             projectile.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(slot.NativeIndex | 0x8000))
                 : slot.NativeIndex;
-            projectile.InstructionPointer = ReadWord(
-                _bus!,
-                0x860000 | unchecked((ushort)(
-                    EnemyDeathInstructionPointerTable + RinkaDeathAnimationIndex * 2)));
+            projectile.InstructionPointer = EnemyDeathExplosionDefinitions
+                .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);
             projectile.InstructionTimer = 1;
         }
 

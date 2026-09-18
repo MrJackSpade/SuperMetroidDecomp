@@ -404,6 +404,12 @@ The six enemy-pickup selectors at `$86:EF04-$EF0F` are compiled in
 offsets. All five live pickup initialization paths now avoid the pointer table;
 the no-drop identity remains outside that authored table and fails explicitly.
 
+The five shared enemy-death explosion selectors at `$86:EFD5-$86:EFDE` are compiled
+in `EnemyDeathExplosionDefinitions`. Generic deaths, special Rinkas, and Zebetites
+now share the same named small-explosion identity; every generic variant and the
+native out-of-range clamp run with the pointer table forbidden. Mixed death animation
+programs remain a separate dependency.
+
 Ceres steam's six parallel instruction/function selections at `$A6:EFF5-$F00C`
 are compiled as typed initialization records. All twelve source words match the
 pinned cartridge, and all six production initialization paths run with both tables

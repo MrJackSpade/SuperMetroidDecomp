@@ -80,22 +80,22 @@ public sealed class PipeBugEnemyState
 
     public bool IsBrinstar =>
         DefinitionAtInitialization is
-            RoomEnemySystem.BrinstarPipeBugDefinition or
-            RoomEnemySystem.StrongBrinstarPipeBugDefinition;
+            PipeBugDefinitions.BrinstarEnemyDefinition or
+            PipeBugDefinitions.StrongBrinstarEnemyDefinition;
 
     public bool IsNorfair =>
-        DefinitionAtInitialization == RoomEnemySystem.NorfairPipeBugDefinition;
+        DefinitionAtInitialization == PipeBugDefinitions.NorfairEnemyDefinition;
 
     public bool IsYellow =>
-        DefinitionAtInitialization == RoomEnemySystem.YellowPipeBugDefinition;
+        DefinitionAtInitialization == PipeBugDefinitions.YellowEnemyDefinition;
 
     // The names below follow their role in the currently selected species. They are kept
     // together because the cartridge overlays all of them in one Enemy_PipeBug structure.
     public ushort SpawnX { get; internal set; }
     public ushort SpawnY { get; internal set; }
     public ushort EmergenceTopY { get; internal set; }
-    public ushort AnimationState { get; internal set; }
-    public ushort InstalledAnimationState { get; internal set; }
+    public PipeBugAnimationSelector AnimationState { get; internal set; }
+    public PipeBugAnimationSelector InstalledAnimationState { get; internal set; }
     public ushort DelayOrCounter { get; internal set; }
     public ushort LinearSpeedTableOffset { get; internal set; }
     public ushort EmergenceY { get; internal set; }
@@ -121,15 +121,6 @@ public sealed class PipeBugEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BrinstarPipeBugDefinition = 0xf193;
-    internal const ushort StrongBrinstarPipeBugDefinition = 0xf1d3;
-    internal const ushort NorfairPipeBugDefinition = 0xf213;
-    internal const ushort YellowPipeBugDefinition = 0xf253;
-
-    private const int BrinstarPipeBugNormalInstructionTable = 0xb3882b;
-    private const int BrinstarPipeBugStrongInstructionTable = 0xb38833;
-    private const ushort BrinstarPipeBugNormalInitialInstruction = 0x87ab;
-    private const ushort BrinstarPipeBugStrongInitialInstruction = 0x8a1d;
     private const ushort BrinstarPipeBugEmergenceHeight = 16;
     private const ushort BrinstarPipeBugTriggerWidth = 64;
     private const ushort BrinstarPipeBugTriggerTop = 96;
@@ -159,13 +150,14 @@ public sealed partial class RoomEnemySystem
 
     internal static bool IsPipeBugDefinition(ushort definition) =>
         definition is
-            BrinstarPipeBugDefinition or
-            StrongBrinstarPipeBugDefinition or
-            NorfairPipeBugDefinition or
-            YellowPipeBugDefinition;
+            PipeBugDefinitions.BrinstarEnemyDefinition or
+            PipeBugDefinitions.StrongBrinstarEnemyDefinition or
+            PipeBugDefinitions.NorfairEnemyDefinition or
+            PipeBugDefinitions.YellowEnemyDefinition;
 
     private static bool IsBrinstarPipeBugDefinition(ushort definition) =>
-        definition is BrinstarPipeBugDefinition or StrongBrinstarPipeBugDefinition;
+        definition is PipeBugDefinitions.BrinstarEnemyDefinition or
+            PipeBugDefinitions.StrongBrinstarEnemyDefinition;
 
     private void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
 
@@ -178,11 +170,11 @@ public sealed partial class RoomEnemySystem
         state.EmergenceTopY = unchecked((ushort)(slot.YPosition - BrinstarPipeBugEmergenceHeight));
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
         state.DelayOrCounter = BrinstarPipeBugRespawnFrames;
-        state.AnimationState = 0;
-        state.InstalledAnimationState = 0;
-        slot.CurrentInstruction = slot.Parameter1 != 0
-            ? BrinstarPipeBugStrongInitialInstruction
-            : BrinstarPipeBugNormalInitialInstruction;
+        state.AnimationState = PipeBugAnimationSelector.None;
+        state.InstalledAnimationState = PipeBugAnimationSelector.None;
+        slot.CurrentInstruction = PipeBugDefinitions.BrinstarInstructionList(
+            strong: slot.Parameter1 != 0,
+            PipeBugAnimationSelector.None);
     }
 
     /// <summary>Ports <c>NorfairPipeBug_Init</c> at $B3:8B61.</summary>
@@ -337,7 +329,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunBrinstarPipeBugWaiting(
+    private static void RunBrinstarPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
@@ -357,11 +349,13 @@ public sealed partial class RoomEnemySystem
         state.Function = PipeBugEnemyFunction.BrinstarEmerge;
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         slot.Timer = 0;
-        state.AnimationState = (state.VariableA & 0x8000) != 0 ? (ushort)0 : (ushort)2;
+        state.AnimationState = (state.VariableA & 0x8000) != 0
+            ? PipeBugAnimationSelector.None
+            : PipeBugAnimationSelector.FacingRight;
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
-    private void RunBrinstarPipeBugEmergence(
+    private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
@@ -378,12 +372,12 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.AnimationState |= 1;
+        state.AnimationState |= PipeBugAnimationSelector.Shooting;
         SelectBrinstarPipeBugAnimation(slot, state);
         state.Function = PipeBugEnemyFunction.BrinstarFlyHorizontally;
     }
 
-    private void RunBrinstarPipeBugFlight(
+    private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         ushort cameraX,
@@ -400,22 +394,23 @@ public sealed partial class RoomEnemySystem
         // This apparently strange assignment is literal $B3:8958 behavior: the original
         // stores the integer spawn Y into both halves rather than clearing the fraction.
         slot.YSubposition = state.SpawnY;
-        state.AnimationState = 0;
+        state.AnimationState = PipeBugAnimationSelector.None;
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.DelayOrCounter = BrinstarPipeBugRespawnFrames;
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
-    private void SelectBrinstarPipeBugAnimation(RoomEnemySlot slot, PipeBugEnemyState state)
+    private static void SelectBrinstarPipeBugAnimation(
+        RoomEnemySlot slot,
+        PipeBugEnemyState state)
     {
         if (state.AnimationState == state.InstalledAnimationState)
             return;
         state.InstalledAnimationState = state.AnimationState;
-        int table = slot.Parameter1 != 0
-            ? BrinstarPipeBugStrongInstructionTable
-            : BrinstarPipeBugNormalInstructionTable;
-        slot.CurrentInstruction = ReadWord(_bus!, table + state.AnimationState * 2);
+        slot.CurrentInstruction = PipeBugDefinitions.BrinstarInstructionList(
+            strong: slot.Parameter1 != 0,
+            state.AnimationState);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }
@@ -568,12 +563,12 @@ public sealed partial class RoomEnemySystem
         {
             RoomEnemySlot member = _slots[leader.SlotIndex + index];
             PipeBugEnemyState? state = _pipeBugStates[member.SlotIndex];
-            if (state?.DefinitionAtInitialization != NorfairPipeBugDefinition)
+            if (state?.DefinitionAtInitialization != PipeBugDefinitions.NorfairEnemyDefinition)
             {
                 throw new InvalidDataException(
                     $"Norfair Pipe Bug formation slot {leader.SlotIndex + index} is " +
                     $"owned by initialized enemy ${state?.DefinitionAtInitialization ?? 0:X4}, " +
-                    $"expected ${NorfairPipeBugDefinition:X4}.");
+                    $"expected ${PipeBugDefinitions.NorfairEnemyDefinition:X4}.");
             }
             // `$B3:8BCD/$8BFF/$8C52` never re-check the live definition. They read and
             // write five consecutive 64-byte records even after generic death has changed

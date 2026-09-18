@@ -1432,10 +1432,10 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
                 InitializeBrinstarPipeBug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Gamet when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
+            case EnemyAiCodePointers.InitAI_Gamet when slot.EnemyDefinitionPointer == PipeBugDefinitions.NorfairEnemyDefinition:
                 InitializeNorfairPipeBug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Geega when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
+            case EnemyAiCodePointers.InitAI_Geega when slot.EnemyDefinitionPointer == PipeBugDefinitions.YellowEnemyDefinition:
                 InitializeYellowPipeBug(slot);
                 return;
             case EnemyAiCodePointers.InitAI_Botwoon when slot.EnemyDefinitionPointer == BotwoonDefinition:
@@ -1983,8 +1983,8 @@ public sealed partial class RoomEnemySystem
                 RunKiHunterMain(slot, RequireKiHunterState(slot), samus, level);
                 return;
             case EnemyAiCodePointers.MainAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
-            case EnemyAiCodePointers.MainAI_Gamet when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
-            case EnemyAiCodePointers.MainAI_Geega when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
+            case EnemyAiCodePointers.MainAI_Gamet when slot.EnemyDefinitionPointer == PipeBugDefinitions.NorfairEnemyDefinition:
+            case EnemyAiCodePointers.MainAI_Geega when slot.EnemyDefinitionPointer == PipeBugDefinitions.YellowEnemyDefinition:
                 RunPipeBugMain(
                     slot,
                     RequirePipeBugState(slot),

@@ -391,6 +391,11 @@ pinned cartridge, and all six production initialization paths run with both tabl
 forbidden. The selected mixed animation programs and extended spritemaps remain
 separate program/presentation dependencies.
 
+Normal and strong Brinstar Pipe Bugs' four facing/action instruction selectors at
+`$B3:882B-$883A` are compiled behind a proven flags enum: bit zero selects shooting
+versus rising and bit one selects right versus left. All eight production handoffs
+run with both pointer tables forbidden. The mixed animation programs remain separate.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

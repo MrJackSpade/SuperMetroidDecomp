@@ -2023,3 +2023,16 @@ Verification independently compares both words to the pinned cartridge and
 runs both real departure paths through pose setup, graphics priming, projectile
 reset publication, Samus pinning, input locking, sound publication, status, and
 frame-event changes while the old input table is forbidden.
+
+# Owtch patrol and burial timing
+
+`OwtchMovementDefinitions` compiles the eight patrol half-widths at
+`$A2:A3DD-$A3EC` and six underground durations at `$A2:A3ED-$A3F8`. Live
+position, burial depth, state and countdown remain enemy state; positive and
+negative movement speeds already use the shared compiled linear definitions.
+
+Verification independently compares all fourteen words to the pinned cartridge
+and runs 144 production initializers across zero, ordinary, and wrapping spawn X
+coordinates while both source tables are forbidden. It asserts the exact timer
+and wrapped minimum/maximum patrol bounds. Invalid restored selectors fail
+explicitly instead of consuming adjacent initializer code.

@@ -86,10 +86,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort OwtchMovingLeftInstructionList = 0xa3ab;
     private const ushort OwtchMovingRightInstructionList = 0xa3bd;
-    private const int OwtchTravelDistanceTable = 0xa2a3dd;
-    private const int OwtchUndergroundTimerTable = 0xa2a3ed;
-    private const int OwtchTravelDistanceCount = 8;
-    private const int OwtchUndergroundTimerCount = 6;
     private const ushort OwtchMaximumBurialDepth = 16;
 
     private readonly OwtchEnemyState?[] _owtchStates =
@@ -111,24 +107,16 @@ public sealed partial class RoomEnemySystem
                 $"Owtch parameter one ${slot.Parameter1:X4} selects state {initialState}, " +
                 "outside its five-entry main-AI table.");
         }
-        if (undergroundTimerIndex >= OwtchUndergroundTimerCount)
-        {
-            throw new InvalidDataException(
-                $"Owtch parameter one ${slot.Parameter1:X4} selects underground timer " +
-                $"index {undergroundTimerIndex}, outside its six-word table.");
-        }
         if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
                 $"Owtch parameter two ${slot.Parameter2:X4} selects linear-speed " +
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
-        if (distanceIndex >= OwtchTravelDistanceCount)
-        {
-            throw new InvalidDataException(
-                $"Owtch parameter two ${slot.Parameter2:X4} selects travel-distance " +
-                $"index {distanceIndex}, outside its eight-word table.");
-        }
+        ushort undergroundTimer =
+            OwtchMovementDefinitions.UndergroundTimer((byte)undergroundTimerIndex);
+        ushort travelDistance =
+            OwtchMovementDefinitions.TravelDistance((byte)distanceIndex);
 
         // The initializer masks the raw state only for its two-entry facing table. Thus
         // states two and four begin with the left list, while state three begins right.
@@ -141,9 +129,6 @@ public sealed partial class RoomEnemySystem
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
-        ushort travelDistance = ReadWord(
-            _bus!,
-            OwtchTravelDistanceTable + distanceIndex * 2);
         var state = new OwtchEnemyState(slot)
         {
             RightVelocity = unchecked((ushort)right.Whole),
@@ -152,7 +137,7 @@ public sealed partial class RoomEnemySystem
             LeftSubvelocity = left.Fraction,
             Behavior = (OwtchBehaviorState)initialState,
             SinkYOffset = 0,
-            UndergroundTimer = ReadOwtchUndergroundTimer(slot),
+            UndergroundTimer = undergroundTimer,
             MinimumXPosition = unchecked((ushort)(slot.XPosition - travelDistance)),
             MaximumXPosition = unchecked((ushort)(slot.XPosition + travelDistance)),
         };
@@ -194,7 +179,8 @@ public sealed partial class RoomEnemySystem
                 if (unchecked((short)(state.SinkYOffset - OwtchMaximumBurialDepth)) >= 0)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = ReadOwtchUndergroundTimer(slot);
+                    state.UndergroundTimer = OwtchMovementDefinitions.UndergroundTimer(
+                        unchecked((byte)(slot.Parameter1 >> 8)));
                 }
                 return;
 
@@ -289,9 +275,6 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
         unchecked((short)((ushort)state.Behavior - 1)) < 0;
-
-    private ushort ReadOwtchUndergroundTimer(RoomEnemySlot slot) =>
-        ReadWord(_bus!, OwtchUndergroundTimerTable + (slot.Parameter1 >> 8) * 2);
 
     private static void SetOwtchInstructionList(RoomEnemySlot slot, ushort instructionList)
     {

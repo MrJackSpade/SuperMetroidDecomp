@@ -111,6 +111,10 @@ The elevator actor's Down/Up departure masks are compiled in its shared domain
 catalog. Both real departure paths retain the doubled population byte offset,
 pose/input/projectile/audio handoff, and Samus pinning while `$A3:94E2-$94E5`
 is forbidden.
+Owtch's eight patrol half-widths and six underground durations are compiled as
+physical definitions. All 144 representative/wrapped production initializers
+retain their shared linear speeds, state-specific burial setup and exact bounds
+while `$A2:A3DD-$A3F8` is forbidden.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

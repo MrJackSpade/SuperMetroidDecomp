@@ -2237,3 +2237,17 @@ mixed into the mechanics catalog.
 complete native pointer/timer/count structure and all four damage words, then runs
 every atmospheric type/frame through both timer-expiry paths and both liquid
 damage producers with the migrated mechanics ranges forbidden.
+
+# Zebes escape explosion selection
+
+`ZebesEscapeExplosionDefinitions` compiles the eight sprite-object identities at
+`$8F:C1D6-$C1DD` together with their eight optional library-two sound IDs at
+`$8F:C1DE-$C1E5`. The real producer preserves the cartridge quirk where random
+nibbles eight through fifteen keep the caller's inherited X index instead of
+replacing it with the random choice.
+
+Verification compares all sixteen bytes with the pinned cartridge and exercises
+all 128 combinations of the sixteen random nibbles and eight inherited indexes
+through the real finite sprite-object pool and sound queue while both source
+tables are forbidden. The selected sprite programs and artwork remain separate
+program/presentation dependencies.

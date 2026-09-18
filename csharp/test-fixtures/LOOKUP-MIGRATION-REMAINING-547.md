@@ -322,6 +322,12 @@ The Norfair lava-jumping enemy's four signed 8.8 launch velocities at
 native RNG selectors run through the production state transition with that ROM range
 forbidden; animation programs remain separate presentation/program dependencies.
 
+The Zebes escape room-main explosion selector is compiled too: all eight fixed
+sprite-object identities and eight optional sound IDs now share typed records.
+All 128 random/inherited-index combinations run through the real producer with
+`$8F:C1D6-$C1E5` forbidden, including the cartridge's high-random-nibble inherited-X
+quirk. Sprite-object bytecode and artwork remain separate dependencies.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

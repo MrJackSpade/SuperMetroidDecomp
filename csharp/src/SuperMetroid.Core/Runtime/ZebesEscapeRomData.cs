@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Native room-main escape effect definitions in bank $8F.</summary>
 public static class ZebesEscapeRomData
 {
-    /// <summary>$8F:C1D6 explosion sprite-object IDs, eight byte entries.</summary>
-    public const int SpriteTable = 0x8fc1d6;
-    /// <summary>$8F:C1DE explosion library-two sound IDs, eight byte entries.</summary>
-    public const int SoundTable = 0x8fc1de;
     /// <summary>$8F:E594/E5BC duration of the temporary diagonal quake.</summary>
     public const ushort DiagonalFrames = 42;
     /// <summary>$8F:C933 light horizontal shaking, including enemies.</summary>

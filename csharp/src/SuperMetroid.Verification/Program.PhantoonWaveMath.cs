@@ -9,7 +9,7 @@ internal static partial class Program
         var samples = new short[512];
         for (int offset = 0; offset < samples.Length; offset++)
         {
-            int address = EnemyMathReferenceData.PhantoonSineByteRange + offset;
+            int address = EnemyMathReferenceData.SignedSine + offset;
             samples[offset] = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
         }
 

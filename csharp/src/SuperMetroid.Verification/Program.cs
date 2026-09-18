@@ -253,6 +253,14 @@ if (args is ["--gunship-motion-definitions"])
     VerifyPostCeresGunshipLanding();
     return 0;
 }
+if (args is ["--remaining-signed-sine-consumers"])
+{
+    SuperMetroidAddressSpace rom =
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyBombTorizoDroolSine(rom);
+    VerifyMotherBrainNeckSine(rom);
+    return 0;
+}
 if (args is ["--crocomire-bridge-fragment-definitions"])
 {
     VerifyCrocomireBridgeFragmentDefinitions(

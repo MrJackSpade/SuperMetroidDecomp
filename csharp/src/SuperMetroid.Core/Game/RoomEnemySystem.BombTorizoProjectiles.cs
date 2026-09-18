@@ -40,8 +40,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        // The recurring low-health drool chooses a random direction from the cartridge sine
-        // table. Preserve the exact signed samples and 8.8 velocity representation.
+        // The recurring low-health drool chooses a random direction from the shared native
+        // sine definition. Preserve the exact signed samples and 8.8 velocity representation.
         int angle;
         if ((torizo.Parameter1 & 0x4000) != 0)
         {
@@ -52,12 +52,10 @@ public sealed partial class RoomEnemySystem
             int baseAngle = (torizo.Parameter1 & 0x8000) != 0 ? 32 : 224;
             angle = unchecked((byte)(baseAngle + (random & 0x000f) - 8));
         }
-        projectile.XVelocity = unchecked((ushort)(short)ReadWord(
-            _bus!,
-            0xa0b443 + (((angle + 64) & 0xff) * 2)));
-        projectile.YVelocity = unchecked((ushort)(short)ReadWord(
-            _bus!,
-            0xa0b443 + ((angle & 0xff) * 2)));
+        projectile.XVelocity = unchecked((ushort)
+            EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))));
+        projectile.YVelocity = unchecked((ushort)
+            EnemyTrigonometryTables.SignedSine(unchecked((byte)angle)));
         projectile.XPosition = (torizo.Parameter1 & 0x8000) != 0
             ? unchecked((ushort)(torizo.XPosition + 8))
             : unchecked((ushort)(torizo.XPosition - 8));

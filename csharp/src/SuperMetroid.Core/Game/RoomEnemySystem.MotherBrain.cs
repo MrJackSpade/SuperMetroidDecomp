@@ -446,7 +446,7 @@ public sealed partial class RoomEnemySystem
         return (MotherBrainShakeXOffsets[index], MotherBrainShakeYOffsets[index]);
     }
 
-    private void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
+    private static void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
     {
         if (state.NeckMovementEnabled)
         {
@@ -469,7 +469,6 @@ public sealed partial class RoomEnemySystem
         }
 
         MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            _bus!,
             state.Body.XPosition,
             state.Body.YPosition,
             state.LowerNeckAngle,

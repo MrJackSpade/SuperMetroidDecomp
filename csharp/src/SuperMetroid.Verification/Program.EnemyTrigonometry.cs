@@ -20,6 +20,8 @@ internal static partial class Program
         AssertTrue(bytes.AsSpan().SequenceEqual(EnemyTrigonometryTables.EightBitHalfWave), "all compiled byte samples match ROM");
         AssertTrue(words.AsSpan().SequenceEqual(EnemyTrigonometryTables.UnsignedHalfWave), "all compiled unsigned samples match ROM");
         VerifyCompiledSignedTrigonometry(rom);
+        VerifyBombTorizoDroolSine(rom);
+        VerifyMotherBrainNeckSine(rom);
         VerifyCompiledGrappleMath(rom);
         VerifyCompiledProjectileMath(rom);
         VerifyCompiledFamilyTrigonometry(rom);
@@ -279,8 +281,8 @@ internal static partial class Program
 
 internal static class EnemyMathReferenceData
 {
-    /// <summary>Pinned $A0:B443 sine bytes, including the following $B643 PHB byte for an odd final read.</summary>
-    public const int PhantoonSineByteRange = 0xa0b443;
+    /// <summary>Pinned $A0:B443-$B642 sign-extended 8.8 sine words.</summary>
+    public const int SignedSine = 0xa0b443;
     /// <summary>Pinned $A0:B1C3 signed 16-bit sine/cosine quadrants.</summary>
     public const int SignedSixteenBitSine = 0xa0b1c3;
     /// <summary>Pinned $AA:E03D Shaktool negative-cosine prefix and sine quadrants.</summary>

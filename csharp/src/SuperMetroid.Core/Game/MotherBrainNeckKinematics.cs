@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One world-space joint produced by Mother Brain's articulated neck solver.</summary>
@@ -157,7 +155,6 @@ internal static class MotherBrainNeckKinematics
 
     /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA.</summary>
     internal static MotherBrainNeckGeometry CalculateGeometry(
-        ISnesAddressSpace bus,
         ushort bodyX,
         ushort bodyY,
         ushort lowerAngle,
@@ -168,8 +165,6 @@ internal static class MotherBrainNeckKinematics
         ushort segment3Distance = 10,
         ushort segment4Distance = 20)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-
         // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
         // individual segment equations auditable against the disassembly.
@@ -179,49 +174,44 @@ internal static class MotherBrainNeckKinematics
         byte upper = unchecked((byte)(upperAngle >> 8));
 
         MotherBrainNeckPoint segment0 = CalculateLowerSegment(
-            bus, referenceX, referenceY, lower, segment0Distance);
+            referenceX, referenceY, lower, segment0Distance);
         MotherBrainNeckPoint segment1 = CalculateLowerSegment(
-            bus, referenceX, referenceY, lower, segment1Distance);
+            referenceX, referenceY, lower, segment1Distance);
         MotherBrainNeckPoint segment2 = CalculateLowerSegment(
-            bus, referenceX, referenceY, lower, segment2Distance);
+            referenceX, referenceY, lower, segment2Distance);
         MotherBrainNeckPoint segment3 = CalculateUpperSegment(
-            bus, segment2, upper, segment3Distance);
+            segment2, upper, segment3Distance);
         MotherBrainNeckPoint segment4 = CalculateUpperSegment(
-            bus, segment2, upper, segment4Distance);
+            segment2, upper, segment4Distance);
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 
     private static MotherBrainNeckPoint CalculateLowerSegment(
-        ISnesAddressSpace bus,
         ushort referenceX,
         ushort referenceY,
         byte angle,
         ushort distance) =>
         new(
             unchecked((ushort)(referenceX + 0x0070 +
-                CalculateSignedComponent(bus, angle, distance))),
+                CalculateSignedComponent(angle, distance))),
             unchecked((ushort)(referenceY - 0x0060 +
-                CalculateSignedComponent(bus, unchecked((byte)(angle + 0x40)), distance))));
+                CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance))));
 
     private static MotherBrainNeckPoint CalculateUpperSegment(
-        ISnesAddressSpace bus,
         MotherBrainNeckPoint segment2,
         byte angle,
         ushort distance) =>
         new(
-            unchecked((ushort)(segment2.X + CalculateSignedComponent(bus, angle, distance))),
+            unchecked((ushort)(segment2.X + CalculateSignedComponent(angle, distance))),
             unchecked((ushort)(segment2.Y +
-                CalculateSignedComponent(bus, unchecked((byte)(angle + 0x40)), distance))));
+                CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance))));
 
     /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
     internal static short CalculateSignedComponent(
-        ISnesAddressSpace bus,
         byte angle,
         ushort distance)
     {
-        int address = 0xa0b443 + angle * 2;
-        short sine = unchecked((short)(
-            bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        short sine = EnemyTrigonometryTables.SignedSine(angle);
         int product = sine * unchecked((sbyte)distance);
         return unchecked((short)(product >> 8));
     }

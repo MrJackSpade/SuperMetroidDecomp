@@ -687,7 +687,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         }
 
         MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            bus,
             Body.XPosition,
             Body.YPosition,
             LowerNeckAngle,

@@ -492,6 +492,16 @@ compiled as typed physical records. The shared real initializer retains independ
 signed-byte velocity jitter, while the eye beam still replaces those base velocities
 with its aimed launch. All family/facing spawn paths run with the eight tuples forbidden.
 
+Bomb Torizo's recurring low-health drool now consumes the compiled shared signed-sine
+catalog as well. Every eight-bit random angle plus both sixteen-angle facing cones run
+through the real projectile producer while the complete `$A0:B443-$B642` word table is
+forbidden; this closes a literal-address reader missed by the earlier named-table audit.
+Mother Brain's five-joint neck solver now shares that compiled catalog too. All 65,536
+angle/signed-distance products and complete geometry across every lower angle are compared
+to an independent ROM-backed reference, and the solver no longer accepts a cartridge bus.
+The named reference addresses remain available to cartridge-parity verification but have
+no runtime consumer in either migrated path.
+
 Bomb Torizo's eleven explosive-swipe and six low-health explosion placements are
 compiled as paired physical records rather than anonymous runtime arrays. Every legal
 swipe and every bounded facing/parameter explosion selection is checked against the ROM

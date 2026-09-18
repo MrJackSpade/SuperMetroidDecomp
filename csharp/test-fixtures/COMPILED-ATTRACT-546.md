@@ -43,8 +43,18 @@ new independent native CPU replay of all movement outcomes.
 
 ## Remaining scope
 
-Room loading, animation and other
-presentation still depend on the wider #530/#549 migrations; this is not yet a
-ROM-free game or a completed #546. Preserve user recordings as separate tool
-data, not editable engine programs. Replacement audiovisual asset tests and
-desktop/Android ROM-absent execution remain required before completion.
+The standard verifier now derives the exact source-byte set for every scene
+table, equipment/setup record, input-object header and reachable input command.
+It runs all 23 production scenes through their complete displayed duration with
+those bytes blocked. Any fallback to the cartridge definitions fails at the
+first read. Together with the field-by-field and 552,000-step interpreter
+comparisons above, this covers scene setup, selection, duration and every
+controller record exercised by normal playback.
+
+Attract runtimes receive the same current map, projectile, trail, flare, Grapple
+and beam presentation catalogs as ordinary gameplay runtimes; the bindings are
+retained across each scene replacement. Their independently extracted resources
+are verified by their owning asset suites. Room loading, animation and other
+presentation still depend on the wider #530/#549 migrations, but those are not
+attract-definition reads and do not keep #546 open. User recordings remain
+separate tool data, not editable engine programs.

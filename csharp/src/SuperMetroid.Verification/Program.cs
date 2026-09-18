@@ -200,6 +200,12 @@ if (args is ["--quicksand-definitions"])
     VerifyQuicksand();
     return 0;
 }
+if (args is ["--save-station-animation-definitions"])
+{
+    VerifySaveStationAnimationDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--escape-etecoon-definitions"])
 {
     VerifyEscapeEtecoonDefinitions(

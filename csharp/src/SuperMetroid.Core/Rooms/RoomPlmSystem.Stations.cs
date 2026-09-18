@@ -10,8 +10,6 @@ public sealed partial class RoomPlmSystem
     private const int MapStationAcquiredAnimationOffset = 20;
     private const ushort StationAccessMovementFrames = 6;
     private const ushort StationAccessExtendedHoldFrames = 0x60;
-    private const int SaveAnimationLoopCountAddress = 0x84aff9;
-
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
     private bool _saveStationLockedOut;
 
@@ -97,12 +95,8 @@ public sealed partial class RoomPlmSystem
         station.SavePhase = SaveStationPhase.Animating;
         station.AnimationFrame = 0;
         station.AnimationTimer = 1;
-        station.SaveAnimationLoopsRemaining = bus.ReadByte(SaveAnimationLoopCountAddress);
-        if (station.SaveAnimationLoopsRemaining == 0)
-        {
-            throw new InvalidDataException(
-                "Save-station animation loop count at $84:AFF9 is zero.");
-        }
+        station.SaveAnimationLoopsRemaining =
+            SaveStationAnimationDefinitions.SaveAnimationLoops;
         station.SaveStartSoundPending = true;
         return true;
     }

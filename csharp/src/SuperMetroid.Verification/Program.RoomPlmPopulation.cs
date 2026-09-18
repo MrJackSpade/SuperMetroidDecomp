@@ -1126,7 +1126,10 @@ internal static partial class Program
 
         StationActivationEvent completion = default;
         bool completionPublished = false;
-        for (int frame = 0; frame < 32 && !completionPublished; frame++)
+        int completionFrame = -1;
+        int maximumSaveAnimationFrames =
+            SaveStationAnimationDefinitions.SaveAnimationLoops * 8 + 8;
+        for (int frame = 0; frame < maximumSaveAnimationFrames && !completionPublished; frame++)
         {
             plms.Step(bus, level, streamer, 0, 0, 0);
             if (frame == 0)
@@ -1138,9 +1141,13 @@ internal static partial class Program
             {
                 completion = plms.StationActivationEvents.Single();
                 completionPublished = true;
+                completionFrame = frame;
             }
         }
         AssertTrue(completionPublished, "save animation reaches completion message");
+        AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops * 8 - 4,
+            completionFrame,
+            "save animation publishes completion after all 21 alternating native loops");
         AssertEqual(GameplayMessageIds.SaveCompleted, completion.MessageBoxIndex,
             "save animation publishes game-saved message only after its draw loop");
         plms.CompleteSaveStation(completion);
@@ -1367,9 +1374,8 @@ internal static partial class Program
         WriteWord(bus, 0x84afea, 0xa1c0);
         WriteOneBlockDraw(bus, 0xa1c0, 0xb180);
 
-        // Save list `$AFF7-$B006`: the fixture uses two alternating loops rather than the
-        // retail region's $10/$15 so the complete coroutine remains a small unit test.
-        bus.WriteBytes(0x84aff9, [0x02]);
+        // Save list `$AFFA-$B006`. The loop count at `$84:AFF9` is compiled mechanics,
+        // so the sparse bus deliberately leaves that retired source byte absent.
         WriteWord(bus, 0x84affa, 4);
         WriteWord(bus, 0x84affc, 0xa1c6);
         WriteWord(bus, 0x84affe, 4);

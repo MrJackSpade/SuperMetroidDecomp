@@ -71,6 +71,7 @@ internal static partial class Program
         VerifyTourianAccessPlmDefinitions(rom);
         VerifyChozoStatuePlmDefinitions(rom);
         VerifySamusEaterPlmDefinitions(rom);
+        VerifyStationAccessPlmDefinitions(rom);
         VerifyMaridiaLargeSnailInstructionDefinitions(rom);
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);

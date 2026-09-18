@@ -714,20 +714,11 @@ public sealed partial class RoomPlmSystem
         ushort layer1YPosition,
         ushort bg1XOffset)
     {
-        ushort accessHeader = station.AccessBehavior switch
-        {
-            StationAccessBehavior.MapRight => RoomPlmHeaders.MapStationRightAccess,
-            StationAccessBehavior.MapLeft => RoomPlmHeaders.MapStationLeftAccess,
-            StationAccessBehavior.EnergyRight => RoomPlmHeaders.EnergyStationRightAccess,
-            StationAccessBehavior.EnergyLeft => RoomPlmHeaders.EnergyStationLeftAccess,
-            StationAccessBehavior.MissileRight => RoomPlmHeaders.MissileStationRightAccess,
-            StationAccessBehavior.MissileLeft => RoomPlmHeaders.MissileStationLeftAccess,
-            _ => throw new InvalidDataException(
-                $"Station access has invalid BTS ${station.AccessBehavior:X2}."),
-        };
-        ushort instructionList = ReadBank84Word(
-            bus,
-            unchecked((ushort)(accessHeader + 2)));
+        StationAccessBehavior accessBehavior = station.AccessBehavior
+            ?? throw new InvalidDataException("Station access has no BTS owner.");
+        StationAccessPlmDefinition definition =
+            StationAccessPlmDefinitions.Resolve(accessBehavior);
+        ushort instructionList = definition.InstructionListPointer;
         int firstDrawOffset = station.Kind == StationKind.Map ? 5 : 9;
         int drawOffset = firstDrawOffset + (extended ? 4 : 0);
         ushort drawPointer = ReadBank84Word(

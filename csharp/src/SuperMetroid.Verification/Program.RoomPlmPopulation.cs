@@ -1563,10 +1563,6 @@ internal static partial class Program
         WriteWord(bus, 0x84b6d5, 0xad62);
         WriteWord(bus, 0x84b6ed, 0xae4c);
         WriteWord(bus, 0x84b771, 0xafe8);
-        WriteWord(bus, 0x84b6d9, 0xad86);
-        WriteWord(bus, 0x84b6e5, 0xadf1);
-        WriteWord(bus, 0x84b6f1, 0xae7b);
-
         WriteWord(bus, 0x84ad8b, 0xa200);
         WriteWord(bus, 0x84ad8f, 0xa206);
         WriteWord(bus, 0x84adfa, 0xa20c);

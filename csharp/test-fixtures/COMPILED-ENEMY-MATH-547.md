@@ -2367,3 +2367,16 @@ both definitions through the real highest-slot allocator. It asserts exact block
 header, instruction-list and timer state, plus native trigger deactivation. A map-
 station header is rejected rather than entering the plant domain. The selected
 mixed animation, damage, release, and draw program remains cartridge-backed.
+
+# Station-access PLM definitions
+
+`StationAccessPlmDefinitions` compiles all six map, energy, and missile access
+identities. Each typed row pairs BTS `$47-$4C` with the exact bank-$84 PLM header
+and initial instruction list used by that side of the station. The live access
+drawer no longer rereads header+2 to rediscover that fixed relationship.
+
+Verification compares every initial-list word with the pinned cartridge, rejects
+the separate save-floor trigger, and runs the production map/missile activation
+and extension/retraction fixture with every migrated header word absent from its
+sparse address space. Draw records and mixed station programs remain cartridge-
+backed presentation and behavior streams.

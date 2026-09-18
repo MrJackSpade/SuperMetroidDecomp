@@ -356,6 +356,11 @@ all eight real bullet spawns and every signed rotation step run with
 The mixed projectile animation programs selected by those fixed identities remain a
 separate program/presentation dependency.
 
+Mother Brain's glass-shard producer now compiles all sixteen RNG-angle instruction
+selectors at `$86:CE41-$86:CE60` together with the three physical PLM-relative origins
+at `$86:CE61-$86:CE6C`. All 48 parameter/angle production spawns run with the source
+range forbidden. The selected mixed animation programs remain a separate dependency.
+
 The four Tourian statue eye/soul world positions at `$86:B90E-$B91D` are compiled
 as paired physical records. The catalog retains the native doubled boss parameters
 zero, two, four, and six. All eight source words match the pinned cartridge, and both

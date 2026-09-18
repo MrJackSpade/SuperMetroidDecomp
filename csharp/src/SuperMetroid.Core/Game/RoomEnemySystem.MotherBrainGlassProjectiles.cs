@@ -9,17 +9,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainGlassShardGraphicsIndex = 0x0640;
-    private const ushort MotherBrainGlassShardInstructionTable = 0xce41;
     // `$86:CDD0-$CDE1` indexes the 256-word sine cycle by the already-even angle
     // offset in X: horizontal motion reads cosine base `$A0:B443`, while vertical
     // motion reads sine base `$A0:B3C3`. Expressing both through the sine base lets
     // the X call add the native quarter-turn (`+64` samples) exactly once. Using
     // `$B443` as this base silently shifted both components and made late angles read
     // unrelated ROM data beyond the table.
-
-    private static readonly short[] MotherBrainGlassShardXOffsets = [8, -40, -16];
-    private static readonly short[] MotherBrainGlassShardYOffsets = [32, 32, 32];
 
     /// <summary>
     /// Consumes one request emitted by PLM instruction <c>$D30B</c>. The request retains the
@@ -63,18 +58,17 @@ public sealed partial class RoomEnemySystem
         shard.YVelocity = unchecked((ushort)(
             unchecked((short)ReadSignedSineSample(angle)) * 4));
         int animationIndex = ((angleOffset >> 4) & 0x001e) >> 1;
-        shard.InstructionPointer = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(
-                MotherBrainGlassShardInstructionTable + animationIndex * 2)));
+        shard.InstructionPointer = MotherBrainGlassShardDefinitions
+            .InstructionPointer(unchecked((ushort)animationIndex));
         shard.InstructionTimer = 1;
-        shard.GraphicsIndex = MotherBrainGlassShardGraphicsIndex;
+        shard.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
 
-        int offsetIndex = request.Parameter >> 1;
+        MotherBrainGlassShardPlacement placement =
+            MotherBrainGlassShardDefinitions.Placement(request.Parameter);
         shard.XPosition = unchecked((ushort)(
-            request.PlmBlockX * 16 + MotherBrainGlassShardXOffsets[offsetIndex]));
+            request.PlmBlockX * 16 + placement.XOffset));
         shard.YPosition = unchecked((ushort)(
-            request.PlmBlockY * 16 + MotherBrainGlassShardYOffsets[offsetIndex]));
+            request.PlmBlockY * 16 + placement.YOffset));
 
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.
@@ -127,7 +121,7 @@ public sealed partial class RoomEnemySystem
             source.XPosition + (_nextRandom!() & 0x001f) - 16));
         sparkle.YPosition = unchecked((ushort)(
             source.YPosition + (_nextRandom!() & 0x001f) - 16));
-        sparkle.GraphicsIndex = MotherBrainGlassShardGraphicsIndex;
+        sparkle.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
     }
 
     private static ushort ReadSignedSineSample(int index) =>

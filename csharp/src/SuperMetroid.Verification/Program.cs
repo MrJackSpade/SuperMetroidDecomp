@@ -214,6 +214,12 @@ if (args is ["--mother-brain-turret-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--mother-brain-glass-shard-definitions"])
+{
+    VerifyMotherBrainGlassShardDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--mama-turtle-shell-contour"])
 {
     VerifyMamaTurtleShellContourDefinitions();

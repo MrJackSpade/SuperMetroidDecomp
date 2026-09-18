@@ -95,6 +95,10 @@ Cacatac's ten spike-program selectors and cardinal/diagonal signed 8.8 launch
 speed pairs are compiled too. All ten actual production spawns retain their
 definition loading, allocator order and copied origin while `$86:D96A-$D97D` is
 forbidden. The selected mixed animation programs remain separate dependencies.
+Atomic's four population-selected initial instruction lists are compiled too.
+All four production initializers retain the previously compiled shared linear
+speed pairs while `$A8:E380-$E387` is forbidden. The selected mixed animation
+programs remain separate dependencies.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

@@ -28,6 +28,7 @@ internal static partial class Program
         VerifyFirefleaMovementDefinitions(rom);
         VerifyCacatacMovementDefinitions(rom);
         VerifyCacatacProjectileDefinitions(rom);
+        VerifyAtomicMovementDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);
         VerifyPowerBombCallbackDefinitions(rom);

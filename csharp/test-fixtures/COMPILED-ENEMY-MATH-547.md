@@ -1969,3 +1969,17 @@ spawns all ten directions through the production allocator/definition initialize
 while the selector table is forbidden. It asserts program identity, both stored
 velocity words and copied world/subpixel origins. Odd and out-of-range directions
 continue to fail explicitly.
+
+# Atomic appearance selectors
+
+`AtomicMovementDefinitions` compiles the four instruction-list selectors at
+`$A8:E380-$E387`. The selected mixed instruction programs remain separate
+runtime dependencies; the catalog owns which initial appearance each population
+parameter selects. Atomic's speed records already use the shared compiled linear
+speed definitions.
+
+Verification independently compares all four selector words to the pinned
+cartridge and invokes the production initializer with representative speed
+indexes while the old selector table is forbidden. It checks the selected
+program and all four copied whole/fraction speed words. Out-of-domain restored
+selectors fail explicitly instead of consuming adjacent initializer code.

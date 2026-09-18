@@ -103,8 +103,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort AtomicDefinition = 0xe9ff;
 
-    private const int AtomicInstructionPointerTable = 0xa8e380;
-
     private readonly AtomicEnemyState?[] _atomicStates =
         new AtomicEnemyState?[MaximumEnemyCount];
     private readonly ushort[] _atomicSpeedFractions = new ushort[MaximumEnemyCount];
@@ -129,12 +127,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
-        // Parameter one is normally zero through three. Native code performs an unchecked
-        // word-table lookup, so retain that behavior by reading the cartridge address rather
-        // than imposing a host-only range check or substituting host constants for any entry.
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            AtomicInstructionPointerTable + slot.Parameter1 * 2);
+        slot.CurrentInstruction = AtomicMovementDefinitions.InitialInstructionList(slot.Parameter1);
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.

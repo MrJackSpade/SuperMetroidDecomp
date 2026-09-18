@@ -512,7 +512,6 @@ internal static partial class Program
         for (int slot = 0; slot < 40; slot++)
         {
             AssertTrue(plms.TrySpawnQuicksandReaction(
-                    bus,
                     blockIndex: 0,
                     header: QuicksandRomData.SurfaceInsideHeader),
                 $"G-Mode fixture allocates suspended PLM slot {slot}");

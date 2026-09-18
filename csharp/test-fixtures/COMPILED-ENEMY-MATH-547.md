@@ -2380,3 +2380,16 @@ the separate save-floor trigger, and runs the production map/missile activation
 and extension/retraction fixture with every migrated header word absent from its
 sparse address space. Draw records and mixed station programs remain cartridge-
 backed presentation and behavior streams.
+
+# Complete quicksand PLM definitions
+
+The existing `QuicksandDefinitions` catalog now includes the complete eight-row
+bank-$84 sand-reaction domain: header, setup routine, and shared delete list for
+the four inside reactions and four collision reactions. Recognized Maridia
+contacts and transient allocation no longer reread any executable-header metadata.
+
+Verification compares all sixteen setup/list words with the pinned cartridge,
+rejects the ordinary no-op header, and extends the production read guard across
+`$84:B713-$B742`. Real inside/collision physics and the G-Mode forty-slot fill
+continue through the compiled identities; unrelated restored/other-area headers
+retain their explicit cartridge fallback.

@@ -51,10 +51,14 @@ public static class SamusInsideBlockReactions
                     unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
             }
             if (header == 0) return;
-            ushort setup = Word(QuicksandRomData.PlmBank | header);
-            if (QuicksandRomData.TryGetSetup(header, out ushort authoredSetup) &&
-                authoredSetup == setup && plms is not null &&
-                !plms.TrySpawnQuicksandReaction(bus, block.Index, header))
+            bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
+                header,
+                out QuicksandReactionDefinition reaction);
+            ushort setup = hasCompiledReaction
+                ? reaction.SetupPointer
+                : Word(QuicksandRomData.PlmBank | header);
+            if (hasCompiledReaction && plms is not null &&
+                !plms.TrySpawnQuicksandReaction(block.Index, header))
             {
                 return;
             }
@@ -161,10 +165,14 @@ public static class SamusInsideBlockReactions
                     unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
         }
         if (header == 0) return false;
-        ushort setup = RomDataReader.ReadWordFixedBank(bus, QuicksandRomData.PlmBank | header);
-        if (QuicksandRomData.TryGetSetup(header, out ushort authoredSetup) &&
-            authoredSetup == setup && plms is not null &&
-            !plms.TrySpawnQuicksandReaction(bus, block.Index, header))
+        bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
+            header,
+            out QuicksandReactionDefinition reaction);
+        ushort setup = hasCompiledReaction
+            ? reaction.SetupPointer
+            : RomDataReader.ReadWordFixedBank(bus, QuicksandRomData.PlmBank | header);
+        if (hasCompiledReaction && plms is not null &&
+            !plms.TrySpawnQuicksandReaction(block.Index, header))
         {
             return false;
         }

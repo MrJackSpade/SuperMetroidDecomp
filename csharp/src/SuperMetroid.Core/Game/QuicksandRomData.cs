@@ -56,20 +56,4 @@ public static class QuicksandRomData
     /// <summary>Immediate 16.16 extra displacement in PlmSetup_B727_SandFallsFast.</summary>
     public const int FastFallsDisplacement = 0x1c000;
 
-    /// <summary>Returns the setup routine authored by one of the eight sand-reaction headers.</summary>
-    public static bool TryGetSetup(ushort header, out ushort setup)
-    {
-        setup = header switch
-        {
-            SurfaceInsideHeader => SurfaceSetup,
-            SubmergingInsideHeader => SubmergingSetup,
-            SlowFallsInsideHeader => SlowFallsSetup,
-            FastFallsInsideHeader => FastFallsSetup,
-            SurfaceCollisionHeader => SurfaceCollision,
-            SubmergingCollisionHeader => SubmergingCollision,
-            SlowFallsCollisionHeader or FastFallsCollisionHeader => SandFallsCollision,
-            _ => 0,
-        };
-        return setup != 0;
-    }
 }

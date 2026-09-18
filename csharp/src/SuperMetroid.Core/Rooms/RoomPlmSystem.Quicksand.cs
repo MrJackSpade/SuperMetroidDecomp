@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -22,37 +20,11 @@ public sealed partial class RoomPlmSystem
     /// </remarks>
     /// <returns>False only when the native allocation is full.</returns>
     public bool TrySpawnQuicksandReaction(
-        ISnesAddressSpace bus,
         int blockIndex,
         ushort header)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        if (!QuicksandRomData.TryGetSetup(header, out ushort expectedSetup))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
-        }
-
-        ushort actualSetup = RomDataReader.ReadWordFixedBank(
-            bus,
-            QuicksandRomData.PlmBank | header);
-        if (actualSetup != expectedSetup)
-        {
-            throw new InvalidDataException(
-                $"Quicksand header ${header:X4} points to setup ${actualSetup:X4}, expected ${expectedSetup:X4}.");
-        }
-
-        ushort instructionPointer = RomDataReader.ReadWordFixedBank(
-            bus,
-            QuicksandRomData.PlmBank | unchecked((ushort)(header + 2)));
-        if (instructionPointer != RoomPlmInstructionLists.Delete)
-        {
-            throw new InvalidDataException(
-                $"Quicksand header ${header:X4} points to instruction list ${instructionPointer:X4}, " +
-                $"expected delete list ${RoomPlmInstructionLists.Delete:X4}.");
-        }
+        QuicksandReactionDefinition definition =
+            QuicksandDefinitions.ResolveReaction(header);
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
@@ -64,7 +36,7 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = instructionPointer;
+            slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
             return true;
         }

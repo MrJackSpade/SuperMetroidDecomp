@@ -7,23 +7,6 @@ internal static partial class Program
     static void VerifyQuicksand()
     {
         var bus = new TestAddressSpace();
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.SurfaceInsideHeader, QuicksandRomData.SurfaceSetup);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.SubmergingInsideHeader, QuicksandRomData.SubmergingSetup);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.SlowFallsInsideHeader, QuicksandRomData.SlowFallsSetup);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.FastFallsInsideHeader, QuicksandRomData.FastFallsSetup);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.SurfaceCollisionHeader, QuicksandRomData.SurfaceCollision);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.SubmergingCollisionHeader, QuicksandRomData.SubmergingCollision);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.SlowFallsCollisionHeader, QuicksandRomData.SandFallsCollision);
-        WriteTestWord(bus, QuicksandRomData.PlmBank |
-            QuicksandRomData.FastFallsCollisionHeader, QuicksandRomData.SandFallsCollision);
-
         RoomLevelData Room(byte bts) => new(4, 4,
             Enumerable.Repeat((ushort)0x3000, 16).ToArray(), Enumerable.Repeat(bts, 16).ToArray(),
             new ushort[16], new byte[8]);
@@ -112,6 +95,24 @@ internal static partial class Program
         AssertTrue(!QuicksandDefinitions.TryGetCollisionHeader(
             AreaId.Maridia, 16, out _), "out-of-range collision dispatch remains explicit");
 
+        AssertEqual(8, QuicksandDefinitions.Reactions.Length,
+            "quicksand reaction definition count");
+        foreach (QuicksandReactionDefinition definition in QuicksandDefinitions.Reactions)
+        {
+            AssertEqual(
+                Word(rom, QuicksandRomData.PlmBank | definition.HeaderPointer),
+                definition.SetupPointer,
+                $"quicksand header ${definition.HeaderPointer:X4} setup");
+            AssertEqual(
+                Word(rom, QuicksandRomData.PlmBank |
+                    unchecked((ushort)(definition.HeaderPointer + 2))),
+                definition.InstructionListPointer,
+                $"quicksand header ${definition.HeaderPointer:X4} initial list");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => QuicksandDefinitions.ResolveReaction(0xb62f),
+            "ordinary no-op header cannot enter quicksand allocation domain");
+
         for (int suit = 0; suit < 2; suit++)
         {
             int sourceOffset = suit * sizeof(ushort);
@@ -194,7 +195,7 @@ internal static partial class Program
         }
 
         Console.WriteLine(
-            "Quicksand definitions: all 32 Maridia dispatch headers and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
+            "Quicksand definitions: all 32 Maridia dispatch headers, eight setup/list pairs, and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
     }
 
     private sealed class QuicksandDefinitionReadGuard(ISnesAddressSpace source)
@@ -204,6 +205,7 @@ internal static partial class Program
             address is >= 0x949259 and < 0x949279 or
                 >= 0x949a86 and < 0x949aa6 or
                 >= 0x84b48b and < 0x84b497 or
+                >= 0x84b713 and < 0x84b743 or
                 >= 0x9492e1 and < 0x9492e3 or
                 >= 0x949b0e and < 0x949b10
                 ? throw new InvalidOperationException(

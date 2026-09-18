@@ -2139,3 +2139,15 @@ distance with the pinned cartridge. Twenty real initializers cover all five patt
 and representative loop counts while both selector tables and all five indirect
 distance words are forbidden. The variable-length falling streams remain separate
 mechanical program data and continue to be read by the frame runner.
+
+# Crawler animation selectors
+
+`CrawlerAnimationDefinitions` compiles the five four-word initial orientation
+tables for the shared crawlers, Viola, Sciser, Zero, and HZoomer, plus the four
+parallel six-species surface tables at `$A3:E630-$E65F`. Typed family and surface
+enums replace functional-code table addresses without implying flag semantics.
+
+Verification independently compares all 44 words with the pinned cartridge. It
+runs every family/orientation initializer and all 24 shared species/surface handoffs
+through production code while every source table is forbidden. Odd or out-of-range
+species offsets and invalid restored family/orientation values fail explicitly.

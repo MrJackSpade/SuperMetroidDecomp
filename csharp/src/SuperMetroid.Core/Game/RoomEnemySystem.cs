@@ -1336,18 +1336,18 @@ public sealed partial class RoomEnemySystem
                 InitializeChoot(slot);
                 return;
             case EnemyAiCodePointers.InitAI_Sciser when slot.EnemyDefinitionPointer == SciserDefinition:
-                InitializeCrawler(slot, SciserInitialInstructionTable, speciesInstructionOffset: 8);
+                InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesInstructionOffset: 8);
                 return;
             case EnemyAiCodePointers.InitAI_Zero when slot.EnemyDefinitionPointer == ZeroDefinition:
-                InitializeCrawler(slot, ZeroInitialInstructionTable, speciesInstructionOffset: 10);
+                InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesInstructionOffset: 10);
                 return;
             case EnemyAiCodePointers.InitAI_Viola when slot.EnemyDefinitionPointer == ViolaDefinition:
-                InitializeCrawler(slot, ViolaInitialInstructionTable, speciesInstructionOffset: 6);
+                InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesInstructionOffset: 6);
                 return;
             case EnemyAiCodePointers.InitAI_Zeela when slot.EnemyDefinitionPointer == ZeelaDefinition:
             case EnemyAiCodePointers.InitAI_Sova when slot.EnemyDefinitionPointer == SovaDefinition:
             case EnemyAiCodePointers.InitAI_Zoomer_MZoomer when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
-                InitializeCrawler(slot, SharedCrawlerInitialInstructionTable);
+                InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
                 return;
             case EnemyAiCodePointers.InitAI_HZoomer when slot.EnemyDefinitionPointer == HZoomerDefinition:
                 InitializeHZoomer(slot);

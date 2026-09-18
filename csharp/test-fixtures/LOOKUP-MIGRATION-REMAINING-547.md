@@ -291,6 +291,12 @@ run with the pointer tables and distance words forbidden. The variable-length X/
 fall streams themselves remain live mechanical program data and still require an
 explicit migration decision.
 
+The five crawler-family initial orientation tables and all four shared six-species
+surface tables are now compiled in `CrawlerAnimationDefinitions`. Shared crawlers,
+Viola, Sciser, Zero, and HZoomer consume typed family/surface selectors with all 44
+source words forbidden. Their selected instruction programs and spritemaps remain
+separate program/presentation dependencies.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

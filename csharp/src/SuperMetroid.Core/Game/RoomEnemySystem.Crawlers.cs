@@ -65,20 +65,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort ZoomerDefinition = 0xdcff;
     internal const ushort StoneZoomerDefinition = 0xdd3f;
 
-    private const int SciserInitialInstructionTable = 0xa396db;
-    private const int ZeroInitialInstructionTable = 0xa3992b;
-    private const int ViolaInitialInstructionTable = 0xa3b667;
-    private const int SharedCrawlerInitialInstructionTable = 0xa3e2cc;
-    private const int CrawlerUpsideDownInstructionTable = 0xa3e630;
-    private const int CrawlerUpsideUpInstructionTable = 0xa3e63c;
-    private const int CrawlerUpsideRightInstructionTable = 0xa3e648;
-    private const int CrawlerUpsideLeftInstructionTable = 0xa3e654;
-    private const int HZoomerInitialInstructionTable = 0xa3e03b;
-    private const ushort HZoomerUpsideRightInstructionList = 0xdfcb;
-    private const ushort HZoomerUpsideLeftInstructionList = 0xdfe7;
-    private const ushort HZoomerUpsideDownInstructionList = 0xe003;
-    private const ushort HZoomerUpsideUpInstructionList = 0xe01f;
-
     private readonly CrawlerEnemyState?[] _crawlerStates =
         new CrawlerEnemyState?[MaximumEnemyCount];
 
@@ -92,7 +78,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void InitializeCrawler(
         RoomEnemySlot slot,
-        int initialInstructionTable,
+        CrawlerAnimationFamily animationFamily,
         ushort? speciesInstructionOffset = null)
     {
         var state = new CrawlerEnemyState(slot);
@@ -102,11 +88,10 @@ public sealed partial class RoomEnemySystem
             slot.Parameter2 = offset;
 
         // The population initialization parameter is an orientation index, not an
-        // instruction pointer. Masking to two bits before the ROM table lookup is native.
-        int orientation = slot.CurrentInstruction & 3;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            initialInstructionTable + orientation * 2);
+        // instruction pointer. Masking to two bits before selector lookup is native.
+        var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
+        slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
+            animationFamily, orientation);
         slot.SpritemapPointer = 0x804d; // Spritemap_Common_Nothing.
         slot.InstructionTimer = 1;
         state.Function = CrawlerEnemyFunction.InstructionPending;
@@ -167,10 +152,9 @@ public sealed partial class RoomEnemySystem
             Function = CrawlerEnemyFunction.HZoomerInstructionPending,
         };
         _crawlerStates[slot.SlotIndex] = state;
-        int orientation = slot.CurrentInstruction & 3;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            HZoomerInitialInstructionTable + orientation * 2);
+        var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
+        slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
+            CrawlerAnimationFamily.HZoomer, orientation);
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = 1;
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
@@ -307,8 +291,10 @@ public sealed partial class RoomEnemySystem
         SetHZoomerInstructionList(
             slot,
             unchecked((short)state.YVelocity) < 0
-                ? HZoomerUpsideDownInstructionList
-                : HZoomerUpsideUpInstructionList);
+                ? CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
+                : CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
     private static void SetHZoomerHorizontalInstruction(
         RoomEnemySlot slot,
@@ -316,8 +302,10 @@ public sealed partial class RoomEnemySystem
         SetHZoomerInstructionList(
             slot,
             unchecked((short)state.XVelocity) < 0
-                ? HZoomerUpsideRightInstructionList
-                : HZoomerUpsideLeftInstructionList);
+                ? CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
+                : CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
     private static void SetHZoomerInstructionList(
         RoomEnemySlot slot,
@@ -469,27 +457,29 @@ public sealed partial class RoomEnemySystem
         state.Function = CrawlerEnemyFunction.Falling;
     }
 
-    private void SetCrawlerVerticalSurfaceInstruction(
+    private static void SetCrawlerVerticalSurfaceInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
-        int table = (short)state.YVelocity < 0
-            ? CrawlerUpsideDownInstructionTable
-            : CrawlerUpsideUpInstructionTable;
-        SetCrawlerInstructionFromTable(slot, table);
+        CrawlerSurfaceOrientation orientation = (short)state.YVelocity < 0
+            ? CrawlerSurfaceOrientation.UpsideDown
+            : CrawlerSurfaceOrientation.UpsideUp;
+        SetCrawlerInstructionFromTable(slot, orientation);
     }
 
-    private void SetCrawlerHorizontalSurfaceInstruction(
+    private static void SetCrawlerHorizontalSurfaceInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
-        int table = (short)state.XVelocity < 0
-            ? CrawlerUpsideRightInstructionTable
-            : CrawlerUpsideLeftInstructionTable;
-        SetCrawlerInstructionFromTable(slot, table);
+        CrawlerSurfaceOrientation orientation = (short)state.XVelocity < 0
+            ? CrawlerSurfaceOrientation.UpsideRight
+            : CrawlerSurfaceOrientation.UpsideLeft;
+        SetCrawlerInstructionFromTable(slot, orientation);
     }
 
-    private void SetCrawlerInstructionFromTable(RoomEnemySlot slot, int tableAddress)
+    private static void SetCrawlerInstructionFromTable(
+        RoomEnemySlot slot,
+        CrawlerSurfaceOrientation orientation)
     {
         // Parameter two is already a byte offset into six-word species tables. Retail
         // Zoomers use zero; preserving byte addressing is required for the shared families.
@@ -498,7 +488,8 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Crawler instruction-table offset ${slot.Parameter2:X4} is invalid.");
         }
-        slot.CurrentInstruction = ReadWord(_bus!, tableAddress + slot.Parameter2);
+        slot.CurrentInstruction = CrawlerAnimationDefinitions.SurfaceInstruction(
+            slot.Parameter2, orientation);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

@@ -14,8 +14,6 @@ public sealed partial class RoomEnemySystem
 
     private const int DraygonIntroPalette = 0xa5a217;
     private const int DraygonIntroEvirTiles = 0xb19400;
-    private const int DraygonFightIntroDanceData = 0xa5ce07;
-
     private DraygonEnemyState? _draygon;
 
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
@@ -309,17 +307,33 @@ public sealed partial class RoomEnemySystem
             if (unchecked((short)streamIndex) < 0 || !sprite.IsActive)
                 continue;
 
-            byte xDelta = _bus!.ReadByte(DraygonFightIntroDanceData + streamIndex);
-            byte yDelta = _bus.ReadByte(
-                DraygonFightIntroDanceData + unchecked((ushort)(streamIndex + 1)));
-            if (xDelta == 0x80 && yDelta == 0x80)
+            sbyte xDelta;
+            sbyte yDelta;
+            bool deletesSprite;
+            if (!DraygonIntroDanceDefinitions.TryGetMovement(
+                    streamIndex,
+                    out xDelta,
+                    out yDelta,
+                    out deletesSprite))
+            {
+                byte nativeXDelta = _bus!.ReadByte(
+                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress + streamIndex);
+                byte nativeYDelta = _bus.ReadByte(
+                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress +
+                    unchecked((ushort)(streamIndex + 1)));
+                xDelta = unchecked((sbyte)nativeXDelta);
+                yDelta = unchecked((sbyte)nativeYDelta);
+                deletesSprite = nativeXDelta == 0x80 && nativeYDelta == 0x80;
+            }
+
+            if (deletesSprite)
             {
                 sprite.Clear();
                 continue;
             }
 
-            sprite.XPosition = unchecked((ushort)(sprite.XPosition + unchecked((sbyte)xDelta)));
-            sprite.YPosition = unchecked((ushort)(sprite.YPosition + unchecked((sbyte)yDelta)));
+            sprite.XPosition = unchecked((ushort)(sprite.XPosition + xDelta));
+            sprite.YPosition = unchecked((ushort)(sprite.YPosition + yDelta));
         }
 
         state.FightIntroDanceIndex = unchecked((ushort)(

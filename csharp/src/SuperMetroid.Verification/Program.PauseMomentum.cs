@@ -26,7 +26,7 @@ internal static partial class Program
             speed.CancelRunningMomentum(8);
             speed.HasRunningMomentum = momentum;
             speed.SpeedBoostCounter = counter;
-            speed.ReconcilePauseSpeedBoosterState(bus, equipped);
+            speed.ReconcilePauseSpeedBoosterState(equipped);
             AssertEqual(0x00014000u, speed.BaseFixed, "unpause preserves numeric base speed");
             AssertEqual(2, speed.ExtraRunSpeed, "unpause leaves extra whole speed for the next movement update");
             AssertEqual(0x8000, speed.ExtraRunSubspeed, "unpause leaves extra fractional speed for the next movement update");

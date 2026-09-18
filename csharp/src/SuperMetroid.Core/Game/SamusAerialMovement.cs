@@ -137,7 +137,6 @@ public static class SamusAerialMovement
             movementType: SamusMovementType.NormalJumping,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
 
@@ -258,7 +257,6 @@ public static class SamusAerialMovement
             movementType: SamusMovementType.SpinJumping,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
@@ -366,7 +364,6 @@ public static class SamusAerialMovement
             movementType: SamusMovementType.WallJumping,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
@@ -405,7 +402,6 @@ public static class SamusAerialMovement
             movementType: SamusMovementType.DamageBoost,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
@@ -450,7 +446,7 @@ public static class SamusAerialMovement
         // Turning cannot actively dash, but retained boost still publishes contact
         // damage for this final frame. Clearing the counter is not retroactive.
         speed.HandleExtraRunSpeed(movementType, controllerInput: 0,
-            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster), bus,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
@@ -513,7 +509,6 @@ public static class SamusAerialMovement
             movementType: SamusMovementType.Falling,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
 

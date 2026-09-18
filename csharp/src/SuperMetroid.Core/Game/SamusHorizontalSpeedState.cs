@@ -169,7 +169,6 @@ public sealed class SamusHorizontalSpeedState
         SamusMovementType movementType,
         ushort controllerInput,
         bool speedBoosterEquipped,
-        ISnesAddressSpace? bus = null,
         bool liquidImpeded = false)
     {
         const SnesButton dashButton = SnesButton.B;
@@ -196,7 +195,6 @@ public sealed class SamusHorizontalSpeedState
 
         if (speedBoosterEquipped)
         {
-            ArgumentNullException.ThrowIfNull(bus);
             if (!HasRunningMomentum)
             {
                 // `$90:976C-$9780` initializes the counter's authored low byte.
@@ -205,9 +203,7 @@ public sealed class SamusHorizontalSpeedState
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = 1;
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadWord(
-                    bus,
-                    SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
+                SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadResetWord(0);
             }
 
             if (unchecked((short)(ExtraRunSpeed - 7)) >= 0 &&
@@ -303,17 +299,13 @@ public sealed class SamusHorizontalSpeedState
         }
 
         byte stage = unchecked((byte)(tableSelection >> 8));
-        ushort nextLowByte = SamusRunningCadenceDefinitions.ReadWord(
-            bus,
-            SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes + stage * 2);
+        ushort nextLowByte = SamusRunningCadenceDefinitions.ReadResetWord(stage);
         SpeedBoostCounter = unchecked((ushort)((SpeedBoostCounter & 0xff00) | nextLowByte));
 
-        ushort delayList = SamusRunningCadenceDefinitions.ReadWord(
-            bus,
-            SamusMovementRomData.HorizontalMotion.SpeedBoostAnimationDelayListPointers + stage * 2);
+        ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadByte(bus, (int)new SnesAddress(0x91, delayList))));
+            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, 0)));
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -325,12 +317,8 @@ public sealed class SamusHorizontalSpeedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         byte stage = unchecked((byte)(SpeedBoostCounter >> 8));
-        ushort delayList = SamusRunningCadenceDefinitions.ReadWord(
-            bus,
-            SamusMovementRomData.HorizontalMotion.SpeedBoostAnimationDelayListPointers + stage * 2);
-        int address = SamusMovementRomData.Banks.Pose |
-            unchecked((ushort)(delayList + byteIndex));
-        return SamusRunningCadenceDefinitions.ReadByte(bus, address);
+        ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
+        return SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, byteIndex);
     }
 
     /// <summary>
@@ -657,16 +645,15 @@ public sealed class SamusHorizontalSpeedState
     /// the echoes outright and leaves the numeric run-speed pair until the next
     /// movement update observes the cleared momentum flag.
     /// </summary>
-    public void ReconcilePauseSpeedBoosterState(ISnesAddressSpace bus, bool speedBoosterEquipped)
+    public void ReconcilePauseSpeedBoosterState(bool speedBoosterEquipped)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         if (speedBoosterEquipped)
         {
             if (HasRunningMomentum && SpeedBoostCounter == 0)
             {
                 SpecialPaletteTimer = 0;
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadWord(bus, SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
+                SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadResetWord(0);
             }
             return;
         }

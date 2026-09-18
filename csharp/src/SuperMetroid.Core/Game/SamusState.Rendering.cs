@@ -460,11 +460,10 @@ public sealed partial class SamusState
     /// </summary>
     private static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
-        ushort listPointer = SamusRunningCadenceDefinitions.ReadWord(
+        return SamusRunningCadenceDefinitions.ReadAnimationByte(
             bus,
-            SamusMovementRomData.Poses.DefaultRunningAnimationDelayListPointer);
-        return SamusRunningCadenceDefinitions.ReadByte(bus,
-            (int)new SnesAddress(0x91, listPointer).AddWithinBank(byteIndex));
+            SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer,
+            byteIndex);
     }
 
     /// <summary>

@@ -223,12 +223,14 @@ drawing pointers remain presentation readers for #540/#541; editable assets and
 their restart/update behavior are not yet implemented by this separation.
 
 Ordinary-running and Speed Booster cadence is now compiled: six eleven-byte
-streams, six pointer words and five boost-counter reset words at $91:B5D1..B628.
+streams, six pointer words and five boost-counter reset words at $91:B5D1..B628,
+plus the two adjacent pose-zero bytes selected by the real Max6 sound result.
 These timings advance gameplay stages and are not editable cosmetic timing.
 The sound-call accumulator bug remains intact, including stage-five selection
-of adjacent pose data and a low-bank mutable delay address. Non-catalog reads
-remain explicit dependencies; per-pose animation commands and artwork are still
-outside this completed cadence group.
+of the adjacent zero word and mutable low-bank delay `$91:0303`. Selections outside
+the native zero-through-five result domain and frame indexes into unrelated high-bank
+ROM now fail explicitly. Per-pose animation commands and artwork remain outside this
+completed cadence group.
 
 Pose byte four is shared by artwork and projectile origins. Its physical copy
 for all 253 authored poses plus the three exact adjacent-code observations is

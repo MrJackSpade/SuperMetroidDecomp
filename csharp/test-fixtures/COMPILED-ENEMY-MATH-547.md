@@ -1649,33 +1649,37 @@ Verification and the Windows Release build pass (zero build warnings/errors).
 
 Compiled the 88 authored bytes at $91:B5D1..B628 as domain definitions: ordinary
 Dash plus five Speed Booster cadence streams, their pointers, and five counter
-reset words. The NTSC alternating stage-one/stage-three cadence differs from PAL;
+reset words. The bounded catalog also retains the two zero bytes at $91:B629..B62A
+that the real sound-queue selection five observes as a reset word. The NTSC
+alternating stage-one/stage-three cadence differs from PAL;
 the pinned ROM and bank_91.asm establish the selected values. sm_90.c confirms
 the consumers but comments out the sound-queue accumulator bug, so bank_90.asm
 remains authoritative for that branch. No arithmetic or queue behavior was changed.
 
-Production consumers now include initial running momentum, pause equipment
-reconciliation, command-driven stage advancement and normal/boosted frame delays.
-The catalog resolves only its exact authored addresses. Out-of-range stage and
-frame indexes retain their original address arithmetic and live bus fallbacks.
-In particular queue occupancy five reads an adjacent pose word as its reset and
-$0303 as its delay pointer; the low-bank delay remains mutable, not compiled.
+Production consumers now use typed pointer, reset-word, and animation-byte operations
+for initial running momentum, pause equipment reconciliation, command-driven stage
+advancement and normal/boosted frame delays. The native Max6 sound call can return only
+high-byte selections zero through five; larger restored selections now fail explicitly
+instead of interpreting arbitrary bank-$91 code as pointers and resets. Queue occupancy
+five still reads the adjacent pose-zero word as its reset and `$0303` as its delay pointer;
+that low-bank delay remains mutable, not compiled. Restored frame indexes may cross into
+another member of the bounded cadence catalog or wrap into bank $91's mutable low half,
+but unrelated high-bank ROM is rejected.
 
 Verification forbids all reads of the migrated ROM range while checking:
 
-- All 88 bytes against the pinned cartridge.
-- All 65,536 ordinary frame indexes and 256 x 65,536 boosted stage/frame pairs,
-  including bank wrapping and reads across authored boundaries.
-- 524,288 real stage-command calls: every counter word and all combinations of
-  momentum, running and held Dash. Assertions include counter, frame, timer,
-  synchronous sound-call count and contact-damage publication.
-- All 65,536 returned sound accumulator words, with changing live WRAM contents
-  at $91:0303, proving the selection is neither clamped nor cached as a constant.
+- All 90 bounded bytes against the pinned cartridge, all six native delay-pointer/reset
+  selections, and explicit rejection of selections six through 255.
+- Every authored ordinary/boosted frame, loop-command boundary, adjacent-catalog read,
+  low-bank wrap and representative unrelated-ROM rejection.
+- 10,240 real stage-command calls: every low counter byte for stages zero through four
+  and all combinations of momentum, running and held Dash. Assertions include counter,
+  frame, timer, synchronous sound-call count and contact-damage publication.
+- All 1,536 accumulator words the Max6 call can return, with changing live WRAM contents
+  at $91:0303, plus explicit rejection of an impossible selection-six accumulator.
 - Initial run and pause reconciliation, including their different palette timers.
 
-Restored frame indexes that reach unimplemented hardware use a constructed
-address-signature bus to verify routing. This is not proof of native I/O-register
-semantics. The old movement fixture's fake cadence was removed; it now asserts
+The old movement fixture's fake cadence was removed; it now asserts
 the actual ten-frame loop, stage countdowns, echo event and contact publication.
 Per-pose animation command streams still remain mixed mechanics/presentation;
 this does not complete Samus artwork extraction or the wider integration contract.

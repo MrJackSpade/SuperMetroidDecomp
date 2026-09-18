@@ -223,7 +223,6 @@ public static class SamusGroundedMovement
             movementType: SamusMovementType.Running,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // `$90:8E64 -> $90:9A7E` advances the split 16.16 base speed. The following
@@ -286,7 +285,6 @@ public static class SamusGroundedMovement
             movementType: SamusMovementType.Running,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // Do not special-case mode one here. `$90:8EA9` reverses the literal pose direction
@@ -366,7 +364,6 @@ public static class SamusGroundedMovement
             movementType,
             controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
@@ -440,7 +437,6 @@ public static class SamusGroundedMovement
             movementType: SamusMovementType.Moonwalking,
             controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // Type `$10` has its own twelve-byte speed record. Its pose-X bytes intentionally

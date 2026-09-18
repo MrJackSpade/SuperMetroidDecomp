@@ -181,8 +181,7 @@ static void VerifySamusHorizontalSpeed()
     booster.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
-        speedBoosterEquipped: true,
-        bus);
+        speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
     AssertEqual(1, booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
     AssertEqual(1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
@@ -193,8 +192,7 @@ static void VerifySamusHorizontalSpeed()
         booster.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
             controllerInput: (ushort)SnesButton.B,
-            speedBoosterEquipped: true,
-            bus);
+            speedBoosterEquipped: true);
     }
     AssertEqual(7, booster.ExtraRunSpeed, "Speed Booster reaches exact 7.0000 cap");
     AssertEqual(0, booster.ExtraRunSubspeed, "Speed Booster cap has zero fraction");
@@ -238,7 +236,7 @@ static void VerifySamusHorizontalSpeed()
             SpeedBoostCounter = activeStage ? (ushort)0x0401 : (ushort)0x0301,
             ContactDamageIndex = 0,
         };
-        retainedBoost.HandleExtraRunSpeed(movement, 0, true, bus, liquidImpeded: liquid);
+        retainedBoost.HandleExtraRunSpeed(movement, 0, true, liquidImpeded: liquid);
         AssertEqual(activeStage ? 1 : 0, retainedBoost.ContactDamageIndex,
             "retained boost publishes contact protection only in active stage");
         AssertEqual(7, retainedBoost.ExtraRunSpeed, "released boost retains numeric speed");

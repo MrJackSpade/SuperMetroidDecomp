@@ -87,11 +87,80 @@ internal static partial class Program
                 $"Ridley body fragment {partIndex} facing {facingIndex} instruction");
         }
 
+        for (int index = 0; index < 10; index++)
+        {
+            RidleyDeathExplosionPlacement placement =
+                RidleyExplosionDefinitions.DeathExplosionPlacement(index);
+            AssertEqual(
+                unchecked((short)Word(rom, 0xa6c66e + index * 4)),
+                placement.XOffset,
+                $"Ridley death explosion {index} X offset");
+            AssertEqual(
+                unchecked((short)Word(rom, 0xa6c670 + index * 4)),
+                placement.YOffset,
+                $"Ridley death explosion {index} Y offset");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => RidleyExplosionDefinitions.DeathExplosionPlacement(-1),
+            "Ridley death explosion negative index");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => RidleyExplosionDefinitions.DeathExplosionPlacement(10),
+            "Ridley death explosion index after authored cycle");
+
         VerifyRidleyExplosionProductionInitializer(rom);
+        VerifyRidleyDeathExplosionProductionSpawns(rom);
         Console.WriteLine(
             "Ridley breakup definitions: all 12 lifetimes/callbacks, native spawn order, " +
-            "six fixed tail selectors, 16 tip orientations, ten body records, and 32 " +
-            "production initializations match the cartridge with migrated reads forbidden.");
+            "six fixed tail selectors, 16 tip orientations, ten body records, ten death " +
+            "explosion placements, 32 production initializations, and ten real death-effect " +
+            "spawns match the cartridge with migrated reads forbidden.");
+    }
+
+    private static void VerifyRidleyDeathExplosionProductionSpawns(
+        SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
+        {
+            var enemies = new RoomEnemySystem();
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+                enemies,
+                new RidleyExplosionDefinitionReadGuard(rom));
+            var spawn = typeof(RoomEnemySystem)
+                .GetMethod("SpawnSmallExplosionNearNorfairRidley", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+
+            RoomEnemySlot body = enemies.Slots[0];
+            body.XPosition = 0xfff8;
+            body.YPosition = 0x0008;
+            var state = new RidleyEnemyState
+            {
+                DeathExplosionTimer = 0,
+                DeathExplosionCount = unchecked((ushort)((selectedIndex + 9) % 10)),
+            };
+
+            spawn(body, state);
+
+            RoomEnemyProjectileSlot effect = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            short xOffset = unchecked((short)ReadRidleyExplosionWord(
+                rom,
+                0xa6c66e + selectedIndex * 4));
+            short yOffset = unchecked((short)ReadRidleyExplosionWord(
+                rom,
+                0xa6c670 + selectedIndex * 4));
+            AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,
+                $"Ridley death explosion {selectedIndex} cyclic index");
+            AssertEqual((ushort)4, state.DeathExplosionTimer,
+                $"Ridley death explosion {selectedIndex} timer reload");
+            AssertEqual(unchecked((ushort)(body.XPosition + xOffset)), effect.XPosition,
+                $"Ridley death explosion {selectedIndex} production X");
+            AssertEqual(unchecked((ushort)(body.YPosition + yOffset)), effect.YPosition,
+                $"Ridley death explosion {selectedIndex} production Y");
+            AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, effect.Kind,
+                $"Ridley death explosion {selectedIndex} actor kind");
+            AssertEqual((ushort)0x0024, state.LastDeathSoundEffect,
+                $"Ridley death explosion {selectedIndex} sound");
+        }
     }
 
     private static void VerifyRidleyExplosionProductionInitializer(
@@ -204,6 +273,7 @@ internal static partial class Program
     {
         public byte ReadByte(int address) => address is
             >= 0xa6c6ce and < 0xa6c6fe or
+            >= 0xa6c66e and < 0xa6c696 or
             >= 0xa6c7ba and < 0xa6c7da or
             >= 0xa6c804 and < 0xa6c80c or
             >= 0xa6c836 and < 0xa6c83e or

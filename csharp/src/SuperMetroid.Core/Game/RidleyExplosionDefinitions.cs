@@ -79,6 +79,25 @@ internal static class RidleyExplosionDefinitions
     ];
 
     /// <summary>
+    /// Ten signed body-relative positions consumed cyclically by
+    /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c>. The interleaved
+    /// X/Y words occupy <c>$A6:C66E-$A6:C695</c>.
+    /// </summary>
+    private static readonly RidleyDeathExplosionPlacement[] DeathExplosionPlacements =
+    [
+        new(-24, -24),
+        new(-20, 20),
+        new(16, -30),
+        new(30, -3),
+        new(14, -13),
+        new(-2, 18),
+        new(-2, -32),
+        new(-31, 8),
+        new(-4, -10),
+        new(19, 19),
+    ];
+
+    /// <summary>
     /// Tail-tip instruction-list selectors at <c>$A6:C7BA-$A6:C7D9</c>, ordered by
     /// the high nibble of the rounded combined segment-five/tip angle.
     /// </summary>
@@ -97,6 +116,14 @@ internal static class RidleyExplosionDefinitions
             throw new ArgumentOutOfRangeException(nameof(parameter));
 
         return PartRecords[parameter >> 1];
+    }
+
+    /// <summary>Returns one authored small-explosion position selected by its cyclic index.</summary>
+    public static RidleyDeathExplosionPlacement DeathExplosionPlacement(int index)
+    {
+        if ((uint)index >= DeathExplosionPlacements.Length)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        return DeathExplosionPlacements[index];
     }
 
     /// <summary>
@@ -150,3 +177,8 @@ internal readonly record struct RidleyExplosionBodyPartDefinition(
     short XOffset,
     short YOffset,
     ushort InstructionList);
+
+/// <summary>One signed body-relative position in Ridley's death-explosion cycle.</summary>
+internal readonly record struct RidleyDeathExplosionPlacement(
+    short XOffset,
+    short YOffset);

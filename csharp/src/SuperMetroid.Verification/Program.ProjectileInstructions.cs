@@ -97,7 +97,7 @@ internal static partial class Program
         AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
         var guard = new ProjectileInstructionReadGuard(rom, words);
         var trailFrame = typeof(SamusProjectileSystem).GetMethod("GetTrailAnimationFrame", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<ISnesAddressSpace, SamusProjectileSlot, ushort>>();
+            .CreateDelegate<Func<SamusProjectileSlot, ushort>>();
         var trailSlot = new SamusProjectileSlot(0);
         foreach (int address in words)
         {
@@ -106,20 +106,23 @@ internal static partial class Program
             {
                 trailSlot.InstructionTimer = timer;
                 trailSlot.AnimationFrame = 0xbeef;
-                AssertEqual(Word(address), trailFrame(guard, trailSlot), "Trail owner consumes compiled previous-record word regardless of timer or cached frame");
+                AssertEqual(Word(address), trailFrame(trailSlot), "Trail owner consumes compiled previous-record word regardless of timer or cached frame");
                 AssertEqual(timer, trailSlot.InstructionTimer, "Trail frame lookup leaves timer unchanged");
                 AssertEqual((ushort)0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
             }
         }
-        for (int address = 0x938000; address <= 0x93ffff; address++)
-        {
-            trailSlot.InstructionPointer = unchecked((ushort)(address + 2));
-            AssertEqual(Word(address), trailFrame(rom, trailSlot), "Trail owner preserves odd addresses, uncatalogued reads and bank wrapping");
-        }
         foreach (int a in words)
-            AssertEqual(Word(a), SamusProjectileInstructionDefinitions.ReadWord(guard, a), "Compiled instruction word matches cartridge");
-        for (int a = 0x938000; a <= 0x93ffff; a++)
-            AssertEqual(Word(a), SamusProjectileInstructionDefinitions.ReadWord(rom, a), "Mixed-stream adjacent and unaligned reads preserved");
+            AssertEqual(Word(a), SamusProjectileInstructionDefinitions.ReadWord(a), "Compiled instruction word matches cartridge");
+        foreach (int address in new[] { 0x938000, 0x9386dc, 0x9386dd, 0x93ffff })
+        {
+            AssertThrows<InvalidDataException>(
+                () => SamusProjectileInstructionDefinitions.ReadWord(address),
+                "Unknown instruction mechanics address fails instead of reading mixed cartridge data");
+            trailSlot.InstructionPointer = unchecked((ushort)(address + 2));
+            AssertThrows<InvalidDataException>(
+                () => trailFrame(trailSlot),
+                "Unknown trail-frame owner address fails instead of reading mixed cartridge data");
+        }
 
         var system = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
@@ -161,7 +164,7 @@ internal static partial class Program
                 AssertEqual((timer, pointer, sprite, x, y), (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.XRadius, bomb.YRadius), "Exact bomb frame matches ROM interpreter");
             }
         }
-        Console.WriteLine($"Projectile instructions: 1816 native words, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
+        Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
     private sealed class ProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) : ISnesAddressSpace

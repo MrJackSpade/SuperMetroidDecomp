@@ -269,7 +269,7 @@ public sealed partial class SamusProjectileSystem
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
-        ushort animationFrame = GetTrailAnimationFrame(bus, projectile);
+        ushort animationFrame = GetTrailAnimationFrame(projectile);
         int direction = projectile.PackedDirection.DirectionIndex;
         int familyTable = (projectile.Type & 0x0020) != 0
             ? SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies
@@ -302,14 +302,12 @@ public sealed partial class SamusProjectileSystem
         trail.Right.YPosition = AddSignedOffset(projectile.YPosition, rightY, -4);
     }
 
-    private static ushort GetTrailAnimationFrame(
-        ISnesAddressSpace bus,
-        SamusProjectileSlot projectile)
+    private static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
         // The upstream C port's timer-one lookahead is absent from the pinned ROM.
         ushort frameAddress = unchecked((ushort)(projectile.InstructionPointer - 2));
-        return SamusProjectileInstructionDefinitions.ReadWord(bus, SamusProjectileRomData.Banks.Projectile | frameAddress);
+        return SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>

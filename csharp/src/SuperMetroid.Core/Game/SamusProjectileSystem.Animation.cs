@@ -21,7 +21,7 @@ public sealed partial class SamusProjectileSystem
         ushort pointer = slot.InstructionPointer;
         while (true)
         {
-            ushort instructionOrTimer = SamusProjectileInstructionDefinitions.ReadWord(bus, SamusProjectileRomData.Banks.Projectile | pointer);
+            ushort instructionOrTimer = SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | pointer);
             if ((instructionOrTimer & 0x8000) == 0)
             {
                 slot.InstructionTimer = instructionOrTimer;
@@ -37,7 +37,6 @@ public sealed partial class SamusProjectileSystem
                         SamusProjectileRomData.Banks.ProjectileNumber,
                         unchecked((ushort)AddWithinBank(pointer, 5))));
                 slot.AnimationFrame = SamusProjectileInstructionDefinitions.ReadWord(
-                    bus,
                     SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 6));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 8));
                 return false;
@@ -52,7 +51,6 @@ public sealed partial class SamusProjectileSystem
             if (instructionOrTimer == SamusProjectileRomData.Instructions.GoTo)
             {
                 pointer = SamusProjectileInstructionDefinitions.ReadWord(
-                    bus,
                     SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
                 continue;
             }

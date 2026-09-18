@@ -33,6 +33,12 @@ internal static partial class Program
 
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)
     {
+        ReadOnlySpan<ushort> compiledFrameWordAddresses =
+        [
+            0x86e1, 0x8743, 0x8759, 0x8761, 0x873b, 0x8771, 0x8779, 0x8781,
+            0x8789, 0x8791, 0x8799, 0x87a1, 0x87a9, 0x87b1, 0x87b9, 0x86db,
+            0x9541, 0x9549, 0x9551, 0x9559, 0x9561, 0x9569,
+        ];
         var system = new SamusProjectileSystem();
         var spawn = typeof(SamusProjectileSystem).GetMethod("SpawnTrail", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>(system);
@@ -50,25 +56,21 @@ internal static partial class Program
             ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
             var expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
             system.Reset();
-            var shot = new SamusProjectileSlot(0) { Type = type, Direction = direction, InstructionPointer = 0xf002, XPosition = origin, YPosition = origin };
-            spawn(new TrailFrameFixtureBus(new TrailCoordinateGuard(bus), frame), shot);
+            var shot = new SamusProjectileSlot(0)
+            {
+                Type = type,
+                Direction = direction,
+                InstructionPointer = unchecked((ushort)(compiledFrameWordAddresses[frame] + 2)),
+                XPosition = origin,
+                YPosition = origin,
+            };
+            spawn(new TrailCoordinateGuard(bus), shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(expected, (actual.Left.XPosition, actual.Left.YPosition, actual.Right.XPosition, actual.Right.YPosition), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
             AssertEqual(1, actual.Left.InstructionTimer, "Compiled coordinates retain spawn timing");
             cases++;
         }
         Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions without coordinate ROM reads.");
-    }
-
-    private sealed class TrailFrameFixtureBus(ISnesAddressSpace source, ushort frame) : ISnesAddressSpace
-    {
-        public byte ReadByte(int address) => address switch
-        {
-            0x93f000 => (byte)frame,
-            0x93f001 => (byte)(frame >> 8),
-            _ => source.ReadByte(address),
-        };
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace

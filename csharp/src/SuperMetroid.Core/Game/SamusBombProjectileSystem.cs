@@ -1060,7 +1060,6 @@ public sealed class SamusBombProjectileSystem
         for (int operationCount = 0; operationCount < 16; operationCount++)
         {
             ushort durationOrOpcode = SamusProjectileInstructionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Banks.Projectile | pointer);
             if ((durationOrOpcode & 0x8000) == 0)
             {
@@ -1094,7 +1093,6 @@ public sealed class SamusBombProjectileSystem
                     // The handler increments Y past the opcode before the instruction
                     // routine reads [[Y]]. Its target is another bank-$93 16-bit pointer.
                     pointer = SamusProjectileInstructionDefinitions.ReadWord(
-                        bus,
                         SamusProjectileRomData.Banks.Projectile |
                             unchecked((ushort)(pointer + 2)));
                     break;

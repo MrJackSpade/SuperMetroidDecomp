@@ -281,7 +281,10 @@ not relabeling as mutable state. Low-bank aliases genuinely remain mutable.
   as mechanics. All 805 timed-frame collision-radius pairs now follow the same rule:
   every production projectile and bomb frame uses the compiled physical bytes, while
   an address outside those records fails rather than reading mixed program/art data.
-  The selected mixed animation programs remain ROM-backed. Coordinate
+  The 1,816 duration, trail-frame, delete/goto, and branch-target words now also
+  reject non-catalog addresses instead of falling back into arbitrary bank-$93 data.
+  Both real instruction owners and trail spawning consume those compiled mechanics;
+  spritemap pointers remain a separate presentation dependency. Coordinate
   ownership with the companion gameplay-definition tickets; shared scope does
   not mean the runtime dependency is already removed.
 

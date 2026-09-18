@@ -1,6 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Projectile frame durations, trail indices and control flow, independent of spritemap references.</summary>
@@ -477,7 +475,8 @@ internal static class SamusProjectileInstructionDefinitions
         return result.ToFrozenDictionary();
     }
 
-    internal static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    internal static ushort ReadWord(int address) =>
         Words.TryGetValue(address, out ushort value) ? value :
-        (ushort)(bus.ReadByte(address) | bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+        throw new InvalidDataException(
+            $"Projectile instruction mechanics word ${address:X6} is outside the compiled definitions.");
 }

@@ -16,7 +16,13 @@ internal static partial class Program
         for (int selection = 0; selection < 64; selection++)
         {
             var projectiles = new SamusProjectileSystem();
-            var projectile = new SamusProjectileSlot(0) { Type = (ushort)selection, XPosition = 100, YPosition = 200 };
+            var projectile = new SamusProjectileSlot(0)
+            {
+                Type = (ushort)selection,
+                InstructionPointer = 0x86e3,
+                XPosition = 100,
+                YPosition = 200,
+            };
             spawn.Invoke(projectiles, [new TrailSelectorGuard(bus, start, end), projectile]);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(bus, start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");

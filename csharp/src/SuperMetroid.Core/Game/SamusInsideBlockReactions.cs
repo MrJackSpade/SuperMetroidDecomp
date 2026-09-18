@@ -39,8 +39,17 @@ public static class SamusInsideBlockReactions
                 ApplyConveyor(block.Behavior);
                 return;
             }
-            ushort table = Word(QuicksandRomData.InsideAreaTables + AreaIds.ToIndex(area) * 2);
-            ushort header = Word(QuicksandRomData.CollisionBank | unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
+            ushort header;
+            if (!QuicksandDefinitions.TryGetInsideHeader(
+                    area,
+                    block.Bts.AreaReactionIndex,
+                    out header))
+            {
+                ushort table = Word(
+                    QuicksandRomData.InsideAreaTables + AreaIds.ToIndex(area) * 2);
+                header = Word(QuicksandRomData.CollisionBank |
+                    unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
+            }
             if (header == 0) return;
             ushort setup = Word(QuicksandRomData.PlmBank | header);
             if (QuicksandRomData.TryGetSetup(header, out ushort authoredSetup) &&
@@ -67,26 +76,29 @@ public static class SamusInsideBlockReactions
                     speed.ExtraRunSpeed = speed.ExtraRunSubspeed = speed.BaseSpeed = 0;
                     speed.BaseSubspeed &= 0x7fff;
                     if (!bottomPoint) return;
-                    int suitIndex = (samus.EquippedItems & (ushort)SamusEquipmentFlags.GravitySuit) != 0 ? 2 : 0;
+                    QuicksandSurfacePhysics physics =
+                        QuicksandDefinitions.SurfacePhysics(
+                            (samus.EquippedItems &
+                                (ushort)SamusEquipmentFlags.GravitySuit) != 0);
                     switch (body.YDirection & 3)
                     {
                         case 0:
                         case 3:
                             body.YSpeed = body.YSubspeed = 0;
-                            SetExtra(Word(QuicksandRomData.StationarySurfaceDisplacement + suitIndex) << 8);
+                            SetExtra(physics.StationaryDisplacement << 8);
                             break;
                         case 1:
-                            ushort limit = Word(QuicksandRomData.SurfaceJumpLimit + suitIndex);
+                            ushort limit = physics.UpwardSpeedLimit;
                             // The original compares the middle word of the 16.16 speed.
                             if ((ushort)(body.VerticalSpeedFixed >> 8) > limit)
                             {
                                 body.YSpeed = (ushort)(limit >> 8);
                                 body.YSubspeed = unchecked((ushort)(limit << 8));
                             }
-                            SetExtra(Word(QuicksandRomData.MovingSurfaceDisplacement + suitIndex) << 8);
+                            SetExtra(physics.MovingDisplacement << 8);
                             break;
                         case 2:
-                            SetExtra(Word(QuicksandRomData.MovingSurfaceDisplacement + suitIndex) << 8);
+                            SetExtra(physics.MovingDisplacement << 8);
                             break;
                     }
                     break;
@@ -135,10 +147,20 @@ public static class SamusInsideBlockReactions
     {
         surfaceContact = false;
         if (!block.Bts.UsesAreaReactionTable) return false;
-        ushort table = RomDataReader.ReadWordFixedBank(bus,
-            QuicksandRomData.CollisionAreaTables + AreaIds.ToIndex(body.SandCollisionArea) * 2);
-        ushort header = RomDataReader.ReadWordFixedBank(bus, QuicksandRomData.CollisionBank |
-            unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
+        ushort header;
+        if (!QuicksandDefinitions.TryGetCollisionHeader(
+                body.SandCollisionArea,
+                block.Bts.AreaReactionIndex,
+                out header))
+        {
+            ushort table = RomDataReader.ReadWordFixedBank(bus,
+                QuicksandRomData.CollisionAreaTables +
+                    AreaIds.ToIndex(body.SandCollisionArea) * 2);
+            header = RomDataReader.ReadWordFixedBank(
+                bus,
+                QuicksandRomData.CollisionBank |
+                    unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
+        }
         if (header == 0) return false;
         ushort setup = RomDataReader.ReadWordFixedBank(bus, QuicksandRomData.PlmBank | header);
         if (QuicksandRomData.TryGetSetup(header, out ushort authoredSetup) &&

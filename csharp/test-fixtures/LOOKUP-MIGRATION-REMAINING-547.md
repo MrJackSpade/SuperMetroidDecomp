@@ -572,6 +572,13 @@ The real sleeping-parent path passes every in-range distance plus both outside
 boundaries through a helper that no longer accepts a ROM bus; sprite presentation
 remains independent.
 
+Maridia's sixteen inside-reaction and sixteen collision-reaction special-air
+headers are now compiled together with the six Gravity-Suit-dependent quicksand
+surface physics words. Real surface movement runs with the two dispatch rows,
+their pointer words, and all physical words forbidden. Other areas and restored
+BTS indexes beyond the authored sixteen-entry domain retain explicit ROM fallback
+instead of being silently clamped or reinterpreted.
+
 - Bank/indirect reads and definitions whose names do not contain speed, curve,
   angle or math. Trace intermediate addresses rather than treating search hits
   as complete coverage.

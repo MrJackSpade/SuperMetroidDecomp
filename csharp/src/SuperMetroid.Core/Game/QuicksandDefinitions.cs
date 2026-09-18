@@ -1,0 +1,117 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>One suit-dependent row of the fixed quicksand-surface physics table.</summary>
+public readonly record struct QuicksandSurfacePhysics(
+    ushort MovingDisplacement,
+    ushort StationaryDisplacement,
+    ushort UpwardSpeedLimit);
+
+/// <summary>Compiled Maridia quicksand dispatch and physical definition data.</summary>
+public static class QuicksandDefinitions
+{
+    /// <summary>
+    /// `$94:9A86-$94:9AA5`, the sixteen Maridia entries selected by the
+    /// area-dependent special-air inside-block dispatcher.
+    /// </summary>
+    public static ReadOnlySpan<ushort> InsideHeaders => insideHeaders;
+
+    /// <summary>
+    /// `$94:9259-$94:9278`, the sixteen Maridia entries selected by the
+    /// area-dependent special-air collision dispatcher.
+    /// </summary>
+    public static ReadOnlySpan<ushort> CollisionHeaders => collisionHeaders;
+
+    /// <summary>
+    /// `$84:B48B-$84:B495`, suit-indexed moving displacement, stationary
+    /// displacement, and upward-speed-limit words used by the surface reaction.
+    /// </summary>
+    public static QuicksandSurfacePhysics SurfacePhysics(bool gravitySuit) =>
+        gravitySuit ? withGravitySuit : withoutGravitySuit;
+
+    /// <summary>
+    /// Resolves the authored sixteen-entry Maridia inside-reaction domain. Other
+    /// areas and restored BTS indexes beyond the table remain explicit ROM paths.
+    /// </summary>
+    public static bool TryGetInsideHeader(
+        AreaId area,
+        byte areaReactionIndex,
+        out ushort header)
+    {
+        if (area == AreaId.Maridia && areaReactionIndex < insideHeaders.Length)
+        {
+            header = insideHeaders[areaReactionIndex];
+            return true;
+        }
+
+        header = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// Resolves the authored sixteen-entry Maridia collision-reaction domain. Other
+    /// areas and restored BTS indexes beyond the table remain explicit ROM paths.
+    /// </summary>
+    public static bool TryGetCollisionHeader(
+        AreaId area,
+        byte areaReactionIndex,
+        out ushort header)
+    {
+        if (area == AreaId.Maridia && areaReactionIndex < collisionHeaders.Length)
+        {
+            header = collisionHeaders[areaReactionIndex];
+            return true;
+        }
+
+        header = 0;
+        return false;
+    }
+
+    /// <summary>`$84:B62F`, the ordinary no-op PLM header filling unused table rows.</summary>
+    private const ushort NoOpHeader = 0xb62f;
+
+    private static readonly ushort[] insideHeaders =
+    [
+        QuicksandRomData.SurfaceInsideHeader,
+        QuicksandRomData.SurfaceInsideHeader,
+        QuicksandRomData.SurfaceInsideHeader,
+        QuicksandRomData.SubmergingInsideHeader,
+        QuicksandRomData.SlowFallsInsideHeader,
+        QuicksandRomData.FastFallsInsideHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+    ];
+
+    private static readonly ushort[] collisionHeaders =
+    [
+        QuicksandRomData.SurfaceCollisionHeader,
+        QuicksandRomData.SurfaceCollisionHeader,
+        QuicksandRomData.SurfaceCollisionHeader,
+        QuicksandRomData.SubmergingCollisionHeader,
+        QuicksandRomData.SlowFallsCollisionHeader,
+        QuicksandRomData.FastFallsCollisionHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+        NoOpHeader,
+    ];
+
+    private static readonly QuicksandSurfacePhysics withoutGravitySuit =
+        new(0x0200, 0x0120, 0x0280);
+
+    private static readonly QuicksandSurfacePhysics withGravitySuit =
+        new(0x0200, 0x0100, 0x0380);
+}

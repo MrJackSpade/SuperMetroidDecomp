@@ -60,6 +60,7 @@ internal static partial class Program
         VerifySporeSpawnProjectileDefinitions(rom);
         VerifySamusAtmosphericEffectDefinitions(rom);
         VerifySamusAtmosphericAnimationDefinitions(rom);
+        VerifyQuicksandDefinitions(rom);
         VerifyZebesEscapeExplosionDefinitions(rom);
         VerifyMetroidBehaviorDefinitions(rom);
         VerifyMotherBrainDoorFragmentDefinitions(rom);

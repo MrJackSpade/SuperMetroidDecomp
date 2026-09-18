@@ -189,6 +189,11 @@ retail inventory proves fifteen literal no-op touch identities and twelve litera
 no-op shot identities; both production gates classify the bank-qualified callback
 without probing its executable opcode byte.
 
+Draygon's eight reachable health-band thresholds are compiled independently of
+the selected color records. The real palette updater no longer reads the fixed
+decision table; malformed restored health above the authored 6,000 maximum fails
+before the native `$FFFF` terminator could lead it into adjacent executable data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

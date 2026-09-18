@@ -18,7 +18,6 @@ public sealed partial class RoomEnemySystem
     private const int DraygonSpritePalette = 0xa5a1f7;
     private const int DraygonWhiteFlashPalette = 0xa5a297;
     private const int DraygonHealthPaletteTable = 0xa596af;
-    private const int DraygonHealthThresholdTable = 0xa596ef;
     private const int DraygonBgPaletteDestination = 80;
     private const int DraygonSpritePaletteDestination = 240;
     private const int DraygonHealthColorDestination = 89;
@@ -138,16 +137,8 @@ public sealed partial class RoomEnemySystem
 
     private void UpdateDraygonHealthPalette(DraygonEnemyState state)
     {
-        ushort tableByteIndex = 0;
-        while (true)
-        {
-            ushort threshold = ReadWord(
-                _bus!,
-                DraygonHealthThresholdTable + tableByteIndex);
-            if (unchecked((short)(state.Body.Health - threshold)) >= 0)
-                break;
-            tableByteIndex = unchecked((ushort)(tableByteIndex + 2));
-        }
+        ushort tableByteIndex =
+            DraygonHealthPaletteDefinitions.ByteIndexForHealth(state.Body.Health);
 
         if (tableByteIndex == state.HealthPaletteTableByteIndex)
             return;

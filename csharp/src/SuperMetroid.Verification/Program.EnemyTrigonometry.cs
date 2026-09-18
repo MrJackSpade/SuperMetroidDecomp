@@ -92,6 +92,7 @@ internal static partial class Program
         VerifyCeresSteamDefinitions(rom);
         VerifyPipeBugAnimationDefinitions(rom);
         VerifyDraygonBurialEvirDefinitions(rom);
+        VerifyDraygonHealthPaletteDefinitions(rom);
         VerifyFakeKraidProjectileDefinitions(rom);
         VerifyEscapeEtecoonDefinitions(rom);
         VerifyZebetiteDefinitions(rom);

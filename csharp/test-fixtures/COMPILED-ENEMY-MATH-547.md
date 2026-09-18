@@ -2550,3 +2550,15 @@ distinct touch callbacks, and 80 distinct shot callbacks from the pinned sources
 All 16,777,216 bank/pointer pairs preserve exactly fifteen touch and twelve shot RTL
 identities. All twenty-seven identities additionally pass through their real contact or
 projectile admission path with every callback entry address forbidden to the bus.
+
+# Draygon health-band selection
+
+`DraygonHealthPaletteDefinitions` compiles the eight reachable health thresholds at
+`$A5:96EF-$A5:96FE`. The health-to-band decision is application-owned fixed logic;
+the four-color records selected by that decision remain ROM-backed presentation data.
+
+Verification compares every authored health value zero through 6,000 with an
+independent cartridge-backed scan, exercises every band boundary through the real
+palette updater, and forbids both the threshold table and its `$FFFF` terminator.
+Restored health above Draygon's enemy-header maximum now fails explicitly instead of
+walking through the terminator into adjacent bank-$A5 executable data.

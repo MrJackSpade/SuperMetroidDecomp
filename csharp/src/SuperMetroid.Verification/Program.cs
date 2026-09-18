@@ -32,6 +32,11 @@ if (args is ["--enemy-angle-division"])
     VerifyEnemyAngleDivision();
     return 0;
 }
+if (args is ["--ceres-elevator-arrival-definitions"])
+{
+    VerifyCeresElevatorArrivalGraphicsIndex();
+    return 0;
+}
 if (args is ["--draygon-eye-effects"])
 {
     VerifyDraygonEyeEffects();

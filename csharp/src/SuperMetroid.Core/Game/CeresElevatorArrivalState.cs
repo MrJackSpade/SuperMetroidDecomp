@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -8,34 +7,19 @@ namespace SuperMetroid.Core.Game;
 /// Ceres: the moving pad under Samus and the stationary elevator platform behind it.
 /// </summary>
 /// <remarks>
-/// These are not host-authored cutscene sprites. Construction reads and validates the
-/// retail definitions at <c>$86:A387/$A395</c>; frame stepping executes their real bank-$86
-/// instruction lists and ports pre-instructions <c>$A328/$A364</c>. Keeping this tiny pair
-/// separate avoids pretending that the much larger general enemy-projectile engine has
+/// These are not host-authored cutscene sprites. Construction consumes compiled copies of
+/// the retail definitions at <c>$86:A387/$A395</c>; frame stepping executes their translated
+/// bank-$86 instruction programs and pre-instructions <c>$A328/$A364</c>. Keeping this tiny
+/// pair separate avoids pretending that the larger general enemy-projectile engine has
 /// already been translated.
 /// </remarks>
 public sealed class CeresElevatorArrivalState
 {
-    private const ushort PadDefinitionPointer = 0xa387;
-    private const ushort PlatformDefinitionPointer = 0xa395;
-    private const ushort DeleteInstructionPointer = 0xa28b;
-    private const ushort DeleteOpcode = 0x8154;
-    private const ushort GotoOpcode = 0x81ab;
-
-    // SpawnEprojWithGfx initially copies enemy slot zero's packed tile/palette word into
-    // both projectile slots. That value is intentionally short-lived: the shared native
-    // initializer at $86:A301 executes afterward and stores zero to the graphics index.
-    // These elevator objects therefore draw directly from the room-loaded OBJ tiles while
-    // retaining palette 5 authored into their bank-$8D spritemaps. Retaining the transient
-    // enemy word adds an unrelated tile base and palette, making the level-data concealer
-    // appear teal until it deletes at touchdown.
-    private const ushort NativeGraphicsIndex = 0;
-
     private readonly ISnesAddressSpace bus;
     private readonly CeresElevatorProjectile pad;
     private readonly CeresElevatorProjectile platform;
 
-    /// <summary>Reads both native definitions and performs their two initialization AIs.</summary>
+    /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
     public CeresElevatorArrivalState(
         ISnesAddressSpace bus,
         SamusState samus)
@@ -43,24 +27,20 @@ public sealed class CeresElevatorArrivalState
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         ArgumentNullException.ThrowIfNull(samus);
 
+        // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
+        // initializer then clears it, so both actors use room-loaded OBJ tiles and the
+        // palettes authored by their bank-$8D spritemaps. Retaining the transient word is
+        // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
-            PadDefinitionPointer,
-            expectedInitialization: 0xa2ee,
-            expectedPreInstruction: 0xa328,
-            expectedInstructionList: 0xa28d,
+            CeresElevatorArrivalDefinitions.MovingPad,
             samus.XPosition,
-            unchecked((ushort)(samus.YPosition + 28)),
-            NativeGraphicsIndex);
-        pad.WaitTimer = 60;
+            unchecked((ushort)(samus.YPosition + CeresElevatorArrivalDefinitions.MovingPadYOffset)));
+        pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
 
         platform = LoadProjectile(
-            PlatformDefinitionPointer,
-            expectedInitialization: 0xa31b,
-            expectedPreInstruction: 0xa364,
-            expectedInstructionList: 0xa299,
+            CeresElevatorArrivalDefinitions.StationaryPlatform,
             samus.XPosition,
-            yPosition: 97,
-            NativeGraphicsIndex);
+            CeresElevatorArrivalDefinitions.StationaryPlatformY);
     }
 
     /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>
@@ -96,13 +76,15 @@ public sealed class CeresElevatorArrivalState
 
                 // `$86:A342` samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
-                pad.YPosition = unchecked((ushort)(samus.YPosition + 28));
+                pad.YPosition = unchecked((ushort)(
+                    samus.YPosition + CeresElevatorArrivalDefinitions.MovingPadYOffset));
                 samus.YPosition = unchecked((ushort)(samus.YPosition + 1));
-                if ((short)unchecked((ushort)(samus.YPosition - 73)) >= 0)
+                if ((short)unchecked((ushort)(
+                    samus.YPosition - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
                 {
-                    samus.YPosition = 72;
+                    samus.YPosition = CeresElevatorArrivalDefinitions.LandingSamusY;
                     pad.InstructionTimer = 1;
-                    pad.InstructionPointer = DeleteInstructionPointer;
+                    pad.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
                 }
             }
             ProcessInstructionList(pad);
@@ -110,10 +92,10 @@ public sealed class CeresElevatorArrivalState
 
         if (platform.Active)
         {
-            if (samus.YPosition == 72)
+            if (samus.YPosition == CeresElevatorArrivalDefinitions.LandingSamusY)
             {
                 platform.InstructionTimer = 1;
-                platform.InstructionPointer = DeleteInstructionPointer;
+                platform.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
             }
             ProcessInstructionList(platform);
         }
@@ -131,41 +113,20 @@ public sealed class CeresElevatorArrivalState
         DrawProjectile(platform, oam, cameraX, cameraY);
     }
 
-    private CeresElevatorProjectile LoadProjectile(
-        ushort definitionPointer,
-        ushort expectedInitialization,
-        ushort expectedPreInstruction,
-        ushort expectedInstructionList,
+    private static CeresElevatorProjectile LoadProjectile(
+        CeresElevatorProjectileDefinition definition,
         ushort xPosition,
-        ushort yPosition,
-        ushort graphicsIndex)
+        ushort yPosition)
     {
-        int address = 0x860000 | definitionPointer;
-        ushort initialization = ReadWord(address);
-        ushort preInstruction = ReadWord(address + 2);
-        ushort instructionList = ReadWord(address + 4);
-        ushort radius = ReadWord(address + 6);
-        ushort properties = ReadWord(address + 8);
-        if (initialization != expectedInitialization ||
-            preInstruction != expectedPreInstruction ||
-            instructionList != expectedInstructionList ||
-            radius != 0x0101 ||
-            properties != 0x3000)
-        {
-            throw new InvalidDataException(
-                $"Ceres elevator eproj $86:{definitionPointer:X4} does not match the " +
-                "translated retail definition.");
-        }
-
         return new CeresElevatorProjectile(
-            definitionPointer,
-            instructionList,
+            definition.DefinitionPointer,
+            definition.InitialInstruction,
             xPosition,
             yPosition,
-            graphicsIndex);
+            CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
     }
 
-    private void ProcessInstructionList(CeresElevatorProjectile projectile)
+    private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
         ushort oldTimer = projectile.InstructionTimer;
         projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
@@ -173,34 +134,29 @@ public sealed class CeresElevatorArrivalState
             return;
 
         ushort cursor = projectile.InstructionPointer;
-        for (int commandCount = 0; commandCount < 16; commandCount++)
+        for (int commandCount = 0;
+            commandCount < CeresElevatorArrivalDefinitions.MaximumCommandsPerStep;
+            commandCount++)
         {
-            ushort word = ReadWord(0x860000 | cursor);
-            if ((word & 0x8000) == 0)
+            CeresElevatorProjectileInstruction instruction =
+                CeresElevatorArrivalDefinitions.ReadInstruction(cursor);
+            switch (instruction.Operation)
             {
-                projectile.InstructionTimer = word;
-                projectile.SpritemapPointer = ReadWord(0x860000 | unchecked((ushort)(cursor + 2)));
-                projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return;
-            }
-
-            switch (word)
-            {
-                case DeleteOpcode:
+                case CeresElevatorProjectileOperation.Frame:
+                    projectile.InstructionTimer = instruction.Duration;
+                    projectile.SpritemapPointer = instruction.SpritemapPointer;
+                    projectile.InstructionPointer = instruction.NextInstruction;
+                    return;
+                case CeresElevatorProjectileOperation.Delete:
                     projectile.Active = false;
                     return;
-                case GotoOpcode:
-                    cursor = ReadWord(0x860000 | unchecked((ushort)(cursor + 2)));
+                case CeresElevatorProjectileOperation.Goto:
+                    cursor = instruction.NextInstruction;
                     break;
                 default:
-                    // `$86:A299` contains one timed frame followed by the shared goto
-                    // opcode back to itself. Delete is retained because it is part of the
-                    // common enemy-projectile interpreter, although this list never uses
-                    // it. Any third negative word here is corrupt cartridge/list state,
-                    // not another Ceres-elevator instruction arm.
                     throw new InvalidDataException(
                         $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} " +
-                        $"instruction $86:{cursor:X4} has invalid opcode ${word:X4}.");
+                        $"instruction $86:{cursor:X4} has invalid operation {instruction.Operation}.");
             }
         }
 
@@ -214,7 +170,8 @@ public sealed class CeresElevatorArrivalState
         ushort cameraX,
         ushort cameraY)
     {
-        if (!projectile.Active || projectile.SpritemapPointer == 0x8000)
+        if (!projectile.Active ||
+            projectile.SpritemapPointer == CeresElevatorArrivalDefinitions.NoSpritemap)
             return;
 
         ushort screenX = unchecked((ushort)(projectile.XPosition - cameraX));
@@ -233,8 +190,6 @@ public sealed class CeresElevatorArrivalState
             projectile.GraphicsIndex,
             originYIsOnScreen: (screenY & 0xff00) == 0);
     }
-
-    private ushort ReadWord(int address) => RomDataReader.ReadWordFixedBank(bus, address);
 
     private sealed class CeresElevatorProjectile
     {
@@ -260,6 +215,6 @@ public sealed class CeresElevatorArrivalState
         public ushort WaitTimer { get; set; }
         public ushort InstructionPointer { get; set; }
         public ushort InstructionTimer { get; set; } = 1;
-        public ushort SpritemapPointer { get; set; } = 0x8000;
+        public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
     }
 }

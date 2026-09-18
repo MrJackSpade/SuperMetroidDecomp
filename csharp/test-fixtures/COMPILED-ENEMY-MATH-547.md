@@ -1,5 +1,20 @@
 # Compiled shared enemy math (#547)
 
+## Ceres elevator arrival projectile definitions
+
+The two fixed enemy-projectile headers at `$86:A387/$A395` and their complete
+reachable instruction programs at `$86:A28B..A2A0` are compiled in
+`CeresElevatorArrivalDefinitions`. Callback, radius, property, duration,
+control-flow and spritemap identities are application definitions; the referenced
+bank-$8D spritemap payloads remain presentation data.
+
+Production no longer validates those headers or interprets those six instruction
+records from ROM during a new-game arrival. Verification compares every compiled
+word with the pinned cartridge, blocks the complete source ranges, draws both
+first-frame spritemaps, runs the alternating pad frames, lands Samus at the native
+Y coordinate and observes both delete instructions. This is a bounded #547 slice;
+the broader immutable-ROM caller inventory remains open.
+
 ## Implemented slice
 
 EnemyTrigonometryTables contains immutable, typed samples for the shared positive

@@ -46,8 +46,12 @@ public sealed class SamusArmCannonState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.SelectedHudItem > 5)
-            throw new InvalidDataException($"HUD item {samus.SelectedHudItem} is outside native range 0..5.");
+        if (samus.SelectedHudItem >= SamusArmCannonDefinitions.HudItemCount)
+        {
+            throw new InvalidDataException(
+                $"HUD item {samus.SelectedHudItem} is outside native range " +
+                $"0..{SamusArmCannonDefinitions.HudItemCount - 1}.");
+        }
 
         bool itemChanged = samus.SelectedHudItem != _previousSelectedHudItem;
         if (itemChanged)
@@ -63,7 +67,7 @@ public sealed class SamusArmCannonState
 
         ushort frameBefore = Frame;
         bool transitionStarted = false;
-        if (CloseFlag != 0 || (transitionStarted = TryStartTransition(bus, samus.SelectedHudItem)))
+        if (CloseFlag != 0 || (transitionStarted = TryStartTransition(samus.SelectedHudItem)))
             AdvanceFrame();
 
         ushort drawingData = ReadWord(
@@ -171,13 +175,12 @@ public sealed class SamusArmCannonState
             screenY);
     }
 
-    private bool TryStartTransition(ISnesAddressSpace bus, ushort selectedHudItem)
+    private bool TryStartTransition(ushort selectedHudItem)
     {
         if (ToggleFlag < 2)
             return false;
 
-        byte desiredOpenFlag = bus.ReadByte(
-            SamusRenderingRomData.ArmCannon.OpenFlags + selectedHudItem);
+        byte desiredOpenFlag = SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem);
         if (OpenFlag == desiredOpenFlag)
             return false;
 

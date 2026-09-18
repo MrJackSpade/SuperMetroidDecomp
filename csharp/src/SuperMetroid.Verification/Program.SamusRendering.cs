@@ -454,11 +454,6 @@ static void VerifySamusArmCannon()
     var bus = new TestAddressSpace();
     SeedPoseOneSamusData(bus);
 
-    // The retail item table says missiles open the cover while no HUD item closes it.
-    // Entries two through five are included to catch a shifted or shortened lookup even
-    // though this focused timeline switches only between entries zero and one.
-    bus.WriteBytes(0x90c7d9, [0, 1, 1, 0, 1, 0]);
-
     // Pose $01 points to a compact normal record: selector two, draw mode two (after the
     // body), then signed X/Y pairs. Animation frame zero therefore uses (+7,-3).
     WriteTestWord(bus, 0x90c7e1, 0xd000);

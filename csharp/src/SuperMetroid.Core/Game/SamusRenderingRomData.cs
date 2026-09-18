@@ -99,9 +99,6 @@ public static class SamusRenderingRomData
     /// <summary>Arm-cannon cover state, OAM, character-list, and DMA definitions.</summary>
     public static class ArmCannon
     {
-        /// <summary><c>$90:C7D9</c>, desired open flag for each HUD selection.</summary>
-        public const int OpenFlags = 0x90c7d9;
-
         /// <summary><c>$90:C7DF</c>, pose-indexed drawing-data pointers.</summary>
         public const int PoseDrawingDataPointers = 0x90c7df;
 

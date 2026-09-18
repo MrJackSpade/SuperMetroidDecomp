@@ -75,8 +75,6 @@ internal static partial class Program
                 $"pose ${pose:X2} frame-zero graphics selector");
         }
 
-        TouchRange(bus, SamusRenderingRomData.ArmCannon.OpenFlags,
-            6, "arm-cannon HUD open flags");
         TouchRange(bus, SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers,
             poseCount * sizeof(ushort), "arm-cannon pose drawing pointers");
         TouchRange(bus, SamusRenderingRomData.ArmCannon.SpriteAttributes,

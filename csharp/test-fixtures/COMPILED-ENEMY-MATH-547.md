@@ -2311,3 +2311,17 @@ runtime fallback to executable-header reads fails the exact selected-list assert
 The nonresident blue-door collision headers are rejected by the catalog rather than
 silently entering the resident domain. Focused door verification, the exhaustive
 compiled-definition suite, and the full Release solution build pass.
+
+# Arm-cannon HUD-selection policy
+
+`SamusArmCannonDefinitions` compiles the six desired cover-state bytes at
+`$90:C7D9-$C7DE`. The values preserve the cartridge policy exactly: missiles,
+Super Missiles, and Grapple open the cover; no item, Power Bombs, and X-Ray close
+it. The table is mechanics data and therefore no longer lives in the visual
+`SamusRenderingRomData` catalog.
+
+Verification compares every compiled byte with the pinned cartridge and runs the
+real debounced arm-cannon update for all six HUD selections while the source range
+is guarded against runtime access. It also rejects a seventh selector explicitly.
+The pose drawing records, OAM attributes, tile-list pointers, and tile graphics
+remain cartridge-backed presentation data.

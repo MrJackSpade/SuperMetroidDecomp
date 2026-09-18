@@ -54,6 +54,10 @@ words, and eight derived wrap offsets are compiled as typed definitions. All
 eight real initializers run with the selector, configuration, and derived-offset
 sources forbidden. Their mutable rotting state and variable streams remain live
 for the same reason as the sidehopper streams.
+Dead Torizo's single eight-word corpse-rotting configuration and derived wrap
+offset are compiled too. Its real initializer runs with both metadata sources
+forbidden. Mutable rotting state, variable rotation rows, VRAM transfer programs,
+graphics payloads, and hitbox presentation remain separate live dependencies.
 Crocomire's eleven bridge-fragment X positions are compiled as physical launch
 definitions. Every authored word, all eleven real descending-pool allocations,
 their RNG-derived vertical velocities, and the cursor-22 cutoff run with

@@ -126,6 +126,7 @@ internal static partial class Program
         VerifyDeadSidehopperLaunchDefinitions(rom);
         VerifyDeadSidehopperCorpseDefinitions(rom);
         VerifyDeadTourianCorpseDefinitions(rom);
+        VerifyDeadTorizoCorpseDefinitions(rom);
         VerifyKiHunterMotionDefinitions(rom);
         VerifyKraidRockLaunchDefinitions(rom);
         VerifyKraidMovementChoices(rom);

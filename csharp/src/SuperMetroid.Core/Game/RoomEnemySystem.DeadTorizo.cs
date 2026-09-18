@@ -15,11 +15,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadTorizoNoOperationFunction = 0xd3c7;
     private const ushort DeadTorizoHitbox = 0xd77c;
     private const ushort DeadTorizoHookSpritemap = 0xd761;
-    private const ushort DeadTorizoCorpseConfiguration = 0xdd58;
-    private const ushort DeadTorizoCopyFunction = 0xe38b;
-    private const ushort DeadTorizoMoveFunction = 0xe272;
-    private const ushort DeadTorizoGraphicsInitFunction = 0xde18;
-    private const ushort DeadTorizoFinishedFunction = 0xd5bd;
     private const ushort DeadTorizoOddVramTable = 0xd583;
     private const ushort DeadTorizoEvenVramTable = 0xd549;
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
@@ -93,51 +88,29 @@ public sealed partial class RoomEnemySystem
         slot.VariableB = 0;
         slot.VariableC = 8;
 
-        int config = 0xa90000 | DeadTorizoCorpseConfiguration;
-        ushort tablePointer = ReadWord(_bus!, config);
-        ushort vramTablePointer = ReadWord(_bus!, config + 2);
-        ushort copyFunction = ReadWord(_bus!, config + 4);
-        ushort moveFunction = ReadWord(_bus!, config + 6);
-        ushort entryCount = ReadWord(_bus!, config + 8);
-        ushort initFunction = ReadWord(_bus!, config + 10);
-        ushort rotationTablePointer = ReadWord(_bus!, config + 12);
-        ushort finishFunction = ReadWord(_bus!, config + 14);
-
-        if (copyFunction != DeadTorizoCopyFunction ||
-            moveFunction != DeadTorizoMoveFunction ||
-            initFunction != DeadTorizoGraphicsInitFunction ||
-            finishFunction != DeadTorizoFinishedFunction)
-        {
-            throw new InvalidDataException(
-                $"Dead Torizo corpse configuration $A9:{DeadTorizoCorpseConfiguration:X4} " +
-                $"selected callbacks ${copyFunction:X4}/${moveFunction:X4}/" +
-                $"${initFunction:X4}/${finishFunction:X4}.");
-        }
-
-        ushort yLimit = unchecked((ushort)(entryCount - 1));
+        DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
+        ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        ushort wrapOffset = unchecked((ushort)(
-            ReadWord(_bus!, 0xa90000 | unchecked((ushort)(rotationTablePointer + 2))) - 12));
         _deadTorizo = new DeadTorizoEnemyState(
             slot,
-            tablePointer,
-            vramTablePointer,
-            copyFunction,
-            moveFunction,
-            rotationTablePointer,
-            finishFunction,
-            entryCount,
+            definition.RottingTablePointer,
+            definition.VramTransferPointer,
+            definition.CopyFunction,
+            definition.MoveFunction,
+            definition.RotationTablePointer,
+            definition.FinishFunction,
+            definition.EntryCount,
             yLimit,
             lateMoveEntryIndex,
-            wrapOffset)
+            definition.WrapOffset)
         {
             SandLineCounter = 15,
         };
 
         CorpseRottingTableProcessor.Initialize(
             _bus!,
-            0x7e0000 | tablePointer,
-            entryCount);
+            0x7e0000 | definition.RottingTablePointer,
+            definition.EntryCount);
         InitializeDeadTorizoGraphics();
     }
 

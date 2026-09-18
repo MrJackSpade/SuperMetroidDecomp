@@ -194,6 +194,11 @@ the selected color records. The real palette updater no longer reads the fixed
 decision table; malformed restored health above the authored 6,000 maximum fails
 before the native `$FFFF` terminator could lead it into adjacent executable data.
 
+Botwoon's eight health-band thresholds are compiled separately from its palette
+colors too. All signed 16-bit comparisons preserve the native one-band-per-frame
+progression, while odd or out-of-range restored phase offsets fail before they can
+select adjacent bank-$B3 code as threshold data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

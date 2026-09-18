@@ -2562,3 +2562,14 @@ independent cartridge-backed scan, exercises every band boundary through the rea
 palette updater, and forbids both the threshold table and its `$FFFF` terminator.
 Restored health above Draygon's enemy-header maximum now fails explicitly instead of
 walking through the terminator into adjacent bank-$A5 executable data.
+
+# Botwoon health-band progression
+
+`BotwoonHealthPaletteDefinitions` compiles the eight fixed thresholds at
+`$B3:981B-$B3:982A` while retaining the eight 16-color records at `$B3:971B`
+as ROM-backed presentation data. The real handler still evaluates only its current
+phase and advances at most one two-byte phase per frame.
+
+Verification compares all 524,288 phase/health combinations with the cartridge's
+signed CMP/BPL result. Every hold/advance boundary, the completed phase, and malformed
+restored offsets run through the production updater with the threshold range forbidden.

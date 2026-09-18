@@ -149,8 +149,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort BotwoonShotAi = EnemyAiCodePointers.BankB3.BotwoonShot;
     internal const ushort BotwoonPowerBombAi = EnemyAiCodePointers.BankB3.BotwoonPowerBomb;
 
-    private const int BotwoonPaletteTable = 0xb3971b;
-    private const int BotwoonPaletteThresholdTable = 0xb3981b;
     private const int BotwoonSpecialDropCount = 16;
 
     private BotwoonEnemyState? _botwoonState;
@@ -747,14 +745,16 @@ public sealed partial class RoomEnemySystem
 
     private void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        if (state.PalettePhaseByteOffset == 16)
+        if (state.PalettePhaseByteOffset ==
+            BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset)
             return;
-        ushort threshold = ReadWord(
-            _bus!, BotwoonPaletteThresholdTable + state.PalettePhaseByteOffset);
-        if (unchecked((short)(head.Health - threshold)) >= 0)
+        if (!BotwoonHealthPaletteDefinitions.ShouldAdvance(
+                state.PalettePhaseByteOffset,
+                head.Health))
             return;
 
-        int source = BotwoonPaletteTable + 16 * state.PalettePhaseByteOffset;
+        int source = BotwoonHealthPaletteDefinitions.NativePaletteAddress +
+            16 * state.PalettePhaseByteOffset;
         int destinationColor = state.PaletteDestinationByteOffset >> 1;
         int colorCount = 256 - destinationColor;
         _cgram!.LoadFromBus(_bus!, source, colorCount, destinationColor);

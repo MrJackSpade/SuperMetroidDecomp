@@ -144,15 +144,15 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnMotherBrainDoorFragment(ushort parameter)
     {
-        if (parameter >= 8) throw new ArgumentOutOfRangeException(nameof(parameter));
+        MotherBrainDoorFragmentDefinition definition =
+            MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
         var fragment = AllocateEnemyProjectile();
         if (fragment is null) return;
         InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphicsIndex: 0);
-        int offset = parameter * 4;
-        fragment.XPosition = unchecked((ushort)(MotherBrainDeathRomData.DoorX + ReadWord(_bus!, MotherBrainDeathRomData.DoorFragmentOffsets + offset)));
-        fragment.YPosition = unchecked((ushort)(MotherBrainDeathRomData.DoorY + ReadWord(_bus!, MotherBrainDeathRomData.DoorFragmentOffsets + offset + 2)));
-        fragment.XVelocity = ReadWord(_bus!, MotherBrainDeathRomData.DoorFragmentVelocities + offset);
-        fragment.YVelocity = ReadWord(_bus!, MotherBrainDeathRomData.DoorFragmentVelocities + offset + 2);
+        fragment.XPosition = unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.XOffset));
+        fragment.YPosition = unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.YOffset));
+        fragment.XVelocity = unchecked((ushort)definition.XVelocity);
+        fragment.YVelocity = unchecked((ushort)definition.YVelocity);
         fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
     }
 

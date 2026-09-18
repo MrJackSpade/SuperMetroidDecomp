@@ -336,6 +336,12 @@ real escape state transition and all eight cries run through the real instructio
 interpreter with both source ranges forbidden. Mixed instruction programs and sprite
 presentation remain separate dependencies.
 
+Mother Brain's eight escape-door fragment records are compiled too: each record pairs
+its signed world offset from `$86:C992-$C9B1` with its signed 8.8 launch velocity from
+`$86:C9B2-$C9D1`. All 32 words match the pinned cartridge and all eight production
+spawns run with both physical tables forbidden. Fragment animation bytecode remains a
+separate program/presentation dependency.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

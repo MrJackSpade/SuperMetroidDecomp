@@ -43,10 +43,6 @@ public static class MotherBrainDeathRomData
     public const ushort DoorFragmentDefinition = 0xcb21;
     /// <summary>$86:C9D2, fragment drag, gravity, and thirty-three-call lifetime.</summary>
     public const ushort DoorFragmentPreInstruction = 0xc9d2;
-    /// <summary>$86:C992 interleaved signed X/Y offsets for eight door fragments.</summary>
-    public const int DoorFragmentOffsets = 0x86c992;
-    /// <summary>$86:C9B2 interleaved 8.8 X/Y velocities for eight door fragments.</summary>
-    public const int DoorFragmentVelocities = 0x86c9b2;
     /// <summary>$86:C98B seed for the signed-underflow fragment lifetime.</summary>
     public const ushort DoorFragmentLifetime = 32;
     /// <summary>$86:C9D7 drag magnitude subtracted from the 8.8 horizontal speed.</summary>

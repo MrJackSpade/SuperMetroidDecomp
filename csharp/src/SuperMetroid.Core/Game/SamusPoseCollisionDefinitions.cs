@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical pose extents, independent of editable artwork and its display offsets.</summary>
 internal static class SamusPoseCollisionDefinitions
 {
-    /// <summary>$91:B629 PoseDefinitions byte six, for the 253 authored poses $00..$FC. Consumed by $90:EC22 Samus_SetRadius.</summary>
+    /// <summary>$91:B629 PoseDefinitions byte six for poses $00..$FC plus the exact adjacent-code observations for $FD..$FF. Consumed by $90:EC22 Samus_SetRadius.</summary>
     private static ReadOnlySpan<byte> VerticalRadii =>
     [
         24, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -23,16 +21,8 @@ internal static class SamusPoseCollisionDefinitions
         21, 21, 21, 21, 21, 7, 21, 19, 19, 19, 19, 19, 19, 19, 19, 21,
         21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 7, 7, 21, 21, 7,
         21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
-        21, 16, 16, 16, 16, 16, 16, 21, 21, 21, 21, 21, 21,
+        21, 16, 16, 16, 16, 16, 16, 21, 21, 21, 21, 21, 21, 138, 24, 16,
     ];
 
-    internal static byte ReadVerticalRadius(ISnesAddressSpace bus, byte pose)
-    {
-        if (pose < VerticalRadii.Length)
-            return VerticalRadii[pose];
-        // Trailing pose indexes address adjacent code, not authored metadata. Keep
-        // those reads explicit until the wider out-of-table policy is migrated.
-        return bus.ReadByte(SamusMovementRomData.Poses.Definitions +
-            pose * SamusMovementRomData.Poses.DefinitionByteCount + 6);
-    }
+    internal static byte ReadVerticalRadius(byte pose) => VerticalRadii[pose];
 }

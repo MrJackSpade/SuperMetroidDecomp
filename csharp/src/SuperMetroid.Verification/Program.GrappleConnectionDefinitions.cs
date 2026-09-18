@@ -143,29 +143,33 @@ internal static partial class Program
             .CreateDelegate<Func<ISnesAddressSpace, RoomLevelData, SamusState, ushort, GrappleMovementResult?>>();
         var drop = typeof(SamusGrappleMovement).GetMethod("SelectDroppedPose", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<ISnesAddressSpace, SamusState, byte>>();
-        // Cancellation/drop include deliberately impossible movement/aim combinations.
-        // Supply them through non-authored metadata rather than mutating retail poses.
-        var metadata = new GrappleFiringReadGuard(rom) { SyntheticAim = true };
-        var guard = new GrappleConnectionReadGuard(metadata);
+        // Exercise only combinations owned by actual pose records. Older coverage routed
+        // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
+        // bytes in a fake bus; that did not represent a cartridge-reachable state.
+        var guard = new GrappleConnectionReadGuard(rom);
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 512, YPosition = 512 };
         for (byte movement = 0; movement < 28; movement++)
-        foreach (byte direction in new byte[] { 2, 1, 0xff })
+        {
+            bool banned = rom.ReadByte(0x9bb8b8 + movement) != 0;
+            AssertEqual(banned, GrappleConnectionDefinitions.CancelsFiring((SamusMovementType)movement), "Every native cancellation byte");
+        }
+
+        for (byte movement = 0; movement < 28; movement++)
+        foreach (int sourcePose in Enumerable.Range(0, 253).Where(pose =>
+            rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement))
         foreach (ushort timer in new ushort[] { 0, 1, 2, 9, 10, ushort.MaxValue })
         {
             bool banned = rom.ReadByte(0x9bb8b8 + movement) != 0;
-            AssertEqual(banned, GrappleConnectionDefinitions.CancelsFiring((SamusMovementType)movement), "Native cancellation byte");
-            int sourcePose = Enumerable.Range(0, 253).FirstOrDefault(pose =>
-                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
-            if (sourcePose < 0) continue; // The cancellation-table entry is checked above.
-            metadata.SourcePose = (byte)sourcePose;
-            samus.Pose = 0xfd;
-            metadata.Direction = direction;
+            byte direction = rom.ReadByte(
+                SamusMovementRomData.Poses.Definitions + sourcePose * 8 + 3);
+            samus.Pose = (byte)sourcePose;
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = 2;
             samus.Grapple.PoseChangeAutoFireTimer = timer;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = cancel(guard, empty, samus, 0);
-            bool cancelled = banned || direction == 0xff || (direction != 2 && timer <= 1);
+            bool invalidDirection = (direction & 0xf0) != 0;
+            bool cancelled = banned || invalidDirection || (direction != 2 && timer <= 1);
             AssertEqual(cancelled ? GrapplePhase.Inactive : GrapplePhase.Firing, samus.Grapple.Phase, "Actual cancellation/refire phase");
             AssertEqual(!cancelled && direction == 2, !result.HasValue, "Unchanged aim retains current dispatch");
             AssertEqual(cancelled ? 0 : direction != 2 ? 10 : Math.Max(0, timer - 1), samus.Grapple.PoseChangeAutoFireTimer, "Cancellation/refire timer ordering");
@@ -173,17 +177,21 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         for (int radius = 0; radius <= ushort.MaxValue; radius++)
         {
-            samus.Pose = 0xfd;
-            metadata.Direction = direction; samus.Kinematics.YRadius = (ushort)radius;
+            int sourcePose = Enumerable.Range(0, 253).First(pose =>
+                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
+                pose is not (SamusPoseIds.GrappleSwingRightPose or SamusPoseIds.GrappleSwingLeftPose));
+            samus.Pose = (byte)sourcePose;
+            samus.Kinematics.YRadius = (ushort)radius;
             AssertEqual(rom.ReadByte((radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
         }
-        foreach (bool left in new[] { false, true })
-        for (int direction = 10; direction <= byte.MaxValue; direction++)
+        foreach (int sourcePose in Enumerable.Range(0, 253).Where(pose =>
+            rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) >= 10 &&
+            pose is not (SamusPoseIds.GrappleSwingRightPose or SamusPoseIds.GrappleSwingLeftPose)))
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
-            metadata.SourcePose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
-            samus.Pose = 0xfd;
-            metadata.Direction = (byte)direction; samus.Kinematics.YRadius = radius;
+            samus.Pose = (byte)sourcePose;
+            samus.Kinematics.YRadius = radius;
+            bool left = SamusState.IsFacingLeft(rom, (byte)sourcePose);
             int expected = radius < 17 ? (left ? 0x28 : 0x27) : (left ? 2 : 1);
             AssertEqual(expected, drop(guard, samus), "Non-fireable drop direction retains facing fallback");
         }

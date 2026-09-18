@@ -11,7 +11,7 @@ internal static partial class Program
         {
             ushort expected = rom.ReadByte(SamusMovementRomData.Poses.Definitions +
                 pose * SamusMovementRomData.Poses.DefinitionByteCount + 6);
-            ISnesAddressSpace source = pose <= 0xfc ? forbidden : rom;
+            ISnesAddressSpace source = forbidden;
             AssertEqual(expected, SamusState.ReadPoseYRadius(source, (byte)pose),
                 "Prospective collision radius matches native pose, without authored ROM reads");
             samus.Pose = (byte)pose;

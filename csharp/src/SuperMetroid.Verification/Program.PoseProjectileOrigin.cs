@@ -14,12 +14,11 @@ internal static partial class Program
         var bus = new PoseOriginPresentationBus(rom);
         var samus = new SamusState();
         var slot = new SamusProjectileSlot(0);
-        var noReads = new SlopeHeightNoReadBus();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadByte(0x91b629 + pose * 8 + 4);
-            AssertEqual(expected, SamusPoseProjectileOriginDefinitions.ReadYOffset(pose <= 0xfc ? noReads : rom, (byte)pose),
-                "Every authored correction is compiled; three trailing poses retain adjacent-data reads");
+            AssertEqual(expected, SamusPoseProjectileOriginDefinitions.ReadYOffset((byte)pose),
+                "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
         for (int pose = 0; pose <= 0xfc; pose++)
         for (byte direction = 0; direction < 10; direction++)

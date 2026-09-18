@@ -23,7 +23,7 @@ public sealed partial class SamusState
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
     public static ushort ReadPoseYRadius(ISnesAddressSpace bus, byte pose) =>
-        SamusPoseCollisionDefinitions.ReadVerticalRadius(bus, pose);
+        SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
 
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
     public byte ReadPoseXDirection(ISnesAddressSpace bus)
@@ -40,7 +40,7 @@ public sealed partial class SamusState
     public static byte ReadPoseXDirection(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return SamusPoseDispatchDefinitions.ReadFacing(bus, pose);
+        return SamusPoseDispatchDefinitions.ReadFacing(pose);
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public sealed partial class SamusState
     public static SamusMovementType ReadMovementType(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte rawMovementType = SamusPoseDispatchDefinitions.ReadMovement(bus, pose);
+        byte rawMovementType = SamusPoseDispatchDefinitions.ReadMovement(pose);
         if (rawMovementType > (byte)SamusMovementType.Special)
         {
             throw new InvalidDataException(
@@ -113,7 +113,7 @@ public sealed partial class SamusState
     public byte ReadNoInputFallbackPose(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return SamusPoseDispatchDefinitions.ReadNoInputPose(bus, Pose);
+        return SamusPoseDispatchDefinitions.ReadNoInputPose(Pose);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public sealed partial class SamusState
     public static byte ReadShotDirection(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return SamusPoseAimDefinitions.Read(bus, pose);
+        return SamusPoseAimDefinitions.Read(pose);
     }
 
     /// <summary>

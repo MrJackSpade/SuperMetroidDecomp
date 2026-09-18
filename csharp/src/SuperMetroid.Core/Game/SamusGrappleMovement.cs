@@ -91,7 +91,7 @@ public static partial class SamusGrappleMovement
         var flare = ReadFlareOrigin(bus, grapple, direction, useRunOffsets);
         sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.ReadGraphicsYOffset(bus);
         int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :
-            SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
+            SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
         grapple.OriginXOffset = origin.X;
         grapple.OriginYOffset = unchecked((short)(origin.Y - physicalYOffset));

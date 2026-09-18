@@ -163,13 +163,9 @@ internal static partial class Program
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
         public bool ForbidMechanics = true;
         public bool ReplaceFlare;
-        public bool SyntheticAim;
         public byte ReadByte(int address)
         {
             int pose = SamusMovementRomData.Poses.Definitions + SourcePose * 8;
-            int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
-            if (SyntheticAim && (uint)syntheticOffset < 8)
-                return syntheticOffset == 3 ? Direction : source.ReadByte(pose + syntheticOffset);
             if (address == pose + 1) throw new InvalidOperationException("Compiled pose movement read ROM.");
             if (address == pose + 3) return Direction;
             if (address == pose + 4) return GraphicsY;

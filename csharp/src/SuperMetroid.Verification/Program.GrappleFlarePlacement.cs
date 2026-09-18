@@ -34,11 +34,24 @@ internal static partial class Program
             .CreateDelegate<Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult>>();
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         int locked = 0;
-        foreach (byte movement in new byte[] { 0, 1 })
-        for (byte direction = 0; direction < 10; direction++)
+        var authoredPoses = Enumerable.Range(0, 253)
+            .Select(pose => new
+            {
+                Pose = (byte)pose,
+                Movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1),
+                Direction = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3),
+            })
+            .Where(row => row.Direction < 10)
+            .GroupBy(row => (Running: row.Movement == (byte)SamusMovementType.Running, row.Direction))
+            .Select(group => group.First())
+            .OrderBy(row => row.Movement == (byte)SamusMovementType.Running)
+            .ThenBy(row => row.Direction)
+            .ToArray();
+        foreach (var authored in authoredPoses)
         {
-            byte pose = movement == 1 ? SamusPoseIds.MovingRightNormalPose : SamusPoseIds.FacingRightNormalPose;
-            var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction, SyntheticAim = true };
+            byte pose = authored.Pose;
+            byte direction = authored.Direction;
+            var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction };
             var guarded = new GrappleFlareReadGuard(nativeBus);
             var native = Seed(null); var selected = Seed(stock); var changed = Seed(edited);
             SamusGrappleMovement.BeginFiring(nativeBus, native);
@@ -64,7 +77,7 @@ internal static partial class Program
 
             SamusState Seed(ChargeFlarePlacementCatalog? placement)
             {
-                var samus = new SamusState { Pose = 0xfd, XPosition = 512, YPosition = 512 };
+                var samus = new SamusState { Pose = pose, XPosition = 512, YPosition = 512 };
                 samus.Grapple.FlarePlacement = placement;
                 return samus;
             }
@@ -105,7 +118,7 @@ internal static partial class Program
             .Invoke(runtime, new object?[] { false, null, null, false });
         AssertTrue(ReferenceEquals(edited, runtime.Samus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
-        Console.WriteLine($"Grapple flare placement: 32 extracted pairs, 20 launch/late paths, 200 trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
+        Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
     private sealed class GrappleFlareReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace
     {

@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled pose dispatch rules, independent of editable pose artwork and display offsets.</summary>
 internal static class SamusPoseDispatchDefinitions
 {
-    /// <summary>$91:B629 PoseDefinitions_XDirection: native facing byte; values zero, one and two are retained, not guessed as left/right.</summary>
+    /// <summary>$91:B629 PoseDefinitions_XDirection: native facing byte for poses $00..$FC plus the exact adjacent-code observations for $FD..$FF.</summary>
     private static ReadOnlySpan<byte> Facing =>
     [
         0, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8,
@@ -23,10 +21,10 @@ internal static class SamusPoseDispatchDefinitions
         8, 4, 8, 4, 8, 4, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8,
         4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 4,
         8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 8, 8, 8,
-        8, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4,
+        8, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 4, 8, 41, 18,
     ];
 
-    /// <summary>$91:B62A PoseDefinitions_movementType: exclusive movement dispatcher for each authored pose.</summary>
+    /// <summary>$91:B62A PoseDefinitions_movementType: exclusive movement dispatcher for poses $00..$FC plus the exact adjacent-code observations for $FD..$FF.</summary>
     private static ReadOnlySpan<byte> Movement =>
     [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
@@ -44,10 +42,10 @@ internal static class SamusPoseDispatchDefinitions
         14, 14, 14, 14, 14, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 21,
         21, 21, 21, 27, 27, 0, 0, 10, 10, 5, 5, 15, 15, 15, 15, 26,
         0, 0, 0, 0, 0, 0, 0, 0, 27, 27, 27, 27, 26, 26, 26, 26,
-        26, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+        26, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 139, 0, 56,
     ];
 
-    /// <summary>$91:B62B PoseDefinitions_newPose: no-input fallback; $FF retains the current pose.</summary>
+    /// <summary>$91:B62B PoseDefinitions_newPose: no-input fallback for poses $00..$FC plus the exact adjacent-code observations for $FD..$FF; $FF retains the current pose.</summary>
     private static ReadOnlySpan<byte> NoInputPose =>
     [
         255, 255, 255, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1,
@@ -65,19 +63,10 @@ internal static class SamusPoseDispatchDefinitions
         255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 137,
         138, 137, 138, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
         255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 236, 236, 236,
-        236, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        236, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 75, 255, 229,
     ];
 
-    internal static byte ReadFacing(ISnesAddressSpace bus, byte pose) => Read(bus, pose, Facing, 0);
-    internal static byte ReadMovement(ISnesAddressSpace bus, byte pose) => Read(bus, pose, Movement, 1);
-    internal static byte ReadNoInputPose(ISnesAddressSpace bus, byte pose) => Read(bus, pose, NoInputPose, 2);
-
-    private static byte Read(ISnesAddressSpace bus, byte pose, ReadOnlySpan<byte> values, int field)
-    {
-        if (pose < values.Length) return values[pose];
-        // The final three byte indexes reach adjacent executable data. Preserve their
-        // explicit bus behavior instead of clamping them into an authored pose.
-        return bus.ReadByte(SamusMovementRomData.Poses.Definitions +
-            pose * SamusMovementRomData.Poses.DefinitionByteCount + field);
-    }
+    internal static byte ReadFacing(byte pose) => Facing[pose];
+    internal static byte ReadMovement(byte pose) => Movement[pose];
+    internal static byte ReadNoInputPose(byte pose) => NoInputPose[pose];
 }

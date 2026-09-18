@@ -542,7 +542,7 @@ public sealed partial class SamusProjectileSystem
         SamusState samus,
         SamusProjectileSlot slot)
     {
-        byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
+        byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
         SamusMovementType movementType = samus.ReadMovementType(bus);
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for

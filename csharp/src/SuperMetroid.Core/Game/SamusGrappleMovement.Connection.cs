@@ -530,7 +530,7 @@ public static partial class SamusGrappleMovement
         var origin = ReadFiringOrigin(bus, grapple.FireDirection, useRunOffsets);
         var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, useRunOffsets);
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
-        byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
+        byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.

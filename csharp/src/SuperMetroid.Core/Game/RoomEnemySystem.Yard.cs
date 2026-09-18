@@ -291,9 +291,11 @@ public sealed partial class RoomEnemySystem
             YardMovementFunction.CrawlingUpsideRightMovingUp or
             YardMovementFunction.CrawlingUpsideRightMovingDown or
             YardMovementFunction.CrawlingUpsideLeftMovingUp;
-        int turnData = ResolveYardTurnData(state);
-        short lookaheadX = unchecked((short)ReadWord(_bus!, turnData));
-        short lookaheadY = unchecked((short)ReadWord(_bus!, turnData + 2));
+        YardTurnDefinition turn = YardTurnDefinitions.ForMovement(
+            state.MovementFunction,
+            state.TurnTransitionDisabled);
+        short lookaheadX = turn.LookaheadX;
+        short lookaheadY = turn.LookaheadY;
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
         // Native adds the offset, performs collision/alignment, then subtracts only the
@@ -325,7 +327,10 @@ public sealed partial class RoomEnemySystem
                 state.CrawlingYVelocity = Negate16(state.CrawlingYVelocity);
             else
                 state.CrawlingXVelocity = Negate16(state.CrawlingXVelocity);
-            SetYardInstructionAndDisableTurn(slot, state, ReadWord(_bus!, turnData + 4));
+            SetYardInstructionAndDisableTurn(
+                slot,
+                state,
+                turn.OutsideTurnInstructionList);
             return;
         }
 
@@ -338,7 +343,10 @@ public sealed partial class RoomEnemySystem
             if (MoveEnemyVertically(level, slot, tangent))
             {
                 state.CrawlingXVelocity = Negate16(state.CrawlingXVelocity);
-                SetYardInstructionAndDisableTurn(slot, state, ReadWord(_bus!, turnData + 6));
+                SetYardInstructionAndDisableTurn(
+                    slot,
+                    state,
+                    turn.InsideTurnInstructionList);
             }
             return;
         }
@@ -351,31 +359,16 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalTangent))
         {
             state.CrawlingYVelocity = Negate16(state.CrawlingYVelocity);
-            SetYardInstructionAndDisableTurn(slot, state, ReadWord(_bus!, turnData + 6));
+            SetYardInstructionAndDisableTurn(
+                slot,
+                state,
+                turn.InsideTurnInstructionList);
             return;
         }
 
         bool adjusted = AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
         HandleYardTurnTransitionDisabling(state, adjusted);
     }
-
-    private static int ResolveYardTurnData(YardEnemyState state) => state.MovementFunction switch
-    {
-        YardMovementFunction.CrawlingUpsideDownMovingLeft =>
-            state.TurnTransitionDisabled ? 0xa3cd3a : 0xa3cd12,
-        YardMovementFunction.CrawlingUpsideRightMovingDown => 0xa3cd0a,
-        YardMovementFunction.CrawlingUpsideLeftMovingUp => 0xa3cd1a,
-        YardMovementFunction.CrawlingUpsideLeftMovingDown => 0xa3ccea,
-        YardMovementFunction.CrawlingUpsideRightMovingUp => 0xa3ccfa,
-        YardMovementFunction.CrawlingUpsideDownMovingRight =>
-            state.TurnTransitionDisabled ? 0xa3cd2a : 0xa3ccf2,
-        YardMovementFunction.CrawlingUpsideUpMovingLeft =>
-            state.TurnTransitionDisabled ? 0xa3cd22 : 0xa3cce2,
-        YardMovementFunction.CrawlingUpsideUpMovingRight =>
-            state.TurnTransitionDisabled ? 0xa3cd32 : 0xa3cd02,
-        _ => throw new InvalidDataException(
-            $"Yard crawl function $A3:{(ushort)state.MovementFunction:X4} has no turn data."),
-    };
 
     private static void HandleYardTurnTransitionDisabling(
         YardEnemyState state,

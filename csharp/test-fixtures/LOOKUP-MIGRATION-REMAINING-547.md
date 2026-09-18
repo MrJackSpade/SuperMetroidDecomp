@@ -462,8 +462,8 @@ facing/row spike combinations run through the real projectile allocator with
 The escape Etecoons' three position/pre-instruction/list/speed records are
 compiled too. All six low-bit-masked retail selectors use typed definitions and
 run through the production initializer with `$B3:E718-$B3:E735` forbidden.
-Out-of-domain restored parameters deliberately retain the cartridge's unchecked
-adjacent-data reads; the first such selector is independently compared with ROM.
+Out-of-domain restored parameters now fail explicitly rather than retaining a
+runtime bus solely to interpret adjacent tables and executable code.
 
 Zebetites' four six-word generation records, ten health-tier instruction selectors,
 and two embedded respawn populations are compiled as one barrier definition set.
@@ -481,6 +481,13 @@ selectors, and the three identical airborne animation-list copies are compiled a
 typed physical definitions. All eight real initializers and turns plus both-facing
 detach, contact-kick, and shot-launch paths run with every migrated source forbidden.
 Animation programs selected by these definitions remain separate dependencies.
+
+Yard's twelve turn records at `$A3:CCE2-$A3:CD41` are compiled separately as
+lookahead geometry plus outside/inside callback selectors. The catalog retains all
+eight ordinary surface directions and the four zero-lookahead records used while
+slope alignment suppresses turn transitions. Every record and all 24 real empty/solid
+room crawl branches run with the complete source block forbidden. The selected mixed
+animation programs remain separate dependencies.
 
 Bomb Torizo's sixteen statue-hand fragment selections are compiled as complete
 physical records, preserving the native eight-row wrap for Y position, velocity, and

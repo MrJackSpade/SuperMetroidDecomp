@@ -199,6 +199,12 @@ if (args is ["--escape-etecoon-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--yard-turn-definitions"])
+{
+    VerifyYardTurnDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--ridley-explosion-definitions"])
 {
     VerifyRidleyExplosionDefinitions(

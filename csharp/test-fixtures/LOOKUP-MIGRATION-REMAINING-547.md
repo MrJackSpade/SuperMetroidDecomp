@@ -253,8 +253,8 @@ branches preserved. Direction nibbles ten through fifteen still cross adjacent
 rows; running Y eventually reaches the separately compiled cooldown bytes. Charge-flare
 origins remain presentation data. Beam initial speeds, missile/Super Missile and
 beam accelerations are now compiled as 85 native words, including the adjacent
-ignition marker. Exact-address dispatch preserves invalid beam combinations
-reading into missile data and leaves non-catalog/unaligned reads on the bus.
+ignition marker. Invalid beam combinations preserve their native reads into the
+compiled missile rows; non-catalog and unaligned addresses now fail explicitly.
 The 59 contiguous cooldown bytes (uncharged/charged/padding/non-beam/auto-fire)
 are compiled too; combination indices beyond that range now fail explicitly instead
 of reading adjacent SFX presentation bytes. Physical muzzle origins consequently no

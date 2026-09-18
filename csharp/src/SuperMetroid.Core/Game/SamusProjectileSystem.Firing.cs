@@ -542,7 +542,6 @@ public sealed partial class SamusProjectileSystem
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.PackedType.BeamCombinationIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-            bus,
             (diagonal
                 ? SamusProjectileRomData.Beams.DiagonalSpeeds
                 : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds) + rowOffset));

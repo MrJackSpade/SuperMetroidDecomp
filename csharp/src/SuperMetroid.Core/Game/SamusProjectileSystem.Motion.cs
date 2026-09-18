@@ -36,11 +36,9 @@ public sealed partial class SamusProjectileSystem
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Beams.XAccelerations + directionOffset))));
         slot.YVelocity = unchecked((short)(slot.YVelocity +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Beams.YAccelerations + directionOffset))));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
@@ -136,11 +134,9 @@ public sealed partial class SamusProjectileSystem
         int direction = slot.PackedDirection.DirectionIndex;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Beams.XAccelerations + direction * 2))));
         slot.YVelocity = unchecked((short)(slot.YVelocity +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Beams.YAccelerations + direction * 2))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
@@ -197,11 +193,9 @@ public sealed partial class SamusProjectileSystem
         // so this addition is intentionally overwritten; subsequent frames retain it.
         slot.XVelocity = unchecked((short)(slot.XVelocity +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Beams.XAccelerations + direction * 2))));
         slot.YVelocity = unchecked((short)(slot.YVelocity +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                bus,
                 SamusProjectileRomData.Beams.YAccelerations + direction * 2))));
 
         if ((slot.Variable & 0xff00) == 0)
@@ -217,9 +211,9 @@ public sealed partial class SamusProjectileSystem
         {
             int acceleration = SamusProjectileRomData.NonBeam.MissileAccelerations + direction * 4;
             slot.XVelocity = unchecked((short)(slot.XVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(bus, acceleration))));
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))));
             slot.YVelocity = unchecked((short)(slot.YVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(bus, acceleration + 2))));
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))));
         }
 
         bool collided = direction switch
@@ -287,9 +281,9 @@ public sealed partial class SamusProjectileSystem
             int acceleration =
                 SamusProjectileRomData.NonBeam.SuperMissileAccelerations + direction * 4;
             slot.XVelocity = unchecked((short)(slot.XVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(bus, acceleration))));
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))));
             slot.YVelocity = unchecked((short)(slot.YVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(bus, acceleration + 2))));
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))));
         }
 
         bool collided = false;

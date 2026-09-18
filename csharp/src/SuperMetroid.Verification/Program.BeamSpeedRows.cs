@@ -38,11 +38,12 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(retail.ReadByte(address) | retail.ReadByte(address + 1) << 8);
         var guarded = new BeamSpeedRowAddressSpace(retail);
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(guarded, address),
+            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
-        for (int address = 0x90c2b0; address < 0x90c3a0; address++)
-            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(retail, address),
-                "Exact-address dispatch preserves neighboring and unaligned word reads");
+        foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
+            AssertThrows<InvalidDataException>(
+                () => SamusProjectileMotionDefinitions.ReadWord(address),
+                "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
         {
@@ -94,7 +95,7 @@ internal static partial class Program
                 AssertEqual(y, ((uint)owner.YPosition << 16) | owner.YSubposition, "Missile Y trajectory retains fixed-point carry");
             }
         }
-        Console.WriteLine("Projectile motion definitions: 85 native words, neighboring/unaligned reads, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
+        Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
     }
 
     private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesAddressSpace

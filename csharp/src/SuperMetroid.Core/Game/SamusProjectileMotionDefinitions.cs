@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled NTSC beam speeds and beam/missile acceleration definitions.</summary>
@@ -21,7 +19,7 @@ internal static class SamusProjectileMotionDefinitions
     private static ReadOnlySpan<short> Beam =>
         [0, 16, 16, 16, 0, 0, -16, -16, -16, 0, -16, -16, 0, 16, 16, 16, 16, 0, -16, -16];
 
-    internal static ushort ReadWord(ISnesAddressSpace bus, int address)
+    internal static ushort ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Beams.HorizontalVerticalSpeeds;
         // Native data starts at an odd address. Only aligned words in that layout
@@ -43,6 +41,7 @@ internal static class SamusProjectileMotionDefinitions
             if (address >= SamusProjectileRomData.Beams.XAccelerations && index < Beam.Length)
                 return unchecked((ushort)Beam[index]);
         }
-        return (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        throw new InvalidDataException(
+            $"Projectile motion word ${address:X6} is outside the compiled definitions.");
     }
 }

@@ -156,7 +156,7 @@ ROM-compressed font is only the stock extraction source.
 Verification compares every compiled stock byte with the decompressed cartridge,
 proves a pixel edit changes installed VRAM data, and covers deterministic extraction,
 override identity, and corrupt PNG failure. Other cinematic labels and
-opening/cinematic font sheets remain open under #545.
+remaining cinematic font sheets remain open under #545.
 
 ## Editable scrolling staff credits (catalog version 35)
 
@@ -182,3 +182,22 @@ Verification compares all 520 stock rows with the native interpreter, then exerc
 all 8,336 playback frames through completion. It covers text/column/palette edits,
 deterministic extraction, override precedence and identity, stock restoration, corrupt
 JSON, missing or reordered IDs, unsupported glyphs, overflow, and palette bounds.
+
+## Editable opening font (catalog version 36)
+
+`intro-font.png` exposes the complete 144-tile, two-bit font sheet used by the
+English opening narration. It is a 128x72 indexed PNG with four palette indexes.
+The loader compiles it back to the exact 2,304-byte SNES planar transfer, including
+the blank glyph reused to clear the optional lower text margin.
+
+The production opening owner receives this atlas with the installed catalog and no
+longer decompresses the `$95:D089` font stream. Rebinding current host content updates
+both live VRAM and the retained blank glyph, so debugger restoration cannot conceal a
+new override. Focused legacy tests may still construct the intro without a catalog and
+use the cartridge-backed fallback.
+
+Verification compares every compiled stock byte with the decompressed cartridge,
+forbids installed reads across the native compressed-font range, proves a pixel edit
+changes live opening VRAM, and covers deterministic extraction, override identity and
+corrupt PNG failure. The unused Japanese font-two staging stream is not presented as
+editable content until the corresponding Japanese narration owner is translated.

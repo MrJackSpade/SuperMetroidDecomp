@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -13,6 +14,22 @@ internal static partial class Program
         IntroNarrationPresentation presentation = IntroNarrationPresentation.Load(
             new MemoryStream(extracted, writable: false));
         ISnesAddressSpace installedBus = new IntroNarrationReadGuard(nativeBus);
+
+        byte[] fontPng = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(nativeBus);
+        IntroFontAtlas font = IntroFontAtlas.Load(new MemoryStream(fontPng, writable: false));
+        byte[] nativeFont = RomDataReader.Decompress(
+            nativeBus,
+            IntroCinematicRomData.Assets.FontOne,
+            maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
+        AssertTrue(font.Transfer.Span.SequenceEqual(
+            nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
+            "installed opening-font PNG compiles to exact native planar bytes");
+        var installedIntro = new IntroCinematicState(
+            new IntroFontReadGuard(nativeBus), introFont: font);
+        AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            IntroCinematicRomData.Vram.FontOneDestinationByte,
+            IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),
+            "opening cinematic uploads the installed font without reading its ROM stream");
 
         int comparedFrames = 0;
         foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
@@ -102,8 +119,25 @@ internal static partial class Program
             new MemoryStream(malformed, writable: false)),
             "opening narration rejects glyphs absent from the documented font mapping");
 
+        IndexedPngImage editableFont = IndexedPng.Read(
+            new MemoryStream(fontPng, writable: false),
+            IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height);
+        editableFont.Pixels[0] ^= 1;
+        using var editedFontPng = new MemoryStream();
+        IndexedPng.Write(editedFontPng, editableFont.Width, editableFont.Height,
+            editableFont.Pixels, editableFont.Palette);
+        editedFontPng.Position = 0;
+        IntroFontAtlas editedFont = IntroFontAtlas.Load(editedFontPng);
+        installedIntro.BindIntroFont(editedFont);
+        AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+            IntroCinematicRomData.Vram.FontOneDestinationByte,
+            IntroFontAtlasFormat.ByteCount).SequenceEqual(editedFont.Transfer.Span),
+            "active opening cinematic rebinds edited font pixels");
+
         Console.WriteLine(
             $"Opening narration: six extracted UTF-8 pages and {comparedFrames} stock frames match with narration ROM reads forbidden; caret timing, page completion, edits and glyph validation pass.");
+        Console.WriteLine(
+            "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
     }
 
     private static ushort[] CreateBlankIntroTilemap()
@@ -175,6 +209,39 @@ internal static partial class Program
             "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
+    private static void VerifyIntroFontAssets(
+        ISnesAddressSpace bus,
+        string stockDirectory,
+        string overrideDirectory,
+        AreaMapPresentationCatalog stockCatalog)
+    {
+        byte[] deterministic = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(bus);
+        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+            Path.Combine(stockDirectory, IntroFontAtlasFormat.FileName))),
+            "installed opening font is the deterministic cartridge extraction");
+        IndexedPngImage image = IndexedPng.Read(
+            new MemoryStream(deterministic, writable: false),
+            IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height);
+        image.Pixels[0] ^= 1;
+        Directory.CreateDirectory(overrideDirectory);
+        string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
+        using (var output = File.Create(replacement))
+            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(!edited.IntroFont.Transfer.Span.SequenceEqual(
+            stockCatalog.IntroFont.Transfer.Span),
+            "opening-font override changes installed VRAM bytes");
+        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
+            "opening-font override changes catalog content identity");
+        File.WriteAllText(replacement, "not a PNG");
+        AssertThrows<InvalidDataException>(() =>
+            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
+            "corrupt opening-font override fails loudly");
+        Console.WriteLine(
+            "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
+    }
+
     private sealed class IntroNarrationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
@@ -186,6 +253,21 @@ internal static partial class Program
             {
                 throw new InvalidOperationException(
                     $"Installed opening narration read cartridge text address ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class IntroFontReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if (address is >= 0x95d089 and < 0x95d713)
+            {
+                throw new InvalidOperationException(
+                    $"Installed opening font read cartridge address ${address:X6}.");
             }
             return source.ReadByte(address);
         }

@@ -164,6 +164,7 @@ internal static partial class Program
         VerifyGameplayMessageNoticeAssets(bus, stock, Path.Combine(root, "gameplay-message-notice-overrides"), original);
         VerifyEscapeTypewriterAssets(bus, stock, Path.Combine(root, "escape-typewriter-overrides"), original);
         VerifyIntroNarrationAssets(bus, stock, Path.Combine(root, "intro-narration-overrides"), original);
+        VerifyIntroFontAssets(bus, stock, Path.Combine(root, "intro-font-overrides"), original);
         VerifyEndingTextAssets(bus, stock, Path.Combine(root, "ending-text-overrides"), original);
         VerifyEndingFontAssets(bus, stock, Path.Combine(root, "ending-font-overrides"), original);
         VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original);

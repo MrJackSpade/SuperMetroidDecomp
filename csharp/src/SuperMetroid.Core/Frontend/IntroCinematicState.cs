@@ -31,6 +31,7 @@ public sealed partial class IntroCinematicState
     [field: NonSerialized]
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    [NonSerialized] private IntroFontAtlas? introFont;
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
     public IntroNarrationPresentation? NarrationPresentation
     {
@@ -40,6 +41,13 @@ public sealed partial class IntroCinematicState
             narrationPresentation = value;
             objects?.BindNarration(value);
         }
+    }
+    /// <summary>Current host-owned opening font; restored states must explicitly rebind it.</summary>
+    public void BindIntroFont(IntroFontAtlas? value)
+    {
+        introFont = value;
+        if (value is not null)
+            ApplyIntroFont(value.Transfer.Span);
     }
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
@@ -60,7 +68,7 @@ public sealed partial class IntroCinematicState
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
-    private readonly byte[] japaneseBlankCharacter;
+    private byte[] japaneseBlankCharacter = [];
     private readonly ushort[] introPalette = new ushort[SnesCgram.ColorCount];
     private IntroCinematicObjectSystem? objects;
     private CinematicPaletteFader? paletteFader;
@@ -80,11 +88,15 @@ public sealed partial class IntroCinematicState
     private int timer = 8;
     private int fadeDelay;
 
-    public IntroCinematicState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
+    public IntroCinematicState(
+        ISnesAddressSpace bus,
+        CartridgeAudioState? audio = null,
+        IntroFontAtlas? introFont = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
         this.audio = audio;
+        this.introFont = introFont;
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
@@ -95,9 +107,8 @@ public sealed partial class IntroCinematicState
             bus,
             IntroCinematicRomData.Assets.BackgroundCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundCharacterBytes);
-        byte[] fontOne = RomDataReader.Decompress(
-            bus,
-            IntroCinematicRomData.Assets.FontOne,
+        byte[] fontOne = introFont?.Transfer.ToArray() ?? RomDataReader.Decompress(
+            bus, IntroCinematicRomData.Assets.FontOne,
             maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
         byte[] samusHeadTilemap = RomDataReader.Decompress(
             bus,
@@ -131,15 +142,10 @@ public sealed partial class IntroCinematicState
         // BTS[$1E8E-$1E9D] aliases $7F:8290-$829F while the first font is resident in
         // decompression RAM. $8B:A86A repeats precisely this character when blanking the
         // optional Japanese glyph area; retain the source before host staging is discarded.
-        japaneseBlankCharacter = fontOne.AsSpan(
-            IntroCinematicRomData.Text.JapaneseBlankSourceOffset,
-            IntroCinematicRomData.Text.JapaneseBlankCharacterByteCount).ToArray();
-
         // Literal VMADD values from `$8B:A469-$A529`, converted to physical byte offsets.
         vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
             bgCharacters.AsSpan(0, IntroCinematicRomData.Vram.BackgroundCharacterBytes));
-        vram.LoadBytes(IntroCinematicRomData.Vram.FontOneDestinationByte,
-            fontOne.AsSpan(0, IntroCinematicRomData.Vram.FontOneBytes));
+        ApplyIntroFont(fontOne);
         vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
             samusHeadTilemap.AsSpan(0, IntroCinematicRomData.Vram.SamusHeadTilemapBytes));
         vram.LoadBytes(IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
@@ -160,13 +166,21 @@ public sealed partial class IntroCinematicState
         SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, equippedBeams: 0);
         cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
 
-        // Font two is decompressed only after the initial VRAM setup in the native routine.
-        // Retain the validation now even though English is the fresh-save default.
-        _ = RomDataReader.Decompress(
-            bus,
-            IntroCinematicRomData.Assets.JapaneseFontTwo,
-            maximumOutputBytes: IntroCinematicRomData.Vram.JapaneseFontTwoBytes);
         Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+    }
+
+    private void ApplyIntroFont(ReadOnlySpan<byte> transfer)
+    {
+        if (transfer.Length != IntroFontAtlasFormat.ByteCount)
+        {
+            throw new InvalidDataException(
+                $"Opening font contains {transfer.Length} bytes; expected " +
+                $"{IntroFontAtlasFormat.ByteCount}.");
+        }
+        japaneseBlankCharacter = transfer.Slice(
+            IntroCinematicRomData.Text.JapaneseBlankSourceOffset,
+            IntroCinematicRomData.Text.JapaneseBlankCharacterByteCount).ToArray();
+        vram.LoadBytes(IntroCinematicRomData.Vram.FontOneDestinationByte, transfer);
     }
 
     public IntroCinematicPhase Phase { get; private set; }

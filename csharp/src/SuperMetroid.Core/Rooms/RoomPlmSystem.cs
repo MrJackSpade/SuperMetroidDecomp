@@ -1288,7 +1288,7 @@ public sealed partial class RoomPlmSystem
             RunMetroidsClearedPreInstruction(slot, enemyDeaths, enemyDeathQuota);
             RunShaktoolRoomPreInstruction(slot, scrolls, powerBombExplosionStatus);
             RunSamusEaterPreInstruction(slot);
-            RunSpeedBoosterEscapePreInstruction(bus, slot);
+            RunSpeedBoosterEscapePreInstruction(slot);
             RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
             RunChozoStatuePreInstruction(level, slot);

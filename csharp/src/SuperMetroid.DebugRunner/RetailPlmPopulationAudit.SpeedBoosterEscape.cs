@@ -12,7 +12,7 @@ internal static partial class RetailPlmPopulationAudit
 
     /// <summary>
     /// Production-loads room state $ACFD, then drives setup and all three callbacks using
-    /// the pinned cartridge's own header, list, FX record, and stage table.
+    /// the pinned cartridge's own header, list, and FX record plus compiled stage definitions.
     /// </summary>
     public static int AuditSpeedBoosterEscape(string romPath)
     {
@@ -68,25 +68,43 @@ internal static partial class RetailPlmPopulationAudit
             throw new InvalidDataException($"B82A wrote FX timer {active.Fx.Timer}, expected 1.");
 
         for (ushort offset = 0;
-             offset < SpeedBoosterEscapePlmRomData.TerminatorOffset;
-             offset += SpeedBoosterEscapePlmRomData.StageByteCount)
+             offset < SpeedBoosterEscapeStageDefinitions.TerminatorOffset;
+             offset += SpeedBoosterEscapeStageDefinitions.RecordByteCount)
         {
-            ushort row = unchecked((ushort)(SpeedBoosterEscapePlmRomData.StageTable + offset));
-            ushort targetX = ReadWord(bus, 0x840000 | row);
-            ushort maximumY = ReadWord(bus, 0x840000 | unchecked((ushort)(row + 2)));
-            ushort velocity = ReadWord(bus, 0x840000 | unchecked((ushort)(row + 4)));
-            active.Samus.XPosition = targetX;
+            SpeedBoosterEscapeStageDefinition stage =
+                SpeedBoosterEscapeStageDefinitions.Resolve(offset)!.Value;
+            int source = SpeedBoosterEscapeStageDefinitions.TableAddress + offset;
+            ushort targetX = ReadWord(bus, source);
+            ushort maximumY = ReadWord(bus, source + 2);
+            ushort velocity = ReadWord(bus, source + 4);
+            if (stage.TargetSamusX != targetX || stage.MaximumFxY != maximumY ||
+                stage.PackedYVelocity != velocity)
+            {
+                throw new InvalidDataException(
+                    $"Compiled B846 stage ${offset:X2} does not match the pinned cartridge.");
+            }
+
+            active.Samus.XPosition = stage.TargetSamusX;
             ushort priorBaseY = active.Fx.BaseYPosition;
             Step(active);
-            ushort expectedBaseY = maximumY < priorBaseY ? maximumY : priorBaseY;
+            ushort expectedBaseY = stage.MaximumFxY < priorBaseY
+                ? stage.MaximumFxY
+                : priorBaseY;
             if (active.Fx.BaseYPosition != expectedBaseY ||
-                active.Fx.PackedYVelocity != velocity)
+                active.Fx.PackedYVelocity != stage.PackedYVelocity)
             {
                 throw new InvalidDataException(
                     $"B846 stage ${offset:X2} produced base/velocity " +
                     $"${active.Fx.BaseYPosition:X4}/${active.Fx.PackedYVelocity:X4}, " +
-                    $"expected ${expectedBaseY:X4}/${velocity:X4} from cartridge table.");
+                    $"expected ${expectedBaseY:X4}/${stage.PackedYVelocity:X4}.");
             }
+        }
+        if (ReadWord(bus, SpeedBoosterEscapeStageDefinitions.TableAddress +
+                SpeedBoosterEscapeStageDefinitions.TerminatorOffset) !=
+            SpeedBoosterEscapeStageDefinitions.Terminator)
+        {
+            throw new InvalidDataException(
+                "Compiled B846 terminator does not match the pinned cartridge.");
         }
         Step(active);
         if (!active.System.HasEvent(EventNumber.OutranSpeedBoosterLavaquake))
@@ -123,7 +141,7 @@ internal static partial class RetailPlmPopulationAudit
 
         Console.WriteLine(
             "Speed Booster escape PLM audit passed: retail $ACF0/$ACFD production-loaded; " +
-            "setup, item/no-item, FX threshold, all three ROM stages, earthquake clear, " +
+            "setup, item/no-item, FX threshold, all three compiled stages, earthquake clear, " +
             "and event-$15 branches agree.");
         return 0;
     }

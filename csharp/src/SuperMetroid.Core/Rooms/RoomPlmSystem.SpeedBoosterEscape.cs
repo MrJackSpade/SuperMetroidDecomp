@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -35,7 +34,7 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
-    private void RunSpeedBoosterEscapePreInstruction(ISnesAddressSpace bus, PlmSlot slot)
+    private void RunSpeedBoosterEscapePreInstruction(PlmSlot slot)
     {
         if (slot.HeaderPointer != RoomPlmHeaders.SpeedBoosterEscape)
             return;
@@ -64,7 +63,7 @@ public sealed partial class RoomPlmSystem
                 return;
 
             case SpeedBoosterEscapePlmRomData.AdvanceLavaPreInstruction:
-                RunAdvanceLava(bus, slot, samus, fx);
+                RunAdvanceLava(slot, samus, fx);
                 return;
 
             default:
@@ -104,23 +103,13 @@ public sealed partial class RoomPlmSystem
     }
 
     private void RunAdvanceLava(
-        ISnesAddressSpace bus,
         PlmSlot slot,
         SamusState samus,
         RoomLayer3FxState fx)
     {
-        if (slot.LoopTimer > SpeedBoosterEscapePlmRomData.TerminatorOffset ||
-            slot.LoopTimer % SpeedBoosterEscapePlmRomData.StageByteCount != 0)
-        {
-            throw new InvalidDataException(
-                $"Speed Booster escape PLM timer ${slot.LoopTimer:X4} is not a valid " +
-                "offset into table $84:B876.");
-        }
-
-        ushort row = unchecked((ushort)(
-            SpeedBoosterEscapePlmRomData.StageTable + slot.LoopTimer));
-        ushort targetSamusX = ReadBank84Word(bus, row);
-        if (unchecked((short)targetSamusX) < 0)
+        SpeedBoosterEscapeStageDefinition? stage =
+            SpeedBoosterEscapeStageDefinitions.Resolve(slot.LoopTimer);
+        if (stage is null)
         {
             (_setEvent ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its event writer."))(
@@ -129,16 +118,16 @@ public sealed partial class RoomPlmSystem
         }
 
         // BCC at $84:B852 returns while Samus remains left-to-right beyond this stage.
-        if (targetSamusX < samus.XPosition)
+        if (stage.Value.TargetSamusX < samus.XPosition)
             return;
 
-        ushort maximumFxY = ReadBank84Word(bus, unchecked((ushort)(row + 2)));
-        ushort packedVelocity = ReadBank84Word(bus, unchecked((ushort)(row + 4)));
         fx.ApplyCartridgeMotionWrites(
-            baseYPosition: maximumFxY < fx.BaseYPosition ? maximumFxY : null,
-            packedYVelocity: packedVelocity);
+            baseYPosition: stage.Value.MaximumFxY < fx.BaseYPosition
+                ? stage.Value.MaximumFxY
+                : null,
+            packedYVelocity: stage.Value.PackedYVelocity);
         slot.LoopTimer = unchecked((ushort)(
-            slot.LoopTimer + SpeedBoosterEscapePlmRomData.StageByteCount));
+            slot.LoopTimer + SpeedBoosterEscapeStageDefinitions.RecordByteCount));
     }
 
     /// <summary>

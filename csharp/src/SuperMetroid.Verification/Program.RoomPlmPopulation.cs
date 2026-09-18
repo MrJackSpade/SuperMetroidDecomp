@@ -4,6 +4,48 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifySpeedBoosterEscapeStageDefinitions(
+        SuperMetroidAddressSpace rom)
+    {
+        static ushort ReadWord(ISnesAddressSpace source, int address) =>
+            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+
+        for (ushort offset = 0;
+             offset < SpeedBoosterEscapeStageDefinitions.TerminatorOffset;
+             offset += SpeedBoosterEscapeStageDefinitions.RecordByteCount)
+        {
+            SpeedBoosterEscapeStageDefinition definition =
+                SpeedBoosterEscapeStageDefinitions.Resolve(offset)!.Value;
+            int source = SpeedBoosterEscapeStageDefinitions.TableAddress + offset;
+            AssertEqual(ReadWord(rom, source), definition.TargetSamusX,
+                $"Speed Booster escape stage ${offset:X2} target X matches cartridge");
+            AssertEqual(ReadWord(rom, source + 2), definition.MaximumFxY,
+                $"Speed Booster escape stage ${offset:X2} maximum FX Y matches cartridge");
+            AssertEqual(ReadWord(rom, source + 4), definition.PackedYVelocity,
+                $"Speed Booster escape stage ${offset:X2} velocity matches cartridge");
+        }
+
+        AssertEqual(SpeedBoosterEscapeStageDefinitions.Terminator,
+            ReadWord(rom, SpeedBoosterEscapeStageDefinitions.TableAddress +
+                SpeedBoosterEscapeStageDefinitions.TerminatorOffset),
+            "Speed Booster escape terminal word matches cartridge");
+        AssertTrue(SpeedBoosterEscapeStageDefinitions.Resolve(
+                SpeedBoosterEscapeStageDefinitions.TerminatorOffset) is null,
+            "Speed Booster escape terminal offset resolves to event completion");
+        AssertThrows<InvalidDataException>(
+            () => SpeedBoosterEscapeStageDefinitions.Resolve(1),
+            "unaligned Speed Booster escape stage offset fails loudly");
+        AssertThrows<InvalidDataException>(
+            () => SpeedBoosterEscapeStageDefinitions.Resolve(24),
+            "out-of-range Speed Booster escape stage offset fails loudly");
+
+        // This fresh bus contains the PLM program and FX fixture, but deliberately omits
+        // $84:B876-$B889. The production controller must finish all three physical stages.
+        VerifySpeedBoosterEscapePlm(new TestAddressSpace());
+        Console.WriteLine(
+            "Speed Booster escape definitions: three physical stages and the terminal event match.");
+    }
+
     /// <summary>
     /// Locks the single bank-$8F parser, descending physical IDs, synchronous slot reuse,
     /// elevator animation, and all requested station setup/contact families to bounded
@@ -458,7 +500,7 @@ internal static partial class Program
 
     /// <summary>
     /// Exercises setup $B89C and all three callbacks installed by the cartridge's $B88A
-    /// list. The fixture uses a real sixteen-byte FX record shape and ROM-backed stage table,
+    /// list. The fixture uses a real sixteen-byte FX record shape and compiled stage records,
     /// so the test observes the same shared FX/event/earthquake owners as production.
     /// </summary>
     private static void VerifySpeedBoosterEscapePlm(TestAddressSpace bus)
@@ -486,17 +528,6 @@ internal static partial class Program
             0xac, 0xb8, 0x01, 0x01, 0x00, 0x00,
             0x00, 0x00,
         ]);
-        WriteWord(bus, 0x840000 | SpeedBoosterEscapePlmRomData.StageTable, 0x072b);
-        WriteWord(bus, 0x84b878, 0x01bf);
-        WriteWord(bus, 0x84b87a, 0xff50);
-        WriteWord(bus, 0x84b87c, 0x050a);
-        WriteWord(bus, 0x84b87e, 0x0167);
-        WriteWord(bus, 0x84b880, 0xff20);
-        WriteWord(bus, 0x84b882, 0x0244);
-        WriteWord(bus, 0x84b884, 0x0100);
-        WriteWord(bus, 0x84b886, 0xff20);
-        WriteWord(bus, 0x84b888, 0x8000);
-
         RoomLevelData CreateLevel() => CreateRoom(
             width,
             height,

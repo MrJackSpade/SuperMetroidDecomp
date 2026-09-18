@@ -199,6 +199,12 @@ if (args is ["--downward-gate-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--speed-booster-escape-definitions"])
+{
+    VerifySpeedBoosterEscapeStageDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--quicksand-definitions"])
 {
     VerifyQuicksandDefinitions(

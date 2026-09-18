@@ -7,6 +7,7 @@ internal static partial class Program
     private static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        VerifyEndingRewardActorDefinitions(bus);
         VerifyEndingPostShot(bus);
         VerifyEndingLogo(bus);
         VerifyEndingCloudMotion();
@@ -25,9 +26,10 @@ internal static partial class Program
             AssertTrue(graphicsVram.Bytes[uploadedBytes..].ToArray().All(value => value == 0xa5),
                 "reward graphics upload preserves pending chunks and the shooting OBJ sheet");
         }
+        var rewardBus = new EndingRewardDefinitionReadGuard(bus);
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
-            var gesture = new EndingRewardGesture(bus, reward);
+            var gesture = new EndingRewardGesture(rewardBus, reward);
             var maps = new HashSet<string>();
             int calls = 0;
             while (!gesture.JumpRequested && calls < 1000)
@@ -43,7 +45,7 @@ internal static partial class Program
                 "native ED2D/EDD3 gesture durations before jump spawn");
             Console.WriteLine($"  {reward}: {calls} gesture frames, {maps.Count} OAM poses, native jump handoff.");
             var uploads = new List<int>();
-            var jump = new EndingRewardJump(bus, reward, uploads.Add);
+            var jump = new EndingRewardJump(rewardBus, reward, uploads.Add);
             bool switched = false, firstMotion = false;
             int minimumY = jump.BodyY;
             int jumpCalls = 0;
@@ -68,6 +70,65 @@ internal static partial class Program
             AssertEqual((short)136, jump.BodyY, "native reward landing center");
             AssertTrue(uploads.SequenceEqual(Enumerable.Range(0, 16)), "landing publishes all sixteen native graphics queue entries exactly once");
             Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, 16 uploads, shot request.");
+        }
+        AssertEqual(0, rewardBus.ForbiddenReadAttempts,
+            "ending reward actors never reread compiled definition records");
+    }
+
+    private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
+    {
+        static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
+            source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+
+        foreach (ushort pointer in EndingRewardActorDefinitions.KnownDefinitions)
+        {
+            EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(pointer);
+            int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
+            AssertEqual(ReadWord(bus, address), actual.Initialization,
+                $"reward actor $8B:{pointer:X4} initialization callback");
+            AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
+                $"reward actor $8B:{pointer:X4} pre-instruction callback");
+            AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
+                $"reward actor $8B:{pointer:X4} initial instruction list");
+        }
+
+        AssertThrows<InvalidDataException>(
+            () => EndingRewardActorDefinitions.Get(0),
+            "unknown reward actor definition");
+        Console.WriteLine(
+            "  Reward definitions: thirty native callback/list words match the compiled catalog.");
+    }
+
+    private sealed class EndingRewardDefinitionReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        private static readonly HashSet<int> Forbidden = CreateForbidden();
+
+        public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (Forbidden.Contains(address))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending reward actor reread definition byte ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private static HashSet<int> CreateForbidden()
+        {
+            var result = new HashSet<int>();
+            foreach (ushort pointer in EndingRewardActorDefinitions.KnownDefinitions)
+            {
+                int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
+                for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
+                    result.Add(address + offset);
+            }
+            return result;
         }
     }
 }

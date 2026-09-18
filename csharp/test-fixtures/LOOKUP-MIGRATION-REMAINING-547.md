@@ -203,6 +203,11 @@ The intro egg's six shell-fragment spawn positions are compiled with its physica
 definitions too. Every final biased X/Y pair matches the cartridge, and all six complete
 actor lifetimes run without reading either the position or velocity tables.
 
+The ending reward gesture/jump owners now use typed records for all ten actor-definition
+triples. Their initialization callback, no-op pre-instruction identity, and initial list
+selector are compiled, while the selected animation and spritemap programs remain ROM
+presentation data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

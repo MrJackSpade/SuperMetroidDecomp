@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -64,9 +63,15 @@ internal sealed class EndingRewardGesture
 
     private void Spawn(ushort definition)
     {
-        ushort initialization = RomDataReader.ReadWordFixedBank(bus, IntroCinematicRomData.Banks.CinematicCode | definition);
-        ushort list = RomDataReader.ReadWordFixedBank(bus, IntroCinematicRomData.Banks.CinematicCode | (definition + 4));
-        var (x, y, palette) = EndingRewardActorDefinitions.GetInitialization(initialization);
-        actors.Add(new IntroDiscoverySprite((ushort)x, (ushort)y, (ushort)palette, list));
+        EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);
+        var (x, y, palette) =
+            EndingRewardActorDefinitions.GetInitialization(record.Initialization);
+        var actor = new IntroDiscoverySprite(
+            (ushort)x,
+            (ushort)y,
+            (ushort)palette,
+            record.InstructionList);
+        actor.PreInstructionPointerForDiscovery(record.PreInstruction);
+        actors.Add(actor);
     }
 }

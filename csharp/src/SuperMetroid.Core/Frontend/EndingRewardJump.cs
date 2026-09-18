@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -106,11 +105,17 @@ internal sealed class EndingRewardJump
     }
 
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
-    private IntroDiscoverySprite Spawn(ushort definition)
+    private static IntroDiscoverySprite Spawn(ushort definition)
     {
-        ushort initialization = RomDataReader.ReadWordFixedBank(bus, IntroCinematicRomData.Banks.CinematicCode | definition);
-        var (x, y, palette) = EndingRewardActorDefinitions.GetInitialization(initialization);
-        ushort list = RomDataReader.ReadWordFixedBank(bus, IntroCinematicRomData.Banks.CinematicCode | (definition + 4));
-        return new IntroDiscoverySprite((ushort)x, (ushort)y, (ushort)palette, list);
+        EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);
+        var (x, y, palette) =
+            EndingRewardActorDefinitions.GetInitialization(record.Initialization);
+        var actor = new IntroDiscoverySprite(
+            (ushort)x,
+            (ushort)y,
+            (ushort)palette,
+            record.InstructionList);
+        actor.PreInstructionPointerForDiscovery(record.PreInstruction);
+        return actor;
     }
 }

@@ -2583,3 +2583,14 @@ the native address solely for independent parity verification.
 
 Verification compares all twelve source words and runs every fragment from construction
 through deletion with both the origin table and all velocity tables forbidden.
+
+# Ending reward actor definitions
+
+All ten six-byte cinematic-object definitions used by the post-credits reward gesture
+and jump now compile their initialization callback, distinct no-op pre-instruction, and
+initial instruction-list selector. The selected animation and spritemap programs remain
+cartridge-backed presentation data.
+
+Verification compares all thirty native words, rejects unknown definitions, and runs every
+reward variant through gesture, jump, landing, sixteen graphics uploads, and shot request
+with the ten source records forbidden.

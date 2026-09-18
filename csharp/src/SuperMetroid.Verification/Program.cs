@@ -876,6 +876,11 @@ if (args is ["--ending-native-burst"])
     for (int frame = 400; frame <= 464; frame += 16) VerifyEndingNativePpu(frame: frame);
     return 0;
 }
+if (args is ["--ending-reward-definitions"])
+{
+    VerifyEndingRewardGesture();
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();

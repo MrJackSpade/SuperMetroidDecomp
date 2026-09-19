@@ -39,10 +39,9 @@ public sealed partial class SuperMetroidRuntime
     public InitialViewportResult InitializeStartingCeresRoom()
     {
         // `InitAndLoadGameData_Async` writes these exact indexes before calling
-        // LoadFromLoadStation. Reading them through the general table proves which room the
-        // retail cartridge selected; no Ceres room pointer is duplicated in host code.
-        LoadStationEntry station = LoadStationEntry.Load(
-            _addressSpace,
+        // LoadFromLoadStation. The compiled catalog preserves that general lookup rather
+        // than duplicating the Ceres room/door/placement at this call site.
+        LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Ceres,
             stationIndex: 0);
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
@@ -95,8 +94,7 @@ public sealed partial class SuperMetroidRuntime
             $"Save slot {slot.Slot}");
         byte stationIndex = unchecked((byte)slot.SaveStation);
 
-        LoadStationEntry station = LoadStationEntry.Load(
-            _addressSpace,
+        LoadStationEntry station = LoadStationDefinitions.Get(
             requestedArea,
             stationIndex);
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
@@ -196,8 +194,7 @@ public sealed partial class SuperMetroidRuntime
         // `$82:8038-$8048` assigns these indexes immediately before LoadFromLoadStation.
         // Station eighteen is a cutscene-only entry high above Landing Site; station zero
         // is not selected until GunshipTop_7 finishes the landing and performs the save.
-        LoadStationEntry station = LoadStationEntry.Load(
-            _addressSpace,
+        LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);

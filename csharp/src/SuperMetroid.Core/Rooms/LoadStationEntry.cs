@@ -17,18 +17,16 @@ public sealed record LoadStationEntry(
     ushort SamusYOffset,
     ushort SamusXOffset)
 {
-    private const int LoadStationPointerTable = 0x80c4b5;
-    private const int EntryByteCount = 14;
-
-    /// <summary>Reads the area list pointer and indexed record with bank-$80 wrapping.</summary>
+    /// <summary>Reads the area list pointer and indexed record for cartridge-parity diagnostics.</summary>
+    /// <remarks>Installed gameplay uses <see cref="LoadStationDefinitions.Get"/>.</remarks>
     public static LoadStationEntry Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
     {
         ArgumentNullException.ThrowIfNull(bus);
         int areaTableIndex = AreaIds.ToIndex(areaIndex);
         ushort listPointer = RomDataReader.ReadWordFixedBank(
             bus,
-            LoadStationPointerTable + areaTableIndex * 2);
-        int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * EntryByteCount));
+            LoadStationRomData.PointerTable + areaTableIndex * 2);
+        int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * LoadStationRomData.EntryByteCount));
         return new LoadStationEntry(
             areaIndex,
             stationIndex,

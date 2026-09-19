@@ -671,6 +671,11 @@ if (args is ["--map-presentation"])
     VerifyMapPresentation();
     return 0;
 }
+if (args is ["--load-station-definitions"])
+{
+    VerifyCompiledLoadStationDefinitions();
+    return 0;
+}
 if (args is ["--gameplay-message-titles", var messageTitleRom])
 {
     VerifyGameplayMessageTitles(messageTitleRom);
@@ -1484,6 +1489,7 @@ VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();
 VerifyRoomLevelData();
 VerifyCartridgeRoomStateSelection();
+VerifyCompiledLoadStationDefinitions();
 VerifyRoomMainCodeCatalog();
 VerifyRoomSetupCodeCatalog();
 VerifyRoomAssetRomData();

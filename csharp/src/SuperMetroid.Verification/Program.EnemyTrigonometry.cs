@@ -125,6 +125,7 @@ internal static partial class Program
         VerifyDraygonIntroDanceDefinitions(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyBoyonInstructionProgramDefinitions(rom);
+        VerifySkulteraInstructionProgramDefinitions(rom);
         VerifyCompiledSurfaceMotion(rom);
         VerifyCompiledEnemyFireballLaunches(rom);
         VerifyCompiledRioLaunches(rom);

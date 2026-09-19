@@ -133,11 +133,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort SkulteraDefinition = 0xd6ff;
 
-    private const ushort SkulteraSwimmingLeftInstruction = 0x902a;
-    private const ushort SkulteraTurningRightInstruction = 0x903c;
-    private const ushort SkulteraSwimmingRightInstruction = 0x9060;
-    private const ushort SkulteraTurningLeftInstruction = 0x9072;
-
     private readonly ushort[] _skulteraRadii = new ushort[MaximumEnemyCount];
     private readonly ushort[] _skulteraTurnFinishedFlags = new ushort[MaximumEnemyCount];
     private readonly ushort[] _skulteraAngleDeltas = new ushort[MaximumEnemyCount];
@@ -168,8 +163,8 @@ public sealed partial class RoomEnemySystem
         // source of subtly wrong half-pixel speeds in ports of this AI.
         bool startsLeft = (slot.Parameter1 & 0xff00) != 0;
         slot.CurrentInstruction = startsLeft
-            ? SkulteraSwimmingLeftInstruction
-            : SkulteraSwimmingRightInstruction;
+            ? SkulteraInstructionProgramDefinitions.SwimmingLeft
+            : SkulteraInstructionProgramDefinitions.SwimmingRight;
         state.Function = startsLeft
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
@@ -275,8 +270,8 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = currentlyMovingLeft
-            ? SkulteraTurningRightInstruction
-            : SkulteraTurningLeftInstruction;
+            ? SkulteraInstructionProgramDefinitions.TurningRight
+            : SkulteraInstructionProgramDefinitions.TurningLeft;
     }
 
     /// <summary>Ports the mirrored turn completion functions at <c>$A3:9224/$9256</c>.</summary>
@@ -296,8 +291,8 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = nowMovingLeft
-            ? SkulteraSwimmingLeftInstruction
-            : SkulteraSwimmingRightInstruction;
+            ? SkulteraInstructionProgramDefinitions.SwimmingLeft
+            : SkulteraInstructionProgramDefinitions.SwimmingRight;
     }
 
     private SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>

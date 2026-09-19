@@ -107,6 +107,11 @@ if (args is ["--boyon-instruction-mechanics"])
     VerifyBoyonInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--skultera-instruction-mechanics"])
+{
+    VerifySkulteraInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

@@ -949,6 +949,19 @@ off-screen-processing transition plus the native bounce sound and arc-permission
 Presentation and adjacent-data pointers fail as restored mechanics cursors, and warmed
 lookup is allocation-free.
 
+## Skultera instruction mechanics
+
+Skultera's two swimming loops and two turning programs now share a strict
+`SkulteraInstructionProgramDefinitions` boundary. Thirty-two immutable layer callbacks,
+durations, gotos, loop targets, completion callbacks, and sleep words are compiled;
+twenty-two interleaved spritemap operands remain live presentation reads.
+
+Production verification exercises both real initializer selections and both turn-entry
+paths, runs every program to its goto or sleep boundary with all compiled mechanics bytes
+forbidden, and observes every spritemap. It also proves the layer-two/layer-six callbacks
+and both turn-completion flags execute. Presentation and adjacent native-code pointers fail
+as restored mechanics cursors, and warmed lookup is allocation-free.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

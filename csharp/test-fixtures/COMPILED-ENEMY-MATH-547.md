@@ -2910,6 +2910,21 @@ sound, permits the arc, and enables off-screen processing while idle disables it
 presentation and adjacent-data pointers fail as mechanics, and warmed lookup is
 allocation-free.
 
+# Skultera instruction mechanics
+
+Skultera's mirrored swimming and turning programs now resolve all thirty-two fixed
+layer callbacks, durations, gotos, loop targets, turn-completion callbacks, and sleeps
+through `SkulteraInstructionProgramDefinitions`. Their twenty-two interleaved spritemap
+pointers remain live cartridge-backed presentation data, and initialization plus both
+turn directions use the named catalog entries.
+
+Verification compares every mechanics word with the pinned cartridge, executes both
+swimming loops beyond their terminal gotos, and runs both turning programs through their
+terminal sleeps while every mechanics source byte is forbidden. All twenty-two spritemap
+operands remain observable through the cartridge bus; the production callbacks select
+layers two and six and publish both turn-completion flags. Presentation and adjacent-code
+pointers fail as mechanics, and warmed lookup is allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

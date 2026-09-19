@@ -73,8 +73,83 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => NuclearWaffleDefinitions.Sweep(byte.MaxValue),
             "Nuclear Waffle restored direction does not read adjacent enemy code");
 
+        for (int index = 0;
+             index < NuclearWaffleInstructionProgramDefinitions.MechanicsWordCount;
+             index++)
+        {
+            NuclearWaffleInstructionMechanicsWord definition =
+                NuclearWaffleInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(
+                definition.Value,
+                ReadNuclearWaffleWord(rom, 0xa60000 | definition.Address),
+                $"Nuclear Waffle mechanics word $A6:{definition.Address:X4}");
+        }
+
+        var programGuard = new NuclearWaffleProgramReadGuard(rom);
+        var programSystem = new RoomEnemySystem();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+            programSystem,
+            programGuard);
+        RoomEnemySlot programSlot = programSystem.Slots[0];
+        programSlot.EnemyDefinitionPointer = NuclearWaffleDefinitions.EnemyDefinition;
+        programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
+        programSlot.CurrentInstruction = NuclearWaffleInstructionProgramDefinitions.BodyLoop;
+        programSlot.InstructionTimer = 1;
+        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        object?[] arguments =
+            [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+
+        // Twelve three-frame entries total 36 frames; the margin proves the terminal goto
+        // restarts the production stream rather than merely reaching its target.
+        for (int frame = 0; frame < 40; frame++)
+            process.Invoke(programSystem, arguments);
+
+        AssertEqual(
+            NuclearWaffleInstructionProgramDefinitions.PresentationWordCount,
+            programGuard.ObservedPresentationWords.Count,
+            "all live Nuclear Waffle spritemap words remain cartridge reads");
+        for (int index = 0;
+             index < NuclearWaffleInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(programGuard.ObservedPresentationWords.Contains(address),
+                $"production execution reads Nuclear Waffle presentation word $A6:{address:X4}");
+        }
+        AssertEqual(0, programGuard.ForbiddenReadAttempts,
+            "production execution avoids every compiled Nuclear Waffle mechanics byte");
+
+        AssertThrows<InvalidDataException>(
+            () => NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(0x9492),
+            "interleaved Nuclear Waffle spritemap pointer is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(0x94c4),
+            "adjacent Nuclear Waffle initialization code is rejected as mechanics");
+
+        _ = ProbeNuclearWaffleInstructionMechanicsAllocation();
+        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+        int checksum = ProbeNuclearWaffleInstructionMechanicsAllocation();
+        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
+        AssertTrue(checksum != 0, "Nuclear Waffle allocation probe consumes live data");
+        AssertEqual(0L, allocated,
+            "warmed Nuclear Waffle mechanics lookups allocate no per-frame storage");
+
         Console.WriteLine(
-            "Nuclear Waffle definitions: twelve native words and both complete production initializers pass with geometry reads forbidden.");
+            "Nuclear Waffle definitions: twelve geometry words, both complete production " +
+            "initializers, 14 compiled instruction words, and the full body loop pass with " +
+            "mechanics reads forbidden; 12 spritemap words remain live.");
+    }
+
+    private static int ProbeNuclearWaffleInstructionMechanicsAllocation()
+    {
+        int checksum = 0;
+        for (int index = 0; index < 65536; index++)
+        {
+            checksum += NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(
+                NuclearWaffleInstructionProgramDefinitions.BodyLoop);
+        }
+        return checksum;
     }
 
     private static ushort ReadNuclearWaffleWord(SuperMetroidAddressSpace bus, int address) =>
@@ -86,6 +161,44 @@ internal static partial class Program
             ? throw new InvalidOperationException(
                 $"Nuclear Waffle attempted migrated geometry read ${address:X6}.")
             : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class NuclearWaffleProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    {
+        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (NuclearWaffleInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.");
+            }
+
+            if ((address & 0xff0000) == 0xa60000)
+            {
+                ushort bankAddress = unchecked((ushort)address);
+                for (int index = 0;
+                     index < NuclearWaffleInstructionProgramDefinitions.PresentationWordCount;
+                     index++)
+                {
+                    ushort presentation =
+                        NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress(index);
+                    if (bankAddress == presentation ||
+                        bankAddress == unchecked((ushort)(presentation + 1)))
+                    {
+                        ObservedPresentationWords.Add(presentation);
+                        break;
+                    }
+                }
+            }
+
+            return source.ReadByte(address);
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

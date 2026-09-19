@@ -2101,6 +2101,13 @@ Each path must allocate all four damaging projectile links and three cosmetic
 sprite links while retaining the exact geometry. Invalid restored directions fail
 explicitly instead of consuming the following main-AI code.
 
+The twelve-frame body animation now resolves all fourteen duration, goto, and
+loop-target words through `NuclearWaffleInstructionProgramDefinitions`. Its twelve
+interleaved spritemap pointers remain live presentation data. Verification runs
+the production loop beyond its terminal goto with every mechanics source byte
+forbidden, observes every live spritemap operand, rejects adjacent initialization
+code as mechanics, and proves warmed lookup is allocation-free.
+
 # Hibashi eruption hitboxes
 
 `HibashiDefinitions` compiles the 22 eruption Y offsets at `$A6:8DBB` and

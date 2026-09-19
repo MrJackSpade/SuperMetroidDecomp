@@ -16,7 +16,8 @@ internal static class NuclearWaffleDefinitions
     internal const ushort EnemyDefinition = 0xe0bf;
 
     /// <summary>$A6:9490, Puromi's initial animation instruction list.</summary>
-    internal const ushort InitialInstructionList = 0x9490;
+    internal const ushort InitialInstructionList =
+        NuclearWaffleInstructionProgramDefinitions.BodyLoop;
 
     /// <summary>Sound effect $5E in library two, queued when a joint turns.</summary>
     internal const ushort TurnSoundEffect = 0x005e;

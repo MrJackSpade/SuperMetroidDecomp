@@ -3566,6 +3566,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == SparkDefinition)
             return SparkInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == NuclearWaffleDefinitions.EnemyDefinition)
+            return NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

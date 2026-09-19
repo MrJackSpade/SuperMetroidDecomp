@@ -151,6 +151,8 @@ Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while
 `$A6:95F6-$A6:960D` is forbidden; invalid directions cannot consume main-AI code.
+Its single body-animation loop also compiles fourteen mechanics words while all
+twelve spritemap operands remain live presentation reads.
 Hibashi's 22 eruption Y offsets and collision half-heights are compiled as paired
 physical frames. Every production activity command retains exact placement,
 radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden.

@@ -2747,6 +2747,20 @@ Verification compares all 275 mechanics words with the pinned cartridge, runs ev
 of the 35 programs through production code while their source bytes are forbidden, rejects
 a restored pointer outside the bounded domain, and proves warmed lookups allocate nothing.
 
+# Spore Spawn instruction mechanics
+
+Spore Spawn's five mixed bank-$A5 programs now split engine behavior from presentation in
+`SporeSpawnInstructionProgramDefinitions`. The catalog compiles 116 duration, callback,
+operand, loop, wait, and branch-target words covering defeated initialization, living
+initialization, combat start, close-and-move, and the complete death sequence. Their 41
+interleaved spritemap pointers remain live cartridge reads.
+
+The generic enemy interpreter and every Spore Spawn-specific callback consume the same
+strict mechanics catalog. Verification compares all 116 words with the pinned cartridge,
+executes all five production entry points while every mechanics source byte is forbidden,
+observes all 41 presentation words through the ROM path, rejects invalid restored pointers,
+and proves warmed lookups allocate no per-frame storage.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

@@ -2564,12 +2564,7 @@ public sealed partial class RoomEnemySystem
         ushort cursor = slot.CurrentInstruction;
         for (int commandCount = 0; commandCount < 64; commandCount++)
         {
-            ushort word = slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
-                MotherBrainBodyInstructionProgramDefinitions.TryGetWord(
-                    cursor,
-                    out ushort compiledMotherBrainBodyWord)
-                ? compiledMotherBrainBodyWord
-                : ReadWord(_bus!, (slot.Definition.Bank << 16) | cursor);
+            ushort word = ReadEnemyInstructionMechanicsWord(slot, cursor);
             if ((word & 0x8000) == 0)
             {
                 slot.InstructionTimer = word;
@@ -2587,9 +2582,9 @@ public sealed partial class RoomEnemySystem
                     slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                     return;
                 case CommonEnemyInstructionCodes.Goto:
-                    cursor = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                     break;
                 case CommonEnemyInstructionCodes.Sleep:
                     slot.CurrentInstruction = cursor;
@@ -2706,15 +2701,15 @@ public sealed partial class RoomEnemySystem
                 case CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate:
                     slot.Timer = unchecked((ushort)(slot.Timer - 1));
                     cursor = slot.Timer != 0
-                        ? ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        ? ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
                 case CommonEnemyInstructionCodes.SetTimer:
-                    slot.Timer = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    slot.Timer = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY when IsPhantoonPartDefinition(slot.EnemyDefinitionPointer):
@@ -2732,9 +2727,9 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 case CommonEnemyInstructionCodes.WaitFrames:
-                    slot.InstructionTimer = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    slot.InstructionTimer = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                     slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
                     return;
                 case CommonEnemyInstructionCodes.CopyToVram:
@@ -3545,6 +3540,24 @@ public sealed partial class RoomEnemySystem
 
         throw new InvalidDataException(
             $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction list exceeded 64 commands without a frame.");
+    }
+
+    /// <summary>
+    /// Resolves simulation-owned enemy instruction words from compiled definitions while
+    /// leaving frame spritemap operands on their explicit cartridge read path.
+    /// </summary>
+    private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
+    {
+        if (slot.EnemyDefinitionPointer == SporeSpawnDefinition)
+            return SporeSpawnInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+            MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
+        {
+            return word;
+        }
+
+        return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
     }
 
     private void DetermineWhichEnemiesToProcess(ushort cameraX, ushort cameraY)

@@ -815,6 +815,22 @@ code. Exhaustive verification compares every compiled word to the pinned ROM and
 all 35 production programs with those source bytes forbidden, including the previously
 unhandled looping misc-dust program `$86:E1FC`.
 
+## Spore Spawn instruction mechanics
+
+Spore Spawn's five private bank-$A5 programs now use
+`SporeSpawnInstructionProgramDefinitions` for their fixed simulation data. The 116-word
+catalog includes every duration, callback identity, callback operand, timer, wait, goto,
+and branch target reached from defeated initialization, living initialization, combat
+start, close-and-move, and death. The generic enemy interpreter and the boss's private
+callbacks share that one strict lookup path.
+
+The 41 words immediately following timed durations are spritemap pointers and deliberately
+remain ROM-backed presentation. Verification compares every mechanics word with the pinned
+cartridge, executes all five production entry points with mechanics reads forbidden, and
+observes every one of those presentation words through the live bus. Invalid restored
+pointers fail rather than escaping into adjacent bank data, and warmed lookups allocate no
+per-frame storage.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

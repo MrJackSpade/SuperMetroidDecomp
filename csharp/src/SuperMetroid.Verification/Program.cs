@@ -42,6 +42,11 @@ if (args is ["--enemy-projectile-instruction-mechanics"])
     VerifyEnemyProjectileInstructionMechanicsDefinitions();
     return 0;
 }
+if (args is ["--spore-spawn-instruction-mechanics"])
+{
+    VerifySporeSpawnInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

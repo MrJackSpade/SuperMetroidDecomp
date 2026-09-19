@@ -81,10 +81,6 @@ public sealed partial class RoomEnemySystem
 {
     public const ushort SporeSpawnDefinition = 0xdf3f;
 
-    private const ushort SporeSpawnInitialDeadInstruction = 0xe6b9;
-    private const ushort SporeSpawnInitialAliveInstruction = 0xe6c7;
-    private const ushort SporeSpawnFightStartedInstruction = 0xe6d5;
-    private const ushort SporeSpawnDeathInstruction = 0xe77d;
     private const ushort SporeSpawnDeathCenterX = 128;
     private const ushort SporeSpawnDeathCenterY = 624;
     private const ushort SporeSpawnCeilingY = 560;
@@ -185,14 +181,14 @@ public sealed partial class RoomEnemySystem
         state.LoadedAsDefeated = RequireAreaMiniBossDefeated();
         if (state.LoadedAsDefeated)
         {
-            body.CurrentInstruction = SporeSpawnInitialDeadInstruction;
+            body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.InitialDead;
             body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
             UpdateSporeSpawnStalks(state);
             PublishSporeSpawnPlm(header: RoomPlmHeaders.ClearSporeSpawnCeiling);
             return;
         }
 
-        body.CurrentInstruction = SporeSpawnInitialAliveInstruction;
+        body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.InitialAlive;
         body.YPosition = unchecked((ushort)(body.YPosition - 128));
 
         // `flag_process_all_enemies = FFFF` is a global bank-$A0 activity override, not an
@@ -244,7 +240,7 @@ public sealed partial class RoomEnemySystem
         body.YPosition = unchecked((ushort)(body.YPosition + 1));
         if (unchecked((short)(body.YPosition - SporeSpawnDeathCenterY)) >= 0)
         {
-            body.CurrentInstruction = SporeSpawnFightStartedInstruction;
+            body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.FightStarted;
             body.InstructionTimer = 1;
         }
 

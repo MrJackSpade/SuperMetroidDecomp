@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort SporeSpawnCloseAndMoveInstruction = 0xe729;
-
     private static bool SporeSpawnAcceptsProjectile(ushort projectileType) =>
         (projectileType & 0x0700) != 0 || (projectileType & 0x0010) != 0;
 
@@ -37,7 +35,7 @@ public sealed partial class RoomEnemySystem
             {
                 state.AngleDelta = unchecked((ushort)-state.AngleDelta);
                 state.DamagedFlag = 1;
-                body.CurrentInstruction = SporeSpawnCloseAndMoveInstruction;
+                body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.CloseAndMove;
                 body.InstructionTimer = 1;
 
                 ushort paletteOffset = body.Health >= 770
@@ -82,7 +80,7 @@ public sealed partial class RoomEnemySystem
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
             _enemyProjectiles[projectileSlot].Clear();
 
-        body.CurrentInstruction = SporeSpawnDeathInstruction;
+        body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.Death;
         body.InstructionTimer = 1;
         RequireSetAreaMiniBossDefeated();
         state.ScrollClampHookActive = false;

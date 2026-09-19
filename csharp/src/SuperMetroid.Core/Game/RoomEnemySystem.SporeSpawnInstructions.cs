@@ -36,13 +36,15 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SetMaxXRadiusAndAngleDelta:
-                state.MaximumXRadius = ReadWord(_bus!, 0xa50000 | next);
-                state.AngleDelta = ReadWord(_bus!, 0xa50000 | unchecked((ushort)(next + 2)));
+                state.MaximumXRadius = ReadEnemyInstructionMechanicsWord(body, next);
+                state.AngleDelta = ReadEnemyInstructionMechanicsWord(
+                    body,
+                    unchecked((ushort)(next + 2)));
                 cursor = unchecked((ushort)(next + 4));
                 return true;
 
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SporeGenerationFlagInY:
-                state.SporeGenerationFlag = ReadWord(_bus!, 0xa50000 | next);
+                state.SporeGenerationFlag = ReadEnemyInstructionMechanicsWord(body, next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
@@ -56,7 +58,8 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_QueueSFXInY_Lib2_Max6:
-                LastSporeSpawnSoundEffectLibrary2 = ReadWord(_bus!, 0xa50000 | next);
+                LastSporeSpawnSoundEffectLibrary2 =
+                    ReadEnemyInstructionMechanicsWord(body, next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
@@ -66,20 +69,20 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_FunctionInY:
-                state.Function = (SporeSpawnFunction)ReadWord(_bus!, 0xa50000 | next);
+                state.Function = (SporeSpawnFunction)ReadEnemyInstructionMechanicsWord(body, next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_LoadDeathSequencePalette:
                 LoadSporeSpawnDeathPalette(
-                    ReadWord(_bus!, 0xa50000 | next),
+                    ReadEnemyInstructionMechanicsWord(body, next),
                     targetOnly: false);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_LoadDeathSequenceTargetPalette:
                 LoadSporeSpawnDeathPalette(
-                    ReadWord(_bus!, 0xa50000 | next),
+                    ReadEnemyInstructionMechanicsWord(body, next),
                     targetOnly: true);
                 cursor = unchecked((ushort)(next + 2));
                 return true;

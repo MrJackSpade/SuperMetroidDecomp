@@ -2614,3 +2614,14 @@ presentation data.
 Verification compares all nine definition words and 24 placement words with the pinned
 cartridge, rejects both out-of-range placement selectors, and runs the complete explosion
 lifetime while every source definition and table range is forbidden.
+
+# Intro Rinka actor and physical definitions
+
+Both intro Rinka cinematic-object definitions and all four parameter-selected physical rows
+now live in `IntroRinkaDefinitions`. Each row retains the cartridge's biased initial origin
+and signed whole-pixel X velocity component; the shared fractional velocity remains exactly
+half a pixel per frame. Animation lists and spritemaps remain cartridge presentation data.
+
+Verification compares six actor-definition words and twelve physical words with the pinned
+cartridge, rejects an out-of-range parameter, and runs both native spawn waves plus the
+Mother-Brain-explosion cleanup while every migrated source byte is forbidden.

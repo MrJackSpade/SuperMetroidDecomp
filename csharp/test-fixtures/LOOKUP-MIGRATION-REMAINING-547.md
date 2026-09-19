@@ -217,6 +217,11 @@ triples, and all eight explosion placement/timer rows in a dedicated catalog. Th
 explosion lifetime runs with those 33 native words forbidden; animation lists, spritemaps,
 and palettes remain ROM-backed presentation data.
 
+The four intro Rinkas and their spawner now compile both actor-definition triples, all four
+biased origins, and the parameter-selected signed horizontal velocity components. Both spawn
+waves and the Mother-Brain-explosion cleanup path run with those eighteen native words
+forbidden; the animation/spritemap programs remain ROM-backed presentation data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

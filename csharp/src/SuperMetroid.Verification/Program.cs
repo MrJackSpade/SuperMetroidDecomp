@@ -886,6 +886,11 @@ if (args is ["--intro-mother-brain-definitions"])
     VerifyIntroMotherBrainDefinitions();
     return 0;
 }
+if (args is ["--intro-rinka-definitions"])
+{
+    VerifyIntroRinkaDefinitions();
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();
@@ -1356,6 +1361,7 @@ VerifySavedGameLoadAppearance();
 VerifyIntroCinematicRomData();
 VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyIntroMotherBrainDefinitions();
+VerifyIntroRinkaDefinitions();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();

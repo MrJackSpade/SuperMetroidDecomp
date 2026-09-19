@@ -14,14 +14,11 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroRinkaSystem
 {
-    private static readonly ushort[] InitialX = [0x0070, 0x00c0, 0x0080, 0x00e8];
-    private static readonly ushort[] InitialY = [0x0048, 0x0038, 0x0030, 0x0050];
-
     // The spawner itself is an invisible ordinary cinematic sprite. Reusing the focused
     // ROM-list interpreter preserves the exact $4A then $80 frame waits and avoids a host
     // countdown that would be subtly off by one generic-handler invocation.
     private readonly IntroDiscoverySprite spawner = new(
-        0, 0, 0, CinematicCodePointers.Lists.IntroRinkaSpawner);
+        0, 0, 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
     private readonly List<IntroDiscoverySprite> rinkas = [];
 
     public int ActiveCount => rinkas.Count(static rinka => rinka.IsActive);
@@ -95,14 +92,17 @@ internal sealed class IntroRinkaSystem
 
     private void Spawn(int parameter)
     {
+        IntroRinkaPhysicalDefinition definition = IntroRinkaDefinitions.Rinka(parameter);
         var rinka = new IntroDiscoverySprite(
-            InitialX[parameter],
-            InitialY[parameter],
+            definition.X,
+            definition.Y,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: CinematicCodePointers.Lists.IntroRinka)
+            instructionPointer: IntroRinkaDefinitions.RinkaActor.InstructionList)
         {
             GeneralTimer = (ushort)parameter,
         };
+        rinka.PreInstructionPointerForDiscovery(
+            IntroRinkaDefinitions.RinkaActor.PreInstruction);
         rinkas.Add(rinka);
     }
 
@@ -114,10 +114,11 @@ internal sealed class IntroRinkaSystem
         switch (rinka.PreInstructionPointer)
         {
             case 0:
+            case IntroRinkaDefinitions.SharedNoOp:
                 return;
 
             case CinematicCodePointers.PreInstruction_IntroRinka_Moving_HitsSamus:
-                MoveHalfPixelX(rinka, wholeDelta: 0);
+                MoveHalfPixelX(rinka, IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
                 // $B90B compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
@@ -137,10 +138,8 @@ internal sealed class IntroRinkaSystem
                 return;
 
             case CinematicCodePointers.PreInstruction_IntroRinka_Moving_MissesSamus:
-                // Carry from adding $8000 to the subposition combines with the signed
-                // whole-pixel table [0,-1,0,-1], producing +0.5,-0.5,+0.5,-0.5 px/frame.
-                int xWholeDelta = (rinka.GeneralTimer & 1) == 0 ? 0 : -1;
-                MoveHalfPixelX(rinka, xWholeDelta);
+                MoveHalfPixelX(rinka,
+                    IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
                 short y = unchecked((short)rinka.YPosition);
                 if (y < 0x0010 || y >= 0x00d0 || motherBrainExploding)
@@ -155,7 +154,7 @@ internal sealed class IntroRinkaSystem
 
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
-        uint subSum = (uint)rinka.XSubPosition + 0x8000;
+        uint subSum = (uint)rinka.XSubPosition + IntroRinkaDefinitions.HalfPixelFraction;
         rinka.XSubPosition = unchecked((ushort)subSum);
         int carry = (int)(subSum >> 16);
         rinka.XPosition = unchecked((ushort)(rinka.XPosition + wholeDelta + carry));
@@ -163,7 +162,7 @@ internal sealed class IntroRinkaSystem
 
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
-        uint subSum = (uint)rinka.YSubPosition + 0x8000;
+        uint subSum = (uint)rinka.YSubPosition + IntroRinkaDefinitions.HalfPixelFraction;
         rinka.YSubPosition = unchecked((ushort)subSum);
         rinka.YPosition = unchecked((ushort)(rinka.YPosition + (subSum >> 16)));
     }

@@ -33,10 +33,10 @@ internal static class PipeBugDefinitions
     /// </summary>
     private static readonly ushort[] BrinstarInstructionLists =
     [
-        0x87ab,
-        0x87cf,
-        0x87eb,
-        0x880f,
+        BrinstarPipeBugInstructionProgramDefinitions.NormalRisingLeft,
+        BrinstarPipeBugInstructionProgramDefinitions.NormalShootingLeft,
+        BrinstarPipeBugInstructionProgramDefinitions.NormalRisingRight,
+        BrinstarPipeBugInstructionProgramDefinitions.NormalShootingRight,
     ];
 
     /// <summary>
@@ -45,10 +45,10 @@ internal static class PipeBugDefinitions
     /// </summary>
     private static readonly ushort[] StrongBrinstarInstructionLists =
     [
-        0x8a1d,
-        0x8a31,
-        0x8a45,
-        0x8a59,
+        BrinstarPipeBugInstructionProgramDefinitions.StrongRisingLeft,
+        BrinstarPipeBugInstructionProgramDefinitions.StrongShootingLeft,
+        BrinstarPipeBugInstructionProgramDefinitions.StrongRisingRight,
+        BrinstarPipeBugInstructionProgramDefinitions.StrongShootingRight,
     ];
 
     /// <summary>Returns one normal/strong Brinstar Pipe Bug animation program.</summary>

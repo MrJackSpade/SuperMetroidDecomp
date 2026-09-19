@@ -3602,6 +3602,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == DragonDefinition)
             return DragonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer))
+            return BrinstarPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

@@ -1094,3 +1094,16 @@ production programs through their loop or sleep boundary while every mechanics b
 forbidden. Both attack programs publish their completion flag, all sixteen presentation
 operands remain observable, presentation and adjacent selector-table pointers fail as
 mechanics, and warmed lookup is allocation-free.
+
+## Brinstar Pipe Bug instruction mechanics
+
+Normal and strong Brinstar Pipe Bugs now resolve all sixty fixed durations, gotos, and
+loop targets across their eight rising and shooting programs through
+`BrinstarPipeBugInstructionProgramDefinitions`. Their forty-four interleaved spritemap
+pointers remain live cartridge-backed presentation data, and the two four-way selector
+tables name the same catalog entries instead of duplicating raw addresses.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+eight production loops beyond their terminal gotos while every mechanics byte is
+forbidden. All forty-four presentation operands remain observable, presentation and
+adjacent selector-table pointers fail as mechanics, and warmed lookup is allocation-free.

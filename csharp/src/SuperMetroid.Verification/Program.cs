@@ -132,6 +132,11 @@ if (args is ["--dragon-instruction-mechanics"])
     VerifyDragonInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--brinstar-pipe-bug-instruction-mechanics"])
+{
+    VerifyBrinstarPipeBugInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

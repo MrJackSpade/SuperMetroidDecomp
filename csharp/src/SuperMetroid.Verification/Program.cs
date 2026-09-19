@@ -691,6 +691,11 @@ if (args is ["--door-definitions"])
     VerifyCompiledDoorDefinitions();
     return 0;
 }
+if (args is ["--room-scroll-definitions"])
+{
+    VerifyCompiledRoomScrollDefinitions();
+    return 0;
+}
 if (args is ["--room-state-definitions"])
 {
     VerifyCompiledRoomStateSelectionDefinitions();
@@ -1514,6 +1519,7 @@ VerifyCompiledRoomStateDefinitions();
 VerifyCompiledRoomStateSelectionDefinitions();
 VerifyCompiledLoadStationDefinitions();
 VerifyCompiledDoorDefinitions();
+VerifyCompiledRoomScrollDefinitions();
 VerifyRoomMainCodeCatalog();
 VerifyRoomSetupCodeCatalog();
 VerifyRoomAssetRomData();

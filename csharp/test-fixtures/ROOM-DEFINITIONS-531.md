@@ -97,3 +97,21 @@ while both native door-header blocks are inaccessible.
 Remaining #531 work: compile camera/scroll definitions and setup/main dispatch
 references, then exercise complete room-entry and camera trajectories with every
 migrated definition range blocked.
+
+## Room scroll allocations
+
+`RoomScrollDefinitions` compiles the 159 distinct explicit 50-byte bank-$8F scroll
+allocations selected by 200 room states. The other 123 states retain the native
+implicit-grid construction rule, but select it through the same typed API. Ordinary
+asset loading and the special pre-game Landing Site path now install application-owned
+scroll data while preserving all 50 bytes, including native reads beyond a room's
+logical screen dimensions.
+
+Run `SuperMetroid.Verification --room-scroll-definitions` from the repository root.
+It reaches all 323 selected room states, compares every explicit byte and implicit
+cell with the pinned cartridge, constructs every grid with all address-space reads
+forbidden, and loads production Ceres and Landing Site with their native scroll ranges
+blocked.
+
+Remaining #531 work: compile setup/main dispatch references and add complete guarded
+room-entry and camera-trajectory coverage.

@@ -222,22 +222,11 @@ public sealed class CartridgeRoomAssets
     }
 
     private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)
-    {
-        short scrollPointer = unchecked((short)header.State.ScrollPointer);
-        return scrollPointer < 0
-            ? RoomScrollGrid.LoadExplicit(
-                bus,
-                RoomAssetRomData.Tilesets.DefinitionBank | header.State.ScrollPointer,
-                header.WidthInScreens,
-                header.HeightInScreens)
-            : RoomScrollGrid.CreateImplicit(
-                bus,
-                header.WidthInScreens,
-                header.HeightInScreens,
-                RoomScrollStates.FromCartridge(
-                    unchecked((byte)(header.State.ScrollPointer + 1)),
-                    $"implicit scroll word ${header.State.ScrollPointer:X4}"));
-    }
+        => RoomScrollDefinitions.CreateGrid(
+            bus,
+            header.State.ScrollPointer,
+            header.WidthInScreens,
+            header.HeightInScreens);
 
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)
     {

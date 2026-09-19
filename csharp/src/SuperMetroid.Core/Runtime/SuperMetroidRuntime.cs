@@ -552,7 +552,11 @@ public sealed partial class SuperMetroidRuntime
         ActiveRoom = null;
         ActiveRoomAssets = null;
         LandingSiteEntry = LandingSiteEntryState.Load(_addressSpace, doorPointer);
-        RoomScrollGrid scrolls = RoomScrollGrid.LoadLandingSite(_addressSpace);
+        RoomScrollGrid scrolls = RoomScrollDefinitions.CreateGrid(
+            _addressSpace,
+            RoomStateDefinitions.Get(LandingSiteEntry.RoomStatePointer).ScrollPointer,
+            LandingSiteEntry.RoomWidthInScreens,
+            LandingSiteEntry.RoomHeightInScreens);
         Camera = new ScrollBoundaryCamera(scrolls);
 
         // Applying the selected door's screen bytes here keeps its command-E sky tilemap

@@ -62,6 +62,32 @@ public sealed class RoomScrollGrid
         return grid;
     }
 
+    /// <summary>Installs an application-owned copy of the native 50-byte scroll allocation.</summary>
+    public static RoomScrollGrid LoadCompiled(
+        ISnesAddressSpace bus,
+        ReadOnlySpan<byte> storage,
+        int widthInScreens,
+        int heightInScreens)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (storage.Length != StorageByteCount)
+        {
+            throw new ArgumentException(
+                $"Compiled room scroll storage must contain exactly {StorageByteCount} bytes.",
+                nameof(storage));
+        }
+
+        var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
+        for (int index = 0; index < StorageByteCount; index++)
+        {
+            byte value = storage[index];
+            grid._cells[index] = value;
+            bus.WriteByte(WorkRamAddress + index, value);
+        }
+
+        return grid;
+    }
+
     /// <summary>Loads Landing Site's 9x5 table beginning at ROM <c>$8F:9283</c>.</summary>
     public static RoomScrollGrid LoadLandingSite(ISnesAddressSpace bus) =>
         LoadExplicit(bus, LandingSiteRomAddress, widthInScreens: 9, heightInScreens: 5);

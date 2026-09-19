@@ -76,3 +76,24 @@ while its complete selected-state record is inaccessible.
 Remaining #531 work: compile door connections, camera/scroll definitions, and
 setup/main dispatch references, then exercise complete room-entry and camera
 trajectories with all migrated definition ranges blocked.
+
+## Door connections
+
+`DoorDefinitions` compiles all 597 physical bank-$83 door records, the shared
+overlapping `$83:88FC` elevator pseudo-door, and the exact BTS-index ordering of all
+262 room door lists (603 room-owned references). Load
+stations, attract demos, Landing Site setup, and type-$9 collision now resolve
+doors through that catalog. The latter preserves the cartridge's high-bit BTS
+alias before deciding whether to publish an ordinary transition or elevator
+contact. The native header reader and physical range catalog remain diagnostic
+oracles.
+
+Run `SuperMetroid.Verification --door-definitions` from the repository root. It
+compares every physical field and every room-list entry with the pinned ROM,
+checks both BTS aliases and every first-out-of-range failure, exercises collision
+with an address space that rejects every read, and initializes production Ceres
+while both native door-header blocks are inaccessible.
+
+Remaining #531 work: compile camera/scroll definitions and setup/main dispatch
+references, then exercise complete room-entry and camera trajectories with every
+migrated definition range blocked.

@@ -44,74 +44,59 @@ public sealed record LandingSiteEntryState(
         Load(bus, LandingSiteRomData.LandingCutsceneDoorPointer);
 
     /// <summary>
-    /// Parses a bank-$83 door header and selects its transfer from
+    /// Uses the compiled door/room definitions and selects its transfer from
     /// <c>LibBG_ScrollingSky_Tilemaps_LandingSite</c> at <c>$8F:B76A</c>.
     /// </summary>
     public static LandingSiteEntryState Load(ISnesAddressSpace bus, ushort doorPointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int doorAddress = LandingSiteRomData.DoorBank | doorPointer;
+        CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
 
-        // The first word is a bank-$8F destination-room pointer. Rejecting any other room
+        // The destination is a bank-$8F room pointer. Rejecting any other room
         // is important: the library-background list below is specific to Landing Site and
         // silently applying it to an arbitrary door would manufacture a plausible image.
-        ushort destinationRoom = ReadWord(bus, doorAddress);
-        if (destinationRoom != RoomHeaderPointers.LandingSite)
+        if (door.DestinationRoomPointer != RoomHeaderPointers.LandingSite)
         {
             throw new InvalidDataException(
-                $"Door $83:{doorPointer:X4} targets room ${destinationRoom:X4}, not Landing Site $91F8.");
+                $"Door $83:{doorPointer:X4} targets room ${door.DestinationRoomPointer:X4}, " +
+                "not Landing Site $91F8.");
         }
 
-        SkyTransfer transfer = FindSkyTransfer(bus, doorPointer);
-        return new LandingSiteEntryState(
-            doorPointer,
-            Direction: bus.ReadByte(doorAddress + 3),
-            DoorCapXBlock: bus.ReadByte(doorAddress + 4),
-            DoorCapYBlock: bus.ReadByte(doorAddress + 5),
-            ScreenX: bus.ReadByte(doorAddress + 6),
-            ScreenY: bus.ReadByte(doorAddress + 7),
-            SpawnDistance: ReadWord(bus, doorAddress + 8),
-            DoorAsmPointer: ReadWord(bus, doorAddress + 10),
-            transfer.SourceAddress,
-            transfer.VramDestination,
-            transfer.ByteCount,
-            // RoomHeader_LandingSite begins with room index, area, map X/Y, dimensions,
-            // then the upward/downward camera-scroller distances. Reading these bytes here
-            // keeps minimap and camera integration tied to the selected ROM room instead of
-            // duplicating visually plausible host constants in the runtime.
-            RoomIdentity: ReadLandingSiteIdentity(bus),
-            RoomMapX: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 2),
-            RoomMapY: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 3),
-            RoomWidthInScreens: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 4),
-            RoomHeightInScreens: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 5),
-            UpScroller: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 6),
-            DownScroller: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 7),
-            // The room header's unconditional/default selector resolves to $8F:9213.
-            // Its 26-byte state record owns both enemy pointers: six leading bytes of
-            // level/graphics/music data, the FX word, then population and graphics-set
-            // words. Keeping the resolved state beside the door data makes it impossible
-            // for a caller to accidentally pair normal Landing Site terrain with the
-            // separate post-Ceres cutscene population at $A1:8C0D.
-            RoomStatePointer: (ushort)(LandingSiteRomData.DefaultStateAddress & 0xffff),
-            EnemyPopulationPointer: ReadWord(bus, LandingSiteRomData.DefaultStateAddress + 8),
-            EnemyTilesetPointer: ReadWord(bus, LandingSiteRomData.DefaultStateAddress + 10));
-    }
-
-    private static RoomIdentity ReadLandingSiteIdentity(ISnesAddressSpace bus)
-    {
-        var identity = new RoomIdentity(
-            AreaIds.FromCartridge(
-                bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 1),
-                "Landing Site room header"),
-            bus.ReadByte(LandingSiteRomData.RoomHeaderAddress));
-        if (identity != RoomIdentities.LandingSite)
+        RoomHeaderDefinition room = RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite);
+        RoomIdentity roomIdentity = new(room.AreaIndex, room.RoomIndex);
+        if (roomIdentity != RoomIdentities.LandingSite)
         {
             throw new InvalidDataException(
-                $"Landing Site room header has logical identity {identity}, expected " +
+                $"Landing Site room definition has logical identity {roomIdentity}, expected " +
                 $"{RoomIdentities.LandingSite}.");
         }
 
-        return identity;
+        ushort statePointer = RoomStateSelectionDefinitions.Select(
+            RoomHeaderPointers.LandingSite, default);
+        CartridgeRoomState state = RoomStateDefinitions.Get(statePointer);
+        SkyTransfer transfer = FindSkyTransfer(bus, doorPointer);
+        return new LandingSiteEntryState(
+            doorPointer,
+            Direction: door.Orientation,
+            DoorCapXBlock: door.PlmX,
+            DoorCapYBlock: door.PlmY,
+            ScreenX: door.DestinationScreenX,
+            ScreenY: door.DestinationScreenY,
+            SpawnDistance: door.SamusDistance,
+            DoorAsmPointer: door.SetupCodePointer,
+            transfer.SourceAddress,
+            transfer.VramDestination,
+            transfer.ByteCount,
+            RoomIdentity: roomIdentity,
+            RoomMapX: room.MapX,
+            RoomMapY: room.MapY,
+            RoomWidthInScreens: room.WidthInScreens,
+            RoomHeightInScreens: room.HeightInScreens,
+            UpScroller: room.UpScroller,
+            DownScroller: room.DownScroller,
+            RoomStatePointer: state.Pointer,
+            EnemyPopulationPointer: state.EnemyPopulationPointer,
+            EnemyTilesetPointer: state.EnemyTilesetPointer);
     }
 
     private static SkyTransfer FindSkyTransfer(ISnesAddressSpace bus, ushort doorPointer)

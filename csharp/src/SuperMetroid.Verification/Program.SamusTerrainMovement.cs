@@ -220,17 +220,12 @@ static void VerifySamusBlockCollision()
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
     AssertEqual(0xffff, squareFloorBody.YSubposition, "downward square slope writes floor fraction");
 
-    // `$94:938B` masks the BTS index, reads a bank-$8F door-pointer table, then inspects
-    // the bank-$83 destination. Entry zero is a normal room door: carry stays clear and the
-    // exact header is published for game state $09. Entry one is an elevator pseudo-door
-    // with destination bit 15 clear and therefore retains ordinary solid clipping.
-    const ushort doorListPointer = 0x9000;
-    const ushort normalDoorPointer = 0xa000;
-    const ushort elevatorDoorPointer = 0xa00c;
-    WriteTestWord(bus, 0x8f0000 | doorListPointer, normalDoorPointer);
-    WriteTestWord(bus, 0x8f0000 | (doorListPointer + 2), elevatorDoorPointer);
-    WriteTestWord(bus, 0x830000 | normalDoorPointer, 0x9123);
-    WriteTestWord(bus, 0x830000 | elevatorDoorPointer, 0x1234);
+    // `$94:938B` masks the BTS index, resolves the room's compiled door list, then inspects
+    // the destination. Crateria room $00/$08 contains both cases: entry zero is a normal
+    // room door, while entry two is the shared `$83:88FC` elevator pseudo-door whose zero
+    // destination retains ordinary solid clipping.
+    const ushort doorListPointer = 0x94f3;
+    const ushort normalDoorPointer = 0x8a4e;
 
     var doorForeground = new ushort[width * height];
     var doorBehavior = new byte[doorForeground.Length];
@@ -261,14 +256,14 @@ static void VerifySamusBlockCollision()
         "normal type-$9 door accepts full horizontal displacement");
     AssertEqual(normalDoorPointer, doorLevel.PendingDoorTransition!.Pointer,
         "normal type-$9 door publishes exact bank-$83 pointer");
-    AssertEqual(0x9123, doorLevel.PendingDoorTransition!.DestinationRoomPointer,
+    AssertEqual(0x95a8, doorLevel.PendingDoorTransition!.DestinationRoomPointer,
         "normal type-$9 door preserves destination room header");
     AssertEqual(normalDoorPointer, doorLevel.ConsumePendingDoorTransition()!.Pointer,
         "door transition publication is consumed exactly once");
     AssertTrue(doorLevel.PendingDoorTransition is null,
         "consumed door transition does not leak into later movement");
 
-    doorBehavior[1 * width + 2] = 1;
+    doorBehavior[1 * width + 2] = 2;
     RoomLevelData elevatorDoorLevel = new(
         width,
         height,

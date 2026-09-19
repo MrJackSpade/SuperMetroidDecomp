@@ -686,6 +686,11 @@ if (args is ["--room-state-payloads"])
     VerifyCompiledRoomStateDefinitions();
     return 0;
 }
+if (args is ["--door-definitions"])
+{
+    VerifyCompiledDoorDefinitions();
+    return 0;
+}
 if (args is ["--room-state-definitions"])
 {
     VerifyCompiledRoomStateSelectionDefinitions();
@@ -1508,6 +1513,7 @@ VerifyCompiledRoomHeaderDefinitions();
 VerifyCompiledRoomStateDefinitions();
 VerifyCompiledRoomStateSelectionDefinitions();
 VerifyCompiledLoadStationDefinitions();
+VerifyCompiledDoorDefinitions();
 VerifyRoomMainCodeCatalog();
 VerifyRoomSetupCodeCatalog();
 VerifyRoomAssetRomData();

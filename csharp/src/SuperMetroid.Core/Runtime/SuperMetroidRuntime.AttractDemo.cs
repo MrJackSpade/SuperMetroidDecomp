@@ -63,7 +63,7 @@ public sealed partial class SuperMetroidRuntime
             Samus.Missiles, Samus.MaxMissiles, Samus.SuperMissiles, Samus.MaxSuperMissiles,
             Samus.PowerBombs, Samus.MaxPowerBombs, Samus.EquippedItems, 0, 0, 0));
         RunNmi(0, true);
-        var door = CartridgeDoorHeader.Load(_addressSpace, scene.DoorPointer);
+        CartridgeDoorHeader door = DoorDefinitions.Get(scene.DoorPointer);
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
         var room = LoadCartridgeRoomHeader(scene.RoomPointer);

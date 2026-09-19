@@ -44,7 +44,7 @@ public sealed partial class SuperMetroidRuntime
         LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Ceres,
             stationIndex: 0);
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
+        CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
         if (door.DestinationRoomPointer != station.RoomPointer)
         {
             throw new InvalidDataException(
@@ -97,7 +97,7 @@ public sealed partial class SuperMetroidRuntime
         LoadStationEntry station = LoadStationDefinitions.Get(
             requestedArea,
             stationIndex);
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
+        CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
         if (door.DestinationRoomPointer != station.RoomPointer)
         {
             throw new InvalidDataException(
@@ -197,7 +197,7 @@ public sealed partial class SuperMetroidRuntime
         LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
-        CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
+        CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
         if (door.DestinationRoomPointer != station.RoomPointer)
         {
             throw new InvalidDataException(

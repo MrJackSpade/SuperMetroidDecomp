@@ -1,7 +1,28 @@
 # Map presentation boundary (#282 / #530)
 
-This is an implementation slice, not completed installation integration or removal
-of the runtime ROM requirement.
+## Completion status
+
+The area-map scope tracked by #282 is complete. Installed gameplay, pause,
+file-select, and saved-map lifecycles consume the extracted map layouts, artwork,
+palettes, labels, landmarks, station masks, saved-station anchors, sprites, and
+compiled exploration/scroll rules. The cartridge-backed constructors remain only
+for explicit parity diagnostics.
+
+The focused `--map-presentation` verification covers every one of the 14,336
+retail map cells, all 34 saved stations, all six displayed areas, direct and
+captured rendering, debugger-state rebinding, editable overrides, replacement
+installation, and strict missing/corrupt-resource failures. Its strongest
+installed saved-map lifecycle forbids every address-space read and write rather
+than maintaining a list of allowed cartridge ranges. Windows and Android consume
+the same `GameInstallation.LoadMaps()` catalog path.
+
+Broader audiovisual extraction and the final whole-runtime ROM-unavailable gate
+remain tracked by #530/#549. Those shared epics do not leave an area-map runtime
+dependency in this completed child scope. The sections below retain the
+chronological implementation record; their per-slice "remaining" notes describe
+what was outstanding at those points in history.
+
+## Initial presentation boundary
 
 `IAreaMapView` separates displayed cells from discovery, station visibility and
 the native slope-corner exploration rule. `AreaMapPresentationAsset` reads and

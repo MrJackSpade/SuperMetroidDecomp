@@ -262,7 +262,11 @@ public sealed partial class SuperMetroidGame
                 // `Vector_RESET_Async` ultimately stores state one and initializes
                 // `cinematic_function` to `CinematicFunctionOpening` at $8B:9B68.
                 audio.Reset();
-                title = new TitleSequenceState(bus, audio, mapPresentation?.TitleGradient);
+                title = new TitleSequenceState(
+                    bus,
+                    audio,
+                    mapPresentation?.TitleGradient,
+                    mapPresentation?.TitlePalette);
                 lastAudioRuntimeGameplayPublication = null;
                 lastAudioRoomStatePointer = null;
                 fileSelect = null;

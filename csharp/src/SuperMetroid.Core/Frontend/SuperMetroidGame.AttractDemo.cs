@@ -117,14 +117,16 @@ public sealed partial class SuperMetroidGame
                         title = TitleSequenceState.ReturnFromDemo(
                             bus,
                             audio,
-                            mapPresentation?.TitleGradient);
+                            mapPresentation?.TitleGradient,
+                            mapPresentation?.TitlePalette);
                     else
                     {
                         audio.QueueMusicDelayed8(MusicCommand.Stop);
                         title = new TitleSequenceState(
                             bus,
                             audio,
-                            mapPresentation?.TitleGradient);
+                            mapPresentation?.TitleGradient,
+                            mapPresentation?.TitlePalette);
                     }
                     GameState = SuperMetroidGameState.OpeningCinematic;
                     PublishMenu(title);

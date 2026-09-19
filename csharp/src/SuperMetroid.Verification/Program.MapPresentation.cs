@@ -110,6 +110,7 @@ internal static partial class Program
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
+        VerifyTitlePaletteOverride(bus, stock, overrides, original);
         VerifyTitleGradientOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -219,6 +220,45 @@ internal static partial class Program
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title gradient override restores installed-content identity");
         Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
+    }
+
+    private static void VerifyTitlePaletteOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string source = Path.Combine(stock, TitlePaletteFormat.FileName);
+        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
+            File.ReadAllBytes(source),
+            MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted title palette document is null.");
+        for (int index = 0; index < document.Colors.Length; index++)
+        {
+            PaletteRgb5 color = document.Colors[index];
+            document.Colors[index] = color with { Red = color.Red == 31 ? 30 : color.Red + 1 };
+        }
+
+        string replacement = Path.Combine(overrides, TitlePaletteFormat.FileName);
+        using (var stream = File.Create(replacement))
+            TitlePalettePresentation.Write(stream, document);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "title palette override changes installed-content identity");
+        var stockTitle = new TitleSequenceState(bus, titlePalettePresentation: original.TitlePalette);
+        var editedTitle = new TitleSequenceState(bus, titlePalettePresentation: edited.TitlePalette);
+        AssertTrue(editedTitle.PaletteColors.SequenceEqual(edited.TitlePalette.Colors),
+            "production title consumes selected palette override");
+        stockTitle.Step(0);
+        editedTitle.Step(0);
+        AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
+            "palette override visibly changes production title output");
+
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing title palette override restores installed-content identity");
+        Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
     }
 
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,

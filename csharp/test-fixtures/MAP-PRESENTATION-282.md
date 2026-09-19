@@ -1315,3 +1315,23 @@ source byte is forbidden. A valid override changes both the installed-content
 identity and the production title frame; removing it restores both exactly.
 Malformed dimensions, identities, RGB5 values, controls, and schema versions fail
 loudly.
+
+## Editable title palette (#549)
+
+Catalog version 38 adds `title-palette.json`, schema version 1 (forty shared
+resource hashes). Its `colors` array contains all 256 initial CGRAM entries as
+RGB5 objects. Copy the stock file to `overrides/maps/title-palette.json` to
+replace title colors without modifying the cartridge.
+
+The resource owns initial color values only. Console-light instruction streams,
+animation cadence, color destinations, title phases, and brightness remain
+compiled/native behavior. New title sequences—including attract-demo returns—use
+the selected installed palette. A debugger state retains its already-materialized
+CGRAM so restoring a mid-animation frame does not reset visual phase.
+
+Verification compares every extracted word with the cartridge, constructs the
+real title owner while all 512 source palette bytes are forbidden, and proves a
+valid override changes content identity and rendered title pixels. Removing the
+override restores both exactly. Wrong color counts, unsupported versions,
+out-of-range RGB5 components, unknown native-address fields, and malformed JSON
+fail loudly.

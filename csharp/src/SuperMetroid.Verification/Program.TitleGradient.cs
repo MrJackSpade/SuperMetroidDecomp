@@ -9,6 +9,7 @@ internal static partial class Program
     private static void VerifyTitleGradientTables(SuperMetroidAddressSpace bus)
     {
         VerifyTitleGradientObjectEligibility();
+        VerifyExtractedTitlePalette(bus);
         VerifyExtractedTitleGradient(bus);
         // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
         var lines = TitleGradient.Decode(bus, 0);
@@ -30,10 +31,71 @@ internal static partial class Program
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
 
+    private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
+    {
+        byte[] extracted = SuperMetroid.AssetExtraction.TitlePaletteExtractor.Extract(bus);
+        TitlePalettePresentation presentation = TitlePalettePresentation.Load(
+            new MemoryStream(extracted, writable: false));
+        var expected = new SnesCgram();
+        expected.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
+        if (!presentation.Colors.SequenceEqual(expected.Colors))
+            throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
+
+        VerifyTitlePaletteValidation(extracted);
+        var paletteAddresses = Enumerable.Range(
+            TitleSequenceRomData.Assets.PaletteAddress,
+            SnesCgram.ByteCount).ToHashSet();
+        var guardedBus = new TitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
+        var title = new TitleSequenceState(guardedBus, titlePalettePresentation: presentation);
+        if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||
+            guardedBus.ForbiddenReadAttempts != 0)
+        {
+            throw new InvalidDataException(
+                "Production title initialization did not use the installed palette exclusively.");
+        }
+        Console.WriteLine(
+            $"  Title palette presentation: {SnesCgram.ColorCount} editable colors match ROM; " +
+            $"production avoided {paletteAddresses.Count} cartridge source bytes.");
+    }
+
+    private static void VerifyTitlePaletteValidation(byte[] extracted)
+    {
+        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
+            extracted,
+            MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted title palette document is null.");
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        void Reject(string description) => AssertThrows<InvalidDataException>(
+            () => TitlePalettePresentation.Load(new MemoryStream(Json(), writable: false)),
+            description);
+
+        int version = document.Version;
+        document = document with { Version = version + 1 };
+        Reject("title palette rejects unsupported schema version");
+        document = document with { Version = version };
+
+        PaletteRgb5[] colors = document.Colors;
+        document = document with { Colors = colors[..^1] };
+        Reject("title palette rejects incomplete color set");
+        document = document with { Colors = colors };
+
+        PaletteRgb5 first = colors[0];
+        colors[0] = first with { Blue = 32 };
+        Reject("title palette rejects non-RGB5 color");
+        colors[0] = first;
+
+        string unknownField = System.Text.Encoding.UTF8.GetString(extracted)
+            .Replace("\"version\": 1", "\"version\": 1,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
+        AssertThrows<InvalidDataException>(
+            () => TitlePalettePresentation.Load(new MemoryStream(
+                System.Text.Encoding.UTF8.GetBytes(unknownField), writable: false)),
+            "title palette rejects native-address escape hatch");
+    }
+
     private static void VerifyExtractedTitleGradient(ISnesAddressSpace bus)
     {
         var cartridgeReads = new HashSet<int>();
-        var tracingBus = new TitleGradientReadBus(bus, cartridgeReads, forbidReads: false);
+        var tracingBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
             _ = TitleGradient.Decode(tracingBus, checked((ushort)(variant << 4)));
 
@@ -50,7 +112,7 @@ internal static partial class Program
         // The rest of title setup remains cartridge-backed presentation for later #549
         // slices. Forbid only the complete gradient source closure discovered above, then
         // drive the real title owner through Start's skip fade into a gradient frame.
-        var guardedBus = new TitleGradientReadBus(bus, cartridgeReads, forbidReads: true);
+        var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(guardedBus, presentation);
         if (!rendered.AsSpan().SequenceEqual(presentation.Resolve(selectedZoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
@@ -148,7 +210,7 @@ internal static partial class Program
             TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
     }
 
-    private sealed class TitleGradientReadBus(
+    private sealed class TitlePresentationReadBus(
         ISnesAddressSpace source,
         HashSet<int> addresses,
         bool forbidReads) : ISnesAddressSpace

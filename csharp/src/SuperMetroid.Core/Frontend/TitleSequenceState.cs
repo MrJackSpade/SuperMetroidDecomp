@@ -9,12 +9,12 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Cartridge-backed title-sequence state owned by game state one.
+/// Title-sequence state owned by game state one.
 /// </summary>
 /// <remarks>
-/// This ports the visible state chain at <c>$8B:9A22-$8B:A35A</c>. Art, palette,
-/// spritemaps, and the animated baby-Metroid character data are read from the ROM. Host
-/// code supplies only the controller word and consumes the composed framebuffer.
+/// This ports the visible state chain at <c>$8B:9A22-$8B:A35A</c>. Installed sessions
+/// supply extracted palette and gradient presentation; remaining art, spritemaps, and
+/// animated baby-Metroid character data still use the cartridge diagnostic path.
 /// </remarks>
 public sealed class TitleSequenceState
 {
@@ -52,8 +52,9 @@ public sealed class TitleSequenceState
     public TitleSequenceState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
-        TitleGradientPresentation? titleGradientPresentation = null)
-        : this(bus, audio, queueOpeningMusic: true, titleGradientPresentation)
+        TitleGradientPresentation? titleGradientPresentation = null,
+        TitlePalettePresentation? titlePalettePresentation = null)
+        : this(bus, audio, queueOpeningMusic: true, titleGradientPresentation, titlePalettePresentation)
     {
     }
 
@@ -61,7 +62,8 @@ public sealed class TitleSequenceState
         ISnesAddressSpace bus,
         CartridgeAudioState? audio,
         bool queueOpeningMusic,
-        TitleGradientPresentation? titleGradientPresentation)
+        TitleGradientPresentation? titleGradientPresentation,
+        TitlePalettePresentation? titlePalettePresentation)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
@@ -95,7 +97,10 @@ public sealed class TitleSequenceState
                 Math.Min(
                     TitleSequenceRomData.Vram.ObjectCharacterByteCount,
                     objectCharacters.Length)));
-        cgram.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
+        if (titlePalettePresentation is null)
+            cgram.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
+        else
+            titlePalettePresentation.Apply(cgram);
         ResetConsolePaletteFx();
 
         // The Year object's pre-instruction forces full brightness on the first
@@ -135,13 +140,15 @@ public sealed class TitleSequenceState
     internal static TitleSequenceState ReturnFromDemo(
         ISnesAddressSpace bus,
         CartridgeAudioState audio,
-        TitleGradientPresentation? titleGradientPresentation = null)
+        TitleGradientPresentation? titleGradientPresentation = null,
+        TitlePalettePresentation? titlePalettePresentation = null)
     {
         var title = new TitleSequenceState(
             bus,
             audio,
             queueOpeningMusic: false,
-            titleGradientPresentation);
+            titleGradientPresentation,
+            titlePalettePresentation);
         title.EnterImmediateTitleObjects();
         title.brightness = 0;
         title.phase = TitleSequencePhase.TitleScreenFadeIn;

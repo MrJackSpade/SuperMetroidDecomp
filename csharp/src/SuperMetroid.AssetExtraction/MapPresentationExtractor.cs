@@ -211,6 +211,11 @@ public static class MapPresentationExtractor
             file.Write(creditsBytes);
         hashes.Add(CreditsPresentationDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(creditsBytes)));
+        byte[] titlePaletteBytes = TitlePaletteExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, TitlePaletteFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(titlePaletteBytes);
+        hashes.Add(TitlePaletteFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(titlePaletteBytes)));
         byte[] titleGradientBytes = TitleGradientExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, TitleGradientFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(titleGradientBytes);

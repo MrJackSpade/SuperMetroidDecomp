@@ -681,6 +681,11 @@ if (args is ["--room-header-definitions"])
     VerifyCompiledRoomHeaderDefinitions();
     return 0;
 }
+if (args is ["--room-state-payloads"])
+{
+    VerifyCompiledRoomStateDefinitions();
+    return 0;
+}
 if (args is ["--room-state-definitions"])
 {
     VerifyCompiledRoomStateSelectionDefinitions();
@@ -1500,6 +1505,7 @@ VerifyLevelBlockTilemapExpansion();
 VerifyRoomLevelData();
 VerifyCartridgeRoomStateSelection();
 VerifyCompiledRoomHeaderDefinitions();
+VerifyCompiledRoomStateDefinitions();
 VerifyCompiledRoomStateSelectionDefinitions();
 VerifyCompiledLoadStationDefinitions();
 VerifyRoomMainCodeCatalog();

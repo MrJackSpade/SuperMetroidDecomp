@@ -46,7 +46,7 @@ public sealed record CartridgeRoomHeader(
         return LoadSelectedFromCartridgeHeader(bus, roomPointer, statePointer);
     }
 
-    /// <summary>Uses compiled fixed metadata/state selection and reads only the selected state payload.</summary>
+    /// <summary>Builds a room entirely from compiled fixed metadata, selection, and state payloads.</summary>
     public static CartridgeRoomHeader LoadUsingCompiledSelection(
         ISnesAddressSpace bus,
         ushort roomPointer,
@@ -67,7 +67,7 @@ public sealed record CartridgeRoomHeader(
             header.DownScroller,
             header.CreBitset,
             header.DoorListPointer,
-            CartridgeRoomState.Load(bus, statePointer));
+            RoomStateDefinitions.Get(statePointer));
     }
 
     /// <summary>Returns a compiled fixed header's area without reading native room data.</summary>

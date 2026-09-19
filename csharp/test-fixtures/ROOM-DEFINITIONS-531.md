@@ -54,6 +54,25 @@ It compares every compiled field with the pinned retail ROM, rejects the cartrid
 developer area-seven room and arbitrary pointers, and loads production Ceres while
 both its fixed header and selector program are inaccessible.
 
-Remaining #531 work: compile the 323 selected room-state payloads, door connections,
-camera/scroll definitions, and setup/main dispatch references. Visual assets remain
-cartridge-backed in this intermediate slice.
+Remaining #531 work after the fixed-header slice was the 323 selected room-state
+payloads, door connections, camera/scroll definitions, and setup/main dispatch
+references. Visual assets remain cartridge-backed at this point in the migration.
+
+## Room-state payloads
+
+`RoomStateDefinitions` compiles all 323 selected twenty-six-byte room-state records.
+That includes stable references to level data, graphics sets, music, FX, enemy
+populations/tilesets, layer-two scrolling, scroll data, X-ray data, room main/setup
+code, PLMs, and background data. Production room loading now combines the compiled
+fixed header, compiled selector, and compiled selected payload without reading any
+part of the native header/state record. The referenced visual and level streams
+remain cartridge-backed pending their respective #530 child migrations.
+
+Run `SuperMetroid.Verification --room-state-payloads` from the repository root. It
+reaches all 323 states through the retail selector graph, compares every payload
+field with the pinned ROM, rejects arbitrary pointers, and loads production Ceres
+while its complete selected-state record is inaccessible.
+
+Remaining #531 work: compile door connections, camera/scroll definitions, and
+setup/main dispatch references, then exercise complete room-entry and camera
+trajectories with all migrated definition ranges blocked.

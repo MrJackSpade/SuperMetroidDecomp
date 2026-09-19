@@ -107,6 +107,7 @@ internal static partial class Program
         VerifyPipeBugAnimationDefinitions(rom);
         VerifyBrinstarPipeBugInstructionProgramDefinitions(rom);
         VerifyNorfairPipeBugInstructionProgramDefinitions(rom);
+        VerifyYellowPipeBugInstructionProgramDefinitions(rom);
         VerifyDraygonBurialEvirDefinitions(rom);
         VerifyDraygonHealthPaletteDefinitions(rom);
         VerifyFakeKraidProjectileDefinitions(rom);

@@ -1108,6 +1108,19 @@ four production loops beyond their terminal gotos while every mechanics byte is 
 All presentation operands remain observable, invalid mechanics pointers fail loudly, and
 warmed lookup is allocation-free.
 
+## Yellow Pipe Bug instruction mechanics
+
+Yellow Brinstar Pipe Bugs now resolve all twenty-four fixed durations, gotos, and loop
+targets across the left/right straight and arcing programs through
+`YellowPipeBugInstructionProgramDefinitions`. Their sixteen interleaved spritemap pointers
+remain live cartridge presentation data, and every state-machine handoff names the same
+catalog entries instead of retaining raw addresses.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four production loops beyond their terminal gotos while every mechanics byte is forbidden.
+All presentation operands remain observable, invalid mechanics pointers fail loudly, and
+warmed lookup is allocation-free.
+
 ## Brinstar Pipe Bug instruction mechanics
 
 Normal and strong Brinstar Pipe Bugs now resolve all sixty fixed durations, gotos, and

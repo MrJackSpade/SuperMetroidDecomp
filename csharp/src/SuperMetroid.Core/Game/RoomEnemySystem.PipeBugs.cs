@@ -128,10 +128,6 @@ public sealed partial class RoomEnemySystem
 
     private const int NorfairFormationSize = 5;
 
-    private const ushort YellowPipeBugLeftInstruction = 0x8efc;
-    private const ushort YellowPipeBugLeftArcInstruction = 0x8f10;
-    private const ushort YellowPipeBugRightInstruction = 0x8f24;
-    private const ushort YellowPipeBugRightArcInstruction = 0x8f38;
     private const ushort YellowPipeBugTriggerDistance = 192;
     private const ushort YellowPipeBugTriggerHeight = 48;
     private const ushort YellowPipeBugEmergenceDelayFrames = 24;
@@ -199,8 +195,8 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = slot.Parameter1 != 0
-            ? YellowPipeBugLeftInstruction
-            : YellowPipeBugRightInstruction;
+            ? YellowPipeBugInstructionProgramDefinitions.FlyingLeft
+            : YellowPipeBugInstructionProgramDefinitions.FlyingRight;
 
         // Parameter two is a logical entry index. Each common linear-speed record is eight
         // bytes: positive fraction/whole followed by its separately authored negative pair.
@@ -605,12 +601,12 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         if (slot.Parameter1 != 0)
         {
-            slot.CurrentInstruction = YellowPipeBugLeftInstruction;
+            slot.CurrentInstruction = YellowPipeBugInstructionProgramDefinitions.FlyingLeft;
             state.Function = PipeBugEnemyFunction.YellowFlyLeft;
         }
         else
         {
-            slot.CurrentInstruction = YellowPipeBugRightInstruction;
+            slot.CurrentInstruction = YellowPipeBugInstructionProgramDefinitions.FlyingRight;
             state.Function = PipeBugEnemyFunction.YellowFlyRight;
         }
     }
@@ -644,7 +640,9 @@ public sealed partial class RoomEnemySystem
         state.ArcStartX = slot.XPosition;
         InstallPipeBugInstruction(
             slot,
-            movingLeft ? YellowPipeBugLeftArcInstruction : YellowPipeBugRightArcInstruction);
+            movingLeft
+                ? YellowPipeBugInstructionProgramDefinitions.ArcingLeft
+                : YellowPipeBugInstructionProgramDefinitions.ArcingRight);
     }
 
     private static void RunYellowPipeBugArc(
@@ -689,7 +687,9 @@ public sealed partial class RoomEnemySystem
             : PipeBugEnemyFunction.YellowFlyRight;
         InstallPipeBugInstruction(
             slot,
-            movingLeft ? YellowPipeBugLeftInstruction : YellowPipeBugRightInstruction);
+            movingLeft
+                ? YellowPipeBugInstructionProgramDefinitions.FlyingLeft
+                : YellowPipeBugInstructionProgramDefinitions.FlyingRight);
     }
 
     private static bool ResetYellowPipeBugIfOffScreen(
@@ -709,8 +709,8 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = slot.Parameter1 != 0
-            ? YellowPipeBugLeftInstruction
-            : YellowPipeBugRightInstruction;
+            ? YellowPipeBugInstructionProgramDefinitions.FlyingLeft
+            : YellowPipeBugInstructionProgramDefinitions.FlyingRight;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         return true;
     }

@@ -3037,6 +3037,18 @@ is forbidden. All 16 spritemap operands remain observable, both attack programs 
 their completion flag, presentation and adjacent selector-table pointers fail as mechanics,
 and warmed lookup is allocation-free.
 
+# Yellow Pipe Bug instruction mechanics
+
+Yellow Brinstar Pipe Bugs' left/right straight and arcing programs now resolve all
+24 fixed durations, gotos, and loop targets through
+`YellowPipeBugInstructionProgramDefinitions`. Their 16 interleaved spritemap pointers
+remain live cartridge presentation data, and all production handoffs use named entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four production loops beyond their terminal gotos while mechanics bytes are forbidden.
+Every presentation operand remains observable, invalid mechanics pointers fail loudly,
+and warmed lookup is allocation-free.
+
 # Norfair Pipe Bug instruction mechanics
 
 The Norfair Pipe Bug formation's left/right rising and flight programs now resolve all

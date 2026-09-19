@@ -22,6 +22,7 @@ internal static partial class Program
         VerifyEditableAudioInstruments();
         VerifyPersistentAudioOverrides();
         VerifyEditableSoundEffectPrograms();
+        VerifyEditableMusicPrograms();
     }
 
     private static void VerifyManagedDspUsesLiveSourceAtLoop()

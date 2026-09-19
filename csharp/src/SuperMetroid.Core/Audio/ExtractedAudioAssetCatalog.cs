@@ -14,6 +14,7 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
+    private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
     private readonly IReadOnlyList<AudioSoundProgramMetadata> soundPrograms;
     private readonly IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries;
     private readonly int canonicalSampleCount;
@@ -22,6 +23,7 @@ public sealed class ExtractedAudioAssetCatalog
         IReadOnlyDictionary<int, byte[]> streams,
         IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks,
         IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instrumentBanks,
+        IReadOnlyDictionary<int, AudioBankMetadata> musicBanks,
         IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
         IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries,
         int canonicalSampleCount)
@@ -29,6 +31,7 @@ public sealed class ExtractedAudioAssetCatalog
         this.streams = streams;
         this.sampleBanks = sampleBanks;
         this.instrumentBanks = instrumentBanks;
+        this.musicBanks = musicBanks;
         this.soundPrograms = soundPrograms;
         this.soundLibraries = soundLibraries;
         this.canonicalSampleCount = canonicalSampleCount;
@@ -90,6 +93,7 @@ public sealed class ExtractedAudioAssetCatalog
             LoadCanonicalSamples(root, manifest.CanonicalSamples);
         Dictionary<int, ManagedPcmSampleBank> banks = [];
         Dictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instruments = [];
+        Dictionary<int, AudioBankMetadata> musicBanks = [];
         foreach (AudioBankMetadata bank in manifest.Banks)
         {
             AudioUploadAssetDefinition definition = AudioAssetCatalogData.All.SingleOrDefault(
@@ -133,6 +137,9 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
             if (!instruments.TryAdd(bank.SnesAddress, ValidateInstruments(bank)))
                 throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
+            ValidateMusicBank(bank);
+            if (!musicBanks.TryAdd(bank.SnesAddress, bank))
+                throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
         }
         int[] missingBanks = AudioAssetCatalogData.All
             .Select(definition => definition.SnesAddress)
@@ -162,6 +169,7 @@ public sealed class ExtractedAudioAssetCatalog
             loaded,
             banks,
             instruments,
+            musicBanks,
             soundPrograms,
             soundLibraries,
             canonicalSamples.Count);
@@ -212,6 +220,13 @@ public sealed class ExtractedAudioAssetCatalog
             ? bank
             : throw new InvalidDataException(
                 $"Audio command references unmapped instrument bank address ${snesAddress:X6}.");
+
+    /// <summary>Returns the decoded authored music definitions installed by one upload.</summary>
+    public AudioBankMetadata GetMusicBank(int snesAddress) =>
+        musicBanks.TryGetValue(snesAddress, out AudioBankMetadata? bank)
+            ? bank
+            : throw new InvalidDataException(
+                $"Audio command references unmapped music bank address ${snesAddress:X6}.");
 
     /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
     public IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms => soundPrograms;
@@ -302,6 +317,68 @@ public sealed class ExtractedAudioAssetCatalog
             }
         }
         return samples;
+    }
+
+    private static void ValidateMusicBank(AudioBankMetadata bank)
+    {
+        if (bank.TrackPointers is null || bank.MusicTracks is null ||
+            bank.MusicPhrases is null || bank.MusicPrograms is null)
+            throw new InvalidDataException($"Audio bank '{bank.Name}' has an incomplete music catalog.");
+        if (bank.TrackPointers.Count != bank.MusicTracks.Count)
+        {
+            throw new InvalidDataException(
+                $"Audio bank '{bank.Name}' has {bank.TrackPointers.Count} track pointers but " +
+                $"{bank.MusicTracks.Count} decoded tracks.");
+        }
+        Dictionary<ushort, AudioMusicPhraseMetadata> phrases = [];
+        foreach (AudioMusicPhraseMetadata phrase in bank.MusicPhrases)
+        {
+            string expectedId = $"music-{bank.DataIndex:x2}-phrase-{phrase.Address:x4}";
+            if (phrase.Id != expectedId || !phrases.TryAdd(phrase.Address, phrase))
+                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid phrase identity '{phrase.Id}'.");
+        }
+        Dictionary<ushort, AudioMusicProgramMetadata> programs = [];
+        foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
+        {
+            string expectedId = $"music-{bank.DataIndex:x2}-program-{program.Address:x4}";
+            if (program.Id != expectedId || !programs.TryAdd(program.Address, program))
+                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid program identity '{program.Id}'.");
+        }
+        for (int trackIndex = 0; trackIndex < bank.MusicTracks.Count; trackIndex++)
+        {
+            AudioMusicTrackMetadata track = bank.MusicTracks[trackIndex];
+            string expectedId = $"music-{bank.DataIndex:x2}-track-{trackIndex:00}";
+            if (track.Track != trackIndex || track.Id != expectedId ||
+                track.Address != bank.TrackPointers[trackIndex])
+                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track identity '{track.Id}'.");
+            _ = SpcMusicDefinitionCodec.EncodeTrack(track);
+            foreach (AudioMusicTrackInstructionMetadata instruction in track.Instructions)
+            {
+                if (instruction.Operation == AudioMusicInstructionOperations.PlayPhrase &&
+                    !phrases.ContainsKey(instruction.Value))
+                {
+                    throw new InvalidDataException(
+                        $"Music track '{track.Id}' references missing phrase ${instruction.Value:X4}.");
+                }
+            }
+        }
+        foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
+        {
+            _ = SpcMusicDefinitionCodec.EncodeProgram(program);
+            foreach (AudioMusicInstructionMetadata instruction in program.Instructions)
+            {
+                if (instruction.Opcode != (byte)SpcMusicEffect.CallPattern)
+                    continue;
+                ushort target = unchecked((ushort)(
+                    instruction.Arguments[0] | (instruction.Arguments[1] << 8)));
+                if (!programs.ContainsKey(target))
+                {
+                    throw new InvalidDataException(
+                        $"Music program '{program.Id}' calls missing program ${target:X4}.");
+                }
+            }
+        }
+        _ = SpcMusicDefinitionCodec.CompileBank(bank);
     }
 
     private static (
@@ -439,6 +516,23 @@ public sealed class ExtractedAudioAssetCatalog
             if (actual.Name != expected.Name || actual.DataIndex != expected.DataIndex ||
                 actual.SnesAddress != expected.SnesAddress ||
                 !actual.TrackPointers.SequenceEqual(expected.TrackPointers) ||
+                actual.MusicTracks.Count != expected.MusicTracks.Count ||
+                !actual.MusicTracks.Zip(expected.MusicTracks).All(pair =>
+                    pair.First.Track == pair.Second.Track &&
+                    pair.First.Id == pair.Second.Id &&
+                    pair.First.Address == pair.Second.Address &&
+                    pair.First.ByteCapacity == pair.Second.ByteCapacity) ||
+                actual.MusicPhrases.Count != expected.MusicPhrases.Count ||
+                !actual.MusicPhrases.Zip(expected.MusicPhrases).All(pair =>
+                    pair.First.Id == pair.Second.Id &&
+                    pair.First.Address == pair.Second.Address &&
+                    pair.First.ChannelPrograms.SequenceEqual(
+                        pair.Second.ChannelPrograms, StringComparer.Ordinal)) ||
+                actual.MusicPrograms.Count != expected.MusicPrograms.Count ||
+                !actual.MusicPrograms.Zip(expected.MusicPrograms).All(pair =>
+                    pair.First.Id == pair.Second.Id &&
+                    pair.First.Address == pair.Second.Address &&
+                    pair.First.ByteCapacity == pair.Second.ByteCapacity) ||
                 actual.Samples.Count != expected.Samples.Count ||
                 !actual.Samples.Zip(expected.Samples).All(pair => pair.First == pair.Second))
             {
@@ -486,7 +580,7 @@ public sealed record AudioAssetManifest(
     IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms,
     IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries)
 {
-    public const int CurrentFormatVersion = 3;
+    public const int CurrentFormatVersion = 4;
 }
 
 /// <summary>Manifest identity and integrity information for one opaque upload stream.</summary>
@@ -504,8 +598,48 @@ public sealed record AudioBankMetadata(
     byte DataIndex,
     int SnesAddress,
     IReadOnlyList<ushort> TrackPointers,
+    IReadOnlyList<AudioMusicTrackMetadata> MusicTracks,
+    IReadOnlyList<AudioMusicPhraseMetadata> MusicPhrases,
+    IReadOnlyList<AudioMusicProgramMetadata> MusicPrograms,
     IReadOnlyList<AudioInstrumentMetadata> Instruments,
     IReadOnlyList<AudioSampleMetadata> Samples);
+
+/// <summary>One numbered music track's top-level phrase-flow program.</summary>
+public sealed record AudioMusicTrackMetadata(
+    int Track,
+    string Id,
+    ushort Address,
+    int ByteCapacity,
+    IReadOnlyList<AudioMusicTrackInstructionMetadata> Instructions);
+
+/// <summary>One phrase-flow operation; repeat uses Target while other operations do not.</summary>
+public sealed record AudioMusicTrackInstructionMetadata(
+    string Operation,
+    ushort Value,
+    ushort? Target);
+
+/// <summary>Eight-channel routing table selected by a top-level track instruction.</summary>
+public sealed record AudioMusicPhraseMetadata(
+    string Id,
+    ushort Address,
+    IReadOnlyList<string?> ChannelPrograms);
+
+/// <summary>One bounded authored channel/subroutine program.</summary>
+public sealed record AudioMusicProgramMetadata(
+    string Id,
+    ushort Address,
+    int ByteCapacity,
+    IReadOnlyList<AudioMusicInstructionMetadata> Instructions);
+
+/// <summary>
+/// One channel command. Timing contains the optional length/articulation prefix; Arguments
+/// contains effect operands. Opcode is retained for exact lossless recompilation.
+/// </summary>
+public sealed record AudioMusicInstructionMetadata(
+    string Operation,
+    byte Opcode,
+    IReadOnlyList<byte> Timing,
+    IReadOnlyList<byte> Arguments);
 
 /// <summary>The six bytes consumed by the SPC driver's set-instrument command.</summary>
 public sealed record AudioInstrumentMetadata(

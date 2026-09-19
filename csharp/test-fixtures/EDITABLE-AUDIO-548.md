@@ -44,5 +44,12 @@ all 240 effects retain native routing, a JSON-only note edit reaches live APU RA
 audible PCM, and malformed operations, capacities, or references fail explicitly. Installed
 edits live in the persistent `overrides/audio` catalog and survive stock repair.
 
-This remains a partial #548 implementation. Authored music track/phrase/channel sequence
-decoding is the outstanding content seam.
+Music extraction covers 159 stable tracks, 263 phrase tables, 1,695 channel/subroutine programs,
+and 103,046 named instructions across all 24 music banks. `Program.AudioMusicPrograms` proves the
+complete compiled byte image and track-pointer routing match stock, then changes one Title music
+note only in JSON and observes the live APU edit and changed audible PCM. Fixed-capacity and
+missing-reference failures are covered by the focused command:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --audio-music-programs
+```

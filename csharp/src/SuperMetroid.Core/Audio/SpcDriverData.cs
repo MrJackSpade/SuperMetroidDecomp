@@ -61,6 +61,7 @@ internal static class SpcDriverData
         internal const byte DefaultChannelVolume = byte.MaxValue;
         internal const byte CenterPan = 10;
         internal const byte FirstEffect = 0xe0;
+        internal const byte CommandMarker = 0x80;
         internal const byte FirstPercussionNote = 0xca;
         internal const byte PercussionPlaybackNote = 0xa4;
         internal const byte TieNote = 0xc8;

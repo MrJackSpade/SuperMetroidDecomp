@@ -8,9 +8,10 @@ namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
 /// Build-stage extractor for the game's exact SPC upload streams and their inspectable
-/// derivatives. The lossless <c>.spcu</c> files retain sequence and instrument data while a
-/// deduplicated, stable-ID WAV catalog supplies every runtime sample. This deliberately makes
-/// replacing a stock waveform independent from the managed sequencer and mixer.
+/// derivatives. Lossless <c>.spcu</c> files retain native provenance while decoded music/SFX
+/// programs and instrument records become editable definitions; a deduplicated stable-ID WAV
+/// catalog supplies every runtime sample. This deliberately makes authored audio replacement
+/// independent from the managed sequencer and mixer mechanics.
 /// </summary>
 public static class SpcAudioAssetExtractor
 {
@@ -120,15 +121,34 @@ public static class SpcAudioAssetExtractor
         List<ushort> trackPointers = [];
         if (includeTrackPointers)
         {
-            trackPointers.Add(ReadWord(ram, SpcDriverData.Ram.DefaultMusicPointer));
-            for (int track = 1; track < MaximumTrackPointerCount; track++)
+            int tableAddress = SpcDriverData.Ram.DefaultMusicPointer;
+            int firstFollowingContent = SpcDriverData.ApuRamSize;
+            for (int track = 0; track < MaximumTrackPointerCount; track++)
             {
-                ushort pointer = ReadWord(ram, SpcDriverData.Ram.DefaultMusicPointer + track * 2);
-                if (pointer == 0 || !written[pointer])
+                int entryAddress = tableAddress + track * 2;
+                if (entryAddress >= firstFollowingContent)
                     break;
+                ushort pointer = ReadWord(ram, entryAddress);
+                if (pointer != 0 && !written[pointer])
+                    throw new InvalidDataException(
+                        $"{definition.Name} track {track} points outside uploaded content at ${pointer:X4}.");
                 trackPointers.Add(pointer);
+                // Music data may precede the table, but the first pointer at or above the
+                // table is the exact boundary immediately following its final entry. Stop
+                // there instead of misreading that track's phrase-flow words as more tracks.
+                if (pointer >= tableAddress && pointer < firstFollowingContent)
+                    firstFollowingContent = pointer;
             }
+            if (firstFollowingContent == SpcDriverData.ApuRamSize)
+                throw new InvalidDataException($"{definition.Name} track table has no following-content boundary.");
         }
+        SpcMusicDefinitionBundle music = includeTrackPointers
+            ? SpcMusicDefinitionCodec.DecodeBank(
+                definition.DataIndex,
+                trackPointers,
+                ram,
+                written)
+            : new([], [], []);
 
         List<AudioInstrumentMetadata> instruments = [];
         int instrumentCount = SpcDriverData.Ram.InstrumentCount;
@@ -181,6 +201,9 @@ public static class SpcAudioAssetExtractor
             definition.DataIndex,
             definition.SnesAddress,
             trackPointers,
+            music.Tracks,
+            music.Phrases,
+            music.Programs,
             instruments,
             samples);
     }

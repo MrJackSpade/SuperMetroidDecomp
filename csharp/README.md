@@ -500,6 +500,16 @@ The loader recompiles and validates every program after each audio-bank upload. 
 operations, reserved instrument opcodes, missing program references, routing changes, and
 encoded-size changes fail with the responsible stable ID instead of falling back to opaque data.
 
+Music banks likewise expose three address-stable layers: `musicTracks` contains top-level phrase,
+repeat, and fast-forward flow; `musicPhrases` routes eight channels; and `musicPrograms` contains
+notes plus named effects such as `setInstrument`, `setTempo`, `enableVibrato`, `callPattern`, and
+`configureEcho`. A channel instruction keeps its optional length/articulation bytes in `timing`,
+its readable operation name, exact `opcode`, and effect operands in `arguments`. Track, phrase,
+and program IDs include the bank data index and native address so references remain unambiguous.
+As with SFX, edits must retain each program's `byteCapacity`; overlapping native entry points are
+accepted only while they compile to the same bytes. Conflicting aliases, missing phrases/called
+programs, changed routing identities, or malformed effect operand counts fail explicitly.
+
 Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
 catalog at runtime.
 

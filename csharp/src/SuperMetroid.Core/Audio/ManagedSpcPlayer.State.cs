@@ -268,6 +268,29 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>
+    /// Recompiles decoded track flow, phrase routing, and channel programs into their fixed
+    /// authored slots. The driver interpreter and lookup tables remain ordinary managed code.
+    /// </summary>
+    public void ApplyMusicDefinitions(AudioBankMetadata bank)
+    {
+        ArgumentNullException.ThrowIfNull(bank);
+        for (int track = 0; track < bank.MusicTracks.Count; track++)
+        {
+            int pointerAddress = SpcDriverData.Ram.DefaultMusicPointer + track * 2;
+            ushort uploadedPointer = ReadWord(pointerAddress);
+            AudioMusicTrackMetadata definition = bank.MusicTracks[track];
+            if (uploadedPointer != definition.Address || bank.TrackPointers[track] != definition.Address)
+            {
+                throw new InvalidDataException(
+                    $"Music track '{definition.Id}' routes to uploaded ${uploadedPointer:X4}, " +
+                    $"not decoded address ${definition.Address:X4}.");
+            }
+        }
+        foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(bank))
+            ram[address] = value;
+    }
+
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
     public void WritePort(int port, byte value)
     {

@@ -51,7 +51,7 @@ internal static partial class Program
         captured.ExecuteWordTransfer(first.Concat(second).ToArray(), SnesPpuLayout.GameplayBg1TilemapWord, 1);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.ActiveRoom!;
-        var expected = XrayRevealTilemap.Build(bus, runtime.LevelData!, captured,
+        var expected = XrayRevealTilemap.Build(runtime.LevelData!, captured,
             unchecked((ushort)(scroll.Layer1XPosition + scroll.Bg1XOffset)),
             unchecked((ushort)(scroll.Layer1YPosition + scroll.Bg1YOffset)),
             scroll.Layer1XPosition, scroll.Layer1YPosition, (byte)room.AreaIndex);

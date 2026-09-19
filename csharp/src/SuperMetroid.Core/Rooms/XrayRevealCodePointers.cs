@@ -7,6 +7,8 @@ public static class XrayRevealCodePointers
     public const ushort BlankMetatile = 0x00ff;
     /// <summary>RevealedBlockTable_0 at $91:D2D6, keyed by the level word's block-type nibble.</summary>
     public const ushort BlockTypeTable = 0xd2d6;
+    /// <summary>First byte after the complete revealed-block tables at $91:D4DA.</summary>
+    public const ushort TableEndExclusive = 0xd4da;
     /// <summary>Bank containing the revealed-block tables and commands.</summary>
     public const int Bank = 0x910000;
     /// <summary>Native end marker for both block-type and BTS tables.</summary>

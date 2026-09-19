@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Native X-ray extension traversal at $91:CE79-CF34; deliberately not the collision extension resolver.</summary>
@@ -9,9 +7,8 @@ public static class XrayRevealExtensions
     /// Returns the replacement metatile, or null to retain copied BG1 art. Unlike collision,
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
-    public static ushort? Resolve(ISnesAddressSpace bus, RoomLevelData level, int blockIndex)
+    public static ushort? Resolve(RoomLevelData level, int blockIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(blockIndex);
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
@@ -48,7 +45,7 @@ public static class XrayRevealExtensions
                 continue;
             }
             if (block.CollisionType != RoomCollisionType.SpecialAir) return null;
-            return XrayRevealTable.Find(bus, block.CollisionType, block.Behavior)?.TopLeft;
+            return XrayRevealTable.Find(block.CollisionType, block.Behavior)?.TopLeft;
         }
     }
 }

@@ -25,7 +25,7 @@ public sealed partial class SuperMetroidRuntime
                 captured.LoadBytes(SnesPpuLayout.GameplayBg1TilemapWord * 2, bytes);
                 ushort x = BackgroundScroll.Layer1XPosition;
                 ushort y = BackgroundScroll.Layer1YPosition;
-                var map = XrayRevealTilemap.Build(_addressSpace, level, captured,
+                var map = XrayRevealTilemap.Build(level, captured,
                     unchecked((ushort)(x + BackgroundScroll.Bg1XOffset)),
                     unchecked((ushort)(y + BackgroundScroll.Bg1YOffset)), x, y, (byte)room.AreaIndex);
                 XrayRevealOverlays.Apply(_addressSpace, level, map, Plms.Collectibles, System,

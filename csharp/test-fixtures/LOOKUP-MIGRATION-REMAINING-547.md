@@ -243,6 +243,13 @@ and load round-trip the complete seven-area in-memory map with the bank-$81 code
 forbidden; the native seventh Ceres list remains deliberately excluded exactly as in
 <c>SaveMap</c>/<c>LoadMap</c>.
 
+The complete bank-$91 X-ray revealed-block dispatcher is compiled too. All 4,096 collision-
+type/BTS inputs are compared against an independent traversal of the native two-stage table,
+including all seven command identities and every multi-block metatile operand. The production
+lookup, extension traversal, and tilemap builder no longer accept an address space for this
+fixed policy; room block definitions and item/special-room overlay art remain separate live
+presentation data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

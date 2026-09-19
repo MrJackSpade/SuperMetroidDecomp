@@ -10,10 +10,9 @@ public static class XrayRevealTilemap
     /// Ports $91:CB8E-CFD9's base-copy and terrain-reveal passes. Item and special-room
     /// overlays are applied afterwards by their respective owners, as on the cartridge.
     /// </summary>
-    public static ushort[] Build(ISnesAddressSpace bus, RoomLevelData level, SnesVram vram,
+    public static ushort[] Build(RoomLevelData level, SnesVram vram,
         ushort bg1HorizontalScroll, ushort bg1VerticalScroll, ushort layer1X, ushort layer1Y, byte area)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(vram);
         var result = new ushort[XrayTilemapLayout.BufferWords];
@@ -48,7 +47,7 @@ public static class XrayRevealTilemap
                 int destination = Destination(col, row);
                 if (reveal.Command is XrayRevealCodePointers.HorizontalExtension or XrayRevealCodePointers.VerticalExtension)
                 {
-                    if (XrayRevealExtensions.Resolve(bus, level, index) is { } replacement)
+                    if (XrayRevealExtensions.Resolve(level, index) is { } replacement)
                         CopyMetatile(destination, replacement);
                     continue;
                 }
@@ -71,7 +70,7 @@ public static class XrayRevealTilemap
         XrayRevealDefinition? Lookup(int index)
         {
             RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(index);
-            return XrayRevealTable.Find(bus, block.CollisionType, block.Behavior);
+            return XrayRevealTable.Find(block.CollisionType, block.Behavior);
         }
         ushort ReadBg1(int x, int y)
         {

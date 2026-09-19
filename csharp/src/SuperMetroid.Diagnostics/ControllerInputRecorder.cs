@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction;
 using System.Security.Cryptography;
 
 namespace SuperMetroid.Desktop;
@@ -22,6 +23,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     private readonly byte[] romSha256;
     private readonly byte[] initialSaveRam;
     private readonly SuperMetroidGameOptions gameOptions;
+    private readonly ControllerRecordingContentIdentity? contentIdentity;
     private readonly DateTimeOffset startedUtc;
     private readonly List<ushort> inputs = [];
     private readonly EventHandler processExitHandler;
@@ -33,12 +35,14 @@ internal sealed class ControllerInputRecorder : IDisposable
         string path,
         byte[] romSha256,
         ReadOnlySpan<byte> initialSaveRam,
-        SuperMetroidGameOptions gameOptions)
+        SuperMetroidGameOptions gameOptions,
+        GameContentIdentity? contentIdentity)
     {
         Path = path;
         this.romSha256 = romSha256;
         this.initialSaveRam = initialSaveRam.ToArray();
         this.gameOptions = gameOptions;
+        this.contentIdentity = contentIdentity?.ToControllerRecordingIdentity();
         startedUtc = DateTimeOffset.UtcNow;
 
         // ProcessExit is a last line of defense for failures outside the WinForms disposal
@@ -51,11 +55,15 @@ internal sealed class ControllerInputRecorder : IDisposable
     /// <summary>Absolute destination of the current reset's recording.</summary>
     public string Path { get; }
 
-    /// <summary>Creates a recorder beside the private ROM and captures reset-time SRAM.</summary>
+    /// <summary>
+    /// Creates a recorder beside the private ROM and captures reset-time SRAM plus the
+    /// selected installed-content identity when the host has one.
+    /// </summary>
     public static ControllerInputRecorder Start(
         string romPath,
         ReadOnlySpan<byte> initialSaveRam,
         SuperMetroidGameOptions gameOptions,
+        GameContentIdentity? contentIdentity,
         string? recordingDirectoryOverride = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
@@ -78,7 +86,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         byte[] digest;
         using (FileStream rom = File.OpenRead(fullRomPath))
             digest = SHA256.HashData(rom);
-        return new ControllerInputRecorder(path, digest, initialSaveRam, gameOptions);
+        return new ControllerInputRecorder(path, digest, initialSaveRam, gameOptions, contentIdentity);
     }
 
     /// <summary>
@@ -131,6 +139,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     {
         StartedUtc = startedUtc,
         RomSha256 = romSha256,
+        ContentIdentity = contentIdentity,
         InitialSaveRam = initialSaveRam,
         GameOptions = gameOptions,
         ControllerInputs = snapshot,

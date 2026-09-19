@@ -123,8 +123,9 @@ internal sealed class AndroidSessionData : IDisposable
 
     private void WriteRecordingMetadata(string? seedFile)
     {
-        // The .smrec format is unchanged. This explicit sidecar identifies whether replay
-        // starts at reset or from an exact graph and records the build which generated it.
+        // The recording embeds installed-content identity. This sidecar additionally
+        // identifies whether replay starts at reset or from an exact debugger graph and
+        // records the Android-specific assemblies which generated that graph.
         File.WriteAllText(Path.ChangeExtension(recorder.Path, ".json"), JsonSerializer.Serialize(new
         {
             format = "SuperMetroid.Android.RecordingSeed.v1",
@@ -139,7 +140,7 @@ internal sealed class AndroidSessionData : IDisposable
     }
 
     private ControllerInputRecorder StartRecorder() => ControllerInputRecorder.Start(
-        romPath, Bus.SaveRam, Options, Path.Combine(root, "input-recordings"));
+        romPath, Bus.SaveRam, Options, ContentIdentity, Path.Combine(root, "input-recordings"));
 
     public void Dispose() => recorder.Dispose();
 }

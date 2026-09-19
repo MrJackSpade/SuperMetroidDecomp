@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.AssetExtraction;
@@ -74,6 +75,64 @@ public sealed record GameContentIdentity(
             Convert.ToHexString(hash.GetHashAndReset()));
     }
 
+    /// <summary>Creates the ROM-free identity payload persisted by controller recordings.</summary>
+    public ControllerRecordingContentIdentity ToControllerRecordingIdentity() => new()
+    {
+        FormatVersion = FormatVersion,
+        CompiledDefinitionsBuildId = CompiledDefinitionsBuildId,
+        AudioContentSha256 = Convert.FromHexString(AudioContentSha256),
+        MapContentSha256 = Convert.FromHexString(MapContentSha256),
+        ProjectileContentSha256 = Convert.FromHexString(ProjectileContentSha256),
+        CompositeSha256 = Convert.FromHexString(CompositeSha256),
+    };
+
+    /// <summary>
+    /// Describes replay compatibility drift without conflating selected installed content
+    /// with the source-cartridge check performed by the host.
+    /// </summary>
+    public IReadOnlyList<string> GetRecordingCompatibilityWarnings(
+        ControllerRecordingContentIdentity? recorded)
+    {
+        if (recorded is null)
+        {
+            return [
+                "Legacy controller recording has no installed-content identity; " +
+                "source-ROM compatibility was verified, but build and presentation drift cannot be identified.",
+            ];
+        }
+
+        var warnings = new List<string>();
+        if (recorded.FormatVersion != FormatVersion)
+        {
+            warnings.Add(
+                $"Installed-content identity format differs: recording={recorded.FormatVersion}, " +
+                $"current={FormatVersion}.");
+        }
+        if (recorded.CompiledDefinitionsBuildId != CompiledDefinitionsBuildId)
+        {
+            warnings.Add(
+                $"Compiled gameplay definitions differ: recording={recorded.CompiledDefinitionsBuildId:D}, " +
+                $"current={CompiledDefinitionsBuildId:D}.");
+        }
+        AddDigestWarning(warnings, "audio", recorded.AudioContentSha256, AudioContentSha256);
+        AddDigestWarning(warnings, "map", recorded.MapContentSha256, MapContentSha256);
+        AddDigestWarning(warnings, "projectile", recorded.ProjectileContentSha256, ProjectileContentSha256);
+
+        // Component/build warnings already explain the aggregate mismatch. Retain an
+        // aggregate-only guard so a malformed or differently framed identity never passes
+        // merely because its visible components happen to agree.
+        byte[] currentComposite = Convert.FromHexString(CompositeSha256);
+        if (warnings.Count == 0 && !CryptographicOperations.FixedTimeEquals(
+                recorded.CompositeSha256,
+                currentComposite))
+        {
+            warnings.Add(
+                $"Aggregate installed-content identity differs: " +
+                $"recording={Convert.ToHexString(recorded.CompositeSha256)}, current={CompositeSha256}.");
+        }
+        return warnings;
+    }
+
     private static void Append(IncrementalHash hash, string value)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(value);
@@ -91,6 +150,21 @@ public sealed record GameContentIdentity(
             throw new ArgumentException(
                 "Content identities must be 64 hexadecimal SHA-256 characters.",
                 parameterName);
+        }
+    }
+
+    private static void AddDigestWarning(
+        List<string> warnings,
+        string component,
+        byte[] recorded,
+        string currentHex)
+    {
+        byte[] current = Convert.FromHexString(currentHex);
+        if (!CryptographicOperations.FixedTimeEquals(recorded, current))
+        {
+            warnings.Add(
+                $"Selected {component} content differs: recording={Convert.ToHexString(recorded)}, " +
+                $"current={currentHex}.");
         }
     }
 }

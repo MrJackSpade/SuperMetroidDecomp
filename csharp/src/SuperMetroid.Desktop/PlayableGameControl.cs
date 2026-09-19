@@ -255,6 +255,8 @@ public sealed partial class PlayableGameControl : UserControl
                 $"maps={installedContentIdentity.MapContentSha256}, " +
                 $"projectiles={installedContentIdentity.ProjectileContentSha256}.");
         }
+        if (replay is not null)
+            ReportReplayContentCompatibility();
         if (replay is null)
         {
             game.SaveRamChanged += PersistSaveRamToDisk;
@@ -265,6 +267,7 @@ public sealed partial class PlayableGameControl : UserControl
                 romPath,
                 addressSpace.SaveRam,
                 gameOptions,
+                installedContentIdentity,
                 playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "input-recordings"));
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
@@ -365,6 +368,7 @@ public sealed partial class PlayableGameControl : UserControl
             romPath,
             addressSpace.SaveRam,
             gameOptions,
+            installedContentIdentity,
             playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "input-recordings"));
         Console.WriteLine(
             $"Loaded debugger state slot {slot}: {loaded.Metadata.Path}{Environment.NewLine}" +
@@ -404,6 +408,25 @@ public sealed partial class PlayableGameControl : UserControl
                 "The replay was recorded from a different ROM image (SHA-256 mismatch).");
         }
         replay.InitialSaveRam.CopyTo(addressSpace.SaveRam);
+    }
+
+    private void ReportReplayContentCompatibility()
+    {
+        if (replay is null)
+            throw new InvalidOperationException("Replay compatibility requested without a replay.");
+        if (installedContentIdentity is null)
+        {
+            Console.WriteLine(
+                "REPLAY COMPATIBILITY WARNING: This host has no installed-content identity; " +
+                "only the source ROM revision could be verified.");
+            return;
+        }
+
+        foreach (string warning in installedContentIdentity.GetRecordingCompatibilityWarnings(
+                     replay.ContentIdentity))
+        {
+            Console.WriteLine($"REPLAY COMPATIBILITY WARNING: {warning}");
+        }
     }
 
     /// <summary>

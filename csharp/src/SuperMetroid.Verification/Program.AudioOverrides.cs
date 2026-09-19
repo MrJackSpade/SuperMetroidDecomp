@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
@@ -145,5 +146,30 @@ internal static partial class Program
         AssertThrows<ArgumentException>(
             () => GameContentIdentity.Create("not-a-sha", maps, projectiles, definitions),
             "aggregate installation identity rejects malformed component digest");
+
+        ControllerRecordingContentIdentity recorded = baseline.ToControllerRecordingIdentity();
+        AssertEqual(0, baseline.GetRecordingCompatibilityWarnings(recorded).Count,
+            "matching recording identity produces no compatibility warning");
+        AssertTrue(
+            baseline.GetRecordingCompatibilityWarnings(null).Single().Contains("Legacy", StringComparison.Ordinal),
+            "legacy recording explains unavailable installed-content comparison");
+        AssertTrue(
+            baseline.GetRecordingCompatibilityWarnings(recorded with
+            {
+                AudioContentSha256 = Convert.FromHexString(new string('D', 64)),
+            }).Single().Contains("audio", StringComparison.Ordinal),
+            "audio drift receives a component-specific warning");
+        AssertTrue(
+            baseline.GetRecordingCompatibilityWarnings(recorded with
+            {
+                CompiledDefinitionsBuildId = Guid.Empty,
+            }).Single().Contains("Compiled gameplay definitions", StringComparison.Ordinal),
+            "compiled-definition drift receives a specific warning");
+        AssertTrue(
+            baseline.GetRecordingCompatibilityWarnings(recorded with
+            {
+                CompositeSha256 = Convert.FromHexString(new string('D', 64)),
+            }).Single().Contains("Aggregate", StringComparison.Ordinal),
+            "unexplained aggregate drift cannot pass component comparison");
     }
 }

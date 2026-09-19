@@ -12,23 +12,23 @@ namespace SuperMetroid.Core.Frontend;
 /// from the same cartridge-compatible save image that was present at reset, then drives the
 /// public game dispatcher with the recorded words. That keeps recordings useful as the
 /// translation changes and makes the starting point independently inspectable by SNES tools.
-/// No ROM bytes or filesystem paths are embedded; the SHA-256 digest merely rejects a replay
-/// against a different cartridge revision.
+/// No ROM bytes or filesystem paths are embedded. The source-cartridge SHA-256 rejects a
+/// different revision, while version-two recordings separately identify the selected
+/// installed content so presentation or compiled-definition drift can be reported accurately.
 /// </remarks>
 public sealed record ControllerInputRecording
 {
-    private static ReadOnlySpan<byte> Magic => "SMINPUT1"u8;
-
-    private const uint FormatVersion = 1;
-    private const int RomDigestByteCount = 32;
-    private const int FixedHeaderByteCount = 8 + sizeof(uint) + sizeof(long) + 8 +
-        RomDigestByteCount + sizeof(int) + sizeof(int);
-
     /// <summary>UTC time at which the reset/restart created this recording.</summary>
     public required DateTimeOffset StartedUtc { get; init; }
 
     /// <summary>SHA-256 of the complete private ROM image used by the session.</summary>
     public required byte[] RomSha256 { get; init; }
+
+    /// <summary>
+    /// Installed content selected by the recording host, or <see langword="null"/> for a
+    /// legacy version-one recording.
+    /// </summary>
+    public ControllerRecordingContentIdentity? ContentIdentity { get; init; }
 
     /// <summary>The exact 8 KiB SRAM image loaded immediately before game reset.</summary>
     public required byte[] InitialSaveRam { get; init; }
@@ -45,10 +45,16 @@ public sealed record ControllerInputRecording
         ArgumentNullException.ThrowIfNull(destination);
         Validate();
 
-        Span<byte> header = stackalloc byte[FixedHeaderByteCount];
+        uint formatVersion = ContentIdentity is null
+            ? ControllerInputRecordingFormat.LegacyFormatVersion
+            : ControllerInputRecordingFormat.CurrentFormatVersion;
+        int headerByteCount = ContentIdentity is null
+            ? ControllerInputRecordingFormat.LegacyHeaderByteCount
+            : ControllerInputRecordingFormat.CurrentHeaderByteCount;
+        Span<byte> header = stackalloc byte[headerByteCount];
         header.Clear();
-        Magic.CopyTo(header);
-        BinaryPrimitives.WriteUInt32LittleEndian(header[8..], FormatVersion);
+        ControllerInputRecordingFormat.Magic.CopyTo(header);
+        BinaryPrimitives.WriteUInt32LittleEndian(header[8..], formatVersion);
         BinaryPrimitives.WriteInt64LittleEndian(header[12..], StartedUtc.UtcTicks);
 
         // Byte twenty is a format-owned bitfield. Seven reserved zero bytes follow it so
@@ -63,7 +69,9 @@ public sealed record ControllerInputRecording
             (GameOptions.InfiniteAmmo ? ControllerInputRecordingFormat.InfiniteAmmo : 0) |
             (GameOptions.PreventEscapeTimeout ? ControllerInputRecordingFormat.PreventEscapeTimeout : 0) |
             ((byte)GameOptions.MapReveal << ControllerInputRecordingFormat.MapRevealShift));
-        RomSha256.CopyTo(header[28..(28 + RomDigestByteCount)]);
+        RomSha256.CopyTo(header[
+            ControllerInputRecordingFormat.RomDigestOffset..
+            (ControllerInputRecordingFormat.RomDigestOffset + ControllerInputRecordingFormat.DigestByteCount)]);
         // Reserved bytes 21..22 encode ending minutes plus one; zero keeps old
         // recordings retail-authentic, and zero-minute overrides remain representable.
         if (GameOptions.EndingTimeOverrideMinutes is { } endingMinutes)
@@ -73,6 +81,30 @@ public sealed record ControllerInputRecording
         }
         BinaryPrimitives.WriteInt32LittleEndian(header[60..], InitialSaveRam.Length);
         BinaryPrimitives.WriteInt32LittleEndian(header[64..], ControllerInputs.Length);
+        if (ContentIdentity is { } contentIdentity)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(
+                header[ControllerInputRecordingFormat.ContentIdentityOffset..],
+                contentIdentity.FormatVersion);
+            if (!contentIdentity.CompiledDefinitionsBuildId.TryWriteBytes(
+                    header[ControllerInputRecordingFormat.ContentBuildIdOffset..
+                        ControllerInputRecordingFormat.AudioDigestOffset]))
+            {
+                throw new InvalidDataException("Compiled-definition build ID did not fit the recording header.");
+            }
+            contentIdentity.AudioContentSha256.CopyTo(
+                header[ControllerInputRecordingFormat.AudioDigestOffset..
+                    ControllerInputRecordingFormat.MapDigestOffset]);
+            contentIdentity.MapContentSha256.CopyTo(
+                header[ControllerInputRecordingFormat.MapDigestOffset..
+                    ControllerInputRecordingFormat.ProjectileDigestOffset]);
+            contentIdentity.ProjectileContentSha256.CopyTo(
+                header[ControllerInputRecordingFormat.ProjectileDigestOffset..
+                    ControllerInputRecordingFormat.CompositeDigestOffset]);
+            contentIdentity.CompositeSha256.CopyTo(
+                header[ControllerInputRecordingFormat.CompositeDigestOffset..
+                    ControllerInputRecordingFormat.CurrentHeaderByteCount]);
+        }
         destination.Write(header);
         destination.Write(InitialSaveRam);
 
@@ -88,16 +120,50 @@ public sealed record ControllerInputRecording
     public static ControllerInputRecording Read(Stream source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        Span<byte> header = stackalloc byte[FixedHeaderByteCount];
-        source.ReadExactly(header);
-        if (!header[..Magic.Length].SequenceEqual(Magic))
+        Span<byte> prefix = stackalloc byte[8 + sizeof(uint)];
+        source.ReadExactly(prefix);
+        if (!prefix[..ControllerInputRecordingFormat.Magic.Length].SequenceEqual(
+                ControllerInputRecordingFormat.Magic))
             throw new InvalidDataException("Controller recording has an invalid file signature.");
 
-        uint version = BinaryPrimitives.ReadUInt32LittleEndian(header[8..]);
-        if (version != FormatVersion)
+        uint version = BinaryPrimitives.ReadUInt32LittleEndian(prefix[8..]);
+        int headerByteCount = version switch
         {
-            throw new InvalidDataException(
-                $"Controller recording version {version} is not supported (expected {FormatVersion}).");
+            ControllerInputRecordingFormat.LegacyFormatVersion =>
+                ControllerInputRecordingFormat.LegacyHeaderByteCount,
+            ControllerInputRecordingFormat.CurrentFormatVersion =>
+                ControllerInputRecordingFormat.CurrentHeaderByteCount,
+            _ => throw new InvalidDataException(
+                $"Controller recording version {version} is not supported " +
+                $"(expected {ControllerInputRecordingFormat.LegacyFormatVersion} or " +
+                $"{ControllerInputRecordingFormat.CurrentFormatVersion})."),
+        };
+        Span<byte> header = stackalloc byte[headerByteCount];
+        prefix.CopyTo(header);
+        source.ReadExactly(header[prefix.Length..]);
+
+        ControllerRecordingContentIdentity? contentIdentity = null;
+        if (version == ControllerInputRecordingFormat.CurrentFormatVersion)
+        {
+            int identityVersion = BinaryPrimitives.ReadInt32LittleEndian(
+                header[ControllerInputRecordingFormat.ContentIdentityOffset..]);
+            if (identityVersion <= 0)
+                throw new InvalidDataException("Controller recording has an invalid content-identity version.");
+            contentIdentity = new ControllerRecordingContentIdentity
+            {
+                FormatVersion = identityVersion,
+                CompiledDefinitionsBuildId = new Guid(
+                    header[ControllerInputRecordingFormat.ContentBuildIdOffset..
+                        ControllerInputRecordingFormat.AudioDigestOffset]),
+                AudioContentSha256 = header[ControllerInputRecordingFormat.AudioDigestOffset..
+                    ControllerInputRecordingFormat.MapDigestOffset].ToArray(),
+                MapContentSha256 = header[ControllerInputRecordingFormat.MapDigestOffset..
+                    ControllerInputRecordingFormat.ProjectileDigestOffset].ToArray(),
+                ProjectileContentSha256 = header[ControllerInputRecordingFormat.ProjectileDigestOffset..
+                    ControllerInputRecordingFormat.CompositeDigestOffset].ToArray(),
+                CompositeSha256 = header[ControllerInputRecordingFormat.CompositeDigestOffset..
+                    ControllerInputRecordingFormat.CurrentHeaderByteCount].ToArray(),
+            };
         }
 
         byte optionFlags = header[20];
@@ -152,7 +218,11 @@ public sealed record ControllerInputRecording
             StartedUtc = new DateTimeOffset(
                 BinaryPrimitives.ReadInt64LittleEndian(header[12..]),
                 TimeSpan.Zero),
-            RomSha256 = header[28..(28 + RomDigestByteCount)].ToArray(),
+            RomSha256 = header[
+                ControllerInputRecordingFormat.RomDigestOffset..
+                (ControllerInputRecordingFormat.RomDigestOffset +
+                    ControllerInputRecordingFormat.DigestByteCount)].ToArray(),
+            ContentIdentity = contentIdentity,
             InitialSaveRam = saveRam,
             GameOptions = new SuperMetroidGameOptions
             {
@@ -184,13 +254,31 @@ public sealed record ControllerInputRecording
         ArgumentNullException.ThrowIfNull(InitialSaveRam);
         ArgumentNullException.ThrowIfNull(GameOptions);
         ArgumentNullException.ThrowIfNull(ControllerInputs);
-        if (RomSha256.Length != RomDigestByteCount)
+        if (RomSha256.Length != ControllerInputRecordingFormat.DigestByteCount)
             throw new InvalidDataException("A controller recording requires a 32-byte ROM digest.");
+        if (ContentIdentity is { } contentIdentity)
+        {
+            if (contentIdentity.FormatVersion <= 0)
+                throw new InvalidDataException("A controller recording requires a positive content-identity version.");
+            ValidateDigest(contentIdentity.AudioContentSha256, "audio");
+            ValidateDigest(contentIdentity.MapContentSha256, "map");
+            ValidateDigest(contentIdentity.ProjectileContentSha256, "projectile");
+            ValidateDigest(contentIdentity.CompositeSha256, "composite");
+        }
         if (InitialSaveRam.Length != Hardware.SuperMetroidAddressSpace.SaveRamByteCount)
         {
             throw new InvalidDataException(
                 $"A controller recording requires exactly " +
                 $"{Hardware.SuperMetroidAddressSpace.SaveRamByteCount} SRAM bytes.");
+        }
+    }
+
+    private static void ValidateDigest(byte[]? digest, string component)
+    {
+        if (digest is null || digest.Length != ControllerInputRecordingFormat.DigestByteCount)
+        {
+            throw new InvalidDataException(
+                $"A controller recording requires a 32-byte {component} content digest.");
         }
     }
 }

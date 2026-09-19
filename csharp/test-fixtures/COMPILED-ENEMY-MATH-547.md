@@ -2769,3 +2769,17 @@ authored ordinary and charged combination against poisoned source tables, verifi
 Beam's charged-Plasma route, and executes Murder Beam with `$90:C28F-$C2C6` forbidden.
 This removes one audio-routing mechanics dependency without claiming the authored SPC
 content or the broader #548/#547 integration complete.
+
+# Music upload routing (#547 / #548)
+
+`AudioAssetCatalogData` now owns the complete 25-entry retail music-data routing domain:
+the common SPC driver plus all 24 non-PAL music banks. `CartridgeAudioState` resolves a
+queued data index through that compiled catalog instead of rereading the three-byte table
+at `$8F:E7E1` when its delay expires. The existing extracted-audio manifest uses this same
+identity/address catalog, so queue dispatch and replaceable assets can no longer drift.
+
+Verification compares every compiled route with the pinned cartridge, rejects an
+overlapping non-identity byte offset explicitly, and dispatches the real title bank using
+a synthetic address space in which the old pointer bytes are absent. This removes the
+last cartridge routing read from `CartridgeAudioState`; upload stream contents remain
+editable audio data under #548.

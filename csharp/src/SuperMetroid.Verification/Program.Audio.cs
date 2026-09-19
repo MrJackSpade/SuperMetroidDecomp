@@ -10,6 +10,33 @@ internal static partial class Program
     private static void VerifyCartridgeAudioQueues()
     {
         VerifyDoorSoundDisableGuard();
+        var retail = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
+        {
+            int pointer = AudioRomData.Assets.MusicPointerTable + definition.DataIndex;
+            int nativeAddress = retail.ReadByte(pointer) |
+                (retail.ReadByte(pointer + 1) << 8) |
+                (retail.ReadByte(pointer + 2) << 16);
+            AssertEqual(
+                nativeAddress,
+                AudioAssetCatalogData.ResolveDataIndex(definition.DataIndex).SnesAddress,
+                $"compiled music upload ${definition.DataIndex:X2}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => AudioAssetCatalogData.ResolveDataIndex(0x01),
+            "overlapping music-pointer byte offset is not an authored data identity");
+        var invalidMusicData = new CartridgeAudioState();
+        invalidMusicData.AdvanceFrame(retail, default);
+        invalidMusicData.QueueMusicDelayed8(MusicCommand.LoadData(0x01));
+        // The first post-queue handler call admits the entry; eight more calls expire
+        // its native delay because this fixture drained reset before queueing it.
+        for (int delayFrame = 0; delayFrame < 8; delayFrame++)
+            invalidMusicData.AdvanceFrame(retail, default);
+        AssertThrows<InvalidDataException>(
+            () => invalidMusicData.AdvanceFrame(retail, default),
+            "queued non-identity music-data offset fails at dispatch");
+
         MusicCommand dataLoad = MusicCommand.LoadData(0x21);
         AssertEqual((ushort)0xff21, dataLoad.RawValue, "music data-load word");
         AssertEqual(MusicCommandKind.LoadData, dataLoad.Kind, "music data-load classification");
@@ -47,13 +74,6 @@ internal static partial class Program
 
         byte[] rom = new byte[0x10_0000];
 
-        // Music data command $FF03 indexes the 24-bit table by its low byte, not by a
-        // multiplied host index. Point that exact odd-byte table entry at $90:8000.
-        int musicPointer = AudioRomData.Assets.MusicPointerTable + 3;
-        WriteAudioRomByte(rom, musicPointer, 0x00);
-        WriteAudioRomByte(rom, musicPointer + 1, 0x80);
-        WriteAudioRomByte(rom, musicPointer + 2, 0x90);
-
         // Prepare a second fixture before constructing the mapper, which intentionally
         // takes ownership of a stable ROM copy.
         WriteAudioRomByte(rom, 0x90fffb, 0x02); // record length = 2
@@ -86,7 +106,10 @@ internal static partial class Program
             AssertEqual(0, audio.AdvanceFrame(bus, default).Count, $"music upload delay {delayFrame}");
         IReadOnlyList<CartridgeAudioCommand> upload = audio.AdvanceFrame(bus, default);
         AssertEqual(4, upload.Count, "music upload plus SFX-downtime command count");
-        AssertEqual(CartridgeAudioCommand.Upload(0x908000), upload[0], "music data table lookup");
+        AssertEqual(
+            CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence),
+            upload[0],
+            "compiled music data routing ignores absent ROM pointer bytes");
 
         // Each music operation starts eight SFX-downtime frames. Those frames deliberately
         // write zero to all three ports, so filter port-zero music commands separately.
@@ -270,7 +293,7 @@ internal static partial class Program
                 bus, AudioRomData.SpcUpload.MaximumSnesAddress + 1),
             "SPC upload rejects addresses wider than 24 bits");
 
-        Console.WriteLine("  Audio: typed/lossless music commands and delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: typed/lossless music commands and delays, 25 compiled upload routes, invalid-route rejection, inherited Ceres track, post-Ceres bank/track restart, item fanfare, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

@@ -853,3 +853,13 @@ producers exercise all twelve ordinary and all twelve charged routes while their
 tables contain poisoned values; Hyper Beam selects the compiled charged-Plasma sound, and
 the real Murder Beam path runs with the complete source range forbidden while retaining
 its native zero-sound result.
+
+## Music upload routing mechanics
+
+The bank-$8F table that maps a queued music-data byte offset to an SPC upload stream is
+now represented by the same `AudioAssetCatalogData` definitions used by extraction and
+manifest validation. `CartridgeAudioState` no longer reads `$8F:E7E1` at dispatch time.
+All 25 authored routes match the pinned cartridge, an overlapping non-identity byte
+offset fails loudly, and a real queued title-bank command resolves correctly when the old
+pointer bytes are unavailable. Sequence, instrument, envelope, and sample bytes remain
+audio content for #548 rather than application mechanics for #547.

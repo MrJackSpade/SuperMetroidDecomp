@@ -252,7 +252,7 @@ public sealed class CartridgeAudioState
         ArgumentNullException.ThrowIfNull(bus);
         List<CartridgeAudioCommand> commands = [.. _pendingImmediateCommands];
         _pendingImmediateCommands.Clear();
-        HandleMusicQueue(bus, commands);
+        HandleMusicQueue(commands);
         HandleSoundEffects(acknowledgements, commands);
         return commands.Count == 0 ? Array.Empty<CartridgeAudioCommand>() : commands.ToArray();
     }
@@ -278,7 +278,7 @@ public sealed class CartridgeAudioState
         _musicWritePosition = next;
     }
 
-    private void HandleMusicQueue(ISnesAddressSpace bus, List<CartridgeAudioCommand> commands)
+    private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
         bool timerExpired = _musicTimer-- == 1;
         if ((_musicTimer & AudioRomData.MusicWireFormat.ActiveTimerBit) == 0)
@@ -290,9 +290,9 @@ public sealed class CartridgeAudioState
             {
                 MusicDataIndex = _musicEntry.DataIndex;
                 MusicTrackIndex = byte.MaxValue;
-                int tableEntry = AudioRomData.Assets.MusicPointerTable + _musicEntry.DataIndex;
-                int uploadAddress = ReadLong(bus, tableEntry);
-                commands.Add(CartridgeAudioCommand.Upload(uploadAddress));
+                AudioUploadAssetDefinition upload =
+                    AudioAssetCatalogData.ResolveDataIndex(_musicEntry.DataIndex);
+                commands.Add(CartridgeAudioCommand.Upload(upload.SnesAddress));
                 MusicTrackIndex = 0;
             }
             else
@@ -418,8 +418,4 @@ public sealed class CartridgeAudioState
         _soundStates[queue] = 1;
     }
 
-    private static int ReadLong(ISnesAddressSpace bus, int address) =>
-        bus.ReadByte(address) |
-        (bus.ReadByte(address + 1) << 8) |
-        (bus.ReadByte(address + 2) << 16);
 }

@@ -40,6 +40,9 @@ public static class AudioAssetCatalogData
         new(AudioUploadAddresses.SamusThemeUpperCrateria, 0x48, "Music_SamusTheme_UpperCrateria"),
     ];
 
+    private static readonly Dictionary<byte, AudioUploadAssetDefinition>
+        DefinitionsByDataIndex = All.ToDictionary(definition => definition.DataIndex);
+
     /// <summary>Common stream followed by every music stream, in cartridge table order.</summary>
     public static IEnumerable<AudioUploadAssetDefinition> All
     {
@@ -50,6 +53,18 @@ public static class AudioAssetCatalogData
                 yield return definition;
         }
     }
+
+    /// <summary>
+    /// Resolves the cartridge's byte-offset music-data identity to its compiled upload
+    /// stream. Retail defines the common driver at zero and 24 music banks at three-byte
+    /// intervals through <c>$48</c>; other byte offsets point into overlapping pointer
+    /// bytes or subsequent room data and are not authored music-data identities.
+    /// </summary>
+    public static AudioUploadAssetDefinition ResolveDataIndex(byte dataIndex) =>
+        DefinitionsByDataIndex.TryGetValue(dataIndex, out AudioUploadAssetDefinition? definition)
+            ? definition
+            : throw new InvalidDataException(
+                $"Music data index ${dataIndex:X2} is not present in the compiled retail upload catalog.");
 }
 
 /// <summary>Identity of one upload stream before it is materialized on disk.</summary>

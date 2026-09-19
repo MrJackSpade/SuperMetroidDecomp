@@ -27,9 +27,14 @@ trailing words have been removed.
 
 ### Mixed instruction selectors and presentation reads
 
-Kraid's fixed roar, glow, death and growth-resume entry timers are compiled.
-The private head stream still mixes subsequent timers, sound commands,
-tilemap bindings and mouth-hitbox pointers and requires a wider separation.
+Kraid's complete private head stream is now separated into compiled control metadata
+and cartridge-backed presentation payloads. All 28 command records retain 21 timers,
+three sound callbacks, four terminators, tilemap identities, and both mouth-hitbox
+selectors; the real interpreter and growth-resume consumer run with all 91 stream
+words forbidden. Mutable bank-$A7 low-half aliases remain live, while unrelated
+upper-ROM cursors fail explicitly. The selected 704-byte tilemaps remain cartridge
+presentation assets and the already-compiled hitbox pointers still resolve through
+the collision catalog.
 
 Kraid's C5E7 sinking Y/callback schedule is compiled. All 28 rows, including
 empty RTS callbacks, are covered through actual rock/PLM dispatch. The middle

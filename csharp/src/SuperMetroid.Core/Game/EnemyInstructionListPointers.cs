@@ -150,8 +150,6 @@ internal static class KraidInstructionLists
     public const ushort Ilist_8B04 = 0x8b04;
     /// <summary>Fingernail list at $A7:8B0A.</summary>
     public const ushort Nail = 0x8b0a;
-    /// <summary>Kraid roar list at $A7:96DA.</summary>
-    public const ushort Roar = 0x96da;
 }
 
 /// <summary>Named bank-$A7 animation-list pointers used by Phantoon's four records.</summary>

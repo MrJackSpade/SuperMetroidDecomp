@@ -15,17 +15,12 @@ public sealed partial class RoomEnemySystem
         body.VariableF = 180;
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
-        ushort nextTilemap = ReadWord(
-            _bus!, 0xa70000 | unchecked((ushort)(body.VariableB + 2)));
-        int byteSelector = nextTilemap switch
-        {
-            0x97c8 => 50,
-            0x9ac8 => 42,
-            0x9dc8 => 34,
-            _ => 26,
-        };
-        body.VariableB = unchecked((ushort)(byteSelector - 0x6926));
-        body.VariableC = KraidHeadTimers.GrowthResume(byteSelector);
+        ushort nextTilemap = KraidHeadInstructionDefinitions.ResolveFrameTilemap(
+            _bus!, body.VariableB);
+        KraidHeadResumeDefinition resume =
+            KraidHeadInstructionDefinitions.GrowthResume(nextTilemap);
+        body.VariableB = resume.Pointer;
+        body.VariableC = resume.Timer;
         EarthquakeType = 4;
         EarthquakeTimer = 340;
 
@@ -180,7 +175,7 @@ public sealed partial class RoomEnemySystem
             nail.VariableF = unchecked((ushort)(64 + nailIndex * 64));
         }
         _slots[1].VariableC = 1;
-        body.VariableB = 0x96da;
+        body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
         state.TargetX = 288;
         RoomEnemySlot foot = _slots[5];
         foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkToStart;

@@ -76,7 +76,7 @@ public sealed partial class RoomEnemySystem
                     // `$C97B` does not leave execution at setup routine `$ADE9`.
                     // That JSR immediately installs `$AEA4`, seeds the random thinking
                     // timer and selects roar list entry `$96DA` for the first attack.
-                    body.VariableB = 0x96da;
+                    body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
                     SetupKraidFirstPhaseThinking(body, state);
 
                     // The foot owns first-phase lunges independently of the body thinker.

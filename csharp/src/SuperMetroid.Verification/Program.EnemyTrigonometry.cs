@@ -157,7 +157,7 @@ internal static partial class Program
         VerifyKraidNailBounce(rom);
         VerifyKraidCeilingRockPositions(rom);
         VerifyKraidSinkSchedule(rom);
-        VerifyKraidHeadTimers(rom);
+        VerifyKraidHeadInstructionDefinitions(rom);
         VerifyKraidMouthHitboxes(rom);
         VerifyKraidNailContour(rom);
         VerifySamusVerticalDefinitions(rom);

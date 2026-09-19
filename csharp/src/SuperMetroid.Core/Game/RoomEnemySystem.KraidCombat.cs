@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KraidRoarInstruction = KraidInstructionLists.Roar;
-    private const ushort KraidOpenMouthTilemap = 0xa0c8;
-
     private void RunKraidCombatFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -23,8 +20,8 @@ public sealed partial class RoomEnemySystem
                 if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
                 {
                     body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
-                    body.VariableB = KraidRoarInstruction;
-                    body.VariableC = KraidHeadTimers.Roar;
+                    body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
+                    body.VariableC = KraidHeadInstructionDefinitions.RoarEntryTimer;
                 }
                 return;
 
@@ -116,8 +113,8 @@ public sealed partial class RoomEnemySystem
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
-            body.VariableB = KraidRoarInstruction;
-            body.VariableC = KraidHeadTimers.Roar;
+            body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
+            body.VariableC = KraidHeadInstructionDefinitions.RoarEntryTimer;
         }
     }
 
@@ -151,7 +148,7 @@ public sealed partial class RoomEnemySystem
 
         // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
         // every sixteenth timer value, including the entry frame after `$AF3D` reloads it.
-        if (state.CurrentHeadTilemap == KraidOpenMouthTilemap &&
+        if (state.CurrentHeadTilemap == KraidHeadInstructionDefinitions.OpenMouthTilemap &&
             (body.VariableC & 0x000f) == 0)
         {
             state.SpitRockRequestCount++;
@@ -175,33 +172,37 @@ public sealed partial class RoomEnemySystem
         for (int commandCount = 0; commandCount < 16; commandCount++)
         {
             ushort cursor = body.VariableB;
-            ushort word = ReadWord(_bus!, 0xa70000 | cursor);
-            if (word == ushort.MaxValue)
-                return word;
-            if ((word & 0x8000) != 0)
+            KraidHeadInstructionDefinition instruction =
+                KraidHeadInstructionDefinitions.Resolve(cursor);
+            switch (instruction.Kind)
             {
-                LastKraidSoundEffect = word switch
-                {
-                    0xaf94 => new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x002d)),
-                    0xaf9f => new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x002e)),
-                    _ => throw new InvalidDataException(
-                        $"Kraid head instruction $A7:{word:X4} is not translated."),
-                };
-                if (word == 0xaf94)
-                    state.RoarRequestCount++;
-                body.VariableB = unchecked((ushort)(cursor + 2));
-                continue;
-            }
+                case KraidHeadInstructionKind.Terminate:
+                    return ushort.MaxValue;
 
-            body.VariableC = word;
-            state.CurrentHeadTilemap = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(cursor + 2)));
-            state.VulnerableMouthHitbox = ReadWord(
-                _bus!, 0xa70000 | unchecked((ushort)(cursor + 4)));
-            state.InvulnerableMouthHitbox = ReadWord(
-                _bus!, 0xa70000 | unchecked((ushort)(cursor + 6)));
-            body.VariableB = unchecked((ushort)(cursor + 8));
-            TransferKraidHeadTilemap(state, state.CurrentHeadTilemap);
-            return 1;
+                case KraidHeadInstructionKind.RoarSound:
+                case KraidHeadInstructionKind.DyingSound:
+                    LastKraidSoundEffect = new KraidSoundRequest(
+                        SoundEffectId.FromCartridge(
+                            SoundEffectLibrary.Library2,
+                            instruction.SoundId));
+                    if (instruction.Kind == KraidHeadInstructionKind.RoarSound)
+                        state.RoarRequestCount++;
+                    body.VariableB = unchecked((ushort)(cursor + 2));
+                    continue;
+
+                case KraidHeadInstructionKind.Frame:
+                    body.VariableC = instruction.Duration;
+                    state.CurrentHeadTilemap = instruction.Tilemap;
+                    state.VulnerableMouthHitbox = instruction.VulnerableHitbox;
+                    state.InvulnerableMouthHitbox = instruction.InvulnerableHitbox;
+                    body.VariableB = unchecked((ushort)(cursor + 8));
+                    TransferKraidHeadTilemap(state, state.CurrentHeadTilemap);
+                    return 1;
+
+                default:
+                    throw new InvalidDataException(
+                        $"Kraid head instruction kind {instruction.Kind} is not translated.");
+            }
         }
         throw new InvalidDataException("Kraid head instruction stream exceeded its command guard.");
     }
@@ -230,8 +231,8 @@ public sealed partial class RoomEnemySystem
     private void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.GlowEye;
-        body.VariableB = 0x9752;
-        body.VariableC = KraidHeadTimers.EyeGlow;
+        body.VariableB = KraidHeadInstructionDefinitions.EyeGlowContinuation;
+        body.VariableC = KraidHeadInstructionDefinitions.EyeGlowEntryTimer;
         GlowKraidEye(body, state);
     }
 
@@ -305,8 +306,8 @@ public sealed partial class RoomEnemySystem
         if (changedChannels == 0)
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
-            body.VariableB = KraidRoarInstruction;
-            body.VariableC = KraidHeadTimers.Roar;
+            body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
+            body.VariableC = KraidHeadInstructionDefinitions.RoarEntryTimer;
         }
     }
 }

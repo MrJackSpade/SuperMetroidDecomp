@@ -305,6 +305,12 @@ if (args is ["--enemy-instruction-selectors"])
     VerifyEnemyRomTablePointerCatalog();
     return 0;
 }
+if (args is ["--kraid-head-instruction-definitions"])
+{
+    VerifyKraidHeadInstructionDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--enemy-death-explosion-definitions"])
 {
     VerifyEnemyDeathExplosionDefinitions(

@@ -135,8 +135,8 @@ public sealed partial class RoomEnemySystem
         _slots[1].CurrentInstruction = KraidArmRetractedInstruction;
         _slots[1].InstructionTimer = 1;
         body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;
-        body.VariableB = 0x976c;
-        body.VariableC = KraidHeadTimers.Death;
+        body.VariableB = KraidHeadInstructionDefinitions.DeathContinuation;
+        body.VariableC = KraidHeadInstructionDefinitions.DeathEntryTimer;
         state.RoomBackgroundFadeStep = 0;
         foreach (int slot in new[] { 2, 3, 4, 6, 7 })
         {

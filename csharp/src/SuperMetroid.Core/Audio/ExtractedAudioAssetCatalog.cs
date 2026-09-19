@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Cryptography;
 
 namespace SuperMetroid.Core.Audio;
 
@@ -18,6 +19,7 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyList<AudioSoundProgramMetadata> soundPrograms;
     private readonly IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries;
     private readonly int canonicalSampleCount;
+    private readonly string contentIdentity;
 
     private ExtractedAudioAssetCatalog(
         IReadOnlyDictionary<int, byte[]> streams,
@@ -26,7 +28,8 @@ public sealed class ExtractedAudioAssetCatalog
         IReadOnlyDictionary<int, AudioBankMetadata> musicBanks,
         IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
         IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries,
-        int canonicalSampleCount)
+        int canonicalSampleCount,
+        string contentIdentity)
     {
         this.streams = streams;
         this.sampleBanks = sampleBanks;
@@ -35,6 +38,7 @@ public sealed class ExtractedAudioAssetCatalog
         this.soundPrograms = soundPrograms;
         this.soundLibraries = soundLibraries;
         this.canonicalSampleCount = canonicalSampleCount;
+        this.contentIdentity = contentIdentity;
     }
 
     /// <summary>Number of physical WAV assets after logical deduplication.</summary>
@@ -42,6 +46,13 @@ public sealed class ExtractedAudioAssetCatalog
 
     /// <summary>Total source-number aliases exposed across common and music banks.</summary>
     public int SourceMappingCount => sampleBanks.Values.Sum(bank => bank.Samples.Count);
+
+    /// <summary>
+    /// Stable SHA-256 identity of the validated selected manifest. The canonical JSON contains
+    /// every upload/WAV hash plus all editable routing, instrument, music, and SFX definitions,
+    /// so formatting-only changes do not alter this value while any audible edit does.
+    /// </summary>
+    public string ContentIdentity => contentIdentity;
 
     /// <summary>Loads and validates every stream named by an extracted manifest.</summary>
     public static ExtractedAudioAssetCatalog Load(string audioDirectory)
@@ -172,8 +183,13 @@ public sealed class ExtractedAudioAssetCatalog
             musicBanks,
             soundPrograms,
             soundLibraries,
-            canonicalSamples.Count);
+            canonicalSamples.Count,
+            ComputeContentIdentity(manifest));
     }
+
+    private static string ComputeContentIdentity(AudioAssetManifest manifest) =>
+        Convert.ToHexString(SHA256.HashData(
+            JsonSerializer.SerializeToUtf8Bytes(manifest, AudioAssetJson.Options)));
 
     /// <summary>
     /// Validates immutable stock audio first, then selects a complete compatible catalog from

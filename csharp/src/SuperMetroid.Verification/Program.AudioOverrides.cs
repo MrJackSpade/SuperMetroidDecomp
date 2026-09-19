@@ -12,6 +12,10 @@ internal static partial class Program
         try
         {
             ExtractedAudioAssetCatalog stock = installation.LoadAudio();
+            AssertEqual(
+                stock.ContentIdentity,
+                installation.LoadAudio().ContentIdentity,
+                "stock audio identity is stable across reload");
             string selectedDirectory = AudioAssetOverrideInstaller.Initialize(installation);
             AssertEqual(
                 Path.GetFullPath(installation.AudioOverrideDirectory),
@@ -45,6 +49,9 @@ internal static partial class Program
             WriteAudioManifest(overrideManifestPath, edited);
 
             ExtractedAudioAssetCatalog selected = installation.LoadAudio();
+            AssertTrue(
+                selected.ContentIdentity != stock.ContentIdentity,
+                "instrument-only JSON edit changes selected audio identity");
             AssertEqual(
                 editedInstrument.PitchBase,
                 selected.GetInstrumentBank(AudioUploadAddresses.TitleSequence)[0].PitchBase,
@@ -61,6 +68,10 @@ internal static partial class Program
                 editedInstrument.PitchBase,
                 installation.LoadAudio().GetInstrumentBank(AudioUploadAddresses.TitleSequence)[0].PitchBase,
                 "stock repair preserves persistent audio edit");
+            AssertEqual(
+                selected.ContentIdentity,
+                installation.LoadAudio().ContentIdentity,
+                "stock repair preserves selected audio identity");
 
             AudioAssetManifest incompatible = edited with
             {
@@ -101,8 +112,38 @@ internal static partial class Program
                 Directory.Delete(root, recursive: true);
         }
 
+        VerifyGameContentIdentityComposition();
+
         Console.WriteLine(
             "Persistent audio overrides: isolated initialization, selection, stock repair, " +
-            "compatibility guards and loud corruption failures pass.");
+            "stable installation identity, compatibility guards and loud corruption failures pass.");
+    }
+
+    private static void VerifyGameContentIdentityComposition()
+    {
+        string audio = new('A', 64);
+        string maps = new('B', 64);
+        string projectiles = new('C', 64);
+        Guid definitions = Guid.Parse("89abcdef-0123-4567-89ab-cdef01234567");
+        GameContentIdentity baseline = GameContentIdentity.Create(audio, maps, projectiles, definitions);
+        AssertEqual(
+            baseline,
+            GameContentIdentity.Create(audio, maps, projectiles, definitions),
+            "aggregate installation identity is deterministic");
+        AssertTrue(
+            baseline.CompositeSha256 != GameContentIdentity.Create(new string('D', 64), maps, projectiles, definitions).CompositeSha256,
+            "audio identity invalidates aggregate installation identity");
+        AssertTrue(
+            baseline.CompositeSha256 != GameContentIdentity.Create(audio, new string('D', 64), projectiles, definitions).CompositeSha256,
+            "map identity invalidates aggregate installation identity");
+        AssertTrue(
+            baseline.CompositeSha256 != GameContentIdentity.Create(audio, maps, new string('D', 64), definitions).CompositeSha256,
+            "projectile identity invalidates aggregate installation identity");
+        AssertTrue(
+            baseline.CompositeSha256 != GameContentIdentity.Create(audio, maps, projectiles, Guid.Empty).CompositeSha256,
+            "compiled-definition build invalidates aggregate installation identity");
+        AssertThrows<ArgumentException>(
+            () => GameContentIdentity.Create("not-a-sha", maps, projectiles, definitions),
+            "aggregate installation identity rejects malformed component digest");
     }
 }

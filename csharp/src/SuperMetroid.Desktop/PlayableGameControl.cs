@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using Microsoft.Win32;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Desktop;
 
@@ -37,6 +38,7 @@ public sealed partial class PlayableGameControl : UserControl
     private SpcAudioEngine? audioEngine;
     private readonly string? installedAudioDirectory;
     private readonly string? playerDataDirectory;
+    private GameContentIdentity? installedContentIdentity;
     private WaveOutAudioDevice? audioDevice;
     private ControllerInputRecorder? inputRecorder;
     private DebuggerSaveStateStore stateStore = null!;
@@ -209,9 +211,13 @@ public sealed partial class PlayableGameControl : UserControl
         addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom,
             playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"), gameOptions);
+        ExtractedAudioAssetCatalog? selectedAudioAssets =
+            gameOptions.AudioEnabled || playerDataDirectory is not null ? LoadAudioAssets() : null;
         if (gameOptions.AudioEnabled)
         {
-            audioEngine = new SpcAudioEngine(LoadAudioAssets(), new ManagedSpcPlayer());
+            audioEngine = new SpcAudioEngine(
+                selectedAudioAssets ?? throw new InvalidOperationException("Audio assets were not loaded."),
+                new ManagedSpcPlayer());
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
@@ -223,11 +229,11 @@ public sealed partial class PlayableGameControl : UserControl
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
-        mapPresentation = playerDataDirectory is null ? null :
-            new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadMaps();
+        GameInstallation? installation = playerDataDirectory is null ? null :
+            new GameInstallation(playerDataDirectory);
+        mapPresentation = installation?.LoadMaps();
         game.BindMapPresentation(mapPresentation);
-        projectilePresentation = playerDataDirectory is null ? null :
-            new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadProjectiles();
+        projectilePresentation = installation?.LoadProjectiles();
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
         game.BindTrailArtwork(projectilePresentation?.Trails);
@@ -236,6 +242,19 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindGrappleArtwork(projectilePresentation?.GrappleTiles);
         if (projectilePresentation is not null)
             Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
+        installedContentIdentity = installation is null ? null : GameContentIdentity.Create(
+            selectedAudioAssets ?? throw new InvalidOperationException("Installed audio identity is unavailable."),
+            mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
+            projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."));
+        if (installedContentIdentity is not null)
+        {
+            Console.WriteLine(
+                $"Installed content: {installedContentIdentity.CompositeSha256}; " +
+                $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +
+                $"audio={installedContentIdentity.AudioContentSha256}, " +
+                $"maps={installedContentIdentity.MapContentSha256}, " +
+                $"projectiles={installedContentIdentity.ProjectileContentSha256}.");
+        }
         if (replay is null)
         {
             game.SaveRamChanged += PersistSaveRamToDisk;

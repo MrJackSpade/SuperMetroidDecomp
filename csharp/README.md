@@ -510,6 +510,14 @@ As with SFX, edits must retain each program's `byteCapacity`; overlapping native
 accepted only while they compile to the same bytes. Conflicting aliases, missing phrases/called
 programs, changed routing identities, or malformed effect operand counts fail explicitly.
 
+Each validated audio selection has a canonical `ContentIdentity`: SHA-256 over the normalized
+manifest, which already contains every upload/WAV digest and all authored definitions. Windows
+and Android combine that value with the selected map/projectile identities, supported source
+revision, and compiled Core build into a framed installation identity printed at session start.
+Formatting-only JSON changes retain identity; any audible or visual content edit changes the
+responsible component and aggregate digest. This is the compatibility/provenance seam for the
+ROM-free replay and debugger-state migration; legacy files still use their ROM digest for now.
+
 Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
 catalog at runtime.
 

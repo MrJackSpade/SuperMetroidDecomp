@@ -52,6 +52,18 @@ internal sealed class AndroidSessionData : IDisposable
         assets = audioDirectory is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadAudio()
             : ExtractedAudioAssetCatalog.Load(audioDirectory);
+        if (cartridgePath is null)
+        {
+            ContentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
+                assets,
+                maps ?? throw new InvalidOperationException("Installed Android session has no map catalog."),
+                projectiles ?? throw new InvalidOperationException("Installed Android session has no projectile catalog."));
+            Console.WriteLine(
+                $"Installed content: {ContentIdentity.CompositeSha256}; " +
+                $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +
+                $"audio={ContentIdentity.AudioContentSha256}, maps={ContentIdentity.MapContentSha256}, " +
+                $"projectiles={ContentIdentity.ProjectileContentSha256}.");
+        }
         Audio = new CartridgeAudioRenderer(assets);
         states = new DebuggerSaveStateStore(romPath, Bus.Rom, Path.Combine(root, "debug-states"), Options);
         recorder = StartRecorder();
@@ -62,6 +74,7 @@ internal sealed class AndroidSessionData : IDisposable
     public SuperMetroidAddressSpace Bus { get; private set; }
     public SuperMetroidGame Game { get; private set; }
     public CartridgeAudioRenderer Audio { get; private set; }
+    public SuperMetroid.AssetExtraction.GameContentIdentity? ContentIdentity { get; }
     public long Generation { get; private set; } = 1;
 
     public void Record(ushort input) => recorder.RecordFrame(input);
@@ -120,6 +133,7 @@ internal sealed class AndroidSessionData : IDisposable
             coreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
             diagnosticsBuild = typeof(DebuggerSaveStateStore).Module.ModuleVersionId,
             hostBuild = typeof(AndroidSessionData).Module.ModuleVersionId,
+            contentIdentity = ContentIdentity,
         }, new JsonSerializerOptions { WriteIndented = true }));
         FlushRecording();
     }

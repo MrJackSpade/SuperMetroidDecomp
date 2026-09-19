@@ -95,6 +95,7 @@ public static class TitleSequenceRomData
 
         public const int ObjectCharacterDestinationByte = 0xc000;
         public const int ObjectCharacterByteCount = 0x4000;
+        public const int BabyCharacterByteCount = 0x0400;
         public const int Mode7CharacterByteCount = 0x4000;
         public const int Mode7MapByteCount = 0x1000;
         public const byte Mode7InitialMapByte = 0xff;

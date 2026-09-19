@@ -1335,3 +1335,24 @@ valid override changes content identity and rendered title pixels. Removing the
 override restores both exactly. Wrong color counts, unsupported versions,
 out-of-range RGB5 components, unknown native-address fields, and malformed JSON
 fail loudly.
+
+## Editable title artwork (#549)
+
+Catalog version 39 adds four resources (forty-four shared hashes):
+`title-mode7-tiles.png`, `title-mode7-map.json`, `title-object-tiles.png`, and
+`title-baby-tiles.png`. The indexed PNGs expose all 256 Mode 7 characters, all
+512 four-bit OBJ characters, and the sixteen chunky Baby-Metroid animation
+characters. The 64x64 JSON map contains only eight-bit tile indexes. Copy any
+complete stock file to `overrides/maps` to replace it.
+
+Mode 7 transforms, scene motion, map fill outside the authored 64x64 region,
+VRAM destinations, sprite composition, and the Baby animation page order/cadence
+remain compiled behavior. The PNG palettes are index previews; live colors come
+from `title-palette.json`, so recoloring does not duplicate pixels or alter tile
+indexes.
+
+Verification round-trips all four decompressed streams byte-for-byte, compares
+140 production title frames with stock while the complete compressed-source read
+closure is forbidden, and proves a Mode 7 PNG override changes installed identity
+and rendered title output. Dimensions, palette cardinality, map shape/version,
+tile-index range, malformed files, and missing manifest resources fail loudly.

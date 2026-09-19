@@ -133,7 +133,7 @@ internal static partial class Program
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
-            0x0400,
+            TitleSequenceRomData.Vram.BabyCharacterByteCount,
             0);
 
         WriteConstructedTitleTextList(

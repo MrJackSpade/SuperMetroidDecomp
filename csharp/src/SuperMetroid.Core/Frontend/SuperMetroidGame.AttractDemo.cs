@@ -118,7 +118,8 @@ public sealed partial class SuperMetroidGame
                             bus,
                             audio,
                             mapPresentation?.TitleGradient,
-                            mapPresentation?.TitlePalette);
+                            mapPresentation?.TitlePalette,
+                            mapPresentation?.TitleGraphics);
                     else
                     {
                         audio.QueueMusicDelayed8(MusicCommand.Stop);
@@ -126,7 +127,8 @@ public sealed partial class SuperMetroidGame
                             bus,
                             audio,
                             mapPresentation?.TitleGradient,
-                            mapPresentation?.TitlePalette);
+                            mapPresentation?.TitlePalette,
+                            mapPresentation?.TitleGraphics);
                     }
                     GameState = SuperMetroidGameState.OpeningCinematic;
                     PublishMenu(title);

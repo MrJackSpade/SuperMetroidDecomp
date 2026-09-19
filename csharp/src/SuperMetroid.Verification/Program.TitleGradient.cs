@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 using System.Text.Json;
 
 internal static partial class Program
@@ -9,6 +10,7 @@ internal static partial class Program
     private static void VerifyTitleGradientTables(SuperMetroidAddressSpace bus)
     {
         VerifyTitleGradientObjectEligibility();
+        VerifyExtractedTitleGraphics(bus);
         VerifyExtractedTitlePalette(bus);
         VerifyExtractedTitleGradient(bus);
         // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
@@ -29,6 +31,68 @@ internal static partial class Program
             AssertEqual((byte)0x31, actual[122].Control, "zoom preserves additive boundary");
         }
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
+    }
+
+    private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
+    {
+        var cartridgeReads = new HashSet<int>();
+        var tracingBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
+        IReadOnlyDictionary<string, byte[]> files =
+            SuperMetroid.AssetExtraction.TitleGraphicsExtractor.Extract(tracingBus);
+        TitleGraphicsPresentation presentation = TitleGraphicsPresentation.Load(
+            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
+        AssertSource(TitleSequenceRomData.Assets.Mode7CharactersAddress,
+            TitleSequenceRomData.Vram.Mode7CharacterByteCount, presentation.Mode7Characters,
+            "title Mode 7 characters");
+        AssertSource(TitleSequenceRomData.Assets.Mode7MapAddress,
+            TitleSequenceRomData.Vram.Mode7MapByteCount, presentation.Mode7Map,
+            "title Mode 7 map");
+        AssertSource(TitleSequenceRomData.Assets.ObjectCharactersAddress,
+            TitleSequenceRomData.Vram.ObjectCharacterByteCount, presentation.ObjectCharacters,
+            "title OBJ characters");
+        AssertSource(TitleSequenceRomData.Assets.BabyMetroidCharactersAddress,
+            TitleSequenceRomData.Vram.BabyCharacterByteCount, presentation.BabyCharacters,
+            "title Baby characters");
+
+        var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
+        var stock = new TitleSequenceState(bus);
+        var installed = new TitleSequenceState(guardedBus, titleGraphicsPresentation: presentation);
+        for (int frame = 0; frame < 140; frame++)
+        {
+            stock.Step(0);
+            installed.Step(0);
+            if (!stock.Render().AsSpan().SequenceEqual(installed.Render()))
+                throw new InvalidDataException($"Installed title graphics differ from stock at frame {frame}.");
+        }
+        if (guardedBus.ForbiddenReadAttempts != 0)
+            throw new InvalidDataException("Production title reread a compressed graphics source.");
+
+        IndexedPngImage mode7 = IndexedPng.Read(
+            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
+            TitleGraphicsFormat.Mode7Width,
+            TitleGraphicsFormat.Mode7Height);
+        using var wrong = new MemoryStream();
+        IndexedPng.Write(wrong, 8, 8, new byte[64], mode7.Palette);
+        wrong.Position = 0;
+        AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
+            wrong,
+            new MemoryStream(files[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
+            "title graphics reject wrong Mode 7 PNG dimensions");
+        Console.WriteLine(
+            $"  Title graphics presentation: four editable assets match native VRAM input; " +
+            $"140 production frames avoided {cartridgeReads.Count} compressed-source bytes.");
+
+        void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
+        {
+            byte[] source = RomDataReader.Decompress(bus, address);
+            if (!source.AsSpan(0, count).SequenceEqual(actual))
+                throw new InvalidDataException($"Extracted {description} differ from cartridge data.");
+        }
     }
 
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)

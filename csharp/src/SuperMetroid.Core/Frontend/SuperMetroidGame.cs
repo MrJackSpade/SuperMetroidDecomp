@@ -266,7 +266,8 @@ public sealed partial class SuperMetroidGame
                     bus,
                     audio,
                     mapPresentation?.TitleGradient,
-                    mapPresentation?.TitlePalette);
+                    mapPresentation?.TitlePalette,
+                    mapPresentation?.TitleGraphics);
                 lastAudioRuntimeGameplayPublication = null;
                 lastAudioRoomStatePointer = null;
                 fileSelect = null;

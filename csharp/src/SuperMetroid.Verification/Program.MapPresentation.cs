@@ -110,6 +110,7 @@ internal static partial class Program
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
+        VerifyTitleGraphicsOverride(bus, stock, overrides, original);
         VerifyTitlePaletteOverride(bus, stock, overrides, original);
         VerifyTitleGradientOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
@@ -259,6 +260,49 @@ internal static partial class Program
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title palette override restores installed-content identity");
         Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
+    }
+
+    private static void VerifyTitleGraphicsOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string name = TitleGraphicsFormat.Mode7TilesFile;
+        IndexedPngImage image;
+        using (var input = File.OpenRead(Path.Combine(stock, name)))
+            image = IndexedPng.Read(input, TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height);
+        byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
+        string replacement = Path.Combine(overrides, name);
+        using (var output = File.Create(replacement))
+            IndexedPng.Write(output, image.Width, image.Height, pixels, image.Palette);
+
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "title graphics override changes installed-content identity");
+        var stockTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: original.TitleGradient,
+            titlePalettePresentation: original.TitlePalette,
+            titleGraphicsPresentation: original.TitleGraphics);
+        var editedTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: edited.TitleGradient,
+            titlePalettePresentation: edited.TitlePalette,
+            titleGraphicsPresentation: edited.TitleGraphics);
+        stockTitle.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        editedTitle.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        for (int frame = 0; frame < 16; frame++)
+        {
+            stockTitle.Step(0);
+            editedTitle.Step(0);
+        }
+        AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
+            "Mode 7 PNG override visibly changes production title output");
+
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing title graphics override restores installed-content identity");
+        Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
     }
 
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,

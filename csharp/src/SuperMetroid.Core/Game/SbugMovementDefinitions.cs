@@ -10,14 +10,14 @@ internal static class SbugMovementDefinitions
     /// </summary>
     private static ReadOnlySpan<ushort> FacingInstructionLists =>
     [
-        0xa071,
-        0xa085,
-        0xa099,
-        0xa0ad,
-        0xa0c1,
-        0xa0d5,
-        0xa0e9,
-        0xa0fd,
+        SbugInstructionProgramDefinitions.Right,
+        SbugInstructionProgramDefinitions.UpRight,
+        SbugInstructionProgramDefinitions.Up,
+        SbugInstructionProgramDefinitions.UpLeft,
+        SbugInstructionProgramDefinitions.Left,
+        SbugInstructionProgramDefinitions.DownLeft,
+        SbugInstructionProgramDefinitions.Down,
+        SbugInstructionProgramDefinitions.DownRight,
     ];
 
     /// <summary>

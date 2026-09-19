@@ -130,7 +130,9 @@ programs remain separate dependencies.
 Sbug's eight direction-selected instruction lists and seven activation callbacks
 are compiled too. All eight production initializers preserve the cartridge's
 odd-index normalization, and all seven proximity activations run with
-`$A3:A111-$A12E` forbidden. Mixed animation programs remain separate dependencies.
+`$A3:A111-$A12E` forbidden. Their eight selected animation programs now compile all
+48 duration, goto, and loop-target words as well; all 32 interleaved spritemap
+pointers remain live presentation reads.
 Wrecked Ship Spark's three authored initial instruction/function pairs are
 compiled too, together with selector three's two adjacent-code observations.
 All four production initializers retain the two-bit population mask while

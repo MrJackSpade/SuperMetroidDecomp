@@ -18,34 +18,45 @@ internal static partial class Program
         ushort[] definitions = [AnimatedTileObjectPointers.MaridiaSandCeiling, AnimatedTileObjectPointers.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
-            int header = RoomFxRomData.Banks.AnimatedTiles | definitions[slot];
-            ushort list = (ushort)(0xa000 + slot * 0x100);
-            WriteTestWord(bus, header, list);
-            WriteTestWord(bus, header + 2, 32);
-            WriteTestWord(bus, header + 4, (ushort)(0x1000 + slot * 16));
-            for (int frame = 0; frame < 2; frame++)
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                    definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                $"sand object {slot} resolves compiled mechanics");
+            for (int frame = 0; frame < definition.Frames.Count; frame++)
             {
-                ushort source = (ushort)(0xb000 + slot * 64 + frame * 32);
-                WriteTestWord(bus, 0x870000 | (list + frame * 4), 2);
-                WriteTestWord(bus, 0x870000 | (list + frame * 4 + 2), source);
-                bus.WriteBytes(0x870000 | source, Enumerable.Repeat((byte)(1 + slot * 2 + frame), 32).ToArray());
+                ushort source = (ushort)(0xb000 + slot * 0x200 +
+                    frame * definition.TransferByteCount);
+                WriteTestWord(bus,
+                    RoomFxRomData.Banks.AnimatedTiles |
+                        definition.Frames[frame].SourceOperandPointer,
+                    source);
+                bus.WriteBytes(RoomFxRomData.Banks.AnimatedTiles | source,
+                    Enumerable.Repeat((byte)(1 + slot * 4 + frame),
+                        definition.TransferByteCount).ToArray());
             }
-            WriteTestWord(bus, 0x870000 | (list + 8), AnimatedTileInstructionCodes.Goto);
-            WriteTestWord(bus, 0x870000 | (list + 10), list);
         }
         sand.LoadRoom(bus, 0x9100, 0, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
-        for (int tick = 0; tick < 12; tick++)
+        for (int tick = 0; tick < 31; tick++)
         {
             byte before = vram.ReadByte(0x2000);
             sand.Step(bus, vram, queue);
             AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
-            AssertEqual(tick % 2 == 0 ? 2 : 0, queue.Entries.Count, "sand source changes follow ROM durations");
+            AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
+                "sand source changes follow compiled cartridge durations");
             queue.DrainTo(vram, bus);
             for (int slot = 0; slot < 2; slot++)
-                for (int i = 0; i < 32; i++)
-                    AssertEqual((byte)(1 + slot * 2 + tick / 2 % 2), vram.ReadByte(0x2000 + slot * 32 + i),
+            {
+                AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                        definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                    $"sand object {slot} remains catalogued");
+                int destination = definition.EncodedVramDestination * 2;
+                for (int i = 0; i < definition.TransferByteCount; i++)
+                {
+                    AssertEqual((byte)(1 + slot * 4 + tick / 10 % 4),
+                        vram.ReadByte(destination + i),
                         "sand ceiling/fall graphics loop independently at exact destinations");
+                }
+            }
         }
         sand.LoadRoom(bus, 0, 0, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");

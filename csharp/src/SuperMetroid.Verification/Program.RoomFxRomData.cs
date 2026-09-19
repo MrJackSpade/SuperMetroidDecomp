@@ -37,6 +37,7 @@ internal static partial class Program
 
         VerifyRoomFxRecordSelection();
         VerifyRoomLayer3FxTypes();
+        VerifyRoomFxAnimatedTileMechanicsDefinitions();
         VerifyRetailRoomFxInventory();
         NotSupportedException unknown = AssertThrows<NotSupportedException>(
             () => RoomFxTypes.FromCartridge(0x0e, "constructed FX record $9000"),
@@ -365,19 +366,24 @@ internal static partial class Program
         if (objectPointer == 0)
             return;
 
-        ushort listPointer = unchecked((ushort)(0x9a00 + (ushort)type * 0x10));
-        ushort sourcePointer = unchecked((ushort)(0x9c00 + (ushort)type * 0x20));
-        int objectAddress = RoomFxRomData.Banks.AnimatedTiles | objectPointer;
-        WriteTestWord(bus, objectAddress, listPointer);
-        WriteTestWord(bus, objectAddress + 2, 16);
-        WriteTestWord(bus, objectAddress + 4, 0x4008);
-
-        int listAddress = RoomFxRomData.Banks.AnimatedTiles | listPointer;
-        WriteTestWord(bus, listAddress, 4);
-        WriteTestWord(bus, listAddress + 2, sourcePointer);
-        WriteTestWord(bus, listAddress + 4, AnimatedTileInstructionCodes.Goto);
-        WriteTestWord(bus, listAddress + 6, listPointer);
-        for (int row = 0; row < 8; row++)
-            bus.WriteByte(RoomFxRomData.Banks.AnimatedTiles | sourcePointer + row * 2, 0xff);
+        AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                objectPointer, out RoomFxAnimatedTileObjectDefinition definition),
+            $"{type} resolves compiled animated-tile mechanics");
+        for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
+        {
+            RoomFxAnimatedTileFrameDefinition frame = definition.Frames[frameIndex];
+            ushort sourcePointer = unchecked((ushort)(0x9c00 + (ushort)type * 0x100 +
+                frameIndex * definition.TransferByteCount));
+            WriteTestWord(
+                bus,
+                RoomFxRomData.Banks.AnimatedTiles | frame.SourceOperandPointer,
+                sourcePointer);
+            for (int byteIndex = 0; byteIndex < definition.TransferByteCount; byteIndex++)
+            {
+                bus.WriteByte(
+                    RoomFxRomData.Banks.AnimatedTiles | sourcePointer + byteIndex,
+                    0xff);
+            }
+        }
     }
 }

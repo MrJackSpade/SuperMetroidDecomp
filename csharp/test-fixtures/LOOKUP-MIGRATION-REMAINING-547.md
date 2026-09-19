@@ -799,3 +799,18 @@ sequence consume the compiled mechanics words, retaining ROM fallback only for p
 and instruction streams outside this translated family. Verification compares every word
 with the pinned cartridge and executes all 18 programs while every compiled source byte is
 forbidden, while proving that live spritemap reads still occur.
+
+## Room-FX animated-tile mechanics
+
+The five simple room-FX animated-tile objects are now split by ownership too. Lava,
+acid, rain, Maridia ceiling sand, and Maridia falling sand compile their five object
+headers plus every frame-duration word, terminal loop opcode, and loop target in
+`RoomFxAnimatedTileMechanicsDefinitions`. That is 48 fixed control words across 23
+timed frames. Their interleaved frame-source pointers and character bytes remain live
+cartridge presentation data.
+
+Verification compares all 48 compiled words with the pinned cartridge and executes a
+complete loop for every production object while every mechanics byte is forbidden. It
+also proves that all 23 presentation-source operands are still read from the cartridge.
+Unknown/non-retail definitions retain the strict generic interpreter; a restored stock
+object cannot escape its compiled control domain into arbitrary adjacent bank-$87 data.

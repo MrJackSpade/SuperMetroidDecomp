@@ -2728,3 +2728,12 @@ The mechanics half of Mother Brain's mixed body-animation bytecode is compiled i
 extended-spritemap pointers remain presentation-owned ROM reads. Both production body
 interpreters use the compiled path. Cartridge-equivalence verification checks every word
 and executes every program with the mechanics source bytes forbidden.
+
+# Room-FX animated-tile mechanics
+
+The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:
+their object-header cursors/transfer geometry, 23 frame durations, five loop opcodes, and
+five loop targets. Lava, acid, rain, Maridia ceiling sand, and falling sand each complete
+a production loop with all mechanics bytes forbidden. The 23 interleaved source pointers
+and their character payloads remain live presentation data rather than being folded into
+the engine catalog.

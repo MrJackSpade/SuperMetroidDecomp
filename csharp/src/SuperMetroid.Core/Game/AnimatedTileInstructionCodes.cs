@@ -59,7 +59,7 @@ public static class AnimatedTileObjectPointers
 
     /// <summary>
     /// <c>kAnimtiles_Rain</c> at $87:82E7, spawned by the rain FX dispatcher at
-    /// $88:C4B9. Its three-frame loop uploads $50 bytes to VRAM word $4280.
+    /// $88:C4B9. Its five-frame loop uploads $50 bytes to VRAM word $4280.
     /// </summary>
     public const ushort Rain = 0x82e7;
 }

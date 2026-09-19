@@ -21,6 +21,7 @@ internal sealed class RoomFxAnimatedTilesState
     private ushort instructionTimer;
     private ushort transferByteCount;
     private ushort encodedVramDestination;
+    private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
     public bool IsActive { get; private set; }
@@ -54,9 +55,18 @@ internal sealed class RoomFxAnimatedTilesState
         if (objectPointer == 0)
             return;
 
-        instructionPointer = ReadWord(bus, objectPointer);
-        transferByteCount = ReadWord(bus, unchecked((ushort)(objectPointer + 2)));
-        encodedVramDestination = ReadWord(bus, unchecked((ushort)(objectPointer + 4)));
+        if (RoomFxAnimatedTileMechanicsDefinitions.TryResolve(objectPointer, out compiledMechanics))
+        {
+            instructionPointer = compiledMechanics.InstructionPointer;
+            transferByteCount = compiledMechanics.TransferByteCount;
+            encodedVramDestination = compiledMechanics.EncodedVramDestination;
+        }
+        else
+        {
+            instructionPointer = ReadWord(bus, objectPointer);
+            transferByteCount = ReadWord(bus, unchecked((ushort)(objectPointer + 2)));
+            encodedVramDestination = ReadWord(bus, unchecked((ushort)(objectPointer + 4)));
+        }
         instructionTimer = 1;
         IsActive = true;
 
@@ -87,7 +97,7 @@ internal sealed class RoomFxAnimatedTilesState
         ushort cursor = instructionPointer;
         for (int guard = 0; guard < 32; guard++)
         {
-            ushort instructionOrDuration = ReadWord(bus, cursor);
+            ushort instructionOrDuration = ReadMechanicsWord(bus, cursor);
             if ((instructionOrDuration & 0x8000) == 0)
             {
                 if (instructionOrDuration == 0)
@@ -115,7 +125,7 @@ internal sealed class RoomFxAnimatedTilesState
                     return;
 
                 case AnimatedTileInstructionCodes.Goto:
-                    cursor = ReadWord(bus, unchecked((ushort)(cursor + 2)));
+                    cursor = ReadMechanicsWord(bus, unchecked((ushort)(cursor + 2)));
                     break;
 
                 default:
@@ -141,6 +151,19 @@ internal sealed class RoomFxAnimatedTilesState
         instructionTimer = 0;
         transferByteCount = 0;
         encodedVramDestination = 0;
+        compiledMechanics = null;
+    }
+
+    private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
+    {
+        if (compiledMechanics is null)
+            return ReadWord(bus, pointer);
+        if (compiledMechanics.TryReadMechanicsWord(pointer, out ushort value))
+            return value;
+
+        throw new InvalidDataException(
+            $"Room-FX animated-tile object $87:{objectPointer:X4} reached non-catalog " +
+            $"mechanics word $87:{pointer:X4}.");
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>

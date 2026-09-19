@@ -891,6 +891,11 @@ if (args is ["--intro-rinka-definitions"])
     VerifyIntroRinkaDefinitions();
     return 0;
 }
+if (args is ["--intro-baby-actor-definitions"])
+{
+    VerifyIntroBabyActorDefinitions();
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();
@@ -1362,6 +1367,7 @@ VerifyIntroCinematicRomData();
 VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyIntroMotherBrainDefinitions();
 VerifyIntroRinkaDefinitions();
+VerifyIntroBabyActorDefinitions();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();

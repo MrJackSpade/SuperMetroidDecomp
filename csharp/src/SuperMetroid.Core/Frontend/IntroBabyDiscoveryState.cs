@@ -17,21 +17,16 @@ internal sealed class IntroBabyDiscoveryState
     private readonly DemoInputState demo = new();
     private readonly List<IntroEggParticle> eggParticles = [];
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
-    private readonly IntroDiscoverySprite egg = new(
-        xPosition: 0x0070,
-        yPosition: 0x009b,
-        paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-        instructionPointer: CinematicCodePointers.Lists.MetroidEgg);
-    private readonly IntroDiscoverySprite confusedBaby = new(
-        xPosition: 0x0070,
-        yPosition: 0x009b,
-        paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-        instructionPointer: CinematicCodePointers.Lists.ConfusedBabyMetroid);
+    private readonly IntroDiscoverySprite egg;
+    private readonly IntroDiscoverySprite confusedBaby;
 
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null, SamusState? existingSamus = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
+
+        egg = CreateActor(IntroBabyActorDefinitions.Egg);
+        confusedBaby = CreateActor(IntroBabyActorDefinitions.ConfusedBaby);
 
         // Native scene setup reuses Samus WRAM, including transition history. Standalone
         // diagnostics may start with a fresh owner, but the full intro carries it forward.
@@ -85,9 +80,12 @@ internal sealed class IntroBabyDiscoveryState
 
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
-        if (!EggHatchingStarted && unchecked((short)(Samus.XPosition - 0x00a9)) < 0)
+        if (egg.PreInstructionPointer == IntroBabyActorDefinitions.Egg.PreInstruction &&
+            unchecked((short)(Samus.XPosition - 0x00a9)) < 0)
         {
             egg.Redirect(CinematicCodePointers.Lists.MetroidEggHatching);
+            egg.PreInstructionPointerForDiscovery(
+                CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
             EggHatchingStarted = true;
         }
 
@@ -220,7 +218,7 @@ internal sealed class IntroBabyDiscoveryState
     {
         switch (confusedBaby.PreInstructionPointer)
         {
-            case 0:
+            case IntroBabyActorDefinitions.ConfusedBabyInitialPreInstruction:
                 // $BA5E watches the egg's *next* instruction pointer. CB79 is the first
                 // fully-hatched frame list, so the baby starts moving on that exact handoff.
                 if (egg.InstructionPointer >= CinematicCodePointers.Lists.MetroidEggHatchedFrame2)
@@ -375,6 +373,17 @@ internal sealed class IntroBabyDiscoveryState
             sprite.YPosition = whole;
             sprite.YSubPosition = fraction;
         }
+    }
+
+    private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
+    {
+        var actor = new IntroDiscoverySprite(
+            definition.X,
+            definition.Y,
+            definition.PaletteBits,
+            definition.InstructionList);
+        actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
+        return actor;
     }
 
     private static RoomLevelData CreateLevel(ReadOnlySpan<byte> source)

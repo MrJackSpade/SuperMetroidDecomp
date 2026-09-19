@@ -2625,3 +2625,14 @@ half a pixel per frame. Animation lists and spritemaps remain cartridge presenta
 Verification compares six actor-definition words and twelve physical words with the pinned
 cartridge, rejects an out-of-range parameter, and runs both native spawn waves plus the
 Mother-Brain-explosion cleanup while every migrated source byte is forbidden.
+
+# Intro egg and baby actor definitions
+
+The SR388 egg, confused baby, delivered baby, and examined baby now use four typed actor
+records containing their initialization/pre-instruction/list identities and the fixed
+position/palette payload written by each initializer. Animation programs and spritemaps
+remain cartridge presentation data.
+
+Verification compares twelve definition words and twelve initializer immediates with the
+pinned cartridge, triggers the egg's native hatching threshold, and runs both scientist
+actors through their page-transition instructions while all source records are forbidden.

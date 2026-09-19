@@ -222,6 +222,11 @@ biased origins, and the parameter-selected signed horizontal velocity components
 waves and the Mother-Brain-explosion cleanup path run with those eighteen native words
 forbidden; the animation/spritemap programs remain ROM-backed presentation data.
 
+The SR388 egg, confused baby, delivered baby, and examined baby now compile their four
+actor-definition triples plus the fixed position/palette initializer payloads. The egg's
+hatching threshold and both scientist-scene page transitions run with all 24 native words
+forbidden; animation lists and spritemaps remain cartridge presentation data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

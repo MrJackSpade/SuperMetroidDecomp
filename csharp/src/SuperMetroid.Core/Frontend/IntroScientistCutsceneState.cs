@@ -15,15 +15,17 @@ internal sealed class IntroScientistCutsceneState
         this.kind = kind;
         this.audio = audio;
         bool delivery = kind == ScientistSceneKind.Delivery;
+        IntroBabyActorDefinition definition = delivery
+            ? IntroBabyActorDefinitions.DeliveredBaby
+            : IntroBabyActorDefinitions.ExaminedBaby;
 
         // Definitions $CE61/$CE67 use separate laboratory pages and mirrored pan axes.
         baby = new IntroDiscoverySprite(
-            xPosition: delivery ? (ushort)0x0054 : (ushort)0x0070,
-            yPosition: delivery ? (ushort)0x008b : (ushort)0x006f,
-            paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw,
-            instructionPointer: delivery
-                ? CinematicCodePointers.Lists.BabyMetroidBeingDelivered
-                : CinematicCodePointers.Lists.BabyMetroidBeingExamined);
+            definition.X,
+            definition.Y,
+            definition.PaletteBits,
+            definition.InstructionList);
+        baby.PreInstructionPointerForDiscovery(definition.PreInstruction);
         TilemapBaseWord = delivery ? (ushort)0x5800 : (ushort)0x5c00;
         BackgroundX = delivery ? (ushort)0x0020 : (ushort)0;
         BackgroundY = delivery ? (ushort)0x0008 : unchecked((ushort)0xffe8);

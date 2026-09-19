@@ -22,6 +22,9 @@ internal static class CinematicCodePointers
     /// <summary><c>CinematicSpriteObject_Instruction_SetTimer</c> at $8B:94D6.</summary>
     public const ushort CinematicSpriteObject_Instruction_SetTimer = 0x94d6;
 
+    /// <summary><c>RTS_8B93D9</c>, the shared cinematic-sprite no-op callback.</summary>
+    public const ushort CinematicSpriteObject_PreInstruction_NoOp = 0x93d9;
+
     /// <summary><c>CinematicBGObject_Instruction_Delete</c> at $8B:9698.</summary>
     public const ushort CinematicBackgroundObject_Instruction_Delete = 0x9698;
 

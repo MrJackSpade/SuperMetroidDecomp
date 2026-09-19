@@ -7,7 +7,7 @@ internal static class IntroRinkaDefinitions
     public const int NativeBank = 0x8b0000;
 
     /// <summary><c>$8B:93D9</c>, the shared cinematic-sprite no-op callback.</summary>
-    public const ushort SharedNoOp = 0x93d9;
+    public const ushort SharedNoOp = CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp;
 
     /// <summary><c>$8B:CF21</c>, intro Rinka initialization, no-op pre-instruction, and initial list.</summary>
     public static IntroRinkaActorDefinition RinkaActor =>

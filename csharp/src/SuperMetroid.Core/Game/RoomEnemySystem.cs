@@ -3596,6 +3596,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == SkreeDefinition)
             return SkreeMetareeInstructionProgramDefinitions.ReadSkreeMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == ZoaDefinition)
+            return ZoaInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

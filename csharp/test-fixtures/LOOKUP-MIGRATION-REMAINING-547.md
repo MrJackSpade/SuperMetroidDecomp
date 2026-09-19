@@ -988,6 +988,19 @@ compiled mechanics bytes forbidden, observes every spritemap, and proves both re
 plus both off-screen-property transitions. Each species rejects the other's program domain,
 presentation pointers fail as restored mechanics cursors, and warmed lookup is allocation-free.
 
+## Zoa instruction mechanics
+
+Zoa's left/right shooting and rising programs now share a strict
+`ZoaInstructionProgramDefinitions` boundary. Twenty-six immutable speed callbacks,
+durations, gotos, and loop targets are compiled; twelve interleaved spritemap operands
+remain live presentation reads. The separately verified facing/phase selector uses these
+same four named entries.
+
+Production verification runs every program beyond its loop boundary with all compiled
+mechanics bytes forbidden, observes every spritemap, and proves the complete three-stage
+speed callback schedule in both directions. Presentation and adjacent selector-table
+pointers fail as restored mechanics cursors, and warmed lookup is allocation-free.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

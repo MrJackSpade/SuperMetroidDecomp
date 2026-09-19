@@ -21,10 +21,10 @@ internal static class ZoaAnimationDefinitions
     /// </summary>
     private static readonly ushort[] InstructionLists =
     [
-        0xb3c1,
-        0xb3d7,
-        0xb3e7,
-        0xb3fd,
+        ZoaInstructionProgramDefinitions.FacingLeftShooting,
+        ZoaInstructionProgramDefinitions.FacingLeftRising,
+        ZoaInstructionProgramDefinitions.FacingRightShooting,
+        ZoaInstructionProgramDefinitions.FacingRightRising,
     ];
 
     /// <summary>Returns the authored list for one facing/movement combination.</summary>

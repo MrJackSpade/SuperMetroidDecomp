@@ -2954,6 +2954,20 @@ publishes both attack-ready flags, diving enables off-screen processing, and the
 stop programs disable it. Cross-species and presentation pointers fail as mechanics, and
 warmed lookup is allocation-free.
 
+# Zoa instruction mechanics
+
+Zoa's mirrored shooting and rising programs now resolve all twenty-six fixed speed
+callbacks, durations, gotos, and loop targets through
+`ZoaInstructionProgramDefinitions`. Their twelve interleaved spritemap pointers remain
+live cartridge-backed presentation data, and the four-way phase/facing selector names
+the same catalog entries instead of duplicating raw addresses.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four production programs beyond their terminal gotos while every mechanics source byte
+is forbidden. All twelve spritemap operands remain observable, and both shooting programs
+prove the native 4 -> 8 -> 12 -> 4 speed-row callback sequence. Presentation and adjacent
+selector-table pointers fail as mechanics, and warmed lookup is allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

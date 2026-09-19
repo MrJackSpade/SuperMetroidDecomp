@@ -2756,3 +2756,16 @@ runs the actual `$8F:A66A` room until Kraid, Phantoon, Draygon, and Ridley have 
 released. The production sequence observes every live source operand while a guarded
 bus forbids all compiled mechanics reads. This remains a bounded #547 slice; other
 immutable callback and lookup owners are still open.
+
+# Projectile sound routing (#547 / #548)
+
+`SamusProjectileSoundRoutingDefinitions` now compiles the ordinary and charged beam
+producer's library-one sound IDs. Its sixteen-entry families preserve the cartridge's
+raw low-nibble indexing, including eight bounded observations into the adjacent charged
+and non-beam tables used by advanced beam techniques.
+
+All 32 selector results match the pinned cartridge. The production verifier fires every
+authored ordinary and charged combination against poisoned source tables, verifies Hyper
+Beam's charged-Plasma route, and executes Murder Beam with `$90:C28F-$C2C6` forbidden.
+This removes one audio-routing mechanics dependency without claiming the authored SPC
+content or the broader #548/#547 integration complete.

@@ -103,12 +103,23 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteBytes(0x9baa07, new byte[32]);
 
 
-    WriteTestWord(bus, 0x90c28f, 0x000b);
-    WriteTestWord(bus, 0x90c2a7, 0x0017);
+    ushort[] nativeUnchargedSounds =
+    [
+        0x000b, 0x000d, 0x000c, 0x000e, 0x000f, 0x0012,
+        0x0010, 0x0011, 0x0013, 0x0016, 0x0014, 0x0015,
+    ];
+    ushort[] nativeChargedSounds =
+    [
+        0x0017, 0x0019, 0x0018, 0x001a, 0x001b, 0x001e,
+        0x001c, 0x001d, 0x001f, 0x0022, 0x0020, 0x0021,
+    ];
+    // Poison the retired cartridge tables. Production firing must use the compiled
+    // routing definitions below rather than accepting these verifier-owned replacements.
+    WriteTestWord(bus, 0x90c28f, 0x0040);
+    WriteTestWord(bus, 0x90c2a7, 0x0060);
     for (int beamType = 1; beamType < 12; beamType++)
     {
-        // Distinct presentation sounds expose a wrong family index; firing delays
-        // are compiled mechanics and retain their native Plasma+Ice exception.
+        // Distinct invalid values expose any remaining read or wrong-family selection.
         WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
         WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
     }
@@ -348,7 +359,7 @@ static void VerifySamusPowerBeamProjectiles()
         AssertEqual(
             (SoundEffectId?)SoundEffectId.FromCartridge(
                 SoundEffectLibrary.Library1,
-                unchecked((ushort)(0x0030 + beamType))),
+                nativeUnchargedSounds[beamType]),
             combinedResult.QueuedSoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
         AssertEqual(10, combinedProjectiles.ProjectileInvincibilityTimer,
@@ -768,7 +779,7 @@ static void VerifySamusPowerBeamProjectiles()
     // Charged combinations index the parallel pointer/sound range and cooldown bytes
     // `$10-$1B`. Even a low-family wave now uses the common four-frame wave routine; the
     // special three-frame reload belongs only to uncharged types one and three.
-    foreach (ushort beamType in new ushort[] { 1, 4, 5, 9, 11 })
+    for (ushort beamType = 1; beamType < 12; beamType++)
     {
         var combinedChargeSamus = new SamusState
         {
@@ -807,7 +818,7 @@ static void VerifySamusPowerBeamProjectiles()
         AssertEqual(
             (SoundEffectId?)SoundEffectId.FromCartridge(
                 SoundEffectLibrary.Library1,
-                unchecked((ushort)(0x0050 + beamType))),
+                nativeChargedSounds[beamType]),
             combinedChargedRelease.QueuedSoundEffect,
             $"charged beam combination {beamType} indexes charged sound");
         AssertEqual(
@@ -850,7 +861,8 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, hyperSlot.TrailTimer, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
-        (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0058),
+        (SoundEffectId?)SoundEffectId.FromCartridge(
+            SoundEffectLibrary.Library1, nativeChargedSounds[8]),
         hyperResult.QueuedSoundEffect,
         "Hyper Beam indexes charged sound entry eight");
     AssertEqual(0x8014, hyperProjectiles.ChargedShotGlowTimer,

@@ -13,7 +13,8 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMurderBeam()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = new ProjectileSoundRoutingForbiddenBus(
+            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         var level = new RoomLevelData(
             16,
             16,

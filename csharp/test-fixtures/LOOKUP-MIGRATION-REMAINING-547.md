@@ -835,4 +835,21 @@ Verification compares every compiled word to the pinned cartridge, proves every
 presentation operand is absent from the mechanics catalog, then enters the real
 `$8F:A66A` room and completes all four defeated-boss release programs while a guarded
 bus rejects any mechanics-byte read. All 36 live source operands are observed during
-that production execution. The remaining bank-$87 owners continue under #547.
+that production execution. This completes the current bank-$87 runtime mechanics-owner
+inventory; the broader bank/indirect caller audit continues under #547.
+
+## Projectile sound routing mechanics
+
+The ordinary/charged beam sound tables at `$90:C28F-$C2C6` are compiled in
+`SamusProjectileSoundRoutingDefinitions` as library-one routing policy shared by
+#547 and #548. The domain deliberately contains all sixteen raw low-nibble selectors,
+not just the twelve authored beam combinations: uncharged selectors C-F observe the
+first four charged words, while charged selectors C-F observe the first four non-beam
+words. This preserves Chainsaw/SpaceTime/Murder Beam adjacency rather than sanitizing it.
+
+Verification compares 32 indexed observations (24 authored plus eight bounded overreads)
+to the pinned cartridge and rejects indexes outside the four-bit domain. The actual beam
+producers exercise all twelve ordinary and all twelve charged routes while their old
+tables contain poisoned values; Hyper Beam selects the compiled charged-Plasma sound, and
+the real Murder Beam path runs with the complete source range forbidden while retaining
+its native zero-sound result.

@@ -304,11 +304,7 @@ public sealed partial class SamusProjectileSystem
                 : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
-        ushort sound = ReadWord(
-            bus,
-            (charged
-                ? SamusProjectileRomData.Beams.ChargedSounds
-                : SamusProjectileRomData.Beams.UnchargedSounds) + beamType * 2);
+        ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType);
         if (charged)
             ChargedShotGlowTimer = 4;
 
@@ -417,9 +413,8 @@ public sealed partial class SamusProjectileSystem
         _flareTimers[0] = _flareTimers[1] = _flareTimers[2] = 3;
         FlareCounter = 0x8000;
 
-        ushort sound = ReadWord(
-            bus,
-            SamusProjectileRomData.Beams.ChargedSounds + hyperBeamType * 2);
+        ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(
+            charged: true, hyperBeamType);
         return (slotIndex, sound);
     }
 

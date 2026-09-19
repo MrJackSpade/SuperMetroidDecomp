@@ -822,3 +822,17 @@ two boss-wait commands, eight frame durations, two loop opcodes, and two loop ta
 loop with every control byte forbidden, while their eight source operands remain live
 presentation references. Constructed non-retail definitions still exercise strict generic
 dispatch and unknown-command failure.
+
+The four Tourian entrance-statue objects are now split at the same ownership
+boundary. `TourianStatueAnimatedTileMechanicsDefinitions` compiles their four
+headers and complete event/boss/palette/effect control graphs: 184 immutable words
+covering transfer geometry, timed records, branches, animation-state serialization,
+event publication, palette destinations, and unlock-effect parameters. The nine
+interleaved character-source operands per statue remain live presentation references,
+for 36 replaceable artwork pointers in total.
+
+Verification compares every compiled word to the pinned cartridge, proves every
+presentation operand is absent from the mechanics catalog, then enters the real
+`$8F:A66A` room and completes all four defeated-boss release programs while a guarded
+bus rejects any mechanics-byte read. All 36 live source operands are observed during
+that production execution. The remaining bank-$87 owners continue under #547.

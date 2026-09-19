@@ -2742,3 +2742,17 @@ The two Wrecked Ship treadmill objects compile another 20 engine words in their 
 catalog: headers, boss waits, eight one-call durations, loop opcodes, and targets. Both
 directional production streams now wait for Phantoon, play all four frames, and loop with
 control reads forbidden. Their eight graphics-source operands remain live presentation.
+
+# Tourian statue animated-tile mechanics
+
+The four Tourian entrance-statue programs now compile 184 engine-owned words in
+`TourianStatueAnimatedTileMechanicsDefinitions`. Those definitions preserve each
+object header, transfer geometry, timing, event and boss-bit branches, shared busy-bit
+serialization, palette operations, and eye/soul spawn parameters. The 36 interleaved
+frame-source pointers and their character payloads remain live presentation data.
+
+The verifier compares the entire compiled control domain to the pinned cartridge and
+runs the actual `$8F:A66A` room until Kraid, Phantoon, Draygon, and Ridley have all
+released. The production sequence observes every live source operand while a guarded
+bus forbids all compiled mechanics reads. This remains a bounded #547 slice; other
+immutable callback and lookup owners are still open.

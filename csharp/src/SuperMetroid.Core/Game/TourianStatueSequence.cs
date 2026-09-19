@@ -13,7 +13,8 @@ public sealed class TourianStatueSequence
 {
     private sealed class TileObject
     {
-        public ushort Pointer, Timer = 1, Size, Destination;
+        public required TourianStatueAnimatedTileProgramDefinition Definition;
+        public ushort Pointer, Timer = 1;
     }
     private readonly List<TileObject> objects = [];
     private int delay = -2;
@@ -32,9 +33,17 @@ public sealed class TourianStatueSequence
         DisplayedVerticalOffset = 0;
         Enabled = runtime.ActiveRoom?.State.SetupCodePointer == RoomSetupCodePointers.RunStatueUnlockingAnimations;
         if (!Enabled) return;
-        foreach (ushort definition in TourianStatueRomData.AnimatedObjects)
-            objects.Add(new() { Pointer = Word(runtime.AddressSpace, definition),
-                Size = Word(runtime.AddressSpace, definition + 2), Destination = Word(runtime.AddressSpace, definition + 4) });
+        foreach (ushort objectPointer in TourianStatueRomData.AnimatedObjects)
+        {
+            if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
+                    objectPointer, out TourianStatueAnimatedTileProgramDefinition definition))
+            {
+                throw new InvalidDataException(
+                    $"Tourian statue animated-tile object $87:{objectPointer:X4} is not cataloged.");
+            }
+
+            objects.Add(new() { Definition = definition, Pointer = definition.ProgramStart });
+        }
         if (runtime.System.HasEvent(EventNumber.TourianUnlocked))
         {
             descent = TourianStatueRomData.DescentDistance << 16;
@@ -60,14 +69,17 @@ public sealed class TourianStatueSequence
             for (int guard = 0; ; guard++)
             {
                 if (guard == 64) throw new InvalidDataException("Statue animated tile instruction loop exceeded its bound.");
-                ushort code = Word(bus, tile.Pointer);
+                ushort code = MechanicsWord(tile, tile.Pointer);
                 int operand = tile.Pointer + 2;
-                ushort value = Word(bus, operand);
                 if (code < 0x8000)
                 {
                     if (code == 0) throw new InvalidDataException("Zero-duration statue tile frame.");
                     tile.Timer = code;
-                    runtime.VramWrites.Enqueue(tile.Size, RoomFxRomData.Banks.AnimatedTiles | value, tile.Destination);
+                    ushort sourcePointer = Word(bus, operand);
+                    runtime.VramWrites.Enqueue(
+                        tile.Definition.TransferByteCount,
+                        RoomFxRomData.Banks.AnimatedTiles | sourcePointer,
+                        tile.Definition.EncodedVramDestination);
                     tile.Pointer += 4;
                     break;
                 }
@@ -77,40 +89,54 @@ public sealed class TourianStatueSequence
                         tile.Pointer = 0;
                         break;
                     case AnimatedTileInstructionCodes.Goto:
-                        tile.Pointer = value;
+                        tile.Pointer = MechanicsWord(tile, operand);
                         continue;
                     case AnimatedTileInstructionCodes.GotoIfEventSet:
-                        tile.Pointer = runtime.System.HasEventRaw(value) ? Word(bus, operand + 2) : (ushort)(operand + 4);
+                        tile.Pointer = runtime.System.HasEventRaw(MechanicsWord(tile, operand))
+                            ? MechanicsWord(tile, operand + 2)
+                            : (ushort)(operand + 4);
                         continue;
                     case AnimatedTileInstructionCodes.GotoIfAnyBossBitsSetForArea:
-                        tile.Pointer = runtime.System.HasAnyBossBits(value >> 8, (BossBits)(value & 255))
-                            ? Word(bus, operand + 2) : (ushort)(operand + 4);
+                        ushort bossTest = MechanicsWord(tile, operand);
+                        tile.Pointer = runtime.System.HasAnyBossBits(
+                                bossTest >> 8, (BossBits)(bossTest & 255))
+                            ? MechanicsWord(tile, operand + 2)
+                            : (ushort)(operand + 4);
                         continue;
                     case AnimatedTileInstructionCodes.SetEvent:
-                        runtime.System.SetEventRaw(value);
+                        runtime.System.SetEventRaw(MechanicsWord(tile, operand));
                         break;
                     case AnimatedTileInstructionCodes.GotoIfTourianStatueBusy:
                         tile.Pointer = (runtime.Enemies.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0
-                            ? value : (ushort)(operand + 2);
+                            ? MechanicsWord(tile, operand)
+                            : (ushort)(operand + 2);
                         continue;
                     case AnimatedTileInstructionCodes.SetTourianStatueAnimationState:
-                        runtime.Enemies.TourianEntranceStatueAnimationState |= value;
+                        runtime.Enemies.TourianEntranceStatueAnimationState |= MechanicsWord(tile, operand);
                         break;
                     case AnimatedTileInstructionCodes.ResetTourianStatueAnimationState:
-                        runtime.Enemies.TourianEntranceStatueAnimationState &= (ushort)~value;
+                        runtime.Enemies.TourianEntranceStatueAnimationState &=
+                            (ushort)~MechanicsWord(tile, operand);
                         break;
                     case AnimatedTileInstructionCodes.ClearThreePaletteColors:
-                        for (int color = 0; color < 3; color++) runtime.Cgram.SetColor(value / 2 + color, 0);
+                        ushort clearPaletteByteIndex = MechanicsWord(tile, operand);
+                        for (int color = 0; color < 3; color++)
+                            runtime.Cgram.SetColor(clearPaletteByteIndex / 2 + color, 0);
                         break;
                     case AnimatedTileInstructionCodes.WriteEightTargetPaletteColors:
-                        runtime.Cgram.LoadFromBus(bus, TourianStatueRomData.GreyColors, 8, value / 2);
+                        runtime.Cgram.LoadFromBus(
+                            bus, TourianStatueRomData.GreyColors, 8,
+                            MechanicsWord(tile, operand) / 2);
                         break;
                     case AnimatedTileInstructionCodes.SpawnPaletteFxObject:
-                        runtime.RoomPaletteFx.SpawnDefinition(bus, value, runtime.Samus!.EquippedItems);
+                        runtime.RoomPaletteFx.SpawnDefinition(
+                            bus, MechanicsWord(tile, operand), runtime.Samus!.EquippedItems);
                         break;
                     case AnimatedTileInstructionCodes.SpawnTourianStatueEyeGlow:
                     case AnimatedTileInstructionCodes.SpawnTourianStatueSoul:
-                        runtime.Enemies.SpawnTourianUnlockEffect(value, code == AnimatedTileInstructionCodes.SpawnTourianStatueSoul);
+                        runtime.Enemies.SpawnTourianUnlockEffect(
+                            MechanicsWord(tile, operand),
+                            code == AnimatedTileInstructionCodes.SpawnTourianStatueSoul);
                         break;
                     default:
                         throw new NotSupportedException($"Statue animated tiles instruction $87:{code:X4} is not translated.");
@@ -163,4 +189,15 @@ public sealed class TourianStatueSequence
     private static ushort Word(ISnesAddressSpace bus, int pointer) =>
         (ushort)(bus.ReadByte(RoomFxRomData.Banks.AnimatedTiles | pointer) |
             bus.ReadByte(RoomFxRomData.Banks.AnimatedTiles | (pointer + 1)) << 8);
+
+    private static ushort MechanicsWord(TileObject tile, int pointer)
+    {
+        ushort bankPointer = unchecked((ushort)pointer);
+        if (tile.Definition.TryReadMechanicsWord(bankPointer, out ushort value))
+            return value;
+
+        throw new InvalidDataException(
+            $"Tourian statue object $87:{tile.Definition.ObjectPointer:X4} reached " +
+            $"uncataloged mechanics word $87:{bankPointer:X4}.");
+    }
 }

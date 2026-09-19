@@ -2710,3 +2710,12 @@ retaining the native asymmetric signed-left and saturating-right endpoint arithm
 Verification compares every offset with the pinned cartridge, rejects indexes outside the
 authored contour, and runs the complete production Varia transformation with the whole
 source range forbidden.
+
+# Samus/Grapple negative ownership findings
+
+The follow-up caller audit deliberately leaves two superficially table-shaped readers live.
+Grapple's `$9B:C1C2` angle selector is editable animation presentation already represented
+by `GrappleSwingFrameCatalog`; physical placement uses a separate compiled catalog.
+Projectile inheritance's unaligned `$0DA9/$0DAD/$0DB1/$0DB5` reads are mutable WRAM written
+by prior-frame movement, not immutable cartridge definitions. Neither belongs in a #547
+compiled mechanics catalog.

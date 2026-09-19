@@ -765,3 +765,23 @@ The Varia/Gravity pickup's 128-byte upper-half light-beam contour is compiled in
 `SuitPickupBeamCurveDefinitions`. The production transformation still mirrors the contour
 and applies the native asymmetric endpoint arithmetic, but no longer reads `$88:E3C9-$E448`.
 Every offset and the complete Varia sequence pass with the source range forbidden.
+
+## Samus special-sequence and Grapple ownership audit
+
+The remaining `SamusSpecialSequenceRomData` consumers have been traced after compiling the
+suit-pickup contour. Death tile-transfer sources and spritemap identities are presentation;
+Power Bomb ellipse samples are already compiled through `PowerBombShapeTables`; the other
+Power Bomb and shinespark members are named scalar mechanics rather than runtime lookups.
+There is no further immutable mechanics-table read in that catalog.
+
+The remaining `SamusGrappleRomData` read at `$9B:C1C2` selects only the displayed swing
+animation frame. `GrappleSwingFrameCatalog` already exposes that 256-byte presentation
+mapping as JSON, while `GrappleBodyPlacementDefinitions` independently owns physical body
+placement. Compiling the visual fallback under #547 would prevent #535/#540/#549 from
+replacing it and would not remove a mechanics dependency.
+
+`SamusProjectileInheritance.ReadVelocity` was also inspected because its four unaligned
+word reads resemble fixed operands. They intentionally read mutable WRAM `$0DA9/$0DAD/
+$0DB1/$0DB5`, crossing the camera/movement fields recorded during the preceding frame.
+Those reads must remain live state: compiling their observed values would erase movement
+inheritance and the cartridge's documented adjacent-byte leakage.

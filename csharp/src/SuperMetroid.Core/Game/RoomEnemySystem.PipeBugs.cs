@@ -126,10 +126,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BrinstarPipeBugTriggerTop = 96;
     private const ushort BrinstarPipeBugRespawnFrames = 48;
 
-    private const ushort NorfairPipeBugLeftRiseInstruction = 0x8ae1;
-    private const ushort NorfairPipeBugRightRiseInstruction = 0x8b21;
-    private const ushort NorfairPipeBugFlyLeftInstruction = 0x8b05;
-    private const ushort NorfairPipeBugFlyRightInstruction = 0x8b45;
     private const int NorfairFormationSize = 5;
 
     private const ushort YellowPipeBugLeftInstruction = 0x8efc;
@@ -188,7 +184,7 @@ public sealed partial class RoomEnemySystem
         state.DelayOrCounter = 0;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = NorfairPipeBugLeftRiseInstruction;
+        slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.RisingLeft;
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
     }
 
@@ -453,7 +449,8 @@ public sealed partial class RoomEnemySystem
         foreach (RoomEnemySlot member in formation)
         {
             member.CurrentInstruction = samusIsRight
-                ? NorfairPipeBugRightRiseInstruction : NorfairPipeBugLeftRiseInstruction;
+                ? NorfairPipeBugInstructionProgramDefinitions.RisingRight
+                : NorfairPipeBugInstructionProgramDefinitions.RisingLeft;
             RequirePipeBugState(member).Function = PipeBugEnemyFunction.NorfairRise;
         }
 
@@ -489,8 +486,8 @@ public sealed partial class RoomEnemySystem
         InstallPipeBugInstruction(
             slot,
             unchecked((short)(samus.XPosition - slot.XPosition)) >= 0
-                ? NorfairPipeBugRightRiseInstruction
-                : NorfairPipeBugLeftRiseInstruction);
+                ? NorfairPipeBugInstructionProgramDefinitions.RisingRight
+                : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
     }
 
     private static void RunNorfairPipeBugVerticalStagger(
@@ -531,12 +528,12 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(samus.XPosition - slot.XPosition)) >= 0)
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyRight;
-            slot.CurrentInstruction = NorfairPipeBugFlyRightInstruction;
+            slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.FlyingRight;
         }
         else
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyLeft;
-            slot.CurrentInstruction = NorfairPipeBugFlyLeftInstruction;
+            slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.FlyingLeft;
         }
     }
 

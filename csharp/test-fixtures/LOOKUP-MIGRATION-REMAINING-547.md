@@ -1095,6 +1095,19 @@ forbidden. Both attack programs publish their completion flag, all sixteen prese
 operands remain observable, presentation and adjacent selector-table pointers fail as
 mechanics, and warmed lookup is allocation-free.
 
+## Norfair Pipe Bug instruction mechanics
+
+Norfair Pipe Bugs now resolve all thirty-six fixed durations, gotos, and loop targets
+across the formation's four left/right rising and flight programs through
+`NorfairPipeBugInstructionProgramDefinitions`. Their twenty-eight interleaved spritemap
+pointers remain live cartridge presentation data, and the state-machine handoffs name the
+same catalog entries instead of retaining raw addresses.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four production loops beyond their terminal gotos while every mechanics byte is forbidden.
+All presentation operands remain observable, invalid mechanics pointers fail loudly, and
+warmed lookup is allocation-free.
+
 ## Brinstar Pipe Bug instruction mechanics
 
 Normal and strong Brinstar Pipe Bugs now resolve all sixty fixed durations, gotos, and

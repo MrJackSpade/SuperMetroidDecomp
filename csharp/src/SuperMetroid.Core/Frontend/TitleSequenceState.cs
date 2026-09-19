@@ -26,6 +26,7 @@ public sealed class TitleSequenceState
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
     private readonly byte[] babyMetroidCharacters;
+    [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
 
     private TitleSequencePhase phase;
     private int phaseTimer;
@@ -48,15 +49,23 @@ public sealed class TitleSequenceState
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
-    public TitleSequenceState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
-        : this(bus, audio, queueOpeningMusic: true)
+    public TitleSequenceState(
+        ISnesAddressSpace bus,
+        CartridgeAudioState? audio = null,
+        TitleGradientPresentation? titleGradientPresentation = null)
+        : this(bus, audio, queueOpeningMusic: true, titleGradientPresentation)
     {
     }
 
-    private TitleSequenceState(ISnesAddressSpace bus, CartridgeAudioState? audio, bool queueOpeningMusic)
+    private TitleSequenceState(
+        ISnesAddressSpace bus,
+        CartridgeAudioState? audio,
+        bool queueOpeningMusic,
+        TitleGradientPresentation? titleGradientPresentation)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
+        this.titleGradientPresentation = titleGradientPresentation;
         if (queueOpeningMusic)
         {
             audio?.QueueMusicDelayed8(
@@ -123,14 +132,25 @@ public sealed class TitleSequenceState
     public bool DemoRequested { get; private set; }
 
     /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
-    internal static TitleSequenceState ReturnFromDemo(ISnesAddressSpace bus, CartridgeAudioState audio)
+    internal static TitleSequenceState ReturnFromDemo(
+        ISnesAddressSpace bus,
+        CartridgeAudioState audio,
+        TitleGradientPresentation? titleGradientPresentation = null)
     {
-        var title = new TitleSequenceState(bus, audio, queueOpeningMusic: false);
+        var title = new TitleSequenceState(
+            bus,
+            audio,
+            queueOpeningMusic: false,
+            titleGradientPresentation);
         title.EnterImmediateTitleObjects();
         title.brightness = 0;
         title.phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }
+
+    /// <summary>Rebinds the host-selected presentation after debugger-state restoration.</summary>
+    internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
+        titleGradientPresentation = presentation;
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
     public void Step(ushort controllerInput)
@@ -337,7 +357,7 @@ public sealed class TitleSequenceState
             var palettes = new byte[background.Length];
             SnesObjRenderer.RenderResolved(oam, vram, cgram,
                 TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, objects, new byte[background.Length], palettes: palettes);
-            var gradient = TitleGradient.Decode(bus, (ushort)zoom);
+            ReadOnlySpan<TitleGradientLine> gradient = ResolveTitleGradient();
             for (int pixel = 0; pixel < background.Length; pixel++)
                 background[pixel] = TitleGradientColorMath.Apply(background[pixel], gradient[pixel / 256],
                     palettes[pixel] == byte.MaxValue ? null : palettes[pixel]);
@@ -363,8 +383,13 @@ public sealed class TitleSequenceState
                     0, scale, 128, 128, unchecked((short)mode7X), unchecked((short)mode7Y))
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
-            checked((byte)brightness), gradientEnabled ? TitleGradient.Decode(bus, (ushort)zoom) : default);
+            checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
     }
+
+    private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient() =>
+        titleGradientPresentation is null
+            ? TitleGradient.Decode(bus, (ushort)zoom)
+            : titleGradientPresentation.Resolve((ushort)zoom);
 
     private void PrepareRenderOam()
     {

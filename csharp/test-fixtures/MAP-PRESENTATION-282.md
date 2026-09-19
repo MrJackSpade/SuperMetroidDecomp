@@ -1292,3 +1292,26 @@ changes only the first page, wrong-size rejection and full-installer preservatio
 Countdown mechanics, spritemap composition, transfer cadence and later typewriter
 pages remain compiled/native owners. Historical full-session coverage and Android
 device validation remain shared integration work.
+
+## Editable title color-math gradient (#549)
+
+Catalog version 37 adds `title-gradient.json`, schema version 1 (thirty-nine
+shared resource hashes). It expands the title screen's sixteen HDMA variants into
+224 explicit scanlines. Each line exposes RGB5 `red`, `green`, and `blue` values
+plus the native eight-bit `colorMathControl`; `zoomHighNibble` identifies the
+variant selected by title zoom bits four through seven. Copy the stock file to
+`overrides/maps/title-gradient.json` to replace the presentation without patching
+the ROM.
+
+Title zoom, Mode 7 movement, fades, OBJ palette eligibility, and color-math
+semantics remain compiled behavior. Installed title construction, attract-demo
+return, debugger restore, and content rebinding select the current catalog
+resource. The diagnostic cartridge fallback remains available when no installed
+catalog is bound.
+
+Verification compares all sixteen extracted variants and all 256 zoom selections
+with the pinned cartridge, then drives the real title owner while every gradient
+source byte is forbidden. A valid override changes both the installed-content
+identity and the production title frame; removing it restores both exactly.
+Malformed dimensions, identities, RGB5 values, controls, and schema versions fail
+loudly.

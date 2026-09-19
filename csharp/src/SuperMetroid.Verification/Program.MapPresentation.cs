@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -109,6 +110,7 @@ internal static partial class Program
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
+        VerifyTitleGradientOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
@@ -181,6 +183,42 @@ internal static partial class Program
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+    }
+
+    private static void VerifyTitleGradientOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string source = Path.Combine(stock, TitleGradientFormat.FileName);
+        TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
+            File.ReadAllBytes(source),
+            MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted title gradient document is null.");
+        foreach (TitleGradientVariant variant in document.Variants)
+        {
+            TitleGradientScanline line = variant.Lines[0];
+            variant.Lines[0] = line with { Red = line.Red == 31 ? 30 : line.Red + 1 };
+        }
+
+        string replacement = Path.Combine(overrides, TitleGradientFormat.FileName);
+        using (var stream = File.Create(replacement))
+            TitleGradientPresentation.Write(stream, document);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "title gradient override changes installed-content identity");
+        (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(bus, edited.TitleGradient);
+        AssertTrue(rendered.AsSpan().SequenceEqual(edited.TitleGradient.Resolve(selectedZoom)),
+            "production title consumes selected gradient override");
+        AssertTrue(!rendered.AsSpan().SequenceEqual(original.TitleGradient.Resolve(selectedZoom)),
+            "gradient override visibly changes production title output");
+
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing title gradient override restores installed-content identity");
+        Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
     }
 
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,

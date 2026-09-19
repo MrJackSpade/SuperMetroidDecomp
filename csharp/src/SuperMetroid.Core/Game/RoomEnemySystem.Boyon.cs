@@ -95,8 +95,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort BoyonDefinition = 0xcebf;
 
-    private const ushort BoyonIdleInstructionList = 0x86a7;
-    private const ushort BoyonBouncingInstructionList = 0x86bf;
     private const ushort BoyonBounceSound = 0x000e;
 
     private readonly BoyonEnemyState?[] _boyonStates =
@@ -124,7 +122,7 @@ public sealed partial class RoomEnemySystem
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
         // empty map; the first processed instruction frame installs real bank-$A2 art.
         slot.SpritemapPointer = 0x804d;
-        SetBoyonInstructionList(slot, BoyonIdleInstructionList);
+        SetBoyonInstructionList(slot, BoyonInstructionProgramDefinitions.Idle);
 
         var state = new BoyonEnemyState(slot)
         {
@@ -170,7 +168,7 @@ public sealed partial class RoomEnemySystem
             if (!state.Bouncing)
             {
                 state.Bouncing = true;
-                SetBoyonInstructionList(slot, BoyonBouncingInstructionList);
+                SetBoyonInstructionList(slot, BoyonInstructionProgramDefinitions.Bouncing);
             }
         }
         else if (state.BounceDisabled)
@@ -180,7 +178,7 @@ public sealed partial class RoomEnemySystem
             if (!state.IdleDisabled)
             {
                 state.IdleDisabled = true;
-                SetBoyonInstructionList(slot, BoyonIdleInstructionList);
+                SetBoyonInstructionList(slot, BoyonInstructionProgramDefinitions.Idle);
             }
             return;
         }

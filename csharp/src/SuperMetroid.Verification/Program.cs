@@ -102,6 +102,11 @@ if (args is ["--boulder-instruction-mechanics"])
     VerifyBoulderInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--boyon-instruction-mechanics"])
+{
+    VerifyBoyonInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

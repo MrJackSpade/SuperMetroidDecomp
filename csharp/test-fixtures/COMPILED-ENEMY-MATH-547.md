@@ -2895,6 +2895,21 @@ production loops beyond their terminal gotos with every mechanics source byte fo
 and observes all sixteen spritemap operands. Presentation and adjacent-data pointers fail
 as mechanics, and warmed lookup is allocation-free.
 
+# Boyon instruction mechanics
+
+Boyon's idle and bouncing loops now resolve all eighteen fixed property commands,
+callbacks, durations, gotos, and loop targets through
+`BoyonInstructionProgramDefinitions`. Their ten interleaved spritemap pointers remain
+live cartridge-backed presentation data, and both AI installation paths use the named
+catalog entries.
+
+Verification compares every mechanics word with the pinned cartridge, executes both
+production loops beyond their terminal gotos with every mechanics source byte forbidden,
+and observes all ten spritemap operands. It also proves the bouncing callback publishes
+sound, permits the arc, and enables off-screen processing while idle disables it. Invalid
+presentation and adjacent-data pointers fail as mechanics, and warmed lookup is
+allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

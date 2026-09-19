@@ -165,6 +165,9 @@ execute with mechanics reads forbidden while seven spritemap operands remain liv
 Boulder's mirrored rolling loops compile all twenty duration, goto, and loop-target
 words. Both initializer-selected production programs loop with mechanics reads forbidden
 while sixteen spritemap operands remain live.
+Boyon's idle and bouncing loops compile all eighteen property, callback, duration,
+goto, and target words. Both production programs loop with mechanics reads forbidden,
+the bounce callback retains sound/state effects, and ten spritemap operands remain live.
 Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
 compiled as typed phase records. Real initialization, rising, falling and overlay
 tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
@@ -932,6 +935,19 @@ Production verification exercises both real initializer selections, runs each lo
 its terminal goto with every compiled mechanics byte forbidden, and observes all sixteen
 spritemaps. Presentation and adjacent-data pointers fail as restored mechanics cursors,
 and warmed lookup is allocation-free.
+
+## Boyon instruction mechanics
+
+Boyon's idle and bouncing programs now use a strict
+`BoyonInstructionProgramDefinitions` boundary. Eighteen immutable property commands,
+callbacks, durations, gotos, and loop targets are compiled; ten interleaved spritemap
+operands remain live presentation reads.
+
+Production verification runs both loops past their terminal gotos with every compiled
+mechanics byte forbidden, observes all ten spritemaps, and asserts the idle/bouncing
+off-screen-processing transition plus the native bounce sound and arc-permission callback.
+Presentation and adjacent-data pointers fail as restored mechanics cursors, and warmed
+lookup is allocation-free.
 
 ## Room-FX animated-tile mechanics
 

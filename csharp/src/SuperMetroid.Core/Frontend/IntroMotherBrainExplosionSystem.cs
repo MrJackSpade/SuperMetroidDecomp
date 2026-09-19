@@ -31,9 +31,9 @@ internal sealed class IntroMotherBrainExplosionSystem
         // Despite their adjacent definition addresses, the retail routine explicitly
         // spawns three small actors first and five big actors second. Each initializer uses
         // its parameter as an index into independent position and start-delay tables.
-        for (ushort parameter = 0; parameter < 3; parameter++)
+        for (ushort parameter = 0; parameter < IntroMotherBrainDefinitions.SmallExplosionCount; parameter++)
             actors.Add(ExplosionActor.CreateSmall(parameter));
-        for (ushort parameter = 0; parameter < 5; parameter++)
+        for (ushort parameter = 0; parameter < IntroMotherBrainDefinitions.BigExplosionCount; parameter++)
             actors.Add(ExplosionActor.CreateBig(parameter));
     }
 
@@ -93,33 +93,26 @@ internal sealed class IntroMotherBrainExplosionSystem
 
         public static ExplosionActor CreateBig(ushort parameter)
         {
-            // $8B:B98D indexes five signed offsets from Mother Brain's fixed (56,111)
-            // position, then staggers the actors by 1, 16, 32, 48, and 64 frames.
-            ReadOnlySpan<short> xOffsets = [0, 16, -16, -8, 8];
-            ReadOnlySpan<short> yOffsets = [0, -16, 8, -16, 8];
-            ReadOnlySpan<ushort> startTimers = [1, 16, 32, 48, 64];
-            if (parameter >= xOffsets.Length)
-                throw new ArgumentOutOfRangeException(nameof(parameter));
+            IntroMotherBrainExplosionPlacement placement =
+                IntroMotherBrainDefinitions.BigExplosion(parameter);
+            (ushort originX, ushort originY) = IntroMotherBrainDefinitions.MotherBrainOrigin;
             return new ExplosionActor(
-                AddSigned(0x0038, xOffsets[parameter]),
-                AddSigned(0x006f, yOffsets[parameter]),
-                instructionPointer: CinematicCodePointers.Lists.IntroMotherBrainExplosionBig,
-                instructionTimer: startTimers[parameter]);
+                AddSigned(originX, placement.XOffset),
+                AddSigned(originY, placement.YOffset),
+                instructionPointer: IntroMotherBrainDefinitions.BigExplosionActor.InstructionList,
+                instructionTimer: placement.StartTimer);
         }
 
         public static ExplosionActor CreateSmall(ushort parameter)
         {
-            // $8B:B9D4 uses its own three-entry layout and shorter 1/8/16-frame stagger.
-            ReadOnlySpan<short> xOffsets = [16, -16, -16];
-            ReadOnlySpan<short> yOffsets = [0, 4, -8];
-            ReadOnlySpan<ushort> startTimers = [1, 8, 16];
-            if (parameter >= xOffsets.Length)
-                throw new ArgumentOutOfRangeException(nameof(parameter));
+            IntroMotherBrainExplosionPlacement placement =
+                IntroMotherBrainDefinitions.SmallExplosion(parameter);
+            (ushort originX, ushort originY) = IntroMotherBrainDefinitions.MotherBrainOrigin;
             return new ExplosionActor(
-                AddSigned(0x0038, xOffsets[parameter]),
-                AddSigned(0x006f, yOffsets[parameter]),
-                instructionPointer: CinematicCodePointers.Lists.IntroMotherBrainExplosionSmall,
-                instructionTimer: startTimers[parameter]);
+                AddSigned(originX, placement.XOffset),
+                AddSigned(originY, placement.YOffset),
+                instructionPointer: IntroMotherBrainDefinitions.SmallExplosionActor.InstructionList,
+                instructionTimer: placement.StartTimer);
         }
 
         public void Step(ISnesAddressSpace bus, ushort introCrossfadeTimer)

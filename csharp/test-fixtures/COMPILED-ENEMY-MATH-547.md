@@ -2603,3 +2603,14 @@ Logo animation, spritemaps, and palette colors remain cartridge-backed presentat
 
 Verification compares all twelve native definition words, rejects an out-of-range actor
 index, and runs the complete approach/crossfade with every source record forbidden.
+
+# Intro Mother Brain actor and explosion definitions
+
+The intro Mother Brain owner now compiles its own actor definition, both explosion actor
+definitions, and the eight signed placement/start-delay rows used by the fourth-hit blast.
+The selected animation programs, spritemaps, and palettes deliberately remain cartridge
+presentation data.
+
+Verification compares all nine definition words and 24 placement words with the pinned
+cartridge, rejects both out-of-range placement selectors, and runs the complete explosion
+lifetime while every source definition and table range is forbidden.

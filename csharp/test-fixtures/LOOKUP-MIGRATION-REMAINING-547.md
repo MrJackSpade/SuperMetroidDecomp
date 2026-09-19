@@ -212,6 +212,11 @@ The adjacent final-logo owner now compiles its four initialization/pre-instructi
 triples as well. Its complete approach and palette-crossfade path no longer reads those
 definition records; the selected animation, spritemap, and palette data remain in ROM.
 
+The intro Mother Brain owner now compiles its own definition triple, both explosion actor
+triples, and all eight explosion placement/timer rows in a dedicated catalog. The complete
+explosion lifetime runs with those 33 native words forbidden; animation lists, spritemaps,
+and palettes remain ROM-backed presentation data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

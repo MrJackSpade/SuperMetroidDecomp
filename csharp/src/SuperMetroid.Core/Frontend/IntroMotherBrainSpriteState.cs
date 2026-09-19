@@ -14,16 +14,16 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
-    private ushort instructionPointer = CinematicCodePointers.Lists.IntroMotherBrain;
+    private ushort instructionPointer = IntroMotherBrainDefinitions.MotherBrain.InstructionList;
     private ushort instructionTimer = 1;
     private ushort hurtFlashTimer;
     private ushort explodingTimer;
     private bool pageTwoInstructionStarted;
     private bool crossfadingToPageTwo;
 
-    public static ushort XPosition => 0x0038;
+    public static ushort XPosition => IntroMotherBrainDefinitions.MotherBrainOrigin.X;
 
-    public static ushort YPosition => 0x006f;
+    public static ushort YPosition => IntroMotherBrainDefinitions.MotherBrainOrigin.Y;
 
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 

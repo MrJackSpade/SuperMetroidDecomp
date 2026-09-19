@@ -6,17 +6,17 @@ public sealed partial class SuperMetroidRuntime
 {
     private ushort _escapeDiagonalFrames;
 
-    private void SetupEscapeRoomEffects(ushort setup)
+    private void SetupEscapeRoomEffects(RoomSetupCallback setup)
     {
         _escapeDiagonalFrames = 0;
         ushort? type = setup switch
         {
-            RoomSetupCodePointers.SetZebesTimebombEventAndLightHorizontalShaking or
-            RoomSetupCodePointers.SetLightHorizontalRoomShaking => ZebesEscapeRomData.LightHorizontal,
-            RoomSetupCodePointers.SetMediumHorizontalRoomShaking or
-            RoomSetupCodePointers.SetupEscapeRoom4PlmAndMediumHorizontalShaking => ZebesEscapeRomData.MediumHorizontal,
-            RoomSetupCodePointers.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeRomData.MainstreetQuake,
-            RoomSetupCodePointers.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeRomData.LandingQuake,
+            RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
+            RoomSetupCallback.SetLightHorizontalRoomShaking => ZebesEscapeRomData.LightHorizontal,
+            RoomSetupCallback.SetMediumHorizontalRoomShaking or
+            RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking => ZebesEscapeRomData.MediumHorizontal,
+            RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeRomData.MainstreetQuake,
+            RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeRomData.LandingQuake,
             _ => null,
         };
         if (type is { } quake)
@@ -24,7 +24,7 @@ public sealed partial class SuperMetroidRuntime
             Enemies.EarthquakeType = quake;
             Enemies.EarthquakeTimer = ushort.MaxValue;
         }
-        if (setup == RoomSetupCodePointers.SetZebesTimebombEventAndLightHorizontalShaking)
+        if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
             System.SetEvent(Game.EventNumber.ZebesTimebombSet);
     }
 
@@ -32,12 +32,12 @@ public sealed partial class SuperMetroidRuntime
     private void StepEscapeRoomEffects()
     {
         if (ActiveRoom is null || Camera is null || LevelData is null) return;
-        ushort main = ActiveRoom.State.MainCodePointer;
-        bool nonblank = main is RoomMainCodePointers.ScrollingSkyLandZebesTimebombSet or
-            RoomMainCodePointers.SetScreenShakingAndGenerateRandomExplosions;
-        bool light = main == RoomMainCodePointers.ShakeScreenLightHorizontalAndMediumDiagonal;
-        bool medium = main == RoomMainCodePointers.ShakeScreenMediumHorizontalAndStrongDiagonal;
-        if (!nonblank && !light && !medium && main != RoomMainCodePointers.GenerateRandomExplosionEveryFourthFrame)
+        RoomMainCallback main = ActiveRoom.State.MainCallback;
+        bool nonblank = main is RoomMainCallback.ScrollingSkyLandZebesTimebombSet or
+            RoomMainCallback.SetScreenShakingAndGenerateRandomExplosions;
+        bool light = main == RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal;
+        bool medium = main == RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal;
+        if (!nonblank && !light && !medium && main != RoomMainCallback.GenerateRandomExplosionEveryFourthFrame)
             return;
         if (light || medium)
         {

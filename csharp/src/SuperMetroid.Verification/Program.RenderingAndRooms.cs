@@ -1357,13 +1357,13 @@ static Rgba32[] CreateOpaqueBlackGameplayFrame()
 static void VerifyScrollingSkyState()
 {
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainCodePointers.ScrollingSkyLand),
+        ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyLand),
         "$8F:C116 selects land scrolling sky");
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainCodePointers.ScrollingSkyLandZebesTimebombSet),
+        ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyLandZebesTimebombSet),
         "$8F:C120 selects land scrolling sky before quake work");
     AssertTrue(
-        !ScrollingSkyState.IsLandRoomMain(0xc11b),
+        !ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyOcean),
         "$8F:C11B ocean wrapper is not silently treated as land sky");
 
     var sky = new ScrollingSkyState();

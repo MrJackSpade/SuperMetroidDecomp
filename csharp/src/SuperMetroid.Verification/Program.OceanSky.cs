@@ -33,7 +33,7 @@ internal static partial class Program
         // has passed through the same circular queue used by the room's real main routine.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
-            runtime.ScrollingSky!.ProcessFrame(cameraY, false, writes, runtime.ActiveRoom.State.MainCodePointer);
+            runtime.ScrollingSky!.ProcessFrame(cameraY, false, writes, runtime.ActiveRoom.State.MainCallback);
             writes.DrainTo(runtime.Vram, bus);
             if (cameraY < 256) continue;
             for (int line = 32; line < 224; line += 8)

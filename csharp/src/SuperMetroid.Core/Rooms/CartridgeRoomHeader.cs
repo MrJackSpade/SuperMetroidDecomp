@@ -204,6 +204,14 @@ public sealed record CartridgeRoomState(
     ushort BackgroundDataPointer,
     ushort SetupCodePointer)
 {
+    /// <summary>Typed mutually exclusive identity of the selected room-main callback.</summary>
+    public RoomMainCallback MainCallback =>
+        RoomCallbackDefinitions.ResolveMain(MainCodePointer);
+
+    /// <summary>Typed mutually exclusive identity of the selected room-setup callback.</summary>
+    public RoomSetupCallback SetupCallback =>
+        RoomCallbackDefinitions.ResolveSetup(SetupCodePointer);
+
     internal static CartridgeRoomState Load(ISnesAddressSpace bus, ushort pointer)
     {
         int address = RoomHeaderRomData.BankAddress | pointer;

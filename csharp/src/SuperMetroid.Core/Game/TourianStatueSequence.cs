@@ -31,7 +31,7 @@ public sealed class TourianStatueSequence
         delay = -2;
         descent = 0;
         DisplayedVerticalOffset = 0;
-        Enabled = runtime.ActiveRoom?.State.SetupCodePointer == RoomSetupCodePointers.RunStatueUnlockingAnimations;
+        Enabled = runtime.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         foreach (ushort objectPointer in TourianStatueRomData.AnimatedObjects)
         {

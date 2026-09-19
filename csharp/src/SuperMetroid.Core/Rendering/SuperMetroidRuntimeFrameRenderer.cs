@@ -105,8 +105,8 @@ public static class SuperMetroidRuntimeFrameRenderer
             // the compositor: it is the literal PPU register value selected by the room.
             // Other translated ordinary-room setup routines retain power-on base zero.
             bool usesCeresRidleyCharacterBase =
-                runtime.ActiveRoom?.State.SetupCodePointer ==
-                    RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze;
+                runtime.ActiveRoom?.State.SetupCallback ==
+                    RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze;
             ushort bgCharacterBaseWord = usesCeresRidleyCharacterBase
                 ? (ushort)0x6000
                 : (ushort)0;

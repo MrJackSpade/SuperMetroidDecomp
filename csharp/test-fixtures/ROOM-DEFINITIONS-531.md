@@ -115,3 +115,18 @@ blocked.
 
 Remaining #531 work: compile setup/main dispatch references and add complete guarded
 room-entry and camera-trajectory coverage.
+
+## Room callback dispatch
+
+`RoomCallbackDefinitions` maps every compiled native callback identity to a proven
+mutually exclusive `RoomMainCallback` or `RoomSetupCallback` value. Runtime room
+loading, escape effects, scrolling sky, Ceres presentation, Tourian statues, and
+room-main stepping now dispatch on those typed identities; raw bank-$8F pointers remain
+only in the definition catalogs and cartridge parity diagnostics.
+
+Run `SuperMetroid.Verification --room-callback-definitions` from the repository root.
+It reaches all 323 selected states, round-trips every native pointer, proves every one
+of the 16 main identities and 35 setup identities occurs in the retail graph, and
+checks strict rejection of unknown native and typed values.
+
+Remaining #531 work: complete the combined guarded room-entry/camera-trajectory audit.

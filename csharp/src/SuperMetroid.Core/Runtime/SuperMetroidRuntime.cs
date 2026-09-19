@@ -4109,7 +4109,7 @@ public sealed partial class SuperMetroidRuntime
                 Camera.YPosition,
                 timeIsFrozen: TimeIsFrozen,
                 VramWrites,
-                ActiveRoom?.State.MainCodePointer ?? RoomMainCodePointers.ScrollingSkyLand);
+                ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
         }
 
         if (Samus?.Xray.AreAnimatedTilesSuspended != true)
@@ -4316,8 +4316,8 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     private void RunCeresFallingDebrisRoomMain()
     {
-        if (ActiveRoom?.State.MainCodePointer !=
-                RoomMainCodePointers.SpawnCeresPreElevatorHallFallingDebris ||
+        if (ActiveRoom?.State.MainCallback !=
+                RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
             Enemies.CeresStatus == 0)
             return;
 

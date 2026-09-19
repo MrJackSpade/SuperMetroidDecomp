@@ -89,8 +89,8 @@ public static partial class GameplayDisplayCapture
         bool kraidBg = kraid is { OwnsBg2Tilemap: true };
         bool crocomireBg = runtime.Enemies.Crocomire is not null;
         bool verticalStatueMap = runtime.RoomLayer3Fx.Type == RoomFxType.TourianEntranceStatue;
-        ushort character = runtime.ActiveRoom?.State.SetupCodePointer ==
-            RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze
+        ushort character = runtime.ActiveRoom?.State.SetupCallback ==
+            RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze
             ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
         GameplayWindowRegisterSnapshot displayedWindows =
             runtime.DisplayedGameplayWindowRegisters;

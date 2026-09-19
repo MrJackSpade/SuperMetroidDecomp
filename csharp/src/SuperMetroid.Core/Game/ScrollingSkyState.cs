@@ -28,18 +28,17 @@ public sealed class ScrollingSkyState
     }
 
     /// <summary>
-    /// Returns whether a room-state main pointer dispatches to the translated land-sky
+    /// Returns whether a room-state callback dispatches to the translated land-sky
     /// implementation. This is the same bank-$8F dispatch decision made by the cartridge;
     /// callers must not infer it from a room number, area, door, or camera position.
     /// </summary>
-    public static bool IsLandRoomMain(ushort mainCodePointer) =>
-        mainCodePointer is
-            RoomMainCodePointers.ScrollingSkyLand or
-            RoomMainCodePointers.ScrollingSkyLandZebesTimebombSet;
+    public static bool IsLandRoomMain(RoomMainCallback callback) =>
+        callback is RoomMainCallback.ScrollingSkyLand or
+            RoomMainCallback.ScrollingSkyLandZebesTimebombSet;
 
     /// <summary>Both sky wrappers share BG2 geometry, HDMA and row streaming; only their source table differs.</summary>
-    public static bool IsScrollingSkyRoomMain(ushort mainCodePointer) =>
-        IsLandRoomMain(mainCodePointer) || mainCodePointer == RoomMainCodePointers.ScrollingSkyOcean;
+    public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
+        IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
     /// <summary>BG2VOFS mirror written from layer-1 Y by <c>$88:AFB2</c>.</summary>
     public ushort VerticalScroll { get; private set; }
@@ -60,7 +59,7 @@ public sealed class ScrollingSkyState
     /// used to keep the circular BG2 tilemap populated around the camera.
     /// </summary>
     public void ProcessFrame(ushort layer1YPosition, bool timeIsFrozen, VramWriteQueue writes,
-        ushort roomMainCodePointer = RoomMainCodePointers.ScrollingSkyLand)
+        RoomMainCallback roomMainCallback = RoomMainCallback.ScrollingSkyLand)
     {
         ArgumentNullException.ThrowIfNull(writes);
         if (timeIsFrozen)
@@ -74,7 +73,7 @@ public sealed class ScrollingSkyState
         HdmaEnabled = true;
         AdvanceHorizontalScrolls();
         VerticalScroll = layer1YPosition;
-        QueueTilemapRows(layer1YPosition, writes, roomMainCodePointer == RoomMainCodePointers.ScrollingSkyOcean
+        QueueTilemapRows(layer1YPosition, writes, roomMainCallback == RoomMainCallback.ScrollingSkyOcean
             ? RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress
             : RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress);
     }

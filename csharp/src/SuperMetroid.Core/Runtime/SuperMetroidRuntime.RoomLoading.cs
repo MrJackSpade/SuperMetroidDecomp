@@ -707,9 +707,9 @@ public sealed partial class SuperMetroidRuntime
         _ceresFallingDebrisTimer = 0;
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
-            active: room.State.MainCodePointer == RoomMainCodePointers.MaridiaElevatube);
+            active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
         CeresElevatorShaft.Reset(
-            active: room.State.MainCodePointer == RoomMainCodePointers.CeresElevatorShaft &&
+            active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
                 door.UsesCeresElevatorMode7);
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
@@ -763,7 +763,7 @@ public sealed partial class SuperMetroidRuntime
         // the right half of a 64x32 map. Depending on BG2HOFS, that stale neighboring page
         // appeared as a broad vertical band of repeating purple tiles.
         bool usesScrollingSky =
-            ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCodePointer);
+            ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback);
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(
             sizeOfBg2: usesScrollingSky ? (ushort)0 : (ushort)0x0800);
         ScrollingSky = usesScrollingSky
@@ -792,7 +792,7 @@ public sealed partial class SuperMetroidRuntime
             System.RandomNumber,
             room.Pointer);
         RoomLayer3Fx.PrimeViewport(Camera.XPosition, Camera.YPosition);
-        CeresHaze.Load(RoomSetupCodePointers.SpawnsCeresHaze(room.State.SetupCodePointer),
+        CeresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         SandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer, room.AreaIndex);
@@ -874,9 +874,9 @@ public sealed partial class SuperMetroidRuntime
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         RunDoorSetupCode(door);
-        if (room.State.SetupCodePointer == RoomSetupCodePointers.SetupShaktoolRoomPlm)
+        if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomPlm)
             Plms.TrySpawnShaktoolRoomController(Camera.Scrolls);
-        if (room.State.SetupCodePointer == RoomSetupCodePointers.TurnWallIntoShotBlocksDuringEscape)
+        if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
             Plms.SetupCrittersEscapeBlock(LevelData,
                 LevelData.GetBlockIndex(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY));
 
@@ -930,7 +930,7 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario);
-        SetupEscapeRoomEffects(room.State.SetupCodePointer);
+        SetupEscapeRoomEffects(room.State.SetupCallback);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup
         // requests here—the first point matching the cartridge's completed room teardown—

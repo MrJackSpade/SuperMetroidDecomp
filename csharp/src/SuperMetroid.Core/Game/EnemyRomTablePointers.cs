@@ -238,5 +238,7 @@ internal static class EnemyRomTablePointers
     {
         /// <summary>Parameterized instruction-list pointer words at $A8:CC30.</summary>
         public const int InitialInstructionListWords = 0xa8cc30;
+        /// <summary>Six four-color/timer palette records at $A8:CCC1 (60 bytes).</summary>
+        public const int PaletteAnimationRecords = 0xa8ccc1;
     }
 }

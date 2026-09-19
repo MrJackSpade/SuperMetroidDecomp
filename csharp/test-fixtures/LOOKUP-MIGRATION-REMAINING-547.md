@@ -745,3 +745,8 @@ uniform ten-call delays are compiled engine timing in
 `CrystalFlashPaletteTimingDefinitions`; their palette pointers and colors remain live
 presentation data. Every duration and the complete 100-call production cycle pass with
 only the timer words forbidden.
+
+The Work Robot's mixed palette records received the same ownership split. Its six timer
+words and terminal wrap marker are compiled in `WorkRobotPaletteTimingDefinitions`, while
+the four colors per record remain live presentation data. The complete production cycle
+passes with timing and terminator reads forbidden.

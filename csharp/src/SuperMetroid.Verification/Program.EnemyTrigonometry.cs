@@ -63,6 +63,7 @@ internal static partial class Program
         VerifySamusAtmosphericEffectDefinitions(rom);
         VerifySamusAtmosphericAnimationDefinitions(rom);
         VerifyCrystalFlashPaletteTimingDefinitions(rom);
+        VerifyWorkRobotPaletteTimingDefinitions(rom);
         VerifyQuicksandDefinitions(rom);
         VerifySaveStationAnimationDefinitions(rom);
         VerifyZebesEscapeExplosionDefinitions(rom);

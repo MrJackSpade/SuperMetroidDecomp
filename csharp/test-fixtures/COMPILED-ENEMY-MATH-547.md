@@ -2669,3 +2669,13 @@ data for the visual replacement path.
 Verification compares every duration with the pinned cartridge, rejects unaligned and
 out-of-range restored offsets, and runs the complete 100-call production palette cycle
 with every timer word forbidden while leaving the adjacent pointer reads available.
+
+# Work Robot palette timing
+
+The six timer words and terminal wrap marker interleaved with the Work Robot's palette
+colors at `$A8:CCC1-$CCFE` now live in `WorkRobotPaletteTimingDefinitions`. The four
+colors per record remain cartridge-backed presentation data.
+
+Verification compares every duration and the `$FFFF` marker with the pinned cartridge,
+rejects unaligned and post-terminator restored offsets, and runs the complete 193-call
+production cycle through all six records and its wrap while control reads are forbidden.

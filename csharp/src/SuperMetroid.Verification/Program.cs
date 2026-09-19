@@ -369,6 +369,12 @@ if (args is ["--crystal-flash-palette-timing-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--work-robot-palette-timing-definitions"])
+{
+    VerifyWorkRobotPaletteTimingDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--palette-fx-instruction-codes"])
 {
     VerifyPaletteFxInstructionCodeCatalogs();

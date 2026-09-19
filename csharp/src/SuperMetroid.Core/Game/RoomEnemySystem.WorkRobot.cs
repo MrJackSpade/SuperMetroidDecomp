@@ -467,18 +467,19 @@ public sealed partial class RoomEnemySystem
         if (_workRobotPaletteAnimationTimer != 0)
             return;
 
-        int recordAddress = 0xa8ccc1 + _workRobotPaletteAnimationTableOffset;
-        if (ReadWord(_bus!, recordAddress) == 0xffff)
-        {
-            _workRobotPaletteAnimationTableOffset = 0;
-            recordAddress = 0xa8ccc1;
-        }
+        _workRobotPaletteAnimationTableOffset =
+            WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
+                _workRobotPaletteAnimationTableOffset);
+        int recordAddress = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
+            _workRobotPaletteAnimationTableOffset;
 
         int destination = 128 +
             ((_workRobotPaletteAnimationPaletteIndex >> 9) & 7) * 16 + 9;
         for (int color = 0; color < 4; color++)
             _cgram!.SetColor(destination + color, ReadWord(_bus!, recordAddress + color * 2));
-        _workRobotPaletteAnimationTimer = ReadWord(_bus!, recordAddress + 8);
+        _workRobotPaletteAnimationTimer =
+            WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
+                _workRobotPaletteAnimationTableOffset);
         _workRobotPaletteAnimationTableOffset = unchecked((ushort)(
             _workRobotPaletteAnimationTableOffset + 10));
     }

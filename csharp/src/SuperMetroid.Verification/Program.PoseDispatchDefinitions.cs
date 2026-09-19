@@ -33,6 +33,26 @@ internal static partial class Program
             else
                 AssertThrows<InvalidDataException>(() => samus.ReadMovementType(source), "Adjacent invalid movement remains a loud error");
         }
-        Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records.");
+
+        // These three compiled tables are queried by ordinary movement, rendering, and
+        // no-input transition paths. A collection-expression property can look immutable
+        // while still materializing a backing object on every access under a particular
+        // compiler/runtime combination, so guard the actual production API rather than
+        // assuming its source declaration is allocation-free.
+        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+        int checksum = 0;
+        for (int index = 0; index < 65536; index++)
+        {
+            byte pose = unchecked((byte)(index % 253));
+            checksum += SamusState.ReadPoseXDirection(forbidden, pose);
+            checksum += (byte)SamusState.ReadMovementType(forbidden, pose);
+            checksum += SamusPoseDispatchDefinitions.ReadNoInputPose(pose);
+        }
+        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
+        AssertTrue(checksum != 0, "Pose-dispatch allocation probe consumes live table values");
+        AssertEqual(0L, allocated,
+            "Warmed pose-dispatch lookups allocate no per-frame table storage");
+
+        Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
     }
 }

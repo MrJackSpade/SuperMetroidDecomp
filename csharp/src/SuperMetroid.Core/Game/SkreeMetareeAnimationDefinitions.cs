@@ -21,10 +21,10 @@ internal static class SkreeMetareeAnimationDefinitions
     /// </summary>
     private static readonly ushort[] MetareeInstructionLists =
     [
-        0x8910,
-        0x8924,
-        0x8930,
-        0x8946,
+        SkreeMetareeInstructionProgramDefinitions.MetareeIdling,
+        SkreeMetareeInstructionProgramDefinitions.MetareePreparingAttack,
+        SkreeMetareeInstructionProgramDefinitions.MetareeDiving,
+        SkreeMetareeInstructionProgramDefinitions.MetareeStopAnimating,
     ];
 
     /// <summary>
@@ -33,10 +33,10 @@ internal static class SkreeMetareeAnimationDefinitions
     /// </summary>
     private static readonly ushort[] SkreeInstructionLists =
     [
-        0xc65e,
-        0xc672,
-        0xc67e,
-        0xc694,
+        SkreeMetareeInstructionProgramDefinitions.SkreeIdling,
+        SkreeMetareeInstructionProgramDefinitions.SkreePreparingAttack,
+        SkreeMetareeInstructionProgramDefinitions.SkreeDiving,
+        SkreeMetareeInstructionProgramDefinitions.SkreeStopAnimating,
     ];
 
     /// <summary>Returns the authored Metaree list for one animation phase.</summary>

@@ -975,6 +975,19 @@ mechanics bytes forbidden, observes all ten spritemaps, and proves both spinning
 publish completion. Presentation and adjacent selector-table pointers fail as restored
 mechanics cursors, and warmed lookup is allocation-free.
 
+## Skree and Metaree instruction mechanics
+
+Skree and Metaree's parallel idle, preparation, diving, and authored stop programs now
+share a strict `SkreeMetareeInstructionProgramDefinitions` boundary. Forty immutable
+durations, property commands, ready callbacks, gotos, targets, and sleeps are compiled;
+twenty-two interleaved spritemap operands remain live presentation reads. The separately
+verified phase selectors now name these eight catalog entries.
+
+Production verification runs every program through its loop or sleep boundary with all
+compiled mechanics bytes forbidden, observes every spritemap, and proves both ready flags
+plus both off-screen-property transitions. Each species rejects the other's program domain,
+presentation pointers fail as restored mechanics cursors, and warmed lookup is allocation-free.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

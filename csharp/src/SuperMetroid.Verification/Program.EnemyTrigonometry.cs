@@ -87,6 +87,7 @@ internal static partial class Program
         VerifyWaverAnimationDefinitions(rom);
         VerifyWaverInstructionProgramDefinitions(rom);
         VerifySkreeMetareeAnimationDefinitions(rom);
+        VerifySkreeMetareeInstructionProgramDefinitions(rom);
         VerifyZoaAnimationDefinitions(rom);
         VerifyDragonAnimationDefinitions(rom);
         VerifyEnemyPickupDefinitions(rom);

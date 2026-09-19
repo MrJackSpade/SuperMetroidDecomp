@@ -2939,6 +2939,21 @@ is forbidden. All ten spritemap operands remain observable through the cartridge
 both spinning programs publish their completion flag. Presentation and adjacent selector-
 table pointers fail as mechanics, and warmed lookup is allocation-free.
 
+# Skree and Metaree instruction mechanics
+
+The parallel four-program Skree and Metaree families now resolve all forty fixed
+durations, off-screen property commands, ready callbacks, gotos, loop targets, and sleeps
+through `SkreeMetareeInstructionProgramDefinitions`. Their twenty-two interleaved
+spritemap pointers remain live cartridge-backed presentation data, and the existing
+phase selector catalog names the same eight program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+eight production programs through their loop or sleep boundary while every mechanics
+source byte is forbidden. All twenty-two spritemap operands remain observable, preparation
+publishes both attack-ready flags, diving enables off-screen processing, and the authored
+stop programs disable it. Cross-species and presentation pointers fail as mechanics, and
+warmed lookup is allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

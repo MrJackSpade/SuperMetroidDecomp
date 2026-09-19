@@ -333,7 +333,7 @@ public sealed class SuperMetroidSaveRam
         WriteSramByte(offset + 1, unchecked((byte)(value >> 8)));
     }
 
-    private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
+    private static byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
     {
         int expectedByteCount =
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea;
@@ -346,21 +346,15 @@ public sealed class SuperMetroidSaveRam
         var compressed = new byte[SaveRamLayout.CompressedMapDataByteCount];
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
-            int count = bus.ReadByte(
-                (int)SaveRamLayout.PackedMapByteCountTable.AddWithinBank(area));
-            int destination = ReadBusWord(
-                SaveRamLayout.PackedMapDestinationOffsetTable.AddWithinBank(area * 2));
-            ushort sourceIndexPointer = ReadBusWord(
-                SaveRamLayout.PackedMapSourceIndexPointerTable.AddWithinBank(area * 2));
-            for (int index = 0; index < count; index++)
+            ExploredMapPackingDefinition definition =
+                ExploredMapPackingDefinitions.Area(area);
+            ReadOnlySpan<byte> areaByteIndexes = definition.AreaByteIndexes.Span;
+            for (int index = 0; index < areaByteIndexes.Length; index++)
             {
-                int compressedIndex = destination + index;
+                int compressedIndex = definition.DestinationOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
-                int areaByteIndex = bus.ReadByte(
-                    (int)new SnesAddress(
-                        SaveRamLayout.PackedMapSourceIndexPointerTable.Bank,
-                        unchecked((ushort)(sourceIndexPointer + index))));
+                    throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
+                int areaByteIndex = areaByteIndexes[index];
                 compressed[compressedIndex] = exploredMap[
                     area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex];
             }
@@ -368,7 +362,7 @@ public sealed class SuperMetroidSaveRam
         return compressed;
     }
 
-    private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
+    private static byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
     {
         if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
             throw new ArgumentException("Compressed map payload must contain exactly $500 bytes.", nameof(compressed));
@@ -377,33 +371,20 @@ public sealed class SuperMetroidSaveRam
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
-            int count = bus.ReadByte(
-                (int)SaveRamLayout.PackedMapByteCountTable.AddWithinBank(area));
-            int source = ReadBusWord(
-                SaveRamLayout.PackedMapDestinationOffsetTable.AddWithinBank(area * 2));
-            ushort destinationIndexPointer = ReadBusWord(
-                SaveRamLayout.PackedMapSourceIndexPointerTable.AddWithinBank(area * 2));
-            for (int index = 0; index < count; index++)
+            ExploredMapPackingDefinition definition =
+                ExploredMapPackingDefinitions.Area(area);
+            ReadOnlySpan<byte> areaByteIndexes = definition.AreaByteIndexes.Span;
+            for (int index = 0; index < areaByteIndexes.Length; index++)
             {
-                int compressedIndex = source + index;
+                int compressedIndex = definition.DestinationOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
-                int areaByteIndex = bus.ReadByte(
-                    (int)new SnesAddress(
-                        SaveRamLayout.PackedMapSourceIndexPointerTable.Bank,
-                        unchecked((ushort)(destinationIndexPointer + index))));
+                    throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
+                int areaByteIndex = areaByteIndexes[index];
                 explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex] =
                     compressed[compressedIndex];
             }
         }
         return explored;
-    }
-
-    private ushort ReadBusWord(SnesAddress source)
-    {
-        return unchecked((ushort)(
-            bus.ReadByte((int)source) |
-            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
     }
 
     private static void WriteWord(Span<byte> destination, int offset, ushort value)

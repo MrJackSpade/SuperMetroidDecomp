@@ -90,12 +90,7 @@ internal static partial class Program
             SaveRamLayout.SramOffsetMask + 1,
             "backup checksum directories remain within SRAM");
 
-        AssertTrue(SaveRamLayout.PackedMapByteCountTable.IsUpperLoRomWindow &&
-            SaveRamLayout.PackedMapDestinationOffsetTable.IsUpperLoRomWindow &&
-            SaveRamLayout.PackedMapSourceIndexPointerTable.IsUpperLoRomWindow,
-            "packed-map ROM tables use validated upper-LoROM addresses");
-
         Console.WriteLine(
-            "  SRAM layout: payload regions, slot boundaries, directories, and ROM tables agree.");
+            "  SRAM layout: payload regions, slot boundaries, and directories agree.");
     }
 }

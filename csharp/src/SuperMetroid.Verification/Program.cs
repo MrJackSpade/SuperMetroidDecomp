@@ -316,6 +316,11 @@ if (args is ["--magic-number-audit"])
     VerifyProductionMagicNumberAudit();
     return 0;
 }
+if (args is ["--explored-map-packing-definitions"])
+{
+    VerifyExploredMapPackingDefinitions();
+    return 0;
+}
 if (args is ["--enemy-death-explosion-definitions"])
 {
     VerifyEnemyDeathExplosionDefinitions(
@@ -1390,6 +1395,7 @@ VerifyBgPriorityPlaneRendering();
 VerifyLibraryBackgroundLoader();
 VerifyControllerInputRecording();
 VerifySaveRamLayout();
+VerifyExploredMapPackingDefinitions();
 VerifyGameSaveJsonPersistence();
 VerifyFileSelectFreshSaveTilemap();
 VerifyFileSelectMapWindow();

@@ -32,10 +32,10 @@ internal static partial class Program
             WriteRomByte(rom, 0x828500 + mapByte, 0xff);
         for (int mapWord = 0; mapWord < 0x0800; mapWord++)
             WriteRomWord(rom, 0xb59000 + mapWord * 2, 0x0001);
-        const int secretMapX = 4;
-        const int publicMapX = 5;
-        const int exploredSecretMapX = 6;
-        const int revealTestMapY = 4;
+        const int secretMapX = 8;
+        const int publicMapX = 9;
+        const int exploredSecretMapX = 10;
+        const int revealTestMapY = 3;
         int secretMapByte = AreaMapLayout.GetBitByteIndex(secretMapX, revealTestMapY);
         byte secretAndExploredSecretMasks = (byte)(
             AreaMapLayout.GetBitMask(secretMapX) |
@@ -52,16 +52,9 @@ internal static partial class Program
                 0x0403);
         }
 
-        // PackMapToSave is table-driven even for a synthetic ROM. Give Crateria a single
-        // packed byte covering the three reveal-test cells so the SRAM round trip below
-        // exercises the production compressor instead of bypassing it with direct arrays.
-        int revealTestAreaByte = AreaMapLayout.GetBitByteIndex(
-            exploredSecretMapX,
-            revealTestMapY);
-        WriteRomByte(rom, (int)SaveRamLayout.PackedMapByteCountTable, 1);
-        WriteRomWord(rom, (int)SaveRamLayout.PackedMapDestinationOffsetTable, 0);
-        WriteRomWord(rom, (int)SaveRamLayout.PackedMapSourceIndexPointerTable, 0x8300);
-        WriteRomByte(rom, 0x818300, unchecked((byte)revealTestAreaByte));
+        // The three reveal-test cells share exported Crateria byte $0D, so the SRAM
+        // round trip exercises the real compiled cartridge codec without patching its
+        // immutable table definitions into this otherwise synthetic visual fixture.
         WriteRomWord(rom, 0xb6e000 + (10 * 32 + 10) * 2, 0x2002);
         for (int row = 0; row < 8; row++)
         {

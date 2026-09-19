@@ -94,18 +94,6 @@ public static class SaveRamLayout
     /// <summary>Saved frontend dispatcher word at $7E:D914.</summary>
     public const int LoadingGameStateWramAddress = WramMirrorAddress + LoadingGameStateOffset;
 
-    /// <summary>Bank-$81 byte-count table consumed by PackMapToSave/UnpackMapFromSave.</summary>
-    public static readonly SnesAddress PackedMapByteCountTable =
-        SnesAddress.FromUpperLoRom(0x81, 0x8131);
-
-    /// <summary>Bank-$81 packed SRAM destination-offset word table.</summary>
-    public static readonly SnesAddress PackedMapDestinationOffsetTable =
-        SnesAddress.FromUpperLoRom(0x81, 0x8138);
-
-    /// <summary>Bank-$81 pointer table for unpacked per-area map byte indexes.</summary>
-    public static readonly SnesAddress PackedMapSourceIndexPointerTable =
-        SnesAddress.FromUpperLoRom(0x81, 0x82d6);
-
     private static readonly ushort[] NativeSlotOffsets = [0x0010, 0x066c, 0x0cc8];
 
     /// <summary>Read-only starts of the three checksummed slot payloads.</summary>

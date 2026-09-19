@@ -237,6 +237,12 @@ triples. Every fragment and slime-drop lifetime runs with those 21 callback/list
 forbidden; their already-compiled physical curves remain independent, while animation lists
 and spritemaps remain cartridge presentation data.
 
+The save-map codec now compiles all six live area records too: six counts, six packed-SRAM
+offsets, six source pointers, and all 327 ordered explored-map byte indexes. Production save
+and load round-trip the complete seven-area in-memory map with the bank-$81 codec sources
+forbidden; the native seventh Ceres list remains deliberately excluded exactly as in
+<c>SaveMap</c>/<c>LoadMap</c>.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

@@ -10,11 +10,8 @@ internal static partial class Program
         var vram = new SnesVram();
         var queue = new VramWriteQueue();
         var sand = new RoomSandAnimatedTilesState();
-        WriteTestWord(bus, RoomFxRomData.Tables.AreaAnimatedTileObjectListPointers + 8, 0x9000);
-        WriteTestWord(bus, 0x839000, AnimatedTileObjectPointers.MaridiaSandCeiling);
-        WriteTestWord(bus, 0x839002, AnimatedTileObjectPointers.MaridiaSandFalling);
         bus.WriteBytes(0x839100, new byte[16]);
-        bus.WriteBytes(0x83910e, [3]);
+        bus.WriteBytes(0x83910e, [0x0c]);
         ushort[] definitions = [AnimatedTileObjectPointers.MaridiaSandCeiling, AnimatedTileObjectPointers.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -23,13 +22,10 @@ public sealed class RoomSandAnimatedTilesState
         ushort record = RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer);
         if (record == 0) return;
         byte bits = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.AnimatedTileBitsetOffset);
-        ushort list = RomDataReader.ReadWordFixedBank(bus,
-            RoomFxRomData.Tables.AreaAnimatedTileObjectListPointers + AreaIds.ToIndex(area) * 2);
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;
-            ushort definition = RomDataReader.ReadWordFixedBank(bus,
-                RoomFxRomData.Banks.RoomDefinitions | unchecked((ushort)(list + bit * 2)));
+            ushort definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
             if (definition is not (AnimatedTileObjectPointers.MaridiaSandCeiling or AnimatedTileObjectPointers.MaridiaSandFalling))
                 continue;
             var animation = new RoomFxAnimatedTilesState();

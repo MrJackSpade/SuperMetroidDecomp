@@ -37,6 +37,7 @@ internal static partial class Program
 
         VerifyRoomFxRecordSelection();
         VerifyRoomLayer3FxTypes();
+        VerifyAreaAnimatedTileObjectDefinitions();
         VerifyRoomFxAnimatedTileMechanicsDefinitions();
         VerifyRetailRoomFxInventory();
         NotSupportedException unknown = AssertThrows<NotSupportedException>(

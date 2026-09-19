@@ -32,6 +32,11 @@ if (args is ["--enemy-angle-division"])
     VerifyEnemyAngleDivision();
     return 0;
 }
+if (args is ["--area-animated-tile-definitions"])
+{
+    VerifyAreaAnimatedTileObjectDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

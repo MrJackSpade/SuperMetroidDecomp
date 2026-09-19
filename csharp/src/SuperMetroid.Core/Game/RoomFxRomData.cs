@@ -50,7 +50,6 @@ public static class RoomFxRomData
         public const int Layer3TilemapPointers = 0x83abf0;
         public const int TypeFunctionPointers = 0x83ac18;
         public const int AreaPaletteFxObjectListPointers = 0x83ac46;
-        public const int AreaAnimatedTileObjectListPointers = 0x83ac56;
         public const int PaletteBlendColors = 0x89aa02;
     }
 

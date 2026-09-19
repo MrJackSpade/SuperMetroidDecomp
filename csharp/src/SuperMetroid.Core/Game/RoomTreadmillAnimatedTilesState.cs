@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -11,6 +10,9 @@ public sealed class RoomTreadmillAnimatedTilesState
 {
     private readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
+    /// <summary>Number of treadmill objects selected by the current room/door FX bitset.</summary>
+    public int Count => objects.Count;
+
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
     public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
     {
@@ -19,13 +21,10 @@ public sealed class RoomTreadmillAnimatedTilesState
         ushort record = RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer);
         if (record == 0) return;
         byte bits = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.AnimatedTileBitsetOffset);
-        ushort list = RomDataReader.ReadWordFixedBank(bus,
-            RoomFxRomData.Tables.AreaAnimatedTileObjectListPointers + AreaIds.ToIndex(area) * 2);
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;
-            ushort definition = RomDataReader.ReadWordFixedBank(bus,
-                RoomFxRomData.Banks.RoomDefinitions | unchecked((ushort)(list + bit * 2)));
+            ushort definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
             WreckedShipTreadmillDirection? direction = definition switch
             {
                 AnimatedTileObjectPointers.WreckedShipTreadmillRightwards => WreckedShipTreadmillDirection.Rightwards,

@@ -9,7 +9,7 @@ internal static class SamusPoseInputDefinitions
     /// <summary>$91:A90C: first list owned by the later half of the compiled graph catalog.</summary>
     private const ushort LaterListsBegin = 0xa90c;
     /// <summary>$91:9EE2: one transition-list identity for each authored pose $00..$FC.</summary>
-    private static ReadOnlySpan<ushort> ListByPose =>
+    private static readonly ushort[] ListByPose =
     [
         0xa0de, 0xa0ec, 0xa172, 0xa0ec, 0xa172, 0xa0ec, 0xa172, 0xa0ec, 0xa172, 0xa1f8, 0xa242, 0xae94,
         0xaede, 0xa1f8, 0xa242, 0xa1f8, 0xa242, 0xa1f8, 0xa242, 0xaac0, 0xab3a, 0xa2f6, 0xa376, 0xabb4,

@@ -863,3 +863,19 @@ All 25 authored routes match the pinned cartridge, an overlapping non-identity b
 offset fails loudly, and a real queued title-bank command resolves correctly when the old
 pointer bytes are unavailable. Sequence, instrument, envelope, and sample bytes remain
 audio content for #548 rather than application mechanics for #547.
+
+## Area animated-tile object selection
+
+The complete bank-$83 area-to-animated-tile-object selector is compiled too: eight list
+pointers and all 64 bit-selected bank-$87 object headers. The eighth native row is retained
+for exhaustive parity even though typed production areas expose only the seven retail rows.
+Both Maridia sand and Wrecked Ship treadmill population execute through their real loaders
+while every byte of `$83:AC56-$83:AC65` and the eight pointed lists is forbidden. The
+selected objects' instruction mechanics retain their independently compiled owners, while
+character-source operands and graphics remain presentation data.
+
+The audit also exposed that the compiled 253-entry Samus pose-to-input-list map was declared
+as a collection-expression span property. The current compiler materialized that property
+twice per lookup, allocating 144 bytes on every gameplay query despite the immutable data.
+It is now one static array: the exhaustive 253-pose/598-condition parity remains unchanged,
+and the existing 65,536-call production allocation gate is zero again.

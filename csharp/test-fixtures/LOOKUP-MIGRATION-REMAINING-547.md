@@ -843,6 +843,19 @@ bytes forbidden and every presentation operand observed. Focused cases also exer
 stationary 50% random branch and the moving branch. Invalid restored pointers cannot enter
 the adjacent native callback code, and warmed mechanics lookups allocate no storage.
 
+## Rinka instruction mechanics
+
+The ordinary and Mother Brain Rinka lists at `$A2:B9E0-$BA36` now resolve simulation
+control through `RinkaInstructionProgramDefinitions`. The 26 compiled words cover both
+visibility callbacks, the fire callback, every frame duration, and both terminal goto
+targets. Their 18 interleaved spritemap operands remain live presentation reads.
+
+The production interpreter runs both variants through a complete loop with the control
+bytes forbidden and observes all 18 spritemap operands through the cartridge bus. A
+restored Rinka cursor cannot escape the two authored lists, and the retail-unused
+`$A2:B9A2` conditional callback is rejected because no retail list supplies its operand.
+Warmed mechanics lookup remains allocation-free.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

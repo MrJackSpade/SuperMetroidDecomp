@@ -72,8 +72,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort RinkaShotAi = EnemyAiCodePointers.BankA2.RinkaShot;
     internal const ushort RinkaPowerBombAi = EnemyAiCodePointers.BankA2.RinkaPowerBomb;
 
-    private const ushort RinkaOrdinaryInstructionList = 0xb9e0;
-    private const ushort RinkaSpecialInstructionList = 0xba0c;
     private const ushort RinkaInitialDelay = 26;
     private const ushort RinkaHealth = 10;
     private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
@@ -215,11 +213,11 @@ public sealed partial class RoomEnemySystem
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
             }
-            slot.CurrentInstruction = RinkaSpecialInstructionList;
+            slot.CurrentInstruction = RinkaInstructionProgramDefinitions.SpecialInitial;
         }
         else
         {
-            slot.CurrentInstruction = RinkaOrdinaryInstructionList;
+            slot.CurrentInstruction = RinkaInstructionProgramDefinitions.OrdinaryInitial;
         }
         slot.InstructionTimer = 1;
         slot.Timer = 0;
@@ -353,14 +351,11 @@ public sealed partial class RoomEnemySystem
         switch (opcode)
         {
             case RinkaInstructionCodes.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2:
-                // The routine receives a pointer to its two-byte operand. Below three live
-                // actors it skips that operand; otherwise it returns the operand as a direct
-                // same-bank destination. This opcode is retained even though the retail
-                // BA0C list in the user's revision does not currently reference it.
-                cursor = _rinkaActiveCount < RinkaMaximumSpecialActors
-                    ? unchecked((ushort)(cursor + 4))
-                    : ReadWord(_bus!, 0xa20000 | unchecked((ushort)(cursor + 2)));
-                return true;
+                // No retail Rinka list in the pinned revision invokes this routine, so there
+                // is no authored operand to compile. Treating the following native code bytes
+                // as one would let a corrupt/restored cursor escape the bounded program.
+                throw new InvalidDataException(
+                    "Unused Rinka conditional instruction $A2:B9A2 has no retail program operand.");
 
             case RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleAndInvisible:
                 slot.Properties = slot.Properties.With(

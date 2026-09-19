@@ -2774,6 +2774,20 @@ operand through the live bus, and covers both the moving and stationary random b
 Presentation addresses and restored pointers into adjacent callback code fail as mechanics;
 warmed catalog lookups allocate nothing.
 
+# Rinka instruction mechanics
+
+Ordinary room Rinkas and Mother Brain's off-screen Rinkas now share the strict
+`RinkaInstructionProgramDefinitions` catalog. It compiles all 26 callback, duration,
+goto, and loop-target words in their two bank-$A2 programs. The 18 interleaved
+spritemap pointers remain live cartridge-backed presentation data.
+
+Verification compares every compiled word with the pinned cartridge and executes both
+production programs through a complete loop while all mechanics source bytes are
+forbidden. Every presentation word is observed through the live bus. The unreferenced
+`$A2:B9A2` conditional routine has no operand in either retail list and now fails rather
+than interpreting adjacent native code as an invented program operand. Invalid restored
+pointers fail at the same boundary, and warmed lookups allocate no per-frame storage.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

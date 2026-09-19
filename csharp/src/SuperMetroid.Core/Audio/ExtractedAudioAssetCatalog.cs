@@ -14,17 +14,23 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
+    private readonly IReadOnlyList<AudioSoundProgramMetadata> soundPrograms;
+    private readonly IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries;
     private readonly int canonicalSampleCount;
 
     private ExtractedAudioAssetCatalog(
         IReadOnlyDictionary<int, byte[]> streams,
         IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks,
         IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instrumentBanks,
+        IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
+        IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries,
         int canonicalSampleCount)
     {
         this.streams = streams;
         this.sampleBanks = sampleBanks;
         this.instrumentBanks = instrumentBanks;
+        this.soundPrograms = soundPrograms;
+        this.soundLibraries = soundLibraries;
         this.canonicalSampleCount = canonicalSampleCount;
     }
 
@@ -149,7 +155,16 @@ public sealed class ExtractedAudioAssetCatalog
             throw new InvalidDataException(
                 $"Audio manifest contains unreferenced canonical samples: {string.Join(", ", unreferenced)}.");
         }
-        return new ExtractedAudioAssetCatalog(loaded, banks, instruments, canonicalSamples.Count);
+        (IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
+            IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries) =
+            ValidateSoundDefinitions(manifest);
+        return new ExtractedAudioAssetCatalog(
+            loaded,
+            banks,
+            instruments,
+            soundPrograms,
+            soundLibraries,
+            canonicalSamples.Count);
     }
 
     /// <summary>
@@ -197,6 +212,12 @@ public sealed class ExtractedAudioAssetCatalog
             ? bank
             : throw new InvalidDataException(
                 $"Audio command references unmapped instrument bank address ${snesAddress:X6}.");
+
+    /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
+    public IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms => soundPrograms;
+
+    /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
+    public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries => soundLibraries;
 
     private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
         ValidateInstruments(
@@ -283,6 +304,93 @@ public sealed class ExtractedAudioAssetCatalog
         return samples;
     }
 
+    private static (
+        IReadOnlyList<AudioSoundProgramMetadata> Programs,
+        IReadOnlyList<AudioSoundLibraryMetadata> Libraries) ValidateSoundDefinitions(
+        AudioAssetManifest manifest)
+    {
+        if (manifest.SoundPrograms is null)
+            throw new InvalidDataException("Audio manifest has no decoded sound-program catalog.");
+        if (manifest.SoundLibraries is null)
+            throw new InvalidDataException("Audio manifest has no sound-library catalog.");
+        Dictionary<string, AudioSoundProgramMetadata> programsById = new(StringComparer.Ordinal);
+        HashSet<ushort> addresses = [];
+        foreach (AudioSoundProgramMetadata program in manifest.SoundPrograms)
+        {
+            if (string.IsNullOrWhiteSpace(program.Id))
+                throw new InvalidDataException("Audio manifest contains a sound program with no stable ID.");
+            if (!programsById.TryAdd(program.Id, program))
+                throw new InvalidDataException($"Audio manifest repeats sound program ID '{program.Id}'.");
+            if (!addresses.Add(program.Address))
+                throw new InvalidDataException($"Audio manifest repeats sound program address ${program.Address:X4}.");
+            if (program.ByteCapacity <= 0 || program.Address + program.ByteCapacity > SpcDriverData.ApuRamSize)
+            {
+                throw new InvalidDataException(
+                    $"Audio sound program '{program.Id}' has invalid fixed slot " +
+                    $"${program.Address:X4}+{program.ByteCapacity}.");
+            }
+            _ = SpcSoundEffectProgramCodec.Encode(program);
+        }
+
+        if (manifest.SoundLibraries.Count != SpcDriverData.SoundEffects.LibraryCount)
+        {
+            throw new InvalidDataException(
+                $"Audio manifest defines {manifest.SoundLibraries.Count} SFX libraries; " +
+                $"expected {SpcDriverData.SoundEffects.LibraryCount}.");
+        }
+        for (int libraryIndex = 0; libraryIndex < manifest.SoundLibraries.Count; libraryIndex++)
+        {
+            AudioSoundLibraryMetadata library = manifest.SoundLibraries[libraryIndex];
+            if (library.Effects is null)
+                throw new InvalidDataException($"Audio SFX library {library.Library} has no effect list.");
+            if (library.Library != libraryIndex + 1)
+                throw new InvalidDataException($"Audio SFX library index {libraryIndex} is identified as {library.Library}.");
+            ushort[] expectedPointers = SpcSoundEffectTables.StreamPointerTables[libraryIndex];
+            byte[] expectedConfigurations = SpcSoundEffectTables.Configurations[libraryIndex];
+            if (library.Effects.Count != expectedPointers.Length)
+            {
+                throw new InvalidDataException(
+                    $"Audio SFX library {library.Library} defines {library.Effects.Count} effects; " +
+                    $"expected {expectedPointers.Length}.");
+            }
+            for (int effectIndex = 0; effectIndex < library.Effects.Count; effectIndex++)
+            {
+                AudioSoundEffectMetadata effect = library.Effects[effectIndex];
+                if (effect.ChannelPrograms is null)
+                    throw new InvalidDataException($"Audio effect '{effect.Id}' has no channel-program list.");
+                byte command = unchecked((byte)(effectIndex + 1));
+                string id = $"sfx-{library.Library}-{command:x2}";
+                if (effect.Command != command || effect.Id != id ||
+                    effect.StreamPointer != expectedPointers[effectIndex] ||
+                    effect.Configuration != expectedConfigurations[effectIndex])
+                {
+                    throw new InvalidDataException(
+                        $"Audio effect {library.Library}:${command:X2} changes compiled identity, " +
+                        "routing pointer, or voice-allocation configuration.");
+                }
+                int channelCount = SpcSoundEffectTables.GetVoiceCount(
+                    libraryIndex,
+                    effect.Configuration);
+                if (effect.ChannelPrograms.Count != channelCount)
+                {
+                    throw new InvalidDataException(
+                        $"Audio effect '{effect.Id}' names {effect.ChannelPrograms.Count} channel programs; " +
+                        $"its compiled allocation requires {channelCount}.");
+                }
+                foreach (string programId in effect.ChannelPrograms)
+                {
+                    if (!programsById.ContainsKey(programId))
+                    {
+                        throw new InvalidDataException(
+                            $"Audio effect '{effect.Id}' references unknown sound program '{programId}'.");
+                    }
+                }
+            }
+        }
+        return (Array.AsReadOnly(manifest.SoundPrograms.ToArray()),
+            Array.AsReadOnly(manifest.SoundLibraries.ToArray()));
+    }
+
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))
@@ -346,11 +454,22 @@ public sealed class ExtractedAudioAssetCatalog
             throw new InvalidDataException(
                 $"Audio override '{selectedPath}' changes stable canonical sample IDs.");
         }
-        if (selected.SoundLibraries.Count != stock.SoundLibraries.Count ||
+        if (selected.SoundPrograms.Count != stock.SoundPrograms.Count ||
+            !selected.SoundPrograms.Zip(stock.SoundPrograms).All(pair =>
+                pair.First.Id == pair.Second.Id &&
+                pair.First.Address == pair.Second.Address &&
+                pair.First.ByteCapacity == pair.Second.ByteCapacity) ||
+            selected.SoundLibraries.Count != stock.SoundLibraries.Count ||
             !selected.SoundLibraries.Zip(stock.SoundLibraries).All(pair =>
                 pair.First.Library == pair.Second.Library &&
                 pair.First.Effects.Count == pair.Second.Effects.Count &&
-                pair.First.Effects.Zip(pair.Second.Effects).All(effect => effect.First == effect.Second)))
+                pair.First.Effects.Zip(pair.Second.Effects).All(effect =>
+                    effect.First.Command == effect.Second.Command &&
+                    effect.First.Id == effect.Second.Id &&
+                    effect.First.StreamPointer == effect.Second.StreamPointer &&
+                    effect.First.Configuration == effect.Second.Configuration &&
+                    effect.First.ChannelPrograms.SequenceEqual(
+                        effect.Second.ChannelPrograms, StringComparer.Ordinal))))
         {
             throw new InvalidDataException(
                 $"Audio override '{selectedPath}' changes compiled SFX routing metadata.");
@@ -364,9 +483,10 @@ public sealed record AudioAssetManifest(
     IReadOnlyList<AudioUploadManifestEntry> Uploads,
     IReadOnlyList<AudioCanonicalSampleMetadata> CanonicalSamples,
     IReadOnlyList<AudioBankMetadata> Banks,
+    IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms,
     IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries)
 {
-    public const int CurrentFormatVersion = 2;
+    public const int CurrentFormatVersion = 3;
 }
 
 /// <summary>Manifest identity and integrity information for one opaque upload stream.</summary>
@@ -419,8 +539,25 @@ public sealed record AudioSoundLibraryMetadata(
     int Library,
     IReadOnlyList<AudioSoundEffectMetadata> Effects);
 
-/// <summary>Pointer and voice-allocation class for a one-based SFX command.</summary>
-public sealed record AudioSoundEffectMetadata(byte Command, ushort StreamPointer, byte Configuration);
+/// <summary>A bounded, address-stable resident SPC sound-effect channel program.</summary>
+public sealed record AudioSoundProgramMetadata(
+    string Id,
+    ushort Address,
+    int ByteCapacity,
+    IReadOnlyList<AudioSoundInstructionMetadata> Instructions);
+
+/// <summary>One named operation and its documented byte operands.</summary>
+public sealed record AudioSoundInstructionMetadata(
+    string Operation,
+    IReadOnlyList<byte> Arguments);
+
+/// <summary>Stable identity, routing and voice-allocation class for a one-based SFX command.</summary>
+public sealed record AudioSoundEffectMetadata(
+    byte Command,
+    string Id,
+    ushort StreamPointer,
+    byte Configuration,
+    IReadOnlyList<string> ChannelPrograms);
 
 internal static class AudioAssetJson
 {

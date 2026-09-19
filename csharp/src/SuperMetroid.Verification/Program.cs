@@ -1112,6 +1112,11 @@ if (args is ["--audio-overrides"])
     VerifyPersistentAudioOverrides();
     return 0;
 }
+if (args is ["--audio-sfx-programs"])
+{
+    VerifyEditableSoundEffectPrograms();
+    return 0;
+}
 if (args is ["--shutter-native-arc"])
 {
     AuditMorphShutterApproaches(reproduceOnly: true, exportNativeArc: true);

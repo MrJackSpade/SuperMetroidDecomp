@@ -224,6 +224,50 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>
+    /// Recompiles decoded authored SFX programs into their fixed resident slots. Program
+    /// routing and voice allocation remain compiled mechanics and must still match the
+    /// uploaded driver's pointer tables exactly.
+    /// </summary>
+    public void ApplySoundEffectDefinitions(
+        IReadOnlyList<AudioSoundProgramMetadata> programs,
+        IReadOnlyList<AudioSoundLibraryMetadata> libraries)
+    {
+        ArgumentNullException.ThrowIfNull(programs);
+        ArgumentNullException.ThrowIfNull(libraries);
+        Dictionary<string, AudioSoundProgramMetadata> byId = new(StringComparer.Ordinal);
+        foreach (AudioSoundProgramMetadata program in programs)
+        {
+            if (!byId.TryAdd(program.Id, program))
+                throw new InvalidDataException($"Decoded SFX programs repeat stable ID '{program.Id}'.");
+            byte[] encoded = SpcSoundEffectProgramCodec.Encode(program);
+            encoded.CopyTo(ram.AsSpan(program.Address, encoded.Length));
+        }
+
+        foreach (AudioSoundLibraryMetadata library in libraries)
+        {
+            foreach (AudioSoundEffectMetadata effect in library.Effects)
+            {
+                for (int channel = 0; channel < effect.ChannelPrograms.Count; channel++)
+                {
+                    if (!byId.TryGetValue(effect.ChannelPrograms[channel], out AudioSoundProgramMetadata? program))
+                    {
+                        throw new InvalidDataException(
+                            $"SFX effect '{effect.Id}' references unknown program " +
+                            $"'{effect.ChannelPrograms[channel]}'.");
+                    }
+                    ushort uploadedPointer = ReadWord(effect.StreamPointer + channel * 2);
+                    if (uploadedPointer != program.Address)
+                    {
+                        throw new InvalidDataException(
+                            $"SFX effect '{effect.Id}' channel {channel} routes to uploaded " +
+                            $"${uploadedPointer:X4}, not decoded program '{program.Id}' at ${program.Address:X4}.");
+                    }
+                }
+            }
+        }
+    }
+
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
     public void WritePort(int port, byte value)
     {

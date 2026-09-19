@@ -483,6 +483,23 @@ native unsigned 16-bit pitch scale. Restart the game after editing so the immuta
 validated and rebound. Direct edits inside `game/audio` are stock-content diagnostics and can be
 replaced by repair; installed presentation edits belong in `overrides/audio`.
 
+Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in
+`soundLibraries` has a stable ID such as `sfx-1-01` and names the channel programs it routes.
+Routing pointers and voice-allocation configurations are compiled engine mechanics and cannot
+be overridden. A program may edit operands or substitute a same-size operation, but its encoded
+byte count must retain `byteCapacity`; this prevents an authored edit from relocating into an
+adjacent resident-driver table. Instruction arguments are:
+
+- `playNote`: instrument, volume, pan, note (`246` retains the previous note), duration.
+- `setAdsr`: ADSR1, ADSR2, and the two native reserved bytes.
+- `pitchSlideLegato` / `pitchSlide`: subnote delta and target note.
+- `beginRepeat`: repeat count; `endRepeat` closes it; `repeatForever` loops indefinitely.
+- `enableNoise` and `end`: no operands.
+
+The loader recompiles and validates every program after each audio-bank upload. Unknown
+operations, reserved instrument opcodes, missing program references, routing changes, and
+encoded-size changes fail with the responsible stable ID instead of falling back to opaque data.
+
 Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
 catalog at runtime.
 

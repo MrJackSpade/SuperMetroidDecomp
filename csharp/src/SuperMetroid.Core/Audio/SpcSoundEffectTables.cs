@@ -92,4 +92,29 @@ internal static class SpcSoundEffectTables
                 throw new InvalidDataException($"SPC sound library {library + 1} table lengths disagree.");
         }
     }
+
+    internal static int GetVoiceCount(int libraryIndex, byte configuration) => libraryIndex switch
+    {
+        0 => configuration switch
+        {
+            0 or 1 => 1,
+            2 => 2,
+            3 => 3,
+            4 or 5 => 4,
+            _ => throw new InvalidDataException($"Unknown SPC SFX1 configuration {configuration}."),
+        },
+        1 => configuration switch
+        {
+            0 or 1 => 1,
+            2 or 3 => 2,
+            _ => throw new InvalidDataException($"Unknown SPC SFX2 configuration {configuration}."),
+        },
+        2 => configuration switch
+        {
+            0 or 1 or 2 or 5 => 1,
+            3 or 4 => 2,
+            _ => throw new InvalidDataException($"Unknown SPC SFX3 configuration {configuration}."),
+        },
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+    };
 }

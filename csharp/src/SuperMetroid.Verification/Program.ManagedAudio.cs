@@ -21,6 +21,7 @@ internal static partial class Program
         VerifyBrrLoopExtractionRetainsPredictorHistory();
         VerifyEditableAudioInstruments();
         VerifyPersistentAudioOverrides();
+        VerifyEditableSoundEffectPrograms();
     }
 
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
@@ -329,6 +330,7 @@ internal static partial class Program
                 AudioAssetManifest.CurrentFormatVersion,
                 [],
                 [original],
+                [],
                 [],
                 []);
             File.WriteAllText(

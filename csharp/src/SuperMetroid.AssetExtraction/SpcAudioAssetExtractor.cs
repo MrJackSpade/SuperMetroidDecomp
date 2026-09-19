@@ -93,12 +93,17 @@ public static class SpcAudioAssetExtractor
                 includeTrackPointers: true));
         }
 
+        IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries = ExtractSoundLibraries(
+            commonRam,
+            commonWritten,
+            out IReadOnlyList<AudioSoundProgramMetadata> soundPrograms);
         AudioAssetManifest manifest = new(
             AudioAssetManifest.CurrentFormatVersion,
             uploads,
             canonicalSamples.Metadata,
             banks,
-            ExtractSoundLibraries());
+            soundPrograms,
+            soundLibraries);
         File.WriteAllText(
             Path.Combine(audioDirectory, ExtractedAudioAssetCatalog.ManifestFileName),
             JsonSerializer.Serialize(manifest, AudioAssetJson.Options));
@@ -180,9 +185,13 @@ public static class SpcAudioAssetExtractor
             samples);
     }
 
-    private static List<AudioSoundLibraryMetadata> ExtractSoundLibraries()
+    private static List<AudioSoundLibraryMetadata> ExtractSoundLibraries(
+        byte[] commonRam,
+        bool[] commonWritten,
+        out IReadOnlyList<AudioSoundProgramMetadata> programs)
     {
         List<AudioSoundLibraryMetadata> libraries = [];
+        Dictionary<ushort, AudioSoundProgramMetadata> programsByAddress = [];
         for (int library = 0; library < SpcSoundEffectTables.StreamPointerTables.Length; library++)
         {
             ushort[] pointers = SpcSoundEffectTables.StreamPointerTables[library];
@@ -190,11 +199,43 @@ public static class SpcAudioAssetExtractor
             List<AudioSoundEffectMetadata> effects = [];
             for (int index = 0; index < pointers.Length; index++)
             {
+                ushort streamPointer = pointers[index];
+                byte configuration = configurations[index];
+                int voiceCount = SpcSoundEffectTables.GetVoiceCount(library, configuration);
+                var channelPrograms = new string[voiceCount];
+                for (int channel = 0; channel < voiceCount; channel++)
+                {
+                    int pointerAddress = streamPointer + channel * 2;
+                    if (pointerAddress > ushort.MaxValue - 1 ||
+                        !commonWritten[pointerAddress] || !commonWritten[pointerAddress + 1])
+                    {
+                        throw new InvalidDataException(
+                            $"SFX library {library + 1} command ${index + 1:X2} channel {channel} " +
+                            $"pointer at ${pointerAddress:X4} is outside common uploaded content.");
+                    }
+                    ushort programAddress = ReadWord(commonRam, pointerAddress);
+                    if (!programsByAddress.TryGetValue(programAddress, out AudioSoundProgramMetadata? program))
+                    {
+                        string id = $"sfx-program-{programAddress:x4}";
+                        program = SpcSoundEffectProgramCodec.Decode(
+                            id,
+                            programAddress,
+                            commonRam,
+                            commonWritten);
+                        programsByAddress.Add(programAddress, program);
+                    }
+                    channelPrograms[channel] = program.Id;
+                }
                 effects.Add(new AudioSoundEffectMetadata(
-                    unchecked((byte)(index + 1)), pointers[index], configurations[index]));
+                    unchecked((byte)(index + 1)),
+                    $"sfx-{library + 1}-{index + 1:x2}",
+                    streamPointer,
+                    configuration,
+                    channelPrograms));
             }
             libraries.Add(new AudioSoundLibraryMetadata(library + 1, effects));
         }
+        programs = programsByAddress.Values.OrderBy(program => program.Address).ToArray();
         return libraries;
     }
 

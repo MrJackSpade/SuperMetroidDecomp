@@ -2,12 +2,17 @@
 
 ## Ownership boundary
 
-The lossless `.spcu` streams still contain the native SPC driver, music/SFX sequences,
+The lossless `.spcu` streams still contain the native SPC driver, music sequences,
 sample-directory data, and a stock copy of each instrument table. The readable
 `audio-manifest.json` bank records now supersede only the 42 six-byte instrument entries at
 SPC `$6C00`: source/noise selection, ADSR1, ADSR2, gain, and the big-endian pitch-base word.
 The renderer applies the complete validated manifest table immediately after every common or
 music-bank upload and before that bank can produce another audio frame.
+
+The manifest also supersedes the resident authored SFX channel programs. Stable effect IDs,
+pointer-table addresses, voice allocation, and fixed program slots remain compiled mechanics;
+270 decoded programs expose 1,321 named note/envelope/slide/repeat operations. Recompilation
+must fit each original slot exactly and runs after every upload before another audio frame.
 
 This is a content seam, not a new synthesizer path. The existing managed SPC sequencer and
 S-DSP continue to consume those six bytes through their native instrument command, so edited
@@ -31,7 +36,13 @@ The focused command is:
 
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --audio-instruments
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --audio-sfx-programs
 ```
 
-This is a partial #548 implementation. Music/SFX sequence decoding, editable command streams,
-and a separate persistent override file that survives re-extraction remain open work.
+`Program.AudioSoundPrograms` additionally proves every decoded program recompiles byte-for-byte,
+all 240 effects retain native routing, a JSON-only note edit reaches live APU RAM and changes
+audible PCM, and malformed operations, capacities, or references fail explicitly. Installed
+edits live in the persistent `overrides/audio` catalog and survive stock repair.
+
+This remains a partial #548 implementation. Authored music track/phrase/channel sequence
+decoding is the outstanding content seam.

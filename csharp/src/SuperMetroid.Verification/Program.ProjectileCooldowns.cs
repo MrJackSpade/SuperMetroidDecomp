@@ -13,7 +13,11 @@ internal static partial class Program
         for (int address = 0x90c254; address < 0x90c28f; address++)
             AssertEqual(retail.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),
                 "Compiled cooldown byte matches native address identity");
-        foreach (int address in new[] { 0x908000, 0x90c253, 0x90c28f, 0x90ffff })
+        AssertEqual(retail.ReadByte(SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
+            SamusProjectileCooldownDefinitions.ReadByte(
+                SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
+            "bounded SpaceTime setup retains its exact adjacent native cooldown observation");
+        foreach (int address in new[] { 0x908000, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, 0x90ffff })
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileCooldownDefinitions.ReadByte(address),
                 "Unknown cooldown address fails instead of reading adjacent presentation data");
@@ -63,7 +67,7 @@ internal static partial class Program
             AssertEqual((ushort)retail.ReadByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
                 shared.CooldownTimer, "Combo retains six-bit index into padding/non-beam neighbors");
         }
-        Console.WriteLine("Projectile cooldowns: 59 native bytes, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
+        Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
     private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace

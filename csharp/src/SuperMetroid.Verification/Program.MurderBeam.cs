@@ -102,15 +102,13 @@ internal static partial class Program
         AssertEqual((ushort)123, shot.YPosition, "persistent Murder Beam remains fixed in world Y");
 
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
-        combat.Bus.WriteByte(0xb4800f, 1);
-        combat.Bus.WriteByte(0xb48013, 2);
         RoomEnemySlot target = combat.System.Slots[0];
         target.EnemyDefinitionPointer = 0x9000;
         target.Definition = default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
-            VulnerabilityPointer = 0x8000,
+            VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
         target.XPosition = shot.XPosition;
         target.YPosition = shot.YPosition;

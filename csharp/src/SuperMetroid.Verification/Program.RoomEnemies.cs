@@ -283,6 +283,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteWord(bus, header + 8, 8);
     WriteWord(bus, header + 10, 4);
     bus.WriteByte(header + 13, 0);
+    WriteWord(bus, header + 14, 0x003e);
     WriteWord(bus, header + 18, 0xe49f);
     WriteWord(bus, header + 24, 0xe4da);
     WriteWord(bus, header + 48, 0x8023);
@@ -301,12 +302,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     for (int index = 0; index < leftList.Length; index++)
         WriteWord(bus, 0xa2e48b + index * 2, leftList[index]);
 
-    // Power Beam is ineffective, Ice freezes, and missiles/supers use multiplier two.
-    for (int offset = 0; offset < 22; offset++)
-        bus.WriteByte(0xb40000 | (vulnerabilityPointer + offset), 0);
-    bus.WriteByte(0xb40000 | (vulnerabilityPointer + 2), 0xff);
-    bus.WriteByte(0xb40000 | (vulnerabilityPointer + 12), 2);
-    bus.WriteByte(0xb40000 | (vulnerabilityPointer + 13), 2);
+    // The compiled native Ripper record makes Power Beam and missiles ineffective,
+    // freezes on Ice, and gives Super Missiles multiplier two.
 
     WriteWord(bus, 0xb40000 | tilesetPointer, definitionPointer);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0);
@@ -503,7 +500,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     AssertEqual(frozenX, ripper.XPosition, "frozen Ripper suppresses movement");
     AssertEqual(399, ripper.FrozenTimer, "frozen Ripper timer advances");
 
-    // Clear the focused freeze fixture and prove the missile multiplier, hurt flash, and
+    // Clear the focused freeze fixture and prove the Super Missile multiplier, hurt flash, and
     // common death/deletion accounting on the same loaded actor.
     ripper.FrozenTimer = 0;
     ripper.InvincibilityTimer = 0;
@@ -514,15 +511,15 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3);
     for (int hit = 0; hit < 2; hit++)
     {
-        ArmProjectile(shot, ripper, type: 0x0100, damage: 100);
+        ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
         AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
-            $"Ripper missile hit {hit + 1}");
+            $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.SoundRequests.Count(request =>
             request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
             request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3),
             "common shot queues header low-byte cry for surviving and lethal hits");
     }
-    AssertEqual(0, ripper.Health, "Ripper missile vulnerability reaches zero health");
+    AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
     AssertEqual((ushort)0, ripper.EnemyDefinitionPointer,
         "Ripper generic death clears its common enemy record immediately");
     RoomEnemyProjectileSlot ripperDeath = enemies.EnemyProjectiles[17];
@@ -670,8 +667,6 @@ static void VerifyCeresDoorBossBranch()
     // Start directly at the retail closed-door loop. `$F66A` either returns to `$F55E`
     // while the boss lives or falls through `$F6B0/$80ED` into the normal list, whose first
     // command `$F68B` is the observable collision-side-effect under test.
-    WriteWord(bus, 0xa6f731, 0xf770);
-    WriteWord(bus, 0xa6f532, 0xf55e);
     WriteWord(bus, 0xa6f55e, 2);
     WriteWord(bus, 0xa6f560, 0x9000);
     WriteWord(bus, 0xa6f562, 0xf66a);
@@ -700,6 +695,8 @@ static void VerifyCeresDoorBossBranch()
             return areaBossDefeated;
         });
     RoomEnemySlot door = enemies.Slots[0];
+    door.CurrentInstruction = 0xf55e;
+    door.InstructionTimer = 1;
 
     for (int frame = 0; frame < 4; frame++)
         enemies.StepFrame(0, 0, timeIsFrozen: false);

@@ -5,6 +5,12 @@ namespace SuperMetroid.Core.Game;
 internal static class SamusProjectileRadiusDefinitions
 {
     /// <summary>
+    /// Bank-$93 address observed by the cartridge-safe left-facing Murder Beam. Its corrupt
+    /// zero instruction pointer indexes the first two bank bytes as X/Y radii.
+    /// </summary>
+    internal const int MurderBeamRadiusAddress = 0x930004;
+
+    /// <summary>
     /// The 805 authored X/Y byte pairs in projectile instruction records at $93:86DB..A19C,
     /// including unused records. Keys identify the X byte (record + 4); packed high bytes
     /// contain Y. Sparse addresses preserve intervening opcode, timing and artwork reads.
@@ -226,6 +232,8 @@ internal static class SamusProjectileRadiusDefinitions
 
     internal static byte ReadByte(int address)
     {
+        if (address is MurderBeamRadiusAddress or MurderBeamRadiusAddress + 1)
+            return 0;
         if (Radii.TryGetValue(address, out ushort pair)) return (byte)pair;
         if (Radii.TryGetValue(address - 1, out pair)) return (byte)(pair >> 8);
         throw new InvalidDataException(

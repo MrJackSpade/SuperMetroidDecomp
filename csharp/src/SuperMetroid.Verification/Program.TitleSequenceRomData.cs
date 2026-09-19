@@ -106,15 +106,15 @@ internal static partial class Program
         WriteRomWord(rom, 0x8cbc7f, 0xe07f);
         WriteRomWord(rom, TitleGradientRomData.ControlTable, 0xa17a);
         WriteRomWord(rom, TitleGradientRomData.ControlTable + 2, 0x317f);
-        // Phase-chain fixtures supply valid empty palette programs. The separate retail
-        // console audit checks the real color words, timing, and rendered blinking.
+        // Phase-chain fixtures supply valid empty programs at the compiled retail list
+        // identities. The separate retail console audit checks the real color words,
+        // timing, and rendered blinking; fixed object headers are not mutable fixture data.
         foreach (ushort definition in new[] { TitleSequenceRomData.ConsolePaletteFx.SlowLights,
                      TitleSequenceRomData.ConsolePaletteFx.FastLights })
         {
-            WriteRomWord(rom, 0x8d0000 | definition, PaletteFxSetupCodes.Null);
-            WriteRomWord(rom, (0x8d0000 | definition) + 2, 0xf000);
+            ushort list = RoomPaletteFxDefinitions.Get(definition).InitialInstructionList;
+            WriteRomWord(rom, 0x8d0000 | list, PaletteFxInstructionCodes.Delete);
         }
-        WriteRomWord(rom, 0x8df000, PaletteFxInstructionCodes.Delete);
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.Mode7CharactersAddress,

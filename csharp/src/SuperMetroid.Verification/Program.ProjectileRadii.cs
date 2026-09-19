@@ -86,6 +86,14 @@ internal static partial class Program
             AssertEqual(rom.ReadByte(address), SamusProjectileRadiusDefinitions.ReadByte(address), "Native X radius");
             AssertEqual(rom.ReadByte(address + 1), SamusProjectileRadiusDefinitions.ReadByte(address + 1), "Native Y radius");
         }
+        AssertEqual(rom.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
+            SamusProjectileRadiusDefinitions.ReadByte(
+                SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
+            "bounded Murder Beam X-radius observation");
+        AssertEqual(rom.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
+            SamusProjectileRadiusDefinitions.ReadByte(
+                SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
+            "bounded Murder Beam Y-radius observation");
         foreach (int address in new[] { 0x938000, 0x9386de, 0x9386e1, 0x93ffff })
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileRadiusDefinitions.ReadByte(address),

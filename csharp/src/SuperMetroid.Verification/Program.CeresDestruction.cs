@@ -9,12 +9,12 @@ static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
 
-    // The timeline fixture has no visible engine art. Supply a valid terminating
-    // palette program; the retail pixel audit covers the alternating engine colors.
-    int engineDefinition = 0x8d0000 | CeresDestructionRomData.PaletteFx.EngineFlicker;
-    WriteRomWord(rom, engineDefinition, PaletteFxSetupCodes.Null);
-    WriteRomWord(rom, engineDefinition + 2, (ushort)(engineDefinition + 4));
-    WriteRomWord(rom, engineDefinition + 4, PaletteFxInstructionCodes.Delete);
+    // The timeline fixture has no visible engine art. Supply a valid terminating program
+    // at the compiled retail list identity; the retail pixel audit covers the alternating
+    // engine colors, while the fixed object header is application-owned metadata.
+    ushort engineList = RoomPaletteFxDefinitions.Get(
+        CeresDestructionRomData.PaletteFx.EngineFlicker).InitialInstructionList;
+    WriteRomWord(rom, 0x8d0000 | engineList, PaletteFxInstructionCodes.Delete);
 
     AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");

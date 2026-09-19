@@ -304,21 +304,10 @@ internal static partial class Program
 
     private static void SeedEyeDoorEnemyProjectileRom(TestAddressSpace bus)
     {
-        // Minimal definitions preserve the retail initializer identities while routing all
-        // animation into a tiny deterministic list owned by this constructed-room test.
-        bus.WriteBytes(0x86b743, [
-            0x2d, 0xb6, 0x00, 0x00, 0x00, 0xb8, 0x04, 0x04,
-            0x00, 0x00, 0x00, 0x00, 0xf3, 0xb5,
-        ]);
-        bus.WriteBytes(0x86b751, [
-            0x83, 0xb6, 0x14, 0xb7, 0x00, 0xb8, 0x00, 0x00,
-            0x04, 0x00, 0x00, 0x00, 0xfc, 0x84,
-        ]);
-        bus.WriteBytes(0x86e517, [
-            0xa6, 0xe4, 0x08, 0xe5, 0x00, 0xb8, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0xfc, 0x84,
-        ]);
-        bus.WriteBytes(0x86b800, [
+        // Enemy-projectile headers are compiled definition data. Install a minimal program
+        // at the real eye-door attack list selected by that catalog; the fixture still owns
+        // replaceable frame timing and art.
+        bus.WriteBytes(0x86b5d9, [
             0x61, 0x81, 0xb9, 0xb6,
             0xa5, 0x82,
             0x10, 0x00, 0x00, 0x80,

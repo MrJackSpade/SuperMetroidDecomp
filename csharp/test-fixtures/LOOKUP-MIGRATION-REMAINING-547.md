@@ -475,6 +475,15 @@ consumers for every definition with every source byte forbidden. The callbacks a
 mixed animation programs selected by those fixed identities remain separate
 program/presentation dependencies.
 
+The complete palette-FX construction domain is compiled too: all 63 aligned bank-$8D
+setup/list definition records, the eight bank-$83 area-list identities, and all 64
+area/bit selections now live in `RoomPaletteFxDefinitions`. Generic room loading,
+direct cinematic/Samus spawns, and the specialized Hyper Beam owner no longer reread
+that fixed metadata. Production verification executes every definition, every retail
+room-area selection, and the Hyper Beam's first palette frame with all definition and
+area-selection bytes forbidden. The mixed palette instruction programs and color data
+remain cartridge-backed program/presentation dependencies.
+
 Mother Brain's eight escape-door fragment records are compiled too: each record pairs
 its signed world offset from `$86:C992-$C9B1` with its signed 8.8 launch velocity from
 `$86:C9B2-$C9D1`. All 32 words match the pinned cartridge and all eight production

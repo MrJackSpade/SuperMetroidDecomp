@@ -249,15 +249,18 @@ static void VerifySamusPowerBeamProjectiles()
     // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
     // horizontal/vertical/diagonal base-speed choice, acceleration sign, immediate movement,
     // animation selection, cooldown, sound, and live-slot counter in isolation.
-    for (byte direction = 0; direction < 10; direction++)
+    ReadOnlySpan<byte> nativePosesByShotDirection =
+    [
+        3, 5, 1, 7, 23, 24, 8, 2, 6, 4,
+    ];
+    for (byte direction = 0; direction < nativePosesByShotDirection.Length; direction++)
     {
-        // A non-authored synthetic record isolates all ten producer directions
-        // without pretending that replaceable artwork can rewrite authored aim.
-        byte pose = 0xfd;
-        WritePoseDefinition(
-            bus,
-            pose,
-            [0x08, 0x00, 0x00, direction, 0x00, 0x00, 0x00, 0x00]);
+        // Use one real pose for each of the ten native aim values. Pose dispatcher and
+        // aim metadata are compiled definition data, so a synthetic bank-$91 record can
+        // no longer override gameplay direction merely to simplify a fixture.
+        byte pose = nativePosesByShotDirection[direction];
+        AssertEqual(direction, SamusState.ReadShotDirection(bus, pose),
+            $"native projectile fixture pose ${pose:X2} aim");
         var samus = new SamusState
         {
             Pose = pose,

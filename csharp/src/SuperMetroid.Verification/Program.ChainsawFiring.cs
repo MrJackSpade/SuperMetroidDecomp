@@ -162,23 +162,23 @@ internal static partial class Program
         }
 
         // Combination thirteen indexes the same vulnerability byte as Super Missiles.
-        // Give every neighboring beam field multiplier zero and byte thirteen multiplier
-        // two, then resolve a real production overlap. Native common damage halves the
-        // slot's 150 damage word before applying that multiplier, producing a 150-point hit.
+        // The default native vulnerability record gives Super Missiles multiplier two.
+        // Resolve a real production overlap through that compiled record. Native common
+        // damage halves the slot's 150 damage word before applying the multiplier,
+        // producing a 150-point hit.
         var combatShared = new SamusBombProjectileSystem();
         combatShared.PowerBombExplosion.Arm();
         var combatProjectiles = new SamusProjectileSystem();
         combatProjectiles.StepFrame(bus, level, samus,
             (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
-        combat.Bus.WriteByte(0xb4800d, 2);
         RoomEnemySlot target = combat.System.Slots[0];
         target.EnemyDefinitionPointer = 0x9000;
         target.Definition = default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
-            VulnerabilityPointer = 0x8000,
+            VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
         target.XPosition = 139;
         target.YPosition = 123;

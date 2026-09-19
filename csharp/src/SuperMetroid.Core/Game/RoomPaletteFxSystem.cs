@@ -107,18 +107,12 @@ public sealed class RoomPaletteFxSystem
         if (paletteFxBits == 0)
             return;
 
-        ushort areaList = ReadWord(
-            bus,
-            RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + areaIndex * 2);
         for (int bit = 0; bit < SlotCount; bit++)
         {
             if ((paletteFxBits & (1 << bit)) == 0)
                 continue;
 
-            ushort definition = ReadWord(
-                bus,
-                RoomFxRomData.Banks.RoomDefinitions |
-                    unchecked((ushort)(areaList + bit * 2)));
+            ushort definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);
             Spawn(bus, definition, equippedItems, areaMiniBossDefeated);
         }
     }
@@ -194,14 +188,15 @@ public sealed class RoomPaletteFxSystem
         if (slot is null)
             return;
 
+        RoomPaletteFxDefinition compiled = RoomPaletteFxDefinitions.Get(definition);
         slot.Id = definition;
         slot.ColorByteIndex = 0;
         slot.PreInstruction = PaletteFxPreInstructionCodes.Null;
-        slot.InstructionPointer = ReadBank8dWord(bus, unchecked((ushort)(definition + 2)));
+        slot.InstructionPointer = compiled.InitialInstructionList;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
-        ushort setup = ReadBank8dWord(bus, definition);
+        ushort setup = compiled.SetupCallback;
         switch (setup)
         {
             case PaletteFxSetupCodes.Null:

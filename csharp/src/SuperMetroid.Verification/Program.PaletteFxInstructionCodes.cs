@@ -157,17 +157,10 @@ internal static partial class Program
     private static (RoomPaletteFxSystem PaletteFx, TestAddressSpace Bus)
         CreateSingleAudioInstruction(ushort instruction, byte operand)
     {
-        const ushort definition = 0x9000;
-        const ushort instructionList = 0x9100;
+        const ushort definition = 0xf749;
+        ushort instructionList =
+            RoomPaletteFxDefinitions.Get(definition).InitialInstructionList;
         var bus = new TestAddressSpace();
-        bus.WriteBytes(
-            0x8d0000 | definition,
-            [
-                unchecked((byte)PaletteFxSetupCodes.Null),
-                (byte)(PaletteFxSetupCodes.Null >> 8),
-                unchecked((byte)instructionList),
-                (byte)(instructionList >> 8),
-            ]);
         bus.WriteBytes(
             0x8d0000 | instructionList,
             [

@@ -707,38 +707,18 @@ internal static partial class Program
 
     private static void SeedPermanentItemMessageBoxRom(TestAddressSpace bus)
     {
-        const int definitions = 0x85869b;
-        // ID 1: small Energy Tank message, one 64-byte content row.
-        WriteWord(bus, definitions + 0, 0x8436);
-        WriteWord(bus, definitions + 2, 0x8289);
-        WriteWord(bus, definitions + 4, 0x9000);
-        // ID 2: large Missile message, four 64-byte content rows.
-        WriteWord(bus, definitions + 6, 0x83c5);
-        WriteWord(bus, definitions + 8, 0x825a);
-        WriteWord(bus, definitions + 10, 0x9040);
-        // Only ID 3's content pointer is needed to delimit ID 2.
-        WriteWord(bus, definitions + 16, 0x9140);
-
-        // ID $14: retail map-station layout -- small border, three content rows.
-        int message20 = definitions + 19 * 6;
-        WriteWord(bus, message20 + 0, 0x8436);
-        WriteWord(bus, message20 + 2, 0x8289);
-        WriteWord(bus, message20 + 4, 0x9200);
-        // ID $15's content pointer delimits message $14 at three rows ($C0 bytes).
-        WriteWord(bus, message20 + 10, 0x92c0);
-
         for (int word = 0; word < 32; word++)
         {
             WriteWord(bus, 0x858000 + word * 2, 0x3801);
             WriteWord(bus, 0x858040 + word * 2, 0x3801);
-            WriteWord(bus, 0x859000 + word * 2, 0x3801);
+            WriteWord(bus, 0x85877f + word * 2, 0x3801);
         }
         for (int word = 0; word < 128; word++)
-            WriteWord(bus, 0x859040 + word * 2, 0x3801);
+            WriteWord(bus, 0x8587bf + word * 2, 0x3801);
         for (int row = 0; row < 3; row++)
         {
             for (int word = 0; word < 32; word++)
-                WriteWord(bus, 0x859200 + (row * 32 + word) * 2, (ushort)(0x3820 + row));
+                WriteWord(bus, 0x85917f + (row * 32 + word) * 2, (ushort)(0x3820 + row));
         }
     }
 

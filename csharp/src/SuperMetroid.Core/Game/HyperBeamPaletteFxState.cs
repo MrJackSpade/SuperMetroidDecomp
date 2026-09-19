@@ -78,19 +78,14 @@ public sealed class HyperBeamPaletteFxState
                 CompletedCycles);
         }
 
-        // Validate the object header as part of every real execution path. The setup word
-        // is `$C685` (RTS), while the second word is the instruction list address installed
-        // by `$8D:C50C`. This guards against accidentally running the NTSC offsets against
-        // a different ROM revision or an incorrectly mapped bus.
-        ushort setupPointer = ReadWord(bus, SamusPaletteRomData.HyperBeamFx.ObjectDefinition);
-        ushort initialListPointer = ReadWord(
-            bus,
-            SamusPaletteRomData.HyperBeamFx.ObjectDefinition + sizeof(ushort));
-        if (setupPointer != SamusPaletteRomData.HyperBeamFx.SetupCallback ||
-            initialListPointer != SamusPaletteRomData.HyperBeamFx.InitialList)
+        RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(
+            unchecked((ushort)SamusPaletteRomData.HyperBeamFx.ObjectDefinition));
+        if (definition.SetupCallback != SamusPaletteRomData.HyperBeamFx.SetupCallback ||
+            definition.InitialInstructionList != SamusPaletteRomData.HyperBeamFx.InitialList)
         {
             throw new InvalidDataException(
-                $"Hyper Beam palette-FX header changed: setup ${setupPointer:X4}, list ${initialListPointer:X4}.");
+                $"Compiled Hyper Beam palette-FX definition is inconsistent: setup " +
+                $"${definition.SetupCallback:X4}, list ${definition.InitialInstructionList:X4}.");
         }
 
         // `$8D:C552` decrements before testing. A timer of two therefore displays a frame

@@ -19,8 +19,7 @@ internal static partial class Program
             fixture.Bus.WriteBytes(bank + 0x8000, data);
         }
         const ushort header = 0x9000;
-        WriteWord(fixture.Bus, 0xa00000 | header | 58, 0x8000);
-        WriteSingleDropChance(fixture.Bus, EnemyPickupKind.SmallEnergy);
+        WriteWord(fixture.Bus, 0xa00000 | header | 58, NativeDropChancePointer);
         var enemy = fixture.System.Slots[0];
         enemy.EnemyDefinitionPointer = header;
         enemy.Definition = default(RoomEnemyDefinition) with

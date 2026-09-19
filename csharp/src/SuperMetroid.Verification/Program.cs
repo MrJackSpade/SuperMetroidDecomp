@@ -351,6 +351,22 @@ if (args is ["--enemy-projectile-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--room-palette-fx-definitions"])
+{
+    VerifyRoomPaletteFxDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--palette-fx-instruction-codes"])
+{
+    VerifyPaletteFxInstructionCodeCatalogs();
+    return 0;
+}
+if (args is ["--enemy-drops"])
+{
+    VerifyEnemyDrops();
+    return 0;
+}
 if (args is ["--room-sprite-object-definitions"])
 {
     VerifyRoomSpriteObjectDefinitions(
@@ -729,6 +745,16 @@ if (args is ["--projectile-contact-phase"] or ["--projectile-contact-damage"])
 if (args is ["--enemy-contact-phase"])
 {
     VerifyRipperEnemy(verifyDeferredContact: true);
+    return 0;
+}
+if (args is ["--ripper-enemy"])
+{
+    VerifyRipperEnemy();
+    return 0;
+}
+if (args is ["--ceres-door-boss"])
+{
+    VerifyCeresDoorBossBranch();
     return 0;
 }
 if (args is ["--x-plasma-timers"])

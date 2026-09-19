@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private const ushort NativeDropChancePointer = EnemyDropChanceDefinitions.FirstPointer;
+
     /// <summary>
     /// Verifies the complete bank-$86 temporary-pickup path: selection, resource effects,
     /// collision timing, the physical slot-zero bug, and conversion from a generic enemy
@@ -34,7 +36,7 @@ internal static partial class Program
         {
             Bank = 0xa3,
             TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
-            VulnerabilityPointer = 0x8000,
+            VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
         fixture.Bus.WriteBytes(0xb48014, [2]);
         enemy.XPosition = samus.XPosition;
@@ -131,12 +133,20 @@ internal static partial class Program
         ushort expectedSound,
         Action<SamusState> assertEffect)
     {
-        EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        WriteSingleDropChance(fixture.Bus, kind);
+        ushort random = kind switch
+        {
+            EnemyPickupKind.SmallEnergy => 1,
+            EnemyPickupKind.BigEnergy => 123,
+            EnemyPickupKind.Missile => 1,
+            EnemyPickupKind.SuperMissile => 196,
+            EnemyPickupKind.PowerBomb => 246,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+        };
+        EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
         RoomEnemyProjectileSlot pickup = fixture.System.SpawnEnemyDropFromChanceTable(
             samus.XPosition,
             samus.YPosition,
-            itemDropChancesPointer: 0x8000) ??
+            NativeDropChancePointer) ??
             throw new InvalidOperationException($"Could not allocate {kind} test pickup.");
 
         AssertEqual(unchecked((ushort)((ushort)kind * 2)), pickup.Variable0,
@@ -161,36 +171,35 @@ internal static partial class Program
         SamusState rerollSamus = CreateDropTestSamus();
         rerollSamus.Health = 50;
         EnemyDropFixture reroll = CreateEnemyDropFixture(rerollSamus, randomValues: [0, 1]);
-        WriteSingleDropChance(reroll.Bus, EnemyPickupKind.SmallEnergy);
         RoomEnemyProjectileSlot rerolled = reroll.System.SpawnEnemyDropFromChanceTable(
-            50, 50, 0x8000)!;
+            50, 50, NativeDropChancePointer)!;
         AssertEqual((ushort)2, rerolled.Variable0,
             "zero RNG sample rerolls before selecting small energy");
 
         // `$7E:0E1E` is a stateful critical-energy flag. Energy below 30 enables it,
-        // 30..49 retains its previous value, and 50+ clears it. A mostly-no-drop table
+        // 30..49 retains its previous value, and 50+ clears it. Native record $F1FA
         // makes each of those three states observably distinct with the same RNG byte.
         SamusState biasSamus = CreateDropTestSamus();
         biasSamus.Health = 29;
         EnemyDropFixture bias = CreateEnemyDropFixture(
             biasSamus,
             randomValues: [200, 200, 200]);
-        bias.Bus.WriteBytes(0xb48000, [1, 1, 0, 253, 0, 0]);
+        const ushort biasDropChancePointer = 0xf1fa;
 
         RoomEnemyProjectileSlot belowThirty =
-            bias.System.SpawnEnemyDropFromChanceTable(10, 10, 0x8000)!;
+            bias.System.SpawnEnemyDropFromChanceTable(10, 10, biasDropChancePointer)!;
         AssertEqual((ushort)4, belowThirty.Variable0,
             "critical energy suppresses no-drop and renormalizes energy weights");
 
         biasSamus.Health = 40;
         RoomEnemyProjectileSlot graceBand =
-            bias.System.SpawnEnemyDropFromChanceTable(20, 20, 0x8000)!;
+            bias.System.SpawnEnemyDropFromChanceTable(20, 20, biasDropChancePointer)!;
         AssertEqual((ushort)4, graceBand.Variable0,
             "30..49 energy retains the previous critical-drop bias");
 
         biasSamus.Health = 50;
         RoomEnemyProjectileSlot clearedBias =
-            bias.System.SpawnEnemyDropFromChanceTable(30, 30, 0x8000)!;
+            bias.System.SpawnEnemyDropFromChanceTable(30, 30, biasDropChancePointer)!;
         AssertEqual((ushort)0xefdf, clearedBias.PreInstruction,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
@@ -200,11 +209,10 @@ internal static partial class Program
         fullSamus.SuperMissiles = fullSamus.MaxSuperMissiles = 5;
         fullSamus.PowerBombs = fullSamus.MaxPowerBombs = 5;
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
-        WriteSingleDropChance(full.Bus, EnemyPickupKind.Missile);
         RoomEnemyProjectileSlot ineligible =
-            full.System.SpawnEnemyDropFromChanceTable(40, 40, 0x8000)!;
+            full.System.SpawnEnemyDropFromChanceTable(40, 40, NativeDropChancePointer)!;
         AssertEqual((ushort)0xefdf, ineligible.PreInstruction,
-            "full resources make an otherwise certain ammo drop ineligible");
+            "full resources make the native record's ammo weights ineligible");
     }
 
     private static void VerifyEnemyPickupLifetimeAndCollision()
@@ -212,10 +220,9 @@ internal static partial class Program
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1, 1]);
-        WriteSingleDropChance(fixture.Bus, EnemyPickupKind.SmallEnergy);
 
         RoomEnemyProjectileSlot expiring =
-            fixture.System.SpawnEnemyDropFromChanceTable(300, 300, 0x8000)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(300, 300, NativeDropChancePointer)!;
         expiring.Variable1 = 1;
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual((ushort)0, expiring.Variable1,
@@ -226,7 +233,7 @@ internal static partial class Program
             "expiry does not apply a pickup effect");
 
         RoomEnemyProjectileSlot boundary =
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, 0x8000)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
         samus.XPosition = unchecked((ushort)(
             boundary.XPosition + boundary.XRadius + samus.Kinematics.XRadius));
         samus.YPosition = boundary.YPosition;
@@ -249,9 +256,8 @@ internal static partial class Program
         samus.Grapple.AnchorX = 100;
         samus.Grapple.AnchorY = 100;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        WriteSingleDropChance(fixture.Bus, EnemyPickupKind.SmallEnergy);
         RoomEnemyProjectileSlot pickup =
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, 0x8000)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
 
         for (int frame = 0; frame < 16; frame++)
         {
@@ -274,12 +280,11 @@ internal static partial class Program
         EnemyDropFixture fixture = CreateEnemyDropFixture(
             samus,
             randomValues: Enumerable.Repeat((ushort)1, 19).ToArray());
-        WriteSingleDropChance(fixture.Bus, EnemyPickupKind.SmallEnergy);
 
         for (int allocation = 0; allocation < 17; allocation++)
         {
             RoomEnemyProjectileSlot pickup =
-                fixture.System.SpawnEnemyDropFromChanceTable(100, 100, 0x8000)!;
+                fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
             AssertEqual(17 - allocation, pickup.SlotIndex,
                 $"enemy projectile allocation {allocation} descends from native $22");
             AssertEqual((ushort)0xefe0, pickup.PreInstruction,
@@ -287,12 +292,12 @@ internal static partial class Program
         }
 
         RoomEnemyProjectileSlot slotZero =
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, 0x8000)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
         AssertEqual(0, slotZero.SlotIndex, "eighteenth allocation reaches physical slot zero");
         AssertEqual((ushort)0xefdf, slotZero.PreInstruction,
             "physical slot zero cannot become a pickup despite a successful random roll");
         AssertEqual<RoomEnemyProjectileSlot?>(null,
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, 0x8000),
+            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer),
             "nineteenth allocation observes the shared eighteen-slot pool as full");
     }
 
@@ -301,10 +306,9 @@ internal static partial class Program
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        WriteSingleDropChance(fixture.Bus, EnemyPickupKind.SmallEnergy);
 
         const ushort enemyHeader = 0x9000;
-        WriteWord(fixture.Bus, 0xa00000 | enemyHeader | 58, 0x8000);
+        WriteWord(fixture.Bus, 0xa00000 | enemyHeader | 58, NativeDropChancePointer);
         RoomEnemySlot enemy = fixture.System.Slots[0];
         enemy.EnemyDefinitionPointer = enemyHeader;
         enemy.XPosition = 321;
@@ -334,8 +338,10 @@ internal static partial class Program
             "death actor retains killed enemy Y position");
         AssertEqual((ushort)0x8000, explosion.KilledEnemyNativeIndex,
             "respawning slot zero is retained as high-bit native enemy index");
-        AssertEqual((ushort)0xf200, explosion.InstructionPointer,
-            "out-of-range death variant clamps to ROM table entry zero");
+        AssertEqual(
+            EnemyDeathExplosionDefinitions.InstructionPointer(0),
+            explosion.InstructionPointer,
+            "out-of-range death variant clamps to native table entry zero");
         AssertEqual((ushort)0, explosion.GraphicsIndex,
             "enemy-death initializer replaces the dying actor's room graphics with zero");
 
@@ -346,8 +352,8 @@ internal static partial class Program
             "converted death actor stores selected small-energy identity");
         AssertEqual((ushort)0xefe0, explosion.PreInstruction,
             "converted death actor enters shared pickup pre-instruction");
-        AssertEqual((ushort)0xf100, explosion.InstructionPointer,
-            "converted death actor reads the real EF04 pickup-list table");
+        AssertEqual((ushort)0xed8d, explosion.InstructionPointer,
+            "converted death actor selects the compiled small-energy list");
     }
 
     private static SamusState CreateDropTestSamus() => new()
@@ -395,37 +401,11 @@ internal static partial class Program
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         bus.WriteBytes(0xa19000, [0xff, 0xff]);
 
-        // Seven-word $F337/$F345 definitions. Only pre-instruction, list, radii, and packed
-        // collision properties are consumed by SpawnEprojInner, but retaining all words
-        // keeps this fixture shaped exactly like the bank-$86 data it substitutes for.
-        byte[] definition =
-        [
-            0x00, 0x00,
-            0xdf, 0xef,
-            0xa3, 0xec,
-            0x10, 0x10,
-            0x00, 0x30,
-            0x00, 0x00,
-            0x00, 0x00,
-        ];
-        bus.WriteBytes(0x86f337, definition);
-        bus.WriteBytes(0x86f345, definition);
-
-        // EF04 is indexed by pickup identity * 2. Index zero is unused; the five live
-        // identities point at distinct long-lived fixture frames so pointer selection is
-        // observable without needing to fabricate their retail art.
-        bus.WriteBytes(0x86ef04,
-        [
-            0x00, 0x00,
-            0x00, 0xf1,
-            0x10, 0xf1,
-            0x20, 0xf1,
-            0x30, 0xf1,
-            0x40, 0xf1,
-            0x00, 0x00,
-        ]);
-        for (int list = 0; list < 5; list++)
-            bus.WriteBytes(0x86f100 + list * 0x10, [0xff, 0x7f, 0x00, 0x90]);
+        // The five compiled pickup identities select their retail list addresses. Long
+        // synthetic frames keep the focused effect fixture independent of pickup artwork
+        // while exercising the real immutable selectors.
+        foreach (ushort list in new ushort[] { 0xed8d, 0xeda3, 0xedeb, 0xedb9, 0xeddd })
+            bus.WriteBytes(0x860000 | list, [0xff, 0x7f, 0x00, 0x90]);
 
         // Shared blank tail: one blank frame, then EF10 respawn and 8154 delete. Most
         // checks inspect the tail immediately; this data also keeps a stepped tail valid.
@@ -436,32 +416,6 @@ internal static partial class Program
             0x54, 0x81,
         ]);
 
-        // Five generic-death list pointers. Variant zero deliberately selects F200.
-        bus.WriteBytes(0x86efd5,
-        [
-            0x00, 0xf2,
-            0x10, 0xf2,
-            0x20, 0xf2,
-            0x30, 0xf2,
-            0x40, 0xf2,
-        ]);
-    }
-
-    private static void WriteSingleDropChance(TestAddressSpace bus, EnemyPickupKind kind)
-    {
-        byte[] chances = new byte[6];
-        int chanceIndex = kind switch
-        {
-            EnemyPickupKind.SmallEnergy => 0,
-            EnemyPickupKind.BigEnergy => 1,
-            EnemyPickupKind.Missile => 2,
-            EnemyPickupKind.NoDrop => 3,
-            EnemyPickupKind.SuperMissile => 4,
-            EnemyPickupKind.PowerBomb => 5,
-            _ => throw new ArgumentOutOfRangeException(nameof(kind)),
-        };
-        chances[chanceIndex] = 0xff;
-        bus.WriteBytes(0xb48000, chances);
     }
 
     private readonly record struct EnemyDropFixture(

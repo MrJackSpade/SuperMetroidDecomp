@@ -1516,13 +1516,18 @@ static void VerifySamusRanIntoWall()
         SamusPoseIds.RanIntoWallAimUpLeftPose,
         SamusPoseIds.StandingAimUpLeftPose,
     ];
+    ReadOnlySpan<byte> nativePosesByShotDirection =
+    [
+        3, 5, 1, 7, 23, 24, 8, 2, 6, 4,
+    ];
     for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
     {
-        // Include downward aim entries that have no authored running pose.
-        WritePoseDefinition(bus, 0xfd, [0x08, 0x01, 0x01, direction, 0x06, 0x00, 0x15, 0x00]);
+        byte sourcePose = nativePosesByShotDirection[direction];
+        AssertEqual(direction, SamusState.ReadShotDirection(bus, sourcePose),
+            $"ran-into-wall fixture pose ${sourcePose:X2} aim");
         AssertEqual(
             selectedByShotDirection[direction],
-            SamusState.SelectRanIntoWallPose(bus, 0xfd),
+            SamusState.SelectRanIntoWallPose(bus, sourcePose),
             $"ran-into-wall shot selector {direction}");
     }
     WritePoseDefinitionByte(bus, SamusPoseIds.MovingRightNormalPose, 3, 2);

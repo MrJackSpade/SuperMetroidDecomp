@@ -1016,18 +1016,17 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Resolves a bank-$8F room selector against the live SRAM-mirror and Samus inventory.
+    /// Resolves a compiled room selector against the live SRAM-mirror and Samus inventory.
     /// </summary>
     /// <remarks>
-    /// The fixed eleven-byte header contains the area index needed to choose that area's
-    /// boss byte, but it precedes the selector program in ROM. A first lossless read obtains
-    /// only that fixed metadata; the second read executes the selector with the exact facts
-    /// consumed by $8F:E5FF-$E675. Keeping this at the shared loader boundary prevents a
-    /// door, save station, or debug audit from quietly choosing a different room state.
+    /// The fixed eleven-byte header still supplies the area index needed to choose that
+    /// area's boss byte. The ordered selector program is application-owned definition data;
+    /// no production path executes bank-$8F selector bytes. Keeping this at the shared loader
+    /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>
     private CartridgeRoomHeader LoadCartridgeRoomHeader(ushort roomPointer)
     {
-        CartridgeRoomHeader fixedHeader = CartridgeRoomHeader.Load(_addressSpace, roomPointer);
+        AreaId areaIndex = CartridgeRoomHeader.ReadAreaIndex(_addressSpace, roomPointer);
 
         // RoomStateSelectionContext owns an immutable snapshot. Copying eight bytes is both
         // cheaper and safer than exposing Bank80SystemState's writable SRAM-mirror arrays.
@@ -1038,13 +1037,13 @@ public sealed partial class SuperMetroidRuntime
         SamusState? samus = Samus;
         var selection = new RoomStateSelectionContext(
             events,
-            BossBits: System.GetBossBits(fixedHeader.AreaIndex),
+            BossBits: System.GetBossBits(areaIndex),
             HasMorphBallAndMissiles:
                 samus is not null &&
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
                 samus.MaxMissiles != 0,
             HasPowerBombs: samus?.MaxPowerBombs != 0);
-        return CartridgeRoomHeader.Load(_addressSpace, roomPointer, selection);
+        return CartridgeRoomHeader.LoadUsingCompiledSelection(_addressSpace, roomPointer, selection);
     }
 
     /// <summary>

@@ -20,3 +20,21 @@ address-space guard that throws on any load-station table read.
 Remaining #531 work: compiled room headers and state selectors, door connections,
 camera/scroll definitions, and setup/main dispatch references. This slice does not
 claim that room loading as a whole is ROM-independent.
+
+## Room-state selection
+
+`RoomStateSelectionDefinitions` compiles the ordered condition programs for all
+262 retail room headers. Fifty-four rooms have event, boss, Morph Ball/missile, or
+Power Bomb branches; the other 208 select their inline state immediately. Normal
+runtime loading reads the fixed room area byte, evaluates the compiled program,
+then reads the selected state payload. The cartridge interpreter remains available
+only for diagnostics and synthetic malformed-program tests.
+
+Run `SuperMetroid.Verification --room-state-definitions` from the repository root.
+It compares the native and compiled selections for every room across 75 event,
+boss, and inventory contexts, reaches all 323 retail states, rejects non-retail
+pointers, and loads production Ceres while its selector bytes are inaccessible.
+
+Remaining #531 work: compile the fixed room/state payloads, door connections,
+camera/scroll definitions, and setup/main dispatch references. Room loading still
+uses cartridge payloads and visual assets in this intermediate slice.

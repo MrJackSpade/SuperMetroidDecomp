@@ -28,8 +28,6 @@ public sealed record CartridgeRoomHeader(
     ushort DoorListPointer,
     CartridgeRoomState State)
 {
-    private const int RoomBank = 0x8f0000;
-
     /// <summary>Logical area/room pair, kept separate from <see cref="Pointer"/>.</summary>
     public RoomIdentity Identity => new(AreaIndex, RoomIndex);
 
@@ -40,12 +38,37 @@ public sealed record CartridgeRoomHeader(
         RoomStateSelectionContext selection = default)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int address = RoomBank | roomPointer;
         ushort statePointer = SelectState(
             bus,
             roomPointer,
-            unchecked((ushort)(roomPointer + 11)),
+            unchecked((ushort)(roomPointer + RoomHeaderRomData.FixedHeaderByteCount)),
             selection);
+        return LoadSelected(bus, roomPointer, statePointer);
+    }
+
+    /// <summary>Reads fixed/state payloads but resolves application behavior from compiled definitions.</summary>
+    public static CartridgeRoomHeader LoadUsingCompiledSelection(
+        ISnesAddressSpace bus,
+        ushort roomPointer,
+        RoomStateSelectionContext selection = default) =>
+        LoadSelected(bus, roomPointer, RoomStateSelectionDefinitions.Select(roomPointer, selection));
+
+    /// <summary>Reads only the fixed header's area byte without executing its state selector.</summary>
+    public static AreaId ReadAreaIndex(ISnesAddressSpace bus, ushort roomPointer)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return AreaIds.FromCartridge(
+            bus.ReadByte(RoomHeaderRomData.BankAddress | unchecked((ushort)(roomPointer + 1))),
+            $"Room header $8F:{roomPointer:X4}");
+    }
+
+    private static CartridgeRoomHeader LoadSelected(
+        ISnesAddressSpace bus,
+        ushort roomPointer,
+        ushort statePointer)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        int address = RoomHeaderRomData.BankAddress | roomPointer;
         return new CartridgeRoomHeader(
             roomPointer,
             RoomIndex: bus.ReadByte(address),
@@ -72,7 +95,7 @@ public sealed record CartridgeRoomHeader(
         ushort cursor = selectorPointer;
         for (int guard = 0; guard < 32; guard++)
         {
-            ushort selector = ReadWord(bus, RoomBank | cursor);
+            ushort selector = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
             cursor += 2;
             switch (selector)
             {
@@ -83,7 +106,7 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.MainAreaBossIsDead:
                 {
-                    ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
+                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
                     if (selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss))
                         return selectedPointer;
                     cursor += 2;
@@ -92,8 +115,8 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.EventHasBeenSet:
                 {
-                    byte eventIndex = bus.ReadByte(RoomBank | cursor);
-                    ushort selectedPointer = ReadWord(bus, RoomBank | unchecked((ushort)(cursor + 1)));
+                    byte eventIndex = bus.ReadByte(RoomHeaderRomData.BankAddress | cursor);
+                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | unchecked((ushort)(cursor + 1)));
                     if (selection.IsEventSet(eventIndex))
                         return selectedPointer;
                     cursor += 3;
@@ -103,9 +126,9 @@ public sealed record CartridgeRoomHeader(
                 case RoomStateSelectorCodes.BossIsDead:
                 {
                     BossBits bossMask = BossBitMasks.FromCartridge(
-                        bus.ReadByte(RoomBank | cursor),
+                        bus.ReadByte(RoomHeaderRomData.BankAddress | cursor),
                         $"Room $8F:{roomPointer:X4} state selector $8F:{selector:X4}");
-                    ushort selectedPointer = ReadWord(bus, RoomBank | unchecked((ushort)(cursor + 1)));
+                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | unchecked((ushort)(cursor + 1)));
                     if (selection.IsBossDead(bossMask))
                         return selectedPointer;
                     cursor += 3;
@@ -114,7 +137,7 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.MorphBallAndMissiles:
                 {
-                    ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
+                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
                     if (selection.HasMorphBallAndMissiles)
                         return selectedPointer;
                     cursor += 2;
@@ -123,7 +146,7 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.PowerBombs:
                 {
-                    ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
+                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
                     if (selection.HasPowerBombs)
                         return selectedPointer;
                     cursor += 2;
@@ -169,11 +192,9 @@ public sealed record CartridgeRoomState(
     ushort BackgroundDataPointer,
     ushort SetupCodePointer)
 {
-    private const int RoomBank = 0x8f0000;
-
     internal static CartridgeRoomState Load(ISnesAddressSpace bus, ushort pointer)
     {
-        int address = RoomBank | pointer;
+        int address = RoomHeaderRomData.BankAddress | pointer;
         ushort packedLayer2Scrolls = RomDataReader.ReadWordFixedBank(bus, address + 12);
         return new CartridgeRoomState(
             pointer,

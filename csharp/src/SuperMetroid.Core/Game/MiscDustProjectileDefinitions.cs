@@ -11,18 +11,6 @@ internal readonly record struct MiscDustPlacementDefinition(
 internal static class MiscDustProjectileDefinitions
 {
     /// <summary>
-    /// <c>$86:E42C-$E467</c>, the complete thirty-word instruction-list selector table
-    /// consumed by initializer <c>$86:E468</c>.
-    /// </summary>
-    private static readonly ushort[] InstructionLists =
-    [
-        0xe0ee, 0xe100, 0xe11a, 0xe138, 0xe152, 0xe168, 0xe17e, 0xe198,
-        0xe1a6, 0xe1b0, 0xe1c6, 0xe1d8, 0xe1ea, 0xe222, 0xe234, 0xe246,
-        0xe258, 0xe266, 0xe2a8, 0xe2ba, 0xe2d4, 0xe2f2, 0xe314, 0xe392,
-        0xe3a0, 0xe3c6, 0xe3e8, 0xe40a, 0xe1fc, 0xe208,
-    ];
-
-    /// <summary>
     /// <c>$86:E47E-$E4A5</c>, the five randomized X/Y mask-and-base records consumed by
     /// eye-door smoke initializer <c>$86:E4A6</c>.
     /// </summary>
@@ -36,18 +24,8 @@ internal static class MiscDustProjectileDefinitions
     ];
 
     /// <summary>Returns one of the thirty authored misc-dust animation lists.</summary>
-    internal static ushort InstructionList(ushort animationIndex)
-    {
-        if (animationIndex >= InstructionLists.Length)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(animationIndex),
-                animationIndex,
-                "Bank-$86 misc-dust animation index must be in the native $00..$1D range.");
-        }
-
-        return InstructionLists[animationIndex];
-    }
+    internal static ushort InstructionList(ushort animationIndex) =>
+        EnemyProjectileInstructionMechanicsDefinitions.MiscDustInitialPointer(animationIndex);
 
     /// <summary>Returns one of the five authored randomized smoke-placement records.</summary>
     internal static MiscDustPlacementDefinition SmokePlacement(ushort placementIndex)

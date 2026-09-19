@@ -480,8 +480,8 @@ static void VerifyMotherBrainEscapeDoorParticles()
 {
     var bus = new TestAddressSpace();
 
-    // Literal `$86:CA22-$CA45` instruction list. Supplying it through the bus proves the
-    // production interpreter follows ROM words instead of a parallel host animation table.
+    // Literal `$86:CA22-$CA45` mixed instruction list. Its compiled mechanics words own
+    // timing/control flow while the interleaved spritemap words remain live on this bus.
     bus.WriteBytes(0x86ca22, [
         0x01, 0x00, 0x9b, 0x96,
         0x01, 0x00, 0xa2, 0x96,

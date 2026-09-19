@@ -800,6 +800,21 @@ and instruction streams outside this translated family. Verification compares ev
 with the pinned cartridge and executes all 18 programs while every compiled source byte is
 forbidden, while proving that live spritemap reads still occur.
 
+## Mother Brain and misc-dust projectile instruction mechanics
+
+All fixed control data consumed by the translated Mother Brain projectile pool is now
+compiled in `EnemyProjectileInstructionMechanicsDefinitions`. The catalog contains 275
+duration/opcode/operand words across five Mother Brain programs and all thirty misc-dust
+programs. The generic dust selector and Mother Brain initializers share the same entry-point
+definitions, so their instruction identities cannot drift.
+
+The interpreter still reads each timed record's bank-$8D spritemap pointer from the ROM;
+those words and sprite payloads are presentation. Mechanics lookups are bounded by exact
+word address and reject adjacent/restored pointers rather than falling back to cartridge
+code. Exhaustive verification compares every compiled word to the pinned ROM and executes
+all 35 production programs with those source bytes forbidden, including the previously
+unhandled looping misc-dust program `$86:E1FC`.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

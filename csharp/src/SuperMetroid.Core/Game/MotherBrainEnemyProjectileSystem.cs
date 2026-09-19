@@ -37,14 +37,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
     /// <summary>Alternate-language “time bomb set” subtitle definition at <c>$86:CBBB</c>.</summary>
     public const ushort TimeBombSetSubtitleDefinition = 0xcbbb;
 
-    /// <summary>Initial animation-list pointer stored by definition <c>$86:CB4B</c>.</summary>
-    public const ushort InitialInstructionList = 0xc432;
-
-    private const ushort SetXAndYRadiusInstruction = 0x8298;
-    private const ushort DeleteInstruction = 0x8154;
-    private const ushort SleepInstruction = 0x8159;
-    private const ushort ClearPreInstruction = 0x816a;
-    private const ushort GotoInstruction = 0x81ab;
     private static ReadOnlySpan<ushort> BombYAccelerations =>
         [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
     private static readonly short[] EscapeDoorParticleYOffsets =
@@ -104,7 +96,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.Angle = request.Angle;
         slot.XRadius = 6;
         slot.YRadius = 6;
-        slot.InstructionPointer = InitialInstructionList;
+        slot.InstructionPointer =
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingInitial;
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
 
@@ -154,7 +147,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.YRadius = 6;
         slot.BounceHorizontalSpeed = 0x0070;
         slot.BounceTableOffset = 0;
-        slot.InstructionPointer = 0xc76e;
+        slot.InstructionPointer =
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial;
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
         motherBrain.RegisterBombSpawn();
@@ -181,7 +175,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.GraphicsIndex = 0;
         slot.XPosition = unchecked((ushort)(motherBrain.BrainXPosition + 6));
         slot.YPosition = unchecked((ushort)(motherBrain.BrainYPosition + 0x0010));
-        slot.InstructionPointer = 0xcaa4;
+        slot.InstructionPointer =
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial;
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
         return slotIndex;
@@ -189,8 +184,9 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
     /// <summary>
     /// Allocates `$86:E509` at an explicit room coordinate and selects one of its thirty
-    /// ROM animation lists through `$86:E42C`. This is the ordinary producer used by the
-    /// dying Baby, Mother Brain corpse rows, bombs, and the exploding escape door.
+    /// compiled animation programs corresponding to `$86:E42C`. This is the ordinary
+    /// producer used by the dying Baby, Mother Brain corpse rows, bombs, and the exploding
+    /// escape door.
     /// </summary>
     public int? SpawnMiscDust(
         ISnesAddressSpace bus,
@@ -262,7 +258,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.XVelocity = 0x0500;
         slot.YVelocity = unchecked((ushort)EscapeDoorParticleYVelocities[request.Parameter]);
         slot.Lifetime = 0x0020;
-        slot.InstructionPointer = 0xca22;
+        slot.InstructionPointer =
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainEscapeDoorFragmentInitial;
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
         return slotIndex;
@@ -288,7 +285,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.YVelocity = 0;
         slot.XPosition = 0x0080;
         slot.YPosition = 0x00c0;
-        slot.InstructionPointer = 0xcb0d;
+        slot.InstructionPointer =
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainSubtitleInitial;
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
         return slotIndex;
@@ -413,8 +411,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
             if (slot.ProjectileId == PurpleBreathBigDefinition)
             {
                 // `$86:CAA3` is an RTS pre-instruction: the breath remains fixed at the
-                // coordinates captured at spawn while its finite ROM animation runs.
-                RunFiniteTimedInstructionHandler(bus, slot, "Mother Brain purple breath");
+                // coordinates captured at spawn while its finite authored animation runs.
+                RunTimedInstructionHandler(bus, slot, "Mother Brain purple breath");
                 continue;
             }
 

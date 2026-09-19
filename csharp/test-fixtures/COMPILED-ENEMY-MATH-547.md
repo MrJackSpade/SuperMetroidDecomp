@@ -2729,6 +2729,24 @@ extended-spritemap pointers remain presentation-owned ROM reads. Both production
 interpreters use the compiled path. Cartridge-equivalence verification checks every word
 and executes every program with the mechanics source bytes forbidden.
 
+# Mother Brain and misc-dust projectile instruction mechanics
+
+The bounded mechanics half of 35 bank-$86 enemy-projectile programs now lives in
+`EnemyProjectileInstructionMechanicsDefinitions`. Its 275 compiled words cover Mother
+Brain's blue rings, bombs, purple breath, escape-door fragments and subtitle plus all
+thirty shared misc-dust programs. Durations, opcodes, branch targets and packed collision
+radii are engine behavior; interleaved bank-$8D spritemap pointers remain cartridge-backed
+presentation data.
+
+The audit also found that misc-dust program `$86:E1FC` loops through `$81AB`, while the
+shared translated handler previously accepted only clear-pre-instruction and delete. The
+handler now performs the native same-bank goto instead of failing when that authored
+program reaches its terminal command.
+
+Verification compares all 275 mechanics words with the pinned cartridge, runs every one
+of the 35 programs through production code while their source bytes are forbidden, rejects
+a restored pointer outside the bounded domain, and proves warmed lookups allocate nothing.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

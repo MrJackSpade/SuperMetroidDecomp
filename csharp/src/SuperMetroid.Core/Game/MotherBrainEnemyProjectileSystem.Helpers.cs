@@ -51,7 +51,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         }
     }
 
-    private static bool RunFiniteTimedInstructionHandler(
+    private static bool RunTimedInstructionHandler(
         ISnesAddressSpace bus,
         MotherBrainEnemyProjectileSlot slot,
         string definitionName)
@@ -64,7 +64,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         ushort pointer = slot.InstructionPointer;
         for (int operationCount = 0; operationCount < 16; operationCount++)
         {
-            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            ushort durationOrOpcode =
+                EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(pointer);
             if ((durationOrOpcode & 0x8000) == 0)
             {
                 if (durationOrOpcode == 0)
@@ -81,15 +82,20 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
             switch (durationOrOpcode)
             {
-                case ClearPreInstruction:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
                     // The translated breath already has an inert pre-instruction. Retain
                     // this opcode in the parser so the ROM list, not host setup, owns timing.
                     pointer = unchecked((ushort)(pointer + 2));
                     break;
 
-                case DeleteInstruction:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete:
                     slot.ProjectileId = 0;
                     return true;
+
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY:
+                    pointer = EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
+                        unchecked((ushort)(pointer + 2)));
+                    break;
 
                 default:
                     throw new InvalidDataException(
@@ -138,7 +144,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
             return;
         }
 
-        RunFiniteTimedInstructionHandler(bus, slot, "misc dust/explosion");
+        RunTimedInstructionHandler(bus, slot, "misc dust/explosion");
     }
 
     private static bool RunBombPreInstruction(
@@ -291,7 +297,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         ushort pointer = slot.InstructionPointer;
         for (int operationCount = 0; operationCount < 16; operationCount++)
         {
-            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            ushort durationOrOpcode =
+                EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(pointer);
             if ((durationOrOpcode & 0x8000) == 0)
             {
                 if (durationOrOpcode == 0)
@@ -306,14 +313,16 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 return;
             }
 
-            if (durationOrOpcode != GotoInstruction)
+            if (durationOrOpcode !=
+                EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY)
             {
                 throw new InvalidDataException(
                     $"{projectileName} instruction $86:{durationOrOpcode:X4} at " +
                     $"$86:{pointer:X4} is not translated.");
             }
 
-            pointer = ReadWord(bus, 0x860000 | unchecked((ushort)(pointer + 2)));
+            pointer = EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
+                unchecked((ushort)(pointer + 2)));
         }
 
         throw new InvalidDataException(
@@ -372,7 +381,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         ushort pointer = slot.InstructionPointer;
         for (int operationCount = 0; operationCount < 16; operationCount++)
         {
-            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            ushort durationOrOpcode =
+                EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(pointer);
             if ((durationOrOpcode & 0x8000) == 0)
             {
                 if (durationOrOpcode == 0)
@@ -389,7 +399,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 return;
             }
 
-            if (durationOrOpcode != GotoInstruction)
+            if (durationOrOpcode !=
+                EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY)
             {
                 throw new InvalidDataException(
                     $"Escape-door particle instruction $86:{durationOrOpcode:X4} at " +
@@ -399,7 +410,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
             // `$86:81AB` receives Y already advanced past the opcode and replaces it with
             // the following word. The target `$CA22` immediately yields frame zero during
             // this same interpreter call; there is no blank animation frame at the loop.
-            pointer = ReadWord(bus, 0x860000 | unchecked((ushort)(pointer + 2)));
+            pointer = EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
+                unchecked((ushort)(pointer + 2)));
         }
 
         throw new InvalidDataException(
@@ -533,7 +545,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         ushort pointer = slot.InstructionPointer;
         for (int operationCount = 0; operationCount < 16; operationCount++)
         {
-            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            ushort durationOrOpcode =
+                EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(pointer);
             if ((durationOrOpcode & 0x8000) == 0)
             {
                 if (durationOrOpcode == 0)
@@ -550,17 +563,18 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
             switch (durationOrOpcode)
             {
-                case SetXAndYRadiusInstruction:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY:
                     // `$8298` reads the two one-byte arguments together as the packed
                     // low-X/high-Y radius word, then advances over both bytes.
-                    slot.XRadius = bus.ReadByte(
-                        (int)new SnesAddress(0x86, unchecked((ushort)(pointer + 2))));
-                    slot.YRadius = bus.ReadByte(
-                        (int)new SnesAddress(0x86, unchecked((ushort)(pointer + 3))));
+                    ushort packedRadii =
+                        EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
+                            unchecked((ushort)(pointer + 2)));
+                    slot.XRadius = unchecked((byte)packedRadii);
+                    slot.YRadius = unchecked((byte)(packedRadii >> 8));
                     pointer = unchecked((ushort)(pointer + 4));
                     break;
 
-                case SleepInstruction:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep:
                     // Sleep points back to itself and returns before loading a duration.
                     // The just-decremented timer remains zero; on the following call it
                     // underflows and will never again equal one without an external reset.

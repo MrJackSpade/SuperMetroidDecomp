@@ -37,6 +37,11 @@ if (args is ["--area-animated-tile-definitions"])
     VerifyAreaAnimatedTileObjectDefinitions();
     return 0;
 }
+if (args is ["--enemy-projectile-instruction-mechanics"])
+{
+    VerifyEnemyProjectileInstructionMechanicsDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();
@@ -1111,6 +1116,7 @@ if (args is ["--mother-brain"])
     VerifySamusDrainedController();
     VerifyMotherBrainRainbowBeamSamusMovement();
     VerifyMotherBrainRainbowBeamAttackSequence();
+    VerifyEnemyProjectileInstructionMechanicsDefinitions();
     VerifyMotherBrainBombProjectiles();
     VerifyMotherBrainProjectileRendering();
     VerifyMiscDustProjectiles();
@@ -1417,6 +1423,7 @@ VerifySamusDrainedController();
 VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
+VerifyEnemyProjectileInstructionMechanicsDefinitions();
 VerifyMotherBrainBombProjectiles();
 VerifyMotherBrainProjectileRendering();
 VerifyMiscDustProjectiles();

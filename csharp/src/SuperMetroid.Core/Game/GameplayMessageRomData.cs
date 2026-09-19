@@ -8,6 +8,7 @@ public static class GameplayMessageRomData
 {
     public static class Assets
     {
+        /// <summary>$85:869B, 29 setup/draw/content definition triples.</summary>
         public const int DefinitionTable = 0x85869b;
         public const int LargeBorder = 0x858000;
         public const int SmallBorder = 0x858040;
@@ -17,16 +18,23 @@ public static class GameplayMessageRomData
 
     public static class Routines
     {
+        /// <summary>$85:825A, writes the large message-box border layout.</summary>
         public const ushort DrawLargeTilemap = 0x825a;
+        /// <summary>$85:8289, writes the small message-box border layout.</summary>
         public const ushort DrawSmallTilemap = 0x8289;
+        /// <summary>$85:83C5, patches the configured shoot-button glyph and selects the large box.</summary>
         public const ushort PatchShootButton = 0x83c5;
+        /// <summary>$85:83CC, patches the configured run-button glyph and selects the large box.</summary>
         public const ushort PatchRunButton = 0x83cc;
+        /// <summary>$85:8436, configures PPU state for a small message box.</summary>
         public const ushort SetupSmall = 0x8436;
+        /// <summary>$85:8441, configures PPU state for a large message box.</summary>
         public const ushort SetupLarge = 0x8441;
     }
 
     public static class Layout
     {
+        /// <summary>Native byte width of one setup/draw/content definition triple.</summary>
         public const int DefinitionBytes = 6;
         public const int TilemapWidth = 32;
         public const int BorderRows = 2;

@@ -619,6 +619,11 @@ if (args is ["--gameplay-message-notices", var messageNoticeRom])
     VerifyGameplayMessageNotices(messageNoticeRom);
     return 0;
 }
+if (args is ["--gameplay-message-definitions"])
+{
+    VerifyGameplayMessageDefinitions();
+    return 0;
+}
 if (args is ["--escape-typewriter-presentation", var escapeTextRom])
 {
     VerifyEscapeTypewriterPresentation(escapeTextRom);
@@ -1176,6 +1181,7 @@ VerifyGameplaySnapshots();
 VerifyWindowPixels();
 VerifyColorWindowSnapshots();
 VerifyMessageSnapshots();
+VerifyGameplayMessageDefinitions();
 VerifyEyeWindowSnapshots();
 VerifyRoomFxSnapshots();
 VerifyGameplayCaptureIntegration();

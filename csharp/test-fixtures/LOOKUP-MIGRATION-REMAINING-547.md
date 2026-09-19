@@ -250,6 +250,12 @@ lookup, extension traversal, and tilemap builder no longer accept an address spa
 fixed policy; room block definitions and item/special-room overlay art remain separate live
 presentation data.
 
+All 29 bank-$85 gameplay-message definition records are compiled too, including both
+content-boundary terminators. Setup/draw callback identities and payload boundaries now come
+from typed metadata; every supported production message builds with `$85:869B-$85:8748`
+forbidden. Border, message, button, and confirmation tilemaps remain cartridge presentation
+assets and continue to be read by the fallback renderer.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

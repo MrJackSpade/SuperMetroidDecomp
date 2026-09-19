@@ -176,12 +176,13 @@ public sealed class GameplayMessageBoxState
         ushort runBinding)
     {
         byte rawMessageId = (byte)messageId;
-        int definition = GameplayMessageRomData.Assets.DefinitionTable +
-            (rawMessageId - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
-        ushort modifyFunction = ReadWord(bus, definition);
-        ushort drawFunction = ReadWord(bus, definition + 2);
-        ushort contentPointer = ReadWord(bus, definition + 4);
-        ushort nextContentPointer = ReadWord(bus, definition + 10);
+        GameplayMessageDefinition definition =
+            GameplayMessageDefinitions.AtNativeIndex(rawMessageId);
+        ushort modifyFunction = definition.ModifyFunction;
+        ushort drawFunction = definition.DrawFunction;
+        ushort contentPointer = definition.ContentPointer;
+        ushort nextContentPointer = GameplayMessageDefinitions
+            .AtNativeIndex(rawMessageId + 1).ContentPointer;
         int contentByteCount = nextContentPointer - contentPointer;
         if (contentByteCount <= 0 ||
             (contentByteCount % (GameplayMessageRomData.Layout.TilemapWidth * 2)) != 0)

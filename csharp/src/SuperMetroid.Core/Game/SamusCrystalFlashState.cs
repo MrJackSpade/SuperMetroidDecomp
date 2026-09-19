@@ -406,7 +406,9 @@ public sealed class SamusCrystalFlashState
             int recordAddress = SamusPaletteRomData.CrystalFlash.BodyRecords +
                 CommonPaletteTimer;
             ushort bodyPalette = ReadWord(bus, recordAddress);
-            CrystalPaletteTimer = ReadWord(bus, recordAddress + 2);
+            CrystalPaletteTimer =
+                CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
+                    CommonPaletteTimer);
             cgram.LoadFromBus(
                 bus,
                 SamusPaletteRomData.Banks.Palette | bodyPalette,

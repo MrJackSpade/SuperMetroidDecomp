@@ -2658,3 +2658,14 @@ colors themselves; those remain presentation data.
 Verification compares all 64 row selectors and the `$FF` terminator with the pinned
 cartridge, rejects restored offsets beyond the authored schedule, and runs every production
 fade step plus the transition to body fade with the source schedule forbidden.
+
+# Crystal Flash body-palette timing
+
+The ten timer words interleaved with Crystal Flash's body-palette pointers at
+`$91:DC00-$DC27` now live in `CrystalFlashPaletteTimingDefinitions`. Only the fixed
+ten-call durations are compiled; the palette pointers and colors remain live presentation
+data for the visual replacement path.
+
+Verification compares every duration with the pinned cartridge, rejects unaligned and
+out-of-range restored offsets, and runs the complete 100-call production palette cycle
+with every timer word forbidden while leaving the adjacent pointer reads available.

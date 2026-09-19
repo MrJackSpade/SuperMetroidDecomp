@@ -739,3 +739,9 @@ All other live `EnemyRomTablePointers` consumers are presentation dependencies: 
 colors, spritemap pointers, or graphics-transfer source/destination records. They remain
 cartridge-backed for the presentation extraction/override work rather than being
 misclassified as application-owned mechanics under #547.
+
+Crystal Flash's ten interleaved body-palette records were also split by ownership. Their
+uniform ten-call delays are compiled engine timing in
+`CrystalFlashPaletteTimingDefinitions`; their palette pointers and colors remain live
+presentation data. Every duration and the complete 100-call production cycle pass with
+only the timer words forbidden.

@@ -3086,3 +3086,16 @@ direction through activation, all plume frames, the hidden hold, and reactivatio
 every mechanics byte is forbidden. All 36 presentation operands remain observable,
 presentation and adjacent callback-code pointers fail as mechanics, and warmed lookup is
 allocation-free.
+
+# Cacatac spike projectile instruction mechanics
+
+All ten Cacatac spike programs now resolve their fixed one-frame durations and terminal
+sleeps through `CacatacProjectileInstructionProgramDefinitions`. The ten interleaved
+spritemap pointers remain live cartridge presentation data, and the existing directional
+selector uses the same named program entries.
+
+Verification compares all twenty mechanics words with the pinned cartridge and executes
+every production-spawned direction through frame installation and terminal sleep while
+mechanics bytes are forbidden. Every presentation operand remains observable,
+presentation and adjacent selector-table pointers fail as mechanics, and warmed lookup is
+allocation-free.

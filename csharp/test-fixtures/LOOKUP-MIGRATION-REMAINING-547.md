@@ -122,7 +122,9 @@ adjacent code as a distance.
 Cacatac's ten spike-program selectors and cardinal/diagonal signed 8.8 launch
 speed pairs are compiled too. All ten actual production spawns retain their
 definition loading, allocator order and copied origin while `$86:D96A-$D97D` is
-forbidden. The selected mixed animation programs remain separate dependencies.
+forbidden. All ten selected projectile programs now compile their twenty fixed duration
+and terminal-sleep words too, while the ten interleaved spritemap operands remain live
+cartridge presentation data.
 Atomic's four population-selected initial instruction lists are compiled too.
 All four production initializers retain the previously compiled shared linear
 speed pairs while `$A8:E380-$E387` is forbidden. The selected mixed animation

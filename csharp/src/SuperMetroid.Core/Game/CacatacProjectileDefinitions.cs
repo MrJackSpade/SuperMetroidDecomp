@@ -6,12 +6,21 @@ internal static class CacatacProjectileDefinitions
     /// <summary>
     /// Cacatac spike instruction-list pointers at $86:D96A: ten word entries
     /// selected by the even <see cref="CacatacSpikeDirection"/> byte offset.
-    /// The selected mixed instruction programs remain separate runtime dependencies.
+    /// The selected programs share the compiled control definitions while retaining live
+    /// cartridge spritemap operands.
     /// </summary>
     private static ReadOnlySpan<ushort> InstructionLists =>
     [
-        0xd92e, 0xd93a, 0xd946, 0xd94c, 0xd958,
-        0xd964, 0xd934, 0xd940, 0xd952, 0xd95e,
+        CacatacProjectileInstructionProgramDefinitions.LeftFacingUp,
+        CacatacProjectileInstructionProgramDefinitions.Up,
+        CacatacProjectileInstructionProgramDefinitions.RightFacingUp,
+        CacatacProjectileInstructionProgramDefinitions.LeftFacingDown,
+        CacatacProjectileInstructionProgramDefinitions.Down,
+        CacatacProjectileInstructionProgramDefinitions.RightFacingDown,
+        CacatacProjectileInstructionProgramDefinitions.UpLeft,
+        CacatacProjectileInstructionProgramDefinitions.UpRight,
+        CacatacProjectileInstructionProgramDefinitions.DownLeft,
+        CacatacProjectileInstructionProgramDefinitions.DownRight,
     ];
 
     /// <summary>$86:D9AD/$86:D9C4: cardinal signed 8.8 speed pair.</summary>

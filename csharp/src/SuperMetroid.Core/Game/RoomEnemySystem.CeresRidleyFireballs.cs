@@ -1444,7 +1444,7 @@ public sealed partial class RoomEnemySystem
         ushort cursor = projectile.InstructionPointer;
         for (int operationCount = 0; operationCount < 24; operationCount++)
         {
-            ushort word = ReadWord(_bus!, 0x860000 | cursor);
+            ushort word = ReadEnemyProjectileInstructionMechanicsWord(projectile, cursor);
             if ((word & 0x8000) == 0)
             {
                 if (word == 0)
@@ -1914,6 +1914,19 @@ public sealed partial class RoomEnemySystem
 
         throw new InvalidDataException(
             "Enemy projectile list did not reach a timed frame within 24 operations.");
+    }
+
+    private ushort ReadEnemyProjectileInstructionMechanicsWord(
+        RoomEnemyProjectileSlot projectile,
+        ushort address)
+    {
+        if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
+        {
+            return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
+        return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 
     /// <summary>

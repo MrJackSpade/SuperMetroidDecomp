@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 instruction and pre-instruction entry points for enemy projectiles.</summary>
 internal static class EnemyProjectileCodePointers
 {
+    /// <summary>Canonical CPU-address base for enemy-projectile code in bank $86.</summary>
+    public const int BankBase = 0x860000;
+
     /// <summary>$86:9270, Instruction_SpawnEnemyDropsWithCrocomiresDropChances: spawn at projectile position using enemy header $DDBF; no operands.</summary>
     public const ushort Instruction_SpawnEnemyDropsWithCrocomireChances = 0x9270;
 

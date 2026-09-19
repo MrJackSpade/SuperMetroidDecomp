@@ -12,10 +12,12 @@ internal static class HibashiDefinitions
     internal const ushort EnemyDefinition = 0xe07f;
 
     /// <summary>$A6:8D1B, instruction list for Hibashi's visible graphics part.</summary>
-    internal const ushort GraphicsInstructionList = 0x8d1b;
+    internal const ushort GraphicsInstructionList =
+        HibashiInstructionProgramDefinitions.GraphicsProgram;
 
     /// <summary>$A6:8DA9, instruction list for Hibashi's invisible collision part.</summary>
-    internal const ushort HitboxInstructionList = 0x8da9;
+    internal const ushort HitboxInstructionList =
+        HibashiInstructionProgramDefinitions.HitboxProgram;
 
     /// <summary>Sound effect $61 in library two, queued when an eruption begins.</summary>
     internal const ushort EruptionSoundEffect = 0x0061;

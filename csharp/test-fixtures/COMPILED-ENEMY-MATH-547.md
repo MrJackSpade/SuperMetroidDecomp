@@ -2122,6 +2122,15 @@ actor with `$A6:8DBB-$A6:8E12` forbidden. It asserts exact world Y, Y radius,
 published frame index, and the frame-zero-only eight-pixel X radius. Invalid frame
 indexes fail explicitly before any actor state changes.
 
+The paired graphics and collision instruction programs now resolve their 50 fixed
+duration, callback, and sleep words through
+`HibashiInstructionProgramDefinitions`. Their 24 interleaved spritemap pointers
+remain live cartridge presentation data. Verification executes both real programs
+through their terminal sleep commands while every mechanics source byte is forbidden,
+observes every spritemap operand, and asserts the eruption sound, all activity
+callbacks, final hitbox removal, and actor visibility state. Invalid restored cursors
+fail at the family boundary, and warmed mechanics lookup is allocation-free.
+
 # Magdollite rising-body phases
 
 `MagdollitePhaseDefinitions` combines the nine distance thresholds at `$A8:AF55`,
@@ -2845,6 +2854,20 @@ eight production loops beyond their terminal goto, split across both enemy
 definitions, while every mechanics source byte is forbidden. All 32 spritemap
 operands remain observable through the cartridge bus, invalid restored pointers
 fail at the family boundary, and warmed lookup is allocation-free.
+
+# Hibashi instruction mechanics
+
+Hibashi's paired visible-eruption and invisible-hitbox programs now resolve all 50
+fixed durations, activity callbacks, sound/finish callbacks, and terminal sleep
+commands through `HibashiInstructionProgramDefinitions`. The 23 eruption spritemaps
+and one hitbox spritemap remain live cartridge-backed presentation data.
+
+Verification compares every mechanics word with the pinned cartridge, runs both
+production programs through their terminal sleep commands with every mechanics byte
+forbidden, and observes all 24 live spritemap operands. It also proves the real
+callbacks publish sound and all 22 activity frames before clearing collision and
+hiding both parts. Invalid presentation/code pointers fail as mechanics, and warmed
+lookup is allocation-free.
 
 # Room-FX animated-tile mechanics
 

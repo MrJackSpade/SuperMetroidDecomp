@@ -155,7 +155,10 @@ Its single body-animation loop also compiles fourteen mechanics words while all
 twelve spritemap operands remain live presentation reads.
 Hibashi's 22 eruption Y offsets and collision half-heights are compiled as paired
 physical frames. Every production activity command retains exact placement,
-radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden.
+radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden. Its paired
+graphics/hitbox programs compile all 50 mechanics words while retaining 24 live
+spritemap operands; both production streams reach terminal sleep with control reads
+forbidden.
 Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
 compiled as typed phase records. Real initialization, rising, falling and overlay
 tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
@@ -886,6 +889,19 @@ All four production loops execute beyond their terminal goto with the mechanics 
 forbidden and every spritemap operand observed through the cartridge bus. Invalid
 restored cursors fail instead of entering adjacent bank data, and warmed catalog lookup
 allocates no per-frame storage.
+
+## Hibashi instruction mechanics
+
+Hibashi's visible-eruption and invisible-hitbox instruction streams now share a
+strict `HibashiInstructionProgramDefinitions` boundary. Fifty immutable words cover
+all durations, callbacks, and terminal sleep commands. The 24 interleaved spritemap
+operands remain live presentation reads.
+
+Production verification executes both paired programs with every compiled mechanics
+byte forbidden, observes every spritemap, and asserts eruption sound publication,
+all 22 hitbox placements, final collision removal, actor visibility, and both sleep
+cursors. Presentation operands and callback code addresses are rejected as restored
+mechanics cursors, and warmed lookup is allocation-free.
 
 ## Room-FX animated-tile mechanics
 

@@ -869,6 +869,18 @@ active programs also prove directional fireball allocation, sound publication, a
 finish callback's return to Fune cooldown or Namihe proximity ownership. Restored cursors
 outside the authored lists fail loudly, and warmed lookups are allocation-free.
 
+## Atomic instruction mechanics
+
+Atomic's four selector-owned bank-$A8 animation loops now use
+`AtomicInstructionProgramDefinitions` for all 32 durations, goto opcodes, and loop
+targets. The 24 interleaved spritemap operands remain live presentation reads, and the
+existing initializer-selector catalog points at the same named entries.
+
+All four production loops execute beyond their terminal goto with the mechanics bytes
+forbidden and every spritemap operand observed through the cartridge bus. Invalid
+restored cursors fail instead of entering adjacent bank data, and warmed catalog lookup
+allocates no per-frame storage.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

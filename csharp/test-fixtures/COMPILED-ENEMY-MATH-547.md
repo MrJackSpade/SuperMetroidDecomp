@@ -2803,6 +2803,19 @@ projectile, queue the spit sound, and return ownership to species-specific main 
 Invalid restored pointers fail at the family boundary, and warmed lookups allocate no
 per-frame storage.
 
+# Atomic instruction mechanics
+
+Atomic's four directional animation loops now resolve all fixed control through
+`AtomicInstructionProgramDefinitions`. The catalog compiles 32 duration, goto, and
+loop-target words. Its 24 interleaved spritemap pointers remain live cartridge-backed
+presentation data, and the initializer selector now names the same catalog entries.
+
+Verification compares every control word with the pinned cartridge and runs all four
+production loops beyond their terminal goto while every mechanics source byte is
+forbidden. All 24 spritemap operands remain observable through the cartridge bus,
+invalid restored pointers fail at the family boundary, and warmed lookup is
+allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

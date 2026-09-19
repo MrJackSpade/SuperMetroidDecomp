@@ -10,10 +10,10 @@ internal static class AtomicMovementDefinitions
     /// </summary>
     private static ReadOnlySpan<ushort> InitialInstructionLists =>
     [
-        0xe310,
-        0xe32c,
-        0xe348,
-        0xe364,
+        AtomicInstructionProgramDefinitions.UpRight,
+        AtomicInstructionProgramDefinitions.UpLeft,
+        AtomicInstructionProgramDefinitions.DownLeft,
+        AtomicInstructionProgramDefinitions.DownRight,
     ];
 
     internal static ushort InitialInstructionList(ushort parameter)

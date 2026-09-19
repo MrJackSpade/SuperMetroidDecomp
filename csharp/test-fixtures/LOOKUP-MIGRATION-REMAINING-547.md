@@ -785,3 +785,17 @@ word reads resemble fixed operands. They intentionally read mutable WRAM `$0DA9/
 $0DB1/$0DB5`, crossing the camera/movement fields recorded during the preceding frame.
 Those reads must remain live state: compiling their observed values would erase movement
 inheritance and the cartridge's documented adjacent-byte leakage.
+
+## Mother Brain body instruction mechanics
+
+Mother Brain's 18 ordinary body programs at `$A9:9730-$A9:9A41` are now split by
+ownership. `MotherBrainBodyInstructionProgramDefinitions` compiles all 274 command and
+frame-duration words that control world movement, BG2 compensation, pose, footsteps, and
+AI-visible timing. The interleaved extended-spritemap pointers remain cartridge-backed
+presentation data.
+
+Both the encounter's generic enemy-instruction processor and the standalone rainbow-beam
+sequence consume the compiled mechanics words, retaining ROM fallback only for presentation
+and instruction streams outside this translated family. Verification compares every word
+with the pinned cartridge and executes all 18 programs while every compiled source byte is
+forbidden, while proving that live spritemap reads still occur.

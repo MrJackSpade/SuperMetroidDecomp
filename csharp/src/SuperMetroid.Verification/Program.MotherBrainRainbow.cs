@@ -118,6 +118,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
 /// </summary>
 static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
+    VerifyMotherBrainBodyInstructionPrograms();
     var bus = new TestAddressSpace();
     // Retail $A9:8FE5 transfers start at Baby graphics +$400, not its base address.
     bus.WriteBytes(0xa98fe5,

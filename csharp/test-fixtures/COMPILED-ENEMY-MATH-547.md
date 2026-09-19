@@ -2719,3 +2719,12 @@ by `GrappleSwingFrameCatalog`; physical placement uses a separate compiled catal
 Projectile inheritance's unaligned `$0DA9/$0DAD/$0DB1/$0DB5` reads are mutable WRAM written
 by prior-frame movement, not immutable cartridge definitions. Neither belongs in a #547
 compiled mechanics catalog.
+
+# Mother Brain body instruction mechanics
+
+The mechanics half of Mother Brain's mixed body-animation bytecode is compiled in
+`MotherBrainBodyInstructionProgramDefinitions`. Its 274 command/duration words cover all
+18 walking, crouching, leaning, and recovery programs at `$A9:9730-$A9:9A41`; interleaved
+extended-spritemap pointers remain presentation-owned ROM reads. Both production body
+interpreters use the compiled path. Cartridge-equivalence verification checks every word
+and executes every program with the mechanics source bytes forbidden.

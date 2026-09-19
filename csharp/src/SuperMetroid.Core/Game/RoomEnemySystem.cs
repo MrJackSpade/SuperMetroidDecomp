@@ -2564,7 +2564,12 @@ public sealed partial class RoomEnemySystem
         ushort cursor = slot.CurrentInstruction;
         for (int commandCount = 0; commandCount < 64; commandCount++)
         {
-            ushort word = ReadWord(_bus!, (slot.Definition.Bank << 16) | cursor);
+            ushort word = slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+                MotherBrainBodyInstructionProgramDefinitions.TryGetWord(
+                    cursor,
+                    out ushort compiledMotherBrainBodyWord)
+                ? compiledMotherBrainBodyWord
+                : ReadWord(_bus!, (slot.Definition.Bank << 16) | cursor);
             if ((word & 0x8000) == 0)
             {
                 slot.InstructionTimer = word;

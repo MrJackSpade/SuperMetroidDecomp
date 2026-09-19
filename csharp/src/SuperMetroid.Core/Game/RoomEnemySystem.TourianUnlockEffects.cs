@@ -10,7 +10,10 @@ public sealed partial class RoomEnemySystem
         {
             var projectile = AllocateEnemyProjectile();
             if (projectile is null) continue;
-            InitializeEnemyProjectileFromDefinition(projectile, (RoomEnemyProjectileKind)TourianStatueRomData.DescentDust, 0);
+            InitializeEnemyProjectileFromDefinition(
+                projectile,
+                RoomEnemyProjectileKind.TourianStatueDescentDust,
+                0);
             projectile.Variable0 = 128;
             projectile.Variable1 = 188;
         }
@@ -23,8 +26,12 @@ public sealed partial class RoomEnemySystem
             TourianStatueUnlockDefinitions.EyePosition(parameter);
         var projectile = AllocateEnemyProjectile();
         if (projectile is null) return;
-        InitializeEnemyProjectileFromDefinition(projectile,
-            (RoomEnemyProjectileKind)(soul ? TourianStatueRomData.Soul : TourianStatueRomData.EyeGlow), 0);
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            soul
+                ? RoomEnemyProjectileKind.TourianStatueSoul
+                : RoomEnemyProjectileKind.TourianStatueEyeGlow,
+            0);
         projectile.XPosition = position.X;
         projectile.YPosition = position.Y;
         if (soul) projectile.YVelocity = unchecked((ushort)-1024);
@@ -35,7 +42,15 @@ public sealed partial class RoomEnemySystem
     {
         var projectile = AllocateEnemyProjectile();
         if (projectile is null) return;
-        InitializeEnemyProjectileFromDefinition(projectile, (RoomEnemyProjectileKind)definition, 0);
+        RoomEnemyProjectileKind kind = definition switch
+        {
+            TourianStatueRomData.Splash => RoomEnemyProjectileKind.TourianStatueSplash,
+            TourianStatueRomData.Particle => RoomEnemyProjectileKind.TourianStatueParticle,
+            TourianStatueRomData.Tail => RoomEnemyProjectileKind.TourianStatueTail,
+            _ => throw new InvalidDataException(
+                $"Tourian statue child requested unsupported projectile definition $86:{definition:X4}."),
+        };
+        InitializeEnemyProjectileFromDefinition(projectile, kind, 0);
         projectile.XPosition = parent.XPosition;
         projectile.YPosition = parent.YPosition;
         if (definition == TourianStatueRomData.Splash)

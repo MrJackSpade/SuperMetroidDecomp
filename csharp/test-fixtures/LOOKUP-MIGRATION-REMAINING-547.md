@@ -465,6 +465,16 @@ real escape state transition and all eight cries run through the real instructio
 interpreter with both source ranges forbidden. Mixed instruction programs and sprite
 presentation remain separate dependencies.
 
+All 120 translated bank-$86 `EprojDef` records are now compiled as complete typed
+definitions: initialization callback, pre-instruction, initial instruction list,
+packed radii, collision/damage properties, touch list, and shot list. The common
+projectile initializer, Samus-contact handler, and projectile-shot handler consume
+that catalog without rereading any of the fourteen-byte native records. Verification
+compares all 840 words with the pinned cartridge and executes all three production
+consumers for every definition with every source byte forbidden. The callbacks and
+mixed animation programs selected by those fixed identities remain separate
+program/presentation dependencies.
+
 Mother Brain's eight escape-door fragment records are compiled too: each record pairs
 its signed world offset from `$86:C992-$C9B1` with its signed 8.8 launch velocity from
 `$86:C9B2-$C9D1`. All 32 words match the pinned cartridge and all eight production

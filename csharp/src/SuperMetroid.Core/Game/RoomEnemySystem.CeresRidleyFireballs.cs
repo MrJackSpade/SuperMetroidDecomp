@@ -109,11 +109,17 @@ public enum RoomEnemyProjectileKind : ushort
     GoldenTorizoEgg = 0xb1c0,
     GoldenTorizoSuperMissile = 0xb31a,
     GoldenTorizoEyeBeam = 0xb428,
+    TourianStatueSplash = 0xba5c,
+    TourianStatueEyeGlow = 0xba6a,
+    TourianStatueParticle = 0xba78,
+    TourianStatueTail = 0xba86,
+    TourianStatueSoul = 0xba94,
     TourianStatueRidley = 0xbaa2,
     TourianStatuePhantoon = 0xbab0,
     TourianStatueBaseDecoration = 0xbabe,
     WreckedShipChozoSpikeFootstep = 0xaf68,
     WreckedShipChozoSpikeFootstepAlternate = 0xaf76,
+    TourianStatueDescentDust = 0xaf84,
     ShaktoolAttackFrontCircle = 0xbe25,
     ShaktoolAttackMiddleCircle = 0xbe33,
     ShaktoolAttackBackCircle = 0xbe41,
@@ -405,9 +411,9 @@ public sealed partial class RoomEnemySystem
                 else
                 {
                     enemyProjectile.CollidedProjectileType = collidedProjectileType;
-                    enemyProjectile.InstructionPointer = ReadWord(
-                        bus,
-                        0x860000 | unchecked((ushort)((ushort)enemyProjectile.Kind + 12)));
+                    enemyProjectile.InstructionPointer =
+                        EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind)
+                            .ShotInstructionList;
                     enemyProjectile.InstructionTimer = 1;
                     enemyProjectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
 
@@ -718,32 +724,28 @@ public sealed partial class RoomEnemySystem
     /// cartridge routine does; centralizing the copy prevents each projectile translation
     /// from inventing subtly different radius/property semantics.
     /// </summary>
-    private void InitializeEnemyProjectileFromDefinition(
+    private static void InitializeEnemyProjectileFromDefinition(
         RoomEnemyProjectileSlot projectile,
         RoomEnemyProjectileKind kind,
         ushort graphicsIndex)
     {
-        int definition = 0x860000 | (ushort)kind;
+        EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         projectile.Kind = kind;
-        projectile.PreInstruction = ReadWord(_bus!, definition + 2);
-        projectile.InstructionPointer = ReadWord(_bus!, definition + 4);
+        projectile.PreInstruction = definition.PreInstruction;
+        projectile.InstructionPointer = definition.InitialInstructionList;
         projectile.InstructionTimer = 1;
 
         // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
         // It is intentionally not the first list map; bank-$86 advances it on its own pass.
         projectile.SpritemapPointer = 0x8000;
-        ushort radii = ReadWord(_bus!, definition + 6);
-        projectile.XRadius = unchecked((byte)radii);
-        projectile.YRadius = unchecked((byte)(radii >> 8));
-        ushort properties = ReadWord(_bus!, definition + 8);
-        projectile.Damage = unchecked((ushort)(properties & 0x0fff));
+        projectile.XRadius = definition.XRadius;
+        projectile.YRadius = definition.YRadius;
+        projectile.Damage = definition.Damage;
         projectile.InvincibilityFrames = 96;
-        projectile.DrawPriority = (properties & 0x1000) != 0
-            ? EnemyProjectileDrawPriority.High
-            : EnemyProjectileDrawPriority.Low;
-        projectile.CanDamageSamus = (properties & 0x2000) == 0;
-        projectile.PersistsOnSamusContact = (properties & 0x4000) != 0;
-        projectile.BlocksSamusProjectiles = (properties & 0x8000) != 0;
+        projectile.DrawPriority = definition.DrawPriority;
+        projectile.CanDamageSamus = definition.CanDamageSamus;
+        projectile.PersistsOnSamusContact = definition.PersistsOnSamusContact;
+        projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
         projectile.CollisionOption = 0;
         projectile.CollidedProjectileType = 0;
         projectile.GraphicsIndex = graphicsIndex;
@@ -1377,7 +1379,7 @@ public sealed partial class RoomEnemySystem
             RoomCollisionType.BombableBlock;
     }
 
-    private ushort? ResolveEnemyProjectileSamusCollision(
+    private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
@@ -1412,9 +1414,8 @@ public sealed partial class RoomEnemySystem
         // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
         // but immediately changes to its smoke list. Keeping this in the common path also
         // prevents later persistent projectile families from needing bespoke hit effects.
-        ushort touchInstruction = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)((ushort)projectile.Kind + 10)));
+        ushort touchInstruction =
+            EnemyProjectileDefinitionCatalog.Get(projectile.Kind).TouchInstructionList;
         if (touchInstruction != 0)
         {
             projectile.InstructionPointer = touchInstruction;

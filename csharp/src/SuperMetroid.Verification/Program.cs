@@ -345,6 +345,12 @@ if (args is ["--botwoon-navigation-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--enemy-projectile-definitions"])
+{
+    VerifyEnemyProjectileDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--room-sprite-object-definitions"])
 {
     VerifyRoomSpriteObjectDefinitions(

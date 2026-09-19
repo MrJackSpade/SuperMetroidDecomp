@@ -159,7 +159,7 @@ internal static class KraidHeadInstructionDefinitions
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < 0x8000)
-            return bus.ReadByte(0xa70000 | pointer);
+            return bus.ReadByte(KraidBackgroundRomData.NativeBank | pointer);
 
         int boundaryIndex = pointer - 0x8000;
         ReadOnlySpan<byte> boundary = KraidMouthHitboxes.LowHalfBoundaryBytes;

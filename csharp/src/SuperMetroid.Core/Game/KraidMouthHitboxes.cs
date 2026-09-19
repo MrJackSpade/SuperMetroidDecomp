@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled collision geometry, independent of Kraid's editable head artwork.</summary>
 internal static class KraidMouthHitboxes
 {
-    private const int Bank = 0xa70000;
-
     /// <summary>Aligned fixed records at $A7:9788..97C7.</summary>
     public static bool IsDefined(ushort pointer) => pointer >= 0x9788 && pointer <= 0x97c0 && ((pointer - 0x9788) & 7) == 0;
 
@@ -73,7 +71,7 @@ internal static class KraidMouthHitboxes
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < 0x8000)
-            return bus.ReadByte(Bank | pointer);
+            return bus.ReadByte(KraidBackgroundRomData.NativeBank | pointer);
 
         int boundaryIndex = pointer - 0x8000;
         ReadOnlySpan<byte> boundary = LowHalfBoundaryBytes;

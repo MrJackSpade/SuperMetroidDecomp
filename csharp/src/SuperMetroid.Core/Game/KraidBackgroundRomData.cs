@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Game;
 public static class KraidBackgroundRomData
 {
     /// <summary>Bank-$A7 base used by Kraid's private instruction-list pointers.</summary>
-    public const int EnemyBankBase = 0xa70000;
+    public const int NativeBank = 0xa70000;
 
     /// <summary>Compressed upper-body tilemap consumed by <c>$A7:AAC6</c>.</summary>
     public const int UpperTilemap = 0xb9fa38;

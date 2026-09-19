@@ -83,7 +83,7 @@ public sealed partial class RoomEnemySystem
     private void TransferKraidHeadTilemap(KraidEnemyState state, ushort sourcePointer)
     {
         Span<ushort> working = state.BackgroundTilemapWords;
-        int sourceAddress = KraidBackgroundRomData.EnemyBankBase | sourcePointer;
+        int sourceAddress = KraidBackgroundRomData.NativeBank | sourcePointer;
         for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
             working[word] = ReadWord(_bus!, sourceAddress + word * 2);
         _vram!.ExecuteWordTransfer(

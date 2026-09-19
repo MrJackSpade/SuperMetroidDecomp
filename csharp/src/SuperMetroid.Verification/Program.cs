@@ -311,6 +311,11 @@ if (args is ["--kraid-head-instruction-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--magic-number-audit"])
+{
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--enemy-death-explosion-definitions"])
 {
     VerifyEnemyDeathExplosionDefinitions(

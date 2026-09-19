@@ -39,12 +39,14 @@ public static class CeresSteamDefinitions
     /// </summary>
     private static readonly CeresSteamInitialization[] Initializations =
     [
-        new(0xf04d, CeresSteamFunction.None),
-        new(0xf081, CeresSteamFunction.None),
-        new(0xf0b5, CeresSteamFunction.None),
-        new(0xf0e9, CeresSteamFunction.None),
-        new(0xf081, CeresSteamFunction.ApplyRotatingElevatorOffset),
-        new(0xf0e9, CeresSteamFunction.ApplyRotatingElevatorOffset),
+        new(CeresSteamInstructionProgramDefinitions.Up, CeresSteamFunction.None),
+        new(CeresSteamInstructionProgramDefinitions.Left, CeresSteamFunction.None),
+        new(CeresSteamInstructionProgramDefinitions.Down, CeresSteamFunction.None),
+        new(CeresSteamInstructionProgramDefinitions.Right, CeresSteamFunction.None),
+        new(CeresSteamInstructionProgramDefinitions.Left,
+            CeresSteamFunction.ApplyRotatingElevatorOffset),
+        new(CeresSteamInstructionProgramDefinitions.Right,
+            CeresSteamFunction.ApplyRotatingElevatorOffset),
     ];
 
     /// <summary>Returns the cartridge-authored initialization for one steam variant.</summary>

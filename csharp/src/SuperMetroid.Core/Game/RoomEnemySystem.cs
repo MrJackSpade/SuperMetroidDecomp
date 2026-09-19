@@ -3346,15 +3346,15 @@ public sealed partial class RoomEnemySystem
                     slot.VariableD = unchecked((ushort)(slot.VariableD - 1));
                     if (slot.VariableD != 0)
                     {
-                        cursor = ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                        cursor = ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     }
                     else
                     {
-                        cursor = ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)));
+                        cursor = ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 4)));
                         slot.Properties = slot.Properties.Without(
                             EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     }
@@ -3610,6 +3610,9 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == PipeBugDefinitions.YellowEnemyDefinition)
             return YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
+            return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))

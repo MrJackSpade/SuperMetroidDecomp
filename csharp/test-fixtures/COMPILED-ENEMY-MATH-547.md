@@ -3073,3 +3073,16 @@ Verification compares every mechanics word with the pinned cartridge and execute
 production program beyond its terminal goto while every mechanics byte is forbidden. All
 44 presentation operands remain observable, presentation and adjacent selector-table
 pointers fail as mechanics, and warmed lookup is allocation-free.
+
+# Ceres steam instruction mechanics
+
+Ceres steam's six variants share four directional programs whose 68 fixed durations,
+activation branches, visibility callbacks, gotos, and loop targets now resolve through
+`CeresSteamInstructionProgramDefinitions`. Their 36 interleaved extended-spritemap
+pointers remain live cartridge-backed presentation data.
+
+Verification compares every mechanics word with the pinned cartridge and executes every
+direction through activation, all plume frames, the hidden hold, and reactivation while
+every mechanics byte is forbidden. All 36 presentation operands remain observable,
+presentation and adjacent callback-code pointers fail as mechanics, and warmed lookup is
+allocation-free.

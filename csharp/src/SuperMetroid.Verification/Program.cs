@@ -147,6 +147,11 @@ if (args is ["--yellow-pipe-bug-instruction-mechanics"])
     VerifyYellowPipeBugInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-steam-instruction-mechanics"])
+{
+    VerifyCeresSteamInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

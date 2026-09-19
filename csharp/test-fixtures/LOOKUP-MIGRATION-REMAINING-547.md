@@ -574,8 +574,10 @@ programs remain a separate dependency.
 Ceres steam's six parallel instruction/function selections at `$A6:EFF5-$F00C`
 are compiled as typed initialization records. All twelve source words match the
 pinned cartridge, and all six production initialization paths run with both tables
-forbidden. The selected mixed animation programs and extended spritemaps remain
-separate program/presentation dependencies.
+forbidden. The four shared directional programs now compile all 68 engine-control
+words too: every activation branch, visibility callback, duration, goto, and loop
+target executes with those source bytes forbidden while all 36 interleaved extended-
+spritemap operands remain live cartridge presentation data.
 
 Normal and strong Brinstar Pipe Bugs' four facing/action instruction selectors at
 `$B3:882B-$883A` are compiled behind a proven flags enum: bit zero selects shooting

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -8,6 +9,11 @@ public sealed record GameInstallation(string Root)
     public string ContentDirectory => Path.Combine(Root, GameInstallationLayout.ContentDirectoryName);
     public string RomPath => Path.Combine(ContentDirectory, GameInstallationLayout.RomFileName);
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
+    /// <summary>Persistent editable audio content, outside the replaceable stock installation.</summary>
+    public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
+    /// <summary>Validates stock content, then selects a complete compatible user override when present.</summary>
+    public ExtractedAudioAssetCatalog LoadAudio() =>
+        ExtractedAudioAssetCatalog.Load(AudioDirectory, AudioOverrideDirectory);
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);

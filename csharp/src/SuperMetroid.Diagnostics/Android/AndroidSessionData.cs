@@ -49,7 +49,9 @@ internal sealed class AndroidSessionData : IDisposable
         if (projectiles is not null)
             Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
-        assets = ExtractedAudioAssetCatalog.Load(audioDirectory ?? Path.Combine(gameRoot, "audio"));
+        assets = audioDirectory is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadAudio()
+            : ExtractedAudioAssetCatalog.Load(audioDirectory);
         Audio = new CartridgeAudioRenderer(assets);
         states = new DebuggerSaveStateStore(romPath, Bus.Rom, Path.Combine(root, "debug-states"), Options);
         recorder = StartRecorder();

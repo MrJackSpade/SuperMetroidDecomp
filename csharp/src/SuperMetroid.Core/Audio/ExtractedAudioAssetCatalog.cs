@@ -152,6 +152,28 @@ public sealed class ExtractedAudioAssetCatalog
         return new ExtractedAudioAssetCatalog(loaded, banks, instruments, canonicalSamples.Count);
     }
 
+    /// <summary>
+    /// Validates immutable stock audio first, then selects a complete compatible catalog from
+    /// the persistent override directory when one exists. An invalid override never silently
+    /// falls back to stock, and a valid override never conceals broken stock installation data.
+    /// </summary>
+    public static ExtractedAudioAssetCatalog Load(string stockDirectory, string overrideDirectory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(overrideDirectory);
+        string stockRoot = Path.GetFullPath(stockDirectory);
+        string overrideRoot = Path.GetFullPath(overrideDirectory);
+        ExtractedAudioAssetCatalog stock = Load(stockRoot);
+        string overrideManifestPath = Path.Combine(overrideRoot, ManifestFileName);
+        if (!File.Exists(overrideManifestPath))
+            return stock;
+
+        AudioAssetManifest stockManifest = ReadManifest(stockRoot);
+        AudioAssetManifest overrideManifest = ReadManifest(overrideRoot);
+        ValidateOverrideCompatibility(stockManifest, overrideManifest, overrideManifestPath);
+        return Load(overrideRoot);
+    }
+
     /// <summary>Returns the exact terminated upload stream for a cartridge command.</summary>
     public ReadOnlyMemory<byte> GetUpload(int snesAddress) =>
         streams.TryGetValue(snesAddress, out byte[]? bytes)
@@ -272,6 +294,67 @@ public sealed class ExtractedAudioAssetCatalog
         if (!File.Exists(path))
             throw new FileNotFoundException($"Extracted audio stream '{path}' is missing.", path);
         return path;
+    }
+
+    private static AudioAssetManifest ReadManifest(string root)
+    {
+        string path = Path.Combine(root, ManifestFileName);
+        return JsonSerializer.Deserialize<AudioAssetManifest>(
+            File.ReadAllText(path), AudioAssetJson.Options)
+            ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
+    }
+
+    private static void ValidateOverrideCompatibility(
+        AudioAssetManifest stock,
+        AudioAssetManifest selected,
+        string selectedPath)
+    {
+        if (selected.FormatVersion != stock.FormatVersion)
+        {
+            throw new InvalidDataException(
+                $"Audio override '{selectedPath}' uses format {selected.FormatVersion}; " +
+                $"installed stock uses format {stock.FormatVersion}.");
+        }
+        if (selected.Uploads.Count != stock.Uploads.Count ||
+            !selected.Uploads.Zip(stock.Uploads).All(pair => pair.First == pair.Second))
+        {
+            throw new InvalidDataException(
+                $"Audio override '{selectedPath}' changes opaque SPC uploads or their identity. " +
+                "Only decoded samples, instruments, and authored sequence definitions are replaceable.");
+        }
+        if (selected.Banks.Count != stock.Banks.Count)
+            throw new InvalidDataException($"Audio override '{selectedPath}' changes the bank catalog.");
+        for (int index = 0; index < stock.Banks.Count; index++)
+        {
+            AudioBankMetadata expected = stock.Banks[index];
+            AudioBankMetadata actual = selected.Banks[index];
+            if (actual.Name != expected.Name || actual.DataIndex != expected.DataIndex ||
+                actual.SnesAddress != expected.SnesAddress ||
+                !actual.TrackPointers.SequenceEqual(expected.TrackPointers) ||
+                actual.Samples.Count != expected.Samples.Count ||
+                !actual.Samples.Zip(expected.Samples).All(pair => pair.First == pair.Second))
+            {
+                throw new InvalidDataException(
+                    $"Audio override '{selectedPath}' changes routing or sample-source identity " +
+                    $"for stock bank '{expected.Name}'.");
+            }
+        }
+        if (selected.CanonicalSamples.Count != stock.CanonicalSamples.Count ||
+            !selected.CanonicalSamples.Select(sample => sample.Id).SequenceEqual(
+                stock.CanonicalSamples.Select(sample => sample.Id), StringComparer.Ordinal))
+        {
+            throw new InvalidDataException(
+                $"Audio override '{selectedPath}' changes stable canonical sample IDs.");
+        }
+        if (selected.SoundLibraries.Count != stock.SoundLibraries.Count ||
+            !selected.SoundLibraries.Zip(stock.SoundLibraries).All(pair =>
+                pair.First.Library == pair.Second.Library &&
+                pair.First.Effects.Count == pair.Second.Effects.Count &&
+                pair.First.Effects.Zip(pair.Second.Effects).All(effect => effect.First == effect.Second)))
+        {
+            throw new InvalidDataException(
+                $"Audio override '{selectedPath}' changes compiled SFX routing metadata.");
+        }
     }
 }
 

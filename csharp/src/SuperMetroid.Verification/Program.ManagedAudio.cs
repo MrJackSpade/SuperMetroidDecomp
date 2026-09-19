@@ -20,6 +20,7 @@ internal static partial class Program
         VerifyManagedSpcSoundOwnershipPreservesPhase();
         VerifyBrrLoopExtractionRetainsPredictorHistory();
         VerifyEditableAudioInstruments();
+        VerifyPersistentAudioOverrides();
     }
 
     private static void VerifyManagedDspUsesLiveSourceAtLoop()

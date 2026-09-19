@@ -62,6 +62,17 @@ if (args.Length is 4 or 5 && args[0].Equals("audio-replace", StringComparison.Or
     return 0;
 }
 
+if (args.Length == 2 && args[0].Equals("audio-override-init", StringComparison.OrdinalIgnoreCase))
+{
+    var installation = new GameInstallation(ResolveWorkspacePath(args[1], mustAlreadyExist: true));
+    string overrideDirectory = AudioAssetOverrideInstaller.Initialize(installation);
+    Console.WriteLine($"Editable audio override initialized at {overrideDirectory}");
+    Console.WriteLine(
+        $"Use 'assets audio-replace \"{overrideDirectory}\" <sample-id> <wav> [preserve|none|loop-sample]' " +
+        "or edit its audio-manifest.json, then restart the game.");
+    return 0;
+}
+
 if (args.Length == 3 && args[0].Equals("audio", StringComparison.OrdinalIgnoreCase))
 {
     string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
@@ -95,6 +106,8 @@ if (args.Length != 2)
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets audio <raw-assets-directory> <audio-output-directory>");
     Console.Error.WriteLine(
         "  SuperMetroid.DebugRunner assets audio-replace <audio-directory> <sample-id> <wav> [preserve|none|loop-sample]");
+    Console.Error.WriteLine(
+        "  SuperMetroid.DebugRunner assets audio-override-init <installed-app-data-directory>");
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets room <raw-assets-directory> <room.png>");
     return 2;
 }

@@ -168,6 +168,21 @@ public sealed partial class PlayableGameControl : UserControl
         SetPlaying(playing: true);
     }
 
+    private ExtractedAudioAssetCatalog LoadAudioAssets()
+    {
+        if (playerDataDirectory is not null)
+        {
+            var installation = new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory);
+            if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
+                    Path.GetFullPath(installation.AudioDirectory), StringComparison.OrdinalIgnoreCase))
+            {
+                return installation.LoadAudio();
+            }
+        }
+        return ExtractedAudioAssetCatalog.Load(
+            installedAudioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
+    }
+
     private void Restart()
     {
         if (gpuWorker is not null) throw new InvalidOperationException("Live restart must use the asynchronous generation boundary.");
@@ -196,7 +211,7 @@ public sealed partial class PlayableGameControl : UserControl
             playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"), gameOptions);
         if (gameOptions.AudioEnabled)
         {
-            audioEngine = new SpcAudioEngine(installedAudioDirectory);
+            audioEngine = new SpcAudioEngine(LoadAudioAssets(), new ManagedSpcPlayer());
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
@@ -315,7 +330,7 @@ public sealed partial class PlayableGameControl : UserControl
                 ?? throw new InvalidDataException(
                     "Audio-enabled debugger state does not contain managed SPC state.");
             audioEngine = new SpcAudioEngine(
-                ExtractedAudioAssetCatalog.Load(installedAudioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory()),
+                LoadAudioAssets(),
                 restoredAudio);
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,

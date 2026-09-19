@@ -455,6 +455,8 @@ Asset operations share the DebugRunner developer executable under the `assets` s
 dotnet run --project src/SuperMetroid.DebugRunner -- assets ../standalone-assets/raw ../standalone-assets/png
 dotnet run --project src/SuperMetroid.DebugRunner -- assets audio ../standalone-assets/raw ../standalone-assets/audio
 dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace ../standalone-assets/audio sample-00-00 replacement.wav preserve
+dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-override-init "$env:LOCALAPPDATA\SuperMetroid"
+dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid\overrides\audio" sample-00-00 replacement.wav preserve
 dotnet run --project src/SuperMetroid.DebugRunner -- assets room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
@@ -466,13 +468,20 @@ Pass `none` to disable looping or a non-negative PCM frame index to set it expli
 replacement rates are 8-384 kHz; the managed mixer normalizes pitch to the source rate. Running
 the ordinary `audio` extraction again restores every stock WAV and instrument definition.
 
+For the installed game, initialize `overrides/audio` once with `audio-override-init`, then point
+`audio-replace` at that directory or edit its manifest. Startup validates the immutable
+`game/audio` catalog first and the override second; corrupt stock or user content fails loudly
+instead of silently choosing the other copy. The override sits outside the replaceable `game/`
+directory, survives stock repair/application updates, and is selected by both Windows and
+Android after restart. Initialization refuses to overwrite an existing override directory.
+
 Instrument edits currently live in `audio-manifest.json`, under the desired bank's
 `instruments` array. Every bank must retain exactly instruments `0` through `41`. `usesNoise`
 must match bit 7 of `sourceOrNoiseRate`; the remaining low bits select either the PCM source or
 the SNES noise rate. `adsr1`, `adsr2`, and `gain` are native DSP bytes, while `pitchBase` is the
 native unsigned 16-bit pitch scale. Restart the game after editing so the immutable catalog is
-validated and rebound. Re-extraction restores these stock definitions; a persistent separate
-instrument-override file is still part of the remaining editable-audio work.
+validated and rebound. Direct edits inside `game/audio` are stock-content diagnostics and can be
+replaced by repair; installed presentation edits belong in `overrides/audio`.
 
 Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
 catalog at runtime.

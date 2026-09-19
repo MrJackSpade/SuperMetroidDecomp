@@ -35,6 +35,25 @@ It compares the native and compiled selections for every room across 75 event,
 boss, and inventory contexts, reaches all 323 retail states, rejects non-retail
 pointers, and loads production Ceres while its selector bytes are inaccessible.
 
-Remaining #531 work: compile the fixed room/state payloads, door connections,
-camera/scroll definitions, and setup/main dispatch references. Room loading still
-uses cartridge payloads and visual assets in this intermediate slice.
+Remaining #531 work after the selector slice was the fixed header and room-state
+payloads, door connections, camera/scroll definitions, and setup/main dispatch
+references. Room loading still uses cartridge payloads and visual assets at this
+point in the staged migration.
+
+## Fixed room headers
+
+`RoomHeaderDefinitions` compiles the eleven fixed bytes for all 262 retail room
+headers: logical room/area identity, map placement, screen dimensions, vertical
+scroller values, CRE bitset, and door-list pointer. The production loader now gets
+these fields from the typed catalog before evaluating the already-compiled state
+program. `CartridgeRoomHeader.Load` remains the independent native parser used by
+parity tests and malformed synthetic fixtures.
+
+Run `SuperMetroid.Verification --room-header-definitions` from the repository root.
+It compares every compiled field with the pinned retail ROM, rejects the cartridge's
+developer area-seven room and arbitrary pointers, and loads production Ceres while
+both its fixed header and selector program are inaccessible.
+
+Remaining #531 work: compile the 323 selected room-state payloads, door connections,
+camera/scroll definitions, and setup/main dispatch references. Visual assets remain
+cartridge-backed in this intermediate slice.

@@ -676,6 +676,11 @@ if (args is ["--load-station-definitions"])
     VerifyCompiledLoadStationDefinitions();
     return 0;
 }
+if (args is ["--room-header-definitions"])
+{
+    VerifyCompiledRoomHeaderDefinitions();
+    return 0;
+}
 if (args is ["--room-state-definitions"])
 {
     VerifyCompiledRoomStateSelectionDefinitions();
@@ -1494,6 +1499,7 @@ VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();
 VerifyRoomLevelData();
 VerifyCartridgeRoomStateSelection();
+VerifyCompiledRoomHeaderDefinitions();
 VerifyCompiledRoomStateSelectionDefinitions();
 VerifyCompiledLoadStationDefinitions();
 VerifyRoomMainCodeCatalog();

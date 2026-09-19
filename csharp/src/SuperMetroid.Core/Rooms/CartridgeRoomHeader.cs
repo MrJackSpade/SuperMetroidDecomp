@@ -43,26 +43,38 @@ public sealed record CartridgeRoomHeader(
             roomPointer,
             unchecked((ushort)(roomPointer + RoomHeaderRomData.FixedHeaderByteCount)),
             selection);
-        return LoadSelected(bus, roomPointer, statePointer);
+        return LoadSelectedFromCartridgeHeader(bus, roomPointer, statePointer);
     }
 
-    /// <summary>Reads fixed/state payloads but resolves application behavior from compiled definitions.</summary>
+    /// <summary>Uses compiled fixed metadata/state selection and reads only the selected state payload.</summary>
     public static CartridgeRoomHeader LoadUsingCompiledSelection(
         ISnesAddressSpace bus,
         ushort roomPointer,
-        RoomStateSelectionContext selection = default) =>
-        LoadSelected(bus, roomPointer, RoomStateSelectionDefinitions.Select(roomPointer, selection));
-
-    /// <summary>Reads only the fixed header's area byte without executing its state selector.</summary>
-    public static AreaId ReadAreaIndex(ISnesAddressSpace bus, ushort roomPointer)
+        RoomStateSelectionContext selection = default)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return AreaIds.FromCartridge(
-            bus.ReadByte(RoomHeaderRomData.BankAddress | unchecked((ushort)(roomPointer + 1))),
-            $"Room header $8F:{roomPointer:X4}");
+        RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
+        ushort statePointer = RoomStateSelectionDefinitions.Select(roomPointer, selection);
+        return new CartridgeRoomHeader(
+            header.Pointer,
+            header.RoomIndex,
+            header.AreaIndex,
+            header.MapX,
+            header.MapY,
+            header.WidthInScreens,
+            header.HeightInScreens,
+            header.UpScroller,
+            header.DownScroller,
+            header.CreBitset,
+            header.DoorListPointer,
+            CartridgeRoomState.Load(bus, statePointer));
     }
 
-    private static CartridgeRoomHeader LoadSelected(
+    /// <summary>Returns a compiled fixed header's area without reading native room data.</summary>
+    public static AreaId ReadAreaIndex(ushort roomPointer) =>
+        RoomHeaderDefinitions.Get(roomPointer).AreaIndex;
+
+    private static CartridgeRoomHeader LoadSelectedFromCartridgeHeader(
         ISnesAddressSpace bus,
         ushort roomPointer,
         ushort statePointer)

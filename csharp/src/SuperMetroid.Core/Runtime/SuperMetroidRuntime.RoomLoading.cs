@@ -1026,7 +1026,7 @@ public sealed partial class SuperMetroidRuntime
     /// </remarks>
     private CartridgeRoomHeader LoadCartridgeRoomHeader(ushort roomPointer)
     {
-        AreaId areaIndex = CartridgeRoomHeader.ReadAreaIndex(_addressSpace, roomPointer);
+        AreaId areaIndex = CartridgeRoomHeader.ReadAreaIndex(roomPointer);
 
         // RoomStateSelectionContext owns an immutable snapshot. Copying eight bytes is both
         // cheaper and safer than exposing Bank80SystemState's writable SRAM-mirror arrays.

@@ -136,7 +136,9 @@ pointers remain live presentation reads.
 Wrecked Ship Spark's three authored initial instruction/function pairs are
 compiled too, together with selector three's two adjacent-code observations.
 All four production initializers retain the two-bit population mask while
-`$A8:E682-$E68F` is forbidden. Mixed animation programs remain separate dependencies.
+`$A8:E682-$E68F` is forbidden. The four authored/installed animation programs now
+compile 33 mechanics words while their 26 spritemap operands remain live; selector
+three's adjacent code word is preserved as restored state but rejected as a program.
 The elevator actor's Down/Up departure masks are compiled in its shared domain
 catalog. Both real departure paths retain the doubled population byte offset,
 pose/input/projectile/audio handoff, and Samus pinning while `$A3:94E2-$94E5`

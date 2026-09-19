@@ -11,9 +11,9 @@ internal static class SparkMovementDefinitions
     /// </summary>
     private static readonly SparkMovementDefinition[] InitialStates =
     [
-        new(0xe5d1, SparkEnemyFunction.AlwaysActive),
-        new(0xe5d1, SparkEnemyFunction.IntermittentActive),
-        new(0xe609, SparkEnemyFunction.EmitFallingSparks),
+        new(SparkInstructionProgramDefinitions.Active, SparkEnemyFunction.AlwaysActive),
+        new(SparkInstructionProgramDefinitions.Active, SparkEnemyFunction.IntermittentActive),
+        new(SparkInstructionProgramDefinitions.Emitter, SparkEnemyFunction.EmitFallingSparks),
         new(0xe694, (SparkEnemyFunction)0x54ae),
     ];
 

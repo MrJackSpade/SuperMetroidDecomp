@@ -55,9 +55,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort SparkDefinition = 0xea3f;
     internal const ushort SparkShotAi = EnemyAiCodePointers.BankA8.SparkShot;
 
-    private const ushort SparkFlickerOnInstructionList = 0xe5a7;
-    private const ushort SparkFlickerOutInstructionList = 0xe5e5;
-
     private readonly SparkEnemyState?[] _sparkStates =
         new SparkEnemyState?[MaximumEnemyCount];
 
@@ -106,7 +103,7 @@ public sealed partial class RoomEnemySystem
                     return;
 
                 state.Function = SparkEnemyFunction.IntermittentActive;
-                InstallSparkInstructionList(slot, SparkFlickerOnInstructionList);
+                InstallSparkInstructionList(slot, SparkInstructionProgramDefinitions.FlickerOn);
                 SetSparkFunctionTimer(state, additionalTime: 0);
                 return;
 
@@ -115,7 +112,7 @@ public sealed partial class RoomEnemySystem
                     return;
 
                 state.Function = SparkEnemyFunction.IntermittentInactive;
-                InstallSparkInstructionList(slot, SparkFlickerOutInstructionList);
+                InstallSparkInstructionList(slot, SparkInstructionProgramDefinitions.FlickerOut);
                 SetSparkFunctionTimer(state, additionalTime: 8);
                 return;
 

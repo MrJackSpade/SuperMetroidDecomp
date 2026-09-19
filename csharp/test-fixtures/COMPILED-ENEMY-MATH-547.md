@@ -2053,6 +2053,15 @@ complete source span is forbidden, and checks the two-bit mask for additional
 parameter values. No malformed/custom selector is silently normalized to an
 authored state.
 
+The four selected/installed animation programs now compile their 33 callback,
+duration, goto, loop-target, and sleep words through
+`SparkInstructionProgramDefinitions`. Their 26 interleaved spritemap pointers
+remain live presentation data. Verification executes flicker-on, active,
+flicker-out, and emitter programs through production with every mechanics byte
+forbidden, including the tangible/intangible callbacks and terminal sleep. The
+selector-three adjacent code observation remains representable as restored state
+but is deliberately rejected if execution attempts to treat it as a program.
+
 # Elevator direction inputs
 
 `ElevatorActorDefinitions` compiles the two newly-pressed controller masks at

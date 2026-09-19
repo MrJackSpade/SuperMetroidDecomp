@@ -3563,6 +3563,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition)
             return SbugInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == SparkDefinition)
+            return SparkInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

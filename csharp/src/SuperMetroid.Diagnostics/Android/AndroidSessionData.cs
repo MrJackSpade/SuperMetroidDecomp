@@ -16,6 +16,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly string root;
     private readonly string romPath;
     private readonly string savePath;
+    private readonly bool installedSession;
     private readonly ExtractedAudioAssetCatalog assets;
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectiles;
@@ -25,6 +26,7 @@ internal sealed class AndroidSessionData : IDisposable
     public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
+        installedSession = cartridgePath is null;
         string gameRoot = Path.Combine(root, "game");
         romPath = cartridgePath ?? Path.Combine(gameRoot, "SuperMetroid.smc");
         savePath = Path.Combine(root, "SuperMetroid.save.json");
@@ -65,12 +67,17 @@ internal sealed class AndroidSessionData : IDisposable
                 $"projectiles={ContentIdentity.ProjectileContentSha256}.");
         }
         Audio = new CartridgeAudioRenderer(assets);
-        states = new DebuggerSaveStateStore(
-            romPath,
-            Bus.Rom,
-            Path.Combine(root, "debug-states"),
-            Options,
-            ContentIdentity);
+        states = installedSession
+            ? DebuggerSaveStateStore.ForInstalledGame(
+                root,
+                Options,
+                ContentIdentity ?? throw new InvalidOperationException("Installed Android session has no content identity."))
+            : new DebuggerSaveStateStore(
+                romPath,
+                Bus.Rom,
+                Path.Combine(root, "debug-states"),
+                Options,
+                ContentIdentity);
         recorder = StartRecorder();
         WriteRecordingMetadata(seedFile: null);
     }
@@ -86,8 +93,12 @@ internal sealed class AndroidSessionData : IDisposable
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath);
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
-    public string ImportState(string path, int slot) => AndroidFileImport.ImportState(root, romPath, path, slot);
-    public string ImportSave(string path) => AndroidFileImport.StageRegularSave(root, romPath, path);
+    public string ImportState(string path, int slot) => installedSession
+        ? AndroidFileImport.ImportState(root, path, slot)
+        : AndroidFileImport.ImportState(root, romPath, path, slot);
+    public string ImportSave(string path) => installedSession
+        ? AndroidFileImport.StageRegularSave(root, path)
+        : AndroidFileImport.StageRegularSave(root, romPath, path);
 
     public string SaveSlot(int slot)
     {
@@ -144,8 +155,14 @@ internal sealed class AndroidSessionData : IDisposable
         FlushRecording();
     }
 
-    private ControllerInputRecorder StartRecorder() => ControllerInputRecorder.Start(
-        romPath, Bus.SaveRam, Options, ContentIdentity, Path.Combine(root, "input-recordings"));
+    private ControllerInputRecorder StartRecorder() => installedSession
+        ? ControllerInputRecorder.StartInstalled(
+            root,
+            Bus.SaveRam,
+            Options,
+            ContentIdentity ?? throw new InvalidOperationException("Installed Android session has no content identity."))
+        : ControllerInputRecorder.Start(
+            romPath, Bus.SaveRam, Options, ContentIdentity, Path.Combine(root, "input-recordings"));
 
     public void Dispose() => recorder.Dispose();
 }

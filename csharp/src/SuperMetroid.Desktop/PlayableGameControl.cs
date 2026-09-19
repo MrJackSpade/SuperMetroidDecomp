@@ -255,24 +255,14 @@ public sealed partial class PlayableGameControl : UserControl
         }
         if (replay is not null)
             ReportReplayContentCompatibility();
-        stateStore = new DebuggerSaveStateStore(
-            romPath,
-            addressSpace.Rom,
-            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"),
-            gameOptions,
-            installedContentIdentity);
+        stateStore = CreateStateStore();
         if (replay is null)
         {
             game.SaveRamChanged += PersistSaveRamToDisk;
             // The reset seed is captured after disk SRAM has been validated/copied but
             // before the first dispatcher call. A crash in state zero is therefore just as
             // reproducible as a gameplay failure hours later.
-            inputRecorder = ControllerInputRecorder.Start(
-                romPath,
-                addressSpace.SaveRam,
-                gameOptions,
-                installedContentIdentity,
-                playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "input-recordings"));
+            inputRecorder = StartInputRecorder();
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
         // Execute reset once so the first visible debugger frame is state one's native setup.
@@ -368,12 +358,7 @@ public sealed partial class PlayableGameControl : UserControl
         // Begin a new crash recorder at the restored boundary. The debugger state itself
         // is the deterministic seed for this continuation and is printed beside the new
         // recording path so both files can be attached to a report.
-        inputRecorder = ControllerInputRecorder.Start(
-            romPath,
-            addressSpace.SaveRam,
-            gameOptions,
-            installedContentIdentity,
-            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "input-recordings"));
+        inputRecorder = StartInputRecorder();
         Console.WriteLine(
             $"Loaded debugger state slot {slot}: {loaded.Metadata.Path}{Environment.NewLine}" +
             $"Recording post-state controller input to {inputRecorder.Path}");
@@ -403,15 +388,52 @@ public sealed partial class PlayableGameControl : UserControl
         if (replay is null)
             throw new InvalidOperationException("Replay SRAM requested without a replay.");
 
-        byte[] actualDigest;
-        using (FileStream rom = File.OpenRead(romPath))
-            actualDigest = SHA256.HashData(rom);
+        byte[] actualDigest = playerDataDirectory is null
+            ? SHA256.HashData(addressSpace.Rom)
+            : SupportedCartridge.CreateSha256Digest();
         if (!CryptographicOperations.FixedTimeEquals(actualDigest, replay.RomSha256))
         {
             throw new InvalidDataException(
                 "The replay was recorded from a different ROM image (SHA-256 mismatch).");
         }
         replay.InitialSaveRam.CopyTo(addressSpace.SaveRam);
+    }
+
+    private DebuggerSaveStateStore CreateStateStore()
+    {
+        if (playerDataDirectory is null)
+        {
+            return new DebuggerSaveStateStore(
+                romPath,
+                addressSpace.Rom,
+                hostOptions: gameOptions,
+                contentIdentity: installedContentIdentity);
+        }
+
+        return DebuggerSaveStateStore.ForInstalledGame(
+            playerDataDirectory,
+            gameOptions,
+            installedContentIdentity ?? throw new InvalidOperationException(
+                "Installed desktop session has no content identity."));
+    }
+
+    private ControllerInputRecorder StartInputRecorder()
+    {
+        if (playerDataDirectory is null)
+        {
+            return ControllerInputRecorder.Start(
+                romPath,
+                addressSpace.SaveRam,
+                gameOptions,
+                contentIdentity: null);
+        }
+
+        return ControllerInputRecorder.StartInstalled(
+            playerDataDirectory,
+            addressSpace.SaveRam,
+            gameOptions,
+            installedContentIdentity ?? throw new InvalidOperationException(
+                "Installed desktop session has no content identity."));
     }
 
     private void ReportReplayContentCompatibility()

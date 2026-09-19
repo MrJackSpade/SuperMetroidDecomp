@@ -7,28 +7,51 @@ namespace SuperMetroid.Android;
 /// <summary>Validated local file imports; replacement always preserves a unique recovery copy.</summary>
 internal static class AndroidFileImport
 {
-    public static string ImportState(string root, string romPath, string source, int slot)
+    /// <summary>Imports a state into an installed game without opening its private ROM.</summary>
+    public static string ImportState(string root, string source, int slot)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var installation = new SuperMetroid.AssetExtraction.GameInstallation(root);
         var contentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
             installation.LoadAudio(),
             installation.LoadMaps(),
             installation.LoadProjectiles());
-        var destinationStore = new DebuggerSaveStateStore(
-            romPath,
-            bus.Rom,
-            Path.Combine(root, "debug-states"),
-            contentIdentity: contentIdentity);
+        return ImportStateCore(
+            root,
+            source,
+            slot,
+            directory => DebuggerSaveStateStore.ForInstalledGame(
+                root,
+                hostOptions: null,
+                contentIdentity,
+                directory));
+    }
+
+    /// <summary>Imports a state for an explicit cartridge-backed diagnostic session.</summary>
+    public static string ImportState(string root, string romPath, string source, int slot)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        return ImportStateCore(
+            root,
+            source,
+            slot,
+            directory => new DebuggerSaveStateStore(
+                romPath,
+                bus.Rom,
+                directory));
+    }
+
+    private static string ImportStateCore(
+        string root,
+        string source,
+        int slot,
+        Func<string, DebuggerSaveStateStore> createStore)
+    {
+        var destinationStore = createStore(Path.Combine(root, "debug-states"));
         string destination = destinationStore.GetSlotPath(slot);
         string staging = Directory.CreateTempSubdirectory("SuperMetroid-import-").FullName;
         try
         {
-            var stagingStore = new DebuggerSaveStateStore(
-                romPath,
-                bus.Rom,
-                staging,
-                contentIdentity: contentIdentity);
+            var stagingStore = createStore(staging);
             File.Copy(source, stagingStore.GetSlotPath(slot));
             var decoded = stagingStore.Load(slot);
             if (decoded.AudioPlayer is null) throw new InvalidDataException("State has no managed audio graph.");
@@ -41,9 +64,21 @@ internal static class AndroidFileImport
         finally { Directory.Delete(staging, recursive: true); }
     }
 
+    /// <summary>Stages and fully validates an installed-game save without a cartridge payload.</summary>
+    public static string StageRegularSave(string root, string source) =>
+        StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge());
+
+    /// <summary>Stages a save for an explicit cartridge-backed diagnostic session.</summary>
     public static string StageRegularSave(string root, string romPath, string source)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        return StageRegularSaveCore(root, source, SuperMetroidAddressSpace.LoadRetailRom(romPath));
+    }
+
+    private static string StageRegularSaveCore(
+        string root,
+        string source,
+        SuperMetroidAddressSpace bus)
+    {
         // Validate the full schema and its SRAM application before publishing a pending
         // import. A separate file prevents ongoing gameplay persistence overwriting it.
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(source), source), bus);

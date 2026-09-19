@@ -50,6 +50,14 @@ public static class DebuggerSaveStateSmokeTest
             DebuggerSaveStateMetadata saved = store.Save(0, bus, game, audio.Player);
             if (store.Load(0).Warnings.Count != 0)
                 throw new InvalidDataException("Same-build debugger state emitted a build warning.");
+            DebuggerSaveStateLoadResult installedLoad = DebuggerSaveStateStore.ForInstalledGame(
+                temporaryDirectory,
+                hostOptions: null,
+                contentIdentity,
+                directoryOverride: temporaryDirectory).Load(0);
+            if (installedLoad.Warnings.Count != 0)
+                throw new InvalidDataException("Installer-verified debugger state identity did not match the retail source revision.");
+            VerifyInstalledRecorder(temporaryDirectory, bus.SaveRam, contentIdentity);
             // Change only the two build IDs: the exact graph must remain loadable and its
             // deterministic continuation below must still match, including PCM and pixels.
             using (var changedBuild = new FileStream(saved.Path, FileMode.Open, FileAccess.Write))
@@ -199,6 +207,33 @@ public static class DebuggerSaveStateSmokeTest
         Func<int, int> restored = DebuggerObjectGraphSerializer.Deserialize<Func<int, int>>(stream);
         if (restored(42) != 42 || restored.Method != method.Method)
             throw new InvalidDataException("Named generic delegate identity did not round-trip.");
+    }
+
+    private static void VerifyInstalledRecorder(
+        string dataDirectory,
+        ReadOnlySpan<byte> saveRam,
+        GameContentIdentity contentIdentity)
+    {
+        string recorderRoot = Path.Combine(dataDirectory, "installed-recorder");
+        string recordingPath;
+        using (ControllerInputRecorder recorder = ControllerInputRecorder.StartInstalled(
+                   recorderRoot,
+                   saveRam,
+                   new SuperMetroidGameOptions(),
+                   contentIdentity))
+        {
+            recordingPath = recorder.Path;
+            recorder.RecordFrame(0x1234);
+        }
+
+        ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
+        if (!recording.RomSha256.AsSpan().SequenceEqual(SupportedCartridge.CreateSha256Digest()) ||
+            recording.ControllerInputs is not [0x1234] ||
+            recording.ContentIdentity is null)
+        {
+            throw new InvalidDataException(
+                "Installed recorder did not persist the verified source and selected-content identities.");
+        }
     }
 
     private static T Identity<T>(T value) => value;

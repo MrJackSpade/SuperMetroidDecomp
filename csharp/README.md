@@ -515,8 +515,10 @@ manifest, which already contains every upload/WAV digest and all authored defini
 and Android combine that value with the selected map/projectile identities, supported source
 revision, and compiled Core build into a framed installation identity printed at session start.
 Formatting-only JSON changes retain identity; any audible or visual content edit changes the
-responsible component and aggregate digest. This is the compatibility/provenance seam for the
-ROM-free replay and debugger-state migration; legacy files still use their ROM digest for now.
+responsible component and aggregate digest. New controller recordings and debugger states store
+that installed-content identity alongside the supported source-revision digest. Older artifact
+schemas remain loadable with an explicit compatibility warning. Installed hosts obtain the known
+revision digest from the verified catalog and no longer reopen the private ROM merely to hash it.
 
 Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
 catalog at runtime.

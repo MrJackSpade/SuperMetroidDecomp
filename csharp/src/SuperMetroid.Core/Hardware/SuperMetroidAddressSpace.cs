@@ -31,8 +31,15 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
     /// title/size checks appropriate to the game runtime.
     /// </summary>
     public SuperMetroidAddressSpace(ReadOnlySpan<byte> unheaderedRom)
+        : this(unheaderedRom, allowMissingCartridge: false)
     {
-        if (unheaderedRom.IsEmpty || unheaderedRom.Length > 0x400000 || (unheaderedRom.Length & 0x7fff) != 0)
+    }
+
+    private SuperMetroidAddressSpace(ReadOnlySpan<byte> unheaderedRom, bool allowMissingCartridge)
+    {
+        if ((!allowMissingCartridge && unheaderedRom.IsEmpty) ||
+            unheaderedRom.Length > 0x400000 ||
+            (unheaderedRom.Length & 0x7fff) != 0)
         {
             throw new ArgumentException(
                 "ROM must contain one to 128 complete 32 KiB LoROM banks.",
@@ -43,6 +50,14 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
         // retaining an external span would make later DMA behavior depend on its lifetime.
         _rom = unheaderedRom.ToArray();
     }
+
+    /// <summary>
+    /// Creates the mutable WRAM/SRAM portion of the runtime address space without a
+    /// cartridge payload. This is used by ROM-independent save validation and will still
+    /// fail loudly if code accidentally attempts to read a cartridge address.
+    /// </summary>
+    public static SuperMetroidAddressSpace CreateWithoutCartridge() =>
+        new(ReadOnlySpan<byte>.Empty, allowMissingCartridge: true);
 
     /// <summary>Read-only cartridge bytes for disassembly and debugger inspection.</summary>
     public ReadOnlySpan<byte> Rom => _rom;

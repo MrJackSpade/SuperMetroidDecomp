@@ -77,16 +77,57 @@ internal sealed class ControllerInputRecorder : IDisposable
         string recordingDirectory = recordingDirectoryOverride is null
             ? System.IO.Path.Combine(romDirectory, RecordingDirectoryName)
             : System.IO.Path.GetFullPath(recordingDirectoryOverride);
+
+        byte[] digest;
+        using (FileStream rom = File.OpenRead(fullRomPath))
+            digest = SHA256.HashData(rom);
+        return StartCore(recordingDirectory, digest, initialSaveRam, gameOptions, contentIdentity);
+    }
+
+    /// <summary>
+    /// Starts an installed-game journal from the installer-verified source identity without
+    /// reopening the private cartridge file. Explicit cartridge diagnostics retain
+    /// <see cref="Start(string, ReadOnlySpan{byte}, SuperMetroidGameOptions, GameContentIdentity?, string?)"/>.
+    /// </summary>
+    public static ControllerInputRecorder StartInstalled(
+        string dataDirectory,
+        ReadOnlySpan<byte> initialSaveRam,
+        SuperMetroidGameOptions gameOptions,
+        GameContentIdentity contentIdentity)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
+        ArgumentNullException.ThrowIfNull(gameOptions);
+        ArgumentNullException.ThrowIfNull(contentIdentity);
+        if (!contentIdentity.SourceCartridgeSha256.Equals(
+                SupportedCartridge.Sha256,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidDataException(
+                "Installed content identity does not name the supported source cartridge revision.");
+        }
+        if (initialSaveRam.Length != SuperMetroidAddressSpace.SaveRamByteCount)
+            throw new ArgumentException("Recorder startup requires a complete 8 KiB SRAM image.", nameof(initialSaveRam));
+        return StartCore(
+            System.IO.Path.Combine(System.IO.Path.GetFullPath(dataDirectory), RecordingDirectoryName),
+            SupportedCartridge.CreateSha256Digest(),
+            initialSaveRam,
+            gameOptions,
+            contentIdentity);
+    }
+
+    private static ControllerInputRecorder StartCore(
+        string recordingDirectory,
+        byte[] romDigest,
+        ReadOnlySpan<byte> initialSaveRam,
+        SuperMetroidGameOptions gameOptions,
+        GameContentIdentity? contentIdentity)
+    {
         Directory.CreateDirectory(recordingDirectory);
         string timestamp = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss-fff");
         string path = System.IO.Path.Combine(
             recordingDirectory,
             $"SuperMetroid-input-{timestamp}.smrec");
-
-        byte[] digest;
-        using (FileStream rom = File.OpenRead(fullRomPath))
-            digest = SHA256.HashData(rom);
-        return new ControllerInputRecorder(path, digest, initialSaveRam, gameOptions, contentIdentity);
+        return new ControllerInputRecorder(path, romDigest, initialSaveRam, gameOptions, contentIdentity);
     }
 
     /// <summary>

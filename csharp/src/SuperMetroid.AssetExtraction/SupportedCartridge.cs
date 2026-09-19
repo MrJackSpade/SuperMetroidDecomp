@@ -15,6 +15,13 @@ public static class SupportedCartridge
     /// <summary>Human-readable revision accepted by the installer.</summary>
     public const string Description = "Super Metroid (Japan/USA, NTSC v1.0)";
 
+    /// <summary>
+    /// Returns the binary source-revision digest stored in recordings and debugger states.
+    /// Installed hosts use this catalog identity instead of reopening the private cartridge
+    /// file solely to hash bytes that the installer already verified.
+    /// </summary>
+    public static byte[] CreateSha256Digest() => Convert.FromHexString(Sha256);
+
     /// <summary>Reads bounded input, strips an optional copier header, and rejects other revisions or modifications.</summary>
     public static byte[] Read(Stream source, CancellationToken cancellationToken = default)
     {

@@ -22,19 +22,63 @@ internal sealed class DebuggerSaveStateStore
         string? directoryOverride = null,
         SuperMetroidGameOptions? hostOptions = null,
         GameContentIdentity? contentIdentity = null)
+        : this(
+            directoryOverride is null
+                ? Path.Combine(
+                    Path.GetDirectoryName(Path.GetFullPath(romPath))
+                        ?? throw new InvalidOperationException("ROM path has no parent directory."),
+                    "debug-states")
+                : Path.GetFullPath(directoryOverride),
+            SHA256.HashData(cartridgeRom),
+            hostOptions,
+            contentIdentity)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
+    }
+
+    private DebuggerSaveStateStore(
+        string directory,
+        byte[] romDigest,
+        SuperMetroidGameOptions? hostOptions,
+        GameContentIdentity? contentIdentity)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        if (romDigest.Length != SHA256.HashSizeInBytes)
+            throw new ArgumentException("Debugger state source digest must contain 32 bytes.", nameof(romDigest));
         // Null preserves the captured policy for exact replay. Interactive hosts
         // explicitly supply their active INI options instead of trusting old state.
         this.hostOptions = hostOptions;
         this.contentIdentity = contentIdentity;
-        directory = directoryOverride is null
-            ? Path.Combine(
-                Path.GetDirectoryName(Path.GetFullPath(romPath))
-                    ?? throw new InvalidOperationException("ROM path has no parent directory."),
-                "debug-states")
-            : Path.GetFullPath(directoryOverride);
-        romDigest = SHA256.HashData(cartridgeRom);
+        this.directory = Path.GetFullPath(directory);
+        this.romDigest = romDigest.ToArray();
+    }
+
+    /// <summary>
+    /// Creates a store for an installed game whose source revision was already verified by
+    /// the asset installer. No private cartridge file is opened to establish identity.
+    /// </summary>
+    public static DebuggerSaveStateStore ForInstalledGame(
+        string dataDirectory,
+        SuperMetroidGameOptions? hostOptions,
+        GameContentIdentity contentIdentity,
+        string? directoryOverride = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
+        ArgumentNullException.ThrowIfNull(contentIdentity);
+        if (!contentIdentity.SourceCartridgeSha256.Equals(
+                SupportedCartridge.Sha256,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidDataException(
+                "Installed content identity does not name the supported source cartridge revision.");
+        }
+        return new DebuggerSaveStateStore(
+            directoryOverride is null
+                ? Path.Combine(Path.GetFullPath(dataDirectory), "debug-states")
+                : Path.GetFullPath(directoryOverride),
+            SupportedCartridge.CreateSha256Digest(),
+            hostOptions,
+            contentIdentity);
     }
 
     public string DirectoryPath => directory;

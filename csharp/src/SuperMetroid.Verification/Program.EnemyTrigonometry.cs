@@ -85,6 +85,7 @@ internal static partial class Program
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);
         VerifyWaverAnimationDefinitions(rom);
+        VerifyWaverInstructionProgramDefinitions(rom);
         VerifySkreeMetareeAnimationDefinitions(rom);
         VerifyZoaAnimationDefinitions(rom);
         VerifyDragonAnimationDefinitions(rom);

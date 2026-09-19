@@ -3587,6 +3587,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == SkulteraDefinition)
             return SkulteraInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == WaverDefinition)
+            return WaverInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

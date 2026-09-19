@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 internal static class OrdinaryEnemyInstructionLists
 {
     /// <summary><c>kWaver_Ilist_86A7</c> at $A3:86A7.</summary>
-    public const ushort WaverInitial = 0x86a7;
+    public const ushort WaverInitial = WaverInstructionProgramDefinitions.SteadyFacingLeft;
     /// <summary><c>kMetalee_Ilist_8910</c> at $A3:8910.</summary>
     public const ushort MetareeInitial = 0x8910;
     /// <summary><c>kFireflea_Ilist_8C2F</c> at $A3:8C2F.</summary>

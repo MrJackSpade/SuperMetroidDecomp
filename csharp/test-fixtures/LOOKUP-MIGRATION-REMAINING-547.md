@@ -962,6 +962,19 @@ forbidden, and observes every spritemap. It also proves the layer-two/layer-six 
 and both turn-completion flags execute. Presentation and adjacent native-code pointers fail
 as restored mechanics cursors, and warmed lookup is allocation-free.
 
+## Waver instruction mechanics
+
+Waver's left/right steady and spinning programs now share a strict
+`WaverInstructionProgramDefinitions` boundary. Sixteen immutable durations,
+spin-completion callbacks, and sleep words are compiled; ten interleaved spritemap
+operands remain live presentation reads. The separately verified selector table now
+names these program entries rather than duplicating their numeric addresses.
+
+Production verification runs every program through its terminal sleep with all compiled
+mechanics bytes forbidden, observes all ten spritemaps, and proves both spinning callbacks
+publish completion. Presentation and adjacent selector-table pointers fail as restored
+mechanics cursors, and warmed lookup is allocation-free.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

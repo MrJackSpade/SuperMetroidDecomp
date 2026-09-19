@@ -2925,6 +2925,20 @@ operands remain observable through the cartridge bus; the production callbacks s
 layers two and six and publish both turn-completion flags. Presentation and adjacent-code
 pointers fail as mechanics, and warmed lookup is allocation-free.
 
+# Waver instruction mechanics
+
+Waver's left/right steady and spinning programs now resolve all sixteen fixed durations,
+spin-completion callbacks, and terminal sleeps through
+`WaverInstructionProgramDefinitions`. Their ten interleaved spritemap pointers remain
+live cartridge-backed presentation data. The existing four-way animation selector uses
+the same named program entries rather than duplicating raw addresses.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four production programs through their terminal sleeps while every mechanics source byte
+is forbidden. All ten spritemap operands remain observable through the cartridge bus, and
+both spinning programs publish their completion flag. Presentation and adjacent selector-
+table pointers fail as mechanics, and warmed lookup is allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

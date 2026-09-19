@@ -21,10 +21,10 @@ internal static class WaverAnimationDefinitions
     /// </summary>
     private static readonly ushort[] InstructionLists =
     [
-        0x86a7,
-        0x86ad,
-        0x86b3,
-        0x86c7,
+        WaverInstructionProgramDefinitions.SteadyFacingLeft,
+        WaverInstructionProgramDefinitions.SteadyFacingRight,
+        WaverInstructionProgramDefinitions.SpinningFacingLeft,
+        WaverInstructionProgramDefinitions.SpinningFacingRight,
     ];
 
     /// <summary>Returns the native instruction list for one facing/spin combination.</summary>

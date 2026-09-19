@@ -227,6 +227,11 @@ actor-definition triples plus the fixed position/palette initializer payloads. T
 hatching threshold and both scientist-scene page transitions run with all 24 native words
 forbidden; animation lists and spritemaps remain cartridge presentation data.
 
+The six egg-shell fragments and shared slime-drop owner now compile all seven actor-definition
+triples. Every fragment and slime-drop lifetime runs with those 21 callback/list words
+forbidden; their already-compiled physical curves remain independent, while animation lists
+and spritemaps remain cartridge presentation data.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

@@ -9,6 +9,7 @@ internal sealed class IntroEggParticle
 
     public IntroEggParticle(byte index)
     {
+        IntroEggEffectActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
         // $A958 indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
         // twelve native words so this physical spawn does not require a cartridge read.
@@ -17,12 +18,11 @@ internal sealed class IntroEggParticle
             x,
             y,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: unchecked((ushort)(
-                CinematicCodePointers.Lists.MetroidEggParticle1 +
-                index * CinematicCodePointers.Lists.MetroidEggParticleStride)))
+            instructionPointer: definition.InstructionList)
         {
             GeneralTimer = index,
         };
+        sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
     public bool IsActive => sprite.IsActive;
@@ -31,6 +31,12 @@ internal sealed class IntroEggParticle
     {
         if (!sprite.IsActive)
             return;
+        if (sprite.PreInstructionPointer != IntroEggEffectDefinitions.Particle(
+                sprite.GeneralTimer & 0x00ff).PreInstruction)
+        {
+            throw new InvalidDataException(
+                $"Intro egg particle names invalid pre-instruction $8B:{sprite.PreInstructionPointer:X4}.");
+        }
 
         // $A994 uses the low timer byte as the immutable fragment number and the high byte
         // as a gravity-table index. Each velocity is a signed 16.16 pair stored high-word

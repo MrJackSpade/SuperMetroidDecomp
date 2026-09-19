@@ -896,6 +896,11 @@ if (args is ["--intro-baby-actor-definitions"])
     VerifyIntroBabyActorDefinitions();
     return 0;
 }
+if (args is ["--intro-egg-effect-definitions"])
+{
+    VerifyIntroEggEffectDefinitions();
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();
@@ -1368,6 +1373,7 @@ VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyIntroMotherBrainDefinitions();
 VerifyIntroRinkaDefinitions();
 VerifyIntroBabyActorDefinitions();
+VerifyIntroEggEffectDefinitions();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();

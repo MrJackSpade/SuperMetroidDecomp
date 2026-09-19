@@ -10,8 +10,10 @@ internal sealed class IntroEggSlimeDrop
 
     public IntroEggSlimeDrop(ushort babyX, ushort babyY, byte index)
     {
-        if (index >= 4)
+        if (index >= IntroEggEffectDefinitions.SlimeDropCount)
             throw new ArgumentOutOfRangeException(nameof(index));
+
+        IntroEggEffectActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
 
         // $AA9A copies the confused baby's slot coordinates rather than using a separate
         // literal position table. Its low timer byte remains the horizontal trajectory ID.
@@ -19,10 +21,11 @@ internal sealed class IntroEggSlimeDrop
             babyX,
             babyY,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: CinematicCodePointers.Lists.MetroidEggSlimeDrops)
+            instructionPointer: definition.InstructionList)
         {
             GeneralTimer = index,
         };
+        sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
     public bool IsActive => sprite.IsActive;
@@ -34,6 +37,11 @@ internal sealed class IntroEggSlimeDrop
 
         if (motionEnabled)
         {
+            if (sprite.PreInstructionPointer != IntroEggEffectDefinitions.SlimeDrop.PreInstruction)
+            {
+                throw new InvalidDataException(
+                    $"Intro egg slime names invalid pre-instruction $8B:{sprite.PreInstructionPointer:X4}.");
+            }
             AddVelocity(horizontal: true, IntroEggMotionDefinitions.SlimeX(sprite.GeneralTimer & 0xff));
 
             // BIT #1 selects two different gravity curves. This is the parameter's parity,
@@ -46,6 +54,8 @@ internal sealed class IntroEggSlimeDrop
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
                 sprite.Redirect(CinematicCodePointers.Lists.MetroidEggParticleHitGround);
+                sprite.PreInstructionPointerForDiscovery(
+                    CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
                 motionEnabled = false;
             }
             else

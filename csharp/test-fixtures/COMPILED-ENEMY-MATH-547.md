@@ -2636,3 +2636,14 @@ remain cartridge presentation data.
 Verification compares twelve definition words and twelve initializer immediates with the
 pinned cartridge, triggers the egg's native hatching threshold, and runs both scientist
 actors through their page-transition instructions while all source records are forbidden.
+
+# Intro egg-fragment and slime actor definitions
+
+The six shell-fragment definitions and the shared slime-drop definition now compile their
+initializer, pre-instruction, and initial-list identities in `IntroEggEffectDefinitions`.
+Their already-compiled physical origins and curves remain separate from the cartridge-backed
+animation programs and spritemaps.
+
+Verification compares all 21 definition words with the pinned cartridge, rejects a seventh
+fragment selector, and runs six complete fragment lifetimes plus four slime-drop motion and
+puddle-animation lifetimes while the complete source-definition range is forbidden.

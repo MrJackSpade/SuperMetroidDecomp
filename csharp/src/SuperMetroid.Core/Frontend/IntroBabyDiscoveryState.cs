@@ -174,7 +174,7 @@ internal sealed class IntroBabyDiscoveryState
             case CinematicCodePointers.Instruction_SpawnMetroidEggParticles:
                 // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
                 // and init parameters zero through five, in this exact order.
-                for (byte index = 0; index < 6; index++)
+                for (byte index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
                     eggParticles.Add(new IntroEggParticle(index));
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.EggHatch,
@@ -267,7 +267,7 @@ internal sealed class IntroBabyDiscoveryState
         // reaches this scanline once. Four init parameters select four distinct arcs.
         if (confusedBaby.YPosition == 0x0091 && slimeDrops.Count == 0)
         {
-            for (byte index = 0; index < 4; index++)
+            for (byte index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
             {
                 slimeDrops.Add(new IntroEggSlimeDrop(
                     confusedBaby.XPosition,

@@ -906,6 +906,11 @@ if (args is ["--ceres-explosion-definitions"])
     VerifyCeresExplosionDefinitions();
     return 0;
 }
+if (args is ["--ceres-flight-actor-definitions"])
+{
+    VerifyCeresFlightActorDefinitions();
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();
@@ -1380,6 +1385,7 @@ VerifyIntroRinkaDefinitions();
 VerifyIntroBabyActorDefinitions();
 VerifyIntroEggEffectDefinitions();
 VerifyCeresExplosionDefinitions();
+VerifyCeresFlightActorDefinitions();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();

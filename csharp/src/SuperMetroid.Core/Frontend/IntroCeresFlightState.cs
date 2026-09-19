@@ -39,14 +39,8 @@ internal sealed class IntroCeresFlightState
     private readonly SnesCgram cgram = new();
     private readonly byte[] tilemap;
     private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
-    private readonly IntroDiscoverySprite stars = new(
-        xPosition: 0x0070,
-        yPosition: 0x0057,
-        paletteBits: SnesObjPalettes.Index4.PaletteBits,
-        instructionPointer: CinematicCodePointers.Lists.CeresStars)
-    {
-        GeneralTimer = 0xfc00,
-    };
+    private readonly IntroDiscoverySprite stars =
+        CreateActor(CeresFlightActorDefinitions.FrontStars);
 
     private ushort backgroundX = 0xffb8;
     private ushort backgroundXSubPosition;
@@ -244,22 +238,12 @@ internal sealed class IntroCeresFlightState
         backgroundYSubPosition = 0;
         angle = SnesAngle.FromTableIndex(0x20);
 
-        // These five slots are the exact $BE3B-$BE5C spawn order. Their list pointers and
-        // initial positions come from definitions $CF39/$CE85/$CE8B/$CE91/$CF0F; keeping
-        // each as the shared bank-$8B interpreter preserves its ROM spritemap selection.
-        rearViewActors =
-        [
-            CreateRearActor(0x0050, 0x009f, SnesObjPalettes.Index4,
-                CinematicCodePointers.Lists.CeresExplosionLargeAsteroids),
-            CreateRearActor(0x0074, 0x00a0, SnesObjPalettes.Index6,
-                CinematicCodePointers.Lists.CeresUnderAttack),
-            CreateRearActor(0x0080, 0x0060, SnesObjPalettes.Index4,
-                CinematicCodePointers.Lists.CeresSmallAsteroids),
-            CreateRearActor(0x00e0, 0x0057, SnesObjPalettes.Index4,
-                CinematicCodePointers.Lists.CeresPurpleSpaceVortex),
-            CreateRearActor(0xffe0, 0x0057, SnesObjPalettes.Index4,
-                CinematicCodePointers.Lists.CeresStars),
-        ];
+        // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
+        // remain cartridge streams; the compiled definitions supply callback identity,
+        // initializer results and the physical motion applied by StepRearViewActors.
+        rearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
+            .Select(index => CreateActor(CeresFlightActorDefinitions.RearViewActor(index)))
+            .ToArray();
 
         // CGADSUB=$31 adds the fixed colour to BG1, OBJ, and backdrop. $BE09 begins at
         // white and $BFDA removes one five-bit component step per frame until black.
@@ -269,11 +253,19 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 
-    private static IntroDiscoverySprite CreateRearActor(
-        ushort x,
-        ushort y,
-        SnesObjAttributeWord palette,
-        ushort instructionPointer) => new(x, y, palette, instructionPointer);
+    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition)
+    {
+        var actor = new IntroDiscoverySprite(
+            definition.X,
+            definition.Y,
+            definition.Attributes,
+            definition.InstructionList)
+        {
+            GeneralTimer = definition.InitialTimer,
+        };
+        actor.PreInstructionPointerForDiscovery(definition.ActivePreInstruction);
+        return actor;
+    }
 
     private void StepFlyingTowardCeres()
     {
@@ -387,22 +379,18 @@ internal sealed class IntroCeresFlightState
         for (int index = 0; index < rearViewActors.Length; index++)
         {
             IntroDiscoverySprite actor = rearViewActors[index];
-            switch (index)
+            CeresFlightActorDefinition definition =
+                CeresFlightActorDefinitions.RearViewActor(index);
+            if (actor.PreInstructionPointer != definition.ActivePreInstruction)
             {
-                case 0:
-                    AddWrappedX(actor, 0x4000); // $BF35: +0.4000, modulo $200.
-                    break;
-                case 1:
-                    AddWrappedX(actor, 0x1000); // $BF5F: +0.1000, modulo $200.
-                    break;
-                case 2:
-                    AddWrappedX(actor, 0x0800); // $BF89: +0.0800, modulo $200.
-                    break;
-                case 3:
-                case 4:
-                    AddSignedX(actor, unchecked((int)0xffff_e000)); // $BFC6: -0.2000.
-                    break;
+                throw new InvalidDataException(
+                    $"Ceres flight actor {index} names invalid pre-instruction " +
+                    $"$8B:{actor.PreInstructionPointer:X4}.");
             }
+            if (definition.WrapX)
+                AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
+            else
+                AddSignedX(actor, definition.HorizontalDelta);
             actor.Step(bus);
         }
     }
@@ -457,7 +445,15 @@ internal sealed class IntroCeresFlightState
     {
         // BEBE adds $0080 to a signed 8.8 speed, then applies that same growing delta to
         // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
-        stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer + 0x0080));
+        if (stars.PreInstructionPointer !=
+            CeresFlightActorDefinitions.FrontStars.ActivePreInstruction)
+        {
+            throw new InvalidDataException(
+                $"Ceres front stars name invalid pre-instruction " +
+                $"$8B:{stars.PreInstructionPointer:X4}.");
+        }
+        stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer +
+            CeresFlightActorDefinitions.FrontStarAcceleration));
         ushort velocity = stars.GeneralTimer;
         ushort starX = stars.XPosition;
         ushort starXSub = stars.XSubPosition;

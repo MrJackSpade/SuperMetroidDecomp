@@ -30,6 +30,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     private ushort _instructionTimer;
     private ushort _transferByteCount;
     private ushort _encodedVramDestination;
+    private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
     public bool IsActive { get; private set; }
@@ -55,6 +56,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         _instructionTimer = 0;
         _transferByteCount = 0;
         _encodedVramDestination = 0;
+        _compiledMechanics = null;
     }
 
     /// <summary>
@@ -64,24 +66,46 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     public void Start(ISnesAddressSpace bus, WreckedShipTreadmillDirection direction)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ushort objectPointer = direction switch
-        {
-            WreckedShipTreadmillDirection.Rightwards =>
-                AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
-            WreckedShipTreadmillDirection.Leftwards =>
-                AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
-            _ => throw new InvalidDataException(
-                $"Unknown Wrecked Ship treadmill direction {direction}."),
-        };
+        WreckedShipTreadmillObjectDefinition definition =
+            WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
+        StartDefinition(bus, direction, definition.ObjectPointer);
+    }
+
+    /// <summary>
+    /// Starts one bank-$87 definition. Stock pointers bind compiled mechanics; this seam
+    /// retains strict generic-dispatch tests for deliberately constructed definitions.
+    /// </summary>
+    internal void StartDefinition(
+        ISnesAddressSpace bus,
+        WreckedShipTreadmillDirection direction,
+        ushort objectPointer)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
 
         IsActive = true;
         Direction = direction;
         NextFrameIndex = 0;
         LastSourceAddress = null;
         _objectPointer = objectPointer;
-        _instructionPointer = ReadBank87Word(bus, objectPointer);
-        _transferByteCount = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 2)));
-        _encodedVramDestination = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 4)));
+        if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(
+                objectPointer, out _compiledMechanics))
+        {
+            if (_compiledMechanics.Direction != direction)
+            {
+                throw new InvalidDataException(
+                    $"Wrecked Ship treadmill object $87:{objectPointer:X4} belongs to " +
+                    $"{_compiledMechanics.Direction}, not {direction}.");
+            }
+            _instructionPointer = _compiledMechanics.WaitInstructionPointer;
+            _transferByteCount = WreckedShipTreadmillRomData.TransferByteCount;
+            _encodedVramDestination = WreckedShipTreadmillRomData.EncodedVramDestination;
+        }
+        else
+        {
+            _instructionPointer = ReadBank87Word(bus, objectPointer);
+            _transferByteCount = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 2)));
+            _encodedVramDestination = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 4)));
+        }
         _instructionTimer = 1;
 
         if (_transferByteCount == 0)
@@ -114,9 +138,15 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         ushort cursor = _instructionPointer;
         for (int guard = 0; guard < 64; guard++)
         {
-            ushort word = ReadBank87Word(bus, cursor);
+            ushort word = ReadMechanicsWord(bus, cursor);
             if ((word & 0x8000) == 0)
             {
+                if (word == 0)
+                {
+                    throw new InvalidDataException(
+                        $"Animated-tile object $87:{_objectPointer:X4} has a zero-duration " +
+                        $"frame at $87:{cursor:X4}.");
+                }
                 _instructionTimer = word;
                 ushort sourcePointer = ReadBank87Word(
                     bus,
@@ -138,7 +168,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                     return;
 
                 case AnimatedTileInstructionCodes.Goto:
-                    cursor = ReadBank87Word(bus, unchecked((ushort)(cursor + 2)));
+                    cursor = ReadMechanicsWord(bus, unchecked((ushort)(cursor + 2)));
                     break;
 
                 case AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead:
@@ -160,6 +190,18 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         throw new InvalidDataException(
             $"Animated-tile object $87:{_objectPointer:X4} exceeded 64 leading " +
             $"instructions at $87:{cursor:X4}.");
+    }
+
+    private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
+    {
+        if (_compiledMechanics is null)
+            return ReadBank87Word(bus, pointer);
+        if (_compiledMechanics.TryReadMechanicsWord(pointer, out ushort value))
+            return value;
+
+        throw new InvalidDataException(
+            $"Wrecked Ship treadmill object $87:{_objectPointer:X4} reached non-catalog " +
+            $"mechanics word $87:{pointer:X4}.");
     }
 
     private static ushort ReadBank87Word(ISnesAddressSpace bus, ushort pointer) =>

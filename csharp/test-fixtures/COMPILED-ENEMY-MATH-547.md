@@ -2737,3 +2737,8 @@ five loop targets. Lava, acid, rain, Maridia ceiling sand, and falling sand each
 a production loop with all mechanics bytes forbidden. The 23 interleaved source pointers
 and their character payloads remain live presentation data rather than being folded into
 the engine catalog.
+
+The two Wrecked Ship treadmill objects compile another 20 engine words in their dedicated
+catalog: headers, boss waits, eight one-call durations, loop opcodes, and targets. Both
+directional production streams now wait for Phantoon, play all four frames, and loop with
+control reads forbidden. Their eight graphics-source operands remain live presentation.

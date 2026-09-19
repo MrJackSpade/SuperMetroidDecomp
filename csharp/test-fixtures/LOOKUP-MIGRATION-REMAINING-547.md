@@ -814,3 +814,11 @@ complete loop for every production object while every mechanics byte is forbidde
 also proves that all 23 presentation-source operands are still read from the cartridge.
 Unknown/non-retail definitions retain the strict generic interpreter; a restored stock
 object cannot escape its compiled control domain into arbitrary adjacent bank-$87 data.
+
+The two Wrecked Ship treadmill objects use a separate boss-gated interpreter and are now
+compiled independently in `WreckedShipTreadmillMechanicsDefinitions`. Their two headers,
+two boss-wait commands, eight frame durations, two loop opcodes, and two loop targets total
+20 additional mechanics words. Both directions execute the wait, all four frames, and the
+loop with every control byte forbidden, while their eight source operands remain live
+presentation references. Constructed non-retail definitions still exercise strict generic
+dispatch and unknown-command failure.

@@ -138,7 +138,7 @@ public sealed partial class RoomEnemySystem
             MaximumY = 0x00b0,
             MinimumX = 0x0028,
             MaximumX = 0x00e0,
-            BabyInstruction = 0xbf31,
+            BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial,
             BabyInstructionTimer = 1,
             BabyFunction = 0xbe9c,
             BabyCurrentSpritemap = 0,

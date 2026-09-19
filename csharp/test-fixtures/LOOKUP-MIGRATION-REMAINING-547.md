@@ -831,6 +831,18 @@ observes every one of those presentation words through the live bus. Invalid res
 pointers fail rather than escaping into adjacent bank data, and warmed lookups allocate no
 per-frame storage.
 
+## Ceres Baby instruction mechanics
+
+The Ceres Baby draw interpreter's private `$A6:BF31-$BFC7` program is split by ownership
+in `CeresBabyInstructionProgramDefinitions`. Forty-three fixed callback, branch-target,
+and duration words are compiled mechanics. Thirty-three interleaved palette and spritemap
+operands remain live presentation reads.
+
+The production interpreter completes the entire two-list animation loop with all mechanics
+bytes forbidden and every presentation operand observed. Focused cases also exercise the
+stationary 50% random branch and the moving branch. Invalid restored pointers cannot enter
+the adjacent native callback code, and warmed mechanics lookups allocate no storage.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

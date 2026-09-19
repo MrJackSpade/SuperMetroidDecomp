@@ -492,7 +492,7 @@ public sealed partial class RoomEnemySystem
         ushort cursor = state.BabyInstruction;
         for (int commandCount = 0; commandCount < 64; commandCount++)
         {
-            ushort word = ReadWord(_bus!, 0xa60000 | cursor);
+            ushort word = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
             if ((word & 0x8000) == 0)
             {
                 // $A6:DBE7 compares the frame duration with the private elapsed timer. A
@@ -529,7 +529,7 @@ public sealed partial class RoomEnemySystem
                     cursor = state.BabyVerticalVelocity != 0
                         ? unchecked((ushort)(argument + 2))
                         : (_nextRandom!() & 1) != 0
-                            ? ReadWord(_bus!, 0xa60000 | argument)
+                            ? CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument)
                             : unchecked((ushort)(argument + 2));
                     break;
 
@@ -545,12 +545,12 @@ public sealed partial class RoomEnemySystem
 
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling:
                     cursor = state.BabyVerticalVelocity != 0
-                        ? ReadWord(_bus!, 0xa60000 | argument)
+                        ? CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument)
                         : unchecked((ushort)(argument + 2));
                     break;
 
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoX:
-                    cursor = ReadWord(_bus!, 0xa60000 | argument);
+                    cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
                     break;
 
                 default:

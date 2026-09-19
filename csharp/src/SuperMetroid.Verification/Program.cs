@@ -47,6 +47,11 @@ if (args is ["--spore-spawn-instruction-mechanics"])
     VerifySporeSpawnInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-baby-instruction-mechanics"])
+{
+    VerifyCeresBabyInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

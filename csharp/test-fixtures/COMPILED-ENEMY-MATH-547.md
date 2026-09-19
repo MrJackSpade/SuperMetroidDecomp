@@ -2761,6 +2761,19 @@ executes all five production entry points while every mechanics source byte is f
 observes all 41 presentation words through the ROM path, rejects invalid restored pointers,
 and proves warmed lookups allocate no per-frame storage.
 
+# Ceres Baby instruction mechanics
+
+The Ceres Baby's private draw program at `$A6:BF31-$BFC7` now uses
+`CeresBabyInstructionProgramDefinitions` for all 43 control words: callback identities,
+conditional and unconditional branch targets, and frame durations. Its 33 palette and
+spritemap operands remain live cartridge-backed presentation data.
+
+Verification compares every mechanics word with the pinned cartridge, executes the full
+production animation loop with those source bytes forbidden, observes every presentation
+operand through the live bus, and covers both the moving and stationary random branches.
+Presentation addresses and restored pointers into adjacent callback code fail as mechanics;
+warmed catalog lookups allocate nothing.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

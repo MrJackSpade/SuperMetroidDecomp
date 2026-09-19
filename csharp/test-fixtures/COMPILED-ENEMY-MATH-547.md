@@ -2869,6 +2869,20 @@ callbacks publish sound and all 22 activity frames before clearing collision and
 hiding both parts. Invalid presentation/code pointers fail as mechanics, and warmed
 lookup is allocation-free.
 
+# Blue Brinstar face-block instruction mechanics
+
+The neutral and both directional Blue Brinstar face-block programs now resolve all
+ten fixed duration and terminal-sleep words through
+`BlueBrinstarFaceBlockInstructionProgramDefinitions`. Their seven interleaved
+spritemap pointers remain live cartridge-backed presentation data.
+
+Verification compares every mechanics word with the pinned cartridge, exercises the
+real initializer and both Samus-side activation paths, and runs all three production
+programs to their terminal sleeps while every mechanics source byte is forbidden.
+All seven spritemap operands remain observable through the cartridge bus; presentation
+and adjacent initializer-code addresses fail as mechanics, and warmed lookup is
+allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

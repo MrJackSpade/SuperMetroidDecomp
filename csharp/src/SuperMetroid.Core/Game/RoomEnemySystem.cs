@@ -3572,6 +3572,12 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == HibashiDefinitions.EnemyDefinition)
             return HibashiInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition)
+        {
+            return BlueBrinstarFaceBlockInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

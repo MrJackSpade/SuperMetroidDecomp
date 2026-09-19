@@ -66,9 +66,6 @@ public sealed partial class RoomEnemySystem
         EnemyAiCodePointers.BankA8.BlueBrinstarFaceBlockShot;
 
     private const ushort BlueBrinstarFaceBlockMorphBallItemMask = 0x0004;
-    private const ushort BlueBrinstarFaceBlockInitialInstructionList = 0xe828;
-    private const ushort BlueBrinstarFaceBlockSamusLeftInstructionList = 0xe80c;
-    private const ushort BlueBrinstarFaceBlockSamusRightInstructionList = 0xe81a;
     private const int BlueBrinstarFaceBlockPaletteTable = 0xa8e7cc;
     private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
     private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
@@ -110,7 +107,7 @@ public sealed partial class RoomEnemySystem
 
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.
-        slot.CurrentInstruction = BlueBrinstarFaceBlockInitialInstructionList;
+        slot.CurrentInstruction = BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
@@ -163,8 +160,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         slot.CurrentInstruction = horizontalSign != 0
-            ? BlueBrinstarFaceBlockSamusLeftInstructionList
-            : BlueBrinstarFaceBlockSamusRightInstructionList;
+            ? BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft
+            : BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusRight;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         state.Activated = true;

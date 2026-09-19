@@ -159,6 +159,9 @@ radius and frame-zero width while `$A6:8DBB-$A6:8E12` is forbidden. Its paired
 graphics/hitbox programs compile all 50 mechanics words while retaining 24 live
 spritemap operands; both production streams reach terminal sleep with control reads
 forbidden.
+Blue Brinstar face blocks now compile all ten duration/sleep words across their
+neutral and directional programs. Both activation sides and all three terminal sleeps
+execute with mechanics reads forbidden while seven spritemap operands remain live.
 Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
 compiled as typed phase records. Real initialization, rising, falling and overlay
 tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
@@ -902,6 +905,18 @@ byte forbidden, observes every spritemap, and asserts eruption sound publication
 all 22 hitbox placements, final collision removal, actor visibility, and both sleep
 cursors. Presentation operands and callback code addresses are rejected as restored
 mechanics cursors, and warmed lookup is allocation-free.
+
+## Blue Brinstar face-block instruction mechanics
+
+The neutral initializer program and both directional activation programs now share a
+strict `BlueBrinstarFaceBlockInstructionProgramDefinitions` boundary. Ten immutable
+duration/sleep words are compiled; seven interleaved spritemap operands remain live
+presentation reads.
+
+Production verification runs the actual initializer plus left- and right-side Samus
+activation through each terminal sleep with every compiled mechanics byte forbidden.
+It observes all seven spritemaps, rejects presentation and adjacent native-code pointers
+as restored mechanics cursors, and proves warmed lookup is allocation-free.
 
 ## Room-FX animated-tile mechanics
 

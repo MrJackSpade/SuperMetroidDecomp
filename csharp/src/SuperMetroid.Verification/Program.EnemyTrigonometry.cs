@@ -38,6 +38,7 @@ internal static partial class Program
         VerifyOwtchMovementDefinitions(rom);
         VerifyNuclearWaffleDefinitions(rom);
         VerifyHibashiDefinitions(rom);
+        VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(rom);
         VerifyMagdollitePhaseDefinitions(rom);
         VerifyFuneNamiheDefinitions(rom);
         VerifyFuneNamiheInstructionProgramDefinitions(rom);

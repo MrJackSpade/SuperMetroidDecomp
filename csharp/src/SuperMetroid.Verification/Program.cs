@@ -92,6 +92,11 @@ if (args is ["--hibashi-instruction-mechanics"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--blue-brinstar-face-block-instruction-mechanics"])
+{
+    VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

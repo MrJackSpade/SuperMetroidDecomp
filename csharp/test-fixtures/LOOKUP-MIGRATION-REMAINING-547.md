@@ -725,3 +725,17 @@ compiled and verified; see the main evidence log. The new rows are confirmed
 live indirect-definition consumers, not a complete inventory. Next grouping:
 EnemyRomTablePointers mechanics readers. Keep verified commits scoped and do not close #547 until its
 complete caller and integration audit is satisfied.
+
+## EnemyRomTablePointers live-reader audit
+
+The remaining named readers were traced rather than classified from their field names.
+Ceres Ridley's eye-fade byte stream at `$A6:E269-$E2A9` was the only remaining fixed
+algorithm schedule: it selects sixteen palette rows, holds the final row, and publishes
+the handoff to the body-fade phase. That complete 64-step schedule plus terminator is now
+compiled in `CeresRidleyEyeFadeDefinitions`; every source byte matches the pinned ROM and
+the complete production fade runs with schedule reads forbidden.
+
+All other live `EnemyRomTablePointers` consumers are presentation dependencies: palette
+colors, spritemap pointers, or graphics-transfer source/destination records. They remain
+cartridge-backed for the presentation extraction/override work rather than being
+misclassified as application-owned mechanics under #547.

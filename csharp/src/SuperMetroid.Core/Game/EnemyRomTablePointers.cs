@@ -64,8 +64,8 @@ internal static class EnemyRomTablePointers
         public const int WingSpritemapPointers = 0xa6db02;
         /// <summary>Ridley rotation divisors at $A6:D712.</summary>
         public const int RidleyRotationDivisorBytes = 0xa6d712;
-        /// <summary>Ceres Ridley fade component steps at $A6:E269.</summary>
-        public const int RidleyFadeComponentBytes = 0xa6e269;
+        /// <summary>Sixteen three-color Ceres Ridley eye-fade palette rows at $A6:E2AA.</summary>
+        public const int RidleyEyeFadePaletteRows = 0xa6e2aa;
     }
 
     /// <summary>Crocomire death graphics-transfer tables.</summary>

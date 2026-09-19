@@ -950,9 +950,9 @@ public sealed partial class RoomEnemySystem
             return;
         state.FunctionTimer = 0;
 
-        byte colorStep = _bus!.ReadByte(
-            EnemyRomTablePointers.Ceres.RidleyFadeComponentBytes + state.FadePaletteOffset);
-        if (colorStep == 0xff)
+        CeresRidleyEyeFadeStep fadeStep =
+            CeresRidleyEyeFadeDefinitions.Get(state.FadePaletteOffset);
+        if (fadeStep.IsComplete)
         {
             state.FadePaletteOffset = 0;
             state.Function = RidleyAiFunction.FadeInBody;
@@ -960,8 +960,9 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        int source = 0xa6e2aa + colorStep * 6;
-        _cgram!.LoadFromBus(_bus, source, colorCount: 3, destinationIndex: 252);
+        int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
+            fadeStep.PaletteRow * 6;
+        _cgram!.LoadFromBus(_bus!, source, colorCount: 3, destinationIndex: 252);
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
     }
 

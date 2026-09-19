@@ -111,6 +111,7 @@ internal static partial class Program
         VerifyRoomShakeDefinitions(rom);
         VerifyCeresDoorQuakeDefinitions(rom);
         VerifyCeresDoorInitializationDefinitions(rom);
+        VerifyCeresRidleyEyeFadeDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyRidleyExplosionDefinitions(rom);
         VerifyCrocomireMeltingDefinitions(rom);

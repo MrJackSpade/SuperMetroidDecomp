@@ -357,6 +357,12 @@ if (args is ["--room-palette-fx-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--ceres-ridley-eye-fade-definitions"])
+{
+    VerifyCeresRidleyEyeFadeDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--palette-fx-instruction-codes"])
 {
     VerifyPaletteFxInstructionCodeCatalogs();

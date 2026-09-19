@@ -2647,3 +2647,14 @@ animation programs and spritemaps.
 Verification compares all 21 definition words with the pinned cartridge, rejects a seventh
 fragment selector, and runs six complete fragment lifetimes plus four slime-drop motion and
 puddle-animation lifetimes while the complete source-definition range is forbidden.
+
+# Ceres Ridley eye-fade schedule
+
+The complete eye-fade selector stream at `$A6:E269-$E2A9` now lives in
+`CeresRidleyEyeFadeDefinitions`. It retains the native sixteen-row descending ramp,
+48-frame hold on row zero, and explicit completion handoff without compiling the palette
+colors themselves; those remain presentation data.
+
+Verification compares all 64 row selectors and the `$FF` terminator with the pinned
+cartridge, rejects restored offsets beyond the authored schedule, and runs every production
+fade step plus the transition to body fade with the source schedule forbidden.

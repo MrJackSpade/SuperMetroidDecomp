@@ -139,8 +139,9 @@ public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCom
 /// <summary>
 /// Cartridge-faithful translation of Botwoon definition <c>$F293</c>. Movement remains
 /// table-driven: the four hole rectangles, random path descriptors, and instruction selectors
-/// are compiled as fixed mechanics metadata, while signed path deltas, selected instruction
-/// programs, and health palettes remain authored cartridge data rather than host approximations.
+/// are compiled as fixed mechanics metadata together with the complete signed path corpus.
+/// Selected instruction programs and health palettes remain authored cartridge presentation
+/// data rather than host approximations.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
@@ -405,7 +406,7 @@ public sealed partial class RoomEnemySystem
             DetectBotwoonHole(head, state);
     }
 
-    private void RunBotwoonMovement(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void RunBotwoonMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         switch (state.MovementFunction)
         {
@@ -490,29 +491,27 @@ public sealed partial class RoomEnemySystem
         state.MovementFunction = BotwoonMovementFunction.FollowAuthoredPath;
     }
 
-    private void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         short totalX = 0;
         short totalY = 0;
         int step = state.PathDirection < 0 ? -2 : 2;
         for (int sample = 0; sample < state.Speed; sample++)
         {
-            sbyte dx = unchecked((sbyte)_bus!.ReadByte(
-                (int)new SnesAddress(0xb3, state.PathPointer)));
-            if (dx == sbyte.MinValue)
+            BotwoonMovementSample movement =
+                BotwoonNavigationDefinitions.MovementSampleForPointer(state.PathPointer);
+            if (movement.X == sbyte.MinValue)
             {
                 state.PathComplete = true;
                 return;
             }
-            sbyte dy = unchecked((sbyte)_bus.ReadByte(
-                0xb30000 | unchecked((ushort)(state.PathPointer + 1))));
-            if (dy == sbyte.MinValue)
+            if (movement.Y == sbyte.MinValue)
             {
                 state.PathComplete = true;
                 return;
             }
-            totalX = unchecked((short)(totalX + dx));
-            totalY = unchecked((short)(totalY + dy));
+            totalX = unchecked((short)(totalX + movement.X));
+            totalY = unchecked((short)(totalY + movement.Y));
             state.PathPointer = unchecked((ushort)(state.PathPointer + step));
         }
 

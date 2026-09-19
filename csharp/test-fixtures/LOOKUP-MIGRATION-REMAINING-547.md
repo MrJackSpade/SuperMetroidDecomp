@@ -439,12 +439,12 @@ instruction selectors at `$A2:CB77-$A2:CB86`. Every production install consumes 
 named definition catalog with the pointer table forbidden. The selected mixed
 instruction programs and extended spritemaps remain separate dependencies.
 
-Botwoon's four fixed hole rectangles and 32 fixed path descriptors are now compiled
-in `BotwoonNavigationDefinitions`. The real target movement, hole collision, and path
-handoff consumers no longer read `$B3:949B-$94BA` or `$B3:E150-$E24F`; native byte
-offsets remain visible in saved/debugger state. Botwoon's variable-length signed path
-streams are still live mechanical program data and require a separate migration
-decision rather than being conflated with their fixed descriptors.
+Botwoon's four fixed hole rectangles, 32 fixed path descriptors, and complete 8,316-pair
+signed movement corpus are now compiled in `BotwoonNavigationDefinitions`. The real target
+movement, hole collision, path handoff, and forward/reverse path consumers no longer read
+`$B3:949B-$94BA`, `$B3:A058-$E14F`, or `$B3:E150-$E24F`; native pointers and byte offsets
+remain visible in saved/debugger state. Exhaustive verification compares every component
+pair and executes every sample in both directions with all three source ranges forbidden.
 
 The Norfair lava-jumping enemy's four signed 8.8 launch velocities at
 `$A2:BE86-$BE8D` are now compiled in `NorfairLavaJumpDefinitions`. All 65,536

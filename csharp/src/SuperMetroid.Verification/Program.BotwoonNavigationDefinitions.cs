@@ -25,7 +25,7 @@ internal static partial class Program
         }
 
         var runMovement = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!
-            .CreateDelegate<Action<RoomEnemySystem, RoomEnemySlot, BotwoonEnemyState>>();
+            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
         for (ushort byteOffset = 0; byteOffset <= 248; byteOffset += 8)
         {
             int address = 0xb3e150 + byteOffset;
@@ -50,7 +50,7 @@ internal static partial class Program
                 PathChoiceOffset = byteOffset,
                 Speed = 0,
             };
-            runMovement(enemies, head, state);
+            runMovement(head, state);
             ushort expectedPointer = descriptor.Direction < 0
                 ? unchecked((ushort)(descriptor.PathPointer - 4))
                 : descriptor.PathPointer;
@@ -62,6 +62,64 @@ internal static partial class Program
                 $"Botwoon production path {byteOffset:X2} target hole");
             AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction,
                 $"Botwoon production path {byteOffset:X2} handoff");
+        }
+
+        var movementEnemies = new RoomEnemySystem();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+            movementEnemies, new BotwoonNavigationReadGuard(rom));
+        RoomEnemySlot movementHead = movementEnemies.Slots[0];
+        int movementSampleCount = 0;
+        for (int pointer = BotwoonNavigationDefinitions.MovementDataStart;
+             pointer < BotwoonNavigationDefinitions.MovementDataEndExclusive;
+             pointer += 2)
+        {
+            sbyte expectedX = unchecked((sbyte)rom.ReadByte(0xb30000 | pointer));
+            sbyte expectedY = unchecked((sbyte)rom.ReadByte(0xb30000 | pointer + 1));
+            BotwoonMovementSample compiled =
+                BotwoonNavigationDefinitions.MovementSampleForPointer((ushort)pointer);
+            AssertEqual(expectedX, compiled.X, $"Botwoon movement ${pointer:X4} X");
+            AssertEqual(expectedY, compiled.Y, $"Botwoon movement ${pointer:X4} Y");
+
+            foreach (short direction in new short[] { 0, -1 })
+            {
+                movementHead.XPosition = 0x8000;
+                movementHead.YPosition = 0x8000;
+                var state = new BotwoonEnemyState(movementHead)
+                {
+                    MovementFunction = BotwoonMovementFunction.FollowAuthoredPath,
+                    PathPointer = (ushort)pointer,
+                    PathDirection = direction,
+                    Speed = 1,
+                };
+                runMovement(movementHead, state);
+
+                bool terminates = expectedX == sbyte.MinValue || expectedY == sbyte.MinValue;
+                AssertEqual(terminates, state.PathComplete,
+                    $"Botwoon production movement ${pointer:X4}/{direction} completion");
+                if (terminates)
+                {
+                    AssertEqual((ushort)pointer, state.PathPointer,
+                        $"Botwoon terminating movement ${pointer:X4}/{direction} pointer");
+                    AssertEqual((ushort)0x8000, movementHead.XPosition,
+                        $"Botwoon terminating movement ${pointer:X4}/{direction} X");
+                    AssertEqual((ushort)0x8000, movementHead.YPosition,
+                        $"Botwoon terminating movement ${pointer:X4}/{direction} Y");
+                    continue;
+                }
+
+                int sign = direction < 0 ? -1 : 1;
+                AssertEqual(unchecked((ushort)(0x8000 + sign * expectedX)),
+                    movementHead.XPosition,
+                    $"Botwoon production movement ${pointer:X4}/{direction} X");
+                AssertEqual(unchecked((ushort)(0x8000 + sign * expectedY)),
+                    movementHead.YPosition,
+                    $"Botwoon production movement ${pointer:X4}/{direction} Y");
+                AssertEqual(unchecked((ushort)(pointer + (direction < 0 ? -2 : 2))),
+                    state.PathPointer,
+                    $"Botwoon production movement ${pointer:X4}/{direction} pointer");
+            }
+
+            movementSampleCount++;
         }
 
         var detectHole = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", flags)!
@@ -108,7 +166,7 @@ internal static partial class Program
                 TargetHoleOffset = byteOffset,
                 Speed = 0,
             };
-            runMovement(enemies, head, state);
+            runMovement(head, state);
             AssertEqual((ushort)129, state.TargetAngle,
                 $"Botwoon hole {byteOffset:X2} exact-target cartridge angle");
             AssertEqual((byte)191, state.MovementAngle,
@@ -131,6 +189,15 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => BotwoonNavigationDefinitions.PathForChoiceByteOffset(256),
             "Botwoon path offset past table");
+        AssertThrows<InvalidDataException>(
+            () => BotwoonNavigationDefinitions.MovementSampleForPointer(0xa056),
+            "Botwoon movement pointer before corpus");
+        AssertThrows<InvalidDataException>(
+            () => BotwoonNavigationDefinitions.MovementSampleForPointer(0xa059),
+            "Botwoon unaligned movement pointer");
+        AssertThrows<InvalidDataException>(
+            () => BotwoonNavigationDefinitions.MovementSampleForPointer(0xe150),
+            "Botwoon movement pointer after corpus");
 
         var invalidEnemies = new RoomEnemySystem();
         RoomEnemySlot invalidHead = invalidEnemies.Slots[0];
@@ -143,7 +210,7 @@ internal static partial class Program
             TargetHoleOffset = 0x5678,
         };
         AssertThrows<InvalidDataException>(
-            () => runMovement(invalidEnemies, invalidHead, invalidState),
+            () => runMovement(invalidHead, invalidState),
             "Botwoon invalid production path selector");
         AssertEqual((ushort)0x1234, invalidState.PathPointer,
             "Botwoon invalid path leaves pointer unchanged");
@@ -155,13 +222,17 @@ internal static partial class Program
             "Botwoon invalid path leaves callback unchanged");
 
         Console.WriteLine(
-            "Botwoon navigation definitions: 144 native words, all 32 real descriptor handoffs, four movement targets and rectangle boundaries pass with fixed metadata reads forbidden.");
+            $"Botwoon navigation definitions: 144 native words, {movementSampleCount:N0} signed " +
+            "movement pairs in both directions, all 32 real descriptor handoffs, four movement " +
+            "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
     private sealed class BotwoonNavigationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte ReadByte(int address) =>
-            address is >= 0xb3949b and < 0xb394bb or >= 0xb3e150 and < 0xb3e250
+            address is >= 0xb3949b and < 0xb394bb or
+                >= 0xb3a058 and < 0xb3e150 or
+                >= 0xb3e150 and < 0xb3e250
                 ? throw new InvalidOperationException(
                     $"Botwoon attempted migrated navigation-definition read ${address:X6}.")
                 : source.ReadByte(address);

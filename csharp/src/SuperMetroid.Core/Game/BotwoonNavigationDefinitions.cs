@@ -17,9 +17,18 @@ internal readonly record struct BotwoonPathDescriptorDefinition(
     short Direction,
     ushort TargetHoleByteOffset);
 
+/// <summary>One signed X/Y movement sample from Botwoon's authored path corpus.</summary>
+internal readonly record struct BotwoonMovementSample(sbyte X, sbyte Y);
+
 /// <summary>Compiled fixed geometry and path metadata for Botwoon's room navigation.</summary>
 internal static class BotwoonNavigationDefinitions
 {
+    /// <summary>First movement-component pair at native address <c>$B3:A058</c>.</summary>
+    internal const ushort MovementDataStart = 0xa058;
+
+    /// <summary>Exclusive end of the movement corpus at native address <c>$B3:E150</c>.</summary>
+    internal const ushort MovementDataEndExclusive = 0xe150;
+
     /// <summary>
     /// The four eight-byte hole rectangles at <c>$B3:949B-$94BA</c>. Native callers retain
     /// their byte offsets so debugger-visible Botwoon state continues to match the cartridge.
@@ -95,4 +104,40 @@ internal static class BotwoonNavigationDefinitions
 
         return Paths[byteOffset >> 3];
     }
+
+    /// <summary>Returns the compiled signed component pair selected by a native path pointer.</summary>
+    internal static BotwoonMovementSample MovementSampleForPointer(ushort pointer)
+    {
+        int byteOffset = pointer - MovementDataStart;
+        if (byteOffset < 0 || pointer >= MovementDataEndExclusive || (byteOffset & 1) != 0)
+        {
+            throw new InvalidDataException(
+                $"Botwoon movement pointer $B3:{pointer:X4} is outside the authored sample corpus.");
+        }
+
+        int sampleIndex = byteOffset >> 1;
+        if (BotwoonMovementSampleData.Count !=
+            (MovementDataEndExclusive - MovementDataStart) / 2)
+        {
+            throw new InvalidDataException(
+                $"Compiled Botwoon movement corpus has {BotwoonMovementSampleData.Count} samples; " +
+                $"expected {(MovementDataEndExclusive - MovementDataStart) / 2}.");
+        }
+
+        byte packed = BotwoonMovementSampleData.At(sampleIndex);
+        return new BotwoonMovementSample(
+            DecodeMovementComponent(packed >> 4),
+            DecodeMovementComponent(packed & 0x0f));
+    }
+
+    private static sbyte DecodeMovementComponent(int code) => code switch
+    {
+        0 => sbyte.MinValue,
+        1 => -16,
+        2 => -1,
+        3 => 0,
+        4 => 1,
+        _ => throw new InvalidDataException(
+            $"Compiled Botwoon movement component code {code} is invalid."),
+    };
 }

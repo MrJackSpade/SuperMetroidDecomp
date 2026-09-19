@@ -375,6 +375,13 @@ if (args is ["--work-robot-palette-timing-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--samus-death-explosion-timing-definitions"])
+{
+    VerifySamusDeathExplosionTimingDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifySamusDeathSequence();
+    return 0;
+}
 if (args is ["--palette-fx-instruction-codes"])
 {
     VerifyPaletteFxInstructionCodeCatalogs();

@@ -750,3 +750,8 @@ The Work Robot's mixed palette records received the same ownership split. Its si
 words and terminal wrap marker are compiled in `WorkRobotPaletteTimingDefinitions`, while
 the four colors per record remain live presentation data. The complete production cycle
 passes with timing and terminator reads forbidden.
+
+Samus's mixed death-explosion records are split by ownership too. Their nine timer bytes
+are compiled in `SamusDeathExplosionTimingDefinitions`; the interleaved palette selectors,
+palette pointers, and palette colors remain live presentation data. The full production
+sequence passes with all nine timer reads forbidden.

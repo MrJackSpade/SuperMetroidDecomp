@@ -54,7 +54,8 @@ public sealed class SamusDeathSequenceState
 
     /// <summary>Current `$92:808D` spritemap-table index used by `$92:EDBE`, or null.</summary>
     public ushort? ExplosionSpritemapIndex =>
-        Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < 9
+        Phase == SamusDeathSequencePhase.SuitExplosion &&
+            AnimationIndex < SamusDeathExplosionTimingDefinitions.RecordCount
             ? unchecked((ushort)((FacingLeft
                 ? SamusSpecialSequenceRomData.Death.LeftExplosionSpritemap
                 : SamusSpecialSequenceRomData.Death.RightExplosionSpritemap) + AnimationIndex))
@@ -179,7 +180,8 @@ public sealed class SamusDeathSequenceState
                     WritePalettePair(bus, samus, cgram, paletteIndex: 0);
                     paletteChanged = true;
                     QueueSegment(vramWrites, segmentIndex: 4);
-                    AnimationTimer = ReadExplosionTimer(bus, index: 0);
+                    AnimationTimer =
+                        SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0);
                     AnimationIndex = 0;
                     AnimationCounter = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -274,7 +276,7 @@ public sealed class SamusDeathSequenceState
             return true;
 
         AnimationIndex = unchecked((ushort)(AnimationIndex + 1));
-        if (AnimationIndex >= 9)
+        if (AnimationIndex >= SamusDeathExplosionTimingDefinitions.RecordCount)
         {
             // The terminal call writes shade 21 (`$7FFF`) across every non-Samus/non-
             // suitless palette and returns one without drawing a tenth explosion frame.
@@ -284,7 +286,8 @@ public sealed class SamusDeathSequenceState
             return false;
         }
 
-        AnimationTimer = ReadExplosionTimer(bus, AnimationIndex);
+        AnimationTimer =
+            SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex);
         ushort paletteIndex = ReadExplosionPaletteIndex(bus, AnimationIndex);
         WritePalettePair(bus, samus, cgram, paletteIndex);
         paletteChanged = true;
@@ -374,10 +377,6 @@ public sealed class SamusDeathSequenceState
             encodedVramDestination: segment.EncodedVramDestination);
         LastQueuedSegment = segmentIndex;
     }
-
-    private static ushort ReadExplosionTimer(ISnesAddressSpace bus, ushort index) =>
-        bus.ReadByte(
-            SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + index * 2);
 
     private static ushort ReadExplosionPaletteIndex(ISnesAddressSpace bus, ushort index) =>
         bus.ReadByte(

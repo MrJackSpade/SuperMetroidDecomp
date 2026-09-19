@@ -703,7 +703,7 @@ static void VerifySamusDeathSequence()
 
     // Interleaved timer/palette bytes at `$9B:B823`: index zero uses 21/palette zero,
     // indices one through eight use 6/2,3/3,4/4,5/5,5/6,6/7,6/8,80/9.
-    bus.WriteBytes(0x9bb823,
+    bus.WriteBytes(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress,
         [0x15, 0x00, 0x06, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05,
          0x05, 0x06, 0x06, 0x07, 0x06, 0x08, 0x50, 0x09]);
     ushort[] shades =
@@ -714,20 +714,21 @@ static void VerifySamusDeathSequence()
     ];
     WriteTestWords(bus, 0x9bb835, shades);
 
+    var guardedBus = new SamusDeathExplosionTimingReadGuard(bus);
     var samus = new SamusState
     {
         Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 0x0480,
         YPosition = 0x04c0,
     };
-    samus.RefreshCollisionRadii(bus);
-    samus.InitializeAnimation(bus);
+    samus.RefreshCollisionRadii(guardedBus);
+    samus.InitializeAnimation(guardedBus);
     samus.PoseHistory.PreviousPose = samus.Pose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
     samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     SamusDeathSequenceStartResult start = samus.DeathSequence.Begin(
-        bus,
+        guardedBus,
         samus,
         layer1X: 0x03e0,
         layer1Y: 0x0400);
@@ -748,7 +749,7 @@ static void VerifySamusDeathSequence()
     var writes = new VramWriteQueue();
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(bus, samus, cgram, writes);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -758,7 +759,7 @@ static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(bus, samus, cgram, writes);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(5, writes.Entries.Count, "death queues exactly five tile segments");
@@ -794,7 +795,7 @@ static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(bus, samus, cgram, writes);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }
@@ -811,6 +812,8 @@ static void VerifySamusDeathSequence()
         "whiteout preserves final Samus suit palette nine");
     AssertEqual(0x0520, cgram.Colors[240],
         "whiteout preserves final suitless palette nine");
+    AssertEqual(0, guardedBus.ForbiddenReadAttempts,
+        "production death sequence performs no explosion-timer ROM reads");
 
     // Morph Ball begins frame one and uses left pose `$D8`; spin jumping still starts frame
     // five but uniquely requests library-one sound `$32` before pose replacement.
@@ -820,12 +823,12 @@ static void VerifySamusDeathSequence()
         XPosition = 64,
         YPosition = 80,
     };
-    morphedLeft.RefreshCollisionRadii(bus);
-    morphedLeft.InitializeAnimation(bus);
+    morphedLeft.RefreshCollisionRadii(guardedBus);
+    morphedLeft.InitializeAnimation(guardedBus);
     morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
     morphedLeft.PoseHistory.PreviousDirectionAndMovement = 0x0404;
     SamusDeathSequenceStartResult morphStart = morphedLeft.DeathSequence.Begin(
-        bus, morphedLeft, layer1X: 0, layer1Y: 0);
+        guardedBus, morphedLeft, layer1X: 0, layer1Y: 0);
     AssertEqual(0xd8, morphStart.DeathPose, "left Morph death selects D8");
     AssertEqual(SamusPoseIds.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
@@ -835,10 +838,10 @@ static void VerifySamusDeathSequence()
     AssertEqual(1, morphStart.InitialFrame, "Morph death begins unmorph frame one");
 
     var spinning = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose };
-    spinning.RefreshCollisionRadii(bus);
-    spinning.InitializeAnimation(bus);
+    spinning.RefreshCollisionRadii(guardedBus);
+    spinning.InitializeAnimation(guardedBus);
     SamusDeathSequenceStartResult spinStart = spinning.DeathSequence.Begin(
-        bus, spinning, layer1X: 0, layer1Y: 0);
+        guardedBus, spinning, layer1X: 0, layer1Y: 0);
     AssertTrue(spinStart.SpinJumpSoundRequested, "spin death requests sound $32");
     AssertTrue(spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
         "spin-death sound is consumable exactly once");
@@ -847,7 +850,8 @@ static void VerifySamusDeathSequence()
     AssertEqual(5, spinStart.InitialFrame, "spin death begins unmorphed frame five");
 
     Console.WriteLine(
-        "  Samus death: D7/D8 selection, unmorph art, five VRAM segments, flash palettes, whiteout, and nine explosion frames agree.");
+        "  Samus death: D7/D8 selection, unmorph art, five VRAM segments, flash palettes, " +
+        "whiteout, and nine explosion frames agree without timer-ROM reads.");
 }
 
 /// <summary>

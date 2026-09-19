@@ -2679,3 +2679,13 @@ colors per record remain cartridge-backed presentation data.
 Verification compares every duration and the `$FFFF` marker with the pinned cartridge,
 rejects unaligned and post-terminator restored offsets, and runs the complete 193-call
 production cycle through all six records and its wrap while control reads are forbidden.
+
+# Samus death-explosion timing
+
+The nine timer bytes interleaved with Samus's suit-explosion palette selectors at
+`$9B:B823-$B834` now live in `SamusDeathExplosionTimingDefinitions`. The adjacent
+palette selectors, palette pointers, and colors remain cartridge-backed presentation data.
+
+Verification compares every duration with the pinned cartridge, rejects a restored index
+beyond the authored sequence, and runs the complete 136-call explosion sequence through
+the production state machine with every timer-byte read forbidden.

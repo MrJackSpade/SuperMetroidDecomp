@@ -65,7 +65,12 @@ internal sealed class AndroidSessionData : IDisposable
                 $"projectiles={ContentIdentity.ProjectileContentSha256}.");
         }
         Audio = new CartridgeAudioRenderer(assets);
-        states = new DebuggerSaveStateStore(romPath, Bus.Rom, Path.Combine(root, "debug-states"), Options);
+        states = new DebuggerSaveStateStore(
+            romPath,
+            Bus.Rom,
+            Path.Combine(root, "debug-states"),
+            Options,
+            ContentIdentity);
         recorder = StartRecorder();
         WriteRecordingMetadata(seedFile: null);
     }

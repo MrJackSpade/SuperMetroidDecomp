@@ -1,5 +1,8 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
 
 // Legacy namespace is persisted in debugger identities; ownership is now platform-neutral.
 namespace SuperMetroid.Desktop;
@@ -127,6 +130,31 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy kinematics lacks prospective-pose contact mode; retaining live owner lookup.");
             return current.Where(field => field.Name != "<ProbeContactDamageIndex>k__BackingField").ToArray();
         }
+        if (type == typeof(SamusState) && count == current.Length - 12 &&
+            current.Any(field => field.Name == "<BombJumpPoseInputLocked>k__BackingField") &&
+            current.Any(field => field.Name == PreviousDrawNewInputField))
+        {
+            // The preserved pre-b944f1b5 player fixture predates the entire input-history
+            // family as well as the later pose/camera, warning, pose-history, and script
+            // ownership additions. The exact field identities below were read from that
+            // fixture; GraphReader still rejects any different 66-field set.
+            Console.Error.WriteLine(
+                "WARNING: Early Samus layout predates input history and later pose ownership; " +
+                "restoring all unavailable transient state neutral.");
+            return current.Where(field => field.Name is not
+                "_poseCollisionPreviousYPosition" and not
+                "_poseAlignmentPreviousYDelta" and not
+                "<BombJumpPoseInputLocked>k__BackingField" and not
+                "_healthWarning" and not
+                PreviousDrawNewInputField and not
+                "<AutoJumpTimer>k__BackingField" and not
+                "<PreviousDrawHeldInput>k__BackingField" and not
+                "<AutoJumpInputPending>k__BackingField" and not
+                "<ShinesparkPoseInputLocked>k__BackingField" and not
+                "<CrystalFlashPoseInputLocked>k__BackingField" and not
+                "_poseHistory" and not
+                "<StationaryScriptControlLocked>k__BackingField").ToArray();
+        }
         if (type == typeof(SamusState) && count == current.Length - 5 &&
             current.Any(field => field.Name == "<ShinesparkPoseInputLocked>k__BackingField") &&
             current.Any(field => field.Name == "<CrystalFlashPoseInputLocked>k__BackingField"))
@@ -199,6 +227,29 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy room FX lacks the lava/acid BG3 pre-instruction latch; restoring its cold-start state.");
             return current.Where(field => field.Name != "lavaAcidBg3PreInstructionInstalled").ToArray();
         }
+        if (type.FullName == "SuperMetroid.Core.Game.RoomFxAnimatedTilesState" &&
+            count == current.Length - 1 &&
+            current.Any(field => field.Name == "compiledMechanics"))
+        {
+            // ad3d533e replaced live ROM instruction reads with compiled animation
+            // definitions. Historical states still contain the native object pointer,
+            // which is the lossless key needed to rebind the compiled definition.
+            Console.Error.WriteLine(
+                "WARNING: Legacy room-FX animated tiles lack their compiled mechanics binding; " +
+                "reconstructing it from the captured native object pointer.");
+            return current.Where(field => field.Name != "compiledMechanics").ToArray();
+        }
+        if (type == typeof(WreckedShipTreadmillAnimatedTilesState) &&
+            count == current.Length - 1 &&
+            current.Any(field => field.Name == "_compiledMechanics"))
+        {
+            // 18f19edc compiled the two treadmill control streams. Their saved native
+            // object pointer uniquely identifies the immutable replacement definition.
+            Console.Error.WriteLine(
+                "WARNING: Legacy Wrecked Ship treadmill lacks its compiled mechanics binding; " +
+                "reconstructing it from the captured native object pointer.");
+            return current.Where(field => field.Name != "_compiledMechanics").ToArray();
+        }
         if (type == typeof(SamusState) && count <= current.Length - 2 &&
             current.Any(field => field.Name == "_poseCollisionPreviousYPosition") &&
             current.Any(field => field.Name == "_poseAlignmentPreviousYDelta"))
@@ -238,6 +289,31 @@ internal static class DebuggerStateFieldMigrations
         {
             Console.Error.WriteLine("WARNING: Legacy grapple state has no pose-change auto-fire timer; unavailable firing age restores expired until the next shot.");
             return current.Where(field => field.Name != "<PoseChangeAutoFireTimer>k__BackingField").ToArray();
+        }
+        if (type == typeof(GrappleMovementResult) && count == current.Length - 2 &&
+            current.Any(field => field.Name == "<PendingDropPose>k__BackingField") &&
+            current.Any(field => field.Name == "<PendingConnection>k__BackingField"))
+        {
+            // c655c9b2 split prospective pose publication from immediate grapple state.
+            // Older results could not own either pending handoff, so null is exact.
+            Console.Error.WriteLine(
+                "WARNING: Legacy grapple result predates deferred drop and connection poses; " +
+                "restoring no pending pose handoff.");
+            return current.Where(field => field.Name is not
+                "<PendingDropPose>k__BackingField" and not
+                "<PendingConnection>k__BackingField").ToArray();
+        }
+        if (type == typeof(GameplayMessageBoxState) && count == current.Length - 2 &&
+            current.Any(field => field.Name == "_shootBinding") &&
+            current.Any(field => field.Name == "_runBinding"))
+        {
+            // b3e5d562 made configured controller bindings part of message-box state.
+            // Earlier builds always used the stock X/B bindings, so reconstruct those
+            // exact defaults rather than leaving uninitialized zero button masks.
+            Console.Error.WriteLine(
+                "WARNING: Legacy gameplay message box predates configurable bindings; " +
+                "restoring the stock Shoot=X and Run=B bindings.");
+            return current.Where(field => field.Name is not "_shootBinding" and not "_runBinding").ToArray();
         }
         if (type == typeof(SamusDraygonGrabbedState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<MovementHandlerReplaced>k__BackingField"))
@@ -311,16 +387,23 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy camera has no previous-scroll Samus checkpoint; initializing on its first scrolling pass.");
             return current.Where(field => field.Name != "<PreviousSamusPoint>k__BackingField").ToArray();
         }
-        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 106 && current.Length == 110)
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
+            count is 105 or 106 && current.Length == 110)
         {
             // Additions verified against b944f1b5: statue owner (5ff0476a),
             // timeout option (fc59514a), escape quake (a74aa6d1), treadmill owner (e361a6b1).
+            // The 105-field player fixtures additionally predate Ceres haze ownership
+            // (4f3e4bec); the 106-field layout already contains it.
             // ReadFields still validates every surviving declaring type/name/order.
-            Console.Error.WriteLine("WARNING: Legacy runtime lacks statue, escape-quake, timeout and treadmill state; added features restore inactive.");
+            Console.Error.WriteLine(
+                "WARNING: Legacy runtime lacks statue, escape-quake, timeout and treadmill state; " +
+                "added features restore inactive." +
+                (count == 105 ? " It also predates Ceres haze ownership." : ""));
             return current.Where(field => field.Name is not "_tourianStatues"
                 and not "_escapeDiagonalFrames"
                 and not "<PreventEscapeTimeout>k__BackingField"
-                and not "<RoomTreadmills>k__BackingField").ToArray();
+                and not "<RoomTreadmills>k__BackingField" &&
+                (count == 106 || field.Name != "<CeresHaze>k__BackingField")).ToArray();
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGameOptions) && count == 9 && current.Length == 11)
         {
@@ -335,6 +418,23 @@ internal static class DebuggerStateFieldMigrations
         {
             Console.Error.WriteLine("WARNING: Older debugger state predates the statue sequence; it initializes on room entry.");
             return current.Where(field => field.Name != "_tourianStatues").ToArray();
+        }
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "currentPresentationPage"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Older file-select state lacks its installed-presentation page; " +
+                "reconstructing it from the captured menu phase.");
+            return current.Where(field => field.Name != "currentPresentationPage").ToArray();
+        }
+        if (type == typeof(SuperMetroidSaveSlot) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<LoadingGameState>k__BackingField"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Older decoded save slot lacks its loading-game dispatcher; " +
+                "restoring ordinary main-game loading.");
+            return current.Where(field =>
+                field.Name != "<LoadingGameState>k__BackingField").ToArray();
         }
         if (type == typeof(RoomEnemySystem) &&
             (count == current.Length - 1 || count == current.Length - 3) &&
@@ -380,7 +480,7 @@ internal static class DebuggerStateFieldMigrations
         throw new InvalidDataException($"Serialized {type.FullName} contains {count} fields; this build expects {current.Length}.");
     }
 
-    /// <summary>Constructs an empty owner only for the known legacy layout that omitted it.</summary>
+    /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
         if (instance is SamusXrayState xray && serializedCount <=
@@ -405,19 +505,118 @@ internal static class DebuggerStateFieldMigrations
                 .GetField("loopEntrySources", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(instance, new Dictionary<byte, byte>());
         }
-        if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime && serializedCount == 106)
+        if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime && serializedCount is 105 or 106)
         {
             // Constructors are bypassed by graph restoration. No animation existed
             // in this layout; normal room loading will select the next room's objects.
             typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)
                 .GetField("<RoomTreadmills>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .SetValue(instance, new RoomTreadmillAnimatedTilesState());
+                .SetValue(runtime, new RoomTreadmillAnimatedTilesState());
+            if (serializedCount == 105)
+            {
+                typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+                    .GetField("<CeresHaze>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .SetValue(runtime, new CeresHazeState());
+            }
         }
         if (instance is Bank80SystemState system && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(Bank80SystemState)) - 1)
         {
             system.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         }
+        if (instance is FileSelectMenuState fileSelect && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)) - 1)
+        {
+            RestoreLegacyFileSelectPresentationPage(fileSelect);
+        }
+        if (instance is SuperMetroidSaveSlot saveSlot && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(SuperMetroidSaveSlot)) - 1)
+        {
+            typeof(SuperMetroidSaveSlot)
+                .GetField("<LoadingGameState>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(saveSlot, SaveLoadingGameStates.MainGame);
+        }
+        if (instance.GetType().FullName == "SuperMetroid.Core.Game.RoomFxAnimatedTilesState" &&
+            serializedCount == GetCurrentInstanceFieldCount(instance.GetType()) - 1)
+        {
+            Type type = instance.GetType();
+            ushort objectPointer = (ushort)(type.GetField(
+                "objectPointer",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(instance) ?? (ushort)0);
+            RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                objectPointer,
+                out RoomFxAnimatedTileObjectDefinition? compiledMechanics);
+            type.GetField("compiledMechanics", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(instance, compiledMechanics);
+        }
+        if (instance is WreckedShipTreadmillAnimatedTilesState treadmill && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(WreckedShipTreadmillAnimatedTilesState)) - 1)
+        {
+            Type type = typeof(WreckedShipTreadmillAnimatedTilesState);
+            ushort objectPointer = (ushort)(type.GetField(
+                "_objectPointer",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(treadmill) ?? (ushort)0);
+            WreckedShipTreadmillMechanicsDefinitions.TryResolve(
+                objectPointer,
+                out WreckedShipTreadmillObjectDefinition? compiledMechanics);
+            type.GetField("_compiledMechanics", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(treadmill, compiledMechanics);
+        }
+        if (instance is GameplayMessageBoxState messageBox && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(GameplayMessageBoxState)) - 2)
+        {
+            Type type = typeof(GameplayMessageBoxState);
+            type.GetField("_shootBinding", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(messageBox, (ushort)SnesButton.X);
+            type.GetField("_runBinding", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(messageBox, (ushort)SnesButton.B);
+        }
+    }
+
+    private static void RestoreLegacyFileSelectPresentationPage(FileSelectMenuState fileSelect)
+    {
+        Type type = typeof(FileSelectMenuState);
+        FileSelectPhase displayedPhase = fileSelect.Phase == FileSelectPhase.FadeInFromDataManagement
+            ? (FileSelectPhase)(type.GetField(
+                "phaseAfterFadeIn",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fileSelect)
+                ?? FileSelectPhase.Main)
+            : fileSelect.Phase;
+        string page = displayedPhase switch
+        {
+            FileSelectPhase.CopySelectSource => FileSelectPresentationDefinitions.CopySourcePage,
+            FileSelectPhase.CopySelectDestination => FileSelectPresentationDefinitions.CopyDestinationPage,
+            FileSelectPhase.CopyConfirm => FileSelectPresentationDefinitions.CopyConfirmPage,
+            FileSelectPhase.CopyCompleted => FileSelectPresentationDefinitions.CopyCompletedPage,
+            FileSelectPhase.ClearSelectSlot => FileSelectPresentationDefinitions.ClearSelectionPage,
+            FileSelectPhase.ClearConfirm => FileSelectPresentationDefinitions.ClearConfirmPage,
+            FileSelectPhase.ClearCompleted => FileSelectPresentationDefinitions.ClearCompletedPage,
+            FileSelectPhase.FadeOutToMain => LegacyDataManagementPage(fileSelect),
+            _ => LegacyMainPage(fileSelect),
+        };
+        type.GetField("currentPresentationPage", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(fileSelect, page);
+    }
+
+    private static string LegacyDataManagementPage(FileSelectMenuState fileSelect)
+    {
+        object? mode = typeof(FileSelectMenuState).GetField(
+            "pendingDataMode",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fileSelect);
+        return string.Equals(mode?.ToString(), "Copy", StringComparison.Ordinal)
+            ? FileSelectPresentationDefinitions.CopySourcePage
+            : FileSelectPresentationDefinitions.ClearSelectionPage;
+    }
+
+    private static string LegacyMainPage(FileSelectMenuState fileSelect)
+    {
+        var slots = (Array)(typeof(FileSelectMenuState).GetField(
+            "saveSlots",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fileSelect)
+            ?? throw new InvalidDataException("Legacy file-select state has no save-slot array."));
+        return slots.Cast<object?>().Any(slot => slot is not null)
+            ? FileSelectPresentationDefinitions.MainWithDataPage
+            : FileSelectPresentationDefinitions.MainEmptyPage;
     }
 
     /// <summary>

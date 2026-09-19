@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Desktop;
 
@@ -33,7 +34,16 @@ public static class DebuggerSaveStateSmokeTest
         Directory.CreateDirectory(temporaryDirectory);
         try
         {
-            var store = new DebuggerSaveStateStore(fullRomPath, bus.Rom, temporaryDirectory);
+            GameContentIdentity contentIdentity = GameContentIdentity.Create(
+                new string('A', 64),
+                new string('B', 64),
+                new string('C', 64),
+                Guid.Parse("01234567-89ab-cdef-0123-456789abcdef"));
+            var store = new DebuggerSaveStateStore(
+                fullRomPath,
+                bus.Rom,
+                temporaryDirectory,
+                contentIdentity: contentIdentity);
             bool emptySlotReported = !store.TryLoad(9, out _);
             if (!emptySlotReported)
                 throw new InvalidDataException("An empty debugger slot was reported as occupied.");
@@ -64,6 +74,23 @@ public static class DebuggerSaveStateSmokeTest
             DebuggerSaveStateLoadResult loaded = store.Load(0);
             if (loaded.Warnings.Count != 2)
                 throw new InvalidDataException("Compatible cross-build state did not emit both build warnings.");
+
+            GameContentIdentity changedAudioIdentity = GameContentIdentity.Create(
+                new string('D', 64),
+                contentIdentity.MapContentSha256,
+                contentIdentity.ProjectileContentSha256,
+                contentIdentity.CompiledDefinitionsBuildId);
+            DebuggerSaveStateLoadResult changedAudio = new DebuggerSaveStateStore(
+                fullRomPath,
+                bus.Rom,
+                temporaryDirectory,
+                contentIdentity: changedAudioIdentity).Load(0);
+            if (changedAudio.Warnings.Count != 3 ||
+                !changedAudio.Warnings.Any(warning => warning.Contains("audio", StringComparison.Ordinal)))
+            {
+                throw new InvalidDataException(
+                    "Selected-audio drift did not supplement the two assembly-build warnings.");
+            }
             using var restoredAudio = new SpcAudioEngine(
                 ExtractedAudioAssetCatalog.Load(ExtractedAudioAssetLocator.FindAudioDirectory()),
                 loaded.AudioPlayer ?? throw new InvalidDataException("Restored state omitted managed audio."));
@@ -123,6 +150,16 @@ public static class DebuggerSaveStateSmokeTest
             { schemaRejected = true; }
             if (!schemaRejected) throw new InvalidDataException("Unknown state schema was accepted.");
 
+            var legacyStore = new DebuggerSaveStateStore(fullRomPath, bus.Rom, temporaryDirectory);
+            legacyStore.Save(3, bus, game, audio.Player);
+            DebuggerSaveStateLoadResult legacy = store.Load(3);
+            if (legacy.Warnings.Count != 1 ||
+                !legacy.Warnings[0].Contains("no installed-content identity", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException(
+                    "Named-delegate schema-three state did not produce the legacy content warning.");
+            }
+
             VerifyNamedDelegateRoundTrip();
             string repository = Path.GetDirectoryName(fullRomPath)!;
             foreach (var fixture in new[]
@@ -136,7 +173,9 @@ public static class DebuggerSaveStateSmokeTest
                 DebuggerSaveStateLoadResult preserved = store.Load(2);
                 Console.WriteLine($"Loaded preserved named fixture {fixture.Item1}: room={preserved.Metadata.RoomPointer:X4}.");
             }
-            Console.WriteLine("Debugger compatibility: build warnings allow exact continuation; schema/ROM rejection and named delegates agree.");
+            Console.WriteLine(
+                "Debugger compatibility: schema-three migration, schema-four content/build " +
+                "warnings, exact continuation, ROM rejection and named delegates agree.");
 
             return new DebuggerSaveStateSmokeTestResult(
                 saved.FrameNumber,

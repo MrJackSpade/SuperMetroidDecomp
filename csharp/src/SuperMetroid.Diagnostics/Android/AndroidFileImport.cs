@@ -10,12 +10,25 @@ internal static class AndroidFileImport
     public static string ImportState(string root, string romPath, string source, int slot)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        var destinationStore = new DebuggerSaveStateStore(romPath, bus.Rom, Path.Combine(root, "debug-states"));
+        var installation = new SuperMetroid.AssetExtraction.GameInstallation(root);
+        var contentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
+            installation.LoadAudio(),
+            installation.LoadMaps(),
+            installation.LoadProjectiles());
+        var destinationStore = new DebuggerSaveStateStore(
+            romPath,
+            bus.Rom,
+            Path.Combine(root, "debug-states"),
+            contentIdentity: contentIdentity);
         string destination = destinationStore.GetSlotPath(slot);
         string staging = Directory.CreateTempSubdirectory("SuperMetroid-import-").FullName;
         try
         {
-            var stagingStore = new DebuggerSaveStateStore(romPath, bus.Rom, staging);
+            var stagingStore = new DebuggerSaveStateStore(
+                romPath,
+                bus.Rom,
+                staging,
+                contentIdentity: contentIdentity);
             File.Copy(source, stagingStore.GetSlotPath(slot));
             var decoded = stagingStore.Load(slot);
             if (decoded.AudioPlayer is null) throw new InvalidDataException("State has no managed audio graph.");

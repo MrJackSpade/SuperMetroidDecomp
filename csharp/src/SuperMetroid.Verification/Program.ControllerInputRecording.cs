@@ -63,7 +63,7 @@ internal static partial class Program
             // Expected strict-length rejection.
         }
 
-        var identity = new ControllerRecordingContentIdentity
+        var identity = new GameContentIdentitySnapshot
         {
             FormatVersion = 7,
             CompiledDefinitionsBuildId = Guid.Parse("01234567-89ab-cdef-0123-456789abcdef"),
@@ -79,7 +79,7 @@ internal static partial class Program
             "identified input recording uses version two");
         v2Bytes.Position = 0;
         ControllerInputRecording actualV2 = ControllerInputRecording.Read(v2Bytes);
-        ControllerRecordingContentIdentity actualIdentity = actualV2.ContentIdentity
+        GameContentIdentitySnapshot actualIdentity = actualV2.ContentIdentity
             ?? throw new InvalidOperationException("Version-two input recording lost its content identity.");
         AssertEqual(identity.FormatVersion, actualIdentity.FormatVersion,
             "input recording content-identity format");

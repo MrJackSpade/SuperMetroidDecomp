@@ -50,6 +50,25 @@ internal static partial class Program
             and not "<AutoJumpInputPending>k__BackingField" and not "<BombJumpPoseInputLocked>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields,
             preBombLockFields.Length).SequenceEqual(preBombLockFields), "b944f1b5 Samus layout retains the saved draw-input latch");
+        FieldInfo[] earlyPlayerFields = fields.Where(field => field.Name is not
+            "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta" and not
+            "<BombJumpPoseInputLocked>k__BackingField" and not "_healthWarning" and not
+            "<PreviousDrawNewInput>k__BackingField" and not "<AutoJumpTimer>k__BackingField" and not
+            "<PreviousDrawHeldInput>k__BackingField" and not "<AutoJumpInputPending>k__BackingField" and not
+            "<ShinesparkPoseInputLocked>k__BackingField" and not "<CrystalFlashPoseInputLocked>k__BackingField" and not
+            "_poseHistory" and not "<StationaryScriptControlLocked>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields,
+            earlyPlayerFields.Length).SequenceEqual(earlyPlayerFields),
+            "early player Samus layout restores exactly its twelve known transient omissions");
+        var grappleResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod(
+            "GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(GrappleMovementResult)])!;
+        FieldInfo[] legacyGrappleResultFields = grappleResultFields.Where(field => field.Name is not
+            "<PendingDropPose>k__BackingField" and not "<PendingConnection>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
+            typeof(GrappleMovementResult), grappleResultFields, legacyGrappleResultFields.Length)
+            .SequenceEqual(legacyGrappleResultFields),
+            "legacy grapple result restores with no deferred pose handoff");
 
         var gameType = typeof(SuperMetroid.Core.Frontend.SuperMetroidGame);
         var bankType = typeof(SuperMetroid.Core.Audio.ManagedPcmSampleBank);

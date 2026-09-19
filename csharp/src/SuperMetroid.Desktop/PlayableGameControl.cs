@@ -209,8 +209,6 @@ public sealed partial class PlayableGameControl : UserControl
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
         addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom,
-            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"), gameOptions);
         ExtractedAudioAssetCatalog? selectedAudioAssets =
             gameOptions.AudioEnabled || playerDataDirectory is not null ? LoadAudioAssets() : null;
         if (gameOptions.AudioEnabled)
@@ -257,6 +255,12 @@ public sealed partial class PlayableGameControl : UserControl
         }
         if (replay is not null)
             ReportReplayContentCompatibility();
+        stateStore = new DebuggerSaveStateStore(
+            romPath,
+            addressSpace.Rom,
+            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"),
+            gameOptions,
+            installedContentIdentity);
         if (replay is null)
         {
             game.SaveRamChanged += PersistSaveRamToDisk;
@@ -379,7 +383,7 @@ public sealed partial class PlayableGameControl : UserControl
         // would rasterize it solely to populate status labels, even in GPU mode.
         RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
         statusLabel.Text =
-            (loaded.Warnings.Count != 0 ? "WARNING: state from another build | " : "") +
+            (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
             $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
             FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
         SetPlaying(resumePlayback);
@@ -422,8 +426,9 @@ public sealed partial class PlayableGameControl : UserControl
             return;
         }
 
-        foreach (string warning in installedContentIdentity.GetRecordingCompatibilityWarnings(
-                     replay.ContentIdentity))
+        foreach (string warning in installedContentIdentity.GetCompatibilityWarnings(
+                     replay.ContentIdentity,
+                     "controller recording"))
         {
             Console.WriteLine($"REPLAY COMPATIBILITY WARNING: {warning}");
         }

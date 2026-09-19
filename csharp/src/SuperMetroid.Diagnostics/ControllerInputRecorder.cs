@@ -23,7 +23,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     private readonly byte[] romSha256;
     private readonly byte[] initialSaveRam;
     private readonly SuperMetroidGameOptions gameOptions;
-    private readonly ControllerRecordingContentIdentity? contentIdentity;
+    private readonly GameContentIdentitySnapshot? contentIdentity;
     private readonly DateTimeOffset startedUtc;
     private readonly List<ushort> inputs = [];
     private readonly EventHandler processExitHandler;
@@ -42,7 +42,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         this.romSha256 = romSha256;
         this.initialSaveRam = initialSaveRam.ToArray();
         this.gameOptions = gameOptions;
-        this.contentIdentity = contentIdentity?.ToControllerRecordingIdentity();
+        this.contentIdentity = contentIdentity?.ToSnapshot();
         startedUtc = DateTimeOffset.UtcNow;
 
         // ProcessExit is a last line of defense for failures outside the WinForms disposal

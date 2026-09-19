@@ -28,7 +28,7 @@ public sealed record ControllerInputRecording
     /// Installed content selected by the recording host, or <see langword="null"/> for a
     /// legacy version-one recording.
     /// </summary>
-    public ControllerRecordingContentIdentity? ContentIdentity { get; init; }
+    public GameContentIdentitySnapshot? ContentIdentity { get; init; }
 
     /// <summary>The exact 8 KiB SRAM image loaded immediately before game reset.</summary>
     public required byte[] InitialSaveRam { get; init; }
@@ -142,14 +142,14 @@ public sealed record ControllerInputRecording
         prefix.CopyTo(header);
         source.ReadExactly(header[prefix.Length..]);
 
-        ControllerRecordingContentIdentity? contentIdentity = null;
+        GameContentIdentitySnapshot? contentIdentity = null;
         if (version == ControllerInputRecordingFormat.CurrentFormatVersion)
         {
             int identityVersion = BinaryPrimitives.ReadInt32LittleEndian(
                 header[ControllerInputRecordingFormat.ContentIdentityOffset..]);
             if (identityVersion <= 0)
                 throw new InvalidDataException("Controller recording has an invalid content-identity version.");
-            contentIdentity = new ControllerRecordingContentIdentity
+            contentIdentity = new GameContentIdentitySnapshot
             {
                 FormatVersion = identityVersion,
                 CompiledDefinitionsBuildId = new Guid(

@@ -75,8 +75,8 @@ public sealed record GameContentIdentity(
             Convert.ToHexString(hash.GetHashAndReset()));
     }
 
-    /// <summary>Creates the ROM-free identity payload persisted by controller recordings.</summary>
-    public ControllerRecordingContentIdentity ToControllerRecordingIdentity() => new()
+    /// <summary>Creates the ROM-free identity payload persisted by diagnostic artifacts.</summary>
+    public GameContentIdentitySnapshot ToSnapshot() => new()
     {
         FormatVersion = FormatVersion,
         CompiledDefinitionsBuildId = CompiledDefinitionsBuildId,
@@ -87,16 +87,17 @@ public sealed record GameContentIdentity(
     };
 
     /// <summary>
-    /// Describes replay compatibility drift without conflating selected installed content
+    /// Describes diagnostic-artifact compatibility drift without conflating selected installed content
     /// with the source-cartridge check performed by the host.
     /// </summary>
-    public IReadOnlyList<string> GetRecordingCompatibilityWarnings(
-        ControllerRecordingContentIdentity? recorded)
+    public IReadOnlyList<string> GetCompatibilityWarnings(
+        GameContentIdentitySnapshot? recorded,
+        string artifactName)
     {
         if (recorded is null)
         {
             return [
-                "Legacy controller recording has no installed-content identity; " +
+                $"Legacy {artifactName} has no installed-content identity; " +
                 "source-ROM compatibility was verified, but build and presentation drift cannot be identified.",
             ];
         }

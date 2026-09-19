@@ -147,29 +147,29 @@ internal static partial class Program
             () => GameContentIdentity.Create("not-a-sha", maps, projectiles, definitions),
             "aggregate installation identity rejects malformed component digest");
 
-        ControllerRecordingContentIdentity recorded = baseline.ToControllerRecordingIdentity();
-        AssertEqual(0, baseline.GetRecordingCompatibilityWarnings(recorded).Count,
+        GameContentIdentitySnapshot recorded = baseline.ToSnapshot();
+        AssertEqual(0, baseline.GetCompatibilityWarnings(recorded, "test artifact").Count,
             "matching recording identity produces no compatibility warning");
         AssertTrue(
-            baseline.GetRecordingCompatibilityWarnings(null).Single().Contains("Legacy", StringComparison.Ordinal),
+            baseline.GetCompatibilityWarnings(null, "test artifact").Single().Contains("Legacy", StringComparison.Ordinal),
             "legacy recording explains unavailable installed-content comparison");
         AssertTrue(
-            baseline.GetRecordingCompatibilityWarnings(recorded with
+            baseline.GetCompatibilityWarnings(recorded with
             {
                 AudioContentSha256 = Convert.FromHexString(new string('D', 64)),
-            }).Single().Contains("audio", StringComparison.Ordinal),
+            }, "test artifact").Single().Contains("audio", StringComparison.Ordinal),
             "audio drift receives a component-specific warning");
         AssertTrue(
-            baseline.GetRecordingCompatibilityWarnings(recorded with
+            baseline.GetCompatibilityWarnings(recorded with
             {
                 CompiledDefinitionsBuildId = Guid.Empty,
-            }).Single().Contains("Compiled gameplay definitions", StringComparison.Ordinal),
+            }, "test artifact").Single().Contains("Compiled gameplay definitions", StringComparison.Ordinal),
             "compiled-definition drift receives a specific warning");
         AssertTrue(
-            baseline.GetRecordingCompatibilityWarnings(recorded with
+            baseline.GetCompatibilityWarnings(recorded with
             {
                 CompositeSha256 = Convert.FromHexString(new string('D', 64)),
-            }).Single().Contains("Aggregate", StringComparison.Ordinal),
+            }, "test artifact").Single().Contains("Aggregate", StringComparison.Ordinal),
             "unexplained aggregate drift cannot pass component comparison");
     }
 }

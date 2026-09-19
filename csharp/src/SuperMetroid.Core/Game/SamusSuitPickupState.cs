@@ -248,8 +248,7 @@ public sealed class SamusSuitPickupState
             int curveIndex = scanline < _windowTable.Length / 2
                 ? scanline
                 : _windowTable.Length - 1 - scanline;
-            byte curve = bus.ReadByte(
-                SamusSpecialSequenceRomData.SuitPickup.BeamCurve + curveIndex);
+            byte curve = SuitPickupBeamCurveDefinitions.OffsetAt(curveIndex);
             int candidateLeft = left - curve;
             byte curvedLeft = unchecked((sbyte)candidateLeft) < 0
                 ? (byte)0

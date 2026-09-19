@@ -610,6 +610,7 @@ internal static partial class Program
         SamusState.LoadPowerSuitPalette(bus, cgram);
 
         var pickup = new SamusSuitPickupState();
+        var curveGuard = new SuitPickupBeamCurveReadGuard(bus);
         pickup.Begin(bus, samus, layer1X: 0x0100, layer1Y: 0x0200,
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
@@ -629,7 +630,7 @@ internal static partial class Program
         SamusSuitPickupRenderer.Composite(pixels, pickup);
         AssertEqual(default(SuperMetroid.Core.Assets.Rgba32), pixels[0],
             "initial inverted suit window applies no fixed color");
-        pickup.Step(bus, samus, cgram);
+        pickup.Step(curveGuard, samus, cgram);
         AssertEqual((ushort)0x7878, pickup.WindowTable[0],
             "stage zero narrows first top scanline");
         AssertEqual((ushort)0x7878, pickup.WindowTable[255],
@@ -647,7 +648,7 @@ internal static partial class Program
         bool observedReveal = false;
         while (pickup.IsActive && transformationFrames < 2000)
         {
-            pickup.Step(bus, samus, cgram);
+            pickup.Step(curveGuard, samus, cgram);
             transformationFrames++;
             if (!observedReveal && pickup.Substate == 4)
             {
@@ -663,6 +664,8 @@ internal static partial class Program
         AssertTrue(!samus.InputLocked, "suit transformation cleanup unlocks input");
         AssertTrue(transformationFrames < 2000,
             "suit transformation terminates without a host timeout");
+        AssertEqual(0, curveGuard.ForbiddenReadAttempts,
+            "production suit transformation performs no beam-curve ROM reads");
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.GravitySuit;

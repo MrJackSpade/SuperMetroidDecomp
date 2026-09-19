@@ -760,3 +760,8 @@ The Hyper Beam's specialized palette-FX owner now compiles the fixed control ske
 `$8D:D900`: destination setup, all ten two-call timers and done commands, terminal loop,
 and the valid restored-pointer domain. Its eighty BGR555 color words remain live
 presentation data. The complete production loop passes with control reads forbidden.
+
+The Varia/Gravity pickup's 128-byte upper-half light-beam contour is compiled in
+`SuitPickupBeamCurveDefinitions`. The production transformation still mirrors the contour
+and applies the native asymmetric endpoint arithmetic, but no longer reads `$88:E3C9-$E448`.
+Every offset and the complete Varia sequence pass with the source range forbidden.

@@ -389,6 +389,13 @@ if (args is ["--hyper-beam-palette-fx-program-definitions"])
     VerifySamusDrainedController();
     return 0;
 }
+if (args is ["--suit-pickup-beam-curve-definitions"])
+{
+    VerifySuitPickupBeamCurveDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyPermanentCollectibles();
+    return 0;
+}
 if (args is ["--palette-fx-instruction-codes"])
 {
     VerifyPaletteFxInstructionCodeCatalogs();

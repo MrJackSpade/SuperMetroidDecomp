@@ -2700,3 +2700,13 @@ eight BGR555 colors in each frame remain cartridge-backed presentation data.
 Verification compares every control word with the pinned cartridge, rejects unaligned and
 post-program restored pointers, and runs the complete 21-call production loop with every
 control byte forbidden while all 80 editable colors remain live.
+
+# Suit-pickup beam contour
+
+The 128-byte upper-half light-beam contour at `$88:E3C9-$E448` now lives in
+`SuitPickupBeamCurveDefinitions`. The transformation mirrors it across 256 scanlines while
+retaining the native asymmetric signed-left and saturating-right endpoint arithmetic.
+
+Verification compares every offset with the pinned cartridge, rejects indexes outside the
+authored contour, and runs the complete production Varia transformation with the whole
+source range forbidden.

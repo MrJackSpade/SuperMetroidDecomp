@@ -2,11 +2,6 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class CeresDestructionCinematicState
 {
-    private static readonly short[] Explosion2XOffsets =
-        [14, 8, -16, -8, 0, 16, -12, -8];
-    private static readonly short[] Explosion2YOffsets =
-        [-8, 12, 12, -14, 0, 14, 4, -16];
-
     private void StepCeresActors()
     {
         explosionSpawnerFrame++;
@@ -15,44 +10,33 @@ internal sealed partial class CeresDestructionCinematicState
         // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
         // it during the final $40-frame wait. The pre-instruction stops on departure;
         // the instruction list still reaches its four terminal blasts afterward.
-        if (explosionSpawnerFrame == CeresDestructionRomData.Timing.FirstExplosionFrame)
+        if (explosionSpawnerFrame == CeresExplosionDefinitions.InitialSpawnFrame)
         {
-            short[] x = [16, -16, 16, -16, 0];
-            short[] y = [-16, 16, 16, -16, 0];
-            int[] delays = [1, 16, 32, 48, 64];
-            for (int index = 0; index < x.Length; index++)
+            for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
                 SpawnCeresExplosion(
-                    x[index],
-                    y[index],
-                    CeresDestructionRomData.Sprites.InitialExplosionList,
-                    delays[index]);
+                    CeresExplosionDefinitions.InitialActor,
+                    CeresExplosionDefinitions.InitialExplosion(index));
         }
         else if (explosionSpawnerFrame is
-                    >= CeresDestructionRomData.Timing.SecondaryExplosionFirstFrame and
-                    <= CeresDestructionRomData.Timing.SecondaryExplosionLastFrame &&
+                    >= CeresExplosionDefinitions.RepeatingFirstFrame and
+                    <= CeresExplosionDefinitions.SpawnerFinalFrame &&
                  Phase < CeresDestructionPhase.FlyingAwayFromExplosion &&
                  (explosionSpawnerFrame -
-                    CeresDestructionRomData.Timing.SecondaryExplosionFirstFrame) %
-                    CeresDestructionRomData.Timing.SecondaryExplosionPeriod == 0)
+                    CeresExplosionDefinitions.RepeatingFirstFrame) %
+                    CeresExplosionDefinitions.RepeatingPeriodFrames == 0)
         {
-            int offset = explosionOffsetIndex++ & 7;
+            int offset = explosionOffsetIndex++ &
+                (CeresExplosionDefinitions.RepeatingExplosionCount - 1);
             SpawnCeresExplosion(
-                Explosion2XOffsets[offset],
-                Explosion2YOffsets[offset],
-                CeresDestructionRomData.Sprites.SecondaryExplosionList,
-                delay: 1);
+                CeresExplosionDefinitions.RepeatingActor,
+                CeresExplosionDefinitions.RepeatingExplosion(offset));
         }
-        else if (explosionSpawnerFrame == CeresDestructionRomData.Timing.FinalExplosionFrame)
+        else if (explosionSpawnerFrame == CeresExplosionDefinitions.SpawnerFinalFrame)
         {
-            short[] x = [8, 12, -8, -12];
-            short[] y = [-4, 8, -10, 12];
-            int[] delays = [1, 4, 8, 16];
-            for (int index = 0; index < x.Length; index++)
+            for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
                 SpawnCeresExplosion(
-                    x[index],
-                    y[index],
-                    CeresDestructionRomData.Sprites.FinalExplosionList,
-                    delays[index]);
+                    CeresExplosionDefinitions.FinalWaveActor,
+                    CeresExplosionDefinitions.FinalExplosion(index));
         }
 
         for (int index = actors.Count - 1; index >= 0; index--)
@@ -83,11 +67,14 @@ internal sealed partial class CeresDestructionCinematicState
         stationExplosion.Spawn(x, y);
         audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
             maximumQueued: 15);
-        _ = TryAddCeresActor(new IntroDiscoverySprite(
+        var cinematicExplosion = new IntroDiscoverySprite(
             x,
             y,
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
-            CeresDestructionRomData.Sprites.GunshipList));
+            CeresExplosionDefinitions.StationBlastActor.InstructionList);
+        cinematicExplosion.PreInstructionPointerForDiscovery(
+            CeresExplosionDefinitions.StationBlastActor.PreInstruction);
+        _ = TryAddCeresActor(cinematicExplosion);
 
         // `$8B:C345` queues these two Mode-7 transfers on the same dispatcher call that
         // creates the final explosion. The upper 24 rows become the gunship viewed from
@@ -104,20 +91,25 @@ internal sealed partial class CeresDestructionCinematicState
             destinationWord: CeresDestructionRomData.Vram.ClearMapDestinationWord);
     }
 
-    private void SpawnCeresExplosion(short xOffset, short yOffset, ushort list, int delay)
+    private void SpawnCeresExplosion(
+        CeresExplosionActorDefinition definition,
+        CeresExplosionPlacement placement)
     {
-        ushort x = unchecked((ushort)(52 - unchecked((short)backgroundX) + xOffset));
-        ushort y = unchecked((ushort)(48 - unchecked((short)backgroundY) + yOffset));
+        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX -
+            unchecked((short)backgroundX) + placement.X));
+        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY -
+            unchecked((short)backgroundY) + placement.Y));
         var actor = new IntroDiscoverySprite(
             x,
             y,
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
-            list);
+            definition.InstructionList);
+        actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
 
         // The native initializer writes its stagger directly to the instruction timer.
         // GeneralTimer is a different WRAM array used by decrement-and-goto opcodes; using
         // it here would make all five blasts appear immediately despite distinct delays.
-        actor.DelayFirstInstruction(unchecked((ushort)delay));
+        actor.DelayFirstInstruction(placement.DelayFrames);
         _ = TryAddCeresActor(actor);
     }
 
@@ -128,7 +120,7 @@ internal sealed partial class CeresDestructionCinematicState
         for (int slot = CeresDestructionRomData.Sprites.AsteroidSlot; slot >= 0; slot--)
         {
             if (slot == CeresDestructionRomData.Sprites.SpawnerSlot &&
-                explosionSpawnerFrame <= CeresDestructionRomData.Timing.FinalExplosionFrame)
+                explosionSpawnerFrame <= CeresExplosionDefinitions.SpawnerFinalFrame)
                 continue;
             if (ceresActorSlots.ContainsValue(slot)) continue;
             ceresActorSlots.Add(actor, slot);

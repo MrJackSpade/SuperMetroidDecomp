@@ -30,8 +30,8 @@ internal static class CeresActorNativeAudit
                 if (!seen.Add(actor)) continue;
                 // The departure actor is a separate definition, not one of these three groups.
                 if (scene.Phase >= CeresDestructionPhase.FlyingAwayFromExplosion) continue;
-                int group = clock == CeresDestructionRomData.Timing.FirstExplosionFrame ? 0 :
-                    clock == CeresDestructionRomData.Timing.FinalExplosionFrame ? 2 : 1;
+                int group = clock == CeresExplosionDefinitions.InitialSpawnFrame ? 0 :
+                    clock == CeresExplosionDefinitions.SpawnerFinalFrame ? 2 : 1;
                 int param = group == 1 ? repeated++ : ordinal++;
                 tracked.Add((actor, group, param, frame, (ushort)Field("backgroundX"), (ushort)Field("backgroundY")));
             }

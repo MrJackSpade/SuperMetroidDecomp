@@ -901,6 +901,11 @@ if (args is ["--intro-egg-effect-definitions"])
     VerifyIntroEggEffectDefinitions();
     return 0;
 }
+if (args is ["--ceres-explosion-definitions"])
+{
+    VerifyCeresExplosionDefinitions();
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();
@@ -1374,6 +1379,7 @@ VerifyIntroMotherBrainDefinitions();
 VerifyIntroRinkaDefinitions();
 VerifyIntroBabyActorDefinitions();
 VerifyIntroEggEffectDefinitions();
+VerifyCeresExplosionDefinitions();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();

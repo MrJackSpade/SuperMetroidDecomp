@@ -343,12 +343,15 @@ only buffered delivery of the resulting 48 kHz stereo PCM.
 Runtime upload commands resolve against the SHA-verified catalog in
 the installed `game/audio/` directory. Developer tools may still use
 `../standalone-assets/audio`. Exact `.spcu` streams remain
-the source of sequence, instrument, and SFX command data; BRR decoding now occurs only during
-asset extraction. Runtime voices read 16-bit mono PCM WAVs and apply pitch, pan, envelopes,
+the source of sequence and SFX command data; the manifest's per-bank `instruments` arrays now
+own the editable source/noise selector, ADSR bytes, gain byte, and pitch-base word installed
+after each upload. BRR decoding occurs only during asset extraction. Runtime voices read
+16-bit mono PCM WAVs and apply pitch, pan, envelopes,
 looping, cancellation/voice stealing, Gaussian interpolation, noise, pitch modulation, and FIR
 echo dynamically in C#. The manifest maps 935 bank/source aliases onto 112 deduplicated WAVs,
 each with a stable ID, sample rate, loop frame, and SHA-256 digest. Unknown commands, malformed
-streams/WAVs, missing sources, invalid loops, address misses, and digest mismatches throw.
+streams/WAVs, incomplete or inconsistent instrument banks, missing sources, invalid loops,
+address misses, and digest mismatches throw.
 
 Every currently translated audio publisher is connected: title, intro, Ceres, room and boss
 music; file-select/options/pause feedback; Samus movement, damage, liquid, X-ray, Crystal Flash,
@@ -461,8 +464,18 @@ validates an uncompressed mono PCM16 WAV, retains the named sample ID and every 
 updates its rate/count/hash, and defaults to preserving the loop time across sample-rate changes.
 Pass `none` to disable looping or a non-negative PCM frame index to set it explicitly. Supported
 replacement rates are 8-384 kHz; the managed mixer normalizes pitch to the source rate. Running
-the ordinary `audio` extraction again restores every stock WAV. Gameplay still reads general
-cartridge code/data directly; audio alone uses its extracted catalog at runtime.
+the ordinary `audio` extraction again restores every stock WAV and instrument definition.
+
+Instrument edits currently live in `audio-manifest.json`, under the desired bank's
+`instruments` array. Every bank must retain exactly instruments `0` through `41`. `usesNoise`
+must match bit 7 of `sourceOrNoiseRate`; the remaining low bits select either the PCM source or
+the SNES noise rate. `adsr1`, `adsr2`, and `gain` are native DSP bytes, while `pitchBase` is the
+native unsigned 16-bit pitch scale. Restart the game after editing so the immutable catalog is
+validated and rebound. Re-extraction restores these stock definitions; a persistent separate
+instrument-override file is still part of the remaining editable-audio work.
+
+Gameplay still reads general cartridge code/data directly; audio alone uses its extracted
+catalog at runtime.
 
 ## Testing policy
 

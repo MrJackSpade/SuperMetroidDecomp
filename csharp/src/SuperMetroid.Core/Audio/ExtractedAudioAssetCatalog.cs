@@ -12,15 +12,19 @@ public sealed class ExtractedAudioAssetCatalog
     public const string ManifestFileName = "audio-manifest.json";
     private readonly IReadOnlyDictionary<int, byte[]> streams;
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
+    private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
+        instrumentBanks;
     private readonly int canonicalSampleCount;
 
     private ExtractedAudioAssetCatalog(
         IReadOnlyDictionary<int, byte[]> streams,
         IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks,
+        IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instrumentBanks,
         int canonicalSampleCount)
     {
         this.streams = streams;
         this.sampleBanks = sampleBanks;
+        this.instrumentBanks = instrumentBanks;
         this.canonicalSampleCount = canonicalSampleCount;
     }
 
@@ -79,6 +83,7 @@ public sealed class ExtractedAudioAssetCatalog
         Dictionary<string, ManagedPcmSample> canonicalSamples =
             LoadCanonicalSamples(root, manifest.CanonicalSamples);
         Dictionary<int, ManagedPcmSampleBank> banks = [];
+        Dictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instruments = [];
         foreach (AudioBankMetadata bank in manifest.Banks)
         {
             AudioUploadAssetDefinition definition = AudioAssetCatalogData.All.SingleOrDefault(
@@ -120,6 +125,8 @@ public sealed class ExtractedAudioAssetCatalog
             }
             if (!banks.TryAdd(bank.SnesAddress, new ManagedPcmSampleBank(bank.Name, bank.SnesAddress, sources, loopEntries)))
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
+            if (!instruments.TryAdd(bank.SnesAddress, ValidateInstruments(bank)))
+                throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
         }
         int[] missingBanks = AudioAssetCatalogData.All
             .Select(definition => definition.SnesAddress)
@@ -142,7 +149,7 @@ public sealed class ExtractedAudioAssetCatalog
             throw new InvalidDataException(
                 $"Audio manifest contains unreferenced canonical samples: {string.Join(", ", unreferenced)}.");
         }
-        return new ExtractedAudioAssetCatalog(loaded, banks, canonicalSamples.Count);
+        return new ExtractedAudioAssetCatalog(loaded, banks, instruments, canonicalSamples.Count);
     }
 
     /// <summary>Returns the exact terminated upload stream for a cartridge command.</summary>
@@ -158,6 +165,60 @@ public sealed class ExtractedAudioAssetCatalog
             ? bank
             : throw new InvalidDataException(
                 $"Audio command references unmapped PCM bank address ${snesAddress:X6}.");
+
+    /// <summary>
+    /// Returns the editable instrument table installed after the corresponding opaque
+    /// upload. The ordered records retain the SPC driver's native six-byte identities.
+    /// </summary>
+    public IReadOnlyList<AudioInstrumentMetadata> GetInstrumentBank(int snesAddress) =>
+        instrumentBanks.TryGetValue(snesAddress, out IReadOnlyList<AudioInstrumentMetadata>? bank)
+            ? bank
+            : throw new InvalidDataException(
+                $"Audio command references unmapped instrument bank address ${snesAddress:X6}.");
+
+    private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
+        ValidateInstruments(
+        AudioBankMetadata bank)
+    {
+        if (bank.Instruments.Count != SpcDriverData.Ram.InstrumentCount)
+        {
+            throw new InvalidDataException(
+                $"Audio bank '{bank.Name}' defines {bank.Instruments.Count} instruments; " +
+                $"expected {SpcDriverData.Ram.InstrumentCount}.");
+        }
+
+        Dictionary<int, AudioInstrumentMetadata> byId = [];
+        foreach (AudioInstrumentMetadata instrument in bank.Instruments)
+        {
+            if ((uint)instrument.Instrument >= SpcDriverData.Ram.InstrumentCount)
+            {
+                throw new InvalidDataException(
+                    $"Audio bank '{bank.Name}' instrument {instrument.Instrument} is outside " +
+                    $"0..{SpcDriverData.Ram.InstrumentCount - 1}.");
+            }
+            if (instrument.UsesNoise !=
+                ((instrument.SourceOrNoiseRate & SpcDriverData.Instruments.NoiseMarker) != 0))
+            {
+                throw new InvalidDataException(
+                    $"Audio bank '{bank.Name}' instrument {instrument.Instrument} has inconsistent " +
+                    "usesNoise and sourceOrNoiseRate fields.");
+            }
+            if (!byId.TryAdd(instrument.Instrument, instrument))
+            {
+                throw new InvalidDataException(
+                    $"Audio bank '{bank.Name}' repeats instrument {instrument.Instrument}.");
+            }
+        }
+
+        var ordered = new AudioInstrumentMetadata[SpcDriverData.Ram.InstrumentCount];
+        for (int instrument = 0; instrument < ordered.Length; instrument++)
+        {
+            if (!byId.TryGetValue(instrument, out AudioInstrumentMetadata? definition))
+                throw new InvalidDataException($"Audio bank '{bank.Name}' omits instrument {instrument}.");
+            ordered[instrument] = definition;
+        }
+        return Array.AsReadOnly(ordered);
+    }
 
     private static Dictionary<string, ManagedPcmSample> LoadCanonicalSamples(
         string root,

@@ -33,6 +33,8 @@ internal static class SpcDriverData
         internal const int MusicTrackPointerTable = 0x5820; // magic-number-audit: allow(AudioId) - resident SPC music pointer table address
         internal const int InstrumentTable = 0x6c00;
         internal const int InstrumentRecordSize = 6;
+        internal const int InstrumentTableByteLength = 0x0100;
+        internal const int InstrumentCount = InstrumentTableByteLength / InstrumentRecordSize;
     }
 
     internal static class Echo
@@ -67,6 +69,12 @@ internal static class SpcDriverData
         internal const byte PatternFastForwardOff = 0x81;
         internal const byte PatternPointerHighByteMinimum = 1;
         internal const int TrackStartupTicks = 2;
+    }
+
+    internal static class Instruments
+    {
+        /// <summary>High bit selecting a DSP noise rate instead of a BRR source number.</summary>
+        internal const byte NoiseMarker = 0x80;
     }
 
     internal static class SoundEffects

@@ -122,7 +122,7 @@ public sealed partial class ManagedSpcPlayer
             return;
 
         byte register = unchecked((byte)(channel.Index * SnesDspRegisterMap.VoiceStride));
-        if ((ram[address] & 0x80) != 0) // allow(BitMask): noise-instrument marker
+        if ((ram[address] & SpcDriverData.Instruments.NoiseMarker) != 0)
         {
             dspFlags = unchecked((byte)((dspFlags & SpcDriverData.Echo.WriteDisable) |
                 (ram[address] & SnesDspRegisterMap.Fields.NoiseRateMask)));

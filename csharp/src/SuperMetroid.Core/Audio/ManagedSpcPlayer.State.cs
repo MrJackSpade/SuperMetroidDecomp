@@ -181,6 +181,49 @@ public sealed partial class ManagedSpcPlayer
     /// </summary>
     public void SetSampleBank(ManagedPcmSampleBank bank) => dsp.SetSampleBank(bank);
 
+    /// <summary>
+    /// Installs the manifest-owned source/noise selector, ADSR, gain, and pitch-base words
+    /// for one audio bank. Uploads still provide sequence bytes and the native driver image;
+    /// applying this complete table afterward makes instrument edits deterministic and keeps
+    /// their six-byte SPC layout visible to diagnostics.
+    /// </summary>
+    public void ApplyInstrumentDefinitions(
+        IReadOnlyList<AudioInstrumentMetadata> instruments)
+    {
+        ArgumentNullException.ThrowIfNull(instruments);
+        if (instruments.Count != SpcDriverData.Ram.InstrumentCount)
+        {
+            throw new InvalidDataException(
+                $"Instrument bank contains {instruments.Count} records; " +
+                $"expected {SpcDriverData.Ram.InstrumentCount}.");
+        }
+
+        for (int index = 0; index < instruments.Count; index++)
+        {
+            AudioInstrumentMetadata instrument = instruments[index];
+            if (instrument.Instrument != index)
+            {
+                throw new InvalidDataException(
+                    $"Instrument bank index {index} contains identity {instrument.Instrument}.");
+            }
+            if (instrument.UsesNoise !=
+                ((instrument.SourceOrNoiseRate & SpcDriverData.Instruments.NoiseMarker) != 0))
+            {
+                throw new InvalidDataException(
+                    $"Instrument {index} has inconsistent usesNoise and sourceOrNoiseRate fields.");
+            }
+
+            int address = SpcDriverData.Ram.InstrumentTable +
+                index * SpcDriverData.Ram.InstrumentRecordSize;
+            ram[address] = instrument.SourceOrNoiseRate;
+            ram[address + 1] = instrument.Adsr1;
+            ram[address + 2] = instrument.Adsr2;
+            ram[address + 3] = instrument.Gain;
+            ram[address + 4] = unchecked((byte)(instrument.PitchBase >> 8));
+            ram[address + 5] = unchecked((byte)instrument.PitchBase);
+        }
+    }
+
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
     public void WritePort(int port, byte value)
     {
@@ -199,6 +242,14 @@ public sealed partial class ManagedSpcPlayer
 
     /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
     internal byte ReadDspRegisterForVerification(byte address) => dsp.ReadRegister(address);
+
+    /// <summary>Exposes one APU byte only to deterministic friend-assembly verification.</summary>
+    internal byte ReadApuByteForVerification(int address)
+    {
+        if ((uint)address >= ram.Length)
+            throw new ArgumentOutOfRangeException(nameof(address), address, "APU address must be 0..65535.");
+        return ram[address];
+    }
 
     /// <summary>
     /// Applies a complete cartridge upload stream to APU RAM. Each record contains a little-

@@ -1102,6 +1102,11 @@ if (args is ["--audio-queues"])
     VerifyCartridgeAudioQueues();
     return 0;
 }
+if (args is ["--audio-instruments"])
+{
+    VerifyEditableAudioInstruments();
+    return 0;
+}
 if (args is ["--shutter-native-arc"])
 {
     AuditMorphShutterApproaches(reproduceOnly: true, exportNativeArc: true);

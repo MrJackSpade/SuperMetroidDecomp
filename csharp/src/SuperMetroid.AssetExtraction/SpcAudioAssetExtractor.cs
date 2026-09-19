@@ -126,7 +126,7 @@ public static class SpcAudioAssetExtractor
         }
 
         List<AudioInstrumentMetadata> instruments = [];
-        int instrumentCount = InstrumentTableByteLength / SpcDriverData.Ram.InstrumentRecordSize;
+        int instrumentCount = SpcDriverData.Ram.InstrumentCount;
         for (int instrument = 0; instrument < instrumentCount; instrument++)
         {
             int address = SpcDriverData.Ram.InstrumentTable +
@@ -134,7 +134,7 @@ public static class SpcAudioAssetExtractor
             byte source = ram[address];
             instruments.Add(new AudioInstrumentMetadata(
                 instrument,
-                (source & 0x80) != 0,
+                (source & SpcDriverData.Instruments.NoiseMarker) != 0,
                 source,
                 ram[address + 1],
                 ram[address + 2],

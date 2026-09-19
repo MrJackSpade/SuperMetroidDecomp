@@ -31,6 +31,8 @@ public sealed class CartridgeAudioRenderer
             {
                 case CartridgeAudioCommandKind.Upload:
                     Player.Upload(assets.GetUpload(command.UploadAddress).Span);
+                    Player.ApplyInstrumentDefinitions(
+                        assets.GetInstrumentBank(command.UploadAddress));
                     Player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
                     break;
                 case CartridgeAudioCommandKind.WritePort:

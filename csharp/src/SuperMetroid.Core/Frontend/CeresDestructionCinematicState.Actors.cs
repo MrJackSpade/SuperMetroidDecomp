@@ -42,11 +42,20 @@ internal sealed partial class CeresDestructionCinematicState
         for (int index = actors.Count - 1; index >= 0; index--)
         {
             IntroDiscoverySprite actor = actors[index];
-            if (index == 0)
-                AddWrappedX(actor, CeresDestructionRomData.Motion.ExplosionFastXSubvelocity);
-            else if (index == 1)
-                AddWrappedX(actor, CeresDestructionRomData.Motion.ExplosionSlowXSubvelocity);
-            else if (index >= 3)
+            if (index < CeresDestructionActorDefinitions.InitialActorCount)
+            {
+                CeresDestructionActorDefinition definition =
+                    CeresDestructionActorDefinitions.InitialActor(index);
+                if (actor.PreInstructionPointer != definition.ActivePreInstruction)
+                {
+                    throw new InvalidDataException(
+                        $"Ceres destruction actor {index} names invalid pre-instruction " +
+                        $"$8B:{actor.PreInstructionPointer:X4}.");
+                }
+                if (definition.WrapX)
+                    AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
+            }
+            else
                 MoveExplosion(actor);
 
             actor.Step(bus);
@@ -162,13 +171,24 @@ internal sealed partial class CeresDestructionCinematicState
             IntroDiscoverySprite actor = actors[index];
             if (slidingAway)
             {
+                CeresDestructionActorDefinition definition = ReferenceEquals(actor, zebesPlanetActor)
+                    ? CeresDestructionActorDefinitions.ZebesActor(0)
+                    : ReferenceEquals(actor, zebesCompletionStarActor)
+                        ? CeresDestructionActorDefinitions.ZebesActor(4)
+                        : ReferenceEquals(actor, zebesTitleActor)
+                            ? CeresDestructionActorDefinitions.ZebesActor(5)
+                            : CeresDestructionActorDefinitions.ZebesActor(1);
+                if (definition.SlidePreInstruction == 0)
+                {
+                    throw new InvalidDataException(
+                        "PLANET ZEBES title actor remained active when scene sliding began.");
+                }
+                actor.PreInstructionPointerForDiscovery(definition.SlidePreInstruction);
                 // Zebes accelerates by $40 in 8.8; all four star sheets use $20. Star
                 // sheet five is the native completion owner at C8F2. Identify the actors
                 // by ownership, not their mutable list index: native actors delete as they
                 // cross -$80, so indexes necessarily shift during this loop.
-                ushort acceleration = ReferenceEquals(actor, zebesPlanetActor)
-                    ? CeresDestructionRomData.Motion.PlanetEightEightAcceleration
-                    : CeresDestructionRomData.Motion.StarEightEightAcceleration;
+                ushort acceleration = definition.SlideAcceleration;
                 actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + acceleration));
                 SubtractEightEightY(actor, actor.GeneralTimer);
                 if (unchecked((short)actor.YPosition) < -128)
@@ -176,7 +196,7 @@ internal sealed partial class CeresDestructionCinematicState
                     // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit
                     // OAM Y coordinate can wrap below the screen. Only star sheet five
                     // additionally installs CADF, handing the cinematic back to game load.
-                    if (ReferenceEquals(actor, zebesCompletionStarActor))
+                    if (definition.CompletesScene)
                     {
                         Phase = CeresDestructionPhase.Finished;
                         return;

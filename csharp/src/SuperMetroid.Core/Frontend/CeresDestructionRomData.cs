@@ -89,13 +89,9 @@ public static class CeresDestructionRomData
         public const int NegativeHalfPixel16Point16 = unchecked((int)0xffff_8000);
         public const int SixteenthPixel16Point16 = 0x0000_1000;
         public const int NegativeQuarterPixel16Point16 = unchecked((int)0xffff_c000);
-        public const ushort ExplosionFastXSubvelocity = 0x4000;
-        public const ushort ExplosionSlowXSubvelocity = 0x0800;
         public const ushort GunshipXSubvelocity = 0x4000;
         public const ushort GunshipYVelocity = 0xffff;
         public const ushort GunshipYSubvelocity = 0xf000;
-        public const ushort PlanetEightEightAcceleration = 0x0040;
-        public const ushort StarEightEightAcceleration = 0x0020;
         public const ushort Mode7ExitX = 0x003e;
         public static SnesAngle ApproachAngle => SnesAngle.FromTableIndex(0x20);
     }
@@ -110,36 +106,7 @@ public static class CeresDestructionRomData
         public const int VortexSlot = 0;
         /// <summary>$8B:C29B: second automatic allocation reserves slot 14 for invisible CF33.</summary>
         public const int SpawnerSlot = 14;
-        public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Index4;
         public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Index5;
-        public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Index7;
-        public const ushort PlanetList = 0xccab;
-        public const ushort PlanetTitleList = 0xccbb;
-        public static readonly CeresCinematicActorDefinition InitialAsteroids =
-            new(0x0050, 0x009f, ScenePalette.Raw, 0xcc3f);
-        public static readonly CeresCinematicActorDefinition InitialSmallAsteroids =
-            new(0x0080, 0x0060, ScenePalette.Raw, 0xcc4f);
-        public static readonly CeresCinematicActorDefinition InitialVortex =
-            new(0x0070, 0x0057, ScenePalette.Raw, 0xcc57);
-        public static readonly CeresCinematicActorDefinition ZebesPlanet =
-            new(0x0088, 0x006f, PlanetPalette.Raw, PlanetList);
-        public static readonly CeresCinematicActorDefinition UpperLeftStar =
-            new(0x0030, 0x002f, ScenePalette.Raw, 0xcd83);
-        public static readonly CeresCinematicActorDefinition UpperRightStar =
-            new(0x00d0, 0x002f, ScenePalette.Raw, 0xcd8b);
-        public static readonly CeresCinematicActorDefinition LowerLeftStar =
-            new(0x0030, 0x00cf, ScenePalette.Raw, 0xcd93);
-        public static readonly CeresCinematicActorDefinition LowerRightStar =
-            new(0x00d0, 0x00cf, ScenePalette.Raw, 0xcd9b);
-        public static readonly CeresCinematicActorDefinition PlanetTitle =
-            new(0x0080, 0x00ba, 0, PlanetTitleList);
         public const ushort ZebesInitialBackgroundX = 0x0080;
     }
 }
-
-/// <summary>Immutable constructor arguments for one bank-$8B cinematic sprite object.</summary>
-public readonly record struct CeresCinematicActorDefinition(
-    ushort X,
-    ushort Y,
-    ushort PaletteBits,
-    ushort InstructionPointer);

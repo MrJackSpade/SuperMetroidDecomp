@@ -30,6 +30,7 @@ internal sealed partial class CeresDestructionCinematicState
     private RoomPaletteFxSystem? paletteFx;
     private IntroDiscoverySprite? zebesPlanetActor;
     private IntroDiscoverySprite? zebesCompletionStarActor;
+    private IntroDiscoverySprite? zebesTitleActor;
 
     private ushort backgroundX = unchecked((ushort)-44);
     private ushort backgroundXSubPosition;
@@ -307,9 +308,8 @@ internal sealed partial class CeresDestructionCinematicState
         cgram.LoadFromBus(bus, CeresDestructionRomData.Assets.Palette);
 
         actors.Clear();
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialAsteroids));
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialSmallAsteroids));
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialVortex));
+        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
+            actors.Add(CreateActor(CeresDestructionActorDefinitions.InitialActor(index)));
         ceresActorSlots.Clear();
         ceresActorSlots.Add(actors[0], CeresDestructionRomData.Sprites.AsteroidSlot);
         ceresActorSlots.Add(actors[1], CeresDestructionRomData.Sprites.SmallAsteroidSlot);
@@ -375,14 +375,15 @@ internal sealed partial class CeresDestructionCinematicState
         angle = CeresDestructionRomData.Motion.ApproachAngle;
         zoom = CeresDestructionRomData.Motion.IdentityScale;
         actors.Clear();
-        zebesPlanetActor = CreateActor(CeresDestructionRomData.Sprites.ZebesPlanet);
+        zebesPlanetActor = CreateActor(CeresDestructionActorDefinitions.ZebesActor(0));
         actors.Add(zebesPlanetActor);
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.UpperLeftStar));
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.UpperRightStar));
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.LowerLeftStar));
-        zebesCompletionStarActor = CreateActor(CeresDestructionRomData.Sprites.LowerRightStar);
+        actors.Add(CreateActor(CeresDestructionActorDefinitions.ZebesActor(1)));
+        actors.Add(CreateActor(CeresDestructionActorDefinitions.ZebesActor(2)));
+        actors.Add(CreateActor(CeresDestructionActorDefinitions.ZebesActor(3)));
+        zebesCompletionStarActor = CreateActor(CeresDestructionActorDefinitions.ZebesActor(4));
         actors.Add(zebesCompletionStarActor);
-        actors.Add(CreateActor(CeresDestructionRomData.Sprites.PlanetTitle));
+        zebesTitleActor = CreateActor(CeresDestructionActorDefinitions.ZebesActor(5));
+        actors.Add(zebesTitleActor);
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
 
@@ -431,8 +432,17 @@ internal sealed partial class CeresDestructionCinematicState
         return result;
     }
 
-    private static IntroDiscoverySprite CreateActor(CeresCinematicActorDefinition definition) =>
-        new(definition.X, definition.Y, definition.PaletteBits, definition.InstructionPointer);
+    private static IntroDiscoverySprite CreateActor(
+        CeresDestructionActorDefinition definition)
+    {
+        var actor = new IntroDiscoverySprite(
+            definition.X,
+            definition.Y,
+            definition.Attributes,
+            definition.InstructionList);
+        actor.PreInstructionPointerForDiscovery(definition.ActivePreInstruction);
+        return actor;
+    }
 
     private static void AddSignedSixteenSixteen(
         ref ushort whole,

@@ -129,4 +129,18 @@ It reaches all 323 selected states, round-trips every native pointer, proves eve
 of the 16 main identities and 35 setup identities occurs in the retail graph, and
 checks strict rejection of unknown native and typed values.
 
-Remaining #531 work: complete the combined guarded room-entry/camera-trajectory audit.
+## Combined production integration audit
+
+Run `SuperMetroid.Verification --room-definition-integration` from the repository
+root. The audit constructs one exact forbidden-address set from all native load-station
+records, physical/elevator door headers, door lists, fixed room headers, selector reads,
+all 323 state payloads, all explicit scroll allocations, and the first byte of every
+door/setup/main callback. It then runs the actual Ceres start and post-Ceres Landing Site
+entry with every one of those bytes unreadable.
+
+The guarded runtime is compared frame by frame with the stock runtime through the entire
+station-18 gunship descent and Landing Site camera trajectory. Entry viewport work,
+station/door/header/state identities, scroll storage, camera coordinates, carried Samus
+coordinates, frame results, gunship boundaries, and landing completion must remain exact.
+This closes the final combined integration requirement for #531 without converting the
+application-owned room graph into user-editable data.

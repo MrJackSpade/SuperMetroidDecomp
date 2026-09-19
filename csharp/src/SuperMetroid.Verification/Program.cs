@@ -382,6 +382,13 @@ if (args is ["--samus-death-explosion-timing-definitions"])
     VerifySamusDeathSequence();
     return 0;
 }
+if (args is ["--hyper-beam-palette-fx-program-definitions"])
+{
+    VerifyHyperBeamPaletteFxProgramDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifySamusDrainedController();
+    return 0;
+}
 if (args is ["--palette-fx-instruction-codes"])
 {
     VerifyPaletteFxInstructionCodeCatalogs();

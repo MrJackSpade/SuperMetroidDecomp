@@ -243,10 +243,11 @@ static void VerifySamusDrainedController()
     // show frame one, and call 21 executes `$C61E,$D904` and reloads frame zero.
     drainedCgram.SetColor(0xe0, 0x4567);
     drainedCgram.SetColor(0xe9, 0x2345);
+    var hyperBeamGuard = new HyperBeamPaletteFxControlReadGuard(bus);
     for (int call = 0; call < 21; call++)
     {
         HyperBeamPaletteFxStepResult paletteFx =
-            left.Drained.HyperBeamPaletteFx.Step(bus, drainedCgram);
+            left.Drained.HyperBeamPaletteFx.Step(hyperBeamGuard, drainedCgram);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
         AssertEqual(expectedFrame, paletteFx.FrameIndex,
             $"Hyper Beam palette-FX call {call + 1} frame index");
@@ -266,6 +267,8 @@ static void VerifySamusDrainedController()
         "Hyper Beam palette-FX preserves color before its range");
     AssertEqual(0x2345, drainedCgram.Colors[0xe9],
         "Hyper Beam palette-FX preserves color after its range");
+    AssertEqual(0, hyperBeamGuard.ForbiddenReadAttempts,
+        "Hyper Beam palette-FX performs no fixed-control ROM reads");
 
     // Mother Brain's first rainbow-beam hit calls command five or `$18`. Both routes force
     // pose `$54` and lock normal input; only their installed Up-edge handler differs.

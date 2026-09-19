@@ -4,15 +4,13 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// ROM-driven translation of palette-FX object <c>$8D:E1F0</c>, the projectile palette
-/// cycle installed when Samus receives the Hyper Beam.
+/// Translation of palette-FX object <c>$8D:E1F0</c>, the projectile palette cycle
+/// installed when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
-/// This is intentionally a small, object-specific interpreter rather than a copied array
-/// of attractive-looking colors. The state retains the native instruction pointer and
-/// instruction timer, reads every BGR555 word from bank <c>$8D</c>, and recognizes the
-/// exact three commands used by this object. That makes malformed ROM data fail loudly
-/// instead of silently turning into a different animation.
+/// The state retains the native instruction pointer and timer. Fixed program control is
+/// compiled separately from the live BGR555 payloads so presentation replacement cannot
+/// silently change engine cadence or route restored state into adjacent cartridge data.
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
@@ -20,10 +18,10 @@ public sealed class HyperBeamPaletteFxState
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
     /// <summary>Number of timed color records in the Hyper Beam loop.</summary>
-    public const int FrameCount = SamusPaletteRomData.HyperBeamFx.FrameCount;
+    public const int FrameCount = HyperBeamPaletteFxProgramDefinitions.FrameCount;
 
     /// <summary>Number of colors copied by each Hyper Beam record.</summary>
-    public const int ColorsPerFrame = SamusPaletteRomData.HyperBeamFx.ColorsPerFrame;
+    public const int ColorsPerFrame = HyperBeamPaletteFxProgramDefinitions.ColorsPerFrame;
 
     private ushort _instructionPointer;
 
@@ -58,7 +56,7 @@ public sealed class HyperBeamPaletteFxState
         InstructionTimer = 1;
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
-        _instructionPointer = SamusPaletteRomData.HyperBeamFx.InitialList;
+        _instructionPointer = HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer;
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
@@ -81,7 +79,8 @@ public sealed class HyperBeamPaletteFxState
         RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(
             unchecked((ushort)SamusPaletteRomData.HyperBeamFx.ObjectDefinition));
         if (definition.SetupCallback != SamusPaletteRomData.HyperBeamFx.SetupCallback ||
-            definition.InitialInstructionList != SamusPaletteRomData.HyperBeamFx.InitialList)
+            definition.InitialInstructionList !=
+                HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer)
         {
             throw new InvalidDataException(
                 $"Compiled Hyper Beam palette-FX definition is inconsistent: setup " +
@@ -102,95 +101,24 @@ public sealed class HyperBeamPaletteFxState
                 CompletedCycles);
         }
 
-        ushort pointer = _instructionPointer;
-        ushort word;
-        while (true)
-        {
-            word = ReadBank8dWord(bus, pointer);
-            if ((word & 0x8000) == 0)
-                break;
-
-            switch (word)
-            {
-                case SamusPaletteRomData.HyperBeamFx.SetColorIndex:
-                {
-                    // `$8D:C655` stores a byte offset, not a color number. This object is
-                    // expected to own precisely E1..E8; accepting another destination
-                    // would corrupt an unrelated background or sprite palette.
-                    ushort colorByteIndex = ReadBank8dWord(bus, unchecked((ushort)(pointer + 2)));
-                    if (colorByteIndex != SamusPaletteRomData.HyperBeamFx.DestinationByteIndex)
-                    {
-                        throw new InvalidDataException(
-                            $"Hyper Beam palette-FX selected byte index ${colorByteIndex:X4}, expected $01C2.");
-                    }
-
-                    pointer = unchecked((ushort)(pointer + 4));
-                    continue;
-                }
-
-                case SamusPaletteRomData.HyperBeamFx.Goto:
-                {
-                    // The terminal `$C61E,$D904` pair jumps directly to frame zero, not
-                    // to `$D900`; the color-index command consequently executes only once.
-                    ushort target = ReadBank8dWord(bus, unchecked((ushort)(pointer + 2)));
-                    if (target != SamusPaletteRomData.HyperBeamFx.FirstFrame)
-                    {
-                        throw new InvalidDataException(
-                            $"Hyper Beam palette-FX loop target changed to ${target:X4}.");
-                    }
-
-                    CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
-                    pointer = target;
-                    continue;
-                }
-
-                default:
-                    throw new InvalidDataException(
-                        $"Unsupported Hyper Beam palette-FX command ${word:X4} at $8D:{pointer:X4}.");
-            }
-        }
-
-        // A frame begins with its duration, followed by eight literal BGR555 colors and
-        // `$C595` (done). The native done trampoline advances the saved instruction pointer
-        // to the word after that command, which is exactly twenty bytes after this timer.
-        ushort frameTimer = word;
-        if (frameTimer != 2)
-        {
-            throw new InvalidDataException(
-                $"Hyper Beam palette-FX frame at $8D:{pointer:X4} has timer {frameTimer}, expected 2.");
-        }
-
-        int frameIndex = (pointer - SamusPaletteRomData.HyperBeamFx.FirstFrame) /
-            SamusPaletteRomData.HyperBeamFx.FrameByteCount;
-        if ((uint)frameIndex >= FrameCount ||
-            pointer != SamusPaletteRomData.HyperBeamFx.FirstFrame +
-                frameIndex * SamusPaletteRomData.HyperBeamFx.FrameByteCount)
-        {
-            throw new InvalidDataException(
-                $"Hyper Beam palette-FX frame pointer $8D:{pointer:X4} is outside the ten-record program.");
-        }
+        HyperBeamPaletteFxFrame frame =
+            HyperBeamPaletteFxProgramDefinitions.ResolveFrame(
+                _instructionPointer,
+                out bool completedCycle);
+        if (completedCycle)
+            CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
 
         for (int color = 0; color < ColorsPerFrame; color++)
         {
             ushort bgr555 = ReadBank8dWord(
                 bus,
-                unchecked((ushort)(pointer + 2 + color * 2)));
+                unchecked((ushort)(frame.FirstColorPointer + color * sizeof(ushort))));
             cgram.SetColor(DestinationColorIndex + color, bgr555);
         }
 
-        ushort done = ReadBank8dWord(
-            bus,
-            unchecked((ushort)(pointer + 2 + ColorsPerFrame * 2)));
-        if (done != SamusPaletteRomData.HyperBeamFx.Done)
-        {
-            throw new InvalidDataException(
-                $"Hyper Beam palette-FX frame {frameIndex} ends in ${done:X4}, expected $C595.");
-        }
-
-        InstructionTimer = frameTimer;
-        CurrentFrameIndex = frameIndex;
-        _instructionPointer = unchecked((ushort)(
-            pointer + SamusPaletteRomData.HyperBeamFx.FrameByteCount));
+        InstructionTimer = frame.Duration;
+        CurrentFrameIndex = frame.Index;
+        _instructionPointer = frame.NextInstructionPointer;
         return new HyperBeamPaletteFxStepResult(
             Active: true,
             PaletteWritten: true,

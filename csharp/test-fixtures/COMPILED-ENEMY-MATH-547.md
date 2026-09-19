@@ -2689,3 +2689,14 @@ palette selectors, palette pointers, and colors remain cartridge-backed presenta
 Verification compares every duration with the pinned cartridge, rejects a restored index
 beyond the authored sequence, and runs the complete 136-call explosion sequence through
 the production state machine with every timer-byte read forbidden.
+
+# Hyper Beam palette-FX control program
+
+The fixed control skeleton of palette-FX program `$8D:D900` now lives in
+`HyperBeamPaletteFxProgramDefinitions`: destination setup, ten two-call frame timers,
+ten done commands, the terminal loop, and the bounded instruction-pointer domain. The
+eight BGR555 colors in each frame remain cartridge-backed presentation data.
+
+Verification compares every control word with the pinned cartridge, rejects unaligned and
+post-program restored pointers, and runs the complete 21-call production loop with every
+control byte forbidden while all 80 editable colors remain live.

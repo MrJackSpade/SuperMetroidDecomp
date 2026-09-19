@@ -755,3 +755,8 @@ Samus's mixed death-explosion records are split by ownership too. Their nine tim
 are compiled in `SamusDeathExplosionTimingDefinitions`; the interleaved palette selectors,
 palette pointers, and palette colors remain live presentation data. The full production
 sequence passes with all nine timer reads forbidden.
+
+The Hyper Beam's specialized palette-FX owner now compiles the fixed control skeleton of
+`$8D:D900`: destination setup, all ten two-call timers and done commands, terminal loop,
+and the valid restored-pointer domain. Its eighty BGR555 color words remain live
+presentation data. The complete production loop passes with control reads forbidden.

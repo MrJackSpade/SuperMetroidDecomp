@@ -65,6 +65,7 @@ internal static partial class Program
         VerifyCrystalFlashPaletteTimingDefinitions(rom);
         VerifyWorkRobotPaletteTimingDefinitions(rom);
         VerifySamusDeathExplosionTimingDefinitions(rom);
+        VerifyHyperBeamPaletteFxProgramDefinitions(rom);
         VerifyQuicksandDefinitions(rom);
         VerifySaveStationAnimationDefinitions(rom);
         VerifyZebesEscapeExplosionDefinitions(rom);

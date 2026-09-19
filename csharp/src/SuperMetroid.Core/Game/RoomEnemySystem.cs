@@ -3578,6 +3578,9 @@ public sealed partial class RoomEnemySystem
                 address);
         }
 
+        if (slot.EnemyDefinitionPointer == BoulderDefinition)
+            return BoulderInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
         {

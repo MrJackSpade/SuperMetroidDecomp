@@ -128,6 +128,7 @@ internal static partial class Program
         VerifyCompiledEnemyFireballLaunches(rom);
         VerifyCompiledRioLaunches(rom);
         VerifyCompiledBoulderBounces(rom);
+        VerifyBoulderInstructionProgramDefinitions(rom);
         VerifyCompiledZoaSpeeds(rom);
         VerifyCompiledGrowingShutters(rom);
         VerifyCompiledIntroEggMotion(rom);

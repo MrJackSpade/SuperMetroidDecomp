@@ -2883,6 +2883,18 @@ All seven spritemap operands remain observable through the cartridge bus; presen
 and adjacent initializer-code addresses fail as mechanics, and warmed lookup is
 allocation-free.
 
+# Boulder instruction mechanics
+
+Boulder's mirrored left- and right-moving rolling loops now resolve all twenty fixed
+duration, goto, and loop-target words through `BoulderInstructionProgramDefinitions`.
+Their sixteen interleaved spritemap pointers remain live cartridge-backed presentation
+data, and the real initializer selects the same named catalog entries.
+
+Verification compares every mechanics word with the pinned cartridge, executes both
+production loops beyond their terminal gotos with every mechanics source byte forbidden,
+and observes all sixteen spritemap operands. Presentation and adjacent-data pointers fail
+as mechanics, and warmed lookup is allocation-free.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

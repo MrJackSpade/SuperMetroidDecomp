@@ -78,8 +78,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort BoulderDefinition = 0xdfbf;
 
-    private const ushort BoulderLeftInstructionList = 0x86a7;
-    private const ushort BoulderRightInstructionList = 0x86cb;
     private const ushort BoulderImpactSound = 0x0042;
     private const ushort BoulderBreakSound = 0x0043;
     private const ushort BoulderDustAnimationIndex = 0x0011;
@@ -128,11 +126,11 @@ public sealed partial class RoomEnemySystem
         if (state.DirectionSelector == 0)
         {
             state.HorizontalTriggerLimit = unchecked((short)-state.HorizontalTriggerLimit);
-            slot.CurrentInstruction = BoulderRightInstructionList;
+            slot.CurrentInstruction = BoulderInstructionProgramDefinitions.Right;
         }
         else
         {
-            slot.CurrentInstruction = BoulderLeftInstructionList;
+            slot.CurrentInstruction = BoulderInstructionProgramDefinitions.Left;
         }
 
         state.VerticalCompensation = (byte)slot.Parameter1 == 0 ? (ushort)2 : (ushort)5;

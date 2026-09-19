@@ -162,6 +162,9 @@ forbidden.
 Blue Brinstar face blocks now compile all ten duration/sleep words across their
 neutral and directional programs. Both activation sides and all three terminal sleeps
 execute with mechanics reads forbidden while seven spritemap operands remain live.
+Boulder's mirrored rolling loops compile all twenty duration, goto, and loop-target
+words. Both initializer-selected production programs loop with mechanics reads forbidden
+while sixteen spritemap operands remain live.
 Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
 compiled as typed phase records. Real initialization, rising, falling and overlay
 tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
@@ -917,6 +920,18 @@ Production verification runs the actual initializer plus left- and right-side Sa
 activation through each terminal sleep with every compiled mechanics byte forbidden.
 It observes all seven spritemaps, rejects presentation and adjacent native-code pointers
 as restored mechanics cursors, and proves warmed lookup is allocation-free.
+
+## Boulder instruction mechanics
+
+Boulder's left- and right-moving rolling loops now use a strict
+`BoulderInstructionProgramDefinitions` boundary. Twenty immutable duration, goto, and
+loop-target words are compiled; sixteen interleaved spritemap operands remain live
+presentation reads.
+
+Production verification exercises both real initializer selections, runs each loop past
+its terminal goto with every compiled mechanics byte forbidden, and observes all sixteen
+spritemaps. Presentation and adjacent-data pointers fail as restored mechanics cursors,
+and warmed lookup is allocation-free.
 
 ## Room-FX animated-tile mechanics
 

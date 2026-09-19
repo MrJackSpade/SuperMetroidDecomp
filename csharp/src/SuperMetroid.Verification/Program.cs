@@ -97,6 +97,11 @@ if (args is ["--blue-brinstar-face-block-instruction-mechanics"])
     VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--boulder-instruction-mechanics"])
+{
+    VerifyBoulderInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

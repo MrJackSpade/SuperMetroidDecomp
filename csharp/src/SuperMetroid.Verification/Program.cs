@@ -57,6 +57,11 @@ if (args is ["--rinka-instruction-mechanics"])
     VerifyRinkaInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--fune-namihe-instruction-mechanics"])
+{
+    VerifyFuneNamiheInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

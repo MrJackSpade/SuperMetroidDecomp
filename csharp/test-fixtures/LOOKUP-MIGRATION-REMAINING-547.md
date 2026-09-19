@@ -856,6 +856,19 @@ restored Rinka cursor cannot escape the two authored lists, and the retail-unuse
 `$A2:B9A2` conditional callback is rejected because no retail list supplies its operand.
 Warmed mechanics lookup remains allocation-free.
 
+## Fune/Namihe instruction mechanics
+
+The eight active/idle and left/right Fune/Namihe programs now resolve all fixed control
+through `FuneNamiheInstructionProgramDefinitions`. Sixty-two duration, callback,
+sleep/goto, and loop-target words are compiled; the 38 interleaved spritemap operands
+remain live presentation reads.
+
+Production verification runs all eight entry programs while every control byte is
+forbidden and observes all presentation operands through the cartridge bus. The four
+active programs also prove directional fireball allocation, sound publication, and the
+finish callback's return to Fune cooldown or Namihe proximity ownership. Restored cursors
+outside the authored lists fail loudly, and warmed lookups are allocation-free.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

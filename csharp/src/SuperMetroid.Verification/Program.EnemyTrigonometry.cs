@@ -40,6 +40,7 @@ internal static partial class Program
         VerifyHibashiDefinitions(rom);
         VerifyMagdollitePhaseDefinitions(rom);
         VerifyFuneNamiheDefinitions(rom);
+        VerifyFuneNamiheInstructionProgramDefinitions(rom);
         VerifyMiscDustProjectileDefinitions(rom);
         VerifyHopperAnimationDefinitions(rom);
         VerifyChootPatternDefinitions(rom);

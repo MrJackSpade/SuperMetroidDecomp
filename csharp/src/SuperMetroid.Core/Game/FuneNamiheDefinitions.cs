@@ -24,8 +24,14 @@ internal static class FuneNamiheDefinitions
     /// <summary>$A8:96D3-$A8:96E2, active/idle and left/right instruction lists.</summary>
     private static ReadOnlySpan<ushort> InstructionLists =>
     [
-        0x939f, 0x93cf, 0x9399, 0x93c9,
-        0x95c3, 0x95f7, 0x95bd, 0x95f1,
+        FuneNamiheInstructionProgramDefinitions.FuneActiveLeft,
+        FuneNamiheInstructionProgramDefinitions.FuneActiveRight,
+        FuneNamiheInstructionProgramDefinitions.FuneIdleLeft,
+        FuneNamiheInstructionProgramDefinitions.FuneIdleRight,
+        FuneNamiheInstructionProgramDefinitions.NamiheActiveLeft,
+        FuneNamiheInstructionProgramDefinitions.NamiheActiveRight,
+        FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft,
+        FuneNamiheInstructionProgramDefinitions.NamiheIdleRight,
     ];
 
     internal static ushort InstructionList(ushort cursor)

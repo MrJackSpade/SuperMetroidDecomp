@@ -2788,6 +2788,21 @@ forbidden. Every presentation word is observed through the live bus. The unrefer
 than interpreting adjacent native code as an invented program operand. Invalid restored
 pointers fail at the same boundary, and warmed lookups allocate no per-frame storage.
 
+# Fune/Namihe instruction mechanics
+
+All eight Fune/Namihe bank-$A8 programs now share the strict
+`FuneNamiheInstructionProgramDefinitions` catalog. It compiles 62 fixed durations,
+callback identities, sleep/goto opcodes, and loop targets across both species, both
+facings, and active/idle states. Their 38 interleaved spritemap pointers remain live
+cartridge-backed presentation data.
+
+Verification compares every mechanics word with the pinned cartridge, executes every
+production program with all mechanics source bytes forbidden, observes every live
+spritemap operand, and verifies the four active programs create the correct directional
+projectile, queue the spit sound, and return ownership to species-specific main AI.
+Invalid restored pointers fail at the family boundary, and warmed lookups allocate no
+per-frame storage.
+
 # Room-FX animated-tile mechanics
 
 The five simple bank-$87 room-FX animated-tile owners now compile 48 engine control words:

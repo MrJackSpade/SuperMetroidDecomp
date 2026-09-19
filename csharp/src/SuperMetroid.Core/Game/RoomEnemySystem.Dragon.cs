@@ -104,7 +104,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort DragonShotAi = EnemyAiCodePointers.BankA2.DragonShot;
     internal const ushort DragonPowerBombAi = EnemyAiCodePointers.BankA2.DragonPowerBomb;
 
-    private const ushort DragonAnimationFinishedInstruction = 0xe5fb;
     private const ushort DragonRiseOrSinkFrames = 0x0030;
     private const ushort DragonShotCount = 3;
     private const ushort DragonWaitBeforeSinkFrames = 0x0060;

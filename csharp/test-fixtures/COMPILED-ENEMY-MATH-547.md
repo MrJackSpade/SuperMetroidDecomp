@@ -3022,3 +3022,17 @@ overlapping non-identity byte offset explicitly, and dispatches the real title b
 a synthetic address space in which the old pointer bytes are absent. This removes the
 last cartridge routing read from `CartridgeAudioState`; upload stream contents remain
 editable audio data under #548.
+
+# Dragon instruction mechanics
+
+Dragon's sleeping-body, cosmetic-wing, and attacking-body programs now resolve all
+26 fixed durations, gotos, loop targets, completion callbacks, and terminal sleeps
+through `DragonInstructionProgramDefinitions`. Their 16 interleaved spritemap pointers
+remain live cartridge-backed presentation data, and the six-way animation selector uses
+the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+six production programs through their loop or sleep boundary while every mechanics byte
+is forbidden. All 16 spritemap operands remain observable, both attack programs publish
+their completion flag, presentation and adjacent selector-table pointers fail as mechanics,
+and warmed lookup is allocation-free.

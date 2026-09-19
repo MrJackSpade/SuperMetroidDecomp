@@ -2678,7 +2678,7 @@ public sealed partial class RoomEnemySystem
                     LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case DragonAnimationFinishedInstruction
+                case DragonInstructionProgramDefinitions.AttackFinishedCallback
                     when slot.EnemyDefinitionPointer == DragonDefinition:
                     FinishDragonAttackAnimation(slot);
                     cursor = unchecked((ushort)(cursor + 2));
@@ -3598,6 +3598,9 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == ZoaDefinition)
             return ZoaInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == DragonDefinition)
+            return DragonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))

@@ -26,12 +26,12 @@ internal static class DragonAnimationDefinitions
     /// </summary>
     private static readonly ushort[] InstructionLists =
     [
-        0xe59b,
-        0xe5ad,
-        0xe5a1,
-        0xe5b3,
-        0xe5bf,
-        0xe5d7,
+        DragonInstructionProgramDefinitions.IdleFacingLeft,
+        DragonInstructionProgramDefinitions.IdleFacingRight,
+        DragonInstructionProgramDefinitions.WingsFacingLeft,
+        DragonInstructionProgramDefinitions.WingsFacingRight,
+        DragonInstructionProgramDefinitions.AttackingFacingLeft,
+        DragonInstructionProgramDefinitions.AttackingFacingRight,
     ];
 
     /// <summary>Returns the authored instruction list for a live selector.</summary>

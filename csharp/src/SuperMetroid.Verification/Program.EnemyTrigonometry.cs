@@ -91,6 +91,7 @@ internal static partial class Program
         VerifyZoaAnimationDefinitions(rom);
         VerifyZoaInstructionProgramDefinitions(rom);
         VerifyDragonAnimationDefinitions(rom);
+        VerifyDragonInstructionProgramDefinitions(rom);
         VerifyEnemyPickupDefinitions(rom);
         VerifyEnemyDropChanceDefinitions(rom);
         VerifyEnemyVulnerabilityDefinitions(rom);

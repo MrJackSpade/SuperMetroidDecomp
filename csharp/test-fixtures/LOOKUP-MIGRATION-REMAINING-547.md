@@ -1080,3 +1080,17 @@ as a collection-expression span property. The current compiler materialized that
 twice per lookup, allocating 144 bytes on every gameplay query despite the immutable data.
 It is now one static array: the exhaustive 253-pose/598-condition parity remains unchanged,
 and the existing 65,536-call production allocation gate is zero again.
+
+## Dragon instruction mechanics
+
+Dragon's six sleeping-body, cosmetic-wing, and attacking-body programs now resolve all
+twenty-six fixed durations, gotos, loop targets, completion callbacks, and sleeps through
+`DragonInstructionProgramDefinitions`. Their sixteen interleaved spritemap pointers remain
+live cartridge-backed presentation data, and the six-way phase/facing selector names the
+same catalog entries instead of duplicating raw addresses.
+
+Verification compares every mechanics word with the pinned cartridge and executes all six
+production programs through their loop or sleep boundary while every mechanics byte is
+forbidden. Both attack programs publish their completion flag, all sixteen presentation
+operands remain observable, presentation and adjacent selector-table pointers fail as
+mechanics, and warmed lookup is allocation-free.

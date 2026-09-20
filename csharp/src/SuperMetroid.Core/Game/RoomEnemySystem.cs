@@ -2992,9 +2992,10 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY when slot.EnemyDefinitionPointer == HZoomerDefinition:
-                    RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    RequireCrawlerState(slot).Function =
+                        (CrawlerEnemyFunction)ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Skree_SetAttackReadyFlag:
@@ -3707,6 +3708,9 @@ public sealed partial class RoomEnemySystem
 
         if (IsHopperDefinition(slot.EnemyDefinitionPointer))
             return HopperInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == HZoomerDefinition)
+            return HZoomerInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);

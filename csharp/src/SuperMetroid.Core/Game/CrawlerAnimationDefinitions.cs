@@ -50,7 +50,11 @@ internal static class CrawlerAnimationDefinitions
         new(0xb5e3, 0xb5eb, 0xb5d3, 0xb5db),
         new(0x967b, 0x9693, 0x96ab, 0x96c3),
         new(0x984b, 0x988b, 0x98ab, 0x990b),
-        new(0xdfcb, 0xdfe7, 0xe003, 0xe01f),
+        new(
+            HZoomerInstructionProgramDefinitions.UpsideRight,
+            HZoomerInstructionProgramDefinitions.UpsideLeft,
+            HZoomerInstructionProgramDefinitions.UpsideDown,
+            HZoomerInstructionProgramDefinitions.UpsideUp),
     ];
 
     /// <summary>

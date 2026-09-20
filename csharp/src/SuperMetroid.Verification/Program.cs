@@ -788,6 +788,11 @@ if (args is ["--hopper-instruction-program-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--hzoomer-instruction-program-definitions"])
+{
+    VerifyHZoomerInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

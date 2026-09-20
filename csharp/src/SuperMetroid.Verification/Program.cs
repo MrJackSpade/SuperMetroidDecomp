@@ -162,6 +162,11 @@ if (args is ["--dead-torizo-instruction-mechanics"])
     VerifyDeadTorizoInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--dead-sidehopper-instruction-mechanics"])
+{
+    VerifyDeadSidehopperInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

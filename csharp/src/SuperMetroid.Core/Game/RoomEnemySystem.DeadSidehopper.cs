@@ -10,10 +10,6 @@ public sealed partial class RoomEnemySystem
 {
     public const ushort DeadSidehopperDefinition = 0xed7f;
 
-    private const ushort DeadSidehopperInitialInstruction = 0xece3;
-    private const ushort DeadSidehopperLandingInstruction = 0xecac;
-    private const ushort DeadSidehopperCorpseInstruction = 0xece9;
-    private const ushort DeadSidehopperAlternateInstruction = 0xecef;
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
     private const int DeadMonsterTileDataAddress = 0xb7c000;
     private const ushort DeadMonsterSolidProperty = 0x8000;
@@ -120,7 +116,9 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = 184;
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
         slot.YRadius = 21;
-        SetDeadSidehopperInstruction(slot, DeadSidehopperInitialInstruction);
+        SetDeadSidehopperInstruction(
+            slot,
+            DeadSidehopperInstructionProgramDefinitions.AliveIdle);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
@@ -136,7 +134,9 @@ public sealed partial class RoomEnemySystem
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        SetDeadSidehopperInstruction(slot, DeadSidehopperAlternateInstruction);
+        SetDeadSidehopperInstruction(
+            slot,
+            DeadSidehopperInstructionProgramDefinitions.InitiallyDead);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
@@ -214,7 +214,9 @@ public sealed partial class RoomEnemySystem
                 if (MoveDeadSidehopper(slot, state, level))
                 {
                     state.JumpPhase = unchecked((ushort)((state.JumpPhase + 1) & 3));
-                    SetDeadSidehopperInstruction(slot, DeadSidehopperLandingInstruction);
+                    SetDeadSidehopperInstruction(
+                        slot,
+                        DeadSidehopperInstructionProgramDefinitions.AliveHopping);
                     state.Function = DeadSidehopperAiFunction.NoOperation;
                 }
                 return;
@@ -239,7 +241,9 @@ public sealed partial class RoomEnemySystem
                 }
 
                 state.Function = DeadSidehopperAiFunction.ActivatedMovement;
-                SetDeadSidehopperInstruction(slot, DeadSidehopperInitialInstruction);
+                SetDeadSidehopperInstruction(
+                    slot,
+                    DeadSidehopperInstructionProgramDefinitions.AliveIdle);
                 state.VerticalVelocity = DeadSidehopperLaunchDefinitions.Vertical[state.JumpPhase];
                 state.HorizontalVelocity = DeadSidehopperLaunchDefinitions.Horizontal[state.JumpPhase];
                 return;
@@ -373,7 +377,9 @@ public sealed partial class RoomEnemySystem
         if (state.PaletteStage < 8)
             return;
 
-        SetDeadSidehopperInstruction(slot, DeadSidehopperCorpseInstruction);
+        SetDeadSidehopperInstruction(
+            slot,
+            DeadSidehopperInstructionProgramDefinitions.AliveCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         slot.Properties = unchecked((ushort)(slot.Properties | DeadMonsterSolidProperty));
         slot.YRadius = 12;

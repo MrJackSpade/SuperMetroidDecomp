@@ -3679,6 +3679,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == DeadTorizoDefinition)
             return DeadTorizoInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == DeadSidehopperDefinition)
+            return DeadSidehopperInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

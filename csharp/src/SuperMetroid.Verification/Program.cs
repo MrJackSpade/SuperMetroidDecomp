@@ -767,6 +767,11 @@ if (args is ["--etecoon-instruction-program-definitions"])
     VerifyEtecoonInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--elevator-instruction-program-definitions"])
+{
+    VerifyElevatorInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

@@ -53,7 +53,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort ElevatorDefinition = 0xd73f;
 
     private const ushort ElevatorNothingSpritemap = 0x804d;
-    private const ushort ElevatorInstructionList = 0x94d6;
     private const int ElevatorSpeedFixed = 0x00018000;
     private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
     private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
@@ -161,7 +160,7 @@ public sealed partial class RoomEnemySystem
         slot.SpritemapPointer = ElevatorNothingSpritemap;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = ElevatorInstructionList;
+        slot.CurrentInstruction = ElevatorInstructionProgramDefinitions.Loop;
         slot.Parameter1 = unchecked((ushort)(slot.Parameter1 * 2));
         state.RestingYPosition = slot.YPosition;
 

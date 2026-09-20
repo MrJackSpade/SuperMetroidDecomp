@@ -111,6 +111,7 @@ internal static partial class Program
         VerifyStationAccessPlmDefinitions(rom);
         VerifyMaridiaLargeSnailInstructionDefinitions(rom);
         VerifyEtecoonInstructionProgramDefinitions(rom);
+        VerifyElevatorInstructionProgramDefinitions(rom);
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);
         VerifyWaverAnimationDefinitions(rom);

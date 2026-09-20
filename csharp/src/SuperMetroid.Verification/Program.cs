@@ -77,6 +77,11 @@ if (args is ["--ripper-instruction-mechanics"])
     VerifyRipperInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kzan-instruction-mechanics"])
+{
+    VerifyKzanInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

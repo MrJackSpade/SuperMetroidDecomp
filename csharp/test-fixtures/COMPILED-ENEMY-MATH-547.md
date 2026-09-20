@@ -2128,6 +2128,18 @@ remains observable while mechanics bytes are
 forbidden; unused frozen scripts, presentation pointers, and adjacent initializer code
 fail loudly as mechanics, and warmed lookup is allocation-free.
 
+# Kzan instruction mechanics
+
+Kzan's spike-platform program now resolves its one-frame duration and terminal sleep
+through `KzanInstructionProgramDefinitions`. Its interleaved spritemap pointer remains a
+live cartridge presentation read, and the production initializer names the compiled
+program entry.
+
+Verification compares both mechanics words with the pinned cartridge and runs the real
+top-platform initializer through frame installation and terminal sleep while mechanics
+bytes are forbidden. The presentation and adjacent initializer pointers fail loudly as
+mechanics, and warmed lookup is allocation-free.
+
 # Nuclear Waffle sweep geometry
 
 `NuclearWaffleDefinitions` combines each authored direction's paired sweep

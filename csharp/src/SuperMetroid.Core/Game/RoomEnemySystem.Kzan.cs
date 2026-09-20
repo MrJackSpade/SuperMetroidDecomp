@@ -116,7 +116,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort KzanTopDefinition = 0xdfff;
     internal const ushort KzanBottomDefinition = 0xe03f;
 
-    private const ushort KzanInstructionList = 0x8b29;
     private const ushort KzanLandingSoundEffect = 0x001b;
     private const ushort KzanNtscRiseWaitFrames = 0x0040;
     private const ushort KzanNtscRisingSubspeed = 0x8000;
@@ -146,7 +145,7 @@ public sealed partial class RoomEnemySystem
             _kzanRiseWaitTimers);
         _kzanStates[slot.SlotIndex] = state;
 
-        slot.CurrentInstruction = KzanInstructionList;
+        slot.CurrentInstruction = KzanInstructionProgramDefinitions.Idle;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         state.Function = KzanEnemyFunction.WaitingToFall;

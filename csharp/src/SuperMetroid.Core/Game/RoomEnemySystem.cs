@@ -3631,6 +3631,9 @@ public sealed partial class RoomEnemySystem
             return RipperInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (slot.EnemyDefinitionPointer == KzanTopDefinition)
+            return KzanInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

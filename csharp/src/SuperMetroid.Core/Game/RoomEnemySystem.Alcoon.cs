@@ -124,16 +124,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort AlcoonDefinition = 0xe9bf;
 
-    private const ushort AlcoonWalkingLeftEntry = 0xdbe7;
-    private const ushort AlcoonWalkingLeftFirstFrame = 0xdbe9;
-    private const ushort AlcoonFireLeft = 0xdc03;
-    private const ushort AlcoonAirborneLeftLookingUp = 0xdc4b;
-    private const ushort AlcoonAirborneLeftLookingForward = 0xdc51;
-    private const ushort AlcoonWalkingRightEntry = 0xdc57;
-    private const ushort AlcoonWalkingRightFirstFrame = 0xdc59;
-    private const ushort AlcoonFireRight = 0xdc73;
-    private const ushort AlcoonAirborneRightLookingUp = 0xdcbb;
-    private const ushort AlcoonAirborneRightLookingForward = 0xdcc1;
     private const ushort AlcoonEmergeXDistance = 0x0050;
     private const ushort AlcoonHideXDistance = 0x0070;
     private const ushort AlcoonEmergeSound = 0x005e;
@@ -173,7 +163,7 @@ public sealed partial class RoomEnemySystem
         state.SpawnYPosition = slot.YPosition;
         state.SpawnXPosition = slot.XPosition;
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.CurrentInstruction = AlcoonWalkingLeftEntry;
+        slot.CurrentInstruction = AlcoonInstructionProgramDefinitions.WalkingLeft;
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
 
@@ -256,12 +246,12 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)signedXDistance) < 0)
         {
             state.XVelocity = unchecked((ushort)-2);
-            InstallAlcoonInstruction(slot, AlcoonAirborneLeftLookingUp);
+            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.AirborneLeftLookingUp);
         }
         else
         {
             state.XVelocity = 2;
-            InstallAlcoonInstruction(slot, AlcoonAirborneRightLookingUp);
+            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
         LastAlcoonSoundEffect = AlcoonEmergeSound;
@@ -278,8 +268,8 @@ public sealed partial class RoomEnemySystem
         InstallAlcoonInstruction(
             slot,
             unchecked((short)state.XVelocity) < 0
-                ? AlcoonAirborneLeftLookingForward
-                : AlcoonAirborneRightLookingForward);
+                ? AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward
+                : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
     }
 
     private void RunAlcoonEmergingFall(
@@ -304,12 +294,12 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)signedXDistance) < 0)
         {
             state.XVelocity = unchecked((ushort)-2);
-            InstallAlcoonInstruction(slot, AlcoonWalkingLeftEntry);
+            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingLeft);
         }
         else
         {
             state.XVelocity = 2;
-            InstallAlcoonInstruction(slot, AlcoonWalkingRightEntry);
+            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         state.StepCounter = 1;
@@ -340,8 +330,8 @@ public sealed partial class RoomEnemySystem
             InstallAlcoonInstruction(
                 slot,
                 unchecked((short)state.XVelocity) < 0
-                    ? AlcoonAirborneLeftLookingForward
-                    : AlcoonAirborneRightLookingForward);
+                    ? AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward
+                    : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
             return;
         }
 
@@ -353,7 +343,11 @@ public sealed partial class RoomEnemySystem
         if (samusIsLeft != movingLeft)
             return;
 
-        InstallAlcoonInstruction(slot, movingLeft ? AlcoonFireLeft : AlcoonFireRight);
+        InstallAlcoonInstruction(
+            slot,
+            movingLeft
+                ? AlcoonInstructionProgramDefinitions.FireLeft
+                : AlcoonInstructionProgramDefinitions.FireRight);
         state.Function = AlcoonEnemyFunction.WaitingForFireAnimation;
     }
 
@@ -435,8 +429,8 @@ public sealed partial class RoomEnemySystem
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = count == 0 ? (ushort)2 : count;
         return unchecked((short)state.XVelocity) < 0
-            ? AlcoonWalkingLeftEntry
-            : AlcoonWalkingRightEntry;
+            ? AlcoonInstructionProgramDefinitions.WalkingLeft
+            : AlcoonInstructionProgramDefinitions.WalkingRight;
     }
 
     /// <summary>
@@ -466,8 +460,8 @@ public sealed partial class RoomEnemySystem
         ushort oldVelocity = state.XVelocity;
         state.XVelocity = unchecked((ushort)-oldVelocity);
         return unchecked((short)oldVelocity) >= 0
-            ? AlcoonWalkingLeftFirstFrame
-            : AlcoonWalkingRightFirstFrame;
+            ? AlcoonInstructionProgramDefinitions.WalkingLeftFirstFrame
+            : AlcoonInstructionProgramDefinitions.WalkingRightFirstFrame;
     }
 
     private AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>

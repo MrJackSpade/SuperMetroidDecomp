@@ -853,6 +853,11 @@ if (args is ["--norfair-rio-instruction-program-definitions"])
     VerifyNorfairRioInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--lower-norfair-rio-instruction-program-definitions"])
+{
+    VerifyLowerNorfairRioInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

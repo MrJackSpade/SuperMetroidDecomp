@@ -63,16 +63,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort LowerNorfairRioDefinition = 0xd33f;
 
-    private const ushort LowerNorfairRioIdleInstructionList = 0xc61a;
-    private const ushort LowerNorfairRioTakeoffInstructionList = 0xc630;
-    private const ushort LowerNorfairRioDiveInstructionList = 0xc65a;
-    private const ushort LowerNorfairRioReturnInstructionList = 0xc662;
-    private const ushort LowerNorfairRioLateReturnInstructionList = 0xc674;
-    private const ushort LowerNorfairRioLandingInstructionList = 0xc686;
-    private const ushort LowerNorfairRioFollowerInstructionList = 0xc6b0;
-    private const ushort LowerNorfairRioAnimationSignalInstruction = 0xc6d2;
-    private const ushort LowerNorfairRioFollowerHideInstruction = 0xc6dd;
-    private const ushort LowerNorfairRioFollowerShowInstruction = 0xc6e8;
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
     private const ushort LowerNorfairRioGravity = 32;
     private const ushort LowerNorfairRioReturnSound = 0x0064;
@@ -105,14 +95,14 @@ public sealed partial class RoomEnemySystem
         if (state.IsFollower)
         {
             ValidateLowerNorfairRioParent(slot);
-            state.InstalledInstructionList = LowerNorfairRioFollowerInstructionList;
-            slot.CurrentInstruction = LowerNorfairRioFollowerInstructionList;
+            state.InstalledInstructionList = LowerNorfairRioInstructionProgramDefinitions.Flames;
+            slot.CurrentInstruction = LowerNorfairRioInstructionProgramDefinitions.Flames;
             state.Function = LowerNorfairRioEnemyFunction.FollowParent;
             return;
         }
 
-        state.InstalledInstructionList = LowerNorfairRioIdleInstructionList;
-        slot.CurrentInstruction = LowerNorfairRioIdleInstructionList;
+        state.InstalledInstructionList = LowerNorfairRioInstructionProgramDefinitions.Idle;
+        slot.CurrentInstruction = LowerNorfairRioInstructionProgramDefinitions.Idle;
         state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -149,7 +139,7 @@ public sealed partial class RoomEnemySystem
                     InstallLowerNorfairRioInstructionList(
                         slot,
                         state,
-                        LowerNorfairRioIdleInstructionList);
+                        LowerNorfairRioInstructionProgramDefinitions.Idle);
                     return;
                 }
 
@@ -160,7 +150,7 @@ public sealed partial class RoomEnemySystem
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
-                    LowerNorfairRioTakeoffInstructionList);
+                    LowerNorfairRioInstructionProgramDefinitions.PrepareToSwoop);
                 state.Function = LowerNorfairRioEnemyFunction.WaitForTakeoffAnimation;
                 return;
 
@@ -171,7 +161,7 @@ public sealed partial class RoomEnemySystem
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
-                    LowerNorfairRioDiveInstructionList);
+                    LowerNorfairRioInstructionProgramDefinitions.Descending);
                 state.Function = LowerNorfairRioEnemyFunction.Dive;
                 return;
 
@@ -203,7 +193,7 @@ public sealed partial class RoomEnemySystem
                     InstallLowerNorfairRioInstructionList(
                         slot,
                         state,
-                        LowerNorfairRioLandingInstructionList);
+                        LowerNorfairRioInstructionProgramDefinitions.Cooldown);
                     state.Function = LowerNorfairRioEnemyFunction.WaitForLandingAnimation;
                     return;
                 }
@@ -215,7 +205,7 @@ public sealed partial class RoomEnemySystem
                     InstallLowerNorfairRioInstructionList(
                         slot,
                         state,
-                        LowerNorfairRioLateReturnInstructionList);
+                        LowerNorfairRioInstructionProgramDefinitions.AscendingPart2);
                 }
                 return;
 
@@ -226,7 +216,7 @@ public sealed partial class RoomEnemySystem
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
-                    LowerNorfairRioLandingInstructionList);
+                    LowerNorfairRioInstructionProgramDefinitions.Cooldown);
                 state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
                 return;
 
@@ -248,13 +238,13 @@ public sealed partial class RoomEnemySystem
         LowerNorfairRioEnemyState state = RequireLowerNorfairRioState(slot);
         switch (opcode)
         {
-            case LowerNorfairRioAnimationSignalInstruction:
+            case LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag:
                 state.AnimationSignal = true;
                 break;
-            case LowerNorfairRioFollowerHideInstruction:
+            case LowerNorfairRioInstructionCodes.HideFlames:
                 state.FollowerVisible = false;
                 break;
-            case LowerNorfairRioFollowerShowInstruction:
+            case LowerNorfairRioInstructionCodes.ShowFlames:
                 state.FollowerVisible = true;
                 break;
             default:
@@ -298,7 +288,7 @@ public sealed partial class RoomEnemySystem
         InstallLowerNorfairRioInstructionList(
             slot,
             state,
-            LowerNorfairRioReturnInstructionList);
+            LowerNorfairRioInstructionProgramDefinitions.AscendingPart1);
         state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
         LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
     }

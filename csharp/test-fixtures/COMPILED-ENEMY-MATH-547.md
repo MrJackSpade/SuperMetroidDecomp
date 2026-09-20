@@ -3328,3 +3328,17 @@ seven programs through their loop or terminal sleep while mechanics bytes are fo
 Every follower offset and both animation-signal callbacks are asserted, both initializer
 roles are covered, all presentation operands remain observable, invalid mechanics pointers
 fail loudly, and warmed lookup is allocation-free.
+
+# Lower Norfair Rio instruction mechanics
+
+Lower Norfair Rio's idle, prepare, dive, two-part return, cooldown, and follower-flame
+programs now resolve all 51 fixed durations, three private callbacks, gotos, loop targets,
+and terminal sleeps through `LowerNorfairRioInstructionProgramDefinitions`. Their 32
+interleaved spritemap pointers remain live cartridge presentation data, and parent/follower
+initialization plus every main-AI handoff use the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+seven programs through their loop or terminal sleep while mechanics bytes are forbidden.
+Both animation signals and both follower-visibility callbacks are asserted, both
+initializer roles are covered, all presentation operands remain observable, invalid
+mechanics pointers fail loudly, and warmed lookup is allocation-free.

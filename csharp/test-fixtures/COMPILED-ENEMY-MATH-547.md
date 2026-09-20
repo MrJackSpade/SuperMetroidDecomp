@@ -2087,6 +2087,17 @@ coordinates while both source tables are forbidden. It asserts the exact timer
 and wrapped minimum/maximum patrol bounds. Invalid restored selectors fail
 explicitly instead of consuming adjacent initializer code.
 
+Owtch's paired directional animation programs now resolve all twelve fixed callbacks,
+durations, gotos, and loop targets through `OwtchInstructionProgramDefinitions`. Their
+six interleaved spritemap pointers remain live cartridge presentation data, and both
+initializer/state-machine handoffs name the same compiled program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+production programs beyond their terminal gotos. Both direction callbacks publish the
+native behavior state, all six presentation operands remain observable while mechanics
+bytes are forbidden, invalid mechanics pointers fail loudly, and warmed lookup is
+allocation-free.
+
 # Nuclear Waffle sweep geometry
 
 `NuclearWaffleDefinitions` combines each authored direction's paired sweep

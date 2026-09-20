@@ -3619,6 +3619,9 @@ public sealed partial class RoomEnemySystem
         if (IsKiHunterDefinition(slot.EnemyDefinitionPointer))
             return KiHunterInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == OwtchDefinition)
+            return OwtchInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

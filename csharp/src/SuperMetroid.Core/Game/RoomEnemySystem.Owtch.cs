@@ -84,8 +84,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort OwtchDefinition = 0xd03f;
     internal const ushort OwtchShotAi = EnemyAiCodePointers.BankA2.OwtchShot;
 
-    private const ushort OwtchMovingLeftInstructionList = 0xa3ab;
-    private const ushort OwtchMovingRightInstructionList = 0xa3bd;
     private const ushort OwtchMaximumBurialDepth = 16;
 
     private readonly OwtchEnemyState?[] _owtchStates =
@@ -123,8 +121,8 @@ public sealed partial class RoomEnemySystem
         SetOwtchInstructionList(
             slot,
             (initialState & 1) == 0
-                ? OwtchMovingLeftInstructionList
-                : OwtchMovingRightInstructionList);
+                ? OwtchInstructionProgramDefinitions.MovingLeft
+                : OwtchInstructionProgramDefinitions.MovingRight);
 
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
@@ -203,7 +201,9 @@ public sealed partial class RoomEnemySystem
                 // The moving-left routine decrements zero instead of incrementing it. On
                 // the next frame, direction $FFFF indexes two bytes before the function
                 // table and accidentally calls the right-list initializer at $A2:A49D.
-                SetOwtchInstructionList(slot, OwtchMovingRightInstructionList);
+                SetOwtchInstructionList(
+                    slot,
+                    OwtchInstructionProgramDefinitions.MovingRight);
                 return;
 
             default:

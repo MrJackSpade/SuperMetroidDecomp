@@ -62,6 +62,11 @@ if (args is ["--kihunter-instruction-mechanics"])
     VerifyKiHunterInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--owtch-instruction-mechanics"])
+{
+    VerifyOwtchInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

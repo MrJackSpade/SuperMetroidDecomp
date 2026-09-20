@@ -156,6 +156,9 @@ Owtch's eight patrol half-widths and six underground durations are compiled as
 physical definitions. All 144 representative/wrapped production initializers
 retain their shared linear speeds, state-specific burial setup and exact bounds
 while `$A2:A3DD-$A3F8` is forbidden.
+Its paired left/right animation loops now compile all twelve callback, duration, goto,
+and loop-target words while retaining six live spritemap presentation operands. Both
+production streams execute past their native goto with mechanics reads forbidden.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

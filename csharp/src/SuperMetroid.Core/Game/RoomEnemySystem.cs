@@ -3643,6 +3643,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == BullDefinition)
             return BullInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == KagoDefinition)
+            return KagoInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

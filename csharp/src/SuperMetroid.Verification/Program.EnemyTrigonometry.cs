@@ -41,6 +41,7 @@ internal static partial class Program
         VerifyKzanInstructionProgramDefinitions(rom);
         VerifyFlyInstructionProgramDefinitions(rom);
         VerifyBullInstructionProgramDefinitions(rom);
+        VerifyKagoInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

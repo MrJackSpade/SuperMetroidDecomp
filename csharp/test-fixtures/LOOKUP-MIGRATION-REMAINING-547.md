@@ -177,6 +177,10 @@ Bull's ordinary and immune-shot programs now compile all sixteen timer, duration
 and loop-target words while retaining eight live spritemap operands. The real initializer
 executes the complete normal loop, and the real immune-shot handoff repeats its flash loop
 five times before returning to normal, with mechanics reads forbidden throughout.
+Kago's slow and post-hit loops now compile all twelve duration, goto, and loop-target words
+while retaining eight live spritemap operands. The real initializer executes the complete
+slow loop, and the real shot tail spawns its Kago bug before executing the complete fast
+loop, with mechanics reads forbidden throughout.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

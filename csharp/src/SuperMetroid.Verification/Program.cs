@@ -92,6 +92,11 @@ if (args is ["--bull-instruction-mechanics"])
     VerifyBullInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kago-instruction-mechanics"])
+{
+    VerifyKagoInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

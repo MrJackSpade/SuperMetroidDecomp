@@ -61,9 +61,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort KagoDefinition = 0xe7ff;
     internal const ushort KagoShotAi = EnemyAiCodePointers.BankA8.KagoShot;
 
-    private const ushort KagoSlowInstructionList = 0xab1e;
-    private const ushort KagoFastInstructionList = 0xab32;
-
     private readonly KagoEnemyState?[] _kagoStates =
         new KagoEnemyState?[MaximumEnemyCount];
 
@@ -81,7 +78,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.VariableE = 0;
-        slot.CurrentInstruction = KagoSlowInstructionList;
+        slot.CurrentInstruction = KagoInstructionProgramDefinitions.Slow;
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
         state.HitCounter = slot.Parameter1;
@@ -116,7 +113,7 @@ public sealed partial class RoomEnemySystem
         if (!state.UsesFastAnimation)
         {
             state.UsesFastAnimation = true;
-            slot.CurrentInstruction = KagoFastInstructionList;
+            slot.CurrentInstruction = KagoInstructionProgramDefinitions.Fast;
             slot.InstructionTimer = 1;
         }
 

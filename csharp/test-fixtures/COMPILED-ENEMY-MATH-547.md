@@ -225,6 +225,11 @@ retains its ten-frame cadence; the immune-shot loop sets the native repeat count
 runs five complete three-frame flashes and returns to the ordinary program. All eight
 interleaved spritemap operands remain live presentation reads.
 
+Kago's two animation programs are compiled as twelve duration, branch and target words.
+The real initializer executes the complete four-map ten-frame loop, while the real custom
+shot tail keeps its earthquake, hit-counter and bug-spawn side effects before switching to
+the complete three-frame loop. All eight interleaved spritemap operands remain live.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

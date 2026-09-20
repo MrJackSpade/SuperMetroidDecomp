@@ -64,11 +64,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort PowampDefinition = 0xe8bf;
 
-    private const ushort PowampBodyFastInstruction = 0xc163;
-    private const ushort PowampBodySlowInstruction = 0xc173;
-    private const ushort PowampBalloonInflateInstruction = 0xc183;
-    private const ushort PowampBalloonStartSinkingInstruction = 0xc191;
-    private const ushort PowampBalloonDeflatedInstruction = 0xc199;
     private const ushort PowampUngrappledTravelDistance = 0x0040;
     private const ushort PowampRestFrames = 0x003c;
     private const ushort PowampTransitionFrames = 0x000a;
@@ -109,14 +104,14 @@ public sealed partial class RoomEnemySystem
             RequirePowampBalloon(slot);
             state.FunctionTimer = PowampRestFrames;
             state.Function = PowampEnemyFunction.DeflatedResting;
-            SetPowampInstruction(slot, PowampBodySlowInstruction);
+            SetPowampInstruction(slot, PowampInstructionProgramDefinitions.BodySlow);
             return;
         }
 
         state.BalloonSpawnX = slot.XPosition;
         state.BalloonSpawnY = slot.YPosition;
         state.Function = PowampEnemyFunction.BalloonNoOp;
-        SetPowampInstruction(slot, PowampBalloonDeflatedInstruction);
+        SetPowampInstruction(slot, PowampInstructionProgramDefinitions.BalloonDeflated);
         state.BalloonGrappleTravelDistance = slot.Parameter2;
     }
 
@@ -175,7 +170,7 @@ public sealed partial class RoomEnemySystem
     {
         if (TickPowampTimer(state))
         {
-            SetPowampInstruction(balloon, PowampBalloonInflateInstruction);
+            SetPowampInstruction(balloon, PowampInstructionProgramDefinitions.BalloonInflate0);
             state.Function = PowampEnemyFunction.Inflating;
             state.FunctionTimer = PowampTransitionFrames;
         }
@@ -193,7 +188,7 @@ public sealed partial class RoomEnemySystem
             // $FFFF:$8000 is exactly -0.5 pixels/frame on the NTSC cartridge.
             state.YVelocity = 0xffff;
             state.YSubvelocity = 0x8000;
-            SetPowampInstruction(body, PowampBodyFastInstruction);
+            SetPowampInstruction(body, PowampInstructionProgramDefinitions.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -321,7 +316,7 @@ public sealed partial class RoomEnemySystem
             body.YPosition = spawnY;
             state.Function = PowampEnemyFunction.DeflatedResting;
             state.FunctionTimer = PowampRestFrames;
-            SetPowampInstruction(body, PowampBodySlowInstruction);
+            SetPowampInstruction(body, PowampInstructionProgramDefinitions.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -332,18 +327,20 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot balloon)
     {
         ushort cursor = balloon.CurrentInstruction;
-        if (cursor >= PowampBalloonStartSinkingInstruction)
+        if (cursor >= PowampInstructionProgramDefinitions.BalloonStartSinking)
         {
-            ushort byteOffset = unchecked((ushort)(cursor - 4 - PowampBalloonStartSinkingInstruction));
+            ushort byteOffset = unchecked((ushort)(
+                cursor - 4 - PowampInstructionProgramDefinitions.BalloonStartSinking));
             byteOffset >>= 1;
             if (byteOffset != 0)
             {
-                // $C599 is a pointer table indexed by the byte offset left in Y. Offset
-                // two selects $C187 and offset four selects $C183; entry zero is skipped.
+                // The native pointer table is indexed by the byte offset left in Y. Offset
+                // two selects inflate stage one and offset four restarts stage zero; entry
+                // zero is skipped.
                 ushort replacement = byteOffset switch
                 {
-                    2 => 0xc187,
-                    4 => 0xc183,
+                    2 => PowampInstructionProgramDefinitions.BalloonInflate1,
+                    4 => PowampInstructionProgramDefinitions.BalloonInflate0,
                     _ => throw new InvalidDataException(
                         $"Powamp death saw unsupported balloon cursor $A8:{cursor:X4}."),
                 };
@@ -467,15 +464,15 @@ public sealed partial class RoomEnemySystem
         ushort cursor = balloon.CurrentInstruction;
         short[] offsets;
         ushort basePointer;
-        if (cursor < PowampBalloonStartSinkingInstruction)
+        if (cursor < PowampInstructionProgramDefinitions.BalloonStartSinking)
         {
             offsets = PowampRisingBalloonYOffsets;
-            basePointer = PowampBalloonInflateInstruction;
+            basePointer = PowampInstructionProgramDefinitions.BalloonInflate0;
         }
         else
         {
             offsets = PowampSinkingBalloonYOffsets;
-            basePointer = PowampBalloonStartSinkingInstruction;
+            basePointer = PowampInstructionProgramDefinitions.BalloonStartSinking;
         }
 
         // The 65C816 calculation produces a byte offset (0,2,4), not a logical element
@@ -490,7 +487,9 @@ public sealed partial class RoomEnemySystem
     {
         state.Function = PowampEnemyFunction.Deflating;
         state.FunctionTimer = PowampTransitionFrames;
-        SetPowampInstruction(balloon, PowampBalloonStartSinkingInstruction);
+        SetPowampInstruction(
+            balloon,
+            PowampInstructionProgramDefinitions.BalloonStartSinking);
     }
 
     private static bool TickPowampTimer(PowampEnemyState state)

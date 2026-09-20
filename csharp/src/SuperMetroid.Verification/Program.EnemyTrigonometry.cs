@@ -51,6 +51,7 @@ internal static partial class Program
         VerifyAlcoonInstructionProgramDefinitions(rom);
         VerifyMultiviolaInstructionProgramDefinitions(rom);
         VerifyPolypInstructionProgramDefinitions(rom);
+        VerifyPowampInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

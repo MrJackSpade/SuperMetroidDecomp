@@ -142,6 +142,11 @@ if (args is ["--polyp-instruction-mechanics"])
     VerifyPolypInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--powamp-instruction-mechanics"])
+{
+    VerifyPowampInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

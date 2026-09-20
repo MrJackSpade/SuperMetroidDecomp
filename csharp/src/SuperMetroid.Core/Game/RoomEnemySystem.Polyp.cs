@@ -43,7 +43,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort PolypDefinition = 0xd1ff;
 
-    private const ushort PolypInstructionList = 0xb51a;
     private const ushort PolypProximity = 0x0040;
     private const ushort PolypRandomSeed = 0x0011;
 
@@ -59,7 +58,7 @@ public sealed partial class RoomEnemySystem
         Action<ushort> setRandomNumber = _setRandomNumber ?? throw new InvalidOperationException(
             "Polyp initialization requires the writable cartridge RNG seam.");
 
-        slot.CurrentInstruction = PolypInstructionList;
+        slot.CurrentInstruction = PolypInstructionProgramDefinitions.Stationary;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         _polypStates[slot.SlotIndex] = new PolypEnemyState(slot)

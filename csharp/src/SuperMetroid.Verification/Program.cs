@@ -137,6 +137,11 @@ if (args is ["--multiviola-instruction-mechanics"])
     VerifyMultiviolaInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--polyp-instruction-mechanics"])
+{
+    VerifyPolypInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

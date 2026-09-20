@@ -3661,6 +3661,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == MultiviolaDefinition)
             return MultiviolaInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == PolypDefinition)
+            return PolypInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

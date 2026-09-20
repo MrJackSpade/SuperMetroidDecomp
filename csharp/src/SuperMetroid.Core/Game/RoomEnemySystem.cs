@@ -3743,6 +3743,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == MorphBallEyeDefinition)
             return MorphBallEyeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == YappingMawDefinition)
+            return YappingMawInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

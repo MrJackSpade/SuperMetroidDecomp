@@ -838,6 +838,11 @@ if (args is ["--morph-ball-eye-instruction-program-definitions"])
     VerifyMorphBallEyeInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--yapping-maw-instruction-program-definitions"])
+{
+    VerifyYappingMawInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

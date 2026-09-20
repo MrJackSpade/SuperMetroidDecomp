@@ -3285,3 +3285,17 @@ eleven program entries while mechanics bytes are forbidden. It also exercises bo
 facings and all four mount initializer roles, observes every presentation operand, rejects
 presentation and adjacent proximity-table pointers as mechanics, and proves warmed lookup
 is allocation-free.
+
+# Yapping Maw instruction mechanics
+
+Yapping Maw's eight directional attack loops and six cooldown entries now resolve all
+96 fixed durations, held-Samus offset callbacks, sound callbacks, gotos, and loop targets
+through `YappingMawInstructionProgramDefinitions`. Their 52 interleaved spritemap pointers
+remain live cartridge presentation data, and initialization, octant selection, and the
+retraction handoff share the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes every
+production entry through its complete loop while mechanics bytes are forbidden. All seven
+callback identities and all 52 presentation operands are exercised, both initializer
+variants allocate their native four-link body and root object, invalid mechanics pointers
+fail loudly, and warmed lookup is allocation-free.

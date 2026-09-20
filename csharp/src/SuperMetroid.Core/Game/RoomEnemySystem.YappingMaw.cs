@@ -122,8 +122,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort YappingMawDefinition = 0xe7bf;
 
-    private const ushort YappingMawInitialInstruction = 0x9f6f;
-    private const ushort YappingMawAlternateInitialInstruction = 0x9fc7;
     private const ushort YappingMawBodyProjectileInstruction = 0xec5c;
     private const ushort YappingMawAlternateBodyProjectileInstruction = 0xec56;
     private const ushort YappingMawGrabSafetyDistance = 32;
@@ -131,14 +129,6 @@ public sealed partial class RoomEnemySystem
     private const ushort YappingMawGrabCooldownFrames = 48;
     private const ushort YappingMawRetractedDelayFrames = 64;
     private const ushort YappingMawAttackSound = 0x002f;
-
-    // $A8:A097. The selector is already an even byte offset, so dividing by two yields the
-    // eight 45-degree direction sectors in the exact ROM order.
-    private static readonly ushort[] YappingMawDirectionInstructions =
-    [
-        0x9f6f, 0x9f85, 0x9f9b, 0x9fb1,
-        0x9fc7, 0x9fdd, 0x9ff3, 0xa009,
-    ];
 
     // $A8:A0A7-$A0C6. These offsets are consumed both immediately after direction selection
     // and later by animation opcodes as the mouth changes shape during retraction.
@@ -172,8 +162,8 @@ public sealed partial class RoomEnemySystem
         _yappingMawStates[slot.SlotIndex] = state;
 
         slot.CurrentInstruction = slot.Parameter2 == 0
-            ? YappingMawAlternateInitialInstruction
-            : YappingMawInitialInstruction;
+            ? YappingMawInstructionProgramDefinitions.AttackingFacingDown
+            : YappingMawInstructionProgramDefinitions.AttackingFacingUp;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
@@ -331,7 +321,8 @@ public sealed partial class RoomEnemySystem
             2 * (unchecked((byte)(state.AimAngle + 16)) >> 5)));
         state.DirectionTableByteOffset = directionByteOffset;
         int direction = directionByteOffset / 2;
-        slot.CurrentInstruction = YappingMawDirectionInstructions[direction];
+        slot.CurrentInstruction =
+            YappingMawInstructionProgramDefinitions.AttackForDirection(direction);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
@@ -409,18 +400,18 @@ public sealed partial class RoomEnemySystem
         {
             slot.CurrentInstruction = state.DirectionTableByteOffset switch
             {
-                4 => 0xa01f,
-                12 => 0xa03d,
-                _ => 0xa025,
+                4 => YappingMawInstructionProgramDefinitions.CooldownFacingUpRight,
+                12 => YappingMawInstructionProgramDefinitions.CooldownFacingUpLeft,
+                _ => YappingMawInstructionProgramDefinitions.CooldownFacingUp,
             };
         }
         else
         {
             slot.CurrentInstruction = state.DirectionTableByteOffset switch
             {
-                4 => 0xa05b,
-                12 => 0xa079,
-                _ => 0xa061,
+                4 => YappingMawInstructionProgramDefinitions.CooldownFacingDownRight,
+                12 => YappingMawInstructionProgramDefinitions.CooldownFacingDownLeft,
+                _ => YappingMawInstructionProgramDefinitions.CooldownFacingDown,
             };
             skipHeldPlacement = state.DirectionTableByteOffset is not (4 or 12);
         }

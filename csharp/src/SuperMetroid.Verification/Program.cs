@@ -172,6 +172,11 @@ if (args is ["--dead-tourian-corpse-instruction-mechanics"])
     VerifyDeadTourianCorpseInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--shitroid-instruction-mechanics"])
+{
+    VerifyShitroidInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

@@ -118,10 +118,6 @@ public sealed partial class RoomEnemySystem
 
     private const int ShitroidWorkBufferAddress = 0x7e2000;
     private const int ShitroidWorkBufferSize = 0x1000;
-    private const ushort ShitroidInitialInstruction = 0xf90e;
-    private const ushort ShitroidCalmInstruction = 0xf906;
-    private const ushort ShitroidAggressiveInstruction = 0xf924;
-    private const ushort ShitroidExitInstruction = 0xf93a;
     private const int ShitroidNormalPaletteSource = 0xa9f6d1;
 
     private static ReadOnlySpan<short> ShitroidShakeX => [0, -1, 0, 1];
@@ -188,7 +184,7 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        SetShitroidInstruction(slot, ShitroidInitialInstruction);
+        SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.Normal);
 
         var state = new ShitroidEnemyState(slot)
         {
@@ -384,7 +380,7 @@ public sealed partial class RoomEnemySystem
                     LastShitroidSoundEffectLibrary2 = 0x007d;
                     state.Function = ShitroidAiFunction.FlyLeft;
                     state.StateTimer = 88;
-                    SetShitroidInstruction(slot, ShitroidAggressiveInstruction);
+                    SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
                     goto case ShitroidAiFunction.FlyLeft;
                 }
                 return;
@@ -423,7 +419,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
                     state.StateTimer = 256;
-                    SetShitroidInstruction(slot, ShitroidExitInstruction);
+                    SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.Remorse);
                 }
                 return;
             }
@@ -522,7 +518,7 @@ public sealed partial class RoomEnemySystem
         state.YVelocity = 0;
         slot.XPosition = victim.XPosition;
         slot.YPosition = unchecked((ushort)(victim.YPosition - 32));
-        SetShitroidInstruction(slot, ShitroidAggressiveInstruction);
+        SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
         slot.Parameter2 = 0;
@@ -541,7 +537,7 @@ public sealed partial class RoomEnemySystem
         if (oldTimer == 1)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
-            SetShitroidInstruction(slot, ShitroidCalmInstruction);
+            SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.FinishDraining);
             state.PaletteDelay = 10;
         }
     }
@@ -594,7 +590,7 @@ public sealed partial class RoomEnemySystem
             state.Function = ShitroidAiFunction.BeginPostDrainPause;
             state.XVelocity = 0;
             state.YVelocity = 0;
-            SetShitroidInstruction(slot, ShitroidCalmInstruction);
+            SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.FinishDraining);
             state.PaletteDelay = 10;
             samus.SpecialSuperPaletteFlags = 0;
             samus.Drained.LetFall(_bus!, samus);
@@ -831,7 +827,7 @@ public sealed partial class RoomEnemySystem
                 samus.XPosition,
                 unchecked((ushort)(samus.YPosition - 32))))
             {
-                SetShitroidInstruction(slot, ShitroidAggressiveInstruction);
+                SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
                 state.PaletteDelay = 1;
                 slot.Parameter2 = 0;
                 state.XVelocity = 0;

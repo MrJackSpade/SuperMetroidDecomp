@@ -3441,15 +3441,15 @@ public sealed partial class RoomEnemySystem
                 case EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoNormal when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 3 returns the calm animation list directly; it does not
                     // consume an operand from the calling list.
-                    cursor = ShitroidInstructionLists.Normal;
+                    cursor = ShitroidInstructionProgramDefinitions.Normal;
                     break;
                 case EnemyInstructionCodePointers.Instruction_GotoLatchedOn when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 4 restarts the aggressive/draining loop.
-                    cursor = ShitroidInstructionLists.LatchedOn;
+                    cursor = ShitroidInstructionProgramDefinitions.LatchedOn;
                     break;
                 case EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoRemorse when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 6 restarts the departure loop.
-                    cursor = ShitroidInstructionLists.Remorse;
+                    cursor = ShitroidInstructionProgramDefinitions.Remorse;
                     break;
                 case EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 5 samples the existing RNG word; it does not generate a
@@ -3457,10 +3457,9 @@ public sealed partial class RoomEnemySystem
                     // bit plays cry $52 and falls through beyond that operand.
                     if ((RequireRandomNumber() & 0x8000) == 0)
                     {
-                        cursor = ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) |
-                                unchecked((ushort)(cursor + 2)));
+                        cursor = ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     }
                     else
                     {
@@ -3684,6 +3683,9 @@ public sealed partial class RoomEnemySystem
 
         if (IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
             return DeadTourianCorpseInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == ShitroidDefinition)
+            return ShitroidInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);

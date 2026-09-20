@@ -67,7 +67,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MellaDefinition = 0xd13f;
     internal const ushort MemuDefinition = 0xd17f;
 
-    private const ushort FlyInstructionList = 0xb013;
     private const int FlyAttackHorizontalRange = 0x70;
     private readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[MaximumEnemyCount];
 
@@ -82,7 +81,7 @@ public sealed partial class RoomEnemySystem
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
         _flyStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = FlyInstructionList;
+        slot.CurrentInstruction = FlyInstructionProgramDefinitions.Flight;
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = 1;
     }

@@ -170,6 +170,9 @@ loop without mechanics reads, including Ripper II's intentionally inverted nativ
 Kzan's single spike-platform program now compiles its one-frame duration and terminal
 sleep while retaining its live spritemap operand. The real top-platform initializer
 reaches terminal sleep with mechanics reads forbidden.
+Mellow, Mella, and Memu's shared flight loop now compiles all six duration, goto, and
+loop-target words while retaining four live spritemap operands. All three production
+initializers execute the complete loop with mechanics reads forbidden.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

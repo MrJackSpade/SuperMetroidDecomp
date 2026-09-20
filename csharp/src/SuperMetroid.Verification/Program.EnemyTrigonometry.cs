@@ -39,6 +39,7 @@ internal static partial class Program
         VerifyStokeInstructionProgramDefinitions(rom);
         VerifyRipperInstructionProgramDefinitions(rom);
         VerifyKzanInstructionProgramDefinitions(rom);
+        VerifyFlyInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

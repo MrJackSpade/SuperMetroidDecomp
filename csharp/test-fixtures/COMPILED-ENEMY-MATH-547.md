@@ -2140,6 +2140,18 @@ top-platform initializer through frame installation and terminal sleep while mec
 bytes are forbidden. The presentation and adjacent initializer pointers fail loudly as
 mechanics, and warmed lookup is allocation-free.
 
+# Fly-family instruction mechanics
+
+Mellow, Mella, and Memu now resolve all six fixed durations, goto, and loop-target words
+in their shared flight animation through `FlyInstructionProgramDefinitions`. The four
+interleaved spritemap pointers remain live cartridge presentation data, and all three
+production initializers name the compiled program entry.
+
+Verification compares every mechanics word with the pinned cartridge and executes the
+complete loop through all three real definitions while mechanics bytes are forbidden.
+All four presentation operands remain observable, presentation and adjacent unused-data
+pointers fail loudly as mechanics, and warmed lookup is allocation-free.
+
 # Nuclear Waffle sweep geometry
 
 `NuclearWaffleDefinitions` combines each authored direction's paired sweep

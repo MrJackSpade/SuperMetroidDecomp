@@ -82,6 +82,11 @@ if (args is ["--kzan-instruction-mechanics"])
     VerifyKzanInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--fly-instruction-mechanics"])
+{
+    VerifyFlyInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

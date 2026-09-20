@@ -113,6 +113,7 @@ internal static partial class Program
         VerifyEtecoonInstructionProgramDefinitions(rom);
         VerifyElevatorInstructionProgramDefinitions(rom);
         VerifyMochtroidInstructionProgramDefinitions(rom);
+        VerifyPlatformInstructionProgramDefinitions(rom);
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);
         VerifyWaverAnimationDefinitions(rom);

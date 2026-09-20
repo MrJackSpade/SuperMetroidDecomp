@@ -3702,6 +3702,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid)
             return MochtroidInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (IsPlatformDefinition(slot.EnemyDefinitionPointer))
+            return PlatformInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

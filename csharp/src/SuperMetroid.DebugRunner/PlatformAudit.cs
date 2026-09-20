@@ -128,7 +128,13 @@ internal static class PlatformAudit
         // the beam into its explosion; it simply applies zero health/flash damage.
         var projectiles = new SamusProjectileSystem();
         var sharedProjectiles = new SamusBombProjectileSystem();
-        ArmProjectile(projectiles.Slots[0], platform, projectileType: 0, damage: 20);
+        ArmProjectile(
+            projectiles.Slots[0],
+            platform,
+            projectileType: SamusProjectileTypeWord.CreateBeam(
+                equippedBeams: 0,
+                charged: false),
+            damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 projectiles,

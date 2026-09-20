@@ -777,6 +777,11 @@ if (args is ["--mochtroid-instruction-program-definitions"])
     VerifyMochtroidInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--platform-instruction-program-definitions"])
+{
+    VerifyPlatformInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

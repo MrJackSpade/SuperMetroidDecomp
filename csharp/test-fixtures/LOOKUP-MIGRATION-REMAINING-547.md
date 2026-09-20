@@ -173,6 +173,10 @@ reaches terminal sleep with mechanics reads forbidden.
 Mellow, Mella, and Memu's shared flight loop now compiles all six duration, goto, and
 loop-target words while retaining four live spritemap operands. All three production
 initializers execute the complete loop with mechanics reads forbidden.
+Bull's ordinary and immune-shot programs now compile all sixteen timer, duration, goto,
+and loop-target words while retaining eight live spritemap operands. The real initializer
+executes the complete normal loop, and the real immune-shot handoff repeats its flash loop
+five times before returning to normal, with mechanics reads forbidden throughout.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

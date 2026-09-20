@@ -142,8 +142,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort BullDefinition = 0xe97f;
 
-    private const ushort BullNormalInstruction = 0xd841;
-    private const ushort BullShotInstruction = 0xd855;
     private const ushort BullAccelerationDelta = 0x0018;
     private const ushort BullMovementDelayFrames = 0x0010;
 
@@ -186,7 +184,7 @@ public sealed partial class RoomEnemySystem
 
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = BullNormalInstruction;
+        slot.CurrentInstruction = BullInstructionProgramDefinitions.Normal;
 
         // These are definition selectors, not live timers or editable presentation data.
         // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
@@ -368,7 +366,7 @@ public sealed partial class RoomEnemySystem
 
         bull.InstructionTimer = 1;
         bull.Timer = 0;
-        bull.CurrentInstruction = BullShotInstruction;
+        bull.CurrentInstruction = BullInstructionProgramDefinitions.Shot;
         int direction = projectileDirection & 0x000f;
         if ((uint)direction >= BullShotAngles.Length)
         {

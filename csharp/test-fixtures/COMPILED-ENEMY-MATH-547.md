@@ -218,6 +218,13 @@ Bull's obsolete immediate-knockback and Deleted-flag assertions were subsequentl
 repaired under #580 without a runtime change. Its complete audit now passes;
 see BULL-AUDIT-580.md for native ordering and exact replacement assertions.
 
+Bull's two mixed instruction programs are compiled separately from that geometry.
+Sixteen timer, duration, branch and target words now drive the real normal and
+immune-shot paths without cartridge mechanics reads. The ordinary four-frame loop
+retains its ten-frame cadence; the immune-shot loop sets the native repeat counter,
+runs five complete three-frame flashes and returns to the ordinary program. All eight
+interleaved spritemap operands remain live presentation reads.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

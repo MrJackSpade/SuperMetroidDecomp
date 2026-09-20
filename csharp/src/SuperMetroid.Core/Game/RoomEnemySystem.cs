@@ -3640,6 +3640,9 @@ public sealed partial class RoomEnemySystem
             return FlyInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (slot.EnemyDefinitionPointer == BullDefinition)
+            return BullInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

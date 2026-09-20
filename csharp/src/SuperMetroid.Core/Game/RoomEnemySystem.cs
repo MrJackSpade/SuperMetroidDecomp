@@ -3548,6 +3548,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
+            return WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (IsPhantoonPartDefinition(slot.EnemyDefinitionPointer))
             return PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 

@@ -94,6 +94,7 @@ internal static partial class Program
         VerifyKraidArmInstructionProgramDefinitions(rom);
         VerifyKraidFootInstructionProgramDefinitions(rom);
         VerifyPhantoonInstructionProgramDefinitions(rom);
+        VerifyWorkRobotInstructionProgramDefinitions(rom);
         VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);

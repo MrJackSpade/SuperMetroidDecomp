@@ -3427,3 +3427,18 @@ Verification compares every mechanics word with the pinned cartridge and execute
 callback operands run through compiled data, checks their hitbox/sound/flame side effects,
 observes every presentation operand, rejects presentation and adjacent casual-flame timer
 data as mechanics, and proves warmed lookup is allocation-free.
+
+# Work Robot instruction mechanics
+
+Powered and deactivated Work Robots now resolve all 367 fixed durations, private
+movement/laser/sound callbacks, common gotos, and branch targets in the complete
+`$A8:C6D3-$CB76` instruction region through
+`WorkRobotInstructionProgramDefinitions`. The 227 interleaved spritemap operands remain
+live cartridge presentation data, and initialization, walking, recoil, firing, wall,
+ledge, and fall handoffs share the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+22 authored entries while every mechanics byte is forbidden. It reaches all 227 live
+presentation operands through the production interpreter, rejects presentation, odd,
+and adjacent initialization-AI pointers as mechanics, and proves warmed lookup is
+allocation-free.

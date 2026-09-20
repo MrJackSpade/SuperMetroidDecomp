@@ -4,12 +4,23 @@ namespace SuperMetroid.Core.Game;
 internal static class WorkRobotInitializationDefinitions
 {
     /// <summary>
+    /// The first opcode word of <c>MainAI_Robot</c> at $A8:CC36, observed when the
+    /// native four-entry range check admits the table's otherwise out-of-range selector 3.
+    /// </summary>
+    private const ushort AdjacentMainAiOpcode = 0x54ae;
+
+    /// <summary>
     /// $A8:CC30..CC37: three authored instruction-list pointers followed by the
     /// first code word of MainAI_Robot. The native range check accepts parameter
     /// three, so that adjacent-code observation remains part of the definition.
     /// </summary>
     private static ReadOnlySpan<ushort> InitialInstructionLists =>
-        [0xc6d3, 0xc6d9, 0xc6df, 0x54ae];
+        [
+            WorkRobotInstructionProgramDefinitions.NoPowerNeutral,
+            WorkRobotInstructionProgramDefinitions.NoPowerLeaningLeft,
+            WorkRobotInstructionProgramDefinitions.NoPowerLeaningRight,
+            AdjacentMainAiOpcode,
+        ];
 
     /// <summary>Returns the native initial instruction word for sanitized parameter zero through three.</summary>
     internal static ushort GetInitialInstruction(int parameter)

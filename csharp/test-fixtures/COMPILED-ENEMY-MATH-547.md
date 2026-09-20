@@ -3384,3 +3384,17 @@ Verification compares all ten mechanics words with the pinned cartridge and exec
 complete loop for both enemy definitions while every mechanics byte is forbidden. All
 eight presentation operands remain observable, presentation and adjacent Kraid-arm data
 fail as mechanics, and warmed lookup is allocation-free.
+
+# Kraid arm instruction mechanics
+
+Kraid's independently scheduled arm now resolves all 66 fixed durations, its private
+half-health callback, gotos, loop targets, and terminal sleep through
+`KraidArmInstructionProgramDefinitions`. The 57 interleaved extended-spritemap operands
+remain live cartridge presentation data, and rise completion plus combat/lunge handoffs
+use the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes the
+normal, slow, rising/sinking, and dying/preparing-to-lunge programs while every mechanics
+byte is forbidden. It proves the below-half-health handoff enters the slow loop, observes
+all 57 presentation operands, rejects presentation and adjacent lint pointers as arm
+mechanics, and proves warmed lookup is allocation-free.

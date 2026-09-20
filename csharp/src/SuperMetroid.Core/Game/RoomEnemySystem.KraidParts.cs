@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KraidArmNormalInstruction = KraidInstructionLists.Ilist_89F3;
-    private const ushort KraidArmRetractedInstruction = KraidInstructionLists.ArmRetracted;
+    private const ushort KraidArmNormalInstruction =
+        KraidArmInstructionProgramDefinitions.Normal;
+    private const ushort KraidArmRetractedInstruction =
+        KraidArmInstructionProgramDefinitions.DyingOrPreparingToLunge;
     private const ushort KraidFootNeutralInstruction = KraidInstructionLists.Ilist_86ED;
     private const ushort KraidFootLungeInstruction = KraidInstructionLists.FootLunge;
     private const ushort KraidFootLungeFinishedInstruction =
@@ -193,7 +195,8 @@ public sealed partial class RoomEnemySystem
         if (TryBeginKraidGrowth(body, RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _slots[1];
-        if (unchecked((short)(arm.CurrentInstruction - KraidInstructionLists.ArmListLowerBound)) < 0)
+        if (unchecked((short)(arm.CurrentInstruction -
+            KraidArmInstructionProgramDefinitions.NormalPause)) < 0)
             return;
         arm.CurrentInstruction = KraidArmRetractedInstruction;
         arm.InstructionTimer = 1;

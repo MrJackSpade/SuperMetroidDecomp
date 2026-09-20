@@ -134,16 +134,6 @@ internal static class KraidInstructionLists
     public const ushort FootWalkBack = 0x8887;
     /// <summary>Foot walk-back loop boundary at $A7:8939.</summary>
     public const ushort FootWalkBackLoop = 0x8939;
-    /// <summary><c>kKraid_Ilist_89F3</c> at $A7:89F3.</summary>
-    public const ushort Ilist_89F3 = 0x89f3;
-    /// <summary>Arm instruction-list lower bound at $A7:8A37.</summary>
-    public const ushort ArmListLowerBound = 0x8a37;
-    /// <summary><c>kKraid_Ilist_8A41</c> at $A7:8A41.</summary>
-    public const ushort Ilist_8A41 = 0x8a41;
-    /// <summary>Initial arm list at $A7:8AA4.</summary>
-    public const ushort InitialArm = 0x8aa4;
-    /// <summary>Retracted arm list at $A7:8AF0.</summary>
-    public const ushort ArmRetracted = 0x8af0;
     /// <summary>Initial lint list at $A7:8AFE.</summary>
     public const ushort InitialLint = 0x8afe;
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>

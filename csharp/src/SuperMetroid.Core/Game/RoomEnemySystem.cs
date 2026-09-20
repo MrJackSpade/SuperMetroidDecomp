@@ -3548,6 +3548,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer == KraidArmDefinition)
+            return KraidArmInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer is
             KraidGoodNailDefinition or KraidBadNailDefinition)
         {

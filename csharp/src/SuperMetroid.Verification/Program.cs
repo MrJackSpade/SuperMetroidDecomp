@@ -873,6 +873,11 @@ if (args is ["--kraid-nail-instruction-program-definitions"])
     VerifyKraidNailInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kraid-arm-instruction-program-definitions"])
+{
+    VerifyKraidArmInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

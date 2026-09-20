@@ -15,9 +15,10 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot arm = _slots[1];
         ushort halfHealth = RequireKraidState(body).HealthEighthThresholds[3];
         if (unchecked((short)(body.Health - halfHealth)) < 0 &&
-            unchecked((short)(arm.CurrentInstruction - KraidInstructionLists.Ilist_8A41)) < 0)
+            unchecked((short)(arm.CurrentInstruction -
+                KraidArmInstructionProgramDefinitions.Slow)) < 0)
         {
-            return 0x8a41;
+            return KraidArmInstructionProgramDefinitions.Slow;
         }
         return unchecked((ushort)(cursor + 2));
     }

@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KraidInitialArmInstruction = KraidInstructionLists.InitialArm;
+    private const ushort KraidInitialArmInstruction =
+        KraidArmInstructionProgramDefinitions.RisingOrSinking;
     private const ushort KraidInitialLintInstruction = KraidInstructionLists.InitialLint;
     private const ushort KraidInitialLintSpritemap = 0xa5df;
     private const ushort KraidInitialFootInstruction = KraidInstructionLists.InitialFoot;

@@ -3244,3 +3244,16 @@ publish the native sound/wait state and spawn their real directional projectile;
 callbacks also restart the attached wing program. Every presentation operand remains
 observable while mechanics bytes are forbidden, invalid mechanics pointers fail loudly,
 and warmed lookup is allocation-free.
+
+# Zebetite instruction mechanics
+
+Zebetite's five large and five paired-small health-tier programs now resolve all
+twenty fixed frame durations and terminal sleeps through
+`ZebetiteInstructionProgramDefinitions`. Their ten interleaved spritemap pointers remain
+live cartridge presentation data, and generation/health selection shares the same named
+program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all ten
+production-selected programs through their terminal sleeps while mechanics bytes are
+forbidden. Every presentation operand remains observable, presentation and adjacent
+spritemap-data pointers fail as mechanics, and warmed lookup is allocation-free.

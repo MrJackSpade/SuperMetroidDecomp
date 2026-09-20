@@ -9,10 +9,18 @@ internal static class ZebetiteDefinitions
     /// </summary>
     private static readonly ZebetiteGenerationDefinition[] Generations =
     [
-        new(0x0000, 0x0018, 0xfdcc, 0x0338, 0x006f, 0x006f),
-        new(0x8000, 0x0008, 0xfdea, 0x0278, 0x0047, 0x0097),
-        new(0x0000, 0x0018, 0xfdcc, 0x01b8, 0x006f, 0x006f),
-        new(0x8000, 0x0008, 0xfdea, 0x00f8, 0x0047, 0x0097),
+        new(0x0000, 0x0018,
+            ZebetiteInstructionProgramDefinitions.BigHealthAtLeast800,
+            0x0338, 0x006f, 0x006f),
+        new(0x8000, 0x0008,
+            ZebetiteInstructionProgramDefinitions.SmallHealthAtLeast800,
+            0x0278, 0x0047, 0x0097),
+        new(0x0000, 0x0018,
+            ZebetiteInstructionProgramDefinitions.BigHealthAtLeast800,
+            0x01b8, 0x006f, 0x006f),
+        new(0x8000, 0x0008,
+            ZebetiteInstructionProgramDefinitions.SmallHealthAtLeast800,
+            0x00f8, 0x0047, 0x0097),
     ];
 
     /// <summary>
@@ -20,14 +28,26 @@ internal static class ZebetiteDefinitions
     /// from at least 800 HP through less than 200 HP.
     /// </summary>
     private static readonly ushort[] BigHealthInstructionLists =
-        [0xfdcc, 0xfdd2, 0xfdd8, 0xfdde, 0xfde4];
+    [
+        ZebetiteInstructionProgramDefinitions.BigHealthAtLeast800,
+        ZebetiteInstructionProgramDefinitions.BigHealthBelow800,
+        ZebetiteInstructionProgramDefinitions.BigHealthBelow600,
+        ZebetiteInstructionProgramDefinitions.BigHealthBelow400,
+        ZebetiteInstructionProgramDefinitions.BigHealthBelow200,
+    ];
 
     /// <summary>
     /// Linked-pair health-tier instruction lists at <c>$A6:FD54-$A6:FD5D</c>, ordered
     /// from at least 800 HP through less than 200 HP.
     /// </summary>
     private static readonly ushort[] LinkedHealthInstructionLists =
-        [0xfdea, 0xfdf0, 0xfdf6, 0xfdfc, 0xfe02];
+    [
+        ZebetiteInstructionProgramDefinitions.SmallHealthAtLeast800,
+        ZebetiteInstructionProgramDefinitions.SmallHealthBelow800,
+        ZebetiteInstructionProgramDefinitions.SmallHealthBelow600,
+        ZebetiteInstructionProgramDefinitions.SmallHealthBelow400,
+        ZebetiteInstructionProgramDefinitions.SmallHealthBelow200,
+    ];
 
     /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
     private static readonly RoomEnemyPopulationRecord PrimarySpawn =

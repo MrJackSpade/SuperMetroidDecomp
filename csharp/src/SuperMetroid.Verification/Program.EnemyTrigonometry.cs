@@ -81,6 +81,7 @@ internal static partial class Program
         VerifySharedCrawlerInstructionProgramDefinitions(rom);
         VerifyDachoraInstructionProgramDefinitions(rom);
         VerifyFirefleaInstructionProgramDefinitions(rom);
+        VerifyZebetiteInstructionProgramDefinitions(rom);
         VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);

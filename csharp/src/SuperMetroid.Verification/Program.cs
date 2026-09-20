@@ -823,6 +823,11 @@ if (args is ["--fireflea-instruction-program-definitions"])
     VerifyFirefleaInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--zebetite-instruction-program-definitions"])
+{
+    VerifyZebetiteInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

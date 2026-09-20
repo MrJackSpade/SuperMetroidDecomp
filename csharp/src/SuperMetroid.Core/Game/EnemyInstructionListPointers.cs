@@ -115,25 +115,9 @@ internal static class RidleyInstructionLists
     public const ushort Ilist_E91D = 0xe91d;
 }
 
-/// <summary>Named bank-$A7 animation-list pointers used by Kraid's multipart actor.</summary>
-internal static class KraidInstructionLists
+/// <summary>Named bank-$A7 instruction-list pointers used by Kraid's inert lint maps.</summary>
+internal static class KraidLintInstructionLists
 {
-    /// <summary>Initial foot list at $A7:86E7.</summary>
-    public const ushort InitialFoot = 0x86e7;
-    /// <summary><c>kKraid_Ilist_86ED</c> at $A7:86ED.</summary>
-    public const ushort Ilist_86ED = 0x86ed;
-    /// <summary>Foot neutral list at $A7:86F3.</summary>
-    public const ushort Ilist_86F3 = 0x86f3;
-    /// <summary>Foot walk-back loop boundary at $A7:87BB.</summary>
-    public const ushort Ilist_87BB = 0x87bb;
-    /// <summary>Foot lunge list at $A7:87BD.</summary>
-    public const ushort FootLunge = 0x87bd;
-    /// <summary>Foot lunge-finished list at $A7:8885.</summary>
-    public const ushort FootLungeFinished = 0x8885;
-    /// <summary>Foot walk-back list at $A7:8887.</summary>
-    public const ushort FootWalkBack = 0x8887;
-    /// <summary>Foot walk-back loop boundary at $A7:8939.</summary>
-    public const ushort FootWalkBackLoop = 0x8939;
     /// <summary>Initial lint list at $A7:8AFE.</summary>
     public const ushort InitialLint = 0x8afe;
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>

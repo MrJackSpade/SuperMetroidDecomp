@@ -3551,6 +3551,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == KraidArmDefinition)
             return KraidArmInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == KraidFootDefinition)
+            return KraidFootInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer is
             KraidGoodNailDefinition or KraidBadNailDefinition)
         {

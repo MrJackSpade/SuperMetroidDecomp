@@ -3398,3 +3398,18 @@ normal, slow, rising/sinking, and dying/preparing-to-lunge programs while every 
 byte is forbidden. It proves the below-half-health handoff enters the slow loop, observes
 all 57 presentation operands, rejects presentation and adjacent lint pointers as arm
 mechanics, and proves warmed lookup is allocation-free.
+
+# Kraid foot instruction mechanics
+
+Kraid's initial, neutral, walking-forward, lunge, and walking-backward foot programs now
+resolve all 193 fixed durations, seven private movement/sound callbacks, sleep/goto
+commands, and the backwards loop target through
+`KraidFootInstructionProgramDefinitions`. Their 106 interleaved extended-spritemap
+operands remain live cartridge presentation data, and every combat/growth handoff uses
+the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes every
+production program while every mechanics byte is forbidden. It asserts the exact
+fourteen three-pixel horizontal steps, balanced vertical callbacks, quake/sound effects,
+sleep and loop boundaries, observes all 106 presentation operands, and rejects the
+adjacent retail-unreferenced fast-backwards program. Warmed lookup is allocation-free.

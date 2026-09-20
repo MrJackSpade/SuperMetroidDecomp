@@ -61,7 +61,12 @@ internal static partial class Program
                 AssertEqual(expected.TargetX, state.TargetX, "Actual target includes fallback row");
                 AssertEqual(expected.ThinkTimer, part.NextWord, "Actual thinking delay includes weighted final choice");
                 AssertEqual((ushort)(right ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft), foot.VariableA, "Native signed walking direction");
-                AssertEqual(right ? KraidInstructionLists.FootWalkBack : KraidInstructionLists.Ilist_86F3, foot.CurrentInstruction, "Chosen direction starts matching animation");
+                AssertEqual(
+                    right
+                        ? KraidFootInstructionProgramDefinitions.WalkingBackward
+                        : KraidFootInstructionProgramDefinitions.WalkingForward,
+                    foot.CurrentInstruction,
+                    "Chosen direction starts matching animation");
                 AssertEqual((ushort)1, foot.InstructionTimer, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");
             }

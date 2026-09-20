@@ -11,13 +11,16 @@ public sealed partial class RoomEnemySystem
         KraidArmInstructionProgramDefinitions.Normal;
     private const ushort KraidArmRetractedInstruction =
         KraidArmInstructionProgramDefinitions.DyingOrPreparingToLunge;
-    private const ushort KraidFootNeutralInstruction = KraidInstructionLists.Ilist_86ED;
-    private const ushort KraidFootLungeInstruction = KraidInstructionLists.FootLunge;
+    private const ushort KraidFootNeutralInstruction =
+        KraidFootInstructionProgramDefinitions.Neutral;
+    private const ushort KraidFootLungeInstruction =
+        KraidFootInstructionProgramDefinitions.LungeForward;
     private const ushort KraidFootLungeFinishedInstruction =
-        KraidInstructionLists.FootLungeFinished;
-    private const ushort KraidFootWalkBackInstruction = KraidInstructionLists.FootWalkBack;
+        KraidFootInstructionProgramDefinitions.LungeForwardFinished;
+    private const ushort KraidFootWalkBackInstruction =
+        KraidFootInstructionProgramDefinitions.WalkingBackward;
     private const ushort KraidFootWalkBackLoopInstruction =
-        KraidInstructionLists.FootWalkBackLoop;
+        KraidFootInstructionProgramDefinitions.WalkingBackwardLoop;
 
     private void RunKraidArmMain(RoomEnemySlot arm, ushort cameraY)
     {
@@ -333,7 +336,7 @@ public sealed partial class RoomEnemySystem
         RequireKraidState(foot).TargetX = targetX;
         part.NextWord = thinkTimer;
         foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkingLeft;
-        foot.CurrentInstruction = KraidInstructionLists.Ilist_86F3;
+        foot.CurrentInstruction = KraidFootInstructionProgramDefinitions.WalkingForward;
         foot.InstructionTimer = 1;
     }
 
@@ -359,15 +362,18 @@ public sealed partial class RoomEnemySystem
         ushort targetX = RequireKraidState(body).TargetX;
         if (unchecked((short)(targetX - body.XPosition)) < 0)
         {
-            if (foot.CurrentInstruction == KraidInstructionLists.Ilist_87BB)
+            if (foot.CurrentInstruction ==
+                KraidFootInstructionProgramDefinitions.WalkingForwardFinished)
             {
-                foot.CurrentInstruction = KraidInstructionLists.Ilist_86F3;
+                foot.CurrentInstruction =
+                    KraidFootInstructionProgramDefinitions.WalkingForward;
                 foot.InstructionTimer = 1;
             }
             return;
         }
         body.XPosition = targetX;
-        if (foot.CurrentInstruction == KraidInstructionLists.Ilist_87BB)
+        if (foot.CurrentInstruction ==
+            KraidFootInstructionProgramDefinitions.WalkingForwardFinished)
         {
             foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseThinking;
             foot.CurrentInstruction = KraidFootNeutralInstruction;

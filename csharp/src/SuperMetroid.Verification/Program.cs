@@ -878,6 +878,11 @@ if (args is ["--kraid-arm-instruction-program-definitions"])
     VerifyKraidArmInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kraid-foot-instruction-program-definitions"])
+{
+    VerifyKraidFootInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

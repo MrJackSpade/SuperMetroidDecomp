@@ -92,6 +92,7 @@ internal static partial class Program
         VerifyTourianEntranceStatueInstructionProgramDefinitions(rom);
         VerifyKraidNailInstructionProgramDefinitions(rom);
         VerifyKraidArmInstructionProgramDefinitions(rom);
+        VerifyKraidFootInstructionProgramDefinitions(rom);
         VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);

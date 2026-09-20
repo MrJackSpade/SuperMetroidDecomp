@@ -12,9 +12,11 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort KraidInitialArmInstruction =
         KraidArmInstructionProgramDefinitions.RisingOrSinking;
-    private const ushort KraidInitialLintInstruction = KraidInstructionLists.InitialLint;
+    private const ushort KraidInitialLintInstruction =
+        KraidLintInstructionLists.InitialLint;
     private const ushort KraidInitialLintSpritemap = 0xa5df;
-    private const ushort KraidInitialFootInstruction = KraidInstructionLists.InitialFoot;
+    private const ushort KraidInitialFootInstruction =
+        KraidFootInstructionProgramDefinitions.Initial;
 
     /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
     public KraidSoundRequest? LastKraidSoundEffect { get; private set; }

@@ -196,6 +196,9 @@ jump preparation, and apex handoffs execute all three programs with mechanics re
 The Norfair lava jumper's hidden, jumping, and follower programs now compile all 23 duration,
 callback, timer, branch, and target words while retaining fourteen live spritemap operands.
 Both real initializers, the rise handoff, handshake, and follower loop avoid mechanics reads.
+Beetom's six left/right crawling, hopping, and draining programs now compile all 48 property,
+duration, callback, sleep, goto, and target words while retaining 32 live spritemap operands.
+The real initializer and action installers execute every program without mechanics reads.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

@@ -3652,6 +3652,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition)
             return NorfairLavaJumperInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == BeetomDefinition)
+            return BeetomInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

@@ -102,12 +102,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort BeetomDefinition = 0xe87f;
 
-    private const ushort BeetomCrawlingLeftInstruction = 0xb696;
-    private const ushort BeetomHopLeftInstruction = 0xb6ac;
-    private const ushort BeetomDrainingLeftInstruction = 0xb6cc;
-    private const ushort BeetomCrawlingRightInstruction = 0xb6f2;
-    private const ushort BeetomHopRightInstruction = 0xb708;
-    private const ushort BeetomDrainingRightInstruction = 0xb728;
     private const ushort BeetomProximityDistance = 0x0060;
     private const ushort BeetomMashCount = 0x0040;
     private const ushort BeetomMaximumYSpeedIndex = 0x0040;
@@ -169,8 +163,8 @@ public sealed partial class RoomEnemySystem
             slot,
             state,
             unchecked((short)(samus.XPosition - slot.XPosition)) < 0
-                ? BeetomCrawlingLeftInstruction
-                : BeetomCrawlingRightInstruction);
+                ? BeetomInstructionProgramDefinitions.CrawlingLeft
+                : BeetomInstructionProgramDefinitions.CrawlingRight);
         state.Function = BeetomEnemyFunction.DecideAction;
     }
 
@@ -310,7 +304,12 @@ public sealed partial class RoomEnemySystem
     private static void StartBeetomCrawling(RoomEnemySlot slot, BeetomEnemyState state, bool left)
     {
         state.Function = left ? BeetomEnemyFunction.CrawlingLeft : BeetomEnemyFunction.CrawlingRight;
-        SetBeetomInstructionList(slot, state, left ? BeetomCrawlingLeftInstruction : BeetomCrawlingRightInstruction);
+        SetBeetomInstructionList(
+            slot,
+            state,
+            left
+                ? BeetomInstructionProgramDefinitions.CrawlingLeft
+                : BeetomInstructionProgramDefinitions.CrawlingRight);
     }
 
     private static void StartBeetomHop(
@@ -329,7 +328,12 @@ public sealed partial class RoomEnemySystem
             _ => BeetomEnemyFunction.LongHopRight,
         };
         state.Falling = false;
-        SetBeetomInstructionList(slot, state, left ? BeetomHopLeftInstruction : BeetomHopRightInstruction);
+        SetBeetomInstructionList(
+            slot,
+            state,
+            left
+                ? BeetomInstructionProgramDefinitions.HopLeft
+                : BeetomInstructionProgramDefinitions.HopRight);
     }
 
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
@@ -339,12 +343,22 @@ public sealed partial class RoomEnemySystem
         state.Direction = left ? (ushort)0 : (ushort)1;
         state.Function = left ? BeetomEnemyFunction.LungeLeft : BeetomEnemyFunction.LungeRight;
         state.Falling = false;
-        SetBeetomInstructionList(slot, state, left ? BeetomHopLeftInstruction : BeetomHopRightInstruction);
+        SetBeetomInstructionList(
+            slot,
+            state,
+            left
+                ? BeetomInstructionProgramDefinitions.HopLeft
+                : BeetomInstructionProgramDefinitions.HopRight);
     }
 
     private static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, bool left)
     {
-        SetBeetomInstructionList(slot, state, left ? BeetomDrainingLeftInstruction : BeetomDrainingRightInstruction);
+        SetBeetomInstructionList(
+            slot,
+            state,
+            left
+                ? BeetomInstructionProgramDefinitions.DrainingLeft
+                : BeetomInstructionProgramDefinitions.DrainingRight);
         state.Function = left ? BeetomEnemyFunction.DrainingLeft : BeetomEnemyFunction.DrainingRight;
     }
 
@@ -353,7 +367,9 @@ public sealed partial class RoomEnemySystem
         SetBeetomInstructionList(
             slot,
             state,
-            state.Direction == 0 ? BeetomCrawlingLeftInstruction : BeetomCrawlingRightInstruction);
+            state.Direction == 0
+                ? BeetomInstructionProgramDefinitions.CrawlingLeft
+                : BeetomInstructionProgramDefinitions.CrawlingRight);
         state.Falling = false;
         state.Function = BeetomEnemyFunction.Dropping;
     }

@@ -122,6 +122,11 @@ if (args is ["--norfair-lava-jumper-instruction-mechanics"])
     VerifyNorfairLavaJumperInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--beetom-instruction-mechanics"])
+{
+    VerifyBeetomInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

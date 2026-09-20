@@ -250,6 +250,10 @@ The Norfair lava jumper's hidden, jumping, and follower programs compile 23 cont
 Both real initializers, the rise-to-jump handoff, animation handshake, and complete follower
 loop execute while all fourteen spritemap operands remain live presentation data.
 
+Beetom's left/right crawling, hopping, and draining programs compile 48 control words.
+The real initializer and action installers execute all six programs through their sleep or
+loop boundaries while all 32 spritemap operands remain live presentation data.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

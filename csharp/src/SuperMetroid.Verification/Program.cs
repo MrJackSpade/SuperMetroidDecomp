@@ -793,6 +793,11 @@ if (args is ["--hzoomer-instruction-program-definitions"])
     VerifyHZoomerInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--sciser-instruction-program-definitions"])
+{
+    VerifySciserInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

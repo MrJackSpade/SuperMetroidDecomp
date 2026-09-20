@@ -48,7 +48,11 @@ internal static class CrawlerAnimationDefinitions
     [
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
         new(0xb5e3, 0xb5eb, 0xb5d3, 0xb5db),
-        new(0x967b, 0x9693, 0x96ab, 0x96c3),
+        new(
+            SciserInstructionProgramDefinitions.UpsideRight,
+            SciserInstructionProgramDefinitions.UpsideLeft,
+            SciserInstructionProgramDefinitions.UpsideDown,
+            SciserInstructionProgramDefinitions.UpsideUp),
         new(0x984b, 0x988b, 0x98ab, 0x990b),
         new(
             HZoomerInstructionProgramDefinitions.UpsideRight,
@@ -67,7 +71,11 @@ internal static class CrawlerAnimationDefinitions
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
         new(0xb5e3, 0xb5eb, 0xb5d3, 0xb5db),
-        new(0x967b, 0x9693, 0x96ab, 0x96c3),
+        new(
+            SciserInstructionProgramDefinitions.UpsideRight,
+            SciserInstructionProgramDefinitions.UpsideLeft,
+            SciserInstructionProgramDefinitions.UpsideDown,
+            SciserInstructionProgramDefinitions.UpsideUp),
         new(0x984b, 0x988b, 0x98ab, 0x990b),
     ];
 

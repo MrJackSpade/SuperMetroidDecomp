@@ -75,6 +75,7 @@ internal static partial class Program
         VerifyChootPatternDefinitions(rom);
         VerifyCrawlerAnimationDefinitions(rom);
         VerifyHZoomerInstructionProgramDefinitions(rom);
+        VerifySciserInstructionProgramDefinitions(rom);
         VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);

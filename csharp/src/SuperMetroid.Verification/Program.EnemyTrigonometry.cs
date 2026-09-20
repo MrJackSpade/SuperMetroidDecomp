@@ -33,6 +33,7 @@ internal static partial class Program
         VerifyCacatacProjectileDefinitions(rom);
         VerifyCacatacProjectileInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
+        VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

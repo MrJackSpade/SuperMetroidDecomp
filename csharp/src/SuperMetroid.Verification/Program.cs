@@ -52,6 +52,11 @@ if (args is ["--cacatac-instruction-mechanics"])
     VerifyCacatacInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--magdollite-instruction-mechanics"])
+{
+    VerifyMagdolliteInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

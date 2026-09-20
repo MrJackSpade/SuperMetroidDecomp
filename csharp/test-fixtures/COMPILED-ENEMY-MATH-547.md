@@ -3112,3 +3112,19 @@ idle loops plus both complete attacks through sound, all ten real projectile spa
 patrol restoration while every mechanics byte is forbidden. All presentation operands
 remain observable, presentation and adjacent callback-code pointers fail as mechanics,
 and warmed lookup is allocation-free.
+
+# Magdollite instruction mechanics
+
+Magdollite's left/right idle, submerge, emerge, and lava-throw programs plus all eight
+pillar phases and the tracking hand now resolve 134 fixed durations, callbacks, sound
+operands, timers, gotos, and loop targets through
+`MagdolliteInstructionProgramDefinitions`. Their 53 interleaved spritemap pointers remain
+live cartridge presentation data, and phase selection shares the same named program
+entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+seventeen production programs through their loop or terminal sleep. Both throws emit
+sound and all six real lava projectiles; both submerge/emerge directions complete their
+visibility and wait-flag handoffs. Every presentation operand remains observable while
+mechanics bytes are forbidden, invalid mechanics pointers fail loudly, and warmed lookup
+is allocation-free.

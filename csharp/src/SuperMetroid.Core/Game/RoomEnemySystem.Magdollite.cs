@@ -109,16 +109,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MagdolliteTouchAi = EnemyAiCodePointers.BankA8.MagdolliteTouch;
     internal const ushort MagdolliteShotAi = EnemyAiCodePointers.BankA8.MagdolliteShot;
 
-    private const ushort MagdolliteLeftIdleList = 0xac9c;
-    private const ushort MagdolliteLeftThrowList = 0xacb0;
-    private const ushort MagdolliteLeftAttackList = 0xacde;
-    private const ushort MagdolliteLeftReturnList = 0xad0c;
-    private const ushort MagdolliteRightIdleList = 0xad3c;
-    private const ushort MagdolliteRightThrowList = 0xad50;
-    private const ushort MagdolliteRightAttackList = 0xad7e;
-    private const ushort MagdolliteRightReturnList = 0xadac;
-    private const ushort MagdolliteOverlayIdleList = 0xae0c;
-
     private const int MagdollitePaletteTable = 0xa8ac1c;
 
     private readonly MagdolliteEnemyState?[] _magdolliteStates =
@@ -219,8 +209,8 @@ public sealed partial class RoomEnemySystem
         if (samusIsLeft)
             state.FacingMarker = 1;
         state.DesiredInstructionList = state.FacingMarker != 0
-            ? MagdolliteLeftIdleList
-            : MagdolliteRightIdleList;
+            ? MagdolliteInstructionProgramDefinitions.LeftIdle
+            : MagdolliteInstructionProgramDefinitions.RightIdle;
         InstallMagdolliteInstructionList(slot, state);
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
@@ -248,7 +238,7 @@ public sealed partial class RoomEnemySystem
         state.InitializationOriginX = slot.XPosition;
         state.InstalledInstructionList = 0;
         state.AttackTimer = 0;
-        state.DesiredInstructionList = MagdolliteOverlayIdleList;
+        state.DesiredInstructionList = MagdolliteInstructionProgramDefinitions.PillarCap;
         InstallMagdolliteInstructionList(slot, state);
         slot.YPosition = unchecked((ushort)(slot.YPosition + 32));
         state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
@@ -316,8 +306,8 @@ public sealed partial class RoomEnemySystem
         bool samusIsRight = !IsNegative16(unchecked((ushort)(samus.XPosition - head.XPosition)));
         state.FacingMarker = samusIsRight ? (ushort)1 : (ushort)0;
         state.DesiredInstructionList = samusIsRight
-            ? MagdolliteRightIdleList
-            : MagdolliteLeftIdleList;
+            ? MagdolliteInstructionProgramDefinitions.RightIdle
+            : MagdolliteInstructionProgramDefinitions.LeftIdle;
         InstallMagdolliteInstructionList(head, state);
 
         (_, _, RoomEnemySlot overlay) = RequireMagdolliteComposite(head);
@@ -331,8 +321,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.DesiredInstructionList = samusIsRight
-            ? MagdolliteRightAttackList
-            : MagdolliteLeftAttackList;
+            ? MagdolliteInstructionProgramDefinitions.RightSubmerge
+            : MagdolliteInstructionProgramDefinitions.LeftSubmerge;
         InstallMagdolliteInstructionList(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
     }
@@ -361,8 +351,8 @@ public sealed partial class RoomEnemySystem
         bool samusIsRight = samus is not null &&
             !IsNegative16(unchecked((ushort)(samus.XPosition - head.XPosition)));
         state.DesiredInstructionList = samusIsRight
-            ? MagdolliteRightReturnList
-            : MagdolliteLeftReturnList;
+            ? MagdolliteInstructionProgramDefinitions.RightEmerge
+            : MagdolliteInstructionProgramDefinitions.LeftEmerge;
         InstallMagdolliteInstructionList(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
@@ -378,8 +368,8 @@ public sealed partial class RoomEnemySystem
         bool samusIsRight = samus is not null &&
             !IsNegative16(unchecked((ushort)(samus.XPosition - head.XPosition)));
         state.DesiredInstructionList = samusIsRight
-            ? MagdolliteRightIdleList
-            : MagdolliteLeftIdleList;
+            ? MagdolliteInstructionProgramDefinitions.RightIdle
+            : MagdolliteInstructionProgramDefinitions.LeftIdle;
         InstallMagdolliteInstructionList(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
@@ -497,7 +487,7 @@ public sealed partial class RoomEnemySystem
         {
             (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
             MagdolliteEnemyState bodyState = RequireMagdolliteState(body);
-            state.DesiredInstructionList = MagdolliteOverlayIdleList;
+            state.DesiredInstructionList = MagdolliteInstructionProgramDefinitions.PillarCap;
             InstallMagdolliteInstructionList(overlay, state);
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
             state.Function = MagdolliteEnemyFunction.OverlayTrackingFallingBody;
@@ -521,8 +511,8 @@ public sealed partial class RoomEnemySystem
             bool samusIsRight = samus is not null &&
                 !IsNegative16(unchecked((ushort)(samus.XPosition - overlay.XPosition)));
             state.DesiredInstructionList = samusIsRight
-                ? MagdolliteRightThrowList
-                : MagdolliteLeftThrowList;
+                ? MagdolliteInstructionProgramDefinitions.RightThrow
+                : MagdolliteInstructionProgramDefinitions.LeftThrow;
             state.BodyPhaseOffset = samusIsRight ? (ushort)1 : (ushort)0;
             InstallMagdolliteInstructionList(overlay, state);
             state.Function = MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation;
@@ -668,9 +658,9 @@ public sealed partial class RoomEnemySystem
                     IsNegative16(cameraY + 256 - slot.YPosition);
                 if (!offScreen)
                 {
-                    LastMagdolliteSoundEffect = ReadWord(
-                        _bus!,
-                        0xa80000 | unchecked((ushort)(cursor + 2)));
+                    LastMagdolliteSoundEffect = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                 }
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;

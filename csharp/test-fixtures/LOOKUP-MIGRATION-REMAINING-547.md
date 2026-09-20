@@ -177,6 +177,10 @@ the bounce callback retains sound/state effects, and ten spritemap operands rema
 Magdollite's nine rise thresholds, body-list selectors and overlay offsets are
 compiled as typed phase records. Real initialization, rising, falling and overlay
 tracking retain their exact phase geometry while `$A8:AF55-$A8:AF8A` is forbidden.
+Its seventeen head, pillar and hand programs also compile all 134 callbacks, timings,
+sound operands, timer controls and branches. Both complete directional attacks retain
+their visibility choreography and six real lava spawns while 53 spritemap operands stay
+live presentation data.
 Fune/Namihe's eight active/idle and facing instruction selectors are compiled;
 all eight real production installs retain their cartridge identities while
 `$A8:96D3-$A8:96E2` is forbidden.

@@ -3625,6 +3625,12 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == StokeDefinition)
             return StokeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer is
+            GRipperDefinition or Ripper2Definition or RipperDefinition)
+        {
+            return RipperInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

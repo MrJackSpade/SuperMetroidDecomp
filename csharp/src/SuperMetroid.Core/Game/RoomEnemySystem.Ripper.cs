@@ -73,16 +73,6 @@ public sealed partial class RoomEnemySystem
 
     internal const ushort GRipperRipper2ShotAi = EnemyAiCodePointers.BankA2.GRipperRipper2Shot;
 
-    private const ushort GRipperMovingLeftInstruction = 0xe19b;
-    private const ushort GRipperMovingRightInstruction = 0xe1af;
-    private const ushort Ripper2MovingRightInstruction = 0xe2e0;
-    private const ushort Ripper2MovingLeftInstruction = 0xe2f4;
-    private const ushort GRipperRipper2FrozenFacingLeftSpritemap = 0xe43f;
-    private const ushort GRipperRipper2FrozenFacingRightSpritemap = 0xe44b;
-
-    private const ushort RipperMovingRightInstruction = 0xe477;
-    private const ushort RipperMovingLeftInstruction = 0xe48b;
-
     private readonly ushort[] _ripperVariantMinimumXPositions =
         new ushort[MaximumEnemyCount];
     private readonly ushort[] _ripperVariantMaximumXPositions =
@@ -117,8 +107,8 @@ public sealed partial class RoomEnemySystem
         SetRipperInstructionList(
             slot,
             unchecked((short)state.XVelocity) < 0
-                ? GRipperMovingLeftInstruction
-                : GRipperMovingRightInstruction);
+                ? RipperInstructionProgramDefinitions.GRipperMovingLeft
+                : RipperInstructionProgramDefinitions.GRipperMovingRight);
 
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
         // back to either endpoint. The one-frame fractional overshoot is native and becomes
@@ -151,8 +141,8 @@ public sealed partial class RoomEnemySystem
         {
             ReverseRipperVariant(
                 slot,
-                positiveInstruction: GRipperMovingRightInstruction,
-                negativeInstruction: GRipperMovingLeftInstruction);
+                positiveInstruction: RipperInstructionProgramDefinitions.GRipperMovingRight,
+                negativeInstruction: RipperInstructionProgramDefinitions.GRipperMovingLeft);
         }
     }
 
@@ -169,7 +159,9 @@ public sealed partial class RoomEnemySystem
         LoadRipperVelocity(slot, movingPositive);
         SetRipperInstructionList(
             slot,
-            movingPositive ? Ripper2MovingLeftInstruction : Ripper2MovingRightInstruction);
+            movingPositive
+                ? RipperInstructionProgramDefinitions.Ripper2MovingLeft
+                : RipperInstructionProgramDefinitions.Ripper2MovingRight);
     }
 
     /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
@@ -182,8 +174,8 @@ public sealed partial class RoomEnemySystem
 
         ReverseRipperVariant(
             slot,
-            positiveInstruction: Ripper2MovingLeftInstruction,
-            negativeInstruction: Ripper2MovingRightInstruction);
+            positiveInstruction: RipperInstructionProgramDefinitions.Ripper2MovingLeft,
+            negativeInstruction: RipperInstructionProgramDefinitions.Ripper2MovingRight);
     }
 
     /// <summary>Ports <c>Ripper_Init</c> at $A2:E49F.</summary>
@@ -194,8 +186,8 @@ public sealed partial class RoomEnemySystem
         // negative pair and left-facing list.
         bool movingRight = slot.Parameter2 != 0;
         slot.CurrentInstruction = movingRight
-            ? RipperMovingRightInstruction
-            : RipperMovingLeftInstruction;
+            ? RipperInstructionProgramDefinitions.RipperMovingRight
+            : RipperInstructionProgramDefinitions.RipperMovingLeft;
 
         // Each logical speed occupies eight bytes in the common table:
         //   +0 signed pixel velocity, +2 subpixel velocity,
@@ -221,8 +213,8 @@ public sealed partial class RoomEnemySystem
         bool nowMovingRight = wasMovingLeft;
         LoadRipperVelocity(slot, nowMovingRight);
         slot.CurrentInstruction = nowMovingRight
-            ? RipperMovingRightInstruction
-            : RipperMovingLeftInstruction;
+            ? RipperInstructionProgramDefinitions.RipperMovingRight
+            : RipperInstructionProgramDefinitions.RipperMovingLeft;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }
@@ -244,8 +236,8 @@ public sealed partial class RoomEnemySystem
         if (slot.FrozenTimer == 0)
             return;
         slot.SpritemapPointer = unchecked((short)slot.VariableD) < 0
-            ? GRipperRipper2FrozenFacingLeftSpritemap
-            : GRipperRipper2FrozenFacingRightSpritemap;
+            ? RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap
+            : RipperInstructionProgramDefinitions.FrozenFacingRightSpritemap;
     }
 
     private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)

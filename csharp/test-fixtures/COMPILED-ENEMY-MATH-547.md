@@ -2113,6 +2113,21 @@ publish the matching direction/function. Every presentation operand remains obse
 while mechanics bytes are forbidden, invalid pointers fail loudly, and warmed lookup is
 allocation-free.
 
+# Ripper-family instruction mechanics
+
+GRipper, Ripper II, and ordinary Ripper now resolve all thirty-six fixed durations,
+gotos, and loop targets across their six directional programs through
+`RipperInstructionProgramDefinitions`. Their twenty-four interleaved spritemap pointers
+remain live cartridge presentation data, and each species' initializer and reversal path
+names the same catalog entries without normalizing Ripper II's inverted native labels.
+
+Verification compares every mechanics word with the pinned cartridge and runs all six
+production-installed programs through their complete 8/7/8/7 cadence and native goto,
+including GRipper's left loop through its real reversal path. Every presentation operand
+remains observable while mechanics bytes are
+forbidden; unused frozen scripts, presentation pointers, and adjacent initializer code
+fail loudly as mechanics, and warmed lookup is allocation-free.
+
 # Nuclear Waffle sweep geometry
 
 `NuclearWaffleDefinitions` combines each authored direction's paired sweep

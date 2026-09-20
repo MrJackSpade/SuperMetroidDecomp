@@ -72,6 +72,11 @@ if (args is ["--stoke-instruction-mechanics"])
     VerifyStokeInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ripper-instruction-mechanics"])
+{
+    VerifyRipperInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

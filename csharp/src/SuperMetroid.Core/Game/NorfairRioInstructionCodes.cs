@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$A2 code pointers consumed by translated Norfair Rio dispatchers.</summary>
 internal static class NorfairRioInstructionCodes
 {
+    /// <summary><c>Instruction_Geruta_SetFinishedSwoopStartAnimationFlag</c> at $A2:C1C9.</summary>
+    public const ushort Instruction_Geruta_SetFinishedSwoopStartAnimationFlag = 0xc1c9;
+
     /// <summary><c>Instruction_Geruta_SetFlamesYOffset_8</c> at $A2:C1D4.</summary>
     public const ushort Instruction_Geruta_SetFlamesYOffset_8 = 0xc1d4;
 

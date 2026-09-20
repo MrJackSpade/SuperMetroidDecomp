@@ -848,6 +848,11 @@ if (args is ["--metroid-instruction-program-definitions"])
     VerifyMetroidInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--norfair-rio-instruction-program-definitions"])
+{
+    VerifyNorfairRioInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

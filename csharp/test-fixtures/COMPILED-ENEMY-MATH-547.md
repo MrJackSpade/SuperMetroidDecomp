@@ -3314,3 +3314,17 @@ exactly once and publishes the selected cry; the draining callback publishes its
 sound without touching RNG. The real initializer allocates both outer-body sprite objects,
 all presentation operands remain observable, invalid mechanics pointers fail loudly, and
 warmed lookup is allocation-free.
+
+# Norfair Rio instruction mechanics
+
+Norfair Rio's idle, takeoff, dive, return, late-return, and two follower-flame programs
+now resolve all 65 fixed durations, eleven private callbacks, gotos, loop targets, and
+terminal sleeps through `NorfairRioInstructionProgramDefinitions`. Their 34 interleaved
+spritemap pointers remain live cartridge presentation data, and parent/follower
+initialization plus every main-AI handoff use the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+seven programs through their loop or terminal sleep while mechanics bytes are forbidden.
+Every follower offset and both animation-signal callbacks are asserted, both initializer
+roles are covered, all presentation operands remain observable, invalid mechanics pointers
+fail loudly, and warmed lookup is allocation-free.

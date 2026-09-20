@@ -86,6 +86,7 @@ internal static partial class Program
         VerifyMorphBallEyeInstructionProgramDefinitions(rom);
         VerifyYappingMawInstructionProgramDefinitions(rom);
         VerifyMetroidInstructionProgramDefinitions(rom);
+        VerifyNorfairRioInstructionProgramDefinitions(rom);
         VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);

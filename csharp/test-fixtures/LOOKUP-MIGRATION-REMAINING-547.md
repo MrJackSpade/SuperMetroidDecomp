@@ -187,6 +187,9 @@ initializer reaches terminal sleep with mechanics reads forbidden.
 The growing shutter's four height programs now compile all eight duration and terminal-sleep
 words while retaining four live spritemap operands. The real initializer and all four
 production section transitions execute with mechanics reads forbidden.
+Plain shootable/destroyable vertical shutters and Kamer platforms now compile all eight
+duration, sleep, goto, and loop-target words while retaining five live spritemap operands.
+All three real initializers and the complete Kamer loop execute with mechanics reads forbidden.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

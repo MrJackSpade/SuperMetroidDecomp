@@ -238,6 +238,10 @@ The growing shutter's four height programs compile their one-frame durations and
 sleeps. The real initializer and all four production section transitions execute without
 reading the eight mechanics words; all four spritemaps remain live presentation data.
 
+Plain vertical shutters and Kamer platforms compile their stationary and four-frame-loop
+control words. All three real initializers and the complete Kamer loop execute without
+mechanics reads while the five spritemap operands remain live presentation data.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

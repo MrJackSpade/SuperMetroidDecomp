@@ -7,9 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PlainVerticalShutterInstruction = 0xe9aa;
-    private const ushort KamerVerticalPlatformInstruction = 0xede7;
-
     /// <summary>Ports $A2:EE05/$A2:EE12 and their shared tail at $A2:EE1F.</summary>
     private void InitializeVerticalShutter(RoomEnemySlot slot)
     {
@@ -64,8 +61,8 @@ public sealed partial class RoomEnemySystem
         InstallVerticalShutterInstruction(
             slot,
             slot.EnemyDefinitionPointer == KamerVerticalPlatformDefinition
-                ? KamerVerticalPlatformInstruction
-                : PlainVerticalShutterInstruction);
+                ? VerticalShutterInstructionProgramDefinitions.KamerPlatform
+                : VerticalShutterInstructionProgramDefinitions.Plain);
     }
 
     /// <summary>Ports <c>VerticalShutter_Main</c> at $A2:EED1.</summary>

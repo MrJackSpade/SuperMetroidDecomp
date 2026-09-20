@@ -3649,6 +3649,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (IsVerticalShutterDefinition(slot.EnemyDefinitionPointer))
+            return VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition)
         {
             return HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address);

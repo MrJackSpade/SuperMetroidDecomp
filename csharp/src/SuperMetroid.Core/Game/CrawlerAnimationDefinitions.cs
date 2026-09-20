@@ -53,7 +53,11 @@ internal static class CrawlerAnimationDefinitions
             SciserInstructionProgramDefinitions.UpsideLeft,
             SciserInstructionProgramDefinitions.UpsideDown,
             SciserInstructionProgramDefinitions.UpsideUp),
-        new(0x984b, 0x988b, 0x98ab, 0x990b),
+        new(
+            ZeroInstructionProgramDefinitions.UpsideRight,
+            ZeroInstructionProgramDefinitions.UpsideLeft,
+            ZeroInstructionProgramDefinitions.UpsideDown,
+            ZeroInstructionProgramDefinitions.UpsideUp),
         new(
             HZoomerInstructionProgramDefinitions.UpsideRight,
             HZoomerInstructionProgramDefinitions.UpsideLeft,
@@ -76,7 +80,11 @@ internal static class CrawlerAnimationDefinitions
             SciserInstructionProgramDefinitions.UpsideLeft,
             SciserInstructionProgramDefinitions.UpsideDown,
             SciserInstructionProgramDefinitions.UpsideUp),
-        new(0x984b, 0x988b, 0x98ab, 0x990b),
+        new(
+            ZeroInstructionProgramDefinitions.UpsideRight,
+            ZeroInstructionProgramDefinitions.UpsideLeft,
+            ZeroInstructionProgramDefinitions.UpsideDown,
+            ZeroInstructionProgramDefinitions.UpsideUp),
     ];
 
     /// <summary>Returns one family-specific initial instruction list.</summary>

@@ -3716,6 +3716,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == SciserDefinition)
             return SciserInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == ZeroDefinition)
+            return ZeroInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

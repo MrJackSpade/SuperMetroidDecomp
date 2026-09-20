@@ -3728,6 +3728,9 @@ public sealed partial class RoomEnemySystem
             return SharedCrawlerInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (slot.EnemyDefinitionPointer == DachoraDefinition)
+            return DachoraInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

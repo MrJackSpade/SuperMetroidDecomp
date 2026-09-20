@@ -82,18 +82,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort DachoraDefinition = 0xe5ff;
 
-    private const ushort DachoraRunningLeftList = 0xf345;
-    private const ushort DachoraIdleLeftList = 0xf399;
-    private const ushort DachoraBlinkLeftList = 0xf3c9;
-    private const ushort DachoraEchoLeftList = 0xf3f7;
-    private const ushort DachoraFallingLeftList = 0xf3ff;
-    private const ushort DachoraRunningRightList = 0xf407;
-    private const ushort DachoraIdleRightList = 0xf45b;
-    private const ushort DachoraBlinkRightList = 0xf48b;
-    private const ushort DachoraChargeRightList = 0xf4b3;
-    private const ushort DachoraEchoRightList = 0xf4b9;
-    private const ushort DachoraFallingRightList = 0xf4c1;
-
     private const ushort DachoraDefaultPalette = 0xf225;
     private const ushort DachoraSpeedPaletteTable = 0xf787;
     private const ushort DachoraShinePaletteTable = 0xf92d;
@@ -147,15 +135,15 @@ public sealed partial class RoomEnemySystem
             // A negative direction identifies an echo. Its low bit selects the same facing
             // convention as the body, while variable D later becomes its eight-frame life.
             slot.CurrentInstruction = (direction & 1) != 0
-                ? DachoraEchoRightList
-                : DachoraEchoLeftList;
+                ? DachoraInstructionProgramDefinitions.EchoRight
+                : DachoraInstructionProgramDefinitions.EchoLeft;
             state.Function = DachoraAiFunction.Echo;
             return;
         }
 
         slot.CurrentInstruction = direction != 0
-            ? DachoraIdleRightList
-            : DachoraIdleLeftList;
+            ? DachoraInstructionProgramDefinitions.IdleRight
+            : DachoraInstructionProgramDefinitions.IdleLeft;
         state.Function = DachoraAiFunction.WaitingForSamus;
     }
 
@@ -225,7 +213,9 @@ public sealed partial class RoomEnemySystem
 
         InstallDachoraInstruction(
             slot,
-            slot.Parameter1 != 0 ? DachoraBlinkRightList : DachoraBlinkLeftList);
+            slot.Parameter1 != 0
+                ? DachoraInstructionProgramDefinitions.BlinkRight
+                : DachoraInstructionProgramDefinitions.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
         state.SpeedOrTimer = DachoraBlinkDuration;
         LastDachoraSoundEffect = DachoraActivationSound;
@@ -240,7 +230,9 @@ public sealed partial class RoomEnemySystem
 
         InstallDachoraInstruction(
             slot,
-            slot.Parameter1 != 0 ? DachoraRunningRightList : DachoraRunningLeftList);
+            slot.Parameter1 != 0
+                ? DachoraInstructionProgramDefinitions.RunningRight
+                : DachoraInstructionProgramDefinitions.RunningLeft);
         state.Function = slot.Parameter1 != 0
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
@@ -264,7 +256,7 @@ public sealed partial class RoomEnemySystem
         if (!hitWall && unchecked((short)(slot.XPosition - DachoraLeftTurnX)) >= 0)
             return;
 
-        InstallDachoraInstruction(slot, DachoraRunningRightList);
+        InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.RunningRight);
         state.Function = DachoraAiFunction.RunningRight;
         state.PaletteAnimationTimer = 1;
         slot.Parameter1 = 1;
@@ -283,7 +275,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             LastDachoraSoundEffect = DachoraWallImpactSound;
-            InstallDachoraInstruction(slot, DachoraRunningLeftList);
+            InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
             slot.Parameter1 = 0;
             state.SpeedOrTimer = 0;
@@ -297,7 +289,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(slot.XPosition - DachoraShinesparkX)) < 0)
             return;
 
-        InstallDachoraInstruction(slot, DachoraChargeRightList);
+        InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
         state.SpeedOrTimer = DachoraChargeDuration;
         state.Subspeed = 0;
@@ -390,7 +382,9 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(slot.YPosition - 8));
         LastDachoraSoundEffect = DachoraLaunchSound;
 
-        ushort echoList = slot.Parameter1 != 0 ? DachoraEchoRightList : DachoraEchoLeftList;
+        ushort echoList = slot.Parameter1 != 0
+            ? DachoraInstructionProgramDefinitions.EchoRight
+            : DachoraInstructionProgramDefinitions.EchoLeft;
         foreach (RoomEnemySlot echo in echoes)
             InstallDachoraInstruction(echo, echoList);
     }
@@ -427,12 +421,12 @@ public sealed partial class RoomEnemySystem
         // Ceiling impact reverses the facing bit before the fall, a visible retail quirk.
         if (slot.Parameter1 == 0)
         {
-            InstallDachoraInstruction(slot, DachoraFallingRightList);
+            InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.FallingRight);
             slot.Parameter1 = 1;
         }
         else
         {
-            InstallDachoraInstruction(slot, DachoraFallingLeftList);
+            InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.FallingLeft);
             slot.Parameter1 = 0;
         }
         state.Function = DachoraAiFunction.Falling;
@@ -471,7 +465,9 @@ public sealed partial class RoomEnemySystem
 
         InstallDachoraInstruction(
             slot,
-            slot.Parameter1 != 0 ? DachoraRunningRightList : DachoraRunningLeftList);
+            slot.Parameter1 != 0
+                ? DachoraInstructionProgramDefinitions.RunningRight
+                : DachoraInstructionProgramDefinitions.RunningLeft);
         state.Function = slot.Parameter1 != 0
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;

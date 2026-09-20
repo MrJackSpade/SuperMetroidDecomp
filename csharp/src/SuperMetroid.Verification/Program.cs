@@ -813,6 +813,11 @@ if (args is ["--shared-crawler-instruction-program-definitions"])
     VerifySharedCrawlerInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--dachora-instruction-program-definitions"])
+{
+    VerifyDachoraInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

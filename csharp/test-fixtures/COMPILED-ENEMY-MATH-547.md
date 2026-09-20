@@ -234,6 +234,10 @@ The horizontal shutter's stationary program compiles its one-frame duration and 
 sleep. The real shootable-shutter initializer reaches the sleep through the production
 interpreter without reading either mechanics word; its spritemap remains live presentation.
 
+The growing shutter's four height programs compile their one-frame durations and terminal
+sleeps. The real initializer and all four production section transitions execute without
+reading the eight mechanics words; all four spritemaps remain live presentation data.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Literal translation of the four-section growing shutter enemy $D4FF.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort GrowingShutterTenPixelInstruction = 0xe998;
-    private const ushort GrowingShutterTwentyPixelInstruction = 0xe99e;
-    private const ushort GrowingShutterThirtyPixelInstruction = 0xe9a4;
-    private const ushort GrowingShutterFortyPixelInstruction = 0xe9aa;
     private const ushort GrowingShutterSectionLength = 0x0010;
     private const ushort GrowingShutterIntermediateInset = 0x0007;
 
@@ -32,7 +28,10 @@ public sealed partial class RoomEnemySystem
         (state.GrowthVelocity, state.GrowthSubvelocity) = GrowingShutterDefinitions.Speed(slot.Parameter2);
 
         slot.ExtraProperties = 0;
-        InstallGrowingShutterInstruction(slot, GrowingShutterTenPixelInstruction, yRadius: 8);
+        InstallGrowingShutterInstruction(
+            slot,
+            GrowingShutterInstructionProgramDefinitions.TenPixels,
+            yRadius: 8);
     }
 
     /// <summary>Ports <c>GrowingShutter_Main</c> at $A2:EAB6.</summary>
@@ -191,9 +190,9 @@ public sealed partial class RoomEnemySystem
 
         ushort instruction = state.GrowthLevel switch
         {
-            1 => GrowingShutterTwentyPixelInstruction,
-            2 => GrowingShutterThirtyPixelInstruction,
-            3 => GrowingShutterFortyPixelInstruction,
+            1 => GrowingShutterInstructionProgramDefinitions.TwentyPixels,
+            2 => GrowingShutterInstructionProgramDefinitions.ThirtyPixels,
+            3 => GrowingShutterInstructionProgramDefinitions.FortyPixels,
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };

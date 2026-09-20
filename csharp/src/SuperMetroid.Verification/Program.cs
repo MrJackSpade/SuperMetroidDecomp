@@ -102,6 +102,11 @@ if (args is ["--horizontal-shutter-instruction-mechanics"])
     VerifyHorizontalShutterInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--growing-shutter-instruction-mechanics"])
+{
+    VerifyGrowingShutterInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

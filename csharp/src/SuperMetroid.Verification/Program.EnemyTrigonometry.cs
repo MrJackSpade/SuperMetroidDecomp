@@ -43,6 +43,7 @@ internal static partial class Program
         VerifyBullInstructionProgramDefinitions(rom);
         VerifyKagoInstructionProgramDefinitions(rom);
         VerifyHorizontalShutterInstructionProgramDefinitions(rom);
+        VerifyGrowingShutterInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

@@ -110,6 +110,7 @@ internal static partial class Program
         VerifySamusEaterPlmDefinitions(rom);
         VerifyStationAccessPlmDefinitions(rom);
         VerifyMaridiaLargeSnailInstructionDefinitions(rom);
+        VerifyEtecoonInstructionProgramDefinitions(rom);
         VerifyEnemyBreakableTerrainDefinitions(rom);
         VerifyMotherBrainDeathExplosionDefinitions(rom);
         VerifyWaverAnimationDefinitions(rom);

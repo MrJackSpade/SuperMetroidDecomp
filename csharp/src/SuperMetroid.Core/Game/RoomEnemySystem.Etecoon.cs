@@ -94,22 +94,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort EtecoonDefinition = 0xe5bf;
 
-    private const ushort EtecoonInitialInstructionList = 0xe8ce;
-    private const ushort EtecoonWakeInstructionList = 0xe8d6;
-    private const ushort EtecoonCrouchInstructionList = 0xe854;
-    private const ushort EtecoonFacingLeftInstructionList = 0xe81e;
-    private const ushort EtecoonFacingRightInstructionList = 0xe876;
-    private const ushort EtecoonStationaryFrame = 0xe862;
-    private const ushort EtecoonRunLeftFrame = 0xe828;
-    private const ushort EtecoonRunRightFrame = 0xe880;
-    private const ushort EtecoonAirborneRightFrame = 0xe898;
-    private const ushort EtecoonTurnLeftInstructionList = 0xe870;
-    private const ushort EtecoonTurnRightInstructionList = 0xe8c8;
-    private const ushort EtecoonLandLeftInstructionList = 0xe854;
-    private const ushort EtecoonLandRightInstructionList = 0xe8ac;
-    private const ushort EtecoonResumeRightInstructionList = 0xe894;
-    private const ushort EtecoonResumeLeftInstructionList = 0xe83c;
-
     private const ushort EtecoonWakeSound = 0x0035;
     private const ushort EtecoonJumpSound = 0x0033;
     private const ushort EtecoonWallSound = 0x0032;
@@ -157,7 +141,7 @@ public sealed partial class RoomEnemySystem
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = EtecoonInitialInstructionList;
+        slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.Initial;
         state.Function = EtecoonAiFunction.WaitingForSamus;
         state.FunctionTimer = 0xffff;
     }
@@ -262,7 +246,7 @@ public sealed partial class RoomEnemySystem
         {
             if (DecrementEtecoonTimerAndTestExpired(state))
             {
-                InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
+                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
                 state.Function = EtecoonAiFunction.PreJumpCountdown;
                 state.FunctionTimer = 11;
             }
@@ -274,7 +258,7 @@ public sealed partial class RoomEnemySystem
 
         if ((slot.Parameter2 & 3) == 0)
             LastEtecoonSoundEffect = EtecoonWakeSound;
-        InstallEtecoonInstruction(slot, EtecoonWakeInstructionList);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.Flexing);
         state.FunctionTimer = 256;
     }
 
@@ -311,12 +295,12 @@ public sealed partial class RoomEnemySystem
                 ushort direction = DetermineEtecoonDirectionToSamus(slot, samus);
                 if (unchecked((short)(direction - 5)) < 0)
                 {
-                    InstallEtecoonInstruction(slot, EtecoonFacingLeftInstructionList);
+                    InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.LookRightAtSamusAndRunLeft);
                     slot.Parameter1 = 0;
                 }
                 else
                 {
-                    InstallEtecoonInstruction(slot, EtecoonFacingRightInstructionList);
+                    InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.LookLeftAtSamusAndRunRight);
                     slot.Parameter1 = 1;
                 }
                 state.FunctionTimer = 32;
@@ -326,14 +310,14 @@ public sealed partial class RoomEnemySystem
             {
                 state.FunctionTimer = 11;
                 state.Function = EtecoonAiFunction.PreJumpCountdown;
-                InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
+                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
             }
             return;
         }
 
         SetEtecoonVerticalVelocity(state, 0, 0);
         slot.InstructionTimer = 3;
-        slot.CurrentInstruction = EtecoonStationaryFrame;
+        slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
     private static void RunEtecoonFaceSamusPause(
@@ -368,7 +352,7 @@ public sealed partial class RoomEnemySystem
 
         SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         state.Function = EtecoonAiFunction.RunRightToWall;
-        InstallEtecoonInstruction(slot, EtecoonRunRightFrame);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningRight);
         slot.Parameter1 = 1;
     }
 
@@ -382,7 +366,7 @@ public sealed partial class RoomEnemySystem
                 slot,
                 EtecoonRightWallProbe))
         {
-            InstallEtecoonInstruction(slot, EtecoonAirborneRightFrame);
+            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
             state.Function = EtecoonAiFunction.Airborne;
             return;
         }
@@ -401,12 +385,12 @@ public sealed partial class RoomEnemySystem
         {
             if (slot.Parameter1 != 0)
             {
-                InstallEtecoonInstruction(slot, EtecoonTurnLeftInstructionList);
+                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpLeftEligible);
                 slot.Parameter1 = 0;
             }
             else
             {
-                InstallEtecoonInstruction(slot, EtecoonTurnRightInstructionList);
+                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpRightEligible);
                 slot.Parameter1 = 1;
             }
             state.Function = EtecoonAiFunction.WallPause;
@@ -422,8 +406,8 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(
             slot,
             slot.Parameter1 != 0
-                ? EtecoonLandLeftInstructionList
-                : EtecoonLandRightInstructionList);
+                ? EtecoonInstructionProgramDefinitions.HoppingFacingLeft
+                : EtecoonInstructionProgramDefinitions.HoppingFacingRight);
         state.FunctionTimer = 11;
         state.Function = EtecoonAiFunction.RouteAfterLanding;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
@@ -437,12 +421,12 @@ public sealed partial class RoomEnemySystem
 
         if (slot.Parameter1 != 0)
         {
-            InstallEtecoonInstruction(slot, EtecoonResumeRightInstructionList);
+            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpRight);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         }
         else
         {
-            InstallEtecoonInstruction(slot, EtecoonResumeLeftInstructionList);
+            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpLeft);
             SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
         }
         state.Function = EtecoonAiFunction.Airborne;
@@ -461,12 +445,12 @@ public sealed partial class RoomEnemySystem
         {
             case 0:
                 state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
-                slot.CurrentInstruction = EtecoonRunLeftFrame;
+                slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningLeft;
                 SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
                 break;
             case 1:
                 state.Function = EtecoonAiFunction.MoveRightToTeachingStart;
-                slot.CurrentInstruction = EtecoonRunRightFrame;
+                slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningRight;
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
                 break;
             case 2:
@@ -492,7 +476,7 @@ public sealed partial class RoomEnemySystem
 
         state.FunctionTimer = 11;
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
-        InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
     private void RunEtecoonMoveRightToTeachingStart(
@@ -506,7 +490,7 @@ public sealed partial class RoomEnemySystem
 
         state.FunctionTimer = 11;
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
-        InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
     private void RunEtecoonRightToLongJump(
@@ -520,7 +504,7 @@ public sealed partial class RoomEnemySystem
 
         state.Function = EtecoonAiFunction.LongJump;
         SetEtecoonVerticalVelocity(state, EtecoonLongJumpYVelocity, EtecoonLongJumpYSubvelocity);
-        InstallEtecoonInstruction(slot, EtecoonAirborneRightFrame);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
     private void RunEtecoonLongJump(
@@ -534,7 +518,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(slot.XPosition - EtecoonLongJumpMidpointX)) < 0)
             return;
 
-        InstallEtecoonInstruction(slot, EtecoonRunRightFrame);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningRight);
         state.Function = EtecoonAiFunction.RunRightAfterLongJump;
     }
 
@@ -547,7 +531,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(slot.XPosition - EtecoonLongJumpEndX)) < 0)
             return;
 
-        InstallEtecoonInstruction(slot, EtecoonAirborneRightFrame);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
         state.Function = EtecoonAiFunction.LongJumpLanding;
         SetEtecoonVerticalVelocity(state, 0xffff, EtecoonLongJumpYSubvelocity);
     }
@@ -563,7 +547,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.FunctionTimer = 11;
-        InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
     }
 
@@ -580,7 +564,7 @@ public sealed partial class RoomEnemySystem
         if ((state.VerticalVelocity & 0x8000) == 0)
         {
             state.FunctionTimer = 11;
-            InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
+            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
             state.Function = (slot.Parameter2 & 2) != 0 &&
                 unchecked((short)(slot.XPosition - EtecoonLongRunMaximumX)) < 0
                     ? EtecoonAiFunction.WaitForSamusBeforeLongRun
@@ -590,7 +574,7 @@ public sealed partial class RoomEnemySystem
 
         SetEtecoonVerticalVelocity(state, 0, 0);
         slot.InstructionTimer = 3;
-        slot.CurrentInstruction = EtecoonStationaryFrame;
+        slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
     private void RunEtecoonIdleBetweenTeachingJumps(
@@ -621,7 +605,7 @@ public sealed partial class RoomEnemySystem
         else
         {
             state.Function = EtecoonAiFunction.RunRightToReturnJump;
-            slot.CurrentInstruction = EtecoonRunRightFrame;
+            slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningRight;
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
@@ -642,7 +626,7 @@ public sealed partial class RoomEnemySystem
         if (EtecoonIsWithinY(slot, samus, EtecoonNearbyDistance) &&
             EtecoonIsWithinX(slot, samus, EtecoonLongRunTriggerDistance))
         {
-            slot.CurrentInstruction = EtecoonRunRightFrame;
+            slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningRight;
             state.Function = EtecoonAiFunction.RunRightToLongJump;
         }
         else
@@ -666,7 +650,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = EtecoonAiFunction.ReturnJump;
-        InstallEtecoonInstruction(slot, EtecoonAirborneRightFrame);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
     private void RunEtecoonReturnJump(
@@ -682,7 +666,7 @@ public sealed partial class RoomEnemySystem
         SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
         state.Function = EtecoonAiFunction.RunLeftToWall;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
-        InstallEtecoonInstruction(slot, EtecoonRunLeftFrame);
+        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningLeft);
     }
 
     /// <summary>Ports <c>Etecoon_Func_1</c>'s quake-owned parameter and timer writes.</summary>

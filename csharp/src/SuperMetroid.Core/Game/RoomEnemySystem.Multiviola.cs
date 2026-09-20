@@ -53,7 +53,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort MultiviolaDefinition = 0xd1bf;
 
-    private const ushort MultiviolaInstructionList = 0xb2dc;
     private const ushort MultiviolaCosineOffset = 0x0040;
     private const ushort MultiviolaSineOffset = 0x0080;
     private const ushort MultiviolaHorizontalReflection = 0x0040;
@@ -75,7 +74,7 @@ public sealed partial class RoomEnemySystem
         // beginning of every main-AI call. Preserve the visible variable writes: debugging
         // immediately after room load should match $0FAC-$0FB2 before the first frame.
         CalculateMultiviolaVelocityMagnitudes(slot, state);
-        slot.CurrentInstruction = MultiviolaInstructionList;
+        slot.CurrentInstruction = MultiviolaInstructionProgramDefinitions.Flying;
     }
 
     /// <summary>Ports <c>MainAI_Multiviola</c> at $A2:B40F.</summary>

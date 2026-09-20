@@ -132,6 +132,11 @@ if (args is ["--alcoon-instruction-mechanics"])
     VerifyAlcoonInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--multiviola-instruction-mechanics"])
+{
+    VerifyMultiviolaInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

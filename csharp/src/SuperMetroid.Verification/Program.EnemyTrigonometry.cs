@@ -54,6 +54,7 @@ internal static partial class Program
         VerifyPowampInstructionProgramDefinitions(rom);
         VerifyWreckedShipGhostInstructionProgramDefinitions(rom);
         VerifyPuyoInstructionProgramDefinitions(rom);
+        VerifyDeadTorizoInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

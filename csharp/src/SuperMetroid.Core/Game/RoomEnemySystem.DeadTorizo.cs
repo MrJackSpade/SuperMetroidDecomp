@@ -8,7 +8,6 @@ public sealed partial class RoomEnemySystem
     public const ushort DeadTorizoDefinition = 0xed3f;
 
     private const ushort DeadTorizoSolidProperty = 0x8000;
-    private const ushort DeadTorizoInitialInstruction = 0xd6dc;
     private const ushort DeadTorizoWaitFunction = 0xd3ad;
     private const ushort DeadTorizoPreRotFunction = 0xd3c8;
     private const ushort DeadTorizoRottingFunction = 0xd3e6;
@@ -81,7 +80,7 @@ public sealed partial class RoomEnemySystem
         slot.VariableA = DeadTorizoWaitFunction;
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
-        slot.CurrentInstruction = DeadTorizoInitialInstruction;
+        slot.CurrentInstruction = DeadTorizoInstructionProgramDefinitions.Stationary;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette1;

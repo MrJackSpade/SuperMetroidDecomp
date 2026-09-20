@@ -157,6 +157,11 @@ if (args is ["--puyo-instruction-mechanics"])
     VerifyPuyoInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--dead-torizo-instruction-mechanics"])
+{
+    VerifyDeadTorizoInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

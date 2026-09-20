@@ -16,10 +16,26 @@ internal static class HopperAnimationDefinitions
     /// </summary>
     private static readonly HopperAnimationDefinition[] Variants =
     [
-        new(0xaa82, 0xaaa8, 0xaa76, 0xaa9c),
-        new(0xb0d1, 0xb0f7, 0xb0c5, 0xb0eb),
-        new(0xb23f, 0xb25d, 0xb237, 0xb255),
-        new(0xafad, 0xafcb, 0xafa5, 0xafc3),
+        new(
+            HopperInstructionProgramDefinitions.SidehopperLandedFloor,
+            HopperInstructionProgramDefinitions.SidehopperLandedCeiling,
+            HopperInstructionProgramDefinitions.SidehopperJumpingFloor,
+            HopperInstructionProgramDefinitions.SidehopperJumpingCeiling),
+        new(
+            HopperInstructionProgramDefinitions.LargeSidehopperLandedFloor,
+            HopperInstructionProgramDefinitions.LargeSidehopperLandedCeiling,
+            HopperInstructionProgramDefinitions.LargeSidehopperJumpingFloor,
+            HopperInstructionProgramDefinitions.LargeSidehopperJumpingCeiling),
+        new(
+            HopperInstructionProgramDefinitions.LargeDessgeegaLandedFloor,
+            HopperInstructionProgramDefinitions.LargeDessgeegaLandedCeiling,
+            HopperInstructionProgramDefinitions.LargeDessgeegaJumpingFloor,
+            HopperInstructionProgramDefinitions.LargeDessgeegaJumpingCeiling),
+        new(
+            HopperInstructionProgramDefinitions.DessgeegaLandedFloor,
+            HopperInstructionProgramDefinitions.DessgeegaLandedCeiling,
+            HopperInstructionProgramDefinitions.DessgeegaJumpingFloor,
+            HopperInstructionProgramDefinitions.DessgeegaJumpingCeiling),
     ];
 
     /// <summary>Selects the exact list used by one orientation and movement phase.</summary>

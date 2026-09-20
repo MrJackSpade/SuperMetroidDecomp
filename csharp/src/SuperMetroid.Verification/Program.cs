@@ -782,6 +782,12 @@ if (args is ["--platform-instruction-program-definitions"])
     VerifyPlatformInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--hopper-instruction-program-definitions"])
+{
+    VerifyHopperAnimationDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

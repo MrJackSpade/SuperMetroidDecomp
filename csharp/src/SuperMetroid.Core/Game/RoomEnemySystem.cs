@@ -2951,9 +2951,9 @@ public sealed partial class RoomEnemySystem
                     // Sidehopper's list passes a library-two sound operand, then the native
                     // instruction returns the cursor after that operand. Audio playback is
                     // an outer concern; publishing the exact word keeps the event observable.
-                    LastHopperSoundEffect = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    LastHopperSoundEffect = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Hopper_ReadyToHop when IsHopperDefinition(slot.EnemyDefinitionPointer):
@@ -3704,6 +3704,9 @@ public sealed partial class RoomEnemySystem
 
         if (IsPlatformDefinition(slot.EnemyDefinitionPointer))
             return PlatformInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (IsHopperDefinition(slot.EnemyDefinitionPointer))
+            return HopperInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);

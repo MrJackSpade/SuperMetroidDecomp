@@ -772,6 +772,11 @@ if (args is ["--elevator-instruction-program-definitions"])
     VerifyElevatorInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--mochtroid-instruction-program-definitions"])
+{
+    VerifyMochtroidInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

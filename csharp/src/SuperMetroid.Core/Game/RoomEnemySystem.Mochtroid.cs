@@ -79,8 +79,6 @@ public sealed class MochtroidEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MochtroidIdleInstructionList = 0xa745;
-    private const ushort MochtroidAttachedInstructionList = 0xa759;
     private const ushort MochtroidAttachmentDamagePeriod = 0x0050;
     private const int MochtroidMaximumVelocity = 3;
     private const int MochtroidAttachedVelocity = 1 << 16;
@@ -106,7 +104,8 @@ public sealed partial class RoomEnemySystem
         };
         _mochtroidStates[slot.SlotIndex] = state;
         slot.Layer = 2;
-        SetMochtroidInstructionList(slot, state, MochtroidIdleInstructionList);
+        SetMochtroidInstructionList(
+            slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
     /// <summary>Ports the reset-before-dispatch behavior of <c>MainAI_Mochtroid</c>.</summary>
@@ -166,7 +165,8 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
             StoreMochtroidXVelocity(state, 0);
 
-        SetMochtroidInstructionList(slot, state, MochtroidIdleInstructionList);
+        SetMochtroidInstructionList(
+            slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
     private static int ClampMochtroidVelocity(int velocity)
@@ -218,7 +218,8 @@ public sealed partial class RoomEnemySystem
         state.ShakeTimer = unchecked((ushort)(state.ShakeTimer - 1));
         if (state.ShakeTimer == 0)
             state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        SetMochtroidInstructionList(slot, state, MochtroidIdleInstructionList);
+        SetMochtroidInstructionList(
+            slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
     private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
@@ -254,7 +255,8 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput)
     {
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
-        SetMochtroidInstructionList(slot, state, MochtroidAttachedInstructionList);
+        SetMochtroidInstructionList(
+            slot, state, MochtroidInstructionProgramDefinitions.Attached);
         state.AttachmentDamageTimer = unchecked((ushort)(state.AttachmentDamageTimer + 1));
 
         bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != 0;

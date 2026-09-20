@@ -2243,7 +2243,7 @@ if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
     var mochtroidBombs = new SamusBombProjectileSystem();
     SamusProjectileSlot mochtroidShot = mochtroidProjectiles.Slots[0];
     mochtroidShot.ClearFields();
-    mochtroidShot.Type = 0;
+    mochtroidShot.Type = SamusProjectileTypeWord.CreateBeam(equippedBeams: 0, charged: false);
     mochtroidShot.Damage = 20;
     mochtroidShot.Direction = 2;
     mochtroidShot.XPosition = auditedMochtroid.XPosition;

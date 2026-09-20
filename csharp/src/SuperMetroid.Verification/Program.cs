@@ -808,6 +808,11 @@ if (args is ["--viola-instruction-program-definitions"])
     VerifyViolaInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--shared-crawler-instruction-program-definitions"])
+{
+    VerifySharedCrawlerInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

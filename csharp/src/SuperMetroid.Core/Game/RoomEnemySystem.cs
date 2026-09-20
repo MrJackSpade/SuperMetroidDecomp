@@ -3722,6 +3722,12 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == ViolaDefinition)
             return ViolaInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer is
+            ZeelaDefinition or SovaDefinition or ZoomerDefinition or StoneZoomerDefinition)
+        {
+            return SharedCrawlerInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

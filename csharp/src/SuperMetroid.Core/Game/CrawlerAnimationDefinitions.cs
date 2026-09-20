@@ -46,7 +46,11 @@ internal static class CrawlerAnimationDefinitions
     /// </summary>
     private static readonly CrawlerAnimationDefinition[] InitialFamilies =
     [
-        new(0xe25c, 0xe278, 0xe294, 0xe2b0),
+        new(
+            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
+            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
+            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
+            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
         new(
             ViolaInstructionProgramDefinitions.UpsideRight,
             ViolaInstructionProgramDefinitions.UpsideLeft,
@@ -75,9 +79,21 @@ internal static class CrawlerAnimationDefinitions
     /// </summary>
     private static readonly CrawlerAnimationDefinition[] SurfaceSpecies =
     [
-        new(0xe25c, 0xe278, 0xe294, 0xe2b0),
-        new(0xe25c, 0xe278, 0xe294, 0xe2b0),
-        new(0xe25c, 0xe278, 0xe294, 0xe2b0),
+        new(
+            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
+            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
+            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
+            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
+        new(
+            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
+            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
+            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
+            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
+        new(
+            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
+            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
+            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
+            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
         new(
             ViolaInstructionProgramDefinitions.UpsideRight,
             ViolaInstructionProgramDefinitions.UpsideLeft,

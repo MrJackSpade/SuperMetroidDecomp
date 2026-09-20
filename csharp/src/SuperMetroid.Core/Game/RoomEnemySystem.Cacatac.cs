@@ -112,10 +112,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort CacatacDefinition = 0xcfff;
 
-    private const ushort CacatacUpsideUpIdleInstructionList = 0x9e8a;
-    private const ushort CacatacUpsideUpAttackInstructionList = 0x9eb0;
-    private const ushort CacatacUpsideDownIdleInstructionList = 0x9eda;
-    private const ushort CacatacUpsideDownAttackInstructionList = 0x9f00;
     private const ushort CacatacSpikeSound = 0x0034;
 
     private readonly CacatacEnemyState?[] _cacatacStates =
@@ -157,8 +153,8 @@ public sealed partial class RoomEnemySystem
         SetCacatacInstructionList(
             slot,
             upsideUp
-                ? CacatacUpsideUpIdleInstructionList
-                : CacatacUpsideDownIdleInstructionList);
+                ? CacatacInstructionProgramDefinitions.UpsideUpIdle
+                : CacatacInstructionProgramDefinitions.UpsideDownIdle);
 
         ushort distance = CacatacMovementDefinitions.TravelDistance((byte)distanceIndex);
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
@@ -250,8 +246,8 @@ public sealed partial class RoomEnemySystem
         SetCacatacInstructionList(
             slot,
             state.UpsideUp
-                ? CacatacUpsideUpAttackInstructionList
-                : CacatacUpsideDownAttackInstructionList);
+                ? CacatacInstructionProgramDefinitions.UpsideUpAttack
+                : CacatacInstructionProgramDefinitions.UpsideDownAttack);
     }
 
     /// <summary>Animation instruction $A2:A095: restore patrol from the direction word.</summary>

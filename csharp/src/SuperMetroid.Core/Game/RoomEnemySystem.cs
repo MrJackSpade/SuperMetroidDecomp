@@ -2832,9 +2832,8 @@ public sealed partial class RoomEnemySystem
                 case EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY when slot.EnemyDefinitionPointer == CacatacDefinition:
                     SpawnCacatacSpike(
                         slot,
-                        ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) |
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
@@ -3610,6 +3609,9 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == PipeBugDefinitions.YellowEnemyDefinition)
             return YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == CacatacDefinition)
+            return CacatacInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);

@@ -3099,3 +3099,16 @@ every production-spawned direction through frame installation and terminal sleep
 mechanics bytes are forbidden. Every presentation operand remains observable,
 presentation and adjacent selector-table pointers fail as mechanics, and warmed lookup is
 allocation-free.
+
+# Cacatac enemy instruction mechanics
+
+Cacatac's upright and inverted idle/attack programs now resolve all 56 fixed durations,
+callbacks, spike-direction operands, gotos, and loop targets through
+`CacatacInstructionProgramDefinitions`. Their 24 interleaved spritemap pointers remain
+live cartridge presentation data, and every production handoff uses the same named entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+idle loops plus both complete attacks through sound, all ten real projectile spawns, and
+patrol restoration while every mechanics byte is forbidden. All presentation operands
+remain observable, presentation and adjacent callback-code pointers fail as mechanics,
+and warmed lookup is allocation-free.

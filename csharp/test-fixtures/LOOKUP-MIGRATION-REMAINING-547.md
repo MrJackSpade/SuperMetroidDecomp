@@ -125,6 +125,10 @@ definition loading, allocator order and copied origin while `$86:D96A-$D97D` is
 forbidden. All ten selected projectile programs now compile their twenty fixed duration
 and terminal-sleep words too, while the ten interleaved spritemap operands remain live
 cartridge presentation data.
+Cacatac's four enemy-body programs now compile all 56 duration, callback, direction,
+goto, and loop-target words as well. Both idle loops and both full attacks execute through
+sound, all ten projectile spawns, and patrol restoration with mechanics bytes forbidden;
+their 24 interleaved spritemap operands remain live presentation reads.
 Atomic's four population-selected initial instruction lists are compiled too.
 All four production initializers retain the previously compiled shared linear
 speed pairs while `$A8:E380-$E387` is forbidden. The selected mixed animation

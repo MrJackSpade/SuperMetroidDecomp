@@ -46,6 +46,7 @@ internal static partial class Program
         VerifyGrowingShutterInstructionProgramDefinitions(rom);
         VerifyVerticalShutterInstructionProgramDefinitions(rom);
         VerifyChootInstructionProgramDefinitions(rom);
+        VerifyNorfairLavaJumperInstructionProgramDefinitions(rom);
         VerifyAtomicMovementDefinitions(rom);
         VerifySbugMovementDefinitions(rom);
         VerifySparkMovementDefinitions(rom);

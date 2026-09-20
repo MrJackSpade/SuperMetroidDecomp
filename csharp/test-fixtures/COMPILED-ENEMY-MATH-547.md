@@ -246,6 +246,10 @@ Choot's idle, jumping, and falling programs compile their off-screen-property ca
 durations, and terminal sleeps. The real initializer, jump preparation, and apex handoffs
 execute all three programs while five spritemap operands remain live presentation data.
 
+The Norfair lava jumper's hidden, jumping, and follower programs compile 23 control words.
+Both real initializers, the rise-to-jump handoff, animation handshake, and complete follower
+loop execute while all fourteen spritemap operands remain live presentation data.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

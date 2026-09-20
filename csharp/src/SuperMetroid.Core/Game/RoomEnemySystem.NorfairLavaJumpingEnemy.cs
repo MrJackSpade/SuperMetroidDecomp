@@ -78,10 +78,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort NorfairLavaJumpingEnemyDefinition = 0xd2bf;
 
-    private const ushort NorfairLavaJumpingEnemyHiddenInstructionList = 0xbe3c;
-    private const ushort NorfairLavaJumpingEnemyJumpInstructionList = 0xbe42;
-    private const ushort NorfairLavaJumpingEnemyFollowerInstructionList = 0xbe62;
-    private const ushort NorfairLavaJumpingEnemyAnimationSignalInstruction = 0xbe8e;
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
     private const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
@@ -118,7 +114,7 @@ public sealed partial class RoomEnemySystem
             // after its moving parent. Its main AI relies on WRAM aliasing across those two
             // physical 64-byte records, so reject reordered/custom populations explicitly.
             ValidateNorfairLavaJumpingEnemyParent(slot);
-            slot.CurrentInstruction = NorfairLavaJumpingEnemyFollowerInstructionList;
+            slot.CurrentInstruction = NorfairLavaJumperInstructionProgramDefinitions.Follower;
             state.Function = NorfairLavaJumpingEnemyFunction.FollowParent;
             return;
         }
@@ -127,7 +123,7 @@ public sealed partial class RoomEnemySystem
         // arc. Subpositions are deliberately not saved or cleared by the retail routine.
         state.SpawnX = slot.XPosition;
         state.SpawnY = slot.YPosition;
-        slot.CurrentInstruction = NorfairLavaJumpingEnemyHiddenInstructionList;
+        slot.CurrentInstruction = NorfairLavaJumperInstructionProgramDefinitions.Hidden;
         state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
     }
 
@@ -166,7 +162,7 @@ public sealed partial class RoomEnemySystem
                     InstallNorfairLavaJumpingEnemyInstructionList(
                         slot,
                         state,
-                        NorfairLavaJumpingEnemyJumpInstructionList);
+                        NorfairLavaJumperInstructionProgramDefinitions.Jump);
                     state.Function = NorfairLavaJumpingEnemyFunction.MoveUntilAnimationSignal;
                 }
                 return;
@@ -194,7 +190,7 @@ public sealed partial class RoomEnemySystem
                     InstallNorfairLavaJumpingEnemyInstructionList(
                         slot,
                         state,
-                        NorfairLavaJumpingEnemyHiddenInstructionList);
+                        NorfairLavaJumperInstructionProgramDefinitions.Hidden);
                     state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                 }
@@ -217,7 +213,7 @@ public sealed partial class RoomEnemySystem
         ref ushort cursor)
     {
         if (slot.EnemyDefinitionPointer != NorfairLavaJumpingEnemyDefinition ||
-            opcode != NorfairLavaJumpingEnemyAnimationSignalInstruction)
+            opcode != NorfairLavaJumperInstructionProgramDefinitions.AnimationFinishedCallback)
         {
             return false;
         }

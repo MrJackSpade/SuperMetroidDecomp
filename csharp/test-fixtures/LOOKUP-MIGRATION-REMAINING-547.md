@@ -181,6 +181,9 @@ Kago's slow and post-hit loops now compile all twelve duration, goto, and loop-t
 while retaining eight live spritemap operands. The real initializer executes the complete
 slow loop, and the real shot tail spawns its Kago bug before executing the complete fast
 loop, with mechanics reads forbidden throughout.
+The horizontal shutter's stationary program now compiles its one-frame duration and
+terminal sleep while retaining its live spritemap operand. The real shootable-shutter
+initializer reaches terminal sleep with mechanics reads forbidden.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

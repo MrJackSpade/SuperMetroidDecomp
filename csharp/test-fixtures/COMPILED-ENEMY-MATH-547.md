@@ -230,6 +230,10 @@ The real initializer executes the complete four-map ten-frame loop, while the re
 shot tail keeps its earthquake, hit-counter and bug-spawn side effects before switching to
 the complete three-frame loop. All eight interleaved spritemap operands remain live.
 
+The horizontal shutter's stationary program compiles its one-frame duration and terminal
+sleep. The real shootable-shutter initializer reaches the sleep through the production
+interpreter without reading either mechanics word; its spritemap remains live presentation.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

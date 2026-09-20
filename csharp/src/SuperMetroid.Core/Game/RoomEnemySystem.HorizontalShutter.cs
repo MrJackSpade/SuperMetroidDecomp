@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort HorizontalShutterInstruction = 0xe9d4;
     private const short HorizontalShutterManualPushPixels = 4;
 
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
@@ -306,7 +305,7 @@ public sealed partial class RoomEnemySystem
 
     private static void InstallHorizontalShutterInstruction(RoomEnemySlot slot)
     {
-        slot.CurrentInstruction = HorizontalShutterInstruction;
+        slot.CurrentInstruction = HorizontalShutterInstructionProgramDefinitions.Stationary;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

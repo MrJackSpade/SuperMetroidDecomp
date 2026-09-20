@@ -3646,6 +3646,11 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == KagoDefinition)
             return KagoInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition)
+        {
+            return HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

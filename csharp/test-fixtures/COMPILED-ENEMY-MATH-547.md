@@ -3371,3 +3371,16 @@ Verification compares all three commands with the pinned cartridge and executes 
 production initializer through deletion while the source mechanics bytes are forbidden.
 The adjacent unused visible-loop program is rejected as mechanics, and warmed lookup is
 allocation-free.
+
+# Kraid fingernail instruction mechanics
+
+Kraid's good and bad reusable fingernail actors now resolve all eight fixed frame
+durations, the terminal goto, and its loop target through
+`KraidNailInstructionProgramDefinitions`. Their eight interleaved spritemap pointers
+remain live cartridge presentation data, and both initialization and relaunch use the
+same named program entry.
+
+Verification compares all ten mechanics words with the pinned cartridge and executes a
+complete loop for both enemy definitions while every mechanics byte is forbidden. All
+eight presentation operands remain observable, presentation and adjacent Kraid-arm data
+fail as mechanics, and warmed lookup is allocation-free.

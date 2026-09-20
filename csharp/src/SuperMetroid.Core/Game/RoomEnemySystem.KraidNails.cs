@@ -68,7 +68,7 @@ public sealed partial class RoomEnemySystem
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         nail.InstructionTimer = 1;
-        nail.CurrentInstruction = KraidNailInstruction;
+        nail.CurrentInstruction = KraidNailInstructionProgramDefinitions.Loop;
         nail.VariableA = (ushort)KraidAiFunction.FingernailFire;
 
         if ((random & 1) == 0 || siblingPart.AlternateSpawnFlag == 1)

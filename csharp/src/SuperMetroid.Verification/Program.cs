@@ -868,6 +868,11 @@ if (args is ["--tourian-entrance-statue-instruction-program-definitions"])
     VerifyTourianEntranceStatueInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kraid-nail-instruction-program-definitions"])
+{
+    VerifyKraidNailInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

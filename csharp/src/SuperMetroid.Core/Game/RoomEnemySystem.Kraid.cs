@@ -14,7 +14,6 @@ public sealed partial class RoomEnemySystem
     private const ushort KraidInitialLintInstruction = KraidInstructionLists.InitialLint;
     private const ushort KraidInitialLintSpritemap = 0xa5df;
     private const ushort KraidInitialFootInstruction = KraidInstructionLists.InitialFoot;
-    private const ushort KraidNailInstruction = KraidInstructionLists.Nail;
 
     /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
     public KraidSoundRequest? LastKraidSoundEffect { get; private set; }
@@ -157,7 +156,7 @@ public sealed partial class RoomEnemySystem
         nail.VariableB = 40;
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.InstructionTimer = 0x7fff;
-        nail.CurrentInstruction = KraidNailInstruction;
+        nail.CurrentInstruction = KraidNailInstructionProgramDefinitions.Loop;
         nail.SpritemapPointer = ReadWord(
             _bus!, EnemyRomTablePointers.Kraid.InitialNailSpritemapWord);
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;

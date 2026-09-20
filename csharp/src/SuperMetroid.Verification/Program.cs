@@ -818,6 +818,11 @@ if (args is ["--dachora-instruction-program-definitions"])
     VerifyDachoraInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--fireflea-instruction-program-definitions"])
+{
+    VerifyFirefleaInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

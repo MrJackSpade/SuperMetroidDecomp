@@ -3731,6 +3731,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == DachoraDefinition)
             return DachoraInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == FirefleaDefinition)
+            return FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

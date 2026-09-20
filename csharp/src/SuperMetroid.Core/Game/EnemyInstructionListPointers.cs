@@ -8,7 +8,7 @@ internal static class OrdinaryEnemyInstructionLists
     /// <summary><c>kMetalee_Ilist_8910</c> at $A3:8910.</summary>
     public const ushort MetareeInitial = 0x8910;
     /// <summary><c>kFireflea_Ilist_8C2F</c> at $A3:8C2F.</summary>
-    public const ushort FirefleaInitial = 0x8c2f;
+    public const ushort FirefleaInitial = FirefleaInstructionProgramDefinitions.Loop;
     /// <summary><c>kSkree_Ilist_C65E</c> at $A3:C65E.</summary>
     public const ushort SkreeInitial = 0xc65e;
 }

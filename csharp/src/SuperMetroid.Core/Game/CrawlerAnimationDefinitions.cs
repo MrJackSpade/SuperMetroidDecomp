@@ -47,7 +47,11 @@ internal static class CrawlerAnimationDefinitions
     private static readonly CrawlerAnimationDefinition[] InitialFamilies =
     [
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
-        new(0xb5e3, 0xb5eb, 0xb5d3, 0xb5db),
+        new(
+            ViolaInstructionProgramDefinitions.UpsideRight,
+            ViolaInstructionProgramDefinitions.UpsideLeft,
+            ViolaInstructionProgramDefinitions.UpsideDown,
+            ViolaInstructionProgramDefinitions.UpsideUp),
         new(
             SciserInstructionProgramDefinitions.UpsideRight,
             SciserInstructionProgramDefinitions.UpsideLeft,
@@ -74,7 +78,11 @@ internal static class CrawlerAnimationDefinitions
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
         new(0xe25c, 0xe278, 0xe294, 0xe2b0),
-        new(0xb5e3, 0xb5eb, 0xb5d3, 0xb5db),
+        new(
+            ViolaInstructionProgramDefinitions.UpsideRight,
+            ViolaInstructionProgramDefinitions.UpsideLeft,
+            ViolaInstructionProgramDefinitions.UpsideDown,
+            ViolaInstructionProgramDefinitions.UpsideUp),
         new(
             SciserInstructionProgramDefinitions.UpsideRight,
             SciserInstructionProgramDefinitions.UpsideLeft,

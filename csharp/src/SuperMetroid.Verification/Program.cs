@@ -803,6 +803,11 @@ if (args is ["--zero-instruction-program-definitions"])
     VerifyZeroInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--viola-instruction-program-definitions"])
+{
+    VerifyViolaInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

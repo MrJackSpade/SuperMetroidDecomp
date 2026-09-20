@@ -3299,3 +3299,18 @@ production entry through its complete loop while mechanics bytes are forbidden. 
 callback identities and all 52 presentation operands are exercised, both initializer
 variants allocate their native four-link body and root object, invalid mechanics pointers
 fail loudly, and warmed lookup is allocation-free.
+
+# Ordinary Metroid instruction mechanics
+
+Ordinary Metroids' twenty-frame chasing loop and five-frame draining loop now resolve all
+31 fixed durations, sound callbacks, gotos, and loop targets through
+`MetroidInstructionProgramDefinitions`. Their 25 interleaved spritemap pointers remain
+live cartridge presentation data, and initialization plus every behavior handoff use the
+same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+complete loops while mechanics bytes are forbidden. The chasing callback advances RNG
+exactly once and publishes the selected cry; the draining callback publishes its fixed
+sound without touching RNG. The real initializer allocates both outer-body sprite objects,
+all presentation operands remain observable, invalid mechanics pointers fail loudly, and
+warmed lookup is allocation-free.

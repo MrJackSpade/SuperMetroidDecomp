@@ -843,6 +843,11 @@ if (args is ["--yapping-maw-instruction-program-definitions"])
     VerifyYappingMawInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--metroid-instruction-program-definitions"])
+{
+    VerifyMetroidInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

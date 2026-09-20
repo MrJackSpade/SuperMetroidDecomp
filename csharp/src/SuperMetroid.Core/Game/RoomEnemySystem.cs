@@ -3746,6 +3746,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == YappingMawDefinition)
             return YappingMawInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == MetroidDefinition)
+            return MetroidInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

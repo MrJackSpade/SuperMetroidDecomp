@@ -69,7 +69,11 @@ internal static partial class Program
             AssertEqual(timer == 1 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,
                 state.Function,
                 $"production Metroid escape function {timer}");
-            AssertEqual(timer == 1 ? 0xe9cf : 0x7777, slot.CurrentInstruction,
+            AssertEqual(
+                timer == 1
+                    ? MetroidInstructionProgramDefinitions.ChasingSamus
+                    : (ushort)0x7777,
+                slot.CurrentInstruction,
                 $"production Metroid escape instruction {timer}");
         }
     }
@@ -95,18 +99,21 @@ internal static partial class Program
             slot.EnemyDefinitionPointer = RoomEnemySystem.MetroidDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.InstructionTimer = 1;
-            slot.CurrentInstruction = MetroidBehaviorReadGuard.ScriptPointer;
+            slot.CurrentInstruction =
+                MetroidInstructionProgramDefinitions.ChasingSoundCallback;
 
             process.Invoke(enemies, [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
 
             AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
                 enemies.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
                 $"production Metroid random cry {random}");
-            AssertEqual(1, slot.InstructionTimer,
+            AssertEqual(16, slot.InstructionTimer,
                 $"production Metroid script timer {random}");
-            AssertEqual(0x1234, slot.SpritemapPointer,
+            AssertEqual(ReadMetroidBehaviorWord(rom, 0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
-            AssertEqual(MetroidBehaviorReadGuard.ScriptPointer + 6, slot.CurrentInstruction,
+            AssertEqual(
+                unchecked((ushort)(MetroidInstructionProgramDefinitions.ChasingSamus + 4)),
+                slot.CurrentInstruction,
                 $"production Metroid script continuation {random}");
         }
     }
@@ -117,8 +124,6 @@ internal static partial class Program
     private sealed class MetroidBehaviorReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal const ushort ScriptPointer = 0x8000;
-
         public byte ReadByte(int address)
         {
             if (address is >= 0xa3ea3f and < 0xa3ea4f ||
@@ -127,17 +132,7 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Metroid behavior attempted migrated table read ${address:X6}.");
             }
-
-            return address switch
-            {
-                0xa38000 => unchecked((byte)EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX),
-                0xa38001 => (byte)(EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX >> 8),
-                0xa38002 => 0x01,
-                0xa38003 => 0x00,
-                0xa38004 => 0x34,
-                0xa38005 => 0x12,
-                _ => source.ReadByte(address),
-            };
+            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

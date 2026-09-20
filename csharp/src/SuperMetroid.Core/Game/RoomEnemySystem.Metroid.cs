@@ -107,8 +107,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort MetroidDefinition = 0xdd7f;
 
-    private const ushort MetroidIdleInstructionList = 0xe9cf;
-    private const ushort MetroidAttachedInstructionList = 0xea25;
     private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
     private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;
     private const ushort MetroidFrozenSpritePalette = 0x0c00;
@@ -159,7 +157,7 @@ public sealed partial class RoomEnemySystem
             Function = MetroidAiFunction.Homing,
         };
         _metroidStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = MetroidIdleInstructionList;
+        slot.CurrentInstruction = MetroidInstructionProgramDefinitions.ChasingSamus;
     }
 
     /// <summary>Ports <c>Metroid_Main</c> and its four-entry movement dispatch.</summary>
@@ -285,7 +283,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = MetroidAiFunction.Homing;
-        SetMetroidInstructionList(slot, MetroidIdleInstructionList);
+        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
     }
 
     /// <summary>Ports the family-specific tail of <c>Metroid_Frozen</c>.</summary>
@@ -340,7 +338,9 @@ public sealed partial class RoomEnemySystem
                     state,
                     unchecked((short)(slot.YPosition - targetY)) << 14);
                 state.Function = MetroidAiFunction.Homing;
-                SetMetroidInstructionList(slot, MetroidIdleInstructionList);
+                SetMetroidInstructionList(
+                    slot,
+                    MetroidInstructionProgramDefinitions.ChasingSamus);
             }
             return;
         }
@@ -364,7 +364,7 @@ public sealed partial class RoomEnemySystem
 
         state.Function = MetroidAiFunction.AttachedToSamus;
         samus.SpecialSuperPaletteFlags = 1;
-        SetMetroidInstructionList(slot, MetroidAttachedInstructionList);
+        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.DrainingSamus);
     }
 
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
@@ -414,7 +414,7 @@ public sealed partial class RoomEnemySystem
             state,
             unchecked((short)(slot.YPosition - recoilOriginY)) << 13);
         state.Function = MetroidAiFunction.Homing;
-        SetMetroidInstructionList(slot, MetroidIdleInstructionList);
+        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
 
         if ((collisionProjectileType & 0x0002) != 0)
         {
@@ -440,7 +440,7 @@ public sealed partial class RoomEnemySystem
     {
         state.EscapeTimer = MetroidEscapeDuration;
         state.Function = MetroidAiFunction.PowerBombEscape;
-        SetMetroidInstructionList(slot, MetroidIdleInstructionList);
+        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
         if (samus is not null)
             samus.SpecialSuperPaletteFlags = 0;
     }

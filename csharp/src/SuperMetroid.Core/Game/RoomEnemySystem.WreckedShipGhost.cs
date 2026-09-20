@@ -109,7 +109,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort WreckedShipGhostDefinition = 0xe77f;
 
-    private const ushort WreckedShipGhostInstructionList = 0x9a8c;
     private const ushort WreckedShipGhostInitialDelay = 0x0118; // $78 + $A0 at $A8:9B17.
     private const ushort WreckedShipGhostVisibleDuration = 0x0078;
     private const ushort WreckedShipGhostStablePositionDuration = 0x0040;
@@ -172,7 +171,7 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.Invisible);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = WreckedShipGhostInstructionList;
+        slot.CurrentInstruction = WreckedShipGhostInstructionProgramDefinitions.Floating;
 
         var state = new WreckedShipGhostEnemyState(slot)
         {

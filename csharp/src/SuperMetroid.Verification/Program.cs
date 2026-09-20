@@ -147,6 +147,11 @@ if (args is ["--powamp-instruction-mechanics"])
     VerifyPowampInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--wrecked-ship-ghost-instruction-mechanics"])
+{
+    VerifyWreckedShipGhostInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

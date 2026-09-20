@@ -3667,6 +3667,12 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == PowampDefinition)
             return PowampInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == WreckedShipGhostDefinition)
+        {
+            return WreckedShipGhostInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

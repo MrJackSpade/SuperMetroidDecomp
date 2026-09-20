@@ -2615,9 +2615,9 @@ public sealed partial class RoomEnemySystem
                 case EnemyInstructionCodePointers.Instruction_Stoke_SpawnFireball when slot.EnemyDefinitionPointer == StokeDefinition:
                     SpawnStokeProjectile(
                         slot,
-                        ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2))));
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Stoke_SetMovingLeft when slot.EnemyDefinitionPointer == StokeDefinition:
@@ -3621,6 +3621,9 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == OwtchDefinition)
             return OwtchInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == StokeDefinition)
+            return StokeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);

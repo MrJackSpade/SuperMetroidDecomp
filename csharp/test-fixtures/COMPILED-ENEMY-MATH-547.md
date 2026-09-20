@@ -2098,6 +2098,21 @@ native behavior state, all six presentation operands remain observable while mec
 bytes are forbidden, invalid mechanics pointers fail loudly, and warmed lookup is
 allocation-free.
 
+# Stoke instruction mechanics
+
+Stoke's paired walking loops and directional attacks now resolve all twenty-six fixed
+callbacks, durations, projectile-direction operands, gotos, and loop targets through
+`StokeInstructionProgramDefinitions`. Their twelve interleaved spritemap pointers remain
+live cartridge presentation data, and every initializer, turn, and attack handoff names
+the same compiled program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four production programs through their loop or walking handoff. Both attacks spawn their
+real directional projectile and restore the native walking owner; both walking callbacks
+publish the matching direction/function. Every presentation operand remains observable
+while mechanics bytes are forbidden, invalid pointers fail loudly, and warmed lookup is
+allocation-free.
+
 # Nuclear Waffle sweep geometry
 
 `NuclearWaffleDefinitions` combines each authored direction's paired sweep

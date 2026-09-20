@@ -159,6 +159,10 @@ while `$A2:A3DD-$A3F8` is forbidden.
 Its paired left/right animation loops now compile all twelve callback, duration, goto,
 and loop-target words while retaining six live spritemap presentation operands. Both
 production streams execute past their native goto with mechanics reads forbidden.
+Stoke's two walking loops and two directional attacks now compile all twenty-six callback,
+duration, projectile-direction, goto, and loop-target words while retaining twelve live
+spritemap presentation operands. Both real attacks spawn the expected projectile and
+return to the matching compiled walking stream with mechanics reads forbidden.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

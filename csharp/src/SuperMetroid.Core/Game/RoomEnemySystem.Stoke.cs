@@ -89,10 +89,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort StokeDefinition = 0xceff;
 
-    private const ushort StokeMovingLeftInstructionList = 0x8932;
-    private const ushort StokeAttackingLeftInstructionList = 0x8948;
-    private const ushort StokeMovingRightInstructionList = 0x8958;
-    private const ushort StokeAttackingRightInstructionList = 0x896e;
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
     private readonly StokeEnemyState?[] _stokeStates =
@@ -131,10 +127,10 @@ public sealed partial class RoomEnemySystem
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
         // restores the transient empty map, and the first instruction tick supplies art.
         slot.SpritemapPointer = 0x804d;
-        SetStokeInstructionList(slot, StokeMovingLeftInstructionList);
+        SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingLeft);
         if (slot.Parameter1 != 0)
         {
-            SetStokeInstructionList(slot, StokeMovingRightInstructionList);
+            SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
             state.Function = StokeAiFunction.MovingRight;
         }
     }
@@ -156,7 +152,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     level,
                     ((int)(short)state.LeftVelocity << 16) | state.LeftSubvelocity,
-                    StokeAttackingLeftInstructionList);
+                    StokeInstructionProgramDefinitions.AttackingLeft);
                 return;
 
             case StokeAiFunction.MovingRight:
@@ -165,7 +161,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     level,
                     ((int)(short)state.RightVelocity << 16) | state.RightSubvelocity,
-                    StokeAttackingRightInstructionList);
+                    StokeInstructionProgramDefinitions.AttackingRight);
                 return;
 
             default:
@@ -227,9 +223,9 @@ public sealed partial class RoomEnemySystem
         // The routine always selects the left wrapper first, then replaces it with right
         // only when the old direction was not one. It does not update direction/function;
         // the wrapper command executes later in this same enemy instruction phase.
-        SetStokeInstructionList(slot, StokeMovingLeftInstructionList);
+        SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingLeft);
         if (state.Direction != StokeDirection.Right)
-            SetStokeInstructionList(slot, StokeMovingRightInstructionList);
+            SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
     }
 
     private static void SetStokeInstructionList(RoomEnemySlot slot, ushort instructionList)

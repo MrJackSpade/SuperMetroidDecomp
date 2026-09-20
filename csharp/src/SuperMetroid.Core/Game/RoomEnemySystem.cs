@@ -2903,23 +2903,25 @@ public sealed partial class RoomEnemySystem
                 case EnemyInstructionCodePointers.Instruction_Yard_MovementFunctionInY when slot.EnemyDefinitionPointer == YardDefinition:
                     // Yard animation bytecode owns movement dispatch. The word after the
                     // opcode is a same-bank function pointer, not a branch destination.
-                    RequireYardState(slot).MovementFunction = (YardMovementFunction)ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    RequireYardState(slot).MovementFunction = (YardMovementFunction)
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Yard_HidingInstListInY when slot.EnemyDefinitionPointer == YardDefinition:
-                    RequireYardState(slot).HidingInstructionList = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    RequireYardState(slot).HidingInstructionList =
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Yard_DirectionInY when slot.EnemyDefinitionPointer == YardDefinition:
                 {
                     YardEnemyState yard = RequireYardState(slot);
-                    yard.Direction = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    yard.Direction = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                     if (yard.Direction >= 8)
                     {
                         throw new InvalidDataException(
@@ -2932,12 +2934,14 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 case EnemyInstructionCodePointers.Instruction_Yard_MoveByPixelsInY when slot.EnemyDefinitionPointer == YardDefinition:
-                    slot.XPosition = unchecked((ushort)(slot.XPosition + ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))));
-                    slot.YPosition = unchecked((ushort)(slot.YPosition + ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
+                    slot.XPosition = unchecked((ushort)(slot.XPosition +
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)))));
+                    slot.YPosition = unchecked((ushort)(slot.YPosition +
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 4)))));
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Yard_GoBack4BytesIfHidingOr50PercentChance when slot.EnemyDefinitionPointer == YardDefinition:
@@ -3548,6 +3552,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer == YardDefinition)
+            return YardInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
             return WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(address);
 

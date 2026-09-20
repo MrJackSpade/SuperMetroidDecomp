@@ -16,14 +16,22 @@ internal static class YardTurnDefinitions
     /// </summary>
     private static readonly YardTurnDefinition[] OrdinaryTurns =
     [
-        new(-7, 0, 0xc8fc, 0xca76),
-        new(0, 7, 0xc932, 0xcabe),
-        new(7, 0, 0xc968, 0xcaa6),
-        new(0, -7, 0xc8c6, 0xca8e),
-        new(7, 0, 0xc9d4, 0xcad6),
-        new(0, 7, 0xca0a, 0xcb1e),
-        new(-7, 0, 0xca40, 0xcb06),
-        new(0, -7, 0xc99e, 0xcaee),
+        new(-7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingLeft,
+            YardInstructionProgramDefinitions.InsideTurnUpsideUpMovingLeft),
+        new(0, 7, YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingDown,
+            YardInstructionProgramDefinitions.InsideTurnUpsideLeftMovingDown),
+        new(7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingRight,
+            YardInstructionProgramDefinitions.InsideTurnUpsideDownMovingRight),
+        new(0, -7, YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingUp,
+            YardInstructionProgramDefinitions.InsideTurnUpsideRightMovingUp),
+        new(7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingRight,
+            YardInstructionProgramDefinitions.InsideTurnUpsideUpMovingRight),
+        new(0, 7, YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingDown,
+            YardInstructionProgramDefinitions.InsideTurnUpsideRightMovingDown),
+        new(-7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingLeft,
+            YardInstructionProgramDefinitions.InsideTurnUpsideDownMovingLeft),
+        new(0, -7, YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingUp,
+            YardInstructionProgramDefinitions.InsideTurnUpsideLeftMovingUp),
     ];
 
     /// <summary>
@@ -33,10 +41,14 @@ internal static class YardTurnDefinitions
     /// </summary>
     private static readonly YardTurnDefinition[] SuppressedTurns =
     [
-        new(0, 0, 0xc916, 0xc982),
-        new(0, 0, 0xc982, 0xc916),
-        new(0, 0, 0xc9ee, 0xca5a),
-        new(0, 0, 0xca5a, 0xc9ee),
+        new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown,
+            YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp),
+        new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp,
+            YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown),
+        new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown,
+            YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp),
+        new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp,
+            YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown),
     ];
 
     /// <summary>

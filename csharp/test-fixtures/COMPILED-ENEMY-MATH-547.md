@@ -3442,3 +3442,18 @@ Verification compares every mechanics word with the pinned cartridge and execute
 presentation operands through the production interpreter, rejects presentation, odd,
 and adjacent initialization-AI pointers as mechanics, and proves warmed lookup is
 allocation-free.
+
+# Yard instruction mechanics
+
+Yard's crawling, outside-turn, inside-turn, hiding, hidden, and airborne programs now
+resolve all 328 fixed callback, movement-function, direction, displacement, duration,
+goto, and branch-target words through `YardInstructionProgramDefinitions`. Their 112
+interleaved spritemap operands remain live cartridge presentation data, and direction,
+turn, detach, kick, shot, landing, and instruction-callback owners use the same named
+entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+38 authored entries while every mechanics byte is forbidden. It reaches all 112 live
+presentation operands through the production interpreter, rejects presentation, odd,
+and adjacent callback-code pointers as mechanics, and proves warmed lookup is
+allocation-free.

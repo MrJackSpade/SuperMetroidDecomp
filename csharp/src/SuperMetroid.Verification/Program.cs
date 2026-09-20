@@ -893,6 +893,11 @@ if (args is ["--work-robot-instruction-program-definitions"])
     VerifyWorkRobotInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--yard-instruction-program-definitions"])
+{
+    VerifyYardInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

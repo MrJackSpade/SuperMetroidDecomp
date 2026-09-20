@@ -26,14 +26,30 @@ internal static class YardDirectionDefinitions
     /// </summary>
     private static readonly YardDirectionDefinition[] Directions =
     [
-        new(0xc982, 0x0002, 0xcb9e, 0, 1, YardMovementFunction.CrawlingUpsideDownMovingLeft),
-        new(0xc9ee, 0x0003, 0xcbec, 1, 0, YardMovementFunction.CrawlingUpsideRightMovingDown),
-        new(0xca5a, 0x0002, 0xcbb8, 1, 3, YardMovementFunction.CrawlingUpsideLeftMovingUp),
-        new(0xc916, 0x0003, 0xcbd2, 0, 2, YardMovementFunction.CrawlingUpsideLeftMovingDown),
-        new(0xca24, 0x0000, 0xcb50, 1, 5, YardMovementFunction.CrawlingUpsideRightMovingUp),
-        new(0xc94c, 0x0001, 0xcb6a, 0, 4, YardMovementFunction.CrawlingUpsideDownMovingRight),
-        new(0xc8e0, 0x0000, 0xcb36, 0, 7, YardMovementFunction.CrawlingUpsideUpMovingLeft),
-        new(0xc9b8, 0x0001, 0xcb84, 1, 6, YardMovementFunction.CrawlingUpsideUpMovingRight),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp, 0x0002,
+            YardInstructionProgramDefinitions.HidingUpsideRightMovingUp, 0, 1,
+            YardMovementFunction.CrawlingUpsideDownMovingLeft),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown, 0x0003,
+            YardInstructionProgramDefinitions.HidingUpsideRightMovingDown, 1, 0,
+            YardMovementFunction.CrawlingUpsideRightMovingDown),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp, 0x0002,
+            YardInstructionProgramDefinitions.HidingUpsideLeftMovingUp, 1, 3,
+            YardMovementFunction.CrawlingUpsideLeftMovingUp),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown, 0x0003,
+            YardInstructionProgramDefinitions.HidingUpsideLeftMovingDown, 0, 2,
+            YardMovementFunction.CrawlingUpsideLeftMovingDown),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideDownMovingLeft, 0x0000,
+            YardInstructionProgramDefinitions.HidingUpsideDownMovingLeft, 1, 5,
+            YardMovementFunction.CrawlingUpsideRightMovingUp),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideDownMovingRight, 0x0001,
+            YardInstructionProgramDefinitions.HidingUpsideDownMovingRight, 0, 4,
+            YardMovementFunction.CrawlingUpsideDownMovingRight),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideUpMovingLeft, 0x0000,
+            YardInstructionProgramDefinitions.HidingUpsideUpMovingLeft, 0, 7,
+            YardMovementFunction.CrawlingUpsideUpMovingLeft),
+        new(YardInstructionProgramDefinitions.CrawlingUpsideUpMovingRight, 0x0001,
+            YardInstructionProgramDefinitions.HidingUpsideUpMovingRight, 1, 6,
+            YardMovementFunction.CrawlingUpsideUpMovingRight),
     ];
 
     /// <summary>
@@ -43,8 +59,10 @@ internal static class YardDirectionDefinitions
     /// </summary>
     private static readonly YardAirborneInstructionDefinition[] AirborneInstructions =
     [
-        new(0xcc06, 0xcb44),
-        new(0xcc1e, 0xcb92),
+        new(YardInstructionProgramDefinitions.AirborneFacingLeft,
+            YardInstructionProgramDefinitions.HiddenUpsideUpMovingLeft),
+        new(YardInstructionProgramDefinitions.AirborneFacingRight,
+            YardInstructionProgramDefinitions.HiddenUpsideUpMovingRight),
     ];
 
     /// <summary>Returns one of the eight physical surface-direction definitions.</summary>

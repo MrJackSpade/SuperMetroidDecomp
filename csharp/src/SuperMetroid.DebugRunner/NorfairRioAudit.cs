@@ -356,7 +356,9 @@ internal static class NorfairRioAudit
     private static void ArmLethalBeam(SamusProjectileSlot projectile, RoomEnemySlot target)
     {
         projectile.ClearFields();
-        projectile.Type = (ushort)SamusProjectileFamily.Beam;
+        projectile.Type = SamusProjectileTypeWord.CreateBeam(
+            equippedBeams: 0,
+            charged: false);
         projectile.Damage = 1000;
         projectile.Direction = (ushort)SamusProjectileDirection.Right;
         projectile.XPosition = target.XPosition;

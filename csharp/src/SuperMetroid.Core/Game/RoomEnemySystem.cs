@@ -3740,6 +3740,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer is EvirDefinition or EvirProjectileDefinition)
             return EvirInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == MorphBallEyeDefinition)
+            return MorphBallEyeInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

@@ -155,19 +155,18 @@ public sealed partial class RoomEnemySystem
     private const ushort EyeTransitionDuration = 0x0020;
     private const ushort EyeActivationSound = 0x0017;
     private const ushort EyeDeactivationSound = 0x0071;
-    private const ushort EyeActiveInstructionTable = 0x8fac;
-    private const ushort EyeFacingRightDeactivatingInstruction = 0x8ff0;
-    private const ushort EyeFacingRightClosedInstruction = 0x8ffc;
-    private const ushort EyeFacingLeftDeactivatingInstruction = 0x9002;
-    private const ushort EyeFacingLeftClosedInstruction = 0x900e;
-    private const ushort EyeFacingRightActivatingInstruction = 0x9014;
-    private const ushort EyeFacingLeftActivatingInstruction = 0x9026;
 
     // Parameter two's low nibble selects left/right/up/down. The offset and instruction
     // tables retain their native ordering rather than hiding the relationship in branches.
     private static readonly short[] EyeMountXOffsets = [-8, 8, 0, 0];
     private static readonly short[] EyeMountYOffsets = [0, 0, -8, 8];
-    private static readonly ushort[] EyeMountInstructionLists = [0x9044, 0x9038, 0x904a, 0x903e];
+    private static readonly ushort[] EyeMountInstructionLists =
+    [
+        MorphBallEyeInstructionProgramDefinitions.MountFacingLeft,
+        MorphBallEyeInstructionProgramDefinitions.MountFacingRight,
+        MorphBallEyeInstructionProgramDefinitions.MountFacingUp,
+        MorphBallEyeInstructionProgramDefinitions.MountFacingDown,
+    ];
 
     // $88:EA8B is stored as interleaved COLDATA bytes plus one padding byte per entry.
     // Selector bits are retained because the fade routine compares/decrements raw bytes.
@@ -206,8 +205,8 @@ public sealed partial class RoomEnemySystem
             // Parameter one bit zero is a fixed mounting direction, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
             slot.CurrentInstruction = (slot.Parameter1 & 1) == 0
-                ? EyeFacingRightClosedInstruction
-                : EyeFacingLeftClosedInstruction;
+                ? MorphBallEyeInstructionProgramDefinitions.FacingRightClosed
+                : MorphBallEyeInstructionProgramDefinitions.FacingLeftClosed;
             return;
         }
 
@@ -276,8 +275,8 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = EyeTransitionDuration;
         eye.InstructionTimer = 1;
         eye.CurrentInstruction = (eye.Parameter1 & 1) == 0
-            ? EyeFacingRightActivatingInstruction
-            : EyeFacingLeftActivatingInstruction;
+            ? MorphBallEyeInstructionProgramDefinitions.FacingRightActivating
+            : MorphBallEyeInstructionProgramDefinitions.FacingLeftActivating;
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
@@ -313,8 +312,8 @@ public sealed partial class RoomEnemySystem
             state.ActivatedFlag = 0;
             state.FunctionTimer = EyeTransitionDuration;
             eye.CurrentInstruction = (eye.Parameter1 & 1) == 0
-                ? EyeFacingRightDeactivatingInstruction
-                : EyeFacingLeftDeactivatingInstruction;
+                ? MorphBallEyeInstructionProgramDefinitions.FacingRightDeactivating
+                : MorphBallEyeInstructionProgramDefinitions.FacingLeftDeactivating;
             state.Function = MorphBallEyeAiFunction.Deactivating;
             eye.InstructionTimer = 1;
             return;
@@ -325,7 +324,8 @@ public sealed partial class RoomEnemySystem
         // Sixteen four-byte duration/map records begin at $8FAC. The high angle nibble is
         // shifted down by two, producing byte offsets $00,$04,...,$3C exactly as native.
         eye.CurrentInstruction = unchecked((ushort)(
-            EyeActiveInstructionTable + ((state.Angle.TableIndex & 0x00f0) >> 2)));
+            MorphBallEyeInstructionProgramDefinitions.Active +
+            ((state.Angle.TableIndex & 0x00f0) >> 2)));
         eye.InstructionTimer = 1;
     }
 

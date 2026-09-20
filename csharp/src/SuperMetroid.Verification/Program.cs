@@ -833,6 +833,11 @@ if (args is ["--evir-instruction-program-definitions"])
     VerifyEvirInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--morph-ball-eye-instruction-program-definitions"])
+{
+    VerifyMorphBallEyeInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

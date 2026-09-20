@@ -83,6 +83,7 @@ internal static partial class Program
         VerifyFirefleaInstructionProgramDefinitions(rom);
         VerifyZebetiteInstructionProgramDefinitions(rom);
         VerifyEvirInstructionProgramDefinitions(rom);
+        VerifyMorphBallEyeInstructionProgramDefinitions(rom);
         VerifyNorfairLavaJumpDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);

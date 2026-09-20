@@ -3271,3 +3271,17 @@ programs while mechanics bytes are forbidden. The projectile completes its real 
 regeneration loop, sound callback, mouth-offset motion, and return to idle; every
 presentation operand remains observable, invalid mechanics pointers fail loudly, and
 warmed lookup is allocation-free.
+
+# Morph Ball eye instruction mechanics
+
+The Morph Ball camera eye's active scan loop, directional activation/deactivation/closed
+programs, and four mount directions now resolve all 46 fixed durations, goto control, loop
+target, and terminal sleeps through `MorphBallEyeInstructionProgramDefinitions`. Their 36
+interleaved spritemap pointers remain live cartridge presentation data, and body/mount
+initialization plus active tracking share the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+eleven program entries while mechanics bytes are forbidden. It also exercises both body
+facings and all four mount initializer roles, observes every presentation operand, rejects
+presentation and adjacent proximity-table pointers as mechanics, and proves warmed lookup
+is allocation-free.

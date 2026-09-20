@@ -828,6 +828,11 @@ if (args is ["--zebetite-instruction-program-definitions"])
     VerifyZebetiteInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--evir-instruction-program-definitions"])
+{
+    VerifyEvirInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

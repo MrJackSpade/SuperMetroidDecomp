@@ -3737,6 +3737,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == ZebetiteDefinition)
             return ZebetiteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer is EvirDefinition or EvirProjectileDefinition)
+            return EvirInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

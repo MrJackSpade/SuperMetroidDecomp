@@ -77,12 +77,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort EvirDefinition = 0xe63f;
     internal const ushort EvirProjectileDefinition = 0xe67f;
 
-    private const ushort EvirBodyLeftInstruction = 0x86a7;
-    private const ushort EvirArmsLeftInstruction = 0x86c3;
-    private const ushort EvirBodyRightInstruction = 0x870b;
-    private const ushort EvirArmsRightInstruction = 0x8727;
-    private const ushort EvirProjectileNormalInstruction = 0x876f;
-    private const ushort EvirProjectileRegenerationInstruction = 0x8775;
     private const ushort EvirTouchAi = EnemyAiCodePointers.BankA8.EvirTouch;
     private const ushort EvirPowerBombAi = EnemyAiCodePointers.BankA8.EvirPowerBomb;
     private const ushort EvirShotAi = EnemyAiCodePointers.BankA8.EvirShot;
@@ -142,7 +136,7 @@ public sealed partial class RoomEnemySystem
     {
         var state = new EvirEnemyState(slot)
         {
-            RequestedInstructionList = EvirProjectileNormalInstruction,
+            RequestedInstructionList = EvirInstructionProgramDefinitions.ProjectileNormal,
             InstalledInstructionList = 0,
             RegenerationFlag = 0,
             MovingFlag = 0,
@@ -219,11 +213,17 @@ public sealed partial class RoomEnemySystem
         {
             if (state.MovingFlag != 0)
             {
-                RequestEvirInstruction(slot, state, EvirProjectileNormalInstruction);
+                RequestEvirInstruction(
+                    slot,
+                    state,
+                    EvirInstructionProgramDefinitions.ProjectileNormal);
             }
             else if (state.RegenerationFlag != 0)
             {
-                RequestEvirInstruction(slot, state, EvirProjectileRegenerationInstruction);
+                RequestEvirInstruction(
+                    slot,
+                    state,
+                    EvirInstructionProgramDefinitions.ProjectileRegenerating);
             }
             else
             {
@@ -262,8 +262,8 @@ public sealed partial class RoomEnemySystem
             body,
             state,
             state.FacingDirection == 0
-                ? EvirBodyLeftInstruction
-                : EvirBodyRightInstruction);
+                ? EvirInstructionProgramDefinitions.BodyFacingLeft
+                : EvirInstructionProgramDefinitions.BodyFacingRight);
     }
 
     private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state)
@@ -278,8 +278,8 @@ public sealed partial class RoomEnemySystem
             arms,
             state,
             state.FacingDirection == 0
-                ? EvirArmsLeftInstruction
-                : EvirArmsRightInstruction);
+                ? EvirInstructionProgramDefinitions.ArmsFacingLeft
+                : EvirInstructionProgramDefinitions.ArmsFacingRight);
     }
 
     private void ResetEvirProjectilePosition(RoomEnemySlot projectile, EvirEnemyState state)
@@ -328,7 +328,10 @@ public sealed partial class RoomEnemySystem
         (state.YVelocity, state.YSubvelocity) = ReadEightBitNegativeSineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
-        RequestEvirInstruction(projectile, state, EvirProjectileNormalInstruction);
+        RequestEvirInstruction(
+            projectile,
+            state,
+            EvirInstructionProgramDefinitions.ProjectileNormal);
         state.MovingFlag = 1;
         state.Function = EvirAiFunction.ProjectileMoving;
     }
@@ -375,7 +378,10 @@ public sealed partial class RoomEnemySystem
         state.MovingFlag = 0;
         state.RegenerationFlag = 1;
         state.Function = EvirAiFunction.ProjectileRegenerating;
-        RequestEvirInstruction(projectile, state, EvirProjectileRegenerationInstruction);
+        RequestEvirInstruction(
+            projectile,
+            state,
+            EvirInstructionProgramDefinitions.ProjectileRegenerating);
     }
 
     private void RunRegeneratingEvirProjectile(RoomEnemySlot projectile, EvirEnemyState state)
@@ -390,7 +396,10 @@ public sealed partial class RoomEnemySystem
 
         if (state.RegenerationFlag == 0)
         {
-            RequestEvirInstruction(projectile, state, EvirProjectileNormalInstruction);
+            RequestEvirInstruction(
+                projectile,
+                state,
+                EvirInstructionProgramDefinitions.ProjectileNormal);
             state.MovingFlag = 0;
             state.Function = EvirAiFunction.ProjectileIdle;
             return;

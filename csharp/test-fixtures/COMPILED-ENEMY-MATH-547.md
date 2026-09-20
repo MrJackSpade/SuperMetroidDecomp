@@ -3257,3 +3257,17 @@ Verification compares every mechanics word with the pinned cartridge and execute
 production-selected programs through their terminal sleeps while mechanics bytes are
 forbidden. Every presentation operand remains observable, presentation and adjacent
 spritemap-data pointers fail as mechanics, and warmed lookup is allocation-free.
+
+# Evir instruction mechanics
+
+Evir's left/right body and arms loops plus normal and regenerating projectile programs
+now resolve all 67 fixed durations, callbacks, timer operations, gotos, loop targets, and
+terminal sleeps through `EvirInstructionProgramDefinitions`. Their 49 interleaved
+spritemap pointers remain live cartridge presentation data, and every production handoff
+uses the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all six
+programs while mechanics bytes are forbidden. The projectile completes its real eight-pass
+regeneration loop, sound callback, mouth-offset motion, and return to idle; every
+presentation operand remains observable, invalid mechanics pointers fail loudly, and
+warmed lookup is allocation-free.

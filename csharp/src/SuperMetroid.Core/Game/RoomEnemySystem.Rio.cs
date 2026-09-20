@@ -69,11 +69,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort RioDefinition = 0xd27f;
 
-    private const ushort RioInitialInstructionList = 0xbb4b;
-    private const ushort RioIdleAfterLandingInstructionList = 0xbb53;
-    private const ushort RioDiveInstructionList = 0xbb7f;
-    private const ushort RioLateDiveInstructionList = 0xbb97;
-    private const ushort RioLandingInstructionList = 0xbba3;
     private const ushort RioTriggerDistance = 0x00a0;
     private const ushort RioDiveSound = 0x0065;
     private const ushort RioGravityStep = 24;
@@ -108,7 +103,7 @@ public sealed partial class RoomEnemySystem
 
         // Rio_Init writes the list directly rather than calling Rio_6. Variable F must
         // therefore remain zero until the first behavioral transition installs a new list.
-        slot.CurrentInstruction = RioInitialInstructionList;
+        slot.CurrentInstruction = RioInstructionProgramDefinitions.Idle;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }
@@ -142,7 +137,10 @@ public sealed partial class RoomEnemySystem
                 state.XVelocity = RioLaunchDefinitions.RioXVelocity;
                 if (unchecked((short)(samus.XPosition - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
-                InstallRioInstructionList(slot, state, RioDiveInstructionList);
+                InstallRioInstructionList(
+                    slot,
+                    state,
+                    RioInstructionProgramDefinitions.SwoopingPart1);
                 state.Function = RioEnemyFunction.Diving;
 
                 // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The native
@@ -155,7 +153,10 @@ public sealed partial class RoomEnemySystem
                 if (!state.AnimationFinished)
                     return;
                 state.AnimationFinished = false;
-                InstallRioInstructionList(slot, state, RioIdleAfterLandingInstructionList);
+                InstallRioInstructionList(
+                    slot,
+                    state,
+                    RioInstructionProgramDefinitions.PostSwoopIdle);
                 state.Function = RioEnemyFunction.WaitingForSamus;
                 return;
 
@@ -190,7 +191,10 @@ public sealed partial class RoomEnemySystem
                 else if (state.AnimationFinished)
                 {
                     state.AnimationFinished = false;
-                    InstallRioInstructionList(slot, state, RioLateDiveInstructionList);
+                    InstallRioInstructionList(
+                        slot,
+                        state,
+                        RioInstructionProgramDefinitions.SwoopingPart2);
                 }
                 return;
 
@@ -208,7 +212,10 @@ public sealed partial class RoomEnemySystem
                         slot,
                         ToEightBitVelocityDisplacement(state.YVelocity)))
                 {
-                    InstallRioInstructionList(slot, state, RioLandingInstructionList);
+                    InstallRioInstructionList(
+                        slot,
+                        state,
+                        RioInstructionProgramDefinitions.SwoopCooldown);
                     state.Function = RioEnemyFunction.WaitingForLandingAnimation;
                 }
                 else

@@ -177,6 +177,11 @@ if (args is ["--shitroid-instruction-mechanics"])
     VerifyShitroidInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--rio-instruction-mechanics"])
+{
+    VerifyRioInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

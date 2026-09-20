@@ -3413,3 +3413,17 @@ production program while every mechanics byte is forbidden. It asserts the exact
 fourteen three-pixel horizontal steps, balanced vertical callbacks, quake/sound effects,
 sleep and loop boundaries, observes all 106 presentation operands, and rejects the
 adjacent retail-unreferenced fast-backwards program. Warmed lookup is allocation-free.
+
+# Phantoon instruction mechanics
+
+Phantoon's body, eye, tentacle, and mouth records now resolve all 58 fixed durations,
+common opcodes, callback operands, and branch targets through
+`PhantoonInstructionProgramDefinitions`. The 27 interleaved extended-spritemap operands
+remain live cartridge presentation data, and every initializer, combat handoff, eye
+direction selection, and casual-flame trigger uses the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+19 reachable programs while every mechanics byte is forbidden. It proves all four
+callback operands run through compiled data, checks their hitbox/sound/flame side effects,
+observes every presentation operand, rejects presentation and adjacent casual-flame timer
+data as mechanics, and proves warmed lookup is allocation-free.

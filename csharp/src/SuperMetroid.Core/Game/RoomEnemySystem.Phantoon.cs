@@ -13,11 +13,11 @@ public sealed partial class RoomEnemySystem
     private const ushort PhantoonBg2VramBase = 0x4800;
     private const int PhantoonBg2WordCount = 0x0800;
     private const ushort PhantoonInitialBodyInstruction =
-        PhantoonInstructionLists.InvulnerableBody;
-    private const ushort PhantoonInitialEyeInstruction = PhantoonInstructionLists.InitialEye;
+        PhantoonInstructionProgramDefinitions.InvulnerableBody;
+    private const ushort PhantoonInitialEyeInstruction = PhantoonInstructionProgramDefinitions.EyeClosed;
     private const ushort PhantoonInitialTentacleInstruction =
-        PhantoonInstructionLists.InitialTentacles;
-    private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionLists.InitialMouth;
+        PhantoonInstructionProgramDefinitions.InitialTentacles;
+    private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionProgramDefinitions.InitialMouth;
     private const int PhantoonHealthPaletteTable = 0xa7cb41;
     private const ushort PhantoonIntroAmplitudeDelta = 0x0040;
     private const ushort PhantoonIntroMaximumAmplitude = 0x0c00;
@@ -353,7 +353,7 @@ public sealed partial class RoomEnemySystem
 
         body.VariableF = (ushort)PhantoonAiFunction.NoOperation;
         state.Eye.InstructionTimer = 1;
-        state.Eye.CurrentInstruction = PhantoonInstructionLists.BodyFollowUp;
+        state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeOpen;
         body.Parameter2 = 0;
         SpawnPhantoonSpiralFlames(body);
     }
@@ -511,7 +511,7 @@ public sealed partial class RoomEnemySystem
             int timerIndex = exhausted ? 1 : mouth.VariableC + 1;
             mouth.VariableB = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA)[timerIndex];
             mouth.InstructionTimer = 1;
-            mouth.CurrentInstruction = PhantoonInstructionLists.MouthFollowUp;
+            mouth.CurrentInstruction = PhantoonInstructionProgramDefinitions.MouthFollowUp;
             return;
         }
 

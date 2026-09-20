@@ -9,7 +9,15 @@ public static class PhantoonPatternDefinitions
     /// </summary>
     private static readonly ushort[] EyeInstructions =
     [
-        0xcca7, 0xccad, 0xccb3, 0xccb9, 0xccbf, 0xccbf, 0xccc5, 0xcccb, 0xccd1,
+        PhantoonInstructionProgramDefinitions.EyeLookingUp,
+        PhantoonInstructionProgramDefinitions.EyeLookingUpRight,
+        PhantoonInstructionProgramDefinitions.EyeLookingRight,
+        PhantoonInstructionProgramDefinitions.EyeLookingDownRight,
+        PhantoonInstructionProgramDefinitions.EyeLookingDown,
+        PhantoonInstructionProgramDefinitions.EyeLookingDown,
+        PhantoonInstructionProgramDefinitions.EyeLookingDownLeft,
+        PhantoonInstructionProgramDefinitions.EyeLookingLeft,
+        PhantoonInstructionProgramDefinitions.EyeLookingUpLeft,
     ];
 
     /// <summary>$A7:CDAD, Phantoon_FlameRain_PositionTable: figure-eight cursor and world X/Y; each native record also has an unused zero word.</summary>

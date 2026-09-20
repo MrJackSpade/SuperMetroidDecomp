@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort PhantoonInvulnerableBodyInstruction =
-        PhantoonInstructionLists.InvulnerableBody;
+        PhantoonInstructionProgramDefinitions.InvulnerableBody;
     private const ushort PhantoonEyeHitboxBodyInstruction =
-        PhantoonInstructionLists.EyeHitboxBody;
+        PhantoonInstructionProgramDefinitions.EyeHitboxBody;
     private const ushort PhantoonFullHitboxBodyInstruction =
-        PhantoonInstructionLists.FullHitboxBody;
-    private const ushort PhantoonEyeClosedInstruction = PhantoonInstructionLists.EyeClosed;
-    private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionLists.EyeCentered;
+        PhantoonInstructionProgramDefinitions.FullHitboxBody;
+    private const ushort PhantoonEyeCloseInstruction = PhantoonInstructionProgramDefinitions.EyeClose;
+    private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
     private const int PhantoonFadeOutPalette = 0xa7ca41;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
@@ -33,7 +33,7 @@ public sealed partial class RoomEnemySystem
             {
                 body.VariableF = (ushort)PhantoonAiFunction.NoOperation;
                 InstallPhantoonInstruction(body, PhantoonInvulnerableBodyInstruction);
-                InstallPhantoonInstruction(state.Eye!, PhantoonInstructionLists.EyeOpening);
+                InstallPhantoonInstruction(state.Eye!, PhantoonInstructionProgramDefinitions.EyeCloseAndPickNewPattern);
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
                 // This flag makes PickNewPhantoonPattern choose the initial flame-rain
@@ -77,7 +77,7 @@ public sealed partial class RoomEnemySystem
         state.SemiTransparencyLayerFlags |= 0x4000;
         InstallPhantoonInstruction(body, PhantoonInvulnerableBodyInstruction);
         RoomEnemySlot eye = state.Eye!;
-        InstallPhantoonInstruction(eye, PhantoonEyeClosedInstruction);
+        InstallPhantoonInstruction(eye, PhantoonEyeCloseInstruction);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         eye.VariableF = 0;
         state.Tentacles!.VariableB = 0;
@@ -189,7 +189,7 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.FadeOutDuringFlameRain;
         state.Eye!.VariableF = 0;
         InstallPhantoonInstruction(body, PhantoonInvulnerableBodyInstruction);
-        InstallPhantoonInstruction(state.Eye, PhantoonEyeClosedInstruction);
+        InstallPhantoonInstruction(state.Eye, PhantoonEyeCloseInstruction);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         state.SemiTransparencyLayerFlags |= 0x4000;
     }
@@ -306,7 +306,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        InstallPhantoonInstruction(state.Eye, PhantoonEyeClosedInstruction);
+        InstallPhantoonInstruction(state.Eye, PhantoonEyeCloseInstruction);
         state.Eye.VariableF = 0;
         body.VariableF = (ushort)PhantoonAiFunction.FadeOutAfterRage;
     }

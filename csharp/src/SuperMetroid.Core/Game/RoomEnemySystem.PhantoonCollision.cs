@@ -239,7 +239,7 @@ public sealed partial class RoomEnemySystem
         tentacles.VariableB = 0;
         state.SemiTransparencyLayerFlags |= 0x4000;
         InstallPhantoonInstruction(body, PhantoonInvulnerableBodyInstruction);
-        InstallPhantoonInstruction(eye, PhantoonEyeClosedInstruction);
+        InstallPhantoonInstruction(eye, PhantoonEyeCloseInstruction);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         eye.VariableF = 0;
         tentacles.Parameter2 = 2;

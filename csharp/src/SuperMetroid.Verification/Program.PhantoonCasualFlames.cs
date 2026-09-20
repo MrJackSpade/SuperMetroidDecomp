@@ -76,7 +76,7 @@ internal static partial class Program
                 step(body, mouth);
                 AssertEqual(timer, mouth.VariableB, "Actual casual frame timer");
                 AssertEqual(count, mouth.VariableC, "Actual casual frame remaining count");
-                AssertEqual(draw ? PhantoonInstructionLists.MouthFollowUp : (ushort)0, mouth.CurrentInstruction, "Exact casual mouth animation trigger frame");
+                AssertEqual(draw ? PhantoonInstructionProgramDefinitions.MouthFollowUp : (ushort)0, mouth.CurrentInstruction, "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.InstructionTimer, "Exact casual instruction timer reset");
             }
         }

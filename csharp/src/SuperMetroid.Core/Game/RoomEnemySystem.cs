@@ -2714,9 +2714,9 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY when IsPhantoonPartDefinition(slot.EnemyDefinitionPointer):
                 {
-                    ushort function = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    ushort function = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
                     bool stop = ProcessPhantoonInstructionFunction(
                         slot,
                         function,
@@ -3548,6 +3548,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (IsPhantoonPartDefinition(slot.EnemyDefinitionPointer))
+            return PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == KraidArmDefinition)
             return KraidArmInstructionProgramDefinitions.ReadMechanicsWord(address);
 

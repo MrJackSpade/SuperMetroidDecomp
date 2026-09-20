@@ -39,7 +39,7 @@ internal static partial class Program
             (typeof(DraygonInstructionLists), 0xa5),
             (typeof(RidleyInstructionLists), 0xa6),
             (typeof(KraidLintInstructionLists), 0xa7),
-            (typeof(PhantoonInstructionLists), 0xa7),
+            (typeof(PhantoonInstructionProgramDefinitions), 0xa7),
             (typeof(TorizoInstructionLists), 0xaa),
         ];
         foreach ((Type catalog, _) in bankLocalCatalogs)

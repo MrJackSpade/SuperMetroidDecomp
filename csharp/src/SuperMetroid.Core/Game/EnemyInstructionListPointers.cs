@@ -124,33 +124,6 @@ internal static class KraidLintInstructionLists
     public const ushort Ilist_8B04 = 0x8b04;
 }
 
-/// <summary>Named bank-$A7 animation-list pointers used by Phantoon's four records.</summary>
-internal static class PhantoonInstructionLists
-{
-    /// <summary>Invulnerable body list at $A7:CC41.</summary>
-    public const ushort InvulnerableBody = 0xcc41;
-    /// <summary>Full-hitbox body list at $A7:CC47.</summary>
-    public const ushort FullHitboxBody = 0xcc47;
-    /// <summary>Eye-hitbox body list at $A7:CC4D.</summary>
-    public const ushort EyeHitboxBody = 0xcc4d;
-    /// <summary>Body follow-up list at $A7:CC53.</summary>
-    public const ushort BodyFollowUp = 0xcc53;
-    /// <summary>Initial eye list at $A7:CC7B.</summary>
-    public const ushort InitialEye = 0xcc7b;
-    /// <summary>Eye-opening list at $A7:CC81.</summary>
-    public const ushort EyeOpening = 0xcc81;
-    /// <summary>Closed-eye list at $A7:CC91.</summary>
-    public const ushort EyeClosed = 0xcc91;
-    /// <summary>Centered-eye list at $A7:CC9D.</summary>
-    public const ushort EyeCentered = 0xcc9d;
-    /// <summary>Initial tentacle list at $A7:CCD7.</summary>
-    public const ushort InitialTentacles = 0xccd7;
-    /// <summary>Mouth follow-up list at $A7:CCEB.</summary>
-    public const ushort MouthFollowUp = 0xcceb;
-    /// <summary>Initial mouth list at $A7:CCF7.</summary>
-    public const ushort InitialMouth = 0xccf7;
-}
-
 /// <summary>Named bank-$A2 instruction opcodes used by Rio.</summary>
 internal static class RioInstructionCodes
 {

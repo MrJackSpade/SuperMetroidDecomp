@@ -52,12 +52,12 @@ public sealed partial class RoomEnemySystem
         state.Tentacles!.VariableA = 0;
         RoomEnemySlot body = state.Body;
         body.InstructionTimer = 1;
-        body.CurrentInstruction = PhantoonInstructionLists.EyeHitboxBody;
+        body.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         body.VariableE = PhantoonTimerDefinitions.VulnerableWindow[_nextRandom!() & 7];
         body.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
         state.Eye!.InstructionTimer = 1;
-        state.Eye.CurrentInstruction = PhantoonInstructionLists.EyeCentered;
+        state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
     }
 
     private void PickPhantoonSecondRoundPattern(

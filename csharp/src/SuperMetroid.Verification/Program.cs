@@ -883,6 +883,11 @@ if (args is ["--kraid-foot-instruction-program-definitions"])
     VerifyKraidFootInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--phantoon-instruction-program-definitions"])
+{
+    VerifyPhantoonInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

@@ -292,6 +292,11 @@ if (args is ["--ceres-steam-instruction-mechanics"])
     VerifyCeresSteamInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-door-instruction-mechanics"])
+{
+    VerifyCeresDoorInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

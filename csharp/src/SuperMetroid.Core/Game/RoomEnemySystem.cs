@@ -3383,9 +3383,9 @@ public sealed partial class RoomEnemySystem
                     int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
                     int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition)));
                     cursor = xDistance >= 0x30 || yDistance >= 0x30
-                        ? ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        ? ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfAreaBossIsAlive:
@@ -3398,16 +3398,16 @@ public sealed partial class RoomEnemySystem
                     // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
                     cursor = RequireAreaBossDefeated()
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                        : ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     break;
                 case EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfCeresRidleyHasNotEscaped:
                     cursor = CeresStatus != 0
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                        : ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     break;
                 case CeresEnemyCodePointers.MakeCeresDoorIntangible:
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -3552,6 +3552,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer == CeresDoorDefinition)
+            return CeresDoorInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == YardDefinition)
             return YardInstructionProgramDefinitions.ReadMechanicsWord(address);
 

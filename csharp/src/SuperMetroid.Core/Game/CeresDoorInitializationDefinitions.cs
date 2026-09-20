@@ -28,37 +28,44 @@ internal static class CeresDoorInitializationDefinitions
     internal const ushort RotatingElevatorRoomDefaultFunction = 0xf7bd;
 
     /// <summary><c>InstList_CeresDoor_Normal_FacingRight</c> at <c>$A6:F56C</c>.</summary>
-    private const ushort NormalFacingRightInstructionList = 0xf56c;
+    private const ushort NormalFacingRightInstructionList =
+        CeresDoorInstructionProgramDefinitions.NormalFacingRight;
 
     /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_0</c> at <c>$A6:F5BE</c>.</summary>
-    private const ushort NormalFacingLeftInstructionList = 0xf5be;
+    private const ushort NormalFacingLeftInstructionList =
+        CeresDoorInstructionProgramDefinitions.NormalFacingLeft;
 
     /// <summary>
     /// <c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_0</c> at
     /// <c>$A6:F610</c>.
     /// </summary>
-    private const ushort RotatingElevatorPreExplosionOverlayInstructionList = 0xf610;
+    private const ushort RotatingElevatorPreExplosionOverlayInstructionList =
+        CeresDoorInstructionProgramDefinitions.RotatingElevatorPreExplosionOverlay;
 
     /// <summary>
     /// <c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at <c>$A6:F53A</c>.
     /// </summary>
-    private const ushort RidleyRoomFacingRightInstructionList = 0xf53a;
+    private const ushort RidleyRoomFacingRightInstructionList =
+        CeresDoorInstructionProgramDefinitions.RidleyRoomFacingRight;
 
     /// <summary>
     /// <c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_0</c> at
     /// <c>$A6:F61A</c>.
     /// </summary>
-    private const ushort RotatingElevatorInvisibleWallInstructionList = 0xf61a;
+    private const ushort RotatingElevatorInvisibleWallInstructionList =
+        CeresDoorInstructionProgramDefinitions.RotatingElevatorInvisibleWall;
 
     /// <summary>
     /// <c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at <c>$A6:F62A</c>.
     /// </summary>
-    private const ushort RidleyEscapeMode7LeftWallInstructionList = 0xf62a;
+    private const ushort RidleyEscapeMode7LeftWallInstructionList =
+        CeresDoorInstructionProgramDefinitions.RidleyEscapeMode7LeftWall;
 
     /// <summary>
     /// <c>InstList_CeresDoor_RidleyEscapeMode7RightWall_0</c> at <c>$A6:F634</c>.
     /// </summary>
-    private const ushort RidleyEscapeMode7RightWallInstructionList = 0xf634;
+    private const ushort RidleyEscapeMode7RightWallInstructionList =
+        CeresDoorInstructionProgramDefinitions.RidleyEscapeMode7RightWall;
 
     /// <summary>
     /// <c>InitAI_CeresDoor.functionPointers</c> at <c>$A6:F72B-$A6:F738</c> paired

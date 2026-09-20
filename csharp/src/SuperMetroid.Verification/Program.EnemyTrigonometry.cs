@@ -159,6 +159,7 @@ internal static partial class Program
         VerifyRoomSpriteObjectDefinitions(rom);
         VerifyCeresSteamDefinitions(rom);
         VerifyCeresSteamInstructionProgramDefinitions(rom);
+        VerifyCeresDoorInstructionProgramDefinitions(rom);
         VerifyPipeBugAnimationDefinitions(rom);
         VerifyBrinstarPipeBugInstructionProgramDefinitions(rom);
         VerifyNorfairPipeBugInstructionProgramDefinitions(rom);

@@ -3457,3 +3457,19 @@ Verification compares every mechanics word with the pinned cartridge and execute
 presentation operands through the production interpreter, rejects presentation, odd,
 and adjacent callback-code pointers as mechanics, and proves warmed lookup is
 allocation-free.
+
+# Ceres door instruction mechanics
+
+All seven Ceres door/control-actor variants now resolve the complete contiguous
+`$A6:F53A-$F63C` program region through
+`CeresDoorInstructionProgramDefinitions`. Its 97 fixed durations, property callbacks,
+sound callback, proximity/boss/escape branches, gotos, and branch targets are compiled
+mechanics. The 33 interleaved spritemap operands remain live cartridge presentation data,
+and the initialization selector uses the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes the
+Ridley-room door, both ordinary door directions, rotating-elevator overlay and invisible
+wall, and both Mode-7 wall variants while every mechanics byte is forbidden. It exercises
+both outcomes of the proximity, area-boss, and Ceres-status branches, observes all 33 live
+spritemap operands, rejects presentation and adjacent callback-code pointers as mechanics,
+and proves warmed lookup is allocation-free.

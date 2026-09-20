@@ -664,23 +664,16 @@ static void VerifyCeresDoorBossBranch()
     bus.WriteByte(population + 18, 0);
     WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
 
-    // Start directly at the retail closed-door loop. `$F66A` either returns to `$F55E`
-    // while the boss lives or falls through `$F6B0/$80ED` into the normal list, whose first
-    // command `$F68B` is the observable collision-side-effect under test.
-    WriteWord(bus, 0xa6f55e, 2);
-    WriteWord(bus, 0xa6f560, 0x9000);
-    WriteWord(bus, 0xa6f562, 0xf66a);
-    WriteWord(bus, 0xa6f564, 0xf55e);
-    WriteWord(bus, 0xa6f566, 0xf6b0);
-    WriteWord(bus, 0xa6f568, 0x80ed);
-    WriteWord(bus, 0xa6f56a, 0xf56c);
-    WriteWord(bus, 0xa6f56c, 0xf68b);
-    WriteWord(bus, 0xa6f56e, 0xf6a6);
-    WriteWord(bus, 0xa6f570, 2);
-    WriteWord(bus, 0xa6f572, 0x9000);
+    // Start directly at the retail Ridley-room closed-door loop. Its mechanics deliberately
+    // are absent from this synthetic bus: the compiled catalog must return `$F66A`, which
+    // loops at `$F55E` while the boss lives; after defeat it clears the Ridley-drawn flag
+    // and enters the ordinary closed-door loop at `$F598`. A nearby Samus then drives the
+    // native opening frames to `$F68B`, whose intangible side effect is under test. Frame
+    // spritemap operands remain presentation reads; their zero values are harmless here.
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
+    var samus = new SamusState { XPosition = 0x0008, YPosition = 0x007f };
     var enemies = new RoomEnemySystem();
     enemies.Load(
         bus,
@@ -689,6 +682,7 @@ static void VerifyCeresDoorBossBranch()
         vram,
         cgram,
         () => 0,
+        samus: samus,
         isAreaBossDefeated: () =>
         {
             areaBossReads++;
@@ -699,7 +693,7 @@ static void VerifyCeresDoorBossBranch()
     door.InstructionTimer = 1;
 
     for (int frame = 0; frame < 4; frame++)
-        enemies.StepFrame(0, 0, timeIsFrozen: false);
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus: samus);
     AssertEqual(0, door.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
         "living Ceres boss keeps Ridley-room door tangible");
 
@@ -708,10 +702,10 @@ static void VerifyCeresDoorBossBranch()
     // that current record to expire, then require the very next `$F66A` visit to leave the
     // loop; the generous bound is diagnostic and does not alter actor state.
     for (int frame = 0;
-        frame < 16 && !door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision);
+        frame < 40 && !door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision);
         frame++)
     {
-        enemies.StepFrame(0, 0, timeIsFrozen: false);
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus: samus);
     }
     AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         $"defeated Ceres boss advances door bytecode to intangible setup " +

@@ -242,6 +242,10 @@ Plain vertical shutters and Kamer platforms compile their stationary and four-fr
 control words. All three real initializers and the complete Kamer loop execute without
 mechanics reads while the five spritemap operands remain live presentation data.
 
+Choot's idle, jumping, and falling programs compile their off-screen-property callbacks,
+durations, and terminal sleeps. The real initializer, jump preparation, and apex handoffs
+execute all three programs while five spritemap operands remain live presentation data.
+
 ### Phantoon HDMA wave
 
 The wave builder and its live HDMA step no longer accept an address-space bus.

@@ -150,9 +150,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort ChootDefinition = 0xd3bf;
 
-    private const ushort ChootIdleInstruction = 0xd82c;
-    private const ushort ChootJumpingInstruction = 0xd834;
-    private const ushort ChootFallingInstruction = 0xd840;
     private const ushort ChootActivationDistance = 0x0050;
 
     private readonly ushort[] _chootSpawnXPositions = new ushort[MaximumEnemyCount];
@@ -184,7 +181,7 @@ public sealed partial class RoomEnemySystem
             _chootJumpDelayTimers);
         _chootStates[slot.SlotIndex] = state;
 
-        SetChootInstructionList(slot, ChootIdleInstruction);
+        SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
         state.SpawnXPosition = slot.XPosition;
         state.SpawnYPosition = slot.YPosition;
@@ -262,7 +259,7 @@ public sealed partial class RoomEnemySystem
         if (timer.IsNonNegative)
             return;
 
-        SetChootInstructionList(slot, ChootJumpingInstruction);
+        SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Jumping);
         state.Function = ChootEnemyFunction.Jumping;
     }
 
@@ -291,7 +288,7 @@ public sealed partial class RoomEnemySystem
         state.FallingPatternIndex = 0;
         state.FallingPatternLoopCounter = unchecked((ushort)(
             (slot.Parameter1 & 0x00ff) - 1));
-        SetChootInstructionList(slot, ChootFallingInstruction);
+        SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
 
@@ -318,7 +315,7 @@ public sealed partial class RoomEnemySystem
             slot.XSubposition = 0;
             slot.YPosition = state.SpawnYPosition;
             slot.YSubposition = 0;
-            SetChootInstructionList(slot, ChootIdleInstruction);
+            SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
             state.Function = ChootEnemyFunction.WaitingForSamus;
             return;
         }

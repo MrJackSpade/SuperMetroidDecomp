@@ -190,6 +190,9 @@ production section transitions execute with mechanics reads forbidden.
 Plain shootable/destroyable vertical shutters and Kamer platforms now compile all eight
 duration, sleep, goto, and loop-target words while retaining five live spritemap operands.
 All three real initializers and the complete Kamer loop execute with mechanics reads forbidden.
+Choot's idle, jumping, and falling programs now compile all eleven property, duration, and
+terminal-sleep words while retaining five live spritemap operands. Its real initializer,
+jump preparation, and apex handoffs execute all three programs with mechanics reads forbidden.
 Nuclear Waffle's two sweep directions now combine twelve endpoint, link-spacing,
 and joint-turn words into typed physical records. Both complete production
 initializers retain their seven allocated articulated links while

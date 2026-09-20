@@ -863,6 +863,11 @@ if (args is ["--mama-turtle-instruction-program-definitions"])
     VerifyMamaTurtleInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--tourian-entrance-statue-instruction-program-definitions"])
+{
+    VerifyTourianEntranceStatueInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--mama-turtle-enemy-definitions"])
 {
     VerifyMamaTurtleEnemyDefinitions();

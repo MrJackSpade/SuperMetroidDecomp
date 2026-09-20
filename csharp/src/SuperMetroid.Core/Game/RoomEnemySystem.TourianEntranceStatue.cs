@@ -43,7 +43,8 @@ public sealed partial class RoomEnemySystem
         statue.InstructionTimer = 1;
         statue.Timer = 0;
         statue.CurrentInstruction =
-            TourianEntranceStatueDefinitions.GetInitialInstruction(statue.Parameter1);
+            TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(
+                statue.Parameter1);
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the

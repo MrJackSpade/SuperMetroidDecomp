@@ -3358,3 +3358,16 @@ allocation-free. The full untouched `$8F:D055` retail-room audit forbids mechani
 reads while exercising both crawl directions, the shell and spin transitions, rider
 motion, wake callbacks, Mama's full hover cycle, damage, wall reversal, landing, and 57
 live spritemap operands reached by those production paths.
+
+# Tourian entrance-statue enemy instruction mechanics
+
+The three inert enemy records behind the Tourian entrance statue now resolve their
+native delete commands through `TourianEntranceStatueInstructionProgramDefinitions`.
+The same catalog owns the base-decoration, Ridley, and Phantoon initializer selections;
+the visible statue actors and unlock animation remain under their existing bank-$86 and
+bank-$87 presentation owners.
+
+Verification compares all three commands with the pinned cartridge and executes every
+production initializer through deletion while the source mechanics bytes are forbidden.
+The adjacent unused visible-loop program is rejected as mechanics, and warmed lookup is
+allocation-free.

@@ -3548,6 +3548,12 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition)
+        {
+            return TourianEntranceStatueInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (slot.EnemyDefinitionPointer is
             MamaTurtleEnemyDefinitionCatalog.MamaPointer or
             MamaTurtleEnemyDefinitionCatalog.BabyPointer)

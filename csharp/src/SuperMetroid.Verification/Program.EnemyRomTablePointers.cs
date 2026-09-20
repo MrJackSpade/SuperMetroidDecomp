@@ -88,13 +88,13 @@ internal static partial class Program
                 $"deactivated Work Robot initial selector {parameter}");
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(Word(EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter),
-                TourianEntranceStatueDefinitions.GetInitialInstruction(parameter),
+                TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(parameter),
                 $"Tourian entrance statue initial selector {parameter}");
         AssertThrows<ArgumentOutOfRangeException>(
             () => WorkRobotInitializationDefinitions.GetInitialInstruction(4),
             "Work Robot selector rejects values beyond native accepted overread");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => TourianEntranceStatueDefinitions.GetInitialInstruction(1),
+            () => TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(1),
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = new EnemyInstructionSelectionReadGuard(rom);
@@ -122,7 +122,9 @@ internal static partial class Program
                 .SetValue(system, new SnesCgram());
             var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
             statueInitializer.Invoke(system, [slot]);
-            AssertEqual(TourianEntranceStatueDefinitions.GetInitialInstruction(parameter),
+            AssertEqual(
+                TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(
+                    parameter),
                 slot.CurrentInstruction,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }

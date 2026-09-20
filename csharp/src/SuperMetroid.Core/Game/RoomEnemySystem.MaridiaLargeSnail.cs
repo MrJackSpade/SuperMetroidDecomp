@@ -127,11 +127,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort MaridiaLargeSnailDefinition = 0xd37f;
 
-    private const ushort MaridiaLargeSnailInitialInstructionList = 0xca4b;
-    private const ushort MaridiaLargeSnailSplashInstruction = 0xcb6b;
-    private const ushort MaridiaLargeSnailAttackFinishedInstruction = 0xccb3;
-    private const ushort MaridiaLargeSnailAllowRotationInstruction = 0xccbe;
-    private const ushort MaridiaLargeSnailDisallowRotationInstruction = 0xccc9;
     private const ushort MaridiaLargeSnailPushingXDistance = 0x0018;
     private const ushort MaridiaLargeSnailPushingYDistance = 0x0020;
     private const ushort MaridiaLargeSnailAttackXDistance = 0x0020;
@@ -196,7 +191,7 @@ public sealed partial class RoomEnemySystem
         // The initial left-facing list intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because SetOumInstList suppresses equal
         // selectors, this oddity is observable until Samus first selects a different index.
-        slot.CurrentInstruction = MaridiaLargeSnailInitialInstructionList;
+        slot.CurrentInstruction = MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftIdle;
     }
 
     /// <summary>
@@ -565,16 +560,16 @@ public sealed partial class RoomEnemySystem
         MaridiaLargeSnailEnemyState state = RequireMaridiaLargeSnailState(slot);
         switch (opcode)
         {
-            case MaridiaLargeSnailSplashInstruction:
+            case MaridiaLargeSnailInstructionCodes.PlaySplashedOutOfWaterSound:
                 LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
                 break;
-            case MaridiaLargeSnailAttackFinishedInstruction:
+            case MaridiaLargeSnailInstructionCodes.SetAnimationFinished:
                 state.AttackAnimationFinished = true;
                 break;
-            case MaridiaLargeSnailAllowRotationInstruction:
+            case MaridiaLargeSnailInstructionCodes.AllowAttackRotation:
                 state.AttackAllowsRotation = true;
                 break;
-            case MaridiaLargeSnailDisallowRotationInstruction:
+            case MaridiaLargeSnailInstructionCodes.DisallowAttackRotation:
                 state.AttackAllowsRotation = false;
                 break;
             default:

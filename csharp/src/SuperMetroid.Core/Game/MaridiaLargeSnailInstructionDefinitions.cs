@@ -22,14 +22,14 @@ internal static class MaridiaLargeSnailInstructionDefinitions
     /// </summary>
     private static readonly ushort[] InstructionPointers =
     [
-        0xcadb,
-        0xca4b,
-        0xcb1b,
-        0xca8b,
-        0xcae1,
-        0xca51,
-        0xcb43,
-        0xcab3,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightIdle,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftIdle,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightRollingForwards,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingForwards,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightAttacking,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftAttacking,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingRightRollingBackwards,
+        MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingBackwards,
     ];
 
     /// <summary>Returns the bank-$A2 instruction list for one authored animation state.</summary>

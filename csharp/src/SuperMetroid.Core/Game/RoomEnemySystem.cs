@@ -3690,6 +3690,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == RioDefinition)
             return RioInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition)
+            return MaridiaLargeSnailInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

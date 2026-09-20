@@ -139,14 +139,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort PuyoDefinition = 0xcfbf;
 
-    private const ushort PuyoGroundedFastInstructionList = 0x99ad;
-    private const ushort PuyoGroundedMediumInstructionList = 0x99c1;
-    private const ushort PuyoGroundedSlowInstructionList = 0x99d5;
-    private const ushort PuyoRightFrame0LeftFrame4InstructionList = 0x99e9;
-    private const ushort PuyoRightFrame1LeftFrame3InstructionList = 0x99ef;
-    private const ushort PuyoFrame2InstructionList = 0x99f5;
-    private const ushort PuyoRightFrame3LeftFrame1InstructionList = 0x99fb;
-    private const ushort PuyoRightFrame4LeftFrame0InstructionList = 0x9a01;
     private const int QuadraticSpeedRecordSize = 8;
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
 
@@ -163,7 +155,7 @@ public sealed partial class RoomEnemySystem
         // installing the fast grounded list. Enemy.var0 is not one of the six exposed
         // per-family variable words; no later Puyo routine reads it.
         slot.SpritemapPointer = 0x804d;
-        SetPuyoInstructionList(slot, PuyoGroundedFastInstructionList);
+        SetPuyoInstructionList(slot, PuyoInstructionProgramDefinitions.GroundedFast);
 
         var state = new PuyoEnemyState(slot)
         {
@@ -317,13 +309,25 @@ public sealed partial class RoomEnemySystem
         switch (state.AirborneFunction)
         {
             case PuyoAirborneFunction.NormalShortHop:
-                RunNormalPuyoHop(slot, state, level, PuyoGroundedSlowInstructionList);
+                RunNormalPuyoHop(
+                    slot,
+                    state,
+                    level,
+                    PuyoInstructionProgramDefinitions.GroundedSlow);
                 return;
             case PuyoAirborneFunction.NormalBigHop:
-                RunNormalPuyoHop(slot, state, level, PuyoGroundedMediumInstructionList);
+                RunNormalPuyoHop(
+                    slot,
+                    state,
+                    level,
+                    PuyoInstructionProgramDefinitions.GroundedMedium);
                 return;
             case PuyoAirborneFunction.NormalLongHop:
-                RunNormalPuyoHop(slot, state, level, PuyoGroundedFastInstructionList);
+                RunNormalPuyoHop(
+                    slot,
+                    state,
+                    level,
+                    PuyoInstructionProgramDefinitions.GroundedFast);
                 return;
             case PuyoAirborneFunction.GiantHop:
                 RunGiantPuyoHop(slot, state, level);
@@ -372,7 +376,7 @@ public sealed partial class RoomEnemySystem
         }
 
         state.HoppingAnimationActive = false;
-        SetPuyoInstructionList(slot, PuyoGroundedSlowInstructionList);
+        SetPuyoInstructionList(slot, PuyoInstructionProgramDefinitions.GroundedSlow);
     }
 
     /// <summary>Ports the constant-speed collision fall at $A2:9D98.</summary>
@@ -400,7 +404,7 @@ public sealed partial class RoomEnemySystem
 
         state.HopType = PuyoHopType.Giant;
         state.Function = PuyoEnemyFunction.Grounded;
-        SetPuyoInstructionList(slot, PuyoGroundedSlowInstructionList);
+        SetPuyoInstructionList(slot, PuyoInstructionProgramDefinitions.GroundedSlow);
     }
 
     /// <summary>Ports <c>PuyoMovement</c> at $A2:9B88.</summary>
@@ -484,36 +488,36 @@ public sealed partial class RoomEnemySystem
             {
                 instructionList = state.YSpeedTableIndex >=
                         state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoRightFrame0LeftFrame4InstructionList
+                    ? PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4
                     : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
-                        ? PuyoRightFrame1LeftFrame3InstructionList
-                        : PuyoFrame2InstructionList;
+                        ? PuyoInstructionProgramDefinitions.RightFrame1LeftFrame3
+                        : PuyoInstructionProgramDefinitions.Frame2;
             }
             else
             {
                 instructionList = state.YSpeedTableIndex >=
                         state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoRightFrame4LeftFrame0InstructionList
+                    ? PuyoInstructionProgramDefinitions.RightFrame4LeftFrame0
                     : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
-                        ? PuyoRightFrame3LeftFrame1InstructionList
-                        : PuyoFrame2InstructionList;
+                        ? PuyoInstructionProgramDefinitions.RightFrame3LeftFrame1
+                        : PuyoInstructionProgramDefinitions.Frame2;
             }
         }
         else if (state.Direction == PuyoDirection.Right)
         {
             instructionList = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
-                ? PuyoFrame2InstructionList
+                ? PuyoInstructionProgramDefinitions.Frame2
                 : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoRightFrame3LeftFrame1InstructionList
-                    : PuyoRightFrame4LeftFrame0InstructionList;
+                    ? PuyoInstructionProgramDefinitions.RightFrame3LeftFrame1
+                    : PuyoInstructionProgramDefinitions.RightFrame4LeftFrame0;
         }
         else
         {
             instructionList = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
-                ? PuyoFrame2InstructionList
+                ? PuyoInstructionProgramDefinitions.Frame2
                 : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoRightFrame1LeftFrame3InstructionList
-                    : PuyoRightFrame0LeftFrame4InstructionList;
+                    ? PuyoInstructionProgramDefinitions.RightFrame1LeftFrame3
+                    : PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4;
         }
 
         SetPuyoInstructionList(slot, instructionList);

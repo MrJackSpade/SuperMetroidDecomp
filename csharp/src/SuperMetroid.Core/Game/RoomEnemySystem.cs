@@ -3673,6 +3673,9 @@ public sealed partial class RoomEnemySystem
                 address);
         }
 
+        if (slot.EnemyDefinitionPointer == PuyoDefinition)
+            return PuyoInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == GrowingShutterDefinition)
             return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
 

@@ -152,6 +152,11 @@ if (args is ["--wrecked-ship-ghost-instruction-mechanics"])
     VerifyWreckedShipGhostInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--puyo-instruction-mechanics"])
+{
+    VerifyPuyoInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--spore-spawn-instruction-mechanics"])
 {
     VerifySporeSpawnInstructionProgramDefinitions();

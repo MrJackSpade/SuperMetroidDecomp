@@ -3342,3 +3342,19 @@ seven programs through their loop or terminal sleep while mechanics bytes are fo
 Both animation signals and both follower-visibility callbacks are asserted, both
 initializer roles are covered, all presentation operands remain observable, invalid
 mechanics pointers fail loudly, and warmed lookup is allocation-free.
+
+# Mama Turtle instruction mechanics
+
+Mama Turtle and her four Baby Turtles' crawling, spinning, shell-entry, hiding,
+shell-exit, and sleeping programs now resolve all 117 fixed durations, nine private
+callbacks, gotos, loop targets, and terminal sleeps through
+`MamaTurtleInstructionProgramDefinitions`. Their 75 interleaved spritemap pointers remain
+live cartridge presentation data, and every initializer and AI handoff uses the same
+named program entries.
+
+Verification compares every mechanics word with the pinned cartridge, rejects every
+spritemap and adjacent movement-data pointer as mechanics, and proves warmed lookup is
+allocation-free. The full untouched `$8F:D055` retail-room audit forbids mechanics-byte
+reads while exercising both crawl directions, the shell and spin transitions, rider
+motion, wake callbacks, Mama's full hover cycle, damage, wall reversal, landing, and 57
+live spritemap operands reached by those production paths.

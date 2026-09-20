@@ -48,18 +48,6 @@ internal static class EnemyInstructionCodePointers
     /// <summary><c>Instruction_Stoke_SetMovingRight</c> at $A2:899D.</summary>
     public const ushort Instruction_Stoke_SetMovingRight = 0x899d;
 
-    /// <summary><c>Instruction_BabyTurtle_LoopOrTurnAroundIfMovedTooFar</c> at $A2:9412.</summary>
-    public const ushort Instruction_BabyTurtle_LoopOrTurnAroundIfMovedTooFar = 0x9412;
-
-    /// <summary><c>Instruction_MamaTurtle_RiseToHoverRightwards</c> at $A2:9451.</summary>
-    public const ushort Instruction_MamaTurtle_RiseToHoverRightwards = 0x9451;
-
-    /// <summary><c>Instruction_BabyTurtle_LeaveShell</c> at $A2:9485.</summary>
-    public const ushort Instruction_BabyTurtle_LeaveShell = 0x9485;
-
-    /// <summary><c>Instruction_MamaTurtle_PlaySpinningSFX</c> at $A2:94D1.</summary>
-    public const ushort Instruction_MamaTurtle_PlaySpinningSFX = 0x94d1;
-
     /// <summary><c>Instruction_KraidArm_SlowArmIfLessThanHalfHealth</c> at $A7:8A8F.</summary>
     public const ushort Instruction_KraidArm_SlowArmIfLessThanHalfHealth = 0x8a8f;
 
@@ -257,21 +245,6 @@ internal static class EnemyInstructionCodePointers
 
     /// <summary><c>Instruction_Stoke_SpawnFireball</c> at $A2:897E.</summary>
     public const ushort Instruction_Stoke_SpawnFireball = 0x897e;
-
-    /// <summary><c>Instruction_BabyTurtle_Crawl</c> at $A2:9381.</summary>
-    public const ushort Instruction_BabyTurtle_Crawl = 0x9381;
-
-    /// <summary><c>Instruction_MamaTurtle_EnterShell</c> at $A2:9447.</summary>
-    public const ushort Instruction_MamaTurtle_EnterShell = 0x9447;
-
-    /// <summary><c>Instruction_MamaTurtle_RiseToHoverLeftwards</c> at $A2:946B.</summary>
-    public const ushort Instruction_MamaTurtle_RiseToHoverLeftwards = 0x946b;
-
-    /// <summary><c>Instruction_BabyTurtle_LeftShell</c> at $A2:94A1.</summary>
-    public const ushort Instruction_BabyTurtle_LeftShell = 0x94a1;
-
-    /// <summary><c>Instruction_BabyTurtle_Set_Spinning_Stoppable</c> at $A2:94C7.</summary>
-    public const ushort Instruction_BabyTurtle_Set_Spinning_Stoppable = 0x94c7;
 
     /// <summary><c>Instruction_Kraid_NOP_A7B633</c> at $A7:B633.</summary>
     public const ushort Instruction_Kraid_NOP_A7B633 = 0xb633;

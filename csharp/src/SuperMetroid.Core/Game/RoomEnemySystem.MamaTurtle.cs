@@ -127,19 +127,6 @@ public sealed class BabyTurtleEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MamaTurtleAsleepInstruction = 0x8c44;
-    private const ushort MamaTurtleSpinningInstruction = 0x8c02;
-    private const ushort MamaTurtleEnterShellLeftInstruction = 0x8c1c;
-    private const ushort MamaTurtleLeaveShellLeftInstruction = 0x8c4a;
-    private const ushort MamaTurtleEnterShellRightInstruction = 0x8d00;
-    private const ushort MamaTurtleLeaveShellRightInstruction = 0x8d28;
-    private const ushort BabyTurtleCrawlingLeftInstruction = 0x8b80;
-    private const ushort BabyTurtleSpinningInstruction = 0x8bd2;
-    private const ushort BabyTurtleHidingLeftInstruction = 0x8c30;
-    private const ushort BabyTurtleLeaveShellLeftInstruction = 0x8c62;
-    private const ushort BabyTurtleCrawlingRightInstruction = 0x8c72;
-    private const ushort BabyTurtleHidingRightInstruction = 0x8d14;
-    private const ushort BabyTurtleLeaveShellRightInstruction = 0x8d40;
     private const ushort MamaTurtleSolidProperty = 0x8000;
     private const ushort BabyTurtleTravelDistance = 0x0030;
     private const ushort MamaTurtlePeakYPosition = 0x01e8;
@@ -178,7 +165,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.YRadius = 0;
-        slot.CurrentInstruction = MamaTurtleAsleepInstruction;
+        slot.CurrentInstruction = MamaTurtleInstructionProgramDefinitions.MamaAsleep;
     }
 
     /// <summary>Ports Baby Turtle initialization AI <c>$A2:8D9D</c>.</summary>
@@ -196,8 +183,8 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = unchecked((short)slot.Parameter1) < 0
-            ? BabyTurtleCrawlingLeftInstruction
-            : BabyTurtleCrawlingRightInstruction;
+            ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
+            : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight;
     }
 
     /// <summary>Ports Mama Turtle main AI <c>$A2:8DD2</c> and its indirect functions.</summary>
@@ -344,7 +331,9 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, 1 << 16))
             return;
 
-        InstallTurtleInstruction(mama, MamaTurtleLeaveShellLeftInstruction);
+        InstallTurtleInstruction(
+            mama,
+            MamaTurtleInstructionProgramDefinitions.MamaLeaveShellLeft);
 
         // $8F35 is `STA $0006,x`, not `STA Enemy+$0006,x`. It corrupts low WRAM with $20
         // in retail and does not alter the enemy. Reproducing unrelated low-WRAM corruption
@@ -361,8 +350,8 @@ public sealed partial class RoomEnemySystem
         InstallTurtleInstruction(
             mama,
             unchecked((short)(mama.XPosition - samus.XPosition)) >= 0
-                ? MamaTurtleEnterShellLeftInstruction
-                : MamaTurtleEnterShellRightInstruction);
+                ? MamaTurtleInstructionProgramDefinitions.MamaEnterShellLeft
+                : MamaTurtleInstructionProgramDefinitions.MamaEnterShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
@@ -556,8 +545,8 @@ public sealed partial class RoomEnemySystem
         InstallTurtleInstruction(
             mama,
             unchecked((short)state.XVelocity) < 0
-                ? MamaTurtleLeaveShellLeftInstruction
-                : MamaTurtleLeaveShellRightInstruction);
+                ? MamaTurtleInstructionProgramDefinitions.MamaLeaveShellLeft
+                : MamaTurtleInstructionProgramDefinitions.MamaLeaveShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
@@ -583,8 +572,8 @@ public sealed partial class RoomEnemySystem
                     InstallTurtleInstruction(
                         baby,
                         unchecked((short)state.XVelocity) < 0
-                            ? BabyTurtleHidingLeftInstruction
-                            : BabyTurtleHidingRightInstruction);
+                            ? MamaTurtleInstructionProgramDefinitions.BabyHidingLeft
+                            : MamaTurtleInstructionProgramDefinitions.BabyHidingRight);
                 }
                 return;
 
@@ -607,7 +596,9 @@ public sealed partial class RoomEnemySystem
                 if (IsSamusRidingPlatform(baby, samus))
                 {
                     state.Function = BabyTurtleAiFunction.SpinningUnstoppable;
-                    InstallTurtleInstruction(baby, BabyTurtleSpinningInstruction);
+                    InstallTurtleInstruction(
+                        baby,
+                        MamaTurtleInstructionProgramDefinitions.BabySpinning);
                     state.YVelocity = 1;
                     state.XVelocity = (samus.ReadPoseXDirection(_bus!) & 0x0f) == 8
                         ? (ushort)3
@@ -722,8 +713,8 @@ public sealed partial class RoomEnemySystem
                 : (ushort)1;
         }
         return unchecked((short)state.XVelocity) < 0
-            ? BabyTurtleCrawlingLeftInstruction
-            : BabyTurtleCrawlingRightInstruction;
+            ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
+            : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight;
     }
 
     /// <summary>Instruction <c>$A2:9447</c>: begin Mama's shell-entry behavior.</summary>
@@ -754,8 +745,8 @@ public sealed partial class RoomEnemySystem
         if (!IsSamusRidingPlatform(baby, samus))
             return fallthroughCursor;
         return unchecked((short)state.XVelocity) < 0
-            ? BabyTurtleLeaveShellLeftInstruction
-            : BabyTurtleLeaveShellRightInstruction;
+            ? MamaTurtleInstructionProgramDefinitions.BabyLeaveShellLeft
+            : MamaTurtleInstructionProgramDefinitions.BabyLeaveShellRight;
     }
 
     /// <summary>Instruction <c>$A2:94A1</c>: restore crawling after leaving the shell.</summary>
@@ -770,8 +761,8 @@ public sealed partial class RoomEnemySystem
             ? BabyTurtleAiFunction.CrawlingCarryingSamus
             : BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         return unchecked((short)state.XVelocity) < 0
-            ? BabyTurtleCrawlingLeftInstruction
-            : BabyTurtleCrawlingRightInstruction;
+            ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
+            : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight;
     }
 
     /// <summary>Ports Mama's custom ordinary-touch callback at <c>$A2:9281</c>.</summary>
@@ -801,12 +792,16 @@ public sealed partial class RoomEnemySystem
 
         if (unchecked((short)state.XVelocity) < 0)
         {
-            InstallTurtleInstruction(baby, BabyTurtleCrawlingRightInstruction);
+            InstallTurtleInstruction(
+                baby,
+                MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight);
             state.XVelocity = 1;
         }
         else
         {
-            InstallTurtleInstruction(baby, BabyTurtleCrawlingLeftInstruction);
+            InstallTurtleInstruction(
+                baby,
+                MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft);
             state.XVelocity = unchecked((ushort)-1);
         }
 
@@ -894,8 +889,8 @@ public sealed partial class RoomEnemySystem
         InstallTurtleInstruction(
             baby,
             unchecked((short)state.XVelocity) < 0
-                ? BabyTurtleCrawlingLeftInstruction
-                : BabyTurtleCrawlingRightInstruction);
+                ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
+                : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight);
 
     private static void InstallTurtleInstruction(RoomEnemySlot slot, ushort instruction)
     {

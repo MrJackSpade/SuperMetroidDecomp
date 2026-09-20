@@ -18,7 +18,8 @@ internal static class MamaTurtleAudit
 
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace source = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var bus = new MamaTurtleInstructionReadGuard(source);
         VerifyHeaders(bus);
         VerifyPopulationLinkageCrawlingAndDrawing(bus);
         VerifySleepingShellContourAndCorrection(bus);
@@ -27,6 +28,21 @@ internal static class MamaTurtleAudit
         VerifyBabyHideSpinAndReturn(bus);
         VerifyBabyContinuousRiderCarry(bus);
         VerifyMamaWakeHoverRiderDamageAndLanding(bus);
+
+        if (bus.ForbiddenReadAttempts != 0)
+        {
+            throw new InvalidDataException(
+                $"Mama Turtle production execution attempted " +
+                $"{bus.ForbiddenReadAttempts} compiled mechanics-byte reads.");
+        }
+        const int expectedExercisedPresentationWords = 57;
+        if (bus.ObservedPresentationWords.Count != expectedExercisedPresentationWords)
+        {
+            throw new InvalidDataException(
+                $"Mama Turtle audit observed {bus.ObservedPresentationWords.Count} live " +
+                $"spritemap operands, expected {expectedExercisedPresentationWords} from " +
+                $"the exercised retail branches.");
+        }
 
         Console.WriteLine(
             "Mama Turtle audit passed: the untouched $D055 room loaded one parent and four " +
@@ -38,7 +54,7 @@ internal static class MamaTurtleAudit
     }
 
     private static void VerifySleepingShellContourAndCorrection(
-        SuperMetroidAddressSpace bus)
+        ISnesAddressSpace bus)
     {
         LoadedTurtles leftLoad = Load(bus);
         Step(leftLoad, 0);
@@ -120,7 +136,7 @@ internal static class MamaTurtleAudit
     }
 
     private static void VerifyPopulationLinkageCrawlingAndDrawing(
-        SuperMetroidAddressSpace bus)
+        ISnesAddressSpace bus)
     {
         LoadedTurtles loaded = Load(bus);
         RoomEnemySlot mama = loaded.Mama;
@@ -221,7 +237,7 @@ internal static class MamaTurtleAudit
             throw new InvalidDataException("Baby Turtle did not execute common Grapple-cancel AI.");
     }
 
-    private static void VerifyBabyTouchWake(SuperMetroidAddressSpace bus)
+    private static void VerifyBabyTouchWake(ISnesAddressSpace bus)
     {
         LoadedTurtles loaded = Load(bus);
         Step(loaded, 0);
@@ -243,7 +259,7 @@ internal static class MamaTurtleAudit
         }
     }
 
-    private static void VerifyBabyShotWake(SuperMetroidAddressSpace bus)
+    private static void VerifyBabyShotWake(ISnesAddressSpace bus)
     {
         LoadedTurtles loaded = Load(bus);
         Step(loaded, 0);
@@ -263,7 +279,7 @@ internal static class MamaTurtleAudit
         }
     }
 
-    private static void VerifyBabyHideSpinAndReturn(SuperMetroidAddressSpace bus)
+    private static void VerifyBabyHideSpinAndReturn(ISnesAddressSpace bus)
     {
         LoadedTurtles loaded = Load(bus);
         Step(loaded, 0);
@@ -330,7 +346,7 @@ internal static class MamaTurtleAudit
             throw new InvalidDataException("Ridden stoppable Baby did not return to crawling.");
     }
 
-    private static void VerifyBabyContinuousRiderCarry(SuperMetroidAddressSpace bus)
+    private static void VerifyBabyContinuousRiderCarry(ISnesAddressSpace bus)
     {
         LoadedTurtles loaded = Load(bus);
         Step(loaded, 0);
@@ -367,7 +383,7 @@ internal static class MamaTurtleAudit
     }
 
     private static void VerifyMamaWakeHoverRiderDamageAndLanding(
-        SuperMetroidAddressSpace bus)
+        ISnesAddressSpace bus)
     {
         LoadedTurtles loaded = Load(bus);
         Step(loaded, 0);
@@ -411,11 +427,13 @@ internal static class MamaTurtleAudit
         loaded.Samus.XPosition = unchecked((ushort)(mama.XPosition + 29));
         loaded.Samus.YPosition = mama.YPosition;
         Step(loaded, unchecked((byte)frame++));
-        if (loaded.Samus.Health != 799 || !loaded.Samus.KnockbackActive)
+        if (loaded.Samus.Health != 799 || loaded.Samus.KnockbackTimer != 5 ||
+            loaded.Samus.KnockbackXDirection != 1)
         {
             throw new InvalidDataException(
                 $"Mama expanded touch box failed: health={loaded.Samus.Health}, " +
-                $"knockback={loaded.Samus.KnockbackActive}.");
+                $"knockback request={loaded.Samus.KnockbackTimer}/" +
+                $"{loaded.Samus.KnockbackXDirection}.");
         }
 
         loaded.Samus.InvincibilityTimer = 0;
@@ -499,7 +517,7 @@ internal static class MamaTurtleAudit
         }
     }
 
-    private static LoadedTurtles Load(SuperMetroidAddressSpace bus)
+    private static LoadedTurtles Load(ISnesAddressSpace bus)
     {
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
@@ -593,7 +611,9 @@ internal static class MamaTurtleAudit
         ushort damage)
     {
         projectile.ClearFields();
-        projectile.Type = 0;
+        projectile.Type = SamusProjectileTypeWord.CreateBeam(
+            equippedBeams: 0,
+            charged: false);
         projectile.Damage = damage;
         projectile.Direction = (ushort)SamusProjectileDirection.Right;
         projectile.XPosition = target.XPosition;
@@ -613,12 +633,49 @@ internal static class MamaTurtleAudit
         throw new InvalidDataException($"Baby Turtle slot {slotIndex} typed state is absent.");
 
     private readonly record struct LoadedTurtles(
-        SuperMetroidAddressSpace Bus,
+        ISnesAddressSpace Bus,
         CartridgeRoomHeader Room,
         CartridgeRoomAssets Assets,
         RoomEnemySystem Enemies,
         SamusState Samus)
     {
         public RoomEnemySlot Mama => Enemies.Slots[0];
+    }
+
+    private sealed class MamaTurtleInstructionReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (MamaTurtleInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Production read compiled Mama Turtle mechanics byte ${address:X6}.");
+            }
+            if ((address & 0xff0000) == 0xa20000)
+            {
+                ushort bankAddress = unchecked((ushort)address);
+                for (int index = 0;
+                     index < MamaTurtleInstructionProgramDefinitions.PresentationWordCount;
+                     index++)
+                {
+                    ushort presentation = MamaTurtleInstructionProgramDefinitions
+                        .PresentationWordAddress(index);
+                    if (bankAddress == presentation ||
+                        bankAddress == unchecked((ushort)(presentation + 1)))
+                    {
+                        ObservedPresentationWords.Add(presentation);
+                        break;
+                    }
+                }
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

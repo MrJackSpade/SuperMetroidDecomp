@@ -3616,6 +3616,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == MagdolliteDefinition)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (IsKiHunterDefinition(slot.EnemyDefinitionPointer))
+            return KiHunterInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 

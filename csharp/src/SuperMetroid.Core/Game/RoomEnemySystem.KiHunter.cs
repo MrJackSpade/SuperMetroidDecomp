@@ -138,19 +138,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort GoldKiHunterWingsDefinition = 0xebff;
     internal const ushort KiHunterShotAi = EnemyAiCodePointers.BankA8.KiHunterShot;
 
-    private const ushort KiHunterFlyingLeftInstruction = 0xe9fa;
-    private const ushort KiHunterFlyingRightInstruction = 0xea24;
-    private const ushort KiHunterSwoopLeftInstruction = 0xea08;
-    private const ushort KiHunterSwoopRightInstruction = 0xea32;
-    private const ushort KiHunterWingsLeftInstruction = 0xea4e;
-    private const ushort KiHunterWingsRightInstruction = 0xea5e;
-    private const ushort KiHunterDetachedWingsInstruction = 0xea7e;
-    private const ushort KiHunterJumpLeftInstruction = 0xea8a;
-    private const ushort KiHunterJumpRightInstruction = 0xeaa6;
-    private const ushort KiHunterLandLeftInstruction = 0xeac2;
-    private const ushort KiHunterLandRightInstruction = 0xeada;
-    private const ushort KiHunterSpitLeftInstruction = 0xeaf2;
-    private const ushort KiHunterSpitRightInstruction = 0xeb10;
     private const ushort EmptyA8Spritemap = 0x804d;
     private const ushort KiHunterGroundWaitFrames = 12;
     private const ushort KiHunterSpitWaitFrames = 24;
@@ -190,7 +177,7 @@ public sealed partial class RoomEnemySystem
         // proves bit $2000 is the process-instructions flag.
         body.Properties = body.Properties.With(EnemyProperties.ProcessInstructions);
         state.HasLostWings = false;
-        InstallKiHunterInstruction(body, KiHunterFlyingLeftInstruction);
+        InstallKiHunterInstruction(body, KiHunterInstructionProgramDefinitions.FlyingLeft);
         state.Angle = 0;
         state.Function = KiHunterEnemyFunction.FlyingPatrol;
         state.VerticalSubvelocity = 0;
@@ -221,7 +208,7 @@ public sealed partial class RoomEnemySystem
         KiHunterEnemyState state = CreateKiHunterState(wings);
 
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessInstructions);
-        InstallKiHunterInstruction(wings, KiHunterWingsLeftInstruction);
+        InstallKiHunterInstruction(wings, KiHunterInstructionProgramDefinitions.WingsLeft);
         wings.XPosition = body.XPosition;
         wings.YPosition = body.YPosition;
         state.Function = KiHunterEnemyFunction.FollowBody;
@@ -375,7 +362,9 @@ public sealed partial class RoomEnemySystem
             state.SwoopAnimationChanged = true;
             InstallKiHunterInstruction(
                 body,
-                leftArc ? KiHunterSwoopLeftInstruction : KiHunterSwoopRightInstruction);
+                leftArc
+                    ? KiHunterInstructionProgramDefinitions.SwoopLeft
+                    : KiHunterInstructionProgramDefinitions.SwoopRight);
         }
 
         (state.AngularVelocityWhole, state.AngularVelocityFraction) = AddKiHunterFixed(
@@ -492,7 +481,9 @@ public sealed partial class RoomEnemySystem
         state.HorizontalVelocity = jumpLeft ? unchecked((ushort)-2) : (ushort)2;
         InstallKiHunterInstruction(
             body,
-            jumpLeft ? KiHunterJumpLeftInstruction : KiHunterJumpRightInstruction);
+            jumpLeft
+                ? KiHunterInstructionProgramDefinitions.JumpLeft
+                : KiHunterInstructionProgramDefinitions.JumpRight);
     }
 
     /// <summary>Ports airborne hop function <c>$A8:F5F0</c>.</summary>
@@ -519,8 +510,8 @@ public sealed partial class RoomEnemySystem
                 InstallKiHunterInstruction(
                     body,
                     unchecked((short)state.HorizontalVelocity) < 0
-                        ? KiHunterLandLeftInstruction
-                        : KiHunterLandRightInstruction);
+                        ? KiHunterInstructionProgramDefinitions.LandLeft
+                        : KiHunterInstructionProgramDefinitions.LandRight);
             }
             return;
         }
@@ -567,7 +558,9 @@ public sealed partial class RoomEnemySystem
         bool samusRight = unchecked((short)(body.XPosition - samus.XPosition)) < 0;
         InstallKiHunterInstruction(
             body,
-            samusRight ? KiHunterSpitRightInstruction : KiHunterSpitLeftInstruction);
+            samusRight
+                ? KiHunterInstructionProgramDefinitions.SpitRight
+                : KiHunterInstructionProgramDefinitions.SpitLeft);
         state.Function = KiHunterEnemyFunction.NoOp;
     }
 
@@ -715,7 +708,9 @@ public sealed partial class RoomEnemySystem
         state.OrbitCenterY = unchecked((ushort)(state.SavedWingY - state.LowerPatrolY));
         state.OrbitCenterX = wings.XPosition;
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
-        InstallKiHunterInstruction(wings, KiHunterDetachedWingsInstruction);
+        InstallKiHunterInstruction(
+            wings,
+            KiHunterInstructionProgramDefinitions.DetachedWings);
         wings.SpritemapPointer = EmptyA8Spritemap;
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
@@ -778,13 +773,15 @@ public sealed partial class RoomEnemySystem
         KiHunterEnemyState state = RequireKiHunterState(body);
         bool movingRight = unchecked((short)state.HorizontalVelocity) >= 0;
         ushort wingInstruction = movingRight
-            ? KiHunterWingsRightInstruction
-            : KiHunterWingsLeftInstruction;
+            ? KiHunterInstructionProgramDefinitions.WingsRight
+            : KiHunterInstructionProgramDefinitions.WingsLeft;
         RoomEnemySlot wings = GetKiHunterWings(body);
         KiHunterEnemyState wingState = RequireKiHunterState(wings);
         if (wingState.Function == KiHunterEnemyFunction.FollowBody)
             InstallKiHunterInstruction(wings, wingInstruction);
-        return movingRight ? KiHunterFlyingRightInstruction : KiHunterFlyingLeftInstruction;
+        return movingRight
+            ? KiHunterInstructionProgramDefinitions.FlyingRight
+            : KiHunterInstructionProgramDefinitions.FlyingLeft;
     }
 
     private static void StartKiHunterGroundJumpFromInstruction(KiHunterEnemyState state) =>
@@ -804,14 +801,18 @@ public sealed partial class RoomEnemySystem
     {
         InstallKiHunterInstruction(
             body,
-            movingRight ? KiHunterFlyingRightInstruction : KiHunterFlyingLeftInstruction);
+            movingRight
+                ? KiHunterInstructionProgramDefinitions.FlyingRight
+                : KiHunterInstructionProgramDefinitions.FlyingLeft);
         RoomEnemySlot wings = GetKiHunterWings(body);
         KiHunterEnemyState wingState = RequireKiHunterState(wings);
         if (wingState.Function == KiHunterEnemyFunction.FollowBody)
         {
             InstallKiHunterInstruction(
                 wings,
-                movingRight ? KiHunterWingsRightInstruction : KiHunterWingsLeftInstruction);
+                movingRight
+                    ? KiHunterInstructionProgramDefinitions.WingsRight
+                    : KiHunterInstructionProgramDefinitions.WingsLeft);
         }
     }
 

@@ -3128,3 +3128,18 @@ sound and all six real lava projectiles; both submerge/emerge directions complet
 visibility and wait-flag handoffs. Every presentation operand remains observable while
 mechanics bytes are forbidden, invalid mechanics pointers fail loudly, and warmed lookup
 is allocation-free.
+
+# KiHunter instruction mechanics
+
+KiHunter's left/right flight, swoop, attached-wing, ground-jump, landing, acid-spit,
+and detached-wing programs now resolve all 84 fixed durations, callbacks, gotos, loop
+targets, and terminal sleeps through `KiHunterInstructionProgramDefinitions`. Their 59
+interleaved spritemap pointers remain live cartridge presentation data, and every body/
+wing state-machine handoff uses the same named entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+thirteen production programs through their loop or terminal sleep. Both acid-spit paths
+publish the native sound/wait state and spawn their real directional projectile; body
+callbacks also restart the attached wing program. Every presentation operand remains
+observable while mechanics bytes are forbidden, invalid mechanics pointers fail loudly,
+and warmed lookup is allocation-free.

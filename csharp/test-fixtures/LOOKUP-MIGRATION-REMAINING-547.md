@@ -69,8 +69,11 @@ their RNG-derived vertical velocities, and the cursor-22 cutoff run with
 `$A4:9156-$A4:916B` forbidden. The projectile definition and graphics
 program remain separate dependencies.
 KiHunter's proximity, gravity and detached-wing radius constants are compiled;
-the misleading attack-radius reference names are corrected. Its instruction
-programs, populations and presentation still belong to the broader integration.
+the misleading attack-radius reference names are corrected. Its thirteen body and wing
+instruction programs now compile all 84 control words as well. Both directional acid-spit
+paths retain their sound, wait-state, and projectile effects while 59 interleaved
+spritemap pointers stay live presentation data. Populations and broader presentation
+integration remain separate.
 Kraid second-phase movement choices are compiled, including all six indirect
 rows, default-position handling and the half-probability final choice. Actual
 walking target/direction/timer/animation transitions are covered without ROM reads.

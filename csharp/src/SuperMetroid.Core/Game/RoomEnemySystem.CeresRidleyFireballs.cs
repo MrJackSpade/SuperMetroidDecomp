@@ -1959,6 +1959,11 @@ public sealed partial class RoomEnemySystem
             return PolypRockInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (KiHunterAcidSpitInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return KiHunterAcidSpitInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(

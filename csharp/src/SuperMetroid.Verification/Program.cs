@@ -112,6 +112,11 @@ if (args is ["--polyp-rock-instruction-mechanics"])
     VerifyPolypRockInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kihunter-acid-spit-instruction-mechanics"])
+{
+    VerifyKiHunterAcidSpitInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

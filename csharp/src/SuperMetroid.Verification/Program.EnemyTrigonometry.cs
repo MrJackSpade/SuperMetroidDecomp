@@ -45,6 +45,7 @@ internal static partial class Program
         VerifyWorkRobotLaserInstructionProgramDefinitions(rom);
         VerifyPowampSpikeInstructionProgramDefinitions(rom);
         VerifyPolypRockInstructionProgramDefinitions(rom);
+        VerifyKiHunterAcidSpitInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyKiHunterInstructionProgramDefinitions(rom);

@@ -3816,3 +3816,17 @@ Verification compares both mechanics words with the pinned cartridge, invokes th
 Polyp-rock producer, and drives its frame, terminal sleep, and shared shot deletion with
 mechanics reads forbidden. It also observes the live presentation operand, rejects adjacent
 initializer data, and proves warmed lookup is allocation-free.
+
+# KiHunter acid-spit instruction mechanics
+
+Both KiHunter acid-spit introductions and their shared floor splash now resolve twenty-seven
+fixed duration, callback, sleep, clear-callback, and delete words through
+`KiHunterAcidSpitInstructionProgramDefinitions`. Their nineteen interleaved spritemap
+operands remain live cartridge presentation data. The movement collision installs the
+named splash program instead of a raw pointer in functional code.
+
+Verification compares every mechanics word with the pinned cartridge, invokes both real
+directional producers, and executes both introductions through their callback installation
+and terminal sleeps. A constructed solid floor drives the real collision path and complete
+five-frame splash, while the test also proves shared shot deletion, every live presentation
+read, invalid-pointer rejection, and allocation-free warmed lookup.

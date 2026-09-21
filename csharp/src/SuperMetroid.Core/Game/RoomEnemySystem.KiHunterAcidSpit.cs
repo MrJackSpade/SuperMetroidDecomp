@@ -12,7 +12,6 @@ public sealed partial class RoomEnemySystem
     // $CFF8 because $CFF7 is the native callable entry byte; preserve the stored pointer.
     private const ushort KiHunterAcidMovingPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Moving;
-    private const ushort KiHunterAcidFloorImpactInstruction = 0xcf56;
     private const ushort KiHunterAcidHorizontalSpeed = 0x0300;
     private const ushort KiHunterAcidGravity = 0x0010;
     private const ushort KiHunterAcidTerminalYSpeed = 0x0200;
@@ -69,7 +68,7 @@ public sealed partial class RoomEnemySystem
     {
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.InstructionPointer = KiHunterAcidFloorImpactInstruction;
+            projectile.InstructionPointer = KiHunterAcidSpitInstructionProgramDefinitions.HitFloor;
             projectile.InstructionTimer = 1;
             return;
         }

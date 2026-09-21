@@ -158,8 +158,12 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.FakeKraidSpikeRight => new(
             0x9E4B, 0x9E83, FakeKraidProjectileInstructionProgramDefinitions.SpikeRight,
             0x0204, 0x0006, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.KiHunterAcidSpitLeft => new(0xCF90, 0xCFF7, 0xCF34, 0x0802, 0x0014, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.KiHunterAcidSpitRight => new(0xCFA6, 0xCFF7, 0xCF6E, 0x0802, 0x0014, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.KiHunterAcidSpitLeft => new(
+            0xCF90, 0xCFF7, KiHunterAcidSpitInstructionProgramDefinitions.Left,
+            0x0802, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.KiHunterAcidSpitRight => new(
+            0xCFA6, 0xCFF7, KiHunterAcidSpitInstructionProgramDefinitions.Right,
+            0x0802, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PirateMotherBrainLaser => new(0xA009, 0xA05C, 0x9F41, 0x0410, 0x100A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.PirateClaw => new(0xA098, 0xA05B, 0x0000, 0x0808, 0x1014, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.PolypRock => new(

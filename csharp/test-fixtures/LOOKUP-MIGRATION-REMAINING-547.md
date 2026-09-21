@@ -1236,6 +1236,15 @@ conversion frames and through tail deletion with mechanics bytes forbidden; cart
 parity, sounds, callback effects, every presentation read, strict rejection, and
 allocation-free warmed lookup are verified.
 
+## Spore Spawn projectile instruction mechanics
+
+The stalk, ceiling-emitter, and airborne-spore projectile families now compile all
+twenty-eight fixed control words while retaining seventeen spritemap operands as live
+presentation data. All three real producers execute through the emitter release, spore
+loop, stalk sleep, and complete shot/drop/deletion path with mechanics bytes forbidden.
+Exact ROM parity, callback effects, every presentation read, strict rejection, and
+allocation-free warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

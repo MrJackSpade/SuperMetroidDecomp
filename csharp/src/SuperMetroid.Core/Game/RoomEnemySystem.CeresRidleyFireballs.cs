@@ -2145,6 +2145,11 @@ public sealed partial class RoomEnemySystem
                 address);
         }
 
+        if (SporeSpawnProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return SporeSpawnProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

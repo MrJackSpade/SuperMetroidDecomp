@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort SporeSpawnSpawnerSpawnInstruction = 0xdc06;
+    private const ushort SporeSpawnSpawnerSpawnInstruction =
+        SporeSpawnProjectileInstructionProgramDefinitions.SpawnerRelease;
     private const ushort SporeSpawnGraphicsIndex = 0x0200;
 
     /// <summary>Ports projectile definition $86:DE6C and initializer $86:DCA3.</summary>

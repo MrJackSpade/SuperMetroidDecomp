@@ -67,6 +67,11 @@ if (args is ["--tourian-statue-projectile-instruction-mechanics"])
     VerifyTourianStatueProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--spore-spawn-projectile-instruction-mechanics"])
+{
+    VerifySporeSpawnProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

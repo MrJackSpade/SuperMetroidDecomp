@@ -4178,3 +4178,17 @@ proves the four-particle/earthquake release, the cartridge's unset-timer FFFF wr
 three tail displacements, stable statue loops, private deletion list, every presentation
 read, strict pointer rejection, and allocation-free warmed lookup while mechanics bytes
 are forbidden.
+
+# Spore Spawn projectile instruction mechanics
+
+Spore Spawn's stalk, four ceiling emitters, and airborne spores now resolve all
+twenty-eight fixed durations, callbacks, branches, loop targets, sleeps, and shot/drop
+control through `SporeSpawnProjectileInstructionProgramDefinitions`. Their seventeen
+interleaved spritemap operands remain live cartridge presentation data, and definition
+records plus the emitter's release handoff use named catalog entries.
+
+Verification compares every mechanics word with the pinned cartridge and invokes all three
+real producers. It executes the closed and releasing emitter, complete airborne-spore loop,
+stalk sleep, and full shot explosion through its property change, sound, real enemy-drop
+selection, and deletion. Every presentation read, strict pointer rejection, and
+allocation-free warmed lookup pass with mechanics bytes forbidden.

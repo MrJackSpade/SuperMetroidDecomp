@@ -379,9 +379,9 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new(0xBDA2, 0xBE03, ShaktoolProjectileInstructionProgramDefinitions.Front, 0x0404, 0x000A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new(0xBD9C, 0x84FB, ShaktoolProjectileInstructionProgramDefinitions.Middle, 0x0404, 0x2000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.ShaktoolAttackBackCircle => new(0xBD9C, 0x84FB, ShaktoolProjectileInstructionProgramDefinitions.Back, 0x0404, 0x2000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.SporeSpawnStalk => new(0xDCA3, 0xDD44, 0xDC2E, 0x0808, 0x2000, 0x0000, 0xDC2E),
-        RoomEnemyProjectileKind.SporeSpawnSpore => new(0xDC8D, 0xDCEE, 0xDC1E, 0x0202, 0x8004, 0x0000, 0xDC34),
-        RoomEnemyProjectileKind.SporeSpawnSpawner => new(0xDCD4, 0xDD46, 0xDC00, 0x0202, 0x2000, 0x0000, 0xDC00),
+        RoomEnemyProjectileKind.SporeSpawnStalk => new(0xDCA3, 0xDD44, SporeSpawnProjectileInstructionProgramDefinitions.Stalk, 0x0808, 0x2000, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.Stalk),
+        RoomEnemyProjectileKind.SporeSpawnSpore => new(0xDC8D, 0xDCEE, SporeSpawnProjectileInstructionProgramDefinitions.Spore, 0x0202, 0x8004, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.SporeShot),
+        RoomEnemyProjectileKind.SporeSpawnSpawner => new(0xDCD4, 0xDD46, SporeSpawnProjectileInstructionProgramDefinitions.SpawnerClosed, 0x0202, 0x2000, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.SpawnerClosed),
         RoomEnemyProjectileKind.SaveStationElectricity => new(
             0xE6AD,
             0xE6D1,

@@ -175,6 +175,7 @@ internal static partial class Program
         VerifyCrocomireTongueInstructionProgramDefinitions(rom);
         VerifyMotherBrainBabyInstructionProgramDefinitions(rom);
         VerifyEscapeEtecoonDefinitions(rom);
+        VerifyEscapeEtecoonInstructionProgramDefinitions(rom);
         VerifyZebetiteDefinitions(rom);
         VerifyMotherBrainBabyMetroidDefinitions(rom);
         VerifyYardDirectionDefinitions(rom);

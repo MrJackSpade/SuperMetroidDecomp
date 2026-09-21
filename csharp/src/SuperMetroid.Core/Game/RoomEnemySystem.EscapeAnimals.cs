@@ -77,16 +77,9 @@ public sealed partial class RoomEnemySystem
     internal const ushort EscapeEtecoonDefinition = 0xf2d3;
     internal const ushort EscapeDachoraDefinition = 0xf313;
 
-    private const int EscapeAnimalBank = 0xb30000;
     private const ushort EmptyBankB3Spritemap = 0x804d;
-    private const ushort EscapeEtecoonLeftWalkList = 0xe556;
-    private const ushort EscapeEtecoonRightWalkList = 0xe582;
-    private const ushort EscapeEtecoonRightEscapeList = 0xe5ae;
-    private const ushort EscapeEtecoonDelayedEscapeList = 0xe5da;
     private const ushort EscapeDachoraNormalList = 0xe964;
 
-    private const ushort EscapeEtecoonLavaBranchInstruction = 0xe545;
-    private const ushort EscapeEtecoonAddXInstruction = 0xe610;
     private const ushort EscapeDachoraLavaBranchInstruction = 0xeaa8;
     private const ushort EscapeDachoraEventBranchInstruction = 0xeab8;
     private const ushort EscapeDachoraMoveLeftInstruction = 0xeac9;
@@ -192,7 +185,8 @@ public sealed partial class RoomEnemySystem
                 // existing instruction timer intact, so the new list begins on the same
                 // scheduler boundary the SNES would observe.
                 if (HasCrittersEscaped())
-                    slot.CurrentInstruction = EscapeEtecoonDelayedEscapeList;
+                    slot.CurrentInstruction =
+                        EscapeEtecoonInstructionProgramDefinitions.ExpressGratitudeThenEscape;
                 return;
 
             case EscapeEtecoonPreInstruction.WalkAndFall:
@@ -224,10 +218,11 @@ public sealed partial class RoomEnemySystem
             slot.InstructionTimer = 1;
             state.HorizontalSpeed = unchecked((ushort)-state.HorizontalSpeed);
             slot.CurrentInstruction = unchecked((short)state.HorizontalSpeed) < 0
-                ? EscapeEtecoonLeftWalkList
-                : EscapeEtecoonRightWalkList;
+                ? EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide
+                : EscapeEtecoonInstructionProgramDefinitions.RunningRightLowTide;
             if (HasCrittersEscaped())
-                slot.CurrentInstruction = EscapeEtecoonRightEscapeList;
+                slot.CurrentInstruction =
+                    EscapeEtecoonInstructionProgramDefinitions.RunningForEscape;
         }
 
         // Enemy_MoveDown is called even after horizontal collision, and its carry result is
@@ -252,7 +247,8 @@ public sealed partial class RoomEnemySystem
             switch (opcode)
             {
                 case EscapeAnimalInstructionCodes.Instruction_CommonB3_Enemy0FB2_InY:
-                    state.PreInstruction = (EscapeEtecoonPreInstruction)ReadEscapeAnimalOperand(cursor);
+                    state.PreInstruction = (EscapeEtecoonPreInstruction)
+                        ReadEscapeAnimalOperand(slot, cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     return true;
 
@@ -261,15 +257,15 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
 
-                case EscapeEtecoonLavaBranchInstruction:
+                case EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE:
                     cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadEscapeAnimalOperand(cursor);
+                        : ReadEscapeAnimalOperand(slot, cursor);
                     return true;
 
-                case EscapeEtecoonAddXInstruction:
+                case EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY:
                     slot.XPosition = unchecked((ushort)(
-                        slot.XPosition + ReadEscapeAnimalOperand(cursor)));
+                        slot.XPosition + ReadEscapeAnimalOperand(slot, cursor)));
                     cursor = unchecked((ushort)(cursor + 4));
                     return true;
             }
@@ -281,12 +277,12 @@ public sealed partial class RoomEnemySystem
                 case EscapeDachoraLavaBranchInstruction:
                     cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadEscapeAnimalOperand(cursor);
+                        : ReadEscapeAnimalOperand(slot, cursor);
                     return true;
 
                 case EscapeDachoraEventBranchInstruction:
                     cursor = HasCrittersEscaped()
-                        ? ReadEscapeAnimalOperand(cursor)
+                        ? ReadEscapeAnimalOperand(slot, cursor)
                         : unchecked((ushort)(cursor + 4));
                     return true;
 
@@ -312,11 +308,10 @@ public sealed partial class RoomEnemySystem
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
-    private ushort ReadEscapeAnimalOperand(ushort instructionCursor) =>
-        ReadEscapeAnimalWord(unchecked((ushort)(instructionCursor + 2)), 0);
-
-    private ushort ReadEscapeAnimalWord(ushort basePointer, ushort byteOffset) =>
-        ReadWord(_bus!, EscapeAnimalBank | unchecked((ushort)(basePointer + byteOffset)));
+    private ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
+        ReadEnemyInstructionMechanicsWord(
+            slot,
+            unchecked((ushort)(instructionCursor + 2)));
 
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {

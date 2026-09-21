@@ -20,9 +20,12 @@ internal static class EscapeEtecoonDefinitions
     /// </summary>
     private static readonly EscapeEtecoonInitialization[] Initializations =
     [
-        new(0x0080, 0x00c8, EscapeEtecoonPreInstruction.WalkAndFall, 0xe556, 0xfe00),
-        new(0x00a0, 0x00c8, EscapeEtecoonPreInstruction.WalkAndFall, 0xe582, 0x0280),
-        new(0x00e8, 0x00c8, EscapeEtecoonPreInstruction.WaitForEscapeEvent, 0xe5c6, 0x0000),
+        new(0x0080, 0x00c8, EscapeEtecoonPreInstruction.WalkAndFall,
+            EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide, 0xfe00),
+        new(0x00a0, 0x00c8, EscapeEtecoonPreInstruction.WalkAndFall,
+            EscapeEtecoonInstructionProgramDefinitions.RunningRightLowTide, 0x0280),
+        new(0x00e8, 0x00c8, EscapeEtecoonPreInstruction.WaitForEscapeEvent,
+            EscapeEtecoonInstructionProgramDefinitions.Stationary, 0x0000),
     ];
 
     /// <summary>

@@ -3575,3 +3575,19 @@ steady, collision-recovery, and dormant-attack paths while every mechanics byte 
 source selector tables are forbidden, and observes all 15 presentation reads. It asserts
 movement callbacks and the seven-segment pre-instruction reset, rejects presentation and
 adjacent native code as mechanics, and proves warmed lookup is allocation-free.
+
+# Escape Etecoon instruction mechanics
+
+The three escape-sequence Etecoons now resolve their low/high-tide walking, stationary,
+gratitude, and departure programs through
+`EscapeEtecoonInstructionProgramDefinitions`. Sixty-three fixed callbacks, callback
+operands, timers, durations, branches, gotos, and loop targets are compiled across the
+seven live programs; thirty interleaved spritemap operands remain cartridge presentation
+data. Initialization, wall reversal, event-wait, and escape handoffs share the named
+program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes every
+program through the production interpreter while mechanics bytes and the separately
+compiled initialization tables are forbidden. It observes all thirty presentation reads,
+asserts the gratitude displacement and rightward-escape handoff, rejects presentation and
+adjacent callback code as mechanics, and proves warmed lookup is allocation-free.

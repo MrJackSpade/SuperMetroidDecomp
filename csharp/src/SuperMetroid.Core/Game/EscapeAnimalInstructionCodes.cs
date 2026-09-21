@@ -8,4 +8,10 @@ internal static class EscapeAnimalInstructionCodes
 
     /// <summary>Clears the pre-instruction pointer to the bank-common RTS at $B3:8074.</summary>
     public const ushort Instruction_CommonB3_SetEnemy0FB2ToRTS = 0x8074;
+
+    /// <summary><c>Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE</c> at $B3:E545.</summary>
+    public const ushort Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE = 0xe545;
+
+    /// <summary><c>Instruction_EtecoonEscape_XPositionPlusY</c> at $B3:E610.</summary>
+    public const ushort Instruction_EtecoonEscape_XPositionPlusY = 0xe610;
 }

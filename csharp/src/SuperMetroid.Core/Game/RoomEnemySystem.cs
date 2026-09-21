@@ -3564,6 +3564,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == ShaktoolDefinition)
             return ShaktoolInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == EscapeEtecoonDefinition)
+            return EscapeEtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer is
             KraidTopLintDefinition or
             KraidMiddleLintDefinition or

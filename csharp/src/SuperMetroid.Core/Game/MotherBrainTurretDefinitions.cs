@@ -69,14 +69,22 @@ internal static class MotherBrainTurretDefinitions
     /// </summary>
     private static readonly MotherBrainTurretDirectionDefinition[] Directions =
     [
-        new(0xc101, -17, -9, -0x02c0, 0),
-        new(0xc107, -12, 3, -0x01f2, 0x01f2),
-        new(0xc10d, 0, 7, 0, 0x02c0),
-        new(0xc113, 12, 3, 0x01f2, 0x01f2),
-        new(0xc119, 17, -9, 0x02c0, 0),
-        new(0xc11f, 12, -19, 0x01f2, -0x01f2),
-        new(0xc125, 0, -21, 0, -0x02c0),
-        new(0xc12b, -12, -19, -0x01f2, -0x01f2),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretLeft,
+            -17, -9, -0x02c0, 0),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretDownLeft,
+            -12, 3, -0x01f2, 0x01f2),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretDown,
+            0, 7, 0, 0x02c0),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretDownRight,
+            12, 3, 0x01f2, 0x01f2),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretRight,
+            17, -9, 0x02c0, 0),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretUpRight,
+            12, -19, 0x01f2, -0x01f2),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretUp,
+            0, -21, 0, -0x02c0),
+        new(MotherBrainTurretInstructionProgramDefinitions.TurretUpLeft,
+            -12, -19, -0x01f2, -0x01f2),
     ];
 
     /// <summary>Returns one of the twelve physical turret definitions.</summary>

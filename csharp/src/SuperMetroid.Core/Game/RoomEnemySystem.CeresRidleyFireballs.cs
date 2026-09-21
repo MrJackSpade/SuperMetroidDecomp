@@ -1777,9 +1777,9 @@ public sealed partial class RoomEnemySystem
                     // The bullet initializer stores direction * 2 in variable E. The ROM
                     // opcode adds that byte offset to the eight-pointer table immediately
                     // following the opcode, then jumps to the selected one-frame map.
-                    cursor = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor + 2 + projectile.Variable0)));
+                    cursor = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
+                        unchecked((ushort)(cursor + 2 + projectile.Variable0)));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
                     // First instruction of the shared touch/shot smoke sequence.
@@ -2004,6 +2004,11 @@ public sealed partial class RoomEnemySystem
         if (MotherBrainGlassInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (MotherBrainTurretInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)

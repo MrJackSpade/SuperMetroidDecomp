@@ -182,6 +182,11 @@ if (args is ["--mother-brain-glass-instruction-mechanics"])
     VerifyMotherBrainGlassInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--mother-brain-turret-instruction-mechanics"])
+{
+    VerifyMotherBrainTurretInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--gunship-dust-instruction-mechanics"])
 {
     VerifyGunshipDustInstructionProgramDefinitions();

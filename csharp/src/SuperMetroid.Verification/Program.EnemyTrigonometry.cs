@@ -61,6 +61,7 @@ internal static partial class Program
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
         VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);
         VerifyMotherBrainGlassInstructionProgramDefinitions(rom);
+        VerifyMotherBrainTurretInstructionProgramDefinitions(rom);
         VerifyGunshipDustInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);

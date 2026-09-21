@@ -4022,6 +4022,20 @@ executes every frame, loop, private deletion, and shared shot deletion with mech
 forbidden. It observes every presentation operand, rejects neighboring data, and proves
 warmed lookup is allocation-free.
 
+# Mother Brain room-turret instruction mechanics
+
+Mother Brain's eight turret poses, eight direction-selected bullet poses, and shared bullet
+touch/shot smoke now resolve their durations, selector targets, sleeps, palette/pre-instruction
+changes, and deletion through `MotherBrainTurretInstructionProgramDefinitions`. The turret
+direction table reuses those named pose definitions, while all 21 spritemap operands remain
+live cartridge presentation data.
+
+Verification compares all 49 mechanics words with the pinned cartridge, invokes all twelve
+real turret producers and all eight real bullet selections, then executes every pose, sleep,
+contact frame, private deletion, and shared shot deletion with mechanics reads forbidden. It
+observes every presentation operand, rejects adjacent code and presentation data, and proves
+warmed lookup is allocation-free.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

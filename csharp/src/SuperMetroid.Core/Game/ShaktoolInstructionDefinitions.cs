@@ -11,14 +11,14 @@ internal static class ShaktoolInstructionDefinitions
     /// <summary>The eight center-orientation instruction lists at <c>$AA:DD15-$DD24</c>.</summary>
     private static readonly ushort[] OrientationInstructions =
     [
-        0xdab4,
-        0xdabc,
-        0xdac4,
-        0xdacc,
-        0xdad4,
-        0xdadc,
-        0xdaa4,
-        0xdaac,
+        ShaktoolInstructionProgramDefinitions.HeadAimingUp,
+        ShaktoolInstructionProgramDefinitions.HeadAimingUpRight,
+        ShaktoolInstructionProgramDefinitions.HeadAimingRight,
+        ShaktoolInstructionProgramDefinitions.HeadAimingDownRight,
+        ShaktoolInstructionProgramDefinitions.HeadAimingDown,
+        ShaktoolInstructionProgramDefinitions.HeadAimingDownLeft,
+        ShaktoolInstructionProgramDefinitions.HeadAimingLeft,
+        ShaktoolInstructionProgramDefinitions.HeadAimingUpLeft,
     ];
 
     /// <summary>
@@ -27,13 +27,20 @@ internal static class ShaktoolInstructionDefinitions
     /// </summary>
     private static readonly ShaktoolSegmentInstructionDefinition[] SegmentInstructions =
     [
-        new(0xd9fc, 0xd9ea),
-        new(0xda56, 0xda2e),
-        new(0xda62, 0xda42),
-        new(0xda90, 0xda7a),
-        new(0xda62, 0xda42),
-        new(0xda56, 0xda2e),
-        new(0xda04, 0xd9f2),
+        new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobPrimaryPiece,
+            ShaktoolInstructionProgramDefinitions.SawHandAttackPrimaryPiece),
+        new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobBack,
+            ShaktoolInstructionProgramDefinitions.ArmPieceAttackBack),
+        new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobFront,
+            ShaktoolInstructionProgramDefinitions.ArmPieceAttackFront),
+        new(ShaktoolInstructionProgramDefinitions.HeadHeadBob,
+            ShaktoolInstructionProgramDefinitions.HeadAttack),
+        new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobFront,
+            ShaktoolInstructionProgramDefinitions.ArmPieceAttackFront),
+        new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobBack,
+            ShaktoolInstructionProgramDefinitions.ArmPieceAttackBack),
+        new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobFinalPiece,
+            ShaktoolInstructionProgramDefinitions.SawHandAttackFinalPiece),
     ];
 
     /// <summary>Returns the list selected by the native five-bit center-direction bucket.</summary>

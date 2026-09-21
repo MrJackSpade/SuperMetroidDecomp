@@ -3560,3 +3560,18 @@ Verification compares every mechanics word with the pinned cartridge and forces 
 three physical lint definitions through both production programs while every mechanics
 byte is forbidden. Both presentation reads remain observable, the adjacent foot program
 is rejected as lint mechanics, and warmed lookup is allocation-free.
+
+# Shaktool instruction mechanics
+
+Shaktool's initialization, eight-way head orientation, collision-recovery, and dormant
+attack selectors now resolve their complete reachable closure through
+`ShaktoolInstructionProgramDefinitions`. This includes the selected programs plus the
+three shared saw-hand and arm-piece loops they branch into: 110 fixed waits, durations,
+movement/reset callbacks, gotos, and targets across 21 programs. Fifteen interleaved
+spritemap operands remain live cartridge presentation data.
+
+Verification compares every mechanics word with the pinned cartridge, executes the
+steady, collision-recovery, and dormant-attack paths while every mechanics byte and both
+source selector tables are forbidden, and observes all 15 presentation reads. It asserts
+movement callbacks and the seven-segment pre-instruction reset, rejects presentation and
+adjacent native code as mechanics, and proves warmed lookup is allocation-free.

@@ -221,7 +221,16 @@ internal static partial class ShaktoolAudit
             ShaktoolPreInstruction.OrbitPreviousSegment,
             ShaktoolPreInstruction.DriveTailAndReverseAtWalls,
         ];
-        ushort[] expectedLists = [0xda0e, 0xda72, 0xda72, 0xdad4, 0xda72, 0xda72, 0xda0e];
+        ushort[] expectedLists =
+        [
+            ShaktoolInstructionProgramDefinitions.SawHandPrimaryPiece,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            ShaktoolInstructionProgramDefinitions.HeadAimingDown,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            ShaktoolInstructionProgramDefinitions.SawHandPrimaryPiece,
+        ];
         ushort[] expectedLayers = [2, 4, 4, 2, 4, 4, 2];
 
         for (int index = 0; index < group.Length; index++)
@@ -285,7 +294,9 @@ internal static partial class ShaktoolAudit
                 attackPositions.Add((segment.XPosition, segment.YPosition));
         }
         if (attackPositions.Count < 12 ||
-            group[6].CurrentInstruction is not (>= 0xda0e and <= 0xda22) ||
+            group[6].CurrentInstruction is not
+                (>= ShaktoolInstructionProgramDefinitions.SawHandPrimaryPiece and
+                 <= ShaktoolInstructionProgramDefinitions.SawHandFinalPiece + 4) ||
             enemies.ShaktoolSegments[group[6].SlotIndex]?.PreInstruction !=
                 ShaktoolPreInstruction.DriveTailAndReverseAtWalls)
         {

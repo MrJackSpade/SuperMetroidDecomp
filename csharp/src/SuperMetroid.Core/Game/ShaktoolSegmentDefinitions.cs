@@ -19,13 +19,27 @@ internal static class ShaktoolSegmentDefinitions
     /// </summary>
     private static readonly ShaktoolSegmentDefinition[] Segments =
     [
-        new(0x2800, 0x0000, 0x0000, 0xda0e, 0x0002, ShaktoolPreInstruction.IdleHead, 0x0000),
-        new(0x2c00, 0x0040, 0xf800, 0xda72, 0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x0020),
-        new(0x2c00, 0x0080, 0xe800, 0xda72, 0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x0060),
-        new(0x2c00, 0x00c0, 0xd000, 0xdad4, 0x0002, ShaktoolPreInstruction.OrbitAndOrientCenter, 0x00c0),
-        new(0x2c00, 0x0100, 0xb000, 0xda72, 0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x0140),
-        new(0x2c00, 0x0140, 0x9800, 0xda72, 0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x01a0),
-        new(0x2800, 0x0180, 0x8800, 0xda0e, 0x0002, ShaktoolPreInstruction.DriveTailAndReverseAtWalls, 0x01e0),
+        new(0x2800, 0x0000, 0x0000,
+            ShaktoolInstructionProgramDefinitions.SawHandPrimaryPiece,
+            0x0002, ShaktoolPreInstruction.IdleHead, 0x0000),
+        new(0x2c00, 0x0040, 0xf800,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x0020),
+        new(0x2c00, 0x0080, 0xe800,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x0060),
+        new(0x2c00, 0x00c0, 0xd000,
+            ShaktoolInstructionProgramDefinitions.HeadAimingDown,
+            0x0002, ShaktoolPreInstruction.OrbitAndOrientCenter, 0x00c0),
+        new(0x2c00, 0x0100, 0xb000,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x0140),
+        new(0x2c00, 0x0140, 0x9800,
+            ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+            0x0004, ShaktoolPreInstruction.OrbitPreviousSegment, 0x01a0),
+        new(0x2800, 0x0180, 0x8800,
+            ShaktoolInstructionProgramDefinitions.SawHandPrimaryPiece,
+            0x0002, ShaktoolPreInstruction.DriveTailAndReverseAtWalls, 0x01e0),
     ];
 
     /// <summary>Returns one of the seven physical linked-segment definitions.</summary>

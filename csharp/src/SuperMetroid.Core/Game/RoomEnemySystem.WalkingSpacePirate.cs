@@ -83,14 +83,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MagentaWalkingSpacePirateDefinition = 0xf753;
     internal const ushort SilverWalkingSpacePirateDefinition = 0xf793;
 
-    private const ushort WalkingPirateFlinchFacingLeft = 0xfb4c;
-    private const ushort WalkingPirateFlinchFacingRight = 0xfb58;
-    private const ushort WalkingPirateWalkingLeft = 0xfb64;
-    private const ushort WalkingPirateFireLasersLeft = 0xfb8c;
-    private const ushort WalkingPirateLookingFacingLeft = 0xfbc6;
-    private const ushort WalkingPirateWalkingRight = 0xfbe6;
-    private const ushort WalkingPirateFireLasersRight = 0xfc0e;
-    private const ushort WalkingPirateLookingFacingRight = 0xfc48;
     private const ushort PirateMotherBrainLaserSound = 0x0067;
     private const int WalkingPirateOnePixelDown = 1 << 16;
     private const int WalkingPirateLeftLedgeProbePixels = 17;
@@ -137,8 +129,8 @@ public sealed partial class RoomEnemySystem
         var parameterFlags = (WalkingSpacePirateParameterFlags)slot.Parameter1;
         slot.CurrentInstruction =
             (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != 0
-            ? WalkingPirateWalkingRight
-            : WalkingPirateWalkingLeft;
+            ? WalkingSpacePirateInstructionProgramDefinitions.WalkingRight
+            : WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft;
         state.Function = WalkingSpacePirateFunction.NoOperation;
 
         // Native ADC/SBC wrap at 16 bits. A modded patrol radius can therefore straddle the
@@ -230,7 +222,9 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        InstallWalkingSpacePirateInstruction(slot, WalkingPirateLookingFacingLeft);
+        InstallWalkingSpacePirateInstruction(
+            slot,
+            WalkingSpacePirateInstructionProgramDefinitions.LookingFacingLeft);
     }
 
     /// <summary>Ports the right-walk function at <c>$B2:FDCE</c>.</summary>
@@ -265,7 +259,9 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        InstallWalkingSpacePirateInstruction(slot, WalkingPirateLookingFacingRight);
+        InstallWalkingSpacePirateInstruction(
+            slot,
+            WalkingSpacePirateInstructionProgramDefinitions.LookingFacingRight);
     }
 
     /// <summary>Ports <c>PirateWalking_FlinchTrigger</c> at <c>$B2:FE4B</c>.</summary>
@@ -299,8 +295,8 @@ public sealed partial class RoomEnemySystem
         }
 
         ushort list = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
-            ? WalkingPirateFlinchFacingRight
-            : WalkingPirateFlinchFacingLeft;
+            ? WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingRight
+            : WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingLeft;
         InstallWalkingSpacePirateInstruction(slot, list);
     }
 
@@ -320,15 +316,15 @@ public sealed partial class RoomEnemySystem
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
             return samusIsRightOrAligned
-                ? WalkingPirateFireLasersRight
-                : WalkingPirateFireLasersLeft;
+                ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
+                : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft;
         }
 
         // When Samus is not in the firing band, the Pirate walks toward the opposite side:
         // Samus right selects leftward walking, Samus left selects rightward walking.
         return samusIsRightOrAligned
-            ? WalkingPirateWalkingLeft
-            : WalkingPirateWalkingRight;
+            ? WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft
+            : WalkingSpacePirateInstructionProgramDefinitions.WalkingRight;
     }
 
     private static bool WalkingSpacePirateIsVerticallyClose(
@@ -343,8 +339,8 @@ public sealed partial class RoomEnemySystem
         InstallWalkingSpacePirateInstruction(
             slot,
             unchecked((short)(samus.XPosition - slot.XPosition)) >= 0
-                ? WalkingPirateFireLasersRight
-                : WalkingPirateFireLasersLeft);
+                ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
+                : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
 
     private static void InstallWalkingSpacePirateInstruction(
         RoomEnemySlot slot,

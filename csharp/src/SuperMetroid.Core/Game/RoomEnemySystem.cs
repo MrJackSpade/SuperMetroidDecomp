@@ -3203,9 +3203,8 @@ public sealed partial class RoomEnemySystem
                     // function address in native variable A for main AI to dispatch next
                     // frame, then resumes immediately after the two-byte operand.
                     RequireWalkingSpacePirateState(slot).Function =
-                        (WalkingSpacePirateFunction)ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) |
+                        (WalkingSpacePirateFunction)ReadEnemyInstructionMechanicsWord(
+                            slot,
                             unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
@@ -3214,9 +3213,8 @@ public sealed partial class RoomEnemySystem
                         slot,
                         RequireWalkingSpacePirateState(slot),
                         movingRight: false,
-                        ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) |
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
@@ -3225,9 +3223,8 @@ public sealed partial class RoomEnemySystem
                         slot,
                         RequireWalkingSpacePirateState(slot),
                         movingRight: true,
-                        ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) |
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
@@ -3595,6 +3592,12 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == YardDefinition)
             return YardInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer))
+        {
+            return WalkingSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
 
         if (IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
             return WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(address);

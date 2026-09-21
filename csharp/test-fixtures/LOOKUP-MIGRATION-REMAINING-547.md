@@ -1363,6 +1363,14 @@ explicitly without probing cartridge data. Family-specific traversal tests remai
 proof for internal branches and live presentation operands; this guard proves definition
 entry coverage and prevents new projectile kinds from silently restoring the fallback.
 
+## Walking Space Pirate instruction mechanics
+
+All eight walking Space Pirate body programs now compile their 92 function, timing,
+laser-offset, branch, and target words. Both complete three-shot attacks, the two patrol
+loops, both flinches, and both look-around handoffs execute through the real ordinary-enemy
+interpreter with mechanics bytes forbidden. Fifty extended-spritemap operands remain live
+cartridge presentation data. Wall and ninja Pirate body programs remain separate work.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

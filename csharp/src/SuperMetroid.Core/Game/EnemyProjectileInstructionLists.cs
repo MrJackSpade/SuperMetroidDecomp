@@ -31,10 +31,6 @@ internal static class EnemyProjectileInstructionLists
     public const ushort GoldenTorizoEyeBeamWallImpact = 0xb3cd;
     /// <summary>Golden Torizo eye-beam floor-impact list at $86:B3E5.</summary>
     public const ushort GoldenTorizoEyeBeamFloorImpact = 0xb3e5;
-    /// <summary>Space Pirate laser list facing left at $86:9FB9.</summary>
-    public const ushort PirateLaserLeft = 0x9fb9;
-    /// <summary>Space Pirate laser list facing right at $86:9FE1.</summary>
-    public const ushort PirateLaserRight = 0x9fe1;
     /// <summary>Mother Brain falling-drool list at $86:C8E1.</summary>
     public const ushort MotherBrainDroolFalling = 0xc8e1;
 }

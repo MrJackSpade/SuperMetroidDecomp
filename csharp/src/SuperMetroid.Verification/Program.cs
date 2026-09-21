@@ -167,6 +167,11 @@ if (args is ["--ceres-ridley-projectile-instruction-mechanics"])
     VerifyCeresRidleyProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--space-pirate-projectile-instruction-mechanics"])
+{
+    VerifySpacePirateProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

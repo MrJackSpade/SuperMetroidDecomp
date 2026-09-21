@@ -3062,6 +3062,22 @@ publishes both attack-ready flags, diving enables off-screen processing, and the
 stop programs disable it. Cross-species and presentation pointers fail as mechanics, and
 warmed lookup is allocation-free.
 
+# Space Pirate projectile instruction mechanics
+
+The shared Space Pirate/Mother Brain laser and Ninja Pirate claw now resolve both facing
+programs through `SpacePirateProjectileInstructionProgramDefinitions`. The compiled
+control includes muzzle frames, immediate movement-callback installation, laser and claw
+loops, and loop targets. Forty-two interleaved spritemap operands remain live cartridge
+presentation data. The formerly misnamed claw pointers are removed from the generic list
+catalog, and the laser callback operand now uses the same owner-aware mechanics path as
+other pre-instruction operands.
+
+Verification compares all fifty-eight mechanics words with the pinned cartridge, invokes
+both real producers in both directions, executes every frame and loop with private/shared
+mechanics reads forbidden, and confirms immediate laser movement plus claw callback
+installation. It observes every presentation operand, proves shared shot deletion, rejects
+neighboring data, and verifies allocation-free warmed lookup.
+
 # Zoa instruction mechanics
 
 Zoa's mirrored shooting and rising programs now resolve all twenty-six fixed speed

@@ -609,8 +609,8 @@ public sealed partial class RoomEnemySystem
         projectile.YSubposition = 0;
         projectile.DirectionParameter = direction;
         projectile.InstructionPointer = direction == 0
-            ? EnemyProjectileInstructionLists.PirateLaserLeft
-            : EnemyProjectileInstructionLists.PirateLaserRight;
+            ? SpacePirateProjectileInstructionProgramDefinitions.ClawLeft
+            : SpacePirateProjectileInstructionProgramDefinitions.ClawRight;
         projectile.InstructionTimer = 1;
         projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86A05B;
         projectile.Variable0 = 0x0800;

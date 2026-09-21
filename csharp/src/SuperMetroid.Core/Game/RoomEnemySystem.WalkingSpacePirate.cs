@@ -92,11 +92,6 @@ public sealed partial class RoomEnemySystem
     private const ushort WalkingPirateFireLasersRight = 0xfc0e;
     private const ushort WalkingPirateLookingFacingRight = 0xfc48;
     private const ushort PirateMotherBrainLaserSound = 0x0067;
-    private const ushort PirateMotherBrainLaserListLeft = 0x9f41;
-    private const ushort PirateMotherBrainLaserListRight = 0x9f7d;
-    private const ushort PirateMotherBrainLaserNoOperation = 0xa05b;
-    private const ushort PirateMotherBrainLaserMoveLeft = 0xa05c;
-    private const ushort PirateMotherBrainLaserMoveRight = 0xa07a;
     private const int WalkingPirateOnePixelDown = 1 << 16;
     private const int WalkingPirateLeftLedgeProbePixels = 17;
     private const int WalkingPirateRightLedgeProbePixels = 16;
@@ -422,14 +417,14 @@ public sealed partial class RoomEnemySystem
         projectile.XSubposition = 0;
         projectile.YSubposition = 0;
         projectile.InstructionPointer = movingRight
-            ? PirateMotherBrainLaserListRight
-            : PirateMotherBrainLaserListLeft;
+            ? SpacePirateProjectileInstructionProgramDefinitions.LaserRight
+            : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;
         projectile.InstructionTimer = 1;
 
         // Although the definition names A05C as its pre-instruction, initializer A009
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
-        projectile.PreInstruction = PirateMotherBrainLaserNoOperation;
+        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86A05B;
         projectile.Variable0 = source.Parameter1;
 
         // A009 replaces the projectile definition's property word with enemy damage OR
@@ -455,8 +450,10 @@ public sealed partial class RoomEnemySystem
             : WalkingPirateSlowLaserPixelsPerFrame;
         projectile.XPosition = projectile.PreInstruction switch
         {
-            PirateMotherBrainLaserMoveLeft => unchecked((ushort)(projectile.XPosition - pixels)),
-            PirateMotherBrainLaserMoveRight => unchecked((ushort)(projectile.XPosition + pixels)),
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left =>
+                unchecked((ushort)(projectile.XPosition - pixels)),
+            EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right =>
+                unchecked((ushort)(projectile.XPosition + pixels)),
             _ => throw new InvalidOperationException(
                 $"Projectile {projectile.Kind} entered laser movement with " +
                 $"pre-instruction $86:{projectile.PreInstruction:X4}."),

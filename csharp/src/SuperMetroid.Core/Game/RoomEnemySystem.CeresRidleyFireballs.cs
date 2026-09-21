@@ -1707,9 +1707,9 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
                 case EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY:
-                    projectile.PreInstruction = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
+                        unchecked((ushort)(cursor + 2)));
 
                     // A050 returns the argument cursor unchanged. The common interpreter
                     // consequently sees A05C/A07A as the next instruction, dispatches that
@@ -1965,6 +1965,12 @@ public sealed partial class RoomEnemySystem
         if (CeresRidleyProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
+        if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return SpacePirateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
         }
 

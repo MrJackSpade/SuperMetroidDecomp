@@ -11,8 +11,6 @@ public static class NoobTubeProjectileRomData
         [-384, -384, -160, -288, -288, -320, -96, -352, 0, -64];
     private static readonly short[] ShardYVelocityWords =
         [320, -256, -416, -288, -288, 448, 576, -96, -288, 384];
-    private static readonly ushort[] ShardListPointers =
-        [0xd47d, 0xd4a1, 0xd4c5, 0xd4e9, 0xd50d, 0xd531, 0xd555, 0xd579, 0xd59d, 0xd5bd];
     private static readonly ushort[] BubbleXOffsetWords = [40, 80, 104, 120, 152, 184];
     private static readonly ushort[] BubbleYOffsetWords = [80, 72, 84, 32, 64, 84];
 
@@ -29,7 +27,8 @@ public static class NoobTubeProjectileRomData
     public static ReadOnlySpan<short> ShardYVelocities => ShardYVelocityWords;
 
     /// <summary>Bank-$86 animation-list pointers selected by shard parameter.</summary>
-    public static ReadOnlySpan<ushort> ShardInstructionLists => ShardListPointers;
+    public static ReadOnlySpan<ushort> ShardInstructionLists =>
+        NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists;
 
     /// <summary>Absolute block-origin X offsets for the six released-air bubbles.</summary>
     public static ReadOnlySpan<ushort> BubbleXOffsets => BubbleXOffsetWords;

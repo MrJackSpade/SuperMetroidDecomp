@@ -1991,6 +1991,11 @@ public sealed partial class RoomEnemySystem
                 address);
         }
 
+        if (NoobTubeProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return NoobTubeProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)
         {
             return GunshipDustInstructionProgramDefinitions.ReadMechanicsWord(address);

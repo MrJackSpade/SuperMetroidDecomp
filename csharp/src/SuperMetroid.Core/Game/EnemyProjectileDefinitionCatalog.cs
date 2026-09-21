@@ -355,9 +355,16 @@ internal static class EnemyProjectileDefinitionCatalog
             0x2000,
             0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.NoobTubeCrack => new(0xD6A5, 0x84FB, 0xD3D7, 0x0000, 0x3000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.NoobTubeShard => new(0xD6C9, 0xD7FD, 0xD47D, 0x0000, 0x3000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new(0xD774, 0x84FB, 0xD652, 0x0000, 0x3000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.NoobTubeCrack => new(
+            0xD6A5, 0x84FB, NoobTubeProjectileInstructionProgramDefinitions.Crack,
+            0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.NoobTubeShard => new(
+            0xD6C9, 0xD7FD,
+            NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0],
+            0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new(
+            0xD774, 0x84FB, NoobTubeProjectileInstructionProgramDefinitions.ReleasedAirBubble,
+            0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDeathExplosion => new(0xC8F5, 0xC914, 0x0000, 0x0000, 0x2000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => new(0xC961, 0xC9D2, 0xCA22, 0x0000, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => new(0xCAF6, 0xCAFA, 0xCB0D, 0x0000, 0x1000, 0x0000, 0x84FC),

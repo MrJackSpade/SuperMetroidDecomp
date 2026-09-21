@@ -3981,6 +3981,20 @@ lifecycles with mechanics reads forbidden. It proves the resident closed handoff
 sixteen-pixel stage boundaries, private and shared deletion, every presentation read,
 invalid-address rejection, and allocation-free warmed lookup.
 
+# N00b-tube projectile instruction mechanics
+
+The tube crack, ten glass-shard variants, and released-air bubbles now resolve all fixed
+durations, timer setup, decrement branches, callback installation, flicker commands, loop
+targets, and deletions through `NoobTubeProjectileInstructionProgramDefinitions`. Their
+ninety interleaved spritemap operands remain live cartridge presentation data. The shard
+selector table is owned once by the same catalog rather than duplicated beside initialization.
+
+Verification compares all 207 mechanics words with the pinned cartridge, invokes all
+seventeen real burst producers, and executes the complete crack, every shard variant, and
+every bubble lifecycle with private/shared mechanics reads forbidden. It proves both shard
+flicker formats, counted phase boundaries, private and shared deletion, every presentation
+read, invalid-address rejection, and allocation-free warmed lookup.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

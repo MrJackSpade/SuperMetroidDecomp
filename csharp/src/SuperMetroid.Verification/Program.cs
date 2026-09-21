@@ -167,6 +167,11 @@ if (args is ["--downward-gate-projectile-instruction-mechanics"])
     VerifyDownwardGateProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--noob-tube-projectile-instruction-mechanics"])
+{
+    VerifyNoobTubeProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--gunship-dust-instruction-mechanics"])
 {
     VerifyGunshipDustInstructionProgramDefinitions();

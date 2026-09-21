@@ -32,5 +32,6 @@ internal static class EnemyProjectileInstructionLists
     /// <summary>Golden Torizo eye-beam floor-impact list at $86:B3E5.</summary>
     public const ushort GoldenTorizoEyeBeamFloorImpact = 0xb3e5;
     /// <summary>Mother Brain falling-drool list at $86:C8E1.</summary>
-    public const ushort MotherBrainDroolFalling = 0xc8e1;
+    public const ushort MotherBrainDroolFalling =
+        EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolFalling;
 }

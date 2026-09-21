@@ -41,6 +41,12 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary><c>$86:C829</c>, finite Mother Brain rainbow-beam charge program.</summary>
     internal const ushort MotherBrainRainbowBeamChargingInitial = 0xc829;
 
+    /// <summary><c>$86:C8B0</c>, attached Mother Brain drool release program.</summary>
+    internal const ushort MotherBrainDroolInitial = 0xc8b0;
+
+    /// <summary><c>$86:C8E1</c>, finite falling-drool splash program.</summary>
+    internal const ushort MotherBrainDroolFalling = 0xc8e1;
+
     /// <summary><c>$86:CA22</c>, looping exploded escape-door fragment program.</summary>
     internal const ushort MotherBrainEscapeDoorFragmentInitial = 0xca22;
 
@@ -77,6 +83,11 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         new(MotherBrainRainbowBeamChargingInitial,
             [5, 5, 5, 5, 5, 5],
             null,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            null),
+        new(MotherBrainDroolFalling,
+            [10, 10, 10, 10],
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
             null),
         new(MotherBrainEscapeDoorFragmentInitial,
@@ -144,6 +155,8 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.MotherBrainBomb or
         RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
         RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
+        RoomEnemyProjectileKind.MotherBrainDrool or
+        RoomEnemyProjectileKind.MotherBrainDyingDrool or
         RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
         RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
         RoomEnemyProjectileKind.EyeDoorSmoke or
@@ -228,6 +241,25 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
             bluePointer = unchecked((ushort)(bluePointer + 8));
         }
         words.Add(new(bluePointer,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
+
+        // `$86:C8B0-C8CE` displays five attached maps, switches to the falling
+        // pre-instruction, lowers the actor twelve pixels, displays its released map, and
+        // sleeps. The separate odd-addressed `$C8E1` splash is described in TimedPrograms.
+        ushort droolPointer = MotherBrainDroolInitial;
+        for (int frame = 0; frame < 5; frame++)
+        {
+            words.Add(new(droolPointer, 10));
+            droolPointer = unchecked((ushort)(droolPointer + 4));
+        }
+        words.Add(new(droolPointer,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY));
+        words.Add(new(unchecked((ushort)(droolPointer + 2)),
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling));
+        words.Add(new(unchecked((ushort)(droolPointer + 4)),
+            EnemyProjectileCodePointers.Instruction_EnemyProj_MotherBrainsDrool_MoveDownCPixels));
+        words.Add(new(unchecked((ushort)(droolPointer + 6)), 10));
+        words.Add(new(unchecked((ushort)(droolPointer + 10)),
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
 
         foreach (EnemyProjectileTimedProgramDefinition program in TimedPrograms)

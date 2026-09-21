@@ -151,8 +151,14 @@ internal static class EnemyProjectileDefinitionCatalog
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial,
             0x0000, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.MotherBrainDrool => new(0xC843, 0xC84D, 0xC8B0, 0x0000, 0x7000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainDyingDrool => new(0xC843, 0xC84D, 0xC8B0, 0x0000, 0x7000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainDrool => new(
+            0xC843, 0xC84D,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,
+            0x0000, 0x7000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainDyingDrool => new(
+            0xC843, 0xC84D,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,
+            0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion => new(0xC92F, 0xC94C, 0xE152, 0x0101, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => new(
             0xCBC9, 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopRight,

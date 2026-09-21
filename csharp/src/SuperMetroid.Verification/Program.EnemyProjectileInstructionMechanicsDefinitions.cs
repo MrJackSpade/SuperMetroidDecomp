@@ -7,7 +7,7 @@ internal static partial class Program
 {
     /// <summary>
     /// Compares every compiled Mother Brain/misc-dust mechanics word to the pinned ROM,
-    /// then runs all 36 production programs while rejecting reads from those source bytes.
+    /// then runs all 38 production programs while rejecting reads from those source bytes.
     /// </summary>
     private static void VerifyEnemyProjectileInstructionMechanicsDefinitions()
     {
@@ -80,7 +80,7 @@ internal static partial class Program
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
             $"{EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount} words and " +
-            "all 36 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
+            "all 38 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
     }
 
     /// <summary>
@@ -197,6 +197,9 @@ internal static partial class Program
         AssertTrue(!rainbow.IsActive,
             "rainbow charge deletes on the frame after its exact 30-frame lifetime");
 
+        VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDrool, 0x007f);
+        VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080);
+
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot fragment = fragmentEnemies.EnemyProjectiles[^1];
         initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, 0);
@@ -236,6 +239,64 @@ internal static partial class Program
                 projectile.InstructionTimer = 1;
                 processMethod.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
             }
+        }
+
+        void VerifyDroolVariant(RoomEnemyProjectileKind expectedKind, ushort neckAngleDelta)
+        {
+            RoomEnemySystem droolEnemies = CreateRoomEnemySystem();
+            var body = new RoomEnemySlot(0);
+            var head = new RoomEnemySlot(1)
+            {
+                XPosition = 0x0100,
+                YPosition = 0x0080,
+            };
+            var state = new MotherBrainEnemyState(body)
+            {
+                Head = head,
+                DroolGenerationEnabled = true,
+                NeckAngleDelta = neckAngleDelta,
+            };
+            typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+                .SetValue(droolEnemies, state);
+            MethodInfo spawnDroolMethod = typeof(RoomEnemySystem).GetMethod(
+                "SpawnMotherBrainDrool",
+                instanceFlags)!;
+            spawnDroolMethod.Invoke(droolEnemies, [state]);
+            RoomEnemyProjectileSlot drool = droolEnemies.EnemyProjectiles.Single(
+                projectile => projectile.Kind == expectedKind);
+            ushort attachedY = drool.YPosition;
+
+            for (int frame = 0; frame < 50; frame++)
+                processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+            AssertEqual(
+                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool,
+                drool.PreInstruction,
+                $"{expectedKind} remains attached for five exact ten-frame stages");
+            processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+            AssertEqual(
+                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling,
+                drool.PreInstruction,
+                $"{expectedKind} switches to falling after its fifth attached stage");
+            AssertEqual(unchecked((ushort)(attachedY + 12)), drool.YPosition,
+                $"{expectedKind} release command moves the actor down twelve pixels");
+            AssertEqual(0xc8ce, drool.InstructionPointer,
+                $"{expectedKind} release frame reaches its terminal sleep");
+
+            drool.YPosition = 0x00d7;
+            typeof(RoomEnemySystem).GetMethod(
+                "RunMotherBrainFallingDroolPreInstruction",
+                BindingFlags.Static | BindingFlags.NonPublic)!
+                .Invoke(null, [drool]);
+            AssertEqual(EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolFalling,
+                drool.InstructionPointer,
+                $"{expectedKind} floor impact enters the compiled splash program");
+            for (int frame = 0; frame < 40; frame++)
+                processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+            AssertTrue(drool.IsActive,
+                $"{expectedKind} splash survives all four exact ten-frame stages");
+            processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+            AssertTrue(!drool.IsActive,
+                $"{expectedKind} splash deletes on the frame after its 40-frame lifetime");
         }
     }
 

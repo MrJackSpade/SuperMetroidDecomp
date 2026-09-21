@@ -878,9 +878,9 @@ forbidden, while proving that live spritemap reads still occur.
 
 ## Mother Brain and misc-dust projectile instruction mechanics
 
-Fixed control data for six translated Mother Brain projectile programs is now compiled in
-`EnemyProjectileInstructionMechanicsDefinitions`. The catalog contains 282
-duration/opcode/operand words across those six programs and all thirty misc-dust
+Fixed control data for eight translated Mother Brain projectile programs is now compiled in
+`EnemyProjectileInstructionMechanicsDefinitions`. The catalog contains 298
+duration/opcode/operand words across those eight programs and all thirty misc-dust
 programs. The generic dust selector and Mother Brain initializers share the same entry-point
 definitions, so their instruction identities cannot drift.
 
@@ -888,10 +888,13 @@ The interpreter still reads each timed record's bank-$8D spritemap pointer from 
 those words and sprite payloads are presentation. Mechanics lookups are bounded by exact
 word address and reject adjacent/restored pointers rather than falling back to cartridge
 code. Exhaustive verification compares every compiled word to the pinned ROM and executes
-all 36 production programs with those source bytes forbidden, including the previously
+all 38 production programs with those source bytes forbidden, including the previously
 unhandled looping misc-dust program `$86:E1FC`. The ordinary room-projectile producer now
 also runs Mother Brain's exact six-stage, 30-frame rainbow-beam charging actor without
-reading its fixed durations or terminal delete from the cartridge.
+reading its fixed durations or terminal delete from the cartridge. Both normal and dying
+drool variants likewise execute the five-stage head-attached interval, falling handoff,
+twelve-pixel release correction, terminal sleep, and four-stage floor splash from compiled
+control data.
 
 ## Spore Spawn instruction mechanics
 

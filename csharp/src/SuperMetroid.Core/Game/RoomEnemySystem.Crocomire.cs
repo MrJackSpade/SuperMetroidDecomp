@@ -85,9 +85,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort CrocomireDefinition = 0xddbf;
     internal const ushort CrocomireTongueDefinition = 0xddff;
 
-    private const ushort CrocomireInitialInstructionList = 0xbade;
-    private const ushort CrocomireDeadInstructionList = 0xe1cc;
-    private const ushort CrocomireBridgeCollapseInstructionList = 0xbfb0;
     private const ushort CrocomireBridgeThreshold = 0x0640;
     private const ushort CrocomireSpikeWallThreshold = 0x0300;
     private const int CrocomireFightPaletteSource = 0xa4b89d;
@@ -156,7 +153,9 @@ public sealed partial class RoomEnemySystem
                     EnemyProperties.IgnoreSamusCollision,
                 EnemyProperties.IgnoreSamusCollision);
             state.DeathSequenceIndex = 0x0054;
-            InstallCrocomireInstructionList(slot, CrocomireDeadInstructionList);
+            InstallCrocomireInstructionList(
+                slot,
+                CrocomireInstructionProgramDefinitions.Dead);
             slot.XPosition = 0x0240;
             slot.YPosition = 0x0090;
             slot.XRadius = 0x0028;
@@ -175,7 +174,9 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex = 0;
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
-        InstallCrocomireInstructionList(slot, CrocomireInitialInstructionList);
+        InstallCrocomireInstructionList(
+            slot,
+            CrocomireInstructionProgramDefinitions.Initial);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         RequireSetRoomScrollState(0, RoomScrollState.RedBoundary);
@@ -256,7 +257,9 @@ public sealed partial class RoomEnemySystem
 
         CrocomireBridgeCollapseStarted = true;
         state.DeathSequenceIndex = 2;
-        InstallCrocomireInstructionList(body, CrocomireBridgeCollapseInstructionList);
+        InstallCrocomireInstructionList(
+            body,
+            CrocomireInstructionProgramDefinitions.BridgeCollapsed);
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;

@@ -5,19 +5,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Crocomire's 45-entry bridge, melting, skeleton, and completion dispatcher.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CrocomireSinkingHighList = 0xbf64;
-    private const ushort CrocomireSinkingMidHighList = 0xbf6c;
-    private const ushort CrocomireSinkingMidLowList = 0xbf72;
-    private const ushort CrocomireSinkingLowList = 0xbf78;
-    private const ushort CrocomireRisingHighList = 0xbf7e;
-    private const ushort CrocomireRisingMidHighList = 0xbf86;
-    private const ushort CrocomireRisingMidLowList = 0xbf8c;
-    private const ushort CrocomireRisingLowList = 0xbf92;
-    private const ushort CrocomireMeltingTongueList = 0xbf98;
-    private const ushort CrocomireSkeletonFallingList = 0xe14a;
-    private const ushort CrocomireSkeletonFallsApartList = 0xe158;
-    private const ushort CrocomireSkeletonStableList = 0xe1c6;
-    private const ushort CrocomireSkeletonRiverList = 0xe1d2;
     private const int CrocomireFirstMeltingTilemap = 0xa49c79;
     private const int CrocomireSecondMeltingTilemap = 0xa49e7b;
 
@@ -55,7 +42,7 @@ public sealed partial class RoomEnemySystem
                 InitializeCrocomireMeltingTilemap(
                     state,
                     CrocomireFirstMeltingTilemap,
-                    CrocomireSinkingHighList);
+                    CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
                 return;
             case CrocomireDeathPhases.CopyFirstMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
@@ -101,7 +88,7 @@ public sealed partial class RoomEnemySystem
                 InitializeCrocomireMeltingTilemap(
                     state,
                     CrocomireSecondMeltingTilemap,
-                    CrocomireRisingHighList);
+                    CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
                 return;
             case CrocomireDeathPhases.CopySecondMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
@@ -152,7 +139,9 @@ public sealed partial class RoomEnemySystem
                 FinishCrocomireArenaScrolls(state);
                 return;
             case CrocomireDeathPhases.WaitForStableSkeleton:
-                if (unchecked((short)(state.Body.CurrentInstruction - CrocomireSkeletonStableList)) >= 0)
+                if (unchecked((short)(
+                        state.Body.CurrentInstruction -
+                        CrocomireInstructionProgramDefinitions.SkeletonStable)) >= 0)
                     state.DeathSequenceIndex += 2;
                 return;
             case CrocomireDeathPhases.NativeOneFrameSpacer:
@@ -327,24 +316,24 @@ public sealed partial class RoomEnemySystem
     private static void SelectCrocomireSinkingInstruction(RoomEnemySlot body)
     {
         ushort pointer = body.YPosition < 248
-            ? CrocomireSinkingLowList
+            ? CrocomireInstructionProgramDefinitions.MeltingOneTopFourRows
             : body.YPosition < 264
-                ? CrocomireSinkingMidLowList
+                ? CrocomireInstructionProgramDefinitions.MeltingOneTopThreeRows
                 : body.YPosition < 280
-                    ? CrocomireSinkingMidHighList
-                    : CrocomireSinkingHighList;
+                    ? CrocomireInstructionProgramDefinitions.MeltingOneTopTwoRows
+                    : CrocomireInstructionProgramDefinitions.MeltingOneTopRow;
         InstallCrocomireInstructionList(body, pointer);
     }
 
     private static void SelectCrocomireRisingInstruction(RoomEnemySlot body)
     {
         ushort pointer = body.YPosition < 248
-            ? CrocomireRisingLowList
+            ? CrocomireInstructionProgramDefinitions.MeltingTwoTopFourRows
             : body.YPosition < 264
-                ? CrocomireRisingMidLowList
+                ? CrocomireInstructionProgramDefinitions.MeltingTwoTopThreeRows
                 : body.YPosition < 280
-                    ? CrocomireRisingMidHighList
-                    : CrocomireRisingHighList;
+                    ? CrocomireInstructionProgramDefinitions.MeltingTwoTopTwoRows
+                    : CrocomireInstructionProgramDefinitions.MeltingTwoTopRow;
         InstallCrocomireInstructionList(body, pointer);
     }
 
@@ -360,7 +349,9 @@ public sealed partial class RoomEnemySystem
             MusicCommand.SelectTrack(6),
             MusicCommandDelay.EightFrames);
         state.DeathSequenceIndex = 0x58;
-        InstallCrocomireInstructionList(state.Body, CrocomireSkeletonRiverList);
+        InstallCrocomireInstructionList(
+            state.Body,
+            CrocomireInstructionProgramDefinitions.SkeletonFlowingDownRiver);
         RequireSetRoomScrollState(4, RoomScrollState.Blue);
         RequireSetRoomScrollState(5, RoomScrollState.Blue);
         if (state.Tongue is { } tongue)
@@ -473,7 +464,9 @@ public sealed partial class RoomEnemySystem
         PublishCrocomirePlm(0x1e, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
         PublishCrocomirePlm(0x70, 0x0b, RoomPlmHeaders.ClearCrocomireBridge);
         LastCrocomireSoundEffect = 0x0029;
-        InstallCrocomireInstructionList(body, CrocomireSkeletonFallsApartList);
+        InstallCrocomireInstructionList(
+            body,
+            CrocomireInstructionProgramDefinitions.SkeletonFallsApart);
         body.PaletteIndex = 0;
         _cgram!.LoadFromBus(_bus!, 0xa4b8fd, colorCount: 16, destinationIndex: 144);
 
@@ -507,7 +500,9 @@ public sealed partial class RoomEnemySystem
         if (death.RumbleCooldown != 0)
             return;
         state.ReactionTimer = 0;
-        InstallCrocomireInstructionList(state.Body, CrocomireSkeletonFallingList);
+        InstallCrocomireInstructionList(
+            state.Body,
+            CrocomireInstructionProgramDefinitions.SkeletonFalling);
         state.DeathSequenceIndex += 2;
     }
 
@@ -534,13 +529,17 @@ public sealed partial class RoomEnemySystem
         LastCrocomireSoundEffect = 0x0025;
         if (state.Tongue is { } tongue)
             tongue.PaletteIndex = state.Body.PaletteIndex;
-        InstallCrocomireInstructionList(state.Body, CrocomireSkeletonFallsApartList);
+        InstallCrocomireInstructionList(
+            state.Body,
+            CrocomireInstructionProgramDefinitions.SkeletonFallsApart);
         state.DeathSequenceIndex += 2;
     }
 
     private void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
     {
-        if (unchecked((short)(state.Body.CurrentInstruction - CrocomireSkeletonStableList)) < 0)
+        if (unchecked((short)(
+                state.Body.CurrentInstruction -
+                CrocomireInstructionProgramDefinitions.SkeletonStable)) < 0)
         {
             (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
                 state.ReactionTimer,
@@ -550,7 +549,9 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        InstallCrocomireInstructionList(state.Body, CrocomireDeadInstructionList);
+        InstallCrocomireInstructionList(
+            state.Body,
+            CrocomireInstructionProgramDefinitions.Dead);
         state.Body.XPosition += 64;
         state.Body.YPosition += 21;
         state.Body.YRadius = 28;

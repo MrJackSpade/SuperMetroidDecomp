@@ -8,20 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CrocomireStepForwardList = 0xbbce;
-    private const ushort CrocomireProjectileAttackList = 0xbb36;
-    private const ushort CrocomireStepForwardDelayList = 0xbbca;
-    private const ushort CrocomireStepBackList = 0xbc30;
-    private const ushort CrocomireSteppingBackList = 0xbc34;
-    private const ushort CrocomireWaitForDamageList = 0xbc56;
-    private const ushort CrocomireMovingClawsList = 0xbcd8;
-    private const ushort CrocomireRoarList = 0xbd2a;
-    private const ushort CrocomireRoarClosedBoundary = 0xbda2;
-    private const ushort CrocomireRoarCloseList = 0xbd8e;
-    private const ushort CrocomireChargeForwardUnusedList = 0xbaea;
-    private const ushort CrocomireNearWallChargeList = 0xbe7e;
-    private const ushort CrocomireBackOffList = 0xbf3c;
-
     private bool TryProcessCrocomireInstruction(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -47,7 +33,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.FightFunction = CrocomireFightFunction.ProjectileAttack;
                     state.ProjectileCounter = 0;
-                    next = CrocomireProjectileAttackList;
+                    next = CrocomireInstructionProgramDefinitions.ProjectileAttack;
                 }
                 cursor = next;
                 return true;
@@ -90,7 +76,7 @@ public sealed partial class RoomEnemySystem
                 if (MoveCrocomire(slot, level!, -4))
                 {
                     state.FightFunction = CrocomireFightFunction.BackingOffSpikeWall;
-                    next = CrocomireBackOffList;
+                    next = CrocomireInstructionProgramDefinitions.BackOffFromSpikeWall;
                 }
                 else
                 {
@@ -134,19 +120,19 @@ public sealed partial class RoomEnemySystem
 
         int? dustOffset = opcode switch
         {
-            0x9a9b => -32,
-            0x9aa0 => 0,
-            0x9aa5 => -16,
-            0x9aaa => 16,
-            0x9aaf => 0,
-            0x9ab4 => 8,
-            0x9ab9 => 16,
-            0x9abe => 24,
-            0x9ac3 => 32,
-            0x9ac8 => 40,
-            0x9acd => 48,
-            0x9ad2 => 56,
-            0x9ad7 => 64,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20 => -32,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_0 => 0,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative10 => -16,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_10 => 16,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup => 0,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_8 => 8,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_10_dup => 16,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_18 => 24,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_20 => 32,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_28 => 40,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_30 => 48,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_38 => 56,
+            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_40 => 64,
             _ => null,
         };
         if (dustOffset is not int offset)
@@ -167,11 +153,11 @@ public sealed partial class RoomEnemySystem
         {
             case CrocomireFightFunction.ResetAnimation:
                 state.Body.InstructionTimer = 1;
-                return CrocomireInitialInstructionList;
+                return CrocomireInstructionProgramDefinitions.Initial;
 
             case CrocomireFightFunction.StepForward:
                 state.FightFunction = CrocomireFightFunction.Sleeping;
-                return CrocomireStepForwardList;
+                return CrocomireInstructionProgramDefinitions.StepForward;
 
             case CrocomireFightFunction.Sleeping:
                 if (samus is not null && WrappedMagnitude(unchecked((ushort)(
@@ -179,7 +165,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.FightFlags |= 0x8000;
                     state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;
-                    return CrocomireWaitForDamageList;
+                    return CrocomireInstructionProgramDefinitions.WaitForFirstSecondDamage;
                 }
                 return next;
 
@@ -190,17 +176,18 @@ public sealed partial class RoomEnemySystem
                     if (state.StepCounter != 0)
                     {
                         state.FightFunction = CrocomireFightFunction.SteppingBack;
-                        return CrocomireStepBackList;
+                        return CrocomireInstructionProgramDefinitions.StepBack;
                     }
                 }
                 if (unchecked((short)(
                         state.Body.XPosition - CrocomireSpikeWallThreshold)) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
-                    return CrocomireNearWallChargeList;
+                    return CrocomireInstructionProgramDefinitions.NearSpikeWallCharge;
                 }
-                return unchecked((short)(next - CrocomireSteppingBackList)) >= 0
-                    ? CrocomireStepForwardList
+                return unchecked((short)(
+                        next - CrocomireInstructionProgramDefinitions.SteppingBack)) >= 0
+                    ? CrocomireInstructionProgramDefinitions.StepForward
                     : next;
 
             case CrocomireFightFunction.ProjectileAttack:
@@ -208,7 +195,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.FightFlags &= 0xf7ff;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
-                    return CrocomireStepBackList;
+                    return CrocomireInstructionProgramDefinitions.StepBack;
                 }
                 if (unchecked((short)(state.ProjectileCounter - 18)) < 0)
                 {
@@ -218,14 +205,14 @@ public sealed partial class RoomEnemySystem
                     return next;
                 }
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
-                return CrocomireStepForwardDelayList;
+                return CrocomireInstructionProgramDefinitions.StepForwardAfterDelay;
 
             case CrocomireFightFunction.NearSpikeWallCharge:
                 if ((state.FightFlags & 0x0800) != 0)
                 {
                     state.FightFlags &= 0xf7ff;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
-                    return CrocomireStepBackList;
+                    return CrocomireInstructionProgramDefinitions.StepBack;
                 }
                 return next;
 
@@ -233,22 +220,22 @@ public sealed partial class RoomEnemySystem
                 if (state.StepCounter != 0)
                     state.StepCounter--;
                 if (state.StepCounter != 0)
-                    return CrocomireSteppingBackList;
+                    return CrocomireInstructionProgramDefinitions.SteppingBack;
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
-                return CrocomireStepForwardList;
+                return CrocomireInstructionProgramDefinitions.StepForward;
 
             case CrocomireFightFunction.BackingOffSpikeWall:
                 if (unchecked((short)(
                         state.Body.XPosition - CrocomireSpikeWallThreshold)) >= 0)
                 {
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
-                    return CrocomireStepForwardList;
+                    return CrocomireInstructionProgramDefinitions.StepForward;
                 }
                 return next;
 
             case CrocomireFightFunction.RoarAndStepForwardUnused:
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
-                return CrocomireRoarList;
+                return CrocomireInstructionProgramDefinitions.Roar;
 
             case CrocomireFightFunction.WaitingForFirstDamage:
                 return RunCrocomireWaitingForDamage(
@@ -269,7 +256,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.StepCounter = 0;
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
-                    return CrocomireStepForwardList;
+                    return CrocomireInstructionProgramDefinitions.StepForward;
                 }
                 return next;
 
@@ -284,14 +271,14 @@ public sealed partial class RoomEnemySystem
                     return next;
                 }
                 state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
-                return CrocomireRoarCloseList;
+                return CrocomireInstructionProgramDefinitions.RoarCloseMouth;
 
             case CrocomireFightFunction.ResetAnimationUnused:
                 state.Body.InstructionTimer = 1;
                 state.FightFlags |= 0x0200;
                 state.StepCounter = 32;
                 state.FightFunction = CrocomireFightFunction.ChooseAttackUnused;
-                return CrocomireInitialInstructionList;
+                return CrocomireInstructionProgramDefinitions.Initial;
 
             case CrocomireFightFunction.ChooseAttackUnused:
                 if ((state.FightFlags & 0x0100) != 0)
@@ -299,10 +286,10 @@ public sealed partial class RoomEnemySystem
                     state.Body.InstructionTimer = 1;
                     state.StepCounter = 16;
                     state.FightFunction = CrocomireFightFunction.MoveUntilSamusUnused;
-                    return CrocomireInitialInstructionList;
+                    return CrocomireInstructionProgramDefinitions.Initial;
                 }
                 state.FightFunction = CrocomireFightFunction.StepForwardUnused;
-                return CrocomireChargeForwardUnusedList;
+                return CrocomireInstructionProgramDefinitions.UnusedChargeForwardOneStep;
 
             case CrocomireFightFunction.StepForwardUnused:
                 state.Body.InstructionTimer = 1;
@@ -310,46 +297,46 @@ public sealed partial class RoomEnemySystem
                 {
                     state.FightFlags |= 0x2000;
                     state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
-                    return CrocomireStepForwardList;
+                    return CrocomireInstructionProgramDefinitions.StepForward;
                 }
-                return CrocomireInitialInstructionList;
+                return CrocomireInstructionProgramDefinitions.Initial;
 
             case CrocomireFightFunction.MoveUntilSamusUnused:
                 if (unchecked((short)(state.Body.XPosition - 672)) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
                     state.StepCounter = 3;
-                    return CrocomireStepForwardList;
+                    return CrocomireInstructionProgramDefinitions.StepForward;
                 }
                 if ((state.FightFlags & 0x4000) == 0)
                 {
                     state.FightFunction = CrocomireFightFunction.StepForwardVariantUnused;
                     state.FightFlags &= 0xfbff;
-                    return CrocomireMovingClawsList;
+                    return CrocomireInstructionProgramDefinitions.MovingClaws;
                 }
                 state.StepCounter = 5;
                 state.ProjectileCounter = (ushort)state.FightFunction;
                 state.FightFunction = (CrocomireFightFunction)0x2a;
-                return CrocomireMovingClawsList;
+                return CrocomireInstructionProgramDefinitions.MovingClaws;
 
             case CrocomireFightFunction.MoveClawsUnused:
                 if (state.StepCounter == 0 || --state.StepCounter == 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
                     state.FightFlags &= 0xfbff;
-                    return CrocomireStepForwardList;
+                    return CrocomireInstructionProgramDefinitions.StepForward;
                 }
                 state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
                 if (state.Tongue is not null)
                     state.Tongue.VariableD = 0;
                 state.FightFlags |= 0x0400;
-                return CrocomireMovingClawsList;
+                return CrocomireInstructionProgramDefinitions.MovingClaws;
 
             case CrocomireFightFunction.StepForwardVariantUnused:
                 if ((state.FightFlags & 0x2000) == 0)
                     state.FightFlags &= 0xfcff;
                 state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
-                return CrocomireStepForwardList;
+                return CrocomireInstructionProgramDefinitions.StepForward;
 
             case CrocomireFightFunction.MovingClawsUnused:
                 if (state.StepCounter == 0)
@@ -357,13 +344,13 @@ public sealed partial class RoomEnemySystem
                     state.FightFlags &= 0xbfff;
                     state.Body.InstructionTimer = 1;
                     state.FightFunction = (CrocomireFightFunction)state.ProjectileCounter;
-                    return CrocomireMovingClawsList;
+                    return CrocomireInstructionProgramDefinitions.MovingClaws;
                 }
                 if ((state.FightFlags & 0x4000) != 0)
                 {
                     state.StepCounter--;
                     LastCrocomireSoundEffect = 0x003b;
-                    return CrocomireMovingClawsList;
+                    return CrocomireInstructionProgramDefinitions.MovingClaws;
                 }
                 state.FightFlags &= 0xbfff;
                 state.FightFunction = CrocomireFightFunction.SteppingBack;
@@ -384,10 +371,11 @@ public sealed partial class RoomEnemySystem
         {
             state.FightFlags &= 0xf7ff;
             state.FightFunction = damagedDestination;
-            return CrocomireStepBackList;
+            return CrocomireInstructionProgramDefinitions.StepBack;
         }
-        return unchecked((short)(next - CrocomireRoarClosedBoundary)) >= 0
-            ? CrocomireRoarList
+        return unchecked((short)(
+                next - CrocomireInstructionProgramDefinitions.RoarCloseMouthLoop)) >= 0
+            ? CrocomireInstructionProgramDefinitions.Roar
             : next;
     }
 

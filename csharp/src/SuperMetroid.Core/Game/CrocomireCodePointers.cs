@@ -45,4 +45,43 @@ internal static class CrocomireCodePointers
     /// <summary><c>Instruction_Crocomire_MoveRight4Pixels_SpawnBigDustCloud</c> at $A4:9094.</summary>
     public const ushort Instruction_Crocomire_MoveRight4Pixels_SpawnBigDustCloud = 0x9094;
 
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20</c> at $A4:9A9B.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20 = 0x9a9b;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_0</c> at $A4:9AA0.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_0 = 0x9aa0;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative10</c> at $A4:9AA5.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative10 = 0x9aa5;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_10</c> at $A4:9AAA.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_10 = 0x9aaa;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup</c> at $A4:9AAF.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup = 0x9aaf;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_8</c> at $A4:9AB4.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_8 = 0x9ab4;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_10_dup</c> at $A4:9AB9.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_10_dup = 0x9ab9;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_18</c> at $A4:9ABE.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_18 = 0x9abe;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_20</c> at $A4:9AC3.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_20 = 0x9ac3;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_28</c> at $A4:9AC8.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_28 = 0x9ac8;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_30</c> at $A4:9ACD.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_30 = 0x9acd;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_38</c> at $A4:9AD2.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_38 = 0x9ad2;
+
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_40</c> at $A4:9AD7.</summary>
+    public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_40 = 0x9ad7;
+
 }

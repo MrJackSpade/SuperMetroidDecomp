@@ -158,7 +158,7 @@ public sealed partial class RoomEnemySystem
     private ushort SelectCrocomirePowerBombInstructionList(RoomEnemySlot body)
     {
         if ((body.SpritemapPointer & 0x8000) == 0)
-            return 0xbdb6;
+            return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen;
 
         int map = (body.Definition.Bank << 16) | body.SpritemapPointer;
         int count = ReadWord(_bus!, map);
@@ -168,10 +168,10 @@ public sealed partial class RoomEnemySystem
                 _bus!,
                 map + 6 + component * 8);
             if (ordinarySpritemap == 0xd600)
-                return 0xbdae;
+                return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthFullyOpen;
             if (ordinarySpritemap == 0xd51c)
-                return 0xbdb2;
+                return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthPartiallyOpen;
         }
-        return 0xbdb6;
+        return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen;
     }
 }

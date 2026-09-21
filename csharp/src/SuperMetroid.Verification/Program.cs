@@ -592,6 +592,11 @@ if (args is ["--escape-dachora-instruction-mechanics"])
     VerifyEscapeDachoraInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--crocomire-instruction-mechanics"])
+{
+    VerifyCrocomireInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--yard-turn-definitions"])
 {
     VerifyYardTurnDefinitions(

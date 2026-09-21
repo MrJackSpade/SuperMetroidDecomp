@@ -3605,3 +3605,21 @@ pacing variants plus the full acceleration into the one-frame departure loop whi
 mechanics byte is forbidden. It observes all forty-three presentation reads, asserts
 left/right callback movement and the final departure loop, rejects presentation and
 adjacent callback code as mechanics, and proves warmed lookup is allocation-free.
+
+# Crocomire body instruction mechanics
+
+Crocomire's body owner now resolves all fight, reaction, melting, bridge-collapse,
+and skeleton programs through `CrocomireInstructionProgramDefinitions`. Four
+hundred thirty-four fixed callbacks, durations, gotos, loop targets, and terminal
+sleeps are compiled; 236 interleaved extended-spritemap operands remain live
+cartridge presentation data. Every production handoff now uses the named program
+catalog, including power-bomb reactions and both melting/skeleton phases. The
+independently scheduled tongue retains its separate existing owner.
+
+Verification compares every mechanics word with the pinned cartridge and drives
+every presentation operand through the real interpreter while all mechanics bytes
+are forbidden. It rejects the intentionally unreferenced body program, the tongue
+program boundary, and presentation pointers as mechanics, and proves warmed lookup
+is allocation-free. The complete retail Crocomire audit then runs wake-up, movement,
+projectiles, mouth and power-bomb reactions, bridge collapse, both melts, wall break,
+skeleton animation, drops, music, and boss completion through the strict catalog.

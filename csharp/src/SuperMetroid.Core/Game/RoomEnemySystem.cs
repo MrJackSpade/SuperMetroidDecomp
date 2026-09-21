@@ -3581,6 +3581,9 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == CrocomireTongueDefinition)
             return CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer == CrocomireDefinition)
+            return CrocomireInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == ChozoStatueDefinition)
             return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
 

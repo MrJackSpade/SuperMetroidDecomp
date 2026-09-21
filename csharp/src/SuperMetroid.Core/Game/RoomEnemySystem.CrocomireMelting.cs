@@ -18,7 +18,9 @@ public sealed partial class RoomEnemySystem
 
         if (state.Tongue is { } tongue)
         {
-            InstallCrocomireInstructionList(tongue, CrocomireMeltingTongueList);
+            InstallCrocomireInstructionList(
+                tongue,
+                CrocomireTongueInstructionProgramDefinitions.Melting);
             tongue.Properties = tongue.Properties.Replace(
                 EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |

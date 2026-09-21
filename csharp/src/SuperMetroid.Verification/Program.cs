@@ -57,6 +57,11 @@ if (args is ["--fune-namihe-fireball-instruction-mechanics"])
     VerifyFuneNamiheFireballInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--magdollite-lava-instruction-mechanics"])
+{
+    VerifyMagdolliteLavaInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

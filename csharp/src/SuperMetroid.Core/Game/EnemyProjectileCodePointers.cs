@@ -275,6 +275,12 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>Instruction_EnemyProjectile_Delete</c> at $86:8154. Delete.</summary>
     public const ushort Instruction_EnemyProjectile_Delete = 0x8154;
 
+    /// <summary>
+    /// <c>Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops</c> at $86:DFEA.
+    /// Spawns an enemy drop using Magdollite's enemy header.
+    /// </summary>
+    public const ushort Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops = 0xdfea;
+
     /// <summary><c>Instruction_EnemyProjectile_Properties_OrY</c> at $86:8230. OR packed projectile properties with one literal word.</summary>
     public const ushort Instruction_EnemyProjectile_Properties_OrY = 0x8230;
 

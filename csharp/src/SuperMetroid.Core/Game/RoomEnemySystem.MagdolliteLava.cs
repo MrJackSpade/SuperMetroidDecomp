@@ -13,12 +13,6 @@ public readonly record struct MagdolliteLavaDropRequest(
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MagdolliteLavaPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MagdolliteLava;
-    internal const ushort MagdolliteLavaDropInstruction = 0xdfea;
-
-    private const ushort MagdolliteLavaLeftInstructionList = 0xdfd8;
-    private const ushort MagdolliteLavaRightInstructionList = 0xdfde;
     private const ushort MagdolliteLavaHorizontalSpeed = 0x0300;
     private const ushort MagdolliteLavaUpwardSpeed = 0xfd00;
 
@@ -47,10 +41,11 @@ public sealed partial class RoomEnemySystem
         projectile.YSubposition = source.YSubposition;
         projectile.YVelocity = MagdolliteLavaUpwardSpeed;
         projectile.XVelocity = MagdolliteLavaHorizontalSpeed;
-        projectile.PreInstruction = MagdolliteLavaPreInstruction;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MagdolliteLava;
         projectile.InstructionPointer = directionParameter == 0
-            ? MagdolliteLavaLeftInstructionList
-            : MagdolliteLavaRightInstructionList;
+            ? MagdolliteLavaInstructionProgramDefinitions.Left
+            : MagdolliteLavaInstructionProgramDefinitions.Right;
     }
 
     /// <summary>Ports $86:E049-$E09B, including the cartridge's asymmetric velocity use.</summary>

@@ -3649,3 +3649,20 @@ Verification compares every mechanics word with the pinned cartridge and execute
 directions for both species with every mechanics byte forbidden. It observes all six live
 spritemap operands, rejects presentation and adjacent velocity-table pointers as mechanics,
 and proves warmed lookup is allocation-free.
+
+# Magdollite lava projectile instruction mechanics
+
+Magdollite's left/right thrown-lava poses and shot sequence now resolve all seven fixed
+durations, sleeps, drop callback, goto, and target words through
+`MagdolliteLavaInstructionProgramDefinitions`. The two interleaved spritemap operands
+remain live cartridge presentation data. The shared one-word
+`InstList_EnemyProjectile_Delete` target is compiled independently by
+`CommonEnemyProjectileInstructionProgramDefinitions` and is resolved before private
+projectile owners, preserving the cartridge's cross-family program transition without
+duplicating it as a Magdollite exception.
+
+Verification compares all eight private/shared mechanics words with the pinned cartridge,
+executes both directional poses and the complete shot/drop/goto/delete path while every
+mechanics byte is forbidden, and observes both live spritemap operands. Presentation,
+adjacent callback code, and adjacent shared data fail as mechanics; warmed private and
+shared lookups remain allocation-free.

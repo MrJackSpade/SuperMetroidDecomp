@@ -1846,7 +1846,7 @@ public sealed partial class RoomEnemySystem
                     RequestKagoBugDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case MagdolliteLavaDropInstruction:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops:
                     RequestMagdolliteLavaDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
@@ -1922,6 +1922,13 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
+        if (CommonEnemyProjectileInstructionProgramDefinitions.TryReadMechanicsWord(
+                address,
+                out ushort sharedWord))
+        {
+            return sharedWord;
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(
@@ -1939,6 +1946,11 @@ public sealed partial class RoomEnemySystem
         {
             return FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
+        }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
+        {
+            return MagdolliteLavaInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

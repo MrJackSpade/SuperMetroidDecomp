@@ -123,11 +123,21 @@ internal static class EnemyProjectileDefinitionCatalog
             0x9EB2, 0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PowampSpike => new(0xD23A, 0xD263, 0xD208, 0x0404, 0x0014, 0x0000, 0xD218),
-        RoomEnemyProjectileKind.WorkRobotLaserUpLeft => new(0xD341, 0xD3BF, 0xD2EC, 0x0C0C, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.WorkRobotLaserHorizontal => new(0xD32E, 0xD3BF, 0xD2EC, 0x020F, 0x0014, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.WorkRobotLaserDownLeft => new(0xD30C, 0xD3BF, 0xD2EC, 0x0C0C, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.WorkRobotLaserUpRight => new(0xD341, 0xD3BF, 0xD2EC, 0x0C0C, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.WorkRobotLaserDownRight => new(0xD30C, 0xD3BF, 0xD2EC, 0x0C0C, 0x0004, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.WorkRobotLaserUpLeft => new(
+            0xD341, 0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+            0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.WorkRobotLaserHorizontal => new(
+            0xD32E, 0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+            0x020F, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.WorkRobotLaserDownLeft => new(
+            0xD30C, 0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+            0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.WorkRobotLaserUpRight => new(
+            0xD341, 0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+            0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.WorkRobotLaserDownRight => new(
+            0xD30C, 0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+            0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.FallingSpark => new(
             0xF391,
             0xF3F0,

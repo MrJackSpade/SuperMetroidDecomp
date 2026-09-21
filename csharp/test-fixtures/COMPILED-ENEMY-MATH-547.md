@@ -3776,3 +3776,18 @@ three real fire commands in both facings. Six production projectiles execute com
 four-frame loops with mechanics reads forbidden, while the test also proves shared shot
 deletion, every live spritemap read, invalid-pointer rejection, and allocation-free warmed
 lookup.
+
+# Work Robot laser instruction mechanics
+
+Work Robot lasers now resolve their nine fixed duration, goto, and loop-target words
+through `WorkRobotLaserInstructionProgramDefinitions`. Their seven interleaved spritemap
+operands remain live cartridge presentation data, and their shot reactions use the
+independently compiled shared delete program. The five projectile-definition addresses
+are also named centrally by `WorkRobotLaserDefinitions` instead of being duplicated as
+raw runtime constants.
+
+Verification compares every mechanics word with the pinned cartridge and invokes all
+five real laser definitions through the production producer. Each projectile executes
+the three-frame prefix and a complete four-frame loop with mechanics reads forbidden,
+while the test also proves shared shot deletion, every live spritemap read, invalid-pointer
+rejection, and allocation-free warmed lookup.

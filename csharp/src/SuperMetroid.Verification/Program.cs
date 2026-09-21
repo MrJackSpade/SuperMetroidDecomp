@@ -97,6 +97,11 @@ if (args is ["--alcoon-fireball-instruction-mechanics"])
     VerifyAlcoonFireballInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--work-robot-laser-instruction-mechanics"])
+{
+    VerifyWorkRobotLaserInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

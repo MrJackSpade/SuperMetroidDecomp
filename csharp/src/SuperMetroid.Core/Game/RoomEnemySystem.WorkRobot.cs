@@ -72,14 +72,6 @@ public sealed partial class RoomEnemySystem
     private const int WorkRobotStepPixels = 4;
     private const ushort WorkRobotFootstepSound = 0x0068;
 
-    // Five projectile definitions encode six directions: the horizontal definition uses
-    // the robot's signed facing velocity to choose left or right.
-    private const ushort WorkRobotLaserUpLeft = 0xd2a6;
-    private const ushort WorkRobotLaserHorizontal = 0xd2b4;
-    private const ushort WorkRobotLaserDownLeft = 0xd2c2;
-    private const ushort WorkRobotLaserUpRight = 0xd2d0;
-    private const ushort WorkRobotLaserDownRight = 0xd2de;
-
     private readonly WorkRobotEnemyState?[] _workRobotStates =
         new WorkRobotEnemyState?[MaximumEnemyCount];
     private ushort _workRobotPaletteAnimationTimer;
@@ -277,37 +269,37 @@ public sealed partial class RoomEnemySystem
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserUpRight,
+                    slot, state, next, WorkRobotLaserDefinitions.UpRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserUpRight,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserUpLeft,
+                    slot, state, next, WorkRobotLaserDefinitions.UpLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserUpLeft,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserHorizontal,
+                    slot, state, next, WorkRobotLaserDefinitions.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserRight,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserHorizontal,
+                    slot, state, next, WorkRobotLaserDefinitions.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserLeft,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDownRight,
+                    slot, state, next, WorkRobotLaserDefinitions.DownRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserDownRight,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDownLeft,
+                    slot, state, next, WorkRobotLaserDefinitions.DownLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserDownLeft,
                     cameraX, cameraY);
                 return true;

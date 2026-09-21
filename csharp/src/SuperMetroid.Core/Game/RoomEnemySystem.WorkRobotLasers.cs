@@ -32,9 +32,10 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = state.LaserXVelocity;
         projectile.YVelocity = definition switch
         {
-            WorkRobotLaserUpLeft or WorkRobotLaserUpRight => unchecked((ushort)-0x0080),
-            WorkRobotLaserDownLeft or WorkRobotLaserDownRight => 0x0080,
-            WorkRobotLaserHorizontal => 0,
+            WorkRobotLaserDefinitions.UpLeft or WorkRobotLaserDefinitions.UpRight =>
+                unchecked((ushort)-0x0080),
+            WorkRobotLaserDefinitions.DownLeft or WorkRobotLaserDefinitions.DownRight => 0x0080,
+            WorkRobotLaserDefinitions.Horizontal => 0,
             _ => throw new InvalidDataException(
                 $"Work Robot laser definition $86:{definition:X4} is not translated."),
         };
@@ -51,7 +52,8 @@ public sealed partial class RoomEnemySystem
         // $86:D326 clears the graphics word in the down-left/right initializer itself.
         // Upward and horizontal variants retain the owner's word until common
         // pre-instruction $D3BF clears it on their first projectile pass.
-        if (definition is WorkRobotLaserDownLeft or WorkRobotLaserDownRight)
+        if (definition is
+            WorkRobotLaserDefinitions.DownLeft or WorkRobotLaserDefinitions.DownRight)
             projectile.GraphicsIndex = 0;
 
         // Preserve the original $86:D35B viewport bug. Its final Y comparison omits

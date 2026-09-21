@@ -1944,6 +1944,11 @@ public sealed partial class RoomEnemySystem
             return AlcoonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (WorkRobotLaserInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return WorkRobotLaserInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(

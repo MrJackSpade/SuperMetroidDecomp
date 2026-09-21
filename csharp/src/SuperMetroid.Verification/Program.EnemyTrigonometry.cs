@@ -42,6 +42,7 @@ internal static partial class Program
         VerifyKraidRockProjectileInstructionProgramDefinitions(rom);
         VerifyFakeKraidProjectileInstructionProgramDefinitions(rom);
         VerifyAlcoonFireballInstructionProgramDefinitions(rom);
+        VerifyWorkRobotLaserInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyKiHunterInstructionProgramDefinitions(rom);

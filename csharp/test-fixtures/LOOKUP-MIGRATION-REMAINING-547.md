@@ -1254,6 +1254,15 @@ program through its stable sleep or loop with mechanics bytes forbidden; exact R
 every presentation read, strict rejection of adjacent unused data, and allocation-free
 warmed lookup are verified.
 
+## Torizo landing-dust instruction mechanics
+
+The paired right- and left-foot Torizo landing-dust programs now compile all sixteen fixed
+duration, movement-callback, and deletion words while retaining eight spritemap operands
+as live presentation data. The real dual-foot producer executes both complete sequences,
+including symmetric spawn coordinates, three four-pixel rises, and deletion, with mechanics
+bytes forbidden. Exact ROM parity, every presentation read, strict rejection, and
+allocation-free warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

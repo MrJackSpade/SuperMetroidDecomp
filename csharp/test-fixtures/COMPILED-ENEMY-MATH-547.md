@@ -4208,3 +4208,17 @@ body and spit producers, and executes every selector-reachable projectile progra
 its sleep or loop edge with mechanics bytes forbidden. Every presentation read, strict
 rejection of spritemaps and the adjacent unused body program, and allocation-free warmed
 lookup pass.
+
+# Torizo landing-dust instruction mechanics
+
+Bomb and Golden Torizo's paired landing-dust actors now resolve all sixteen fixed
+durations, four-pixel-rise callbacks, and deletions through
+`TorizoLandingDustInstructionProgramDefinitions`. Their eight spritemap operands remain
+live cartridge presentation data, and both projectile definitions name the same right- and
+left-foot program entries.
+
+Verification compares every mechanics word with the pinned cartridge, invokes the real
+dual-foot producer, proves its symmetric 24-pixel X offsets and 48-pixel Y offset, and
+executes both four-pose sequences through their exact twelve-pixel rise and deletion with
+mechanics bytes forbidden. Every presentation read, strict rejection of spritemaps and
+the callback body, and allocation-free warmed lookup pass.

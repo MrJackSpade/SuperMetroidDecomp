@@ -3953,6 +3953,20 @@ real producers, executes each pose and terminal sleep plus shared shot deletion 
 mechanics reads forbidden, observes both presentation operands, rejects neighboring data,
 and proves warmed lookup is allocation-free.
 
+# Save-station electricity instruction mechanics
+
+The save station's electricity actor now resolves its fixed timer initialization, eight
+one-frame durations, decrement branch, loop target, and private delete through
+`SaveStationElectricityInstructionProgramDefinitions`. Its eight interleaved spritemap
+operands remain live cartridge presentation data, and its shot reaction reaches the
+independently compiled shared delete program.
+
+Verification compares all thirteen mechanics words with the pinned cartridge, invokes the
+real save-station electricity producer, and executes all twenty animation cycles (160
+displayed frames) through private deletion with mechanics reads forbidden. It also proves
+shared shot deletion, observes every presentation operand, rejects spritemap and initializer
+addresses as mechanics, and proves warmed lookup is allocation-free.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

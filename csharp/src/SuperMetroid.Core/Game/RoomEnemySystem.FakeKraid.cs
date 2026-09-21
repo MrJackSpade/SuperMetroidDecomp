@@ -81,14 +81,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort FakeKraidDefinition = 0xe0ff;
 
-    private const ushort FakeKraidInitialLeftInstruction = 0x99ae;
-    private const ushort FakeKraidInitialRightInstruction = 0x99fc;
-    private const ushort FakeKraidLeftWalkInstruction = 0x99ac;
-    private const ushort FakeKraidLeftAlternateWalkInstruction = 0x99c4;
-    private const ushort FakeKraidLeftSpitInstruction = 0x99dc;
-    private const ushort FakeKraidRightWalkInstruction = 0x99fa;
-    private const ushort FakeKraidRightAlternateWalkInstruction = 0x9a12;
-    private const ushort FakeKraidRightSpitInstruction = 0x9a2a;
     private const ushort FakeKraidSpitSound = 0x0016;
     private const ushort FakeKraidSpikeSound = 0x003f;
 
@@ -132,12 +124,14 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         state.WalkDelta = -4;
         state.FacingDelta = -4;
-        slot.CurrentInstruction = FakeKraidInitialLeftInstruction;
+        slot.CurrentInstruction =
+            FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft;
         if (unchecked((short)(slot.XPosition - samus.XPosition)) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
-            slot.CurrentInstruction = FakeKraidInitialRightInstruction;
+            slot.CurrentInstruction =
+                FakeKraidInstructionProgramDefinitions.StepForwardsFacingRight;
         }
     }
 
@@ -229,20 +223,20 @@ public sealed partial class RoomEnemySystem
             if (state.FacingDelta < 0)
             {
                 return state.WalkDelta >= 0
-                    ? unchecked((ushort)(FakeKraidLeftAlternateWalkInstruction + 2))
-                    : unchecked((ushort)(FakeKraidLeftWalkInstruction + 2));
+                    ? FakeKraidInstructionProgramDefinitions.StepBackwardsFacingLeft
+                    : FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft;
             }
 
             return state.WalkDelta < 0
-                ? unchecked((ushort)(FakeKraidRightAlternateWalkInstruction + 2))
-                : unchecked((ushort)(FakeKraidRightWalkInstruction + 2));
+                ? FakeKraidInstructionProgramDefinitions.StepBackwardsFacingRight
+                : FakeKraidInstructionProgramDefinitions.StepForwardsFacingRight;
         }
 
         state.SpitDecisionTimer = unchecked((ushort)(
             (ReadFakeKraidRandomNumber() & 3) + 3));
         return state.FacingDelta < 0
-            ? FakeKraidLeftSpitInstruction
-            : FakeKraidRightSpitInstruction;
+            ? FakeKraidInstructionProgramDefinitions.FireSpitFacingLeft
+            : FakeKraidInstructionProgramDefinitions.FireSpitFacingRight;
     }
 
     /// <summary>Ports animation opcodes <c>$A6:9BC4</c>/<c>$A6:9C02</c>.</summary>

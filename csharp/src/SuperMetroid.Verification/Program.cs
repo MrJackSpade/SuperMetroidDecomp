@@ -297,6 +297,11 @@ if (args is ["--ceres-door-instruction-mechanics"])
     VerifyCeresDoorInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--fake-kraid-instruction-mechanics"])
+{
+    VerifyFakeKraidInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

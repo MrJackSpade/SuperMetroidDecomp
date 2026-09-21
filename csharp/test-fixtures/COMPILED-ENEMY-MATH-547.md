@@ -3473,3 +3473,19 @@ wall, and both Mode-7 wall variants while every mechanics byte is forbidden. It 
 both outcomes of the proximity, area-boss, and Ceres-status branches, observes all 33 live
 spritemap operands, rejects presentation and adjacent callback-code pointers as mechanics,
 and proves warmed lookup is allocation-free.
+
+# Fake Kraid instruction mechanics
+
+Fake Kraid's six live walking and spit programs now resolve all 48 fixed durations,
+private movement/action/sound/spit callbacks, gotos, and branch targets through
+`FakeKraidInstructionProgramDefinitions`. Their 24 interleaved spritemap operands remain
+live cartridge presentation data, and the four action-selector entries plus initializer
+handoffs use the same named program entries. The two retail-unused standing programs are
+deliberately outside the compiled mechanics catalog.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+forward and backward directions plus both spit cycles while every mechanics byte is
+forbidden. It asserts the movement/action callback state changes, paired spit projectiles,
+and cry publication; observes all 24 live presentation operands; rejects presentation,
+unused-program, and adjacent pointers as mechanics; and proves warmed lookup is
+allocation-free.

@@ -48,6 +48,7 @@ internal static partial class Program
         VerifyKiHunterAcidSpitInstructionProgramDefinitions(rom);
         VerifyStokeProjectileInstructionProgramDefinitions(rom);
         VerifyNuclearWaffleProjectileInstructionProgramDefinitions(rom);
+        VerifyKagoBugProjectileInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyKiHunterInstructionProgramDefinitions(rom);

@@ -41,22 +41,6 @@ public readonly record struct KagoBugDropRequest(
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort KagoBugIdlePreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle;
-    internal const ushort KagoBugJumpingPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping;
-    internal const ushort KagoBugFallingPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Falling;
-    internal const ushort KagoBugStartJumpInstruction = 0xd15c;
-    internal const ushort KagoBugStartIdleInstruction = 0xd1b6;
-    internal const ushort KagoBugUsePaletteZeroInstruction = 0xd1c7;
-    internal const ushort KagoBugSpawnDropInstruction = 0xd1ce;
-
-    private const ushort KagoBugInitialInstructionList =
-        KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug;
-    private const ushort KagoBugLandedInstructionList = 0xd03c;
-    private const ushort KagoBugFallingInstructionList = 0xd04a;
-    private const ushort KagoBugJumpStartInstructionList = 0xd052;
     private const ushort KagoBugGravity = 0x00e0;
     private const ushort KagoBugHorizontalSpeed = 0x0200;
     private const ushort KagoBugSourceCollisionEnableDistance = 23;
@@ -98,8 +82,10 @@ public sealed partial class RoomEnemySystem
         ushort initialIdleTimer = unchecked((ushort)((ReadKagoRandomNumber() & 7) + 1));
         projectile.CollidedProjectileType = initialIdleTimer;
         projectile.Variable0 = unchecked((ushort)(initialIdleTimer + 4));
-        projectile.PreInstruction = KagoBugIdlePreInstruction;
-        projectile.InstructionPointer = KagoBugInitialInstructionList;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle;
+        projectile.InstructionPointer =
+            KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug;
         return true;
     }
 
@@ -141,7 +127,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.InstructionPointer = KagoBugJumpStartInstructionList;
+        projectile.InstructionPointer =
+            KagoBugProjectileInstructionProgramDefinitions.JumpStart;
         projectile.InstructionTimer = 1;
         projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86D0EB;
     }
@@ -191,7 +178,8 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
             projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86D0EB;
-            projectile.InstructionPointer = KagoBugLandedInstructionList;
+            projectile.InstructionPointer =
+                KagoBugProjectileInstructionProgramDefinitions.Landed;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -201,8 +189,9 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
-        projectile.PreInstruction = KagoBugFallingPreInstruction;
-        projectile.InstructionPointer = KagoBugFallingInstructionList;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Falling;
+        projectile.InstructionPointer = KagoBugProjectileInstructionProgramDefinitions.Falling;
         projectile.InstructionTimer = 1;
     }
 
@@ -233,7 +222,8 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = jumpLeft
             ? unchecked((ushort)-KagoBugHorizontalSpeed)
             : KagoBugHorizontalSpeed;
-        projectile.PreInstruction = KagoBugJumpingPreInstruction;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping;
     }
 
     /// <summary>Ports landed-list instruction <c>$86:D1B6</c>.</summary>
@@ -241,7 +231,8 @@ public sealed partial class RoomEnemySystem
     {
         projectile.CollidedProjectileType = unchecked((ushort)(
             (ReadKagoRandomNumber() & 0x001f) + 1));
-        projectile.PreInstruction = KagoBugIdlePreInstruction;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle;
     }
 
     /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>

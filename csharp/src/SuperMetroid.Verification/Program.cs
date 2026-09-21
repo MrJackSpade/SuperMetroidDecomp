@@ -127,6 +127,11 @@ if (args is ["--nuclear-waffle-projectile-instruction-mechanics"])
     VerifyNuclearWaffleProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kago-bug-projectile-instruction-mechanics"])
+{
+    VerifyKagoBugProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

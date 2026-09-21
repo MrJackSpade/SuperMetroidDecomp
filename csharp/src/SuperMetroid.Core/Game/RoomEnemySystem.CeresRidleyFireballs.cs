@@ -1830,19 +1830,19 @@ public sealed partial class RoomEnemySystem
                     SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, CrocomireDefinition);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugStartJumpInstruction:
+                case KagoBugProjectileInstructionProgramDefinitions.StartJumpInstruction:
                     StartKagoBugJump(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugStartIdleInstruction:
+                case KagoBugProjectileInstructionProgramDefinitions.StartIdleInstruction:
                     StartKagoBugIdle(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugUsePaletteZeroInstruction:
+                case KagoBugProjectileInstructionProgramDefinitions.UsePaletteZeroInstruction:
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugSpawnDropInstruction:
+                case KagoBugProjectileInstructionProgramDefinitions.SpawnDropInstruction:
                     RequestKagoBugDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
@@ -1932,6 +1932,11 @@ public sealed partial class RoomEnemySystem
         if (KraidRockProjectileInstructionProgramDefinitions.Owns(projectile.Kind, address))
         {
             return KraidRockProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.KagoBug)
+        {
+            return KagoBugProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

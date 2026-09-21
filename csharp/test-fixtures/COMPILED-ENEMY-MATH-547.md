@@ -3856,3 +3856,17 @@ Nuclear Waffle through the production initializer, and drives all four projectil
 through complete twelve-frame loops plus shared deletion with mechanics reads forbidden.
 It also observes all twelve live presentation operands, rejects adjacent spritemap and
 initializer data, and proves warmed lookup is allocation-free.
+
+# Kago-bug projectile instruction mechanics
+
+Kago's spawned bug now resolves its landed, falling, jump-introduction, airborne-loop,
+and shot/drop programs through `KagoBugProjectileInstructionProgramDefinitions`. The
+shared initial pose remains owned once by the Kraid-rock catalog, and the shot tail reaches
+the independently compiled shared delete program. Eleven interleaved spritemap operands
+remain live cartridge presentation data.
+
+Verification compares all twenty-three private mechanics words with the pinned cartridge,
+invokes the real Kago-bug producer, and drives every private program through its callbacks,
+loops, five shot frames, drop request, and deletion with private/shared mechanics reads
+forbidden. It observes every live presentation operand, rejects spritemap and unreferenced
+duplicate-delete neighbors, and proves warmed lookup is allocation-free.

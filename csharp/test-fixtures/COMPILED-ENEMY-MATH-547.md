@@ -4307,3 +4307,18 @@ collision coordinate, saved center, callback/collision/priority transition, five
 twelve-frame random impact cycles, RNG consumption, and following deletion. Every
 presentation read, strict rejection, and allocation-free warmed lookup pass with all
 mechanics bytes forbidden.
+
+# Bomb Torizo statue-fragment instruction mechanics
+
+The sixteen breaking-statue fragment actors now resolve all ninety-six fixed durations,
+sound opcodes, falling-callback installs, callback operands, and deletions through
+`BombTorizoStatueInstructionProgramDefinitions`. Their thirty-two interleaved spritemap
+operands remain live cartridge presentation data, and sixteen packed sound IDs remain
+owned by the separate audio seam. The existing physical fragment definitions and the
+projectile definition record now obtain program identities from the same named catalog.
+
+Verification compares every mechanics word with the pinned cartridge and invokes all
+sixteen real room-graphics fragment producers. It proves each distinct 128-to-64-frame
+staggered wait, falling callback handoff, 112-frame second pose, exact visible lifetime,
+and deletion. Every presentation read, strict rejection, and allocation-free warmed
+lookup pass with all mechanics bytes forbidden.

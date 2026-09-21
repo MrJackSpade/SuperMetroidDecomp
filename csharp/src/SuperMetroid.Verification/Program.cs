@@ -107,6 +107,11 @@ if (args is ["--torizo-sonic-boom-instruction-mechanics"])
     VerifyTorizoSonicBoomInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--bomb-torizo-statue-instruction-mechanics"])
+{
+    VerifyBombTorizoStatueInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

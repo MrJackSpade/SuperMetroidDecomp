@@ -1310,6 +1310,17 @@ and all five twelve-frame random impact cycles through collision disabling, high
 drawing, center restoration, jitter, and deletion. Exact ROM parity, RNG consumption,
 every presentation read, strict rejection, and allocation-free warmed lookup are verified.
 
+## Bomb Torizo statue-fragment instruction mechanics
+
+All sixteen breaking-statue fragment programs now compile their ninety-six fixed control
+words while retaining thirty-two spritemap operands and sixteen packed sound IDs as live
+presentation/audio data. The already-compiled physical fragment definitions now select
+their programs through this catalog rather than duplicating raw pointers. Every real
+fragment producer executes its authored staggered wait, installs the falling callback,
+holds the second pose for 112 frames, and deletes with mechanics bytes forbidden. Exact
+ROM parity, every presentation read, strict rejection, and allocation-free warmed lookup
+are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

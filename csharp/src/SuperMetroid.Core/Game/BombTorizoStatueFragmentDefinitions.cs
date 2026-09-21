@@ -24,22 +24,22 @@ internal static class BombTorizoStatueFragmentDefinitions
     /// </summary>
     private static readonly BombTorizoStatueFragmentDefinition[] Definitions =
     [
-        new(0xa4c3, 8, -8, 0x0100, 0x0010),
-        new(0xa4d4, 24, -8, 0x0100, 0x0010),
-        new(0xa4e5, -8, 8, 0x0100, 0x0010),
-        new(0xa4f6, 8, 8, 0x0100, 0x0010),
-        new(0xa507, 24, 8, 0x0100, 0x0010),
-        new(0xa518, -8, 24, 0x0100, 0x0010),
-        new(0xa529, 8, 24, 0x0100, 0x0010),
-        new(0xa53a, 24, 24, 0x0100, 0x0010),
-        new(0xa54b, 8, -8, 0x0100, 0x0010),
-        new(0xa55c, -8, -8, 0x0100, 0x0010),
-        new(0xa56d, 24, 8, 0x0100, 0x0010),
-        new(0xa57e, 8, 8, 0x0100, 0x0010),
-        new(0xa58f, -8, 8, 0x0100, 0x0010),
-        new(0xa5a0, 24, 24, 0x0100, 0x0010),
-        new(0xa5b1, 8, 24, 0x0100, 0x0010),
-        new(0xa5c2, -8, 24, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(0), 8, -8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(1), 24, -8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(2), -8, 8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(3), 8, 8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(4), 24, 8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(5), -8, 24, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(6), 8, 24, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(7), 24, 24, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(8), 8, -8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(9), -8, -8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(10), 24, 8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(11), 8, 8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(12), -8, 8, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(13), 24, 24, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(14), 8, 24, 0x0100, 0x0010),
+        new(BombTorizoStatueInstructionProgramDefinitions.Program(15), -8, 24, 0x0100, 0x0010),
     ];
 
     /// <summary>Returns the definition selected by an even native parameter.</summary>

@@ -365,7 +365,12 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BombTorizoDeathExplosion => new(
             0xA871, 0x84FB, TorizoExplosionInstructionProgramDefinitions.DeathInitial,
             0x1004, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.BombTorizoStatueBreaking => new(0xA764, 0x84FB, 0xA54B, 0x0808, 0x3000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.BombTorizoStatueBreaking => new(
+            BombTorizoStatueInstructionProgramDefinitions.InitializationAi,
+            EnemyProjectileCodePointers.RTS_8684FB,
+            BombTorizoStatueInstructionProgramDefinitions.Program(8),
+            0x0808, 0x3000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoChozoOrb => new(
             0xABEB, 0xACAD, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
             0x0707, 0x9008, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),

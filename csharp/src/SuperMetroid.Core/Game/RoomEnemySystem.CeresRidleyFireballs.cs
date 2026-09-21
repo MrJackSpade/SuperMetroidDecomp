@@ -2189,6 +2189,11 @@ public sealed partial class RoomEnemySystem
             return TorizoSonicBoomInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking)
+        {
+            return BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

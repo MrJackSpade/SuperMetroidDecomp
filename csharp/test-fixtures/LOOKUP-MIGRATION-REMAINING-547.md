@@ -1217,6 +1217,15 @@ eight production loops beyond their terminal gotos while every mechanics byte is
 forbidden. All forty-four presentation operands remain observable, presentation and
 adjacent selector-table pointers fail as mechanics, and warmed lookup is allocation-free.
 
+## Shaktool attack-circle projectile instruction mechanics
+
+All three unused-but-authored Shaktool attack-circle programs now compile their eighteen
+fixed duration, callback, goto, and target words. Eight spritemap operands remain live
+presentation data. The real linked producer and complete stable loops execute with mechanics
+reads forbidden, including both delayed movement-callback handoffs and the cartridge's
+physical front-slot ownership link. Exact ROM parity, presentation reads, strict rejection,
+and allocation-free warmed lookup are verified.
+
 ## Generic enemy-death instruction mechanics
 
 The five generic death animations and shared blank respawn tail now compile all sixty-six

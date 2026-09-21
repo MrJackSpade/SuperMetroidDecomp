@@ -52,6 +52,11 @@ if (args is ["--enemy-death-instruction-mechanics"])
     VerifyEnemyDeathInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--shaktool-projectile-instruction-mechanics"])
+{
+    VerifyShaktoolProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

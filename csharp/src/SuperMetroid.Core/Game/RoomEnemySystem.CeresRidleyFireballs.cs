@@ -2129,6 +2129,11 @@ public sealed partial class RoomEnemySystem
             return EnemyDeathInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (ShaktoolProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return ShaktoolProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

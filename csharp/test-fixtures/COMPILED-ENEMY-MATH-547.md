@@ -4117,6 +4117,20 @@ callback effects and deletion with private/shared mechanics reads forbidden. It 
 all presentation operands, rejects callback bodies and spritemaps as mechanics, and proves
 warmed lookup is allocation-free.
 
+# Shaktool attack-circle projectile instruction mechanics
+
+The cartridge's unused front, middle, and back Shaktool attack-circle programs now resolve
+all eighteen fixed durations, callback installation words, gotos, and loop targets through
+`ShaktoolProjectileInstructionProgramDefinitions`. Their eight spritemap operands remain
+live cartridge presentation data, and the projectile definition catalog names the same
+program entries instead of retaining duplicate raw pointers.
+
+Verification compares every mechanics word with the pinned cartridge, invokes the real
+three-circle producer, proves the two delayed actors retain the physical front-slot link,
+and executes all three programs through their stable loops with mechanics reads forbidden.
+Both movement callback installations, every presentation read, strict pointer rejection,
+and allocation-free warmed lookup pass.
+
 # Generic enemy-death instruction mechanics
 
 All five generic death animations and their shared blank respawn tail now resolve sixty-six

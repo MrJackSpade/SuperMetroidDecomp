@@ -53,6 +53,7 @@ internal static partial class Program
         VerifyCrocomireProjectileInstructionProgramDefinitions(rom);
         VerifyPhantoonProjectileInstructionProgramDefinitions(rom);
         VerifyDraygonProjectileInstructionProgramDefinitions(rom);
+        VerifyCeresFallingDebrisInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyKiHunterInstructionProgramDefinitions(rom);

@@ -152,6 +152,11 @@ if (args is ["--draygon-projectile-instruction-mechanics"])
     VerifyDraygonProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-debris-instruction-mechanics"])
+{
+    VerifyCeresFallingDebrisInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

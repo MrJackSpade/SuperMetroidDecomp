@@ -3924,3 +3924,15 @@ both real producers, and executes the complete goop loop, touch/attach path, sle
 drop/deletion, private deletion, sixteen-frame turret bloom, flight handoff, and loop with
 private/shared mechanics reads forbidden. It observes every presentation operand, rejects
 spritemap and callback-body addresses, and proves warmed lookup is allocation-free.
+
+# Ceres falling-debris instruction mechanics
+
+The light and dark falling-tile actors now resolve their one-frame duration and terminal
+sleep through `CeresFallingDebrisInstructionProgramDefinitions`; both spritemap operands
+remain live cartridge presentation data, and shot reactions use the shared compiled delete
+program.
+
+Verification compares all four mechanics words with the pinned cartridge, invokes both
+real producers, executes each pose and terminal sleep plus shared shot deletion with
+mechanics reads forbidden, observes both presentation operands, rejects neighboring data,
+and proves warmed lookup is allocation-free.

@@ -140,8 +140,14 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft => new(0x94DC, 0x950D, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp => new(0x94A0, 0x9522, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown => new(0x94B4, 0x9522, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresFallingDebrisLight => new(0x96DC, 0x9701, 0x9750, 0x0808, 0x4000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresFallingDebrisDark => new(0x96DC, 0x9701, 0x9756, 0x0808, 0x4000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.CeresFallingDebrisLight => new(
+            0x96DC, 0x9701, CeresFallingDebrisInstructionProgramDefinitions.Light,
+            0x0808, 0x4000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresFallingDebrisDark => new(
+            0x96DC, 0x9701, CeresFallingDebrisInstructionProgramDefinitions.Dark,
+            0x0808, 0x4000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new(0xA2A1, 0xA327, 0xA197, 0x0808, 0x3000, 0x0000, 0xA197),
         RoomEnemyProjectileKind.AlcoonFireball => new(
             0x9EB2, 0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,

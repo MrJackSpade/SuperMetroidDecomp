@@ -1962,6 +1962,11 @@ public sealed partial class RoomEnemySystem
             return DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (CeresFallingDebrisInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return CeresFallingDebrisInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);

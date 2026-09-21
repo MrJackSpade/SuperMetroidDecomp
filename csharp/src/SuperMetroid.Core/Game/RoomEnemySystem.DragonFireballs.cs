@@ -3,12 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 half of Dragon's arcing fireball projectile.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort DragonFireballRisingLeftInstruction = 0xb4bf;
-    private const ushort DragonFireballRisingRightInstruction = 0xb4cb;
-    private const ushort DragonFireballFallingLeftInstruction = 0xb4d7;
-    private const ushort DragonFireballFallingRightInstruction = 0xb4e3;
-    private const ushort DragonFireballPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_DragonFireball;
     private const ushort DragonFireballInitialYVelocity = 0xfc3f;
     private const ushort DragonFireballLeftXVelocity = 0xfd40;
     private const ushort DragonFireballRightXVelocity = 0x02c0;
@@ -34,13 +28,15 @@ public sealed partial class RoomEnemySystem
         {
             projectile.XPosition = unchecked((ushort)(body.XPosition - 12));
             projectile.XVelocity = DragonFireballLeftXVelocity;
-            projectile.InstructionPointer = DragonFireballRisingLeftInstruction;
+            projectile.InstructionPointer =
+                DragonFireballInstructionProgramDefinitions.RisingLeft;
         }
         else
         {
             projectile.XPosition = unchecked((ushort)(body.XPosition + 12));
             projectile.XVelocity = DragonFireballRightXVelocity;
-            projectile.InstructionPointer = DragonFireballRisingRightInstruction;
+            projectile.InstructionPointer =
+                DragonFireballInstructionProgramDefinitions.RisingRight;
         }
         projectile.XSubposition = 0;
     }
@@ -69,8 +65,8 @@ public sealed partial class RoomEnemySystem
             // The exact zero crossing switches from the rising pair of two-frame loops to
             // the falling pair and forces an instruction tick on this same projectile pass.
             projectile.InstructionPointer = unchecked((short)projectile.XVelocity) < 0
-                ? DragonFireballFallingLeftInstruction
-                : DragonFireballFallingRightInstruction;
+                ? DragonFireballInstructionProgramDefinitions.FallingLeft
+                : DragonFireballInstructionProgramDefinitions.FallingRight;
             projectile.InstructionTimer = 1;
             return;
         }

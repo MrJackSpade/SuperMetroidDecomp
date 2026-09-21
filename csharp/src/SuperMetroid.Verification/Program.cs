@@ -62,6 +62,11 @@ if (args is ["--magdollite-lava-instruction-mechanics"])
     VerifyMagdolliteLavaInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--dragon-fireball-instruction-mechanics"])
+{
+    VerifyDragonFireballInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

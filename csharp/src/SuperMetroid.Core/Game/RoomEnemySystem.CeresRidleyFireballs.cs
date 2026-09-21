@@ -1953,6 +1953,11 @@ public sealed partial class RoomEnemySystem
             return MagdolliteLavaInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.DragonFireball)
+        {
+            return DragonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

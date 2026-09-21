@@ -3666,3 +3666,18 @@ executes both directional poses and the complete shot/drop/goto/delete path whil
 mechanics byte is forbidden, and observes both live spritemap operands. Presentation,
 adjacent callback code, and adjacent shared data fail as mechanics; warmed private and
 shared lookups remain allocation-free.
+
+# Dragon fireball instruction mechanics
+
+Dragon's left/right rising and falling fireball loops now resolve all sixteen fixed
+durations, gotos, and loop targets through
+`DragonFireballInstructionProgramDefinitions`. Their eight interleaved spritemap operands
+remain live cartridge presentation data. The initializer and vertical-velocity
+zero-crossing handoff use the same named program entries; the definition's generic shot
+list uses the independently compiled shared delete program.
+
+Verification compares every private mechanics word with the pinned cartridge, executes all
+four loops and both real zero-crossing handoffs while private and shared mechanics bytes are
+forbidden, observes every live spritemap operand, and proves the shared shot-list deletion.
+Presentation and adjacent initializer code fail as mechanics; warmed lookup remains
+allocation-free.

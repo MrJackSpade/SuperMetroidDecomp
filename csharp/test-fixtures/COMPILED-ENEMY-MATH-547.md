@@ -3910,3 +3910,17 @@ both real flame producers, and executes the starting, idle, falling/blinking, gr
 bouncing, resting/dying, rain-impact, orbit-delete, and shot/drop/delete programs with
 mechanics reads forbidden. It observes every presentation operand, rejects spritemap and
 callback-body addresses as mechanics, and proves warmed lookup is allocation-free.
+
+# Draygon projectile instruction mechanics
+
+Draygon goop and wall-turret projectiles now resolve their fixed animation timing, touch
+and drop callbacks, gotos, sleeps, flight handoff, and deletions through
+`DraygonProjectileInstructionProgramDefinitions`. Twenty-seven interleaved spritemap
+operands remain live cartridge presentation data; the goop shot tail retains the shared
+compiled delete program.
+
+Verification compares all thirty-eight mechanics words with the pinned cartridge, invokes
+both real producers, and executes the complete goop loop, touch/attach path, sleep, shot
+drop/deletion, private deletion, sixteen-frame turret bloom, flight handoff, and loop with
+private/shared mechanics reads forbidden. It observes every presentation operand, rejects
+spritemap and callback-body addresses, and proves warmed lookup is allocation-free.

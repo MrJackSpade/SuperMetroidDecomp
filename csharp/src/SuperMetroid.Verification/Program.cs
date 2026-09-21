@@ -147,6 +147,11 @@ if (args is ["--phantoon-projectile-instruction-mechanics"])
     VerifyPhantoonProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--draygon-projectile-instruction-mechanics"])
+{
+    VerifyDraygonProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

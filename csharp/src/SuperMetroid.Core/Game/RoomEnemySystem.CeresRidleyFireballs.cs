@@ -1957,6 +1957,11 @@ public sealed partial class RoomEnemySystem
             return PhantoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (DraygonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);

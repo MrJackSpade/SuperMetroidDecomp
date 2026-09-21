@@ -139,7 +139,7 @@ public sealed partial class RoomEnemySystem
         ushort yDistance = WrappedMagnitude(unchecked((ushort)(samus.YPosition - goop.YPosition)));
         if (xDistance < 0x0010 && yDistance < 0x0014)
         {
-            goop.InstructionPointer = EnemyProjectileInstructionLists.DraygonGoopAttached;
+            goop.InstructionPointer = DraygonProjectileInstructionProgramDefinitions.GoopTouch;
             goop.InstructionTimer = 1;
         }
     }

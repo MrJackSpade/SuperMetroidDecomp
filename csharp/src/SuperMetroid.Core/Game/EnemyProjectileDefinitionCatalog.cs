@@ -109,8 +109,13 @@ internal static class EnemyProjectileDefinitionCatalog
             PhantoonProjectileInstructionProgramDefinitions.StartingFlame,
             0x1008, 0x4028, 0x0000,
             PhantoonProjectileInstructionProgramDefinitions.DestroyableIdle),
-        RoomEnemyProjectileKind.DraygonGoop => new(0x8D04, 0x8E0F, 0x8C3A, 0x0808, 0xD000, 0x8C38, 0x8C58),
-        RoomEnemyProjectileKind.DraygonWallTurret => new(0x8D40, 0x8DFF, 0x8CA4, 0x0808, 0x1080, 0x0000, 0xE138),
+        RoomEnemyProjectileKind.DraygonGoop => new(
+            0x8D04, 0x8E0F, DraygonProjectileInstructionProgramDefinitions.Goop,
+            0x0808, 0xD000, DraygonProjectileInstructionProgramDefinitions.GoopTouch,
+            DraygonProjectileInstructionProgramDefinitions.GoopShot),
+        RoomEnemyProjectileKind.DraygonWallTurret => new(
+            0x8D40, 0x8DFF, DraygonProjectileInstructionProgramDefinitions.WallTurretBloom,
+            0x0808, 0x1080, 0x0000, 0xE138),
         RoomEnemyProjectileKind.MotherBrainRoomTurret => new(0xBE4F, 0xBFDF, 0xC10D, 0x0000, 0x6000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet => new(0xBF59, 0xC0E0, 0xC131, 0x0303, 0x4014, 0xC19A, 0xC19A),
         RoomEnemyProjectileKind.MotherBrainGlassShard => new(0xCDC5, 0xCE9B, 0xCC93, 0x0000, 0x3000, 0x0000, 0x84FC),

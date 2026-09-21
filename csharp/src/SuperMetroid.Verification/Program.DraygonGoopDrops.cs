@@ -17,7 +17,7 @@ internal static partial class Program
         var goop = enemies.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
-        goop.InstructionPointer = 0x8c58; // Exact retail shot-list entry from report #389.
+        goop.InstructionPointer = DraygonProjectileInstructionProgramDefinitions.GoopShot;
         goop.InstructionTimer = 1;
         goop.XPosition = 120;
         goop.YPosition = 240;

@@ -31,8 +31,6 @@ internal static class EnemyProjectileInstructionLists
     public const ushort GoldenTorizoEyeBeamWallImpact = 0xb3cd;
     /// <summary>Golden Torizo eye-beam floor-impact list at $86:B3E5.</summary>
     public const ushort GoldenTorizoEyeBeamFloorImpact = 0xb3e5;
-    /// <summary>Ceres Ridley fireball center-afterburn list at $86:9574.</summary>
-    public const ushort RidleyCenterAfterburn = 0x9574;
     /// <summary>Space Pirate laser list facing left at $86:9FB9.</summary>
     public const ushort PirateLaserLeft = 0x9fb9;
     /// <summary>Space Pirate laser list facing right at $86:9FE1.</summary>

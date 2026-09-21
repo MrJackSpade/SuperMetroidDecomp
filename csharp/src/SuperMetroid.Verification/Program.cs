@@ -162,6 +162,11 @@ if (args is ["--gunship-dust-instruction-mechanics"])
     VerifyGunshipDustInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-ridley-projectile-instruction-mechanics"])
+{
+    VerifyCeresRidleyProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

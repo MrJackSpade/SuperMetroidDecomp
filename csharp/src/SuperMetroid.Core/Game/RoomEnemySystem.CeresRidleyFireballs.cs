@@ -1962,6 +1962,12 @@ public sealed partial class RoomEnemySystem
             return DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (CeresRidleyProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (CeresFallingDebrisInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return CeresFallingDebrisInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -2189,7 +2195,8 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
-        projectile.InstructionPointer = EnemyProjectileInstructionLists.RidleyCenterAfterburn;
+        projectile.InstructionPointer =
+            CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal;
         projectile.InstructionTimer = 1;
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;

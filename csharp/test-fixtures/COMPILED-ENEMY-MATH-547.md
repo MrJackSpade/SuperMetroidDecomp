@@ -3949,3 +3949,18 @@ the real dust producer for every native parameter, and executes every frame, loo
 and deletion with mechanics reads forbidden. It observes all forty-six live presentation
 operands, rejects spritemap and selector-table data as mechanics, and proves warmed lookup
 is allocation-free.
+
+# Ceres Ridley projectile instruction mechanics
+
+Ceres Ridley's fireball, horizontal and vertical center-afterburns, four directional
+afterburn owners, and final impact now resolve their fixed control through
+`CeresRidleyProjectileInstructionProgramDefinitions`. The compiled words cover the
+fireball's pre-instruction installation and loop, center pair spawns, directional-chain
+spawns, impact handoff, timings, gotos, and deletions. Twenty-six interleaved spritemap
+operands remain live cartridge presentation data.
+
+Verification compares all forty-two mechanics words with the pinned cartridge, invokes
+the real fireball and afterburn producers, and executes every program through its native
+callback effects and deletion with private/shared mechanics reads forbidden. It observes
+all presentation operands, rejects callback bodies and spritemaps as mechanics, and proves
+warmed lookup is allocation-free.

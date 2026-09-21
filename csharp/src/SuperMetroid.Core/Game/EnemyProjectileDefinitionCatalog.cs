@@ -133,13 +133,40 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.MotherBrainTopLeftTube => new(0xCBC9, 0xCBE7, 0xCC49, 0x1008, 0x5000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => new(0xCBC9, 0xCBE7, 0xCC4F, 0x1808, 0x5000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube => new(0xCBC9, 0xCBE7, 0xCC55, 0x1808, 0x5000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyFireball => new(0x93CA, 0x940E, 0x9552, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter => new(0x947F, 0x950C, 0x95A0, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter => new(0x947F, 0x950C, 0x95D3, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight => new(0x94C8, 0x950D, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft => new(0x94DC, 0x950D, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp => new(0x94A0, 0x9522, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown => new(0x94B4, 0x9522, 0x9606, 0x0606, 0x5003, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.CeresRidleyFireball => new(
+            0x93CA, 0x940E, CeresRidleyProjectileInstructionProgramDefinitions.Fireball,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter => new(
+            0x947F, 0x950C,
+            CeresRidleyProjectileInstructionProgramDefinitions.HorizontalCenter,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter => new(
+            0x947F, 0x950C,
+            CeresRidleyProjectileInstructionProgramDefinitions.VerticalCenter,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight => new(
+            0x94C8, 0x950D,
+            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft => new(
+            0x94DC, 0x950D,
+            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp => new(
+            0x94A0, 0x9522,
+            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown => new(
+            0x94B4, 0x9522,
+            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            0x0606, 0x5003, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresFallingDebrisLight => new(
             0x96DC, 0x9701, CeresFallingDebrisInstructionProgramDefinitions.Light,
             0x0808, 0x4000, 0x0000,

@@ -57,6 +57,11 @@ if (args is ["--shaktool-projectile-instruction-mechanics"])
     VerifyShaktoolProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--chozo-tourian-dust-instruction-mechanics"])
+{
+    VerifyChozoTourianDustInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

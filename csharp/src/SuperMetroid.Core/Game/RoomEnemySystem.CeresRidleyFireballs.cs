@@ -2134,6 +2134,11 @@ public sealed partial class RoomEnemySystem
             return ShaktoolProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (ChozoTourianDustInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return ChozoTourianDustInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 
@@ -2170,11 +2175,16 @@ public sealed partial class RoomEnemySystem
         // first random sample choose the eventual signs. This peculiar rejection loop is
         // observable in Bomb Torizo's sonic-boom wall impact, so a host RNG approximation
         // would produce a visibly different debris cloud and desynchronize later randomness.
-        int operands = 0x860000 | unchecked((ushort)(instructionPointer + 2));
-        byte xMask = _bus!.ReadByte(operands);
-        byte xCenter = _bus.ReadByte(operands + 1);
-        byte yMask = _bus.ReadByte(operands + 2);
-        byte yCenter = _bus.ReadByte(operands + 3);
+        ushort xParameters = ReadEnemyProjectileInstructionMechanicsWord(
+            projectile,
+            unchecked((ushort)(instructionPointer + 2)));
+        ushort yParameters = ReadEnemyProjectileInstructionMechanicsWord(
+            projectile,
+            unchecked((ushort)(instructionPointer + 4)));
+        byte xMask = unchecked((byte)xParameters);
+        byte xCenter = unchecked((byte)(xParameters >> 8));
+        byte yMask = unchecked((byte)yParameters);
+        byte yCenter = unchecked((byte)(yParameters >> 8));
         ushort signSample = _nextRandom!();
 
         int xOffset;

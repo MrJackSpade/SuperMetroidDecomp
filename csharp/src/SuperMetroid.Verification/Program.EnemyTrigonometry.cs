@@ -60,6 +60,7 @@ internal static partial class Program
         VerifyEnemyPickupInstructionProgramDefinitions(rom);
         VerifyEnemyDeathInstructionProgramDefinitions(rom);
         VerifyShaktoolProjectileInstructionProgramDefinitions(rom);
+        VerifyChozoTourianDustInstructionProgramDefinitions(rom);
         VerifyDownwardGateProjectileInstructionProgramDefinitions(rom);
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
         VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);

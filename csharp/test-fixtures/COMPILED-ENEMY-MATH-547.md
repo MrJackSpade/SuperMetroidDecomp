@@ -4145,3 +4145,20 @@ generic death producer for all five animation variants, proves each exact conver
 all three sound choices, random sprite callbacks, in-place no-drop conversion, and final
 respawn-tail deletion with mechanics reads forbidden. Every presentation operand remains
 observable, unused neighboring programs are rejected, and warmed lookup is allocation-free.
+
+# Wrecked Ship Chozo and Tourian dust instruction mechanics
+
+The Wrecked Ship Chozo footstep, its unused-but-authored alternate spike-clearing
+explosion, and the Tourian entrance-statue descent dust now resolve all thirty-one fixed
+opcodes, packed random-radius operands, durations, loop controls, targets, and deletions
+through `ChozoTourianDustInstructionProgramDefinitions`. Their fourteen interleaved
+spritemap operands remain live cartridge presentation data. The shared random-placement
+instruction now reads both packed parameter words through the projectile owner's mechanics
+resolver instead of bypassing the catalog with four raw cartridge byte reads.
+
+Verification compares every mechanics word with the pinned cartridge, invokes the real
+Chozo footstep and Tourian dust producers, initializes the authored alternate through the
+production definition path, and executes every program through deletion with mechanics
+bytes forbidden. It verifies the exact random offsets, four- and six-pose lifetimes, the
+Tourian actor's 64 four-pose cycles and 257th-tick deletion, every presentation read,
+strict pointer rejection, and allocation-free warmed lookup.

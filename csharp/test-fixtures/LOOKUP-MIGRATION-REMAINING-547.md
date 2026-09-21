@@ -1245,3 +1245,13 @@ because the cartridge converts a completed death animation into a pickup without
 the actor's definition identity. Exact ROM parity, all complete loops, dormant sleeps, both
 owner identities, every presentation read, strict rejection, and allocation-free warmed
 lookup are verified.
+
+## Wrecked Ship Chozo and Tourian dust instruction mechanics
+
+The two Wrecked Ship Chozo spike-clearing programs and the Tourian entrance-statue descent
+dust now compile all thirty-one fixed instruction words, including their packed random
+placement parameters and the complete 64-cycle Tourian loop. Fourteen spritemap operands
+remain live presentation data. The real footstep and Tourian producers plus the authored
+alternate execute through their exact deletion ticks with mechanics bytes forbidden;
+cartridge parity, random placement, every presentation read, strict rejection, and
+allocation-free warmed lookup are verified.

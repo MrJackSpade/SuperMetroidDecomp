@@ -117,6 +117,11 @@ if (args is ["--kihunter-acid-spit-instruction-mechanics"])
     VerifyKiHunterAcidSpitInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--stoke-projectile-instruction-mechanics"])
+{
+    VerifyStokeProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

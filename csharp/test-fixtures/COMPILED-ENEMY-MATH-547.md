@@ -3830,3 +3830,15 @@ directional producers, and executes both introductions through their callback in
 and terminal sleeps. A constructed solid floor drives the real collision path and complete
 five-frame splash, while the test also proves shared shot deletion, every live presentation
 read, invalid-pointer rejection, and allocation-free warmed lookup.
+
+# Stoke-projectile instruction mechanics
+
+Stoke's projectile now resolves its four fixed duration, goto, and loop-target words
+through `StokeProjectileInstructionProgramDefinitions`. Its two interleaved spritemap
+operands remain live cartridge presentation data, and its shot reaction uses the
+independently compiled shared delete program.
+
+Verification compares every mechanics word with the pinned cartridge, invokes both real
+directional Stoke producers, and drives complete two-frame loops plus shared shot deletion
+with mechanics reads forbidden. It also observes both live presentation operands, rejects
+adjacent initializer data, and proves warmed lookup is allocation-free.

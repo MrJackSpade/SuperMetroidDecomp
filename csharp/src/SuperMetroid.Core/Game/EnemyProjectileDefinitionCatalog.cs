@@ -170,7 +170,9 @@ internal static class EnemyProjectileDefinitionCatalog
             0xBBDB, 0xBC0F, PolypRockInstructionProgramDefinitions.Initial,
             0x0202, 0x0010, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CacatacSpike => new(0xD992, 0xD9DB, 0xD92E, 0x0202, 0x0005, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.StokeProjectile => new(0xDB18, 0xDB5B, 0xDB0C, 0x0202, 0x0005, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.StokeProjectile => new(
+            0xDB18, 0xDB5B, StokeProjectileInstructionProgramDefinitions.Initial,
+            0x0202, 0x0005, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.NamiheFireball => new(
             0xDED6,
             0xDF39,

@@ -2124,6 +2124,11 @@ public sealed partial class RoomEnemySystem
             return EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (EnemyDeathInstructionProgramDefinitions.Owns(projectile.Kind, address))
+        {
+            return EnemyDeathInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 
@@ -2144,9 +2149,10 @@ public sealed partial class RoomEnemySystem
             projectile.XPosition + (random & mask) - center));
         ushort y = unchecked((ushort)(
             projectile.YPosition + ((random & (mask << 8)) >> 8) - center));
-        RoomSpriteObjectKind kind = (RoomSpriteObjectKind)ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(instructionPointer + 2)));
+        RoomSpriteObjectKind kind = (RoomSpriteObjectKind)
+            ReadEnemyProjectileInstructionMechanicsWord(
+                projectile,
+                unchecked((ushort)(instructionPointer + 2)));
         _ = SpawnRoomSpriteObject(x, y, kind, graphicsIndex: 0);
     }
 

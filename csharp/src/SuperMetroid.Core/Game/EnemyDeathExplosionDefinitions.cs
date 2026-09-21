@@ -19,15 +19,16 @@ internal static class EnemyDeathExplosionDefinitions
     /// </summary>
     private static readonly ushort[] InstructionPointers =
     [
-        0xed69,
-        0xedff,
-        0xed4b,
-        0xecc5,
-        0xecab,
+        EnemyDeathInstructionProgramDefinitions.SmallExplosion,
+        EnemyDeathInstructionProgramDefinitions.KilledBySamusContact,
+        EnemyDeathInstructionProgramDefinitions.NormalExplosion,
+        EnemyDeathInstructionProgramDefinitions.MiniKraidExplosion,
+        EnemyDeathInstructionProgramDefinitions.BigExplosion,
     ];
 
     /// <summary>$86:ECA3 blank-map wait used after a drop is collected or expires.</summary>
-    internal const ushort NoDropTailInstruction = 0xeca3;
+    internal const ushort NoDropTailInstruction =
+        EnemyDeathInstructionProgramDefinitions.RespawnTail;
 
     /// <summary>Returns the bank-$86 instruction list for one authored death variant.</summary>
     internal static ushort InstructionPointer(ushort animation)

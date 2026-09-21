@@ -1217,6 +1217,16 @@ eight production loops beyond their terminal gotos while every mechanics byte is
 forbidden. All forty-four presentation operands remain observable, presentation and
 adjacent selector-table pointers fail as mechanics, and warmed lookup is allocation-free.
 
+## Generic enemy-death instruction mechanics
+
+The five generic death animations and shared blank respawn tail now compile all sixty-six
+fixed mechanics words. This includes random sprite-object operands, timer/decrement loops,
+sound callbacks, pickup conversion, respawn handling, and deletion. Thirty-one spritemap
+operands remain live presentation data. All real death variants execute to their exact
+conversion frames and through tail deletion with mechanics bytes forbidden; cartridge
+parity, sounds, callback effects, every presentation read, strict rejection, and
+allocation-free warmed lookup are verified.
+
 ## Enemy-pickup instruction mechanics
 
 All five live bank-$86 enemy-pickup animation programs now compile their thirty fixed

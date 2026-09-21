@@ -47,6 +47,11 @@ if (args is ["--enemy-pickup-instruction-mechanics"])
     VerifyEnemyPickupInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--enemy-death-instruction-mechanics"])
+{
+    VerifyEnemyDeathInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

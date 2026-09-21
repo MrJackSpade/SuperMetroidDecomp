@@ -4116,3 +4116,18 @@ the real fireball and afterburn producers, and executes every program through it
 callback effects and deletion with private/shared mechanics reads forbidden. It observes
 all presentation operands, rejects callback bodies and spritemaps as mechanics, and proves
 warmed lookup is allocation-free.
+
+# Generic enemy-death instruction mechanics
+
+All five generic death animations and their shared blank respawn tail now resolve sixty-six
+fixed durations, callback operands, timers, branches, sounds, pickup conversion, respawn,
+and deletion words through `EnemyDeathInstructionProgramDefinitions`. Their thirty-one
+spritemap operands remain live cartridge presentation data. The two random-sprite callbacks
+now obtain their object-number operands through the same owner-aware resolver instead of a
+separate raw cartridge read.
+
+Verification compares every mechanics word with the pinned cartridge, invokes the real
+generic death producer for all five animation variants, proves each exact conversion frame,
+all three sound choices, random sprite callbacks, in-place no-drop conversion, and final
+respawn-tail deletion with mechanics reads forbidden. Every presentation operand remains
+observable, unused neighboring programs are rejected, and warmed lookup is allocation-free.

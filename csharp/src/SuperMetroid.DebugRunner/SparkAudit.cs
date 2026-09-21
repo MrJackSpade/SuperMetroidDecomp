@@ -658,7 +658,11 @@ internal static class SparkAudit
     private static void ArmProjectile(SamusProjectileSlot projectile, RoomEnemySlot target)
     {
         projectile.ClearFields();
-        projectile.Type = 0;
+        // Raw zero is the native empty-slot sentinel. Use the actual live uncharged
+        // Power Beam word so this audit reaches Spark's indestructible-shot callback.
+        projectile.Type = SamusProjectileTypeWord.CreateBeam(
+            equippedBeams: 0,
+            charged: false);
         projectile.Damage = 20;
         projectile.Direction = 0x0012;
         projectile.XPosition = target.XPosition;

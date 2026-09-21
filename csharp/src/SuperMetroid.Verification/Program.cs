@@ -47,6 +47,11 @@ if (args is ["--cacatac-projectile-instruction-mechanics"])
     VerifyCacatacProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--falling-spark-instruction-mechanics"])
+{
+    VerifyFallingSparkInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

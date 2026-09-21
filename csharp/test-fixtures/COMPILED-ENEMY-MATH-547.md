@@ -3623,3 +3623,16 @@ program boundary, and presentation pointers as mechanics, and proves warmed look
 is allocation-free. The complete retail Crocomire audit then runs wake-up, movement,
 projectiles, mouth and power-bomb reactions, bridge collapse, both melts, wall break,
 skeleton animation, drops, music, and boss completion through the strict catalog.
+
+# Falling Spark projectile instruction mechanics
+
+Falling Spark's falling loop and floor-impact sequence now resolve all seventeen fixed
+durations, goto control, loop target, and terminal delete words through
+`FallingSparkInstructionProgramDefinitions`. The fourteen interleaved spritemap operands
+remain live cartridge presentation data. Both the projectile definition's initial program
+and the physical floor-collision handoff use named catalog entries.
+
+Verification compares every mechanics word with the pinned cartridge, executes the full
+falling loop and all eleven impact blink frames with every mechanics byte forbidden, and
+observes every presentation operand through the live bus. Presentation and adjacent
+initializer pointers fail as mechanics, and warmed lookup remains allocation-free.

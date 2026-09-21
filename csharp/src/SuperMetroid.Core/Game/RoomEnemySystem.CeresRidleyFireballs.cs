@@ -1631,7 +1631,9 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY:
-                    cursor = ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
+                    cursor = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
+                        unchecked((ushort)(cursor + 2)));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Y:
                     cursor = unchecked((ushort)(cursor + 2 + unchecked((sbyte)_bus!.ReadByte(
@@ -1924,6 +1926,11 @@ public sealed partial class RoomEnemySystem
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
+        }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.FallingSpark)
+        {
+            return FallingSparkInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

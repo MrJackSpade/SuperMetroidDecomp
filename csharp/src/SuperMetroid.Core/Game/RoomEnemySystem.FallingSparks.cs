@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort FallingSparkFloorInstructionList = 0xf363;
     private byte _standaloneEnemyProjectileFrameCounter8;
 
     /// <summary>Allocates and initializes enemy projectile <c>$86:F498</c>.</summary>
@@ -163,7 +162,7 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
     {
-        projectile.InstructionPointer = FallingSparkFloorInstructionList;
+        projectile.InstructionPointer = FallingSparkInstructionProgramDefinitions.HitFloor;
         projectile.InstructionTimer = 1;
 
         // Two paired ASL/ROL operations multiply the signed 16.16 horizontal delta by

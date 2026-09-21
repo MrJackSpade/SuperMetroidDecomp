@@ -898,6 +898,15 @@ control data. Mother Brain's rainbow-impact actor now also shares the already co
 `$86:E152` misc-explosion owner instead of rereading that same 18-frame program through a
 different projectile-kind path.
 
+Mother Brain's recursive red hand beam uses a dedicated
+`MotherBrainHandBeamInstructionProgramDefinitions` catalog because its three callback
+operands are byte-packed 24-bit executable identities rather than ordinary words. The
+catalog compiles 25 duration/opcode/delete words and all three `$86:C7FB` callback
+references while retaining 21 interleaved spritemap words as live presentation data. The
+actual charging producer survives the exact three 13-frame stages, emits three fired child
+actors through the compiled callbacks and deletes on frame 40 with every mechanics and
+callback byte forbidden.
+
 ## Spore Spawn instruction mechanics
 
 Spore Spawn's five private bank-$A5 programs now use

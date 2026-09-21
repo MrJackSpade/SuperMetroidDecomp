@@ -2889,6 +2889,15 @@ lifetime. The real rainbow-impact producer also proves its signed placement and 
 another integration gap between the previously covered Mother Brain projectile pool and
 the general room projectile pool.
 
+The recursive Mother Brain hand beam has its own strict
+`MotherBrainHandBeamInstructionProgramDefinitions` owner. Its 25 fixed durations, external-
+call opcodes and terminal delete are compiled alongside the three byte-packed 24-bit
+`$86:C7FB` callback identities; the 21 interleaved spritemap words remain live presentation
+reads. Verification compares every mechanics word and callback to the pinned cartridge,
+invokes the real charging producer, observes every presentation byte, proves all three
+13-frame stages and recursive child spawns, rejects invalid callback positions, and keeps
+warmed mechanics/callback lookups allocation-free.
+
 # Spore Spawn instruction mechanics
 
 Spore Spawn's five mixed bank-$A5 programs now split engine behavior from presentation in

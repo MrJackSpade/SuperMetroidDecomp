@@ -9,7 +9,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort MotherBrainHandBeamBodyInstruction = 0x9a42;
     private const ushort MotherBrainHandBeamWalkInstruction = 0x9852;
-    private const ushort MotherBrainHandBeamInstruction = 0xc796;
 
     /// <summary>Ports the four-entry body dispatcher at <c>$A9:B87D-B8EA</c>.</summary>
     private static void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
@@ -119,10 +118,7 @@ public sealed partial class RoomEnemySystem
             0x0c00,
             unchecked((byte)(angle + 0x40)));
 
-        // The shared definition already supplies $C796, but retaining the literal pointer
-        // here documents the initializer/list coupling and catches malformed ROM records in
-        // the audit without replacing the cartridge-authored maps or durations.
-        beam.InstructionPointer = MotherBrainHandBeamInstruction;
+        beam.InstructionPointer = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
         beam.InstructionTimer = 1;
     }
 
@@ -201,7 +197,7 @@ public sealed partial class RoomEnemySystem
         beam.Variable1 = 0;
         beam.XVelocity = 0;
         beam.YVelocity = 0;
-        beam.InstructionPointer = MotherBrainHandBeamInstruction;
+        beam.InstructionPointer = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
         beam.InstructionTimer = 1;
     }
 

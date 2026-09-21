@@ -1601,23 +1601,26 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
                 {
-                    int externalFunction =
-                        _bus!.ReadByte((int)new SnesAddress(
-                            0x86, unchecked((ushort)(cursor + 2)))) |
-                        (_bus.ReadByte((int)new SnesAddress(
-                            0x86, unchecked((ushort)(cursor + 3)))) << 8) |
-                        (_bus.ReadByte((int)new SnesAddress(
-                            0x86, unchecked((ushort)(cursor + 4)))) << 16);
-                    if (externalFunction != 0x86c7fb || projectile.Kind is not (
-                            RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
-                            RoomEnemyProjectileKind.MotherBrainHandBeamFired))
+                    if (!MotherBrainHandBeamInstructionProgramDefinitions.Owns(projectile.Kind))
                     {
                         throw new InvalidDataException(
-                            $"Enemy projectile external function ${externalFunction:X6} " +
-                            $"from $86:{cursor:X4} is not translated.");
+                            $"Enemy projectile external function at $86:{cursor:X4} " +
+                            $"is not translated for {projectile.Kind}.");
                     }
 
-                    SpawnMotherBrainHandBeamFired(projectile.Variable0);
+                    int externalFunction =
+                        MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
+                            cursor);
+                    switch (externalFunction)
+                    {
+                        case MotherBrainHandBeamInstructionProgramDefinitions.SpawnNextCallback:
+                            SpawnMotherBrainHandBeamFired(projectile.Variable0);
+                            break;
+                        default:
+                            throw new InvalidDataException(
+                                $"Mother Brain hand-beam callback ${externalFunction:X6} " +
+                                $"at $86:{cursor:X4} is not translated.");
+                    }
                     cursor = unchecked((ushort)(cursor + 5));
                     break;
                 }
@@ -2009,6 +2012,11 @@ public sealed partial class RoomEnemySystem
         if (MotherBrainTurretInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (MotherBrainHandBeamInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)

@@ -35,6 +35,34 @@ internal static partial class Program
 
         }
 
+        for (int index = 0;
+             index < MotherBrainHandBeamInstructionProgramDefinitions.NativeWordCount;
+             index++)
+        {
+            EnemyProjectileMechanicsWordDefinition definition =
+                MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(index);
+            ushort native = ReadEnemyProjectileMechanicsWord(
+                rom,
+                EnemyProjectileCodePointers.BankBase | definition.Address);
+            AssertEqual(definition.Value, native,
+                $"Mother Brain hand-beam mechanics word ${definition.Address:X4}");
+        }
+        for (int index = 0;
+             index < MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallCount;
+             index++)
+        {
+            ushort instruction =
+                MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index);
+            int operandAddress = EnemyProjectileCodePointers.BankBase |
+                unchecked((ushort)(instruction + 2));
+            int native = rom.ReadByte(operandAddress) |
+                rom.ReadByte(operandAddress + 1) << 8 |
+                rom.ReadByte(operandAddress + 2) << 16;
+            AssertEqual(MotherBrainHandBeamInstructionProgramDefinitions.SpawnNextCallback,
+                native,
+                $"Mother Brain hand-beam callback at ${instruction:X4}");
+        }
+
         var guarded = new EnemyProjectileMechanicsReadGuard(rom);
         var motherBrain = new MotherBrainRainbowBeamAttackSequence
         {
@@ -60,15 +88,29 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => invalid.StepFrame(guarded, motherBrain, baby: null, samus, layer1X: 0),
             "restored projectile pointer after the translated subtitle fails loudly");
+        AssertThrows<InvalidDataException>(
+            () => MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
+                unchecked((ushort)(
+                    MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0) +
+                    1))),
+            "non-opcode hand-beam callback address fails loudly");
 
         _ = EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial);
+        _ = MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(
+            MotherBrainHandBeamInstructionProgramDefinitions.Initial);
+        _ = MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
+            MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0));
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int checksum = 0;
         for (int index = 0; index < 65536; index++)
         {
             checksum += EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
                 EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial);
+            checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(
+                MotherBrainHandBeamInstructionProgramDefinitions.Initial);
+            checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
+                MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0));
         }
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(checksum != 0, "projectile mechanics allocation probe consumes live data");
@@ -76,11 +118,16 @@ internal static partial class Program
             "warmed projectile mechanics lookups allocate no per-frame storage");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "all production programs avoid compiled mechanics source bytes");
+        AssertEqual(
+            MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount * 2,
+            guarded.HandBeamPresentationReadBytes,
+            "hand-beam production reads every spritemap byte through the presentation bus");
 
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
             $"{EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount} words and " +
-            "all 38 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
+            "all 38 Mother Brain/misc-dust programs plus the 25-word recursive hand-beam " +
+            "program pass with mechanics and callback reads forbidden.");
     }
 
     /// <summary>
@@ -226,6 +273,45 @@ internal static partial class Program
         processMethod.Invoke(explosionEnemies, [explosion, samus, (ushort)0, (ushort)0]);
         AssertTrue(!explosion.IsActive,
             "rainbow impact deletes on the frame after its exact lifetime");
+
+        RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem();
+        var handBeamBody = new RoomEnemySlot(0)
+        {
+            XPosition = 0x0070,
+            YPosition = 0x0090,
+        };
+        var handBeamState = new MotherBrainEnemyState(handBeamBody);
+        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+            .SetValue(handBeamEnemies, handBeamState);
+        var handBeamTarget = new SamusState
+        {
+            XPosition = 0x00c0,
+            YPosition = 0x0060,
+        };
+        MethodInfo spawnHandBeamMethod = typeof(RoomEnemySystem).GetMethod(
+            "SpawnMotherBrainHandBeamCharging",
+            instanceFlags)!;
+        spawnHandBeamMethod.Invoke(handBeamEnemies, [handBeamState, handBeamTarget]);
+        RoomEnemyProjectileSlot handBeam = handBeamEnemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind ==
+                RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
+        for (int frame = 0; frame < 39; frame++)
+        {
+            processMethod.Invoke(
+                handBeamEnemies,
+                [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
+        }
+        AssertTrue(handBeam.IsActive,
+            "hand-beam charge survives all three exact 13-frame stages");
+        AssertEqual(3, handBeamEnemies.EnemyProjectiles.Count(
+                projectile => projectile.Kind ==
+                    RoomEnemyProjectileKind.MotherBrainHandBeamFired),
+            "three compiled external callbacks spawn three fired hand-beam children");
+        processMethod.Invoke(
+            handBeamEnemies,
+            [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
+        AssertTrue(!handBeam.IsActive,
+            "hand-beam charge deletes on the frame after its exact 39-frame lifetime");
 
         VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDrool, 0x007f);
         VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080);
@@ -466,16 +552,23 @@ internal static partial class Program
     private sealed class EnemyProjectileMechanicsReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
+        private readonly HashSet<int> _handBeamPresentationReadBytes = [];
+
         public int ForbiddenReadAttempts { get; private set; }
+        public int HandBeamPresentationReadBytes => _handBeamPresentationReadBytes.Count;
 
         public byte ReadByte(int address)
         {
-            if (EnemyProjectileInstructionMechanicsDefinitions.IsCompiledMechanicsByte(address))
+            if (EnemyProjectileInstructionMechanicsDefinitions.IsCompiledMechanicsByte(address) ||
+                MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Production read compiled enemy-projectile mechanics byte ${address:X6}.");
             }
+
+            if (MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address))
+                _handBeamPresentationReadBytes.Add(address);
 
             return source.ReadByte(address);
         }

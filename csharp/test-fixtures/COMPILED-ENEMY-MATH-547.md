@@ -3504,3 +3504,18 @@ spritemap and adjacent callback-code pointer as mechanics, and proves warmed loo
 allocation-free. The complete retail-room audit executes both sequences through the strict
 catalog boundary and verifies collision-guided movement, Samus pinning, palettes, OBJ,
 sounds, FX, PLM/projectile footsteps, controls, and scroll writes.
+
+# Crocomire tongue instruction mechanics
+
+Crocomire's independently scheduled tongue now resolves fourteen fixed durations,
+gotos, loop targets, and terminal sleep control through
+`CrocomireTongueInstructionProgramDefinitions`. This covers both its live-fight and
+melting loops; nine interleaved extended-spritemap operands remain live cartridge
+presentation data. Fight initialization and bridge-collapse sleep use the same named
+entries.
+
+Verification compares every mechanics word with the pinned cartridge, rejects all nine
+spritemaps and the retail-unused reversed loop as mechanics, and proves warmed lookup is
+allocation-free. The complete retail Crocomire audit exposed and then covered the melting
+handoff, and passes the full fight, bridge collapse, both melting passes, skeleton sequence,
+item drop, and boss completion through the strict tongue catalog.

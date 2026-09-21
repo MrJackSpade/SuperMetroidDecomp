@@ -86,10 +86,8 @@ public sealed partial class RoomEnemySystem
     internal const ushort CrocomireTongueDefinition = 0xddff;
 
     private const ushort CrocomireInitialInstructionList = 0xbade;
-    private const ushort CrocomireTongueInstructionList = 0xbe56;
     private const ushort CrocomireDeadInstructionList = 0xe1cc;
     private const ushort CrocomireBridgeCollapseInstructionList = 0xbfb0;
-    private const ushort CrocomireTongueSleepInstructionList = 0xbf62;
     private const ushort CrocomireBridgeThreshold = 0x0640;
     private const ushort CrocomireSpikeWallThreshold = 0x0300;
     private const int CrocomireFightPaletteSource = 0xa4b89d;
@@ -203,7 +201,9 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        InstallCrocomireInstructionList(slot, CrocomireTongueInstructionList);
+        InstallCrocomireInstructionList(
+            slot,
+            CrocomireTongueInstructionProgramDefinitions.Fight);
         slot.ExtraProperties = slot.ExtraProperties
             .With(EnemyExtraProperties.UsesExtendedSpritemap)
             .WithUntranslatedExtraBits(
@@ -273,7 +273,8 @@ public sealed partial class RoomEnemySystem
         if (state.Tongue is { } tongue)
         {
             tongue.InstructionTimer = 0x7fff;
-            tongue.CurrentInstruction = CrocomireTongueSleepInstructionList;
+            tongue.CurrentInstruction =
+                CrocomireTongueInstructionProgramDefinitions.Sleep;
             tongue.Properties = tongue.Properties.With(EnemyProperties.Invisible);
         }
     }

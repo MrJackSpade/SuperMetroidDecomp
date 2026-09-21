@@ -307,6 +307,11 @@ if (args is ["--chozo-statue-instruction-mechanics"])
     VerifyChozoStatueInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--crocomire-tongue-instruction-mechanics"])
+{
+    VerifyCrocomireTongueInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

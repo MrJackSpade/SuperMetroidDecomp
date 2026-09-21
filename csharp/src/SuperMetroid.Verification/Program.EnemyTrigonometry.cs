@@ -169,6 +169,7 @@ internal static partial class Program
         VerifyFakeKraidProjectileDefinitions(rom);
         VerifyFakeKraidInstructionProgramDefinitions(rom);
         VerifyChozoStatueInstructionProgramDefinitions(rom);
+        VerifyCrocomireTongueInstructionProgramDefinitions(rom);
         VerifyEscapeEtecoonDefinitions(rom);
         VerifyZebetiteDefinitions(rom);
         VerifyMotherBrainBabyMetroidDefinitions(rom);

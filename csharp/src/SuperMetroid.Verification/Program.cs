@@ -317,6 +317,11 @@ if (args is ["--mother-brain-baby-instruction-mechanics"])
     VerifyMotherBrainBabyInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--botwoon-instruction-mechanics"])
+{
+    VerifyBotwoonInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

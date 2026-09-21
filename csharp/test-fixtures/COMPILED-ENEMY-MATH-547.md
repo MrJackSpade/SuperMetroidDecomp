@@ -3533,3 +3533,17 @@ spritemap plus the adjacent private callback and movement code as mechanics, and
 warmed lookup is allocation-free. The complete Mother Brain audit executes the Baby's
 spawn, Mother Brain drain, Samus healing, final charge, death, and phase-three handoff
 through the strict catalog boundary.
+
+# Botwoon head instruction mechanics
+
+Botwoon's eight movement poses, hidden pose, and eight spit poses now resolve all
+seventy-four fixed radius callbacks, sound/attack callbacks, durations, and terminal
+sleeps through `BotwoonInstructionProgramDefinitions`. Their twenty-five interleaved
+spritemap operands remain live cartridge presentation data. The existing movement/spit
+octant selector uses the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+seventeen selector-reachable programs while every mechanics byte is forbidden. It
+asserts physical radius changes, spit-frame publication, sound, sleep boundaries, and
+all live presentation reads. The two selector-skipped horizontal records and adjacent
+non-head program are deliberately rejected; warmed lookup is allocation-free.

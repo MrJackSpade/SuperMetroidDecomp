@@ -4,6 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyBotwoonInstructionProgramDefinitions()
+    {
+        VerifyBotwoonInstructionProgramDefinitions(
+            SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    }
+
     private static void VerifyBotwoonInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -114,14 +120,217 @@ internal static partial class Program
             "Botwoon instruction definitions: all 56 native selector words and 48 real head/body selections pass with all source tables forbidden.");
     }
 
+    private static void VerifyBotwoonInstructionProgramDefinitions(
+        SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+        for (int index = 0;
+             index < BotwoonInstructionProgramDefinitions.MechanicsWordCount;
+             index++)
+        {
+            BotwoonInstructionMechanicsWord definition =
+                BotwoonInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(
+                definition.Value,
+                ReadBotwoonInstructionWord(rom, 0xb30000 | definition.Address),
+                $"Botwoon instruction mechanics word $B3:{definition.Address:X4}");
+        }
+
+        var guard = new BotwoonInstructionReadGuard(rom);
+        ushort[] movementPrograms =
+        [
+            BotwoonInstructionProgramDefinitions.MovingUpLeft,
+            BotwoonInstructionProgramDefinitions.MovingLeft,
+            BotwoonInstructionProgramDefinitions.MovingDownLeft,
+            BotwoonInstructionProgramDefinitions.MovingDown,
+            BotwoonInstructionProgramDefinitions.MovingDownRight,
+            BotwoonInstructionProgramDefinitions.MovingRight,
+            BotwoonInstructionProgramDefinitions.MovingUpRight,
+            BotwoonInstructionProgramDefinitions.MovingUp,
+        ];
+        ushort[] spitPrograms =
+        [
+            BotwoonInstructionProgramDefinitions.SpittingUpLeft,
+            BotwoonInstructionProgramDefinitions.SpittingLeft,
+            BotwoonInstructionProgramDefinitions.SpittingDownLeft,
+            BotwoonInstructionProgramDefinitions.SpittingDown,
+            BotwoonInstructionProgramDefinitions.SpittingDownRight,
+            BotwoonInstructionProgramDefinitions.SpittingRight,
+            BotwoonInstructionProgramDefinitions.SpittingUpRight,
+            BotwoonInstructionProgramDefinitions.SpittingUp,
+        ];
+
+        foreach (ushort program in movementPrograms)
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot head, _) =
+                CreateBotwoonProgramSystem(guard, program);
+            RunBotwoonProgram(enemies, head, frames: 3);
+            AssertTrue(head.XRadius != 0 && head.YRadius != 0,
+                $"Botwoon movement program ${program:X4} installs a physical radius");
+            AssertEqual(CommonEnemyInstructionCodes.Sleep,
+                BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                    head.CurrentInstruction),
+                $"Botwoon movement program ${program:X4} reaches sleep");
+        }
+
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot head, _) =
+                CreateBotwoonProgramSystem(
+                    guard,
+                    BotwoonInstructionProgramDefinitions.Hidden);
+            RunBotwoonProgram(enemies, head, frames: 3);
+            AssertEqual(CommonEnemyInstructionCodes.Sleep,
+                BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                    head.CurrentInstruction),
+                "Botwoon hidden program reaches sleep");
+        }
+
+        foreach (ushort program in spitPrograms)
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) =
+                CreateBotwoonProgramSystem(guard, program);
+            RunBotwoonProgram(enemies, head, frames: 70);
+            AssertTrue(state.SpitFrameReached,
+                $"Botwoon spit program ${program:X4} publishes its attack frame");
+            AssertEqual((ushort?)0x007c, enemies.LastBotwoonSoundEffect,
+                $"Botwoon spit program ${program:X4} publishes its sound");
+            AssertTrue(head.XRadius != 0 && head.YRadius != 0,
+                $"Botwoon spit program ${program:X4} installs a physical radius");
+            AssertEqual(CommonEnemyInstructionCodes.Sleep,
+                BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                    head.CurrentInstruction),
+                $"Botwoon spit program ${program:X4} reaches sleep");
+        }
+
+        AssertEqual(BotwoonInstructionProgramDefinitions.PresentationWordCount,
+            guard.ObservedPresentationWords.Count,
+            "all live Botwoon head spritemap words remain cartridge reads");
+        for (int index = 0;
+             index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(guard.ObservedPresentationWords.Contains(address),
+                $"production execution reads Botwoon presentation word $B3:{address:X4}");
+            AssertThrows<InvalidDataException>(
+                () => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address),
+                $"Botwoon spritemap $B3:{address:X4} is rejected as mechanics");
+        }
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "production execution avoids every compiled Botwoon mechanics byte");
+
+        AssertThrows<InvalidDataException>(
+            () => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                BotwoonInstructionProgramDefinitions.UnusedMovingHorizontal),
+            "selector-skipped Botwoon movement program is rejected");
+        AssertThrows<InvalidDataException>(
+            () => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                BotwoonInstructionProgramDefinitions.UnusedSpittingHorizontal),
+            "selector-skipped Botwoon spit program is rejected");
+        AssertThrows<InvalidDataException>(
+            () => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                BotwoonInstructionProgramDefinitions.FirstAdjacentProgram),
+            "adjacent Botwoon program is rejected as head mechanics");
+
+        _ = ProbeBotwoonInstructionMechanicsAllocation();
+        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+        int checksum = ProbeBotwoonInstructionMechanicsAllocation();
+        AssertTrue(checksum != 0, "Botwoon allocation probe consumes live data");
+        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
+            "warmed Botwoon mechanics lookups allocate no per-frame storage");
+
+        Console.WriteLine(
+            "Botwoon head instruction mechanics: 74 compiled words, all seventeen " +
+            "selector-reachable programs and 25 live spritemap reads pass with mechanics " +
+            "bytes forbidden.");
+
+        static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State)
+            CreateBotwoonProgramSystem(
+                BotwoonInstructionReadGuard guard,
+                ushort program)
+        {
+            var enemies = new RoomEnemySystem();
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            RoomEnemySlot head = enemies.Slots[0];
+            head.EnemyDefinitionPointer = RoomEnemySystem.BotwoonDefinition;
+            head.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
+            head.CurrentInstruction = program;
+            head.InstructionTimer = 1;
+            var state = new BotwoonEnemyState(head);
+            typeof(RoomEnemySystem).GetField("_botwoonState", flags)!
+                .SetValue(enemies, state);
+            return (enemies, head, state);
+        }
+
+        static void RunBotwoonProgram(
+            RoomEnemySystem enemies,
+            RoomEnemySlot head,
+            int frames)
+        {
+            MethodInfo process =
+                typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+            object?[] arguments =
+                [head, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            for (int frame = 0; frame < frames; frame++)
+                process.Invoke(enemies, arguments);
+        }
+    }
+
+    private static int ProbeBotwoonInstructionMechanicsAllocation()
+    {
+        int checksum = 0;
+        for (int index = 0; index < 65536; index++)
+        {
+            checksum += BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
+                BotwoonInstructionProgramDefinitions.Hidden);
+        }
+        return checksum;
+    }
+
+    private static ushort ReadBotwoonInstructionWord(
+        SuperMetroidAddressSpace bus,
+        int address) =>
+        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+
     private sealed class BotwoonInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        public byte ReadByte(int address) =>
-            address is >= 0xb3946b and < 0xb3949b or >= 0x86e9f1 and < 0x86ea31
-                ? throw new InvalidOperationException(
-                    $"Botwoon attempted migrated instruction-table read ${address:X6}.")
-                : source.ReadByte(address);
+        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Production read compiled Botwoon mechanics byte ${address:X6}.");
+            }
+            if (address is >= 0xb3946b and < 0xb3949b or >= 0x86e9f1 and < 0x86ea31)
+            {
+                throw new InvalidOperationException(
+                    $"Botwoon attempted migrated instruction-table read ${address:X6}.");
+            }
+            if ((address & 0xff0000) == 0xb30000)
+            {
+                ushort bankAddress = unchecked((ushort)address);
+                for (int index = 0;
+                     index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
+                     index++)
+                {
+                    ushort presentation =
+                        BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
+                    if (bankAddress == presentation ||
+                        bankAddress == unchecked((ushort)(presentation + 1)))
+                    {
+                        ObservedPresentationWords.Add(presentation);
+                    }
+                }
+            }
+            return source.ReadByte(address);
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

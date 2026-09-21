@@ -105,6 +105,7 @@ internal static partial class Program
         VerifyCompiledBotwoonSpeeds(rom);
         VerifyBotwoonNavigationDefinitions(rom);
         VerifyBotwoonInstructionDefinitions(rom);
+        VerifyBotwoonInstructionProgramDefinitions(rom);
         VerifyBotwoonHealthPaletteDefinitions(rom);
         VerifyCompiledCrawlerSpeeds(rom);
         VerifyCompiledPolypLaunchDefinitions(rom);

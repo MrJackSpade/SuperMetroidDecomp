@@ -12,7 +12,8 @@ internal static class BotwoonInstructionDefinitions
     /// <c>InstList_Botwoon_Hide</c> at <c>$B3:9389</c>. The trailing eight entries of
     /// <c>InstListPointers_Botwoon</c> at <c>$B3:947B-$B3:948A</c> all select this list.
     /// </summary>
-    internal const ushort HiddenHeadInstruction = 0x9389;
+    internal const ushort HiddenHeadInstruction =
+        BotwoonInstructionProgramDefinitions.Hidden;
 
     /// <summary>
     /// The visible half of <c>InstListPointers_Botwoon</c> at <c>$B3:946B-$B3:947A</c>
@@ -21,14 +22,22 @@ internal static class BotwoonInstructionDefinitions
     /// </summary>
     private static readonly BotwoonHeadInstructionDefinition[] HeadInstructions =
     [
-        new(0x9381, 0x941f),
-        new(0x9379, 0x940f),
-        new(0x9371, 0x93ff),
-        new(0x9369, 0x93ef),
-        new(0x9361, 0x93df),
-        new(0x9351, 0x93bf),
-        new(0x9349, 0x93af),
-        new(0x9341, 0x939f),
+        new(BotwoonInstructionProgramDefinitions.MovingUp,
+            BotwoonInstructionProgramDefinitions.SpittingUp),
+        new(BotwoonInstructionProgramDefinitions.MovingUpRight,
+            BotwoonInstructionProgramDefinitions.SpittingUpRight),
+        new(BotwoonInstructionProgramDefinitions.MovingRight,
+            BotwoonInstructionProgramDefinitions.SpittingRight),
+        new(BotwoonInstructionProgramDefinitions.MovingDownRight,
+            BotwoonInstructionProgramDefinitions.SpittingDownRight),
+        new(BotwoonInstructionProgramDefinitions.MovingDown,
+            BotwoonInstructionProgramDefinitions.SpittingDown),
+        new(BotwoonInstructionProgramDefinitions.MovingDownLeft,
+            BotwoonInstructionProgramDefinitions.SpittingDownLeft),
+        new(BotwoonInstructionProgramDefinitions.MovingLeft,
+            BotwoonInstructionProgramDefinitions.SpittingLeft),
+        new(BotwoonInstructionProgramDefinitions.MovingUpLeft,
+            BotwoonInstructionProgramDefinitions.SpittingUpLeft),
     ];
 
     /// <summary>

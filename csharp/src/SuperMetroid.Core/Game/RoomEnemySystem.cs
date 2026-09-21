@@ -3558,6 +3558,9 @@ public sealed partial class RoomEnemySystem
             return MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (slot.EnemyDefinitionPointer == BotwoonDefinition)
+            return BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == CrocomireTongueDefinition)
             return CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address);
 

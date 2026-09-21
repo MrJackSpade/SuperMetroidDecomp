@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PowampSpikeDeleteInstructionList = 0xd218;
     private const short PowampSpikeAcceleration = 0x0020;
 
     private static readonly short[] PowampSpikeXAccelerations =
@@ -78,7 +77,7 @@ public sealed partial class RoomEnemySystem
     {
         // The list contains the common delete opcode as its first word. Installing timer
         // one lets the shared instruction interpreter consume it later in this same frame.
-        spike.InstructionPointer = PowampSpikeDeleteInstructionList;
+        spike.InstructionPointer = PowampSpikeInstructionProgramDefinitions.Delete;
         spike.InstructionTimer = 1;
     }
 }

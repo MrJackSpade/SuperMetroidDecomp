@@ -122,7 +122,9 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.AlcoonFireball => new(
             0x9EB2, 0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.PowampSpike => new(0xD23A, 0xD263, 0xD208, 0x0404, 0x0014, 0x0000, 0xD218),
+        RoomEnemyProjectileKind.PowampSpike => new(
+            0xD23A, 0xD263, PowampSpikeInstructionProgramDefinitions.Initial,
+            0x0404, 0x0014, 0x0000, PowampSpikeInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft => new(
             0xD341, 0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
             0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

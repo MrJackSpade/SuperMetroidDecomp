@@ -3791,3 +3791,16 @@ five real laser definitions through the production producer. Each projectile exe
 the three-frame prefix and a complete four-frame loop with mechanics reads forbidden,
 while the test also proves shared shot deletion, every live spritemap read, invalid-pointer
 rejection, and allocation-free warmed lookup.
+
+# Powamp-spike instruction mechanics
+
+Powamp's spike burst now resolves its six fixed duration, goto, loop-target, and private
+delete words through `PowampSpikeInstructionProgramDefinitions`. Its three interleaved
+spritemap operands remain live cartridge presentation data. Room collision installs the
+named private delete list instead of a raw instruction pointer in functional code.
+
+Verification compares every mechanics word with the pinned cartridge and invokes the
+real Powamp producer. All eight directional projectiles execute complete three-frame
+loops with mechanics reads forbidden, while the test also drives the production collision
+handoff through private deletion, observes every presentation operand, rejects non-mechanics
+neighbors, and proves warmed lookup is allocation-free.

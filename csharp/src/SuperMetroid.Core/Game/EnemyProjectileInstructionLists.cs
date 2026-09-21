@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 animation-list pointers assigned to translated enemy projectiles.</summary>
 internal static class EnemyProjectileInstructionLists
 {
-    /// <summary>Skree debris animation list at $86:8ABD.</summary>
-    public const ushort SkreeParticle = 0x8abd;
-    /// <summary>Metaree debris animation list at $86:8AC5.</summary>
-    public const ushort MetareeParticle = 0x8ac5;
     /// <summary>Bomb Torizo drool wall-impact list at $86:A48A.</summary>
     public const ushort BombTorizoDroolWallImpact = 0xa48a;
     /// <summary>Bomb Torizo drool floor-impact list at $86:A48E.</summary>

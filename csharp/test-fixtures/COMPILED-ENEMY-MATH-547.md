@@ -3722,3 +3722,18 @@ frames through deletion while private and shared mechanics bytes are forbidden. 
 observes every live spritemap operand, proves the shared shot-list deletion, rejects
 presentation and the adjacent origin table as mechanics, and verifies warmed lookup is
 allocation-free.
+
+# Skree and Metaree particle instruction mechanics
+
+The visually distinct Skree and Metaree death-particle programs now resolve their six
+fixed duration, goto, and loop-target words through
+`SkreeMetareeParticleInstructionProgramDefinitions`. Their two interleaved spritemap
+operands remain live cartridge presentation data. All eight projectile definitions and
+both real four-particle burst producers use the same named program entries; their generic
+shot reactions use the independently compiled shared delete program.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+complete loops through all eight production-spawned directional owners while private
+and shared mechanics bytes are forbidden. It observes both live spritemap operands,
+proves shared shot deletion, rejects presentation and adjacent initializer code as
+mechanics, and verifies warmed lookup is allocation-free.

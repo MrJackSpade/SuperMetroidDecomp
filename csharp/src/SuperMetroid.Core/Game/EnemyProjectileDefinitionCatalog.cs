@@ -41,14 +41,30 @@ internal static class EnemyProjectileDefinitionCatalog
     internal static EnemyProjectileDefinition Get(RoomEnemyProjectileKind kind) => kind switch
     {
         RoomEnemyProjectileKind.YappingMawBody => new(0xEC62, 0xEC94, 0xEC56, 0x0202, 0x2005, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.SkreeParticleDownRight => new(0x8ACD, 0x8B5D, 0x8ABD, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.SkreeParticleUpRight => new(0x8AF1, 0x8B5D, 0x8ABD, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.SkreeParticleDownLeft => new(0x8B15, 0x8B5D, 0x8ABD, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.SkreeParticleUpLeft => new(0x8B39, 0x8B5D, 0x8ABD, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MetareeParticleDownRight => new(0x8ACD, 0x8B5D, 0x8AC5, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MetareeParticleUpRight => new(0x8AF1, 0x8B5D, 0x8AC5, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MetareeParticleDownLeft => new(0x8B15, 0x8B5D, 0x8AC5, 0x0202, 0x0004, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MetareeParticleUpLeft => new(0x8B39, 0x8B5D, 0x8AC5, 0x0202, 0x0004, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.SkreeParticleDownRight => new(
+            0x8ACD, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.SkreeParticleUpRight => new(
+            0x8AF1, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.SkreeParticleDownLeft => new(
+            0x8B15, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.SkreeParticleUpLeft => new(
+            0x8B39, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MetareeParticleDownRight => new(
+            0x8ACD, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MetareeParticleUpRight => new(
+            0x8AF1, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MetareeParticleDownLeft => new(
+            0x8B15, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MetareeParticleUpLeft => new(
+            0x8B39, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+            0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CrocomireProjectile => new(0x9023, 0x906B, 0x8FCF, 0x0808, 0x8014, 0x0000, 0x9007),
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling => new(0x9286, 0x92BA, 0x8FEB, 0x0404, 0x8000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.CrocomireSpikeWallPieces => new(0x90CF, 0x9115, 0x8FF3, 0x0000, 0x0000, 0x0000, 0x84FC),

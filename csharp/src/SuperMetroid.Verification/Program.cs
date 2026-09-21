@@ -77,6 +77,11 @@ if (args is ["--eye-door-sweat-instruction-mechanics"])
     VerifyEyeDoorSweatInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--skree-metaree-particle-instruction-mechanics"])
+{
+    VerifySkreeMetareeParticleInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

@@ -38,6 +38,7 @@ internal static partial class Program
         VerifyDragonFireballInstructionProgramDefinitions(rom);
         VerifyEyeDoorProjectileInstructionProgramDefinitions(rom);
         VerifyEyeDoorSweatInstructionProgramDefinitions(rom);
+        VerifySkreeMetareeParticleInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyKiHunterInstructionProgramDefinitions(rom);

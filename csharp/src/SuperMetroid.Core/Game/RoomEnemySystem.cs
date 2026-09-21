@@ -3550,7 +3550,7 @@ public sealed partial class RoomEnemySystem
     /// Resolves simulation-owned enemy instruction words from compiled definitions while
     /// leaving frame spritemap operands on their explicit cartridge read path.
     /// </summary>
-    private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
+    private static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
         if (slot.EnemyDefinitionPointer ==
             MotherBrainBabyMetroidDefinitions.EnemyDefinition)
@@ -3854,7 +3854,9 @@ public sealed partial class RoomEnemySystem
             return word;
         }
 
-        return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
+        throw new InvalidDataException(
+            $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction mechanics " +
+            $"${slot.Definition.Bank:X2}:{address:X4} have no compiled owner.");
     }
 
     private void DetermineWhichEnemiesToProcess(ushort cameraX, ushort cameraY)

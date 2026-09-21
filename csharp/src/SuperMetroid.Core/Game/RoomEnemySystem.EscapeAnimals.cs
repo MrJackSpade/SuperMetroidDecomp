@@ -303,7 +303,7 @@ public sealed partial class RoomEnemySystem
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
-    private ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
+    private static ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
         ReadEnemyInstructionMechanicsWord(
             slot,
             unchecked((ushort)(instructionCursor + 2)));

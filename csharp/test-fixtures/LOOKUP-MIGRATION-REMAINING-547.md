@@ -1363,6 +1363,16 @@ explicitly without probing cartridge data. Family-specific traversal tests remai
 proof for internal branches and live presentation operands; this guard proves definition
 entry coverage and prevents new projectile kinds from silently restoring the fallback.
 
+## Ordinary-enemy instruction-owner boundary
+
+The generic ordinary-enemy instruction resolver no longer falls back to reading an
+arbitrary word from the enemy's native code bank. Every translated production path in the
+exhaustive mechanics suite resolves through its family-specific compiled program owner;
+unknown definition identities now fail explicitly before any cartridge lookup. The focused
+boundary regression proves both a known compiled owner and the loud unknown-owner result.
+Family-specific traversal tests remain the detailed proof for internal branches and live
+presentation operands.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

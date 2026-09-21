@@ -359,8 +359,12 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BombTorizoExplosiveSwipe => new(
             0xA6F6, 0xA919, TorizoExplosiveSwipeInstructionProgramDefinitions.Initial,
             0x1010, 0x500A, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.BombTorizoLowHealthExplosion => new(0xA81B, 0x84FB, 0xA3CB, 0x1004, 0x3000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.BombTorizoDeathExplosion => new(0xA871, 0x84FB, 0xA3FA, 0x1004, 0x3000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.BombTorizoLowHealthExplosion => new(
+            0xA81B, 0x84FB, TorizoExplosionInstructionProgramDefinitions.LowHealthInitial,
+            0x1004, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.BombTorizoDeathExplosion => new(
+            0xA871, 0x84FB, TorizoExplosionInstructionProgramDefinitions.DeathInitial,
+            0x1004, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoStatueBreaking => new(0xA764, 0x84FB, 0xA54B, 0x0808, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoChozoOrb => new(0xABEB, 0xACAD, 0xAB15, 0x0707, 0x9008, 0x0000, 0xAB68),
         RoomEnemyProjectileKind.BombTorizoSonicBoom => new(0xAE15, 0xAE6C, 0xADBF, 0x1403, 0x100A, 0x0000, 0x84FC),

@@ -1281,6 +1281,16 @@ Both producers execute through the priority handoff, stable loop, immediate wall
 and 24-frame floor impact with mechanics bytes forbidden. Exact ROM parity, RNG ordering,
 every presentation read, strict rejection, and allocation-free warmed lookup are verified.
 
+## Torizo explosion instruction mechanics
+
+Bomb Torizo's low-health and death-explosion actors now compile fifty-three fixed control
+words while retaining fifteen spritemap operands as live presentation data. The real
+producers execute all three low-health cycles and both one-in-four death branches through
+their exact random placement, timer, lifetime, and deletion behavior with mechanics bytes
+forbidden. The probability branch target now uses the owner resolver too. Exact ROM parity,
+RNG consumption, every presentation read, strict rejection, and allocation-free warmed
+lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

@@ -1807,7 +1807,9 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Probability_1_4:
                     cursor = (_nextRandom!() & 0xc000) == 0xc000
-                        ? ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)))
+                        ? ReadEnemyProjectileInstructionMechanicsWord(
+                            projectile,
+                            unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances:
@@ -2170,6 +2172,11 @@ public sealed partial class RoomEnemySystem
         if (BombTorizoDroolInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (TorizoExplosionInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return TorizoExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

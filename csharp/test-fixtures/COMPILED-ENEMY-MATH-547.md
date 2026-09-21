@@ -4256,3 +4256,20 @@ origin/velocity setup, delayed callback installation, five-frame high-priority p
 64-frame low-priority loop, immediate wall deletion, and the complete three-pose floor
 impact. Every presentation read, strict rejection, and allocation-free warmed lookup pass
 with all mechanics bytes forbidden.
+
+# Torizo explosion instruction mechanics
+
+Bomb Torizo's low-health explosion and shared death-explosion actor now resolve all
+fifty-three fixed opcodes, property masks, loop timers, packed random-radius parameters,
+durations, branches, targets, and deletions through
+`TorizoExplosionInstructionProgramDefinitions`. Their fifteen interleaved spritemap
+operands remain live cartridge presentation data, while packed sound IDs stay owned by
+the separate audio seam. The one-in-four death-path branch now reads its target through
+the projectile owner's mechanics resolver instead of bypassing the compiled catalog.
+
+Verification compares every mechanics word with the pinned cartridge and invokes the real
+low-health and death producers. It proves all three twelve-frame low-health cycles, both
+two-cycle probabilistic death paths (62-frame explosion or 64-frame smoke), exact center
+reset and signed random jitter, timer evolution, RNG consumption, and following deletion.
+Every presentation read, strict rejection, and allocation-free warmed lookup pass with
+mechanics bytes forbidden.

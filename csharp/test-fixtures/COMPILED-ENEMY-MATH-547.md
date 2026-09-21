@@ -3804,3 +3804,15 @@ real Powamp producer. All eight directional projectiles execute complete three-f
 loops with mechanics reads forbidden, while the test also drives the production collision
 handoff through private deletion, observes every presentation operand, rejects non-mechanics
 neighbors, and proves warmed lookup is allocation-free.
+
+# Polyp-rock instruction mechanics
+
+Polyp's lava rock now resolves its fixed duration and terminal sleep through
+`PolypRockInstructionProgramDefinitions`. Its spritemap operand remains live cartridge
+presentation data, and its shot reaction uses the independently compiled shared delete
+program. The production spawner also installs the named program instead of a raw pointer.
+
+Verification compares both mechanics words with the pinned cartridge, invokes the real
+Polyp-rock producer, and drives its frame, terminal sleep, and shared shot deletion with
+mechanics reads forbidden. It also observes the live presentation operand, rejects adjacent
+initializer data, and proves warmed lookup is allocation-free.

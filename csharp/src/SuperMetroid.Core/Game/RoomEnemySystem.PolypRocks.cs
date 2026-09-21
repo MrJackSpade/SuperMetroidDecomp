@@ -5,7 +5,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort PolypRockPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock;
-    private const ushort PolypRockInstructionList = 0xbbd5;
     private const ushort PolypRockRisingFunction = 0xbc16;
     private const ushort PolypRockFallingFunction = 0xbc8f;
     private const ushort PolypRockGravityStep = 2;
@@ -28,7 +27,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.PolypRock,
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
-        projectile.InstructionPointer = PolypRockInstructionList;
+        projectile.InstructionPointer = PolypRockInstructionProgramDefinitions.Initial;
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.Variable0 = PolypRockRisingFunction;
         projectile.YVelocity = initialYSpeed;

@@ -107,6 +107,11 @@ if (args is ["--powamp-spike-instruction-mechanics"])
     VerifyPowampSpikeInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--polyp-rock-instruction-mechanics"])
+{
+    VerifyPolypRockInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

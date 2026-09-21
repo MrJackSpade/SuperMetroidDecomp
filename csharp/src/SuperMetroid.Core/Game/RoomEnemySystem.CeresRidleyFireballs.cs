@@ -1945,6 +1945,11 @@ public sealed partial class RoomEnemySystem
                 address);
         }
 
+        if (CrocomireProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);

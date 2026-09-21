@@ -137,6 +137,11 @@ if (args is ["--yapping-maw-body-projectile-instruction-mechanics"])
     VerifyYappingMawBodyProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--crocomire-projectile-instruction-mechanics"])
+{
+    VerifyCrocomireProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

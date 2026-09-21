@@ -3883,3 +3883,17 @@ up- and down-facing Yapping Maws. All eight produced body links execute their se
 and terminal sleep with mechanics reads forbidden; the test also proves shared shot
 deletion, both live presentation reads, invalid-pointer rejection, and allocation-free
 warmed lookup.
+
+# Crocomire projectile instruction mechanics
+
+Crocomire's mouth projectile, crumbling bridge fragments, and spike-wall pieces now resolve
+their fixed timing, goto, drop-callback, and loop-target words through
+`CrocomireProjectileInstructionProgramDefinitions`. Their thirteen interleaved spritemap
+operands remain live cartridge presentation data, and bridge/spike shot reactions use the
+independently compiled shared delete program.
+
+Verification compares all twenty-two mechanics words with the pinned cartridge, invokes
+the real mouth, bridge, and eight-piece spike-wall producers, and drives every animation
+loop plus the complete five-frame mouth-shot/drop/delete sequence with private/shared
+mechanics reads forbidden. It observes every live presentation operand, rejects adjacent
+non-mechanics data, and proves warmed lookup is allocation-free.

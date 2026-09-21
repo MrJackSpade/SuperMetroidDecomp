@@ -67,9 +67,18 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.MetareeParticleUpLeft => new(
             0x8B39, 0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.CrocomireProjectile => new(0x9023, 0x906B, 0x8FCF, 0x0808, 0x8014, 0x0000, 0x9007),
-        RoomEnemyProjectileKind.CrocomireBridgeCrumbling => new(0x9286, 0x92BA, 0x8FEB, 0x0404, 0x8000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.CrocomireSpikeWallPieces => new(0x90CF, 0x9115, 0x8FF3, 0x0000, 0x0000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.CrocomireProjectile => new(
+            0x9023, 0x906B, CrocomireProjectileInstructionProgramDefinitions.MouthProjectile,
+            0x0808, 0x8014, 0x0000,
+            CrocomireProjectileInstructionProgramDefinitions.MouthProjectileShot),
+        RoomEnemyProjectileKind.CrocomireBridgeCrumbling => new(
+            0x9286, 0x92BA, CrocomireProjectileInstructionProgramDefinitions.BridgeFragment,
+            0x0404, 0x8000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.CrocomireSpikeWallPieces => new(
+            0x90CF, 0x9115, CrocomireProjectileInstructionProgramDefinitions.SpikeWallPiece,
+            0x0000, 0x0000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KraidSpitRock => new(
             0x9CA3, 0x9D56,
             KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,

@@ -2119,6 +2119,11 @@ public sealed partial class RoomEnemySystem
             return SkreeMetareeParticleInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (EnemyPickupInstructionProgramDefinitions.Owns(projectile.Kind, address))
+        {
+            return EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

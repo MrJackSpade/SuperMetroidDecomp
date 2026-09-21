@@ -16,11 +16,11 @@ internal static class EnemyPickupDefinitions
     private static readonly ushort[] InstructionLists =
     [
         0x0000,
-        0xed8d,
-        0xeda3,
-        0xedeb,
-        0xedb9,
-        0xeddd,
+        EnemyPickupInstructionProgramDefinitions.SmallEnergy,
+        EnemyPickupInstructionProgramDefinitions.BigEnergy,
+        EnemyPickupInstructionProgramDefinitions.PowerBombs,
+        EnemyPickupInstructionProgramDefinitions.Missiles,
+        EnemyPickupInstructionProgramDefinitions.SuperMissiles,
     ];
 
     /// <summary>Returns the native table offset and instruction list for a table-backed kind.</summary>

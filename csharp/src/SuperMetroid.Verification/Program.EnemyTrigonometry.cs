@@ -57,6 +57,7 @@ internal static partial class Program
         VerifySpacePirateProjectileInstructionProgramDefinitions(rom);
         VerifyCeresFallingDebrisInstructionProgramDefinitions(rom);
         VerifySaveStationElectricityInstructionProgramDefinitions(rom);
+        VerifyEnemyPickupInstructionProgramDefinitions(rom);
         VerifyDownwardGateProjectileInstructionProgramDefinitions(rom);
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
         VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);

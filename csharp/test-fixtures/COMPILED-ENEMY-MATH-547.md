@@ -3089,6 +3089,20 @@ publishes both attack-ready flags, diving enables off-screen processing, and the
 stop programs disable it. Cross-species and presentation pointers fail as mechanics, and
 warmed lookup is allocation-free.
 
+# Enemy-pickup instruction mechanics
+
+The five live enemy-drop programs now resolve all fixed frame durations, loop opcodes,
+loop targets, and unreachable terminal sleeps through
+`EnemyPickupInstructionProgramDefinitions`. Their sixteen interleaved spritemap operands
+remain live cartridge presentation data. Both directly spawned pickup actors and enemy-death
+actors converted in place share this owner, matching the native identity-preserving handoff.
+
+Verification compares all thirty mechanics words with the pinned cartridge, invokes the
+real pickup initializer for every drop kind, executes every complete loop and sleep with
+mechanics reads forbidden, and separately proves the converted-death identity enters the
+same compiled program. All presentation operands remain observable, unused adjacent data is
+rejected, and warmed lookup is allocation-free.
+
 # Space Pirate projectile instruction mechanics
 
 The shared Space Pirate/Mother Brain laser and Ninja Pirate claw now resolve both facing

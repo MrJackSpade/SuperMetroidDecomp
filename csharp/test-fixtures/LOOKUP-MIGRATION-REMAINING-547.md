@@ -1216,3 +1216,13 @@ Verification compares every mechanics word with the pinned cartridge and execute
 eight production loops beyond their terminal gotos while every mechanics byte is
 forbidden. All forty-four presentation operands remain observable, presentation and
 adjacent selector-table pointers fail as mechanics, and warmed lookup is allocation-free.
+
+## Enemy-pickup instruction mechanics
+
+All five live bank-$86 enemy-pickup animation programs now compile their thirty fixed
+duration, goto, target, and sleep words. The sixteen spritemap operands remain live
+presentation data. The owner accepts both direct `$F337` pickups and `$F345` death actors,
+because the cartridge converts a completed death animation into a pickup without changing
+the actor's definition identity. Exact ROM parity, all complete loops, dormant sleeps, both
+owner identities, every presentation read, strict rejection, and allocation-free warmed
+lookup are verified.

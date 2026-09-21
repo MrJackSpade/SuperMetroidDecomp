@@ -4235,3 +4235,24 @@ real swipe producer, checks its compiled placement handoff, and advances ordinar
 timers through the exact 25 visible frames and following deletion tick with mechanics bytes
 forbidden. Every presentation read, strict rejection of spritemaps and adjacent program
 data, and allocation-free warmed lookup pass.
+
+# Bomb Torizo drool instruction mechanics
+
+Bomb Torizo's recurring and initial low-health drool now resolve all nineteen fixed
+durations, property masks, callback installs, branches, loop targets, callback clears,
+and deletions through `BombTorizoDroolInstructionProgramDefinitions`. Seven interleaved
+spritemap operands remain live cartridge presentation data. The generic property-mask
+opcodes now obtain their operands through the owning projectile's mechanics resolver,
+instead of bypassing compiled catalogs with a raw bank-$86 read.
+
+The recurring producer also restores the cartridge's previously omitted random setup:
+one RNG word indexes the native eight-entry 0/2/4-frame delay table, then a second chooses
+trajectory. The separate gut-break producer still starts at the no-delay program and uses
+its two native RNG words for Y motion and X jitter.
+
+Verification compares every mechanics word with the pinned cartridge, invokes both real
+producers, exercises all eight delay-table selections, and proves exact RNG consumption,
+origin/velocity setup, delayed callback installation, five-frame high-priority pose,
+64-frame low-priority loop, immediate wall deletion, and the complete three-pose floor
+impact. Every presentation read, strict rejection, and allocation-free warmed lookup pass
+with all mechanics bytes forbidden.

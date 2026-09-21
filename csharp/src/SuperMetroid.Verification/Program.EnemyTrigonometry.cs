@@ -66,6 +66,7 @@ internal static partial class Program
         VerifyBotwoonProjectileInstructionProgramDefinitions(rom);
         VerifyTorizoLandingDustInstructionProgramDefinitions(rom);
         VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(rom);
+        VerifyBombTorizoDroolInstructionProgramDefinitions(rom);
         VerifyDownwardGateProjectileInstructionProgramDefinitions(rom);
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
         VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);

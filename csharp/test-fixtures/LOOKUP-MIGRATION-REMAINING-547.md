@@ -1271,6 +1271,16 @@ producer executes with ordinary frame timers through its exact 25-frame visible 
 and next-tick deletion with mechanics bytes forbidden. Exact ROM parity, every presentation
 read, strict rejection, and allocation-free warmed lookup are verified.
 
+## Bomb Torizo drool instruction mechanics
+
+Both Bomb Torizo drool identities now compile nineteen fixed instruction words while
+retaining seven spritemap operands as live presentation data. The real recurring producer
+restores the native first RNG draw and eight-entry 0/2/4-frame delay selection before its
+trajectory draw; the gut-break producer preserves its distinct no-delay two-draw setup.
+Both producers execute through the priority handoff, stable loop, immediate wall deletion,
+and 24-frame floor impact with mechanics bytes forbidden. Exact ROM parity, RNG ordering,
+every presentation read, strict rejection, and allocation-free warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

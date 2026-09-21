@@ -1465,7 +1465,8 @@ public sealed partial class RoomEnemySystem
                     return;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY:
                 {
-                    ushort mask = ReadWord(_bus!, 0x860000 |
+                    ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.Damage = unchecked((ushort)(projectile.Damage | (mask & 0x0fff)));
                     if ((mask & 0x1000) != 0)
@@ -1481,7 +1482,8 @@ public sealed partial class RoomEnemySystem
                 }
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY:
                 {
-                    ushort mask = ReadWord(_bus!, 0x860000 |
+                    ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.Damage = unchecked((ushort)(projectile.Damage & (mask & 0x0fff)));
                     if ((mask & 0x1000) == 0)
@@ -2163,6 +2165,11 @@ public sealed partial class RoomEnemySystem
         if (projectile.Kind == RoomEnemyProjectileKind.BombTorizoExplosiveSwipe)
         {
             return TorizoExplosiveSwipeInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (BombTorizoDroolInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

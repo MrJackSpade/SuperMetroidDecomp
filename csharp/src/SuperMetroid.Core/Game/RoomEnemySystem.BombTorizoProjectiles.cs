@@ -23,7 +23,18 @@ public sealed partial class RoomEnemySystem
             kind,
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
 
-        ushort random = _nextRandom!();
+        ushort random;
+        if (kind == RoomEnemyProjectileKind.BombTorizoLowHealthDrool)
+        {
+            projectile.InstructionPointer =
+                BombTorizoDroolInstructionProgramDefinitions.SelectLowHealthInitialProgram(
+                    _nextRandom!());
+            random = _nextRandom!();
+        }
+        else
+        {
+            random = _nextRandom!();
+        }
         projectile.YPosition = kind == RoomEnemyProjectileKind.BombTorizoInitialDrool
             ? unchecked((ushort)(torizo.YPosition + (random & 3) - 5))
             : unchecked((ushort)(torizo.YPosition - 5));
@@ -356,7 +367,7 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.BombTorizoDroolWallImpact;
+                BombTorizoDroolInstructionProgramDefinitions.WallImpact;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -378,7 +389,7 @@ public sealed partial class RoomEnemySystem
         {
             projectile.YPosition = unchecked((ushort)(projectile.YPosition - 3));
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.BombTorizoDroolFloorImpact;
+                BombTorizoDroolInstructionProgramDefinitions.FloorImpact;
             projectile.InstructionTimer = 1;
             return;
         }

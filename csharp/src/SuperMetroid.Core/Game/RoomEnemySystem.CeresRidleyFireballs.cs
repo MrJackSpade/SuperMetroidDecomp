@@ -1967,6 +1967,11 @@ public sealed partial class RoomEnemySystem
             return CeresFallingDebrisInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)
+        {
+            return GunshipDustInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);

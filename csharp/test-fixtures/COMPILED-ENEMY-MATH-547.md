@@ -3936,3 +3936,16 @@ Verification compares all four mechanics words with the pinned cartridge, invoke
 real producers, executes each pose and terminal sleep plus shared shot deletion with
 mechanics reads forbidden, observes both presentation operands, rejects neighboring data,
 and proves warmed lookup is allocation-free.
+
+# Gunship liftoff-dust instruction mechanics
+
+The gunship's six liftoff-dust actors now resolve their timer initialization, frame
+durations, decrement branches, loop targets, and private deletions through
+`GunshipDustInstructionProgramDefinitions`. Their forty-six interleaved spritemap operands
+remain live cartridge presentation data.
+
+Verification compares all seventy-six mechanics words with the pinned cartridge, invokes
+the real dust producer for every native parameter, and executes every frame, loop exit,
+and deletion with mechanics reads forbidden. It observes all forty-six live presentation
+operands, rejects spritemap and selector-table data as mechanics, and proves warmed lookup
+is allocation-free.

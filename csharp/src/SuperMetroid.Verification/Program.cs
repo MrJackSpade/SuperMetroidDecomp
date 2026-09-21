@@ -157,6 +157,11 @@ if (args is ["--ceres-debris-instruction-mechanics"])
     VerifyCeresFallingDebrisInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--gunship-dust-instruction-mechanics"])
+{
+    VerifyGunshipDustInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

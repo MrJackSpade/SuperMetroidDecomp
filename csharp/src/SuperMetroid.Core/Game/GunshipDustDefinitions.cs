@@ -14,12 +14,12 @@ public static class GunshipDustDefinitions
     /// </summary>
     public static (short XOffset, ushort Instruction) ForParameter(ushort parameter) => parameter switch
     {
-        0 => (64, 0xa197),
-        2 => (72, 0xa1c1),
-        4 => (80, 0xa1eb),
-        6 => (-64, 0xa211),
-        8 => (-72, 0xa23b),
-        10 => (-80, 0xa265),
+        0 => (64, GunshipDustInstructionProgramDefinitions.Index0),
+        2 => (72, GunshipDustInstructionProgramDefinitions.Index2),
+        4 => (80, GunshipDustInstructionProgramDefinitions.Index4),
+        6 => (-64, GunshipDustInstructionProgramDefinitions.Index6),
+        8 => (-72, GunshipDustInstructionProgramDefinitions.Index8),
+        10 => (-80, GunshipDustInstructionProgramDefinitions.IndexA),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Gunship dust parameter must be 0,2,4,6,8,A."),
     };
 }

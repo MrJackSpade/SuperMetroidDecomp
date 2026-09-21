@@ -148,7 +148,10 @@ internal static class EnemyProjectileDefinitionCatalog
             0x96DC, 0x9701, CeresFallingDebrisInstructionProgramDefinitions.Dark,
             0x0808, 0x4000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new(0xA2A1, 0xA327, 0xA197, 0x0808, 0x3000, 0x0000, 0xA197),
+        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new(
+            0xA2A1, 0xA327, GunshipDustInstructionProgramDefinitions.Index0,
+            0x0808, 0x3000, 0x0000,
+            GunshipDustInstructionProgramDefinitions.Index0),
         RoomEnemyProjectileKind.AlcoonFireball => new(
             0x9EB2, 0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

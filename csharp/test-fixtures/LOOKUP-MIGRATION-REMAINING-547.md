@@ -896,7 +896,9 @@ drool variants likewise execute the five-stage head-attached interval, falling h
 twelve-pixel release correction, terminal sleep, and four-stage floor splash from compiled
 control data. Mother Brain's rainbow-impact actor now also shares the already compiled
 `$86:E152` misc-explosion owner instead of rereading that same 18-frame program through a
-different projectile-kind path.
+different projectile-kind path. All three body-relative death-explosion selectors likewise
+name and execute the shared compiled small-explosion, smoke and big-explosion programs;
+their real producers retain exact 31-, 32- and 30-frame lifetimes before deletion.
 
 The ordinary room-projectile owner now also consumes the compiled onion-ring growth program
 and its complete generic-contact impact list. The audit caught the packed X/Y-radius operand

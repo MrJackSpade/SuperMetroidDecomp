@@ -274,6 +274,51 @@ internal static partial class Program
         AssertTrue(!explosion.IsActive,
             "rainbow impact deletes on the frame after its exact lifetime");
 
+        MethodInfo spawnDeathExplosionMethod = typeof(RoomEnemySystem).GetMethod(
+            "SpawnMotherBrainDeathExplosion",
+            instanceFlags)!;
+        int[] deathExplosionLifetimes = [31, 32, 30];
+        for (ushort parameter = 0; parameter < deathExplosionLifetimes.Length; parameter++)
+        {
+            RoomEnemySystem deathExplosionEnemies = CreateRoomEnemySystem();
+            var deathBody = new RoomEnemySlot(0)
+            {
+                XPosition = 0x0080,
+                YPosition = 0x0070,
+            };
+            typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+                .SetValue(deathExplosionEnemies, new MotherBrainEnemyState(deathBody));
+            spawnDeathExplosionMethod.Invoke(
+                deathExplosionEnemies,
+                [
+                    new MotherBrainDeathExplosionRequest(
+                        PatternIndex: 0,
+                        XOffset: -5,
+                        YOffset: 9,
+                        XPosition: 0,
+                        YPosition: 0,
+                        ProjectileParameter: parameter,
+                        SoundEffect: 0),
+                ]);
+            RoomEnemyProjectileSlot deathExplosion =
+                deathExplosionEnemies.EnemyProjectiles.Single(
+                    projectile => projectile.Kind ==
+                        RoomEnemyProjectileKind.MotherBrainDeathExplosion);
+            for (int frame = 0; frame < deathExplosionLifetimes[parameter]; frame++)
+            {
+                processMethod.Invoke(
+                    deathExplosionEnemies,
+                    [deathExplosion, samus, (ushort)0, (ushort)0]);
+            }
+            AssertTrue(deathExplosion.IsActive,
+                $"Mother Brain death explosion {parameter} survives its exact lifetime");
+            processMethod.Invoke(
+                deathExplosionEnemies,
+                [deathExplosion, samus, (ushort)0, (ushort)0]);
+            AssertTrue(!deathExplosion.IsActive,
+                $"Mother Brain death explosion {parameter} deletes on its following frame");
+        }
+
         RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem();
         var handBeamBody = new RoomEnemySlot(0)
         {

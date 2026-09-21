@@ -9,9 +9,9 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// </summary>
     private static readonly ushort[] InstructionLists =
     [
-        0xe138,
-        0xe1ea,
-        0xe208,
+        EnemyProjectileInstructionMechanicsDefinitions.MotherBrainSmallDeathExplosionInitial,
+        EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDeathSmokeInitial,
+        EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBigDeathExplosionInitial,
     ];
 
     /// <summary>Returns the native animation-program identity for one death explosion.</summary>

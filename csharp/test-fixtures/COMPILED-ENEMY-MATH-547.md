@@ -2885,7 +2885,9 @@ same regression invokes the real drool producer on both sides of its native norm
 kind threshold, proves the five attached ten-frame stages, falling pre-instruction handoff,
 twelve-pixel release adjustment, sleep, floor-impact transition and exact forty-frame splash
 lifetime. The real rainbow-impact producer also proves its signed placement and complete
-18-frame lifetime through the compiled `$86:E152` misc-explosion program. This closes
+18-frame lifetime through the compiled `$86:E152` misc-explosion program. The three real
+body-relative death-explosion producers now share named compiled small-explosion, smoke and
+big-explosion entries and prove their exact 31-, 32- and 30-frame lifetimes. This closes
 another integration gap between the previously covered Mother Brain projectile pool and
 the general room projectile pool.
 

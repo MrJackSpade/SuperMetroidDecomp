@@ -587,6 +587,11 @@ if (args is ["--escape-etecoon-instruction-mechanics"])
     VerifyEscapeEtecoonInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--escape-dachora-instruction-mechanics"])
+{
+    VerifyEscapeDachoraInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--yard-turn-definitions"])
 {
     VerifyYardTurnDefinitions(

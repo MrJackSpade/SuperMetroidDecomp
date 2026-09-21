@@ -14,4 +14,16 @@ internal static class EscapeAnimalInstructionCodes
 
     /// <summary><c>Instruction_EtecoonEscape_XPositionPlusY</c> at $B3:E610.</summary>
     public const ushort Instruction_EtecoonEscape_XPositionPlusY = 0xe610;
+
+    /// <summary><c>InstList_DachoraEscape_GotoY_IfAcidLessThanCE</c> at $B3:EAA8.</summary>
+    public const ushort InstList_DachoraEscape_GotoY_IfAcidLessThanCE = 0xeaa8;
+
+    /// <summary><c>InstList_DachoraEscape_GotoY_IfCrittersEscaped</c> at $B3:EAB8.</summary>
+    public const ushort InstList_DachoraEscape_GotoY_IfCrittersEscaped = 0xeab8;
+
+    /// <summary><c>Instruction_DachoraEscape_XPositionMinus6</c> at $B3:EAC9.</summary>
+    public const ushort Instruction_DachoraEscape_XPositionMinus6 = 0xeac9;
+
+    /// <summary><c>Instruction_DachoraEscape_XPositionPlus6</c> at $B3:EAD7.</summary>
+    public const ushort Instruction_DachoraEscape_XPositionPlus6 = 0xead7;
 }

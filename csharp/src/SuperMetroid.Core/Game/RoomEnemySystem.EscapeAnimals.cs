@@ -78,12 +78,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort EscapeDachoraDefinition = 0xf313;
 
     private const ushort EmptyBankB3Spritemap = 0x804d;
-    private const ushort EscapeDachoraNormalList = 0xe964;
-
-    private const ushort EscapeDachoraLavaBranchInstruction = 0xeaa8;
-    private const ushort EscapeDachoraEventBranchInstruction = 0xeab8;
-    private const ushort EscapeDachoraMoveLeftInstruction = 0xeac9;
-    private const ushort EscapeDachoraMoveRightInstruction = 0xead7;
 
     private const ushort EscapeDachoraPixelsPerCallback = 6;
     private const ushort EscapeAnimalLavaBranchY = 0x00ce;
@@ -162,7 +156,8 @@ public sealed partial class RoomEnemySystem
         slot.SpritemapPointer = EmptyBankB3Spritemap;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = EscapeDachoraNormalList;
+        slot.CurrentInstruction =
+            EscapeDachoraInstructionProgramDefinitions.RunningAroundLowTide;
     }
 
     /// <summary>Ports <c>EscapeEtecoon_Main</c> and its complete indirect dispatch.</summary>
@@ -274,25 +269,25 @@ public sealed partial class RoomEnemySystem
         {
             switch (opcode)
             {
-                case EscapeDachoraLavaBranchInstruction:
+                case EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE:
                     cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
                         ? unchecked((ushort)(cursor + 4))
                         : ReadEscapeAnimalOperand(slot, cursor);
                     return true;
 
-                case EscapeDachoraEventBranchInstruction:
+                case EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped:
                     cursor = HasCrittersEscaped()
                         ? ReadEscapeAnimalOperand(slot, cursor)
                         : unchecked((ushort)(cursor + 4));
                     return true;
 
-                case EscapeDachoraMoveLeftInstruction:
+                case EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition - EscapeDachoraPixelsPerCallback));
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
 
-                case EscapeDachoraMoveRightInstruction:
+                case EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition + EscapeDachoraPixelsPerCallback));
                     cursor = unchecked((ushort)(cursor + 2));

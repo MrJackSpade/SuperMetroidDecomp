@@ -3591,3 +3591,17 @@ program through the production interpreter while mechanics bytes and the separat
 compiled initialization tables are forbidden. It observes all thirty presentation reads,
 asserts the gratitude displacement and rightward-escape handoff, rejects presentation and
 adjacent callback code as mechanics, and proves warmed lookup is allocation-free.
+
+# Escape Dachora instruction mechanics
+
+The escape-sequence Dachora now resolves its low/high-tide pacing and accelerating
+departure programs through `EscapeDachoraInstructionProgramDefinitions`. One hundred
+nineteen fixed callbacks, timers, durations, liquid/event branches, gotos, and loop
+targets are compiled; forty-three interleaved spritemap operands remain cartridge
+presentation data. Initialization uses the same named low-tide entry.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+pacing variants plus the full acceleration into the one-frame departure loop while every
+mechanics byte is forbidden. It observes all forty-three presentation reads, asserts
+left/right callback movement and the final departure loop, rejects presentation and
+adjacent callback code as mechanics, and proves warmed lookup is allocation-free.

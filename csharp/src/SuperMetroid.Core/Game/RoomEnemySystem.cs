@@ -3552,6 +3552,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer == ChozoStatueDefinition)
+            return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
+
         if (slot.EnemyDefinitionPointer == FakeKraidDefinition)
             return FakeKraidInstructionProgramDefinitions.ReadMechanicsWord(address);
 

@@ -3489,3 +3489,18 @@ forbidden. It asserts the movement/action callback state changes, paired spit pr
 and cry publication; observes all 24 live presentation operands; rejects presentation,
 unused-program, and adjacent pointers as mechanics; and proves warmed lookup is
 allocation-free.
+
+# Chozo statue instruction mechanics
+
+The Lower Norfair and Wrecked Ship Chozo statues now resolve all 166 fixed control
+words across their four initial and activated programs through
+`ChozoStatueInstructionProgramDefinitions`. This includes carry-motion and footstep
+operands, acid control, sound, loop timing, Samus release, sleeps, and pre-instruction
+handoffs. Their 52 interleaved spritemap operands remain live cartridge presentation data,
+and both initializers plus both hand-trigger transitions use the same named entries.
+
+Verification compares every mechanics word with the pinned cartridge, rejects every
+spritemap and adjacent callback-code pointer as mechanics, and proves warmed lookup is
+allocation-free. The complete retail-room audit executes both sequences through the strict
+catalog boundary and verifies collision-guided movement, Samus pinning, palettes, OBJ,
+sounds, FX, PLM/projectile footsteps, controls, and scroll writes.

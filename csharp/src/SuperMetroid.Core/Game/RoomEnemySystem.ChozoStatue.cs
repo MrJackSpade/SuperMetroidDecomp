@@ -80,10 +80,6 @@ public sealed partial class RoomEnemySystem
     private const ushort N00bTubeCracksDefinition = 0xf0bf;
     private const ushort ChozoStatueDefinition = 0xf0ff;
 
-    private const ushort LowerNorfairChozoInstructionList = 0xe39d;
-    private const ushort LowerNorfairChozoActiveInstructionList = 0xe3a7;
-    private const ushort WreckedShipChozoInstructionList = 0xe457;
-    private const ushort WreckedShipChozoActiveInstructionList = 0xe461;
     private const ushort EmptyBankAaSpritemap = 0x804d;
 
     private readonly ChozoStatueState?[] _chozoStatueStates =
@@ -191,14 +187,16 @@ public sealed partial class RoomEnemySystem
 
         if (statue.Parameter2 == 0)
         {
-            statue.CurrentInstruction = WreckedShipChozoInstructionList;
+            statue.CurrentInstruction =
+                ChozoStatueInstructionProgramDefinitions.WreckedShipInitial;
             LoadChozoStatuePalette(rowNineSource: 0xaae31d, rowTenSource: 0xaae33d);
             PublishHardcodedChozoPlm(ChozoStatuePlmRomData.WreckedShipHand, blockX: 0x4a, blockY: 0x17);
             PublishHardcodedChozoPlm(ChozoStatuePlmRomData.BlockSlopeAccess, blockX: 0x17, blockY: 0x1d);
         }
         else
         {
-            statue.CurrentInstruction = LowerNorfairChozoInstructionList;
+            statue.CurrentInstruction =
+                ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial;
             LoadChozoStatuePalette(rowNineSource: 0xaae35d, rowTenSource: 0xaae37d);
             PublishHardcodedChozoPlm(ChozoStatuePlmRomData.LowerNorfairHand, blockX: 0x0c, blockY: 0x1d);
         }
@@ -275,7 +273,8 @@ public sealed partial class RoomEnemySystem
             case ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger:
                 if (statue.Parameter1 != 0)
                 {
-                    statue.CurrentInstruction = LowerNorfairChozoActiveInstructionList;
+                    statue.CurrentInstruction =
+                        ChozoStatueInstructionProgramDefinitions.LowerNorfairActivated;
                     statue.InstructionTimer = 1;
                 }
                 return;
@@ -283,7 +282,8 @@ public sealed partial class RoomEnemySystem
             case ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger:
                 if (RequireAreaBossDefeated() && statue.Parameter1 != 0)
                 {
-                    statue.CurrentInstruction = WreckedShipChozoActiveInstructionList;
+                    statue.CurrentInstruction =
+                        ChozoStatueInstructionProgramDefinitions.WreckedShipActivated;
                     statue.InstructionTimer = 1;
                     state.VariableA = unchecked((ushort)-256);
                     state.VariableB = 256;
@@ -384,8 +384,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private ushort ReadChozoInstructionOperand(ushort cursor) =>
-        ReadWord(_bus!, 0xaa0000 | unchecked((ushort)(cursor + 2)));
+    private static ushort ReadChozoInstructionOperand(ushort cursor) =>
+        ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(
+            unchecked((ushort)(cursor + 2)));
 
     private void ProcessChozoStatueMovement(
         RoomEnemySlot statue,

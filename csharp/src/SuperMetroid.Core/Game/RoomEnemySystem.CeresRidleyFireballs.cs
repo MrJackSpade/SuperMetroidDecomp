@@ -1645,7 +1645,9 @@ public sealed partial class RoomEnemySystem
                     projectile.GeneralTimer = unchecked((ushort)(before - 1));
                     cursor = before == 1
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
+                        : ReadEnemyProjectileInstructionMechanicsWord(
+                            projectile,
+                            unchecked((ushort)(cursor + 2)));
                     break;
                 }
                 case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
@@ -1659,9 +1661,9 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY:
-                    projectile.GeneralTimer = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    projectile.GeneralTimer = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
+                        unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileCodePointers.Instruction_NoobTubeShardAssignFallingAngle:
@@ -1948,6 +1950,11 @@ public sealed partial class RoomEnemySystem
         if (CrocomireProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (PhantoonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return PhantoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

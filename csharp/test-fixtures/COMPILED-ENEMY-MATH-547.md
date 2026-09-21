@@ -3897,3 +3897,16 @@ the real mouth, bridge, and eight-piece spike-wall producers, and drives every a
 loop plus the complete five-frame mouth-shot/drop/delete sequence with private/shared
 mechanics reads forbidden. It observes every live presentation operand, rejects adjacent
 non-mechanics data, and proves warmed lookup is allocation-free.
+
+# Phantoon projectile instruction mechanics
+
+Phantoon's starting and destroyable flames now resolve all fixed durations, timer setup,
+decrement branches, gotos, sleeps, drop callbacks, and deletions through
+`PhantoonProjectileInstructionProgramDefinitions`. Thirty-one interleaved spritemap
+operands remain live cartridge presentation data.
+
+Verification compares all fifty-eight mechanics words with the pinned cartridge, invokes
+both real flame producers, and executes the starting, idle, falling/blinking, ground-hit,
+bouncing, resting/dying, rain-impact, orbit-delete, and shot/drop/delete programs with
+mechanics reads forbidden. It observes every presentation operand, rejects spritemap and
+callback-body addresses as mechanics, and proves warmed lookup is allocation-free.

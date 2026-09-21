@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PhantoonFlameDeleteInstruction = 0x97f8;
     private const ushort PhantoonStartingFlameWaitingPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PhantoonStartingFlames;
     private const ushort PhantoonStartingFlameOrbitPreInstruction =
@@ -61,7 +60,7 @@ public sealed partial class RoomEnemySystem
                 flame.XPosition = body.XPosition;
                 flame.YPosition = unchecked((ushort)(body.YPosition + 32));
                 flame.InstructionPointer =
-                    EnemyProjectileInstructionLists.PhantoonCasualFlameFalling;
+                    PhantoonProjectileInstructionProgramDefinitions.CasualFalling;
                 flame.PreInstruction =
                     EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling;
 
@@ -144,7 +143,8 @@ public sealed partial class RoomEnemySystem
             {
                 flame.XPosition = state.Body.XPosition;
                 flame.YPosition = unchecked((ushort)(state.Body.YPosition + 16));
-                flame.InstructionPointer = PhantoonFlameDeleteInstruction;
+                flame.InstructionPointer =
+                    PhantoonProjectileInstructionProgramDefinitions.Delete;
                 flame.InstructionTimer = 1;
                 return;
             }
@@ -170,7 +170,8 @@ public sealed partial class RoomEnemySystem
         flame.BlocksSamusProjectiles = true;
         flame.PreInstruction =
             EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround;
-        flame.InstructionPointer = EnemyProjectileInstructionLists.PhantoonCasualFlameLanded;
+        flame.InstructionPointer =
+            PhantoonProjectileInstructionProgramDefinitions.CasualHitGround;
         flame.InstructionTimer = 1;
         flame.Variable0 = 8;
         flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
@@ -187,7 +188,8 @@ public sealed partial class RoomEnemySystem
 
         flame.PreInstruction =
             EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing;
-        flame.InstructionPointer = EnemyProjectileInstructionLists.PhantoonCasualFlameBouncing;
+        flame.InstructionPointer =
+            PhantoonProjectileInstructionProgramDefinitions.CasualBouncing;
         flame.InstructionTimer = 1;
         flame.YPosition = unchecked((ushort)(flame.YPosition - 8));
         flame.YVelocity = 0xfd00;
@@ -218,7 +220,8 @@ public sealed partial class RoomEnemySystem
 
     private static void RestPhantoonCasualFlame(RoomEnemyProjectileSlot flame)
     {
-        flame.InstructionPointer = EnemyProjectileInstructionLists.PhantoonEnragedFlame;
+        flame.InstructionPointer =
+            PhantoonProjectileInstructionProgramDefinitions.CasualResting;
         flame.InstructionTimer = 1;
         flame.PreInstruction = EnemyProjectileCodePointers.RTS_869A44;
     }
@@ -258,7 +261,7 @@ public sealed partial class RoomEnemySystem
         flame.YVelocity = unchecked((ushort)(flame.YVelocity + 16));
         if (!MoveProjectileAxis(flame, level, horizontal: false))
             return;
-        flame.InstructionPointer = EnemyProjectileInstructionLists.PhantoonFlameRainImpact;
+        flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.RainImpact;
         flame.InstructionTimer = 1;
         flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
         flame.PreInstruction = EnemyProjectileCodePointers.RTS_869A44;
@@ -311,7 +314,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)flame.XPosition) < 0 || flame.XPosition >= 256 ||
             unchecked((short)flame.YPosition) < 0 || flame.YPosition >= 256)
         {
-            flame.InstructionPointer = PhantoonFlameDeleteInstruction;
+            flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.Delete;
             flame.InstructionTimer = 1;
         }
     }

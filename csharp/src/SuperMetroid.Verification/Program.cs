@@ -142,6 +142,11 @@ if (args is ["--crocomire-projectile-instruction-mechanics"])
     VerifyCrocomireProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--phantoon-projectile-instruction-mechanics"])
+{
+    VerifyPhantoonProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

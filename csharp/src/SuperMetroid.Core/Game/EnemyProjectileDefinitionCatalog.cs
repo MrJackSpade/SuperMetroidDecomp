@@ -99,8 +99,16 @@ internal static class EnemyProjectileDefinitionCatalog
             KraidRockProjectileInstructionProgramDefinitions.RisingRockRight,
             0x0404, 0xA000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.PhantoonDestroyableFlame => new(0x9824, 0x9981, 0x975C, 0x1008, 0x8028, 0x0000, 0x97FA),
-        RoomEnemyProjectileKind.PhantoonStartingFlame => new(0x993A, 0x9B29, 0x97E8, 0x1008, 0x4028, 0x0000, 0x975C),
+        RoomEnemyProjectileKind.PhantoonDestroyableFlame => new(
+            0x9824, 0x9981,
+            PhantoonProjectileInstructionProgramDefinitions.DestroyableIdle,
+            0x1008, 0x8028, 0x0000,
+            PhantoonProjectileInstructionProgramDefinitions.DestroyableShot),
+        RoomEnemyProjectileKind.PhantoonStartingFlame => new(
+            0x993A, 0x9B29,
+            PhantoonProjectileInstructionProgramDefinitions.StartingFlame,
+            0x1008, 0x4028, 0x0000,
+            PhantoonProjectileInstructionProgramDefinitions.DestroyableIdle),
         RoomEnemyProjectileKind.DraygonGoop => new(0x8D04, 0x8E0F, 0x8C3A, 0x0808, 0xD000, 0x8C38, 0x8C58),
         RoomEnemyProjectileKind.DraygonWallTurret => new(0x8D40, 0x8DFF, 0x8CA4, 0x0808, 0x1080, 0x0000, 0xE138),
         RoomEnemyProjectileKind.MotherBrainRoomTurret => new(0xBE4F, 0xBFDF, 0xC10D, 0x0000, 0x6000, 0x0000, 0x84FC),

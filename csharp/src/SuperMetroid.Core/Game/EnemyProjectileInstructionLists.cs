@@ -35,16 +35,6 @@ internal static class EnemyProjectileInstructionLists
     public const ushort DraygonGoopAttached = 0x8c38;
     /// <summary>Ceres Ridley fireball center-afterburn list at $86:9574.</summary>
     public const ushort RidleyCenterAfterburn = 0x9574;
-    /// <summary>Phantoon casual-flame falling list at $86:97B4.</summary>
-    public const ushort PhantoonCasualFlameFalling = 0x97b4;
-    /// <summary>Phantoon casual-flame landed list at $86:976C.</summary>
-    public const ushort PhantoonCasualFlameLanded = 0x976c;
-    /// <summary>Phantoon casual-flame bouncing list at $86:9772.</summary>
-    public const ushort PhantoonCasualFlameBouncing = 0x9772;
-    /// <summary>Phantoon enraged-flame list at $86:9782.</summary>
-    public const ushort PhantoonEnragedFlame = 0x9782;
-    /// <summary>Phantoon flame-rain impact list at $86:97AC.</summary>
-    public const ushort PhantoonFlameRainImpact = 0x97ac;
     /// <summary>Space Pirate laser list facing left at $86:9FB9.</summary>
     public const ushort PirateLaserLeft = 0x9fb9;
     /// <summary>Space Pirate laser list facing right at $86:9FE1.</summary>

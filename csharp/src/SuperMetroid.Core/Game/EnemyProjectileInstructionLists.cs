@@ -3,14 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 animation-list pointers assigned to translated enemy projectiles.</summary>
 internal static class EnemyProjectileInstructionLists
 {
-    /// <summary>Golden Torizo egg hatched list facing left at $86:B190.</summary>
-    public const ushort GoldenTorizoEggHatchedLeft = 0xb190;
-    /// <summary>Golden Torizo egg hatched list facing right at $86:B1A8.</summary>
-    public const ushort GoldenTorizoEggHatchedRight = 0xb1a8;
-    /// <summary>Golden Torizo egg hatch branch target facing left at $86:B14B.</summary>
-    public const ushort GoldenTorizoEggHatchTargetLeft = 0xb14b;
-    /// <summary>Golden Torizo egg hatch branch target facing right at $86:B166.</summary>
-    public const ushort GoldenTorizoEggHatchTargetRight = 0xb166;
     /// <summary>Golden Torizo super-missile impact list at $86:B2EF.</summary>
     public const ushort GoldenTorizoSuperMissileImpact = 0xb2ef;
     /// <summary>Golden Torizo eye-beam wall-impact list at $86:B3CD.</summary>

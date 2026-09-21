@@ -71,6 +71,7 @@ internal static partial class Program
         VerifyTorizoChozoOrbInstructionProgramDefinitions(rom);
         VerifyTorizoSonicBoomInstructionProgramDefinitions(rom);
         VerifyBombTorizoStatueInstructionProgramDefinitions(rom);
+        VerifyGoldenTorizoEggInstructionProgramDefinitions(rom);
         VerifyDownwardGateProjectileInstructionProgramDefinitions(rom);
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
         VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);

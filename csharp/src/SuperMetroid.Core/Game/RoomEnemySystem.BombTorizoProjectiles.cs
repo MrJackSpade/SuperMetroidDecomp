@@ -487,8 +487,8 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
             projectile.InstructionPointer = (projectile.Variable0 & 0x8000) != 0
-                ? EnemyProjectileInstructionLists.GoldenTorizoEggHatchedRight
-                : EnemyProjectileInstructionLists.GoldenTorizoEggHatchedLeft;
+                ? GoldenTorizoEggInstructionProgramDefinitions.BreakRight
+                : GoldenTorizoEggInstructionProgramDefinitions.BreakLeft;
             projectile.InstructionTimer = 1;
             return;
         }

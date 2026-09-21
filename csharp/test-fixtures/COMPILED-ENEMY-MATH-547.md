@@ -4322,3 +4322,22 @@ sixteen real room-graphics fragment producers. It proves each distinct 128-to-64
 staggered wait, falling callback handoff, 112-frame second pose, exact visible lifetime,
 and deletion. Every presentation read, strict rejection, and allocation-free warmed
 lookup pass with all mechanics bytes forbidden.
+
+# Golden Torizo egg instruction mechanics
+
+Golden Torizo's egg now resolves all fifty-three private durations, sleeps, property
+masks, callback installs, branches, targets, and deletions through
+`GoldenTorizoEggInstructionProgramDefinitions`. Its twenty-six interleaved spritemap
+operands remain live cartridge presentation data and both packed hatch sound IDs remain
+owned by the separate audio seam. The egg owner also routes the definition's shared
+Chozo-orb shot-break list through its existing compiled catalog. Launch tuple selection,
+the projectile definition, hatch targets, and floor-break targets now use named program
+identities rather than raw or misleading constants.
+
+Verification compares every private mechanics word with the pinned cartridge and invokes
+both real facing producers. It proves the initial 48-frame pose and sleep, native hatch
+handoff, three four-frame hatch poses, collision/property transition, 24-frame moving
+loop, real synthetic-floor collision, the 26/24-frame facing-specific break paths, and the
+shared 20-frame shot break. Exact RNG consumption, every private presentation read,
+strict rejection, and allocation-free warmed lookup pass with all mechanics bytes
+forbidden.

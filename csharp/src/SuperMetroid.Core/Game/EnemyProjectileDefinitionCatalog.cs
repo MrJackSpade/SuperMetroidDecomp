@@ -395,7 +395,12 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BombTorizoLeftFootDust => new(
             0xAFCD, 0x84FB, TorizoLandingDustInstructionProgramDefinitions.LeftFoot,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.GoldenTorizoEgg => new(0xB001, 0xB043, 0xB104, 0x0707, 0x6064, 0x0000, 0xAB25),
+        RoomEnemyProjectileKind.GoldenTorizoEgg => new(
+            GoldenTorizoEggInstructionProgramDefinitions.InitializationAi,
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Bouncing,
+            GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft,
+            0x0707, 0x6064, 0x0000,
+            TorizoChozoOrbInstructionProgramDefinitions.WallImpact),
         RoomEnemyProjectileKind.GoldenTorizoSuperMissile => new(0xB1CE, 0xB20D, 0xB293, 0x0404, 0xA0C8, 0x0000, 0xB2EF),
         RoomEnemyProjectileKind.GoldenTorizoEyeBeam => new(0xB328, 0xB38A, 0xB410, 0x0303, 0x700A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueSplash => new(0xB87A, 0xB977, TourianStatueProjectileInstructionProgramDefinitions.Splash, 0x0000, 0x3000, 0x0000, 0x84FC),

@@ -1321,6 +1321,17 @@ holds the second pose for 112 frames, and deletes with mechanics bytes forbidden
 ROM parity, every presentation read, strict rejection, and allocation-free warmed lookup
 are verified.
 
+## Golden Torizo egg instruction mechanics
+
+Golden Torizo's egg now compiles fifty-three private control words and resolves its
+already-compiled shared shot-break program through the egg owner. Twenty-six spritemap
+operands and two packed sound IDs remain live presentation/audio data. Both real facing
+producers execute through the initial sleep, native hatch handoff, property transition,
+24-frame charge loop, real synthetic-floor break, facing-specific break lifetime, and
+shared shot break with mechanics bytes forbidden. Exact ROM parity, launch RNG count,
+every private presentation read, strict rejection, and allocation-free warmed lookup are
+verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

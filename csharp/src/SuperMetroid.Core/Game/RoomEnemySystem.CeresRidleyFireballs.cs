@@ -1747,8 +1747,8 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched:
                     cursor = (projectile.Variable0 & 0x8000) != 0
-                        ? EnemyProjectileInstructionLists.GoldenTorizoEggHatchTargetRight
-                        : EnemyProjectileInstructionLists.GoldenTorizoEggHatchTargetLeft;
+                        ? GoldenTorizoEggInstructionProgramDefinitions.HatchedRight
+                        : GoldenTorizoEggInstructionProgramDefinitions.HatchedLeft;
                     break;
                 case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Rightwards:
                 case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards:
@@ -2192,6 +2192,11 @@ public sealed partial class RoomEnemySystem
         if (projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking)
         {
             return BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
+        {
+            return GoldenTorizoEggInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

@@ -36,8 +36,10 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition GoldenEgg(bool movingRight) =>
         movingRight
-            ? new(0xb11c, 16, 128, -1, -384)
-            : new(0xb104, -16, -128, -1, -384);
+            ? new(GoldenTorizoEggInstructionProgramDefinitions.BouncingRight,
+                16, 128, -1, -384)
+            : new(GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft,
+                -16, -128, -1, -384);
 
     /// <summary>
     /// Golden Torizo eye-beam records at <c>$86:B376-$86:B389</c>, selected by facing.

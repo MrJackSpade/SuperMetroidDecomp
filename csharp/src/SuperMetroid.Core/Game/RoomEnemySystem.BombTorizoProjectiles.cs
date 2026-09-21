@@ -562,7 +562,7 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.GoldenTorizoEyeBeamWallImpact;
+                GoldenTorizoEyeBeamInstructionProgramDefinitions.WallImpact;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -572,7 +572,7 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition = unchecked((ushort)(
                 (projectile.YPosition & 0xfff0) + 6));
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.GoldenTorizoEyeBeamFloorImpact;
+                GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpact;
             projectile.InstructionTimer = 1;
         }
     }

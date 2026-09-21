@@ -1343,6 +1343,16 @@ shares that same compiled six-pose impact. Exact radii/property changes, lifetim
 parity, every presentation read, strict rejection, and allocation-free warmed lookup are
 verified with mechanics bytes forbidden.
 
+## Golden Torizo eye-beam instruction mechanics
+
+Golden Torizo's eye beam now compiles twenty-eight fixed control words while retaining
+seventeen spritemap operands and one packed floor-impact sound ID as live
+presentation/audio data. Both real facing producers execute through their complete
+five-frame flight loop. Synthetic wall and floor collisions exercise the real movement
+handoffs, exact floor alignment, twenty-frame wall burst, disabled blank floor loop, and
+enabled thirty-nine-frame damaging explosion. ROM parity, every presentation read, strict
+rejection, and allocation-free warmed lookup are verified with mechanics bytes forbidden.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

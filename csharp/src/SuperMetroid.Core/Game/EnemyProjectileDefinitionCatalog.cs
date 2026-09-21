@@ -407,7 +407,11 @@ internal static class EnemyProjectileDefinitionCatalog
             GoldenTorizoSuperMissileInstructionProgramDefinitions.RightInitial,
             0x0404, 0xA0C8, 0x0000,
             GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact),
-        RoomEnemyProjectileKind.GoldenTorizoEyeBeam => new(0xB328, 0xB38A, 0xB410, 0x0303, 0x700A, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.GoldenTorizoEyeBeam => new(
+            GoldenTorizoEyeBeamInstructionProgramDefinitions.InitializationAi,
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam,
+            GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
+            0x0303, 0x700A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueSplash => new(0xB87A, 0xB977, TourianStatueProjectileInstructionProgramDefinitions.Splash, 0x0000, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueEyeGlow => new(0xB88E, 0x84FB, TourianStatueProjectileInstructionProgramDefinitions.EyeGlow, 0x0000, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueParticle => new(0xB8B5, 0xB982, TourianStatueProjectileInstructionProgramDefinitions.Particle, 0x0000, 0x3000, 0x0000, 0x84FC),

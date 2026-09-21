@@ -4358,3 +4358,19 @@ sixteen-frame flight loops. A synthetic solid wall exercises the production move
 collision and proves the shared shot/impact program's radius, collision/property,
 priority, thirty-frame lifetime, and deletion. Every presentation read, strict rejection,
 and allocation-free warmed lookup pass with all mechanics bytes forbidden.
+
+# Golden Torizo eye-beam instruction mechanics
+
+Golden Torizo's eye beam now resolves all twenty-eight fixed durations, collision-list
+branches, property operands, loop targets, and deletions through
+`GoldenTorizoEyeBeamInstructionProgramDefinitions`. Its seventeen interleaved spritemap
+operands remain live cartridge presentation data and the packed floor-impact sound ID
+remains owned by the separate audio seam. The randomized launch tuple, projectile
+definition, and wall/floor collision handoffs now use the same named program catalog.
+
+Verification compares every mechanics word with the pinned cartridge and invokes both
+real facing producers through the complete five-frame flight loop. Synthetic wall and
+floor collisions exercise the production movement callback, exact impact alignment,
+twenty-frame wall burst, disabled blank floor loop, enabled thirty-nine-frame explosion,
+collision transition, and deletion. Every presentation read, strict rejection, and
+allocation-free warmed lookup pass with all mechanics bytes forbidden.

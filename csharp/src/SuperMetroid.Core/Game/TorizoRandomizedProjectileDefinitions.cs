@@ -47,6 +47,8 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition GoldenEyeBeam(bool facingRight) =>
         facingRight
-            ? new(0xb410, 20, 1024, -30, 1024)
-            : new(0xb410, -20, -1024, -30, 1024);
+            ? new(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
+                20, 1024, -30, 1024)
+            : new(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
+                -20, -1024, -30, 1024);
 }

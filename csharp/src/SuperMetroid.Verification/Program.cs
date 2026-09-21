@@ -122,6 +122,11 @@ if (args is ["--golden-torizo-super-missile-instruction-mechanics"])
     VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--golden-torizo-eye-beam-instruction-mechanics"])
+{
+    VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

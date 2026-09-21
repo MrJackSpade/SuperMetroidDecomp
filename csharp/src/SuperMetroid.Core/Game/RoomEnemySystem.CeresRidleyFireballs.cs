@@ -1770,7 +1770,9 @@ public sealed partial class RoomEnemySystem
                         throw new InvalidOperationException(
                             "Golden Torizo eye-beam bytecode has no owning Torizo state.");
                     cursor = (state.AttackFlags & 0x8000) == 0
-                        ? ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)))
+                        ? ReadEnemyProjectileInstructionMechanicsWord(
+                            projectile,
+                            unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
                 }
@@ -2203,6 +2205,11 @@ public sealed partial class RoomEnemySystem
         {
             return GoldenTorizoSuperMissileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
+        }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEyeBeam)
+        {
+            return GoldenTorizoEyeBeamInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

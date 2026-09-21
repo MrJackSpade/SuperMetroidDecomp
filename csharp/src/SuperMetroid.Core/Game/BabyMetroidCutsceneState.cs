@@ -17,10 +17,18 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed partial class BabyMetroidCutsceneState
 {
-    // These are literal bank-$A9 instruction-list addresses. They are public debugger
-    // witnesses, not arbitrary host animation IDs.
-    public const ushort InitialInstructionList = 0xcfa2;
-    public const ushort DrainingMotherBrainInstructionList = 0xcfb8;
+    /// <summary>
+    /// Public debugger witness for <c>InstList_BabyMetroid_Initial</c> at $A9:CFA2.
+    /// </summary>
+    public const ushort InitialInstructionList =
+        MotherBrainBabyInstructionProgramDefinitions.Initial;
+
+    /// <summary>
+    /// Public debugger witness for <c>InstList_BabyMetroid_DrainingMotherBrain</c> at
+    /// $A9:CFB8.
+    /// </summary>
+    public const ushort DrainingMotherBrainInstructionList =
+        MotherBrainBabyInstructionProgramDefinitions.DrainingMotherBrain;
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
     // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries.
     private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
@@ -680,7 +688,8 @@ public sealed partial class BabyMetroidCutsceneState
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
                     GraphicsOffset = 0x10a0;
-                    SetInstructionList(0xcfce);
+                    SetInstructionList(
+                        MotherBrainBabyInstructionProgramDefinitions.TakingFatalBlow);
                     XVelocity = 0;
                     YVelocity = 0;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;

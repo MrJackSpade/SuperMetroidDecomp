@@ -3519,3 +3519,17 @@ spritemaps and the retail-unused reversed loop as mechanics, and proves warmed l
 allocation-free. The complete retail Crocomire audit exposed and then covered the melting
 handoff, and passes the full fight, bridge collapse, both melting passes, skeleton sequence,
 item drop, and boss completion through the strict tongue catalog.
+
+# Mother Brain Baby instruction mechanics
+
+The Baby Metroid actor used by Mother Brain's final cutscene now resolves all twelve
+fixed durations, private loop callbacks, branch targets, and terminal sleep control
+through `MotherBrainBabyInstructionProgramDefinitions`. Its nine interleaved spritemap
+operands remain live cartridge presentation data. The cutscene's initial, draining, and
+fatal-blow handoffs use the same named program entries.
+
+Verification compares every mechanics word with the pinned cartridge, rejects every
+spritemap plus the adjacent private callback and movement code as mechanics, and proves
+warmed lookup is allocation-free. The complete Mother Brain audit executes the Baby's
+spawn, Mother Brain drain, Samus healing, final charge, death, and phase-three handoff
+through the strict catalog boundary.

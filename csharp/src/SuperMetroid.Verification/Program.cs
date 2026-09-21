@@ -312,6 +312,11 @@ if (args is ["--crocomire-tongue-instruction-mechanics"])
     VerifyCrocomireTongueInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--mother-brain-baby-instruction-mechanics"])
+{
+    VerifyMotherBrainBabyInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

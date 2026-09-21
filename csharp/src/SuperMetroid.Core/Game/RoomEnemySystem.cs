@@ -3552,6 +3552,12 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer ==
+            MotherBrainBabyMetroidDefinitions.EnemyDefinition)
+        {
+            return MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (slot.EnemyDefinitionPointer == CrocomireTongueDefinition)
             return CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address);
 

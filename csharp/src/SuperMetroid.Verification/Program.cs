@@ -82,6 +82,11 @@ if (args is ["--skree-metaree-particle-instruction-mechanics"])
     VerifySkreeMetareeParticleInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kraid-rock-projectile-instruction-mechanics"])
+{
+    VerifyKraidRockProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

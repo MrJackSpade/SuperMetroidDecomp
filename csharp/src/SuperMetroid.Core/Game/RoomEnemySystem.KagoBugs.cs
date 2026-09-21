@@ -52,7 +52,8 @@ public sealed partial class RoomEnemySystem
     internal const ushort KagoBugUsePaletteZeroInstruction = 0xd1c7;
     internal const ushort KagoBugSpawnDropInstruction = 0xd1ce;
 
-    private const ushort KagoBugInitialInstructionList = 0x9c7d;
+    private const ushort KagoBugInitialInstructionList =
+        KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug;
     private const ushort KagoBugLandedInstructionList = 0xd03c;
     private const ushort KagoBugFallingInstructionList = 0xd04a;
     private const ushort KagoBugJumpStartInstructionList = 0xd052;

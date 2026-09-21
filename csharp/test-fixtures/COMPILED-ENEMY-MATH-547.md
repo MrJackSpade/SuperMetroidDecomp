@@ -3737,3 +3737,17 @@ complete loops through all eight production-spawned directional owners while pri
 and shared mechanics bytes are forbidden. It observes both live spritemap operands,
 proves shared shot deletion, rejects presentation and adjacent initializer code as
 mechanics, and verifies warmed lookup is allocation-free.
+
+# Kraid-rock projectile instruction mechanics
+
+Kraid's spit, ceiling, and two rising-rock variants now resolve their twelve fixed
+duration, sleep, pre-instruction, and delete words through
+`KraidRockProjectileInstructionProgramDefinitions`. The catalog also owns the initial
+pose shared with Kago bugs, without claiming Kago's separate movement programs. Seven
+interleaved spritemap operands remain live cartridge presentation data.
+
+Verification compares every mechanics word with the pinned cartridge and drives all four
+real Kraid-rock producers plus the real Kago-bug producer with mechanics reads forbidden.
+It proves both terminal sleeps, the full five-frame spit-rock shot explosion, shared shot
+deletion, every live spritemap read, owner/address boundaries, invalid-pointer rejection,
+and allocation-free warmed lookup.

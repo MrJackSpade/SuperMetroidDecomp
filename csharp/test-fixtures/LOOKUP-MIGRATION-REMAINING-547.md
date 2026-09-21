@@ -1300,6 +1300,16 @@ paths reach their exact property changes, lifetimes, native drop headers, and de
 Drop operands now use the owner resolver too. Exact ROM parity, every presentation read,
 strict rejection, and allocation-free warmed lookup are verified.
 
+## Torizo sonic-boom instruction mechanics
+
+Bomb and Golden Torizo's shared sonic-boom actors now compile thirty-one fixed control
+words while retaining eleven spritemap operands and two packed sound IDs as live
+presentation/audio data. Both real producers execute in both facings through their launch
+poses and stable moving loops. A synthetic solid wall exercises the real movement callback
+and all five twelve-frame random impact cycles through collision disabling, high-priority
+drawing, center restoration, jitter, and deletion. Exact ROM parity, RNG consumption,
+every presentation read, strict rejection, and allocation-free warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

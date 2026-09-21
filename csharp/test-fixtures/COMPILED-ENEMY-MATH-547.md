@@ -4290,3 +4290,20 @@ producers in both facings, and proves their exact 85-frame loops. It also execut
 both 20-frame shot paths through the correct Bomb/Golden drop request and deletion. Every
 presentation read, strict rejection, and allocation-free warmed lookup pass with mechanics
 bytes forbidden.
+
+# Torizo sonic-boom instruction mechanics
+
+Bomb and Golden Torizo's shared sonic-boom actors now resolve all thirty-one fixed
+durations, callbacks, timers, random-radius parameters, branches, targets, and deletion
+through `TorizoSonicBoomInstructionProgramDefinitions`. Their eleven interleaved
+spritemap operands remain live cartridge presentation data, and both packed launch sound
+IDs remain owned by the separate audio seam. Definition records, facing selection, and
+wall-collision handoff now use the same named program catalog.
+
+Verification compares every mechanics word with the pinned cartridge and invokes both
+real producers in both facings through their two launch poses and 80-frame moving loop. A
+synthetic solid wall then exercises the production movement callback and proves its exact
+collision coordinate, saved center, callback/collision/priority transition, five
+twelve-frame random impact cycles, RNG consumption, and following deletion. Every
+presentation read, strict rejection, and allocation-free warmed lookup pass with all
+mechanics bytes forbidden.

@@ -369,11 +369,21 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BombTorizoChozoOrb => new(
             0xABEB, 0xACAD, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
             0x0707, 0x9008, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),
-        RoomEnemyProjectileKind.BombTorizoSonicBoom => new(0xAE15, 0xAE6C, 0xADBF, 0x1403, 0x100A, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.BombTorizoSonicBoom => new(
+            TorizoSonicBoomInstructionProgramDefinitions.InitializationAi,
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_TorizoSonicBoom,
+            TorizoSonicBoomInstructionProgramDefinitions.FiredLeft,
+            0x1403, 0x100A, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb => new(
             0xAC7C, 0xACFA, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
             0x0707, 0xB050, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),
-        RoomEnemyProjectileKind.GoldenTorizoSonicBoom => new(0xAE15, 0xAE6C, 0xADBF, 0x1403, 0x1078, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.GoldenTorizoSonicBoom => new(
+            TorizoSonicBoomInstructionProgramDefinitions.InitializationAi,
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_TorizoSonicBoom,
+            TorizoSonicBoomInstructionProgramDefinitions.FiredLeft,
+            0x1403, 0x1078, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoRightFootDust => new(
             0xAF50, 0x84FB, TorizoLandingDustInstructionProgramDefinitions.RightFoot,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

@@ -179,14 +179,14 @@ public sealed partial class RoomEnemySystem
             projectile.XPosition = unchecked((ushort)(torizo.XPosition + 32));
             projectile.XVelocity = 624;
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.BombTorizoSonicBoomRight;
+                TorizoSonicBoomInstructionProgramDefinitions.FiredRight;
         }
         else
         {
             projectile.XPosition = unchecked((ushort)(torizo.XPosition - 32));
             projectile.XVelocity = unchecked((ushort)-624);
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.BombTorizoSonicBoomLeft;
+                TorizoSonicBoomInstructionProgramDefinitions.FiredLeft;
         }
     }
 
@@ -342,7 +342,7 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.BombTorizoSonicBoomImpact;
+                TorizoSonicBoomInstructionProgramDefinitions.WallImpact;
             projectile.InstructionTimer = 1;
             projectile.Variable0 = projectile.XPosition;
             projectile.Variable1 = projectile.YPosition;

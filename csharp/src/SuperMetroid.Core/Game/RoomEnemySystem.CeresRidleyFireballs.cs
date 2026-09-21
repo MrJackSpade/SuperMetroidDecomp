@@ -1939,6 +1939,12 @@ public sealed partial class RoomEnemySystem
             return KagoBugProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.YappingMawBody)
+        {
+            return YappingMawBodyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);

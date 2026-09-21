@@ -3870,3 +3870,16 @@ invokes the real Kago-bug producer, and drives every private program through its
 loops, five shot frames, drop request, and deletion with private/shared mechanics reads
 forbidden. It observes every live presentation operand, rejects spritemap and unreferenced
 duplicate-delete neighbors, and proves warmed lookup is allocation-free.
+
+# Yapping Maw body-projectile instruction mechanics
+
+Yapping Maw's four damaging body links now resolve both one-frame facing poses and their
+terminal sleeps through `YappingMawBodyProjectileInstructionProgramDefinitions`. Their
+two spritemap operands remain live cartridge presentation data, and the projectile
+definition uses the independently compiled shared delete program.
+
+Verification compares every mechanics word with the pinned cartridge and initializes real
+up- and down-facing Yapping Maws. All eight produced body links execute their selected pose
+and terminal sleep with mechanics reads forbidden; the test also proves shared shot
+deletion, both live presentation reads, invalid-pointer rejection, and allocation-free
+warmed lookup.

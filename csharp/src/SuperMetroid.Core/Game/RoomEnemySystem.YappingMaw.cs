@@ -122,8 +122,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort YappingMawDefinition = 0xe7bf;
 
-    private const ushort YappingMawBodyProjectileInstruction = 0xec5c;
-    private const ushort YappingMawAlternateBodyProjectileInstruction = 0xec56;
     private const ushort YappingMawGrabSafetyDistance = 32;
     private const ushort YappingMawMaximumCurl = 128;
     private const ushort YappingMawGrabCooldownFrames = 48;
@@ -187,8 +185,8 @@ public sealed partial class RoomEnemySystem
             body.XPosition = slot.XPosition;
             body.YPosition = slot.YPosition;
             body.InstructionPointer = slot.Parameter2 == 0
-                ? YappingMawAlternateBodyProjectileInstruction
-                : YappingMawBodyProjectileInstruction;
+                ? YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown
+                : YappingMawBodyProjectileInstructionProgramDefinitions.FacingUp;
             state.BodyProjectiles[parameter] = body;
         }
 

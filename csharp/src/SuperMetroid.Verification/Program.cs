@@ -132,6 +132,11 @@ if (args is ["--kago-bug-projectile-instruction-mechanics"])
     VerifyKagoBugProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--yapping-maw-body-projectile-instruction-mechanics"])
+{
+    VerifyYappingMawBodyProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

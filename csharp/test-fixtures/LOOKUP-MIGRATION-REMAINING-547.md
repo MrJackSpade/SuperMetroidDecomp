@@ -878,9 +878,9 @@ forbidden, while proving that live spritemap reads still occur.
 
 ## Mother Brain and misc-dust projectile instruction mechanics
 
-Fixed control data for eight translated Mother Brain projectile programs is now compiled in
-`EnemyProjectileInstructionMechanicsDefinitions`. The catalog contains 298
-duration/opcode/operand words across those eight programs and all thirty misc-dust
+Fixed control data for nine translated Mother Brain projectile programs is now compiled in
+`EnemyProjectileInstructionMechanicsDefinitions`. The catalog contains 307
+duration/opcode/operand words across those nine programs and all thirty misc-dust
 programs. The generic dust selector and Mother Brain initializers share the same entry-point
 definitions, so their instruction identities cannot drift.
 
@@ -888,7 +888,7 @@ The interpreter still reads each timed record's bank-$8D spritemap pointer from 
 those words and sprite payloads are presentation. Mechanics lookups are bounded by exact
 word address and reject adjacent/restored pointers rather than falling back to cartridge
 code. Exhaustive verification compares every compiled word to the pinned ROM and executes
-all 38 production programs with those source bytes forbidden, including the previously
+all 39 production programs with those source bytes forbidden, including the previously
 unhandled looping misc-dust program `$86:E1FC`. The ordinary room-projectile producer now
 also runs Mother Brain's exact six-stage, 30-frame rainbow-beam charging actor without
 reading its fixed durations or terminal delete from the cartridge. Both normal and dying
@@ -897,6 +897,13 @@ twelve-pixel release correction, terminal sleep, and four-stage floor splash fro
 control data. Mother Brain's rainbow-impact actor now also shares the already compiled
 `$86:E152` misc-explosion owner instead of rereading that same 18-frame program through a
 different projectile-kind path.
+
+The ordinary room-projectile owner now also consumes the compiled onion-ring growth program
+and its complete generic-contact impact list. The audit caught the packed X/Y-radius operand
+still bypassing owner dispatch even after the surrounding opcode was compiled; that operand
+now uses the same strict mechanics resolver. The real room producer reaches all six native
+radii and terminal sleep, while the impact path applies its duplicate palette-zero opcode,
+clears movement, displays six exact five-frame stages and deletes on frame 31.
 
 Mother Brain's recursive red hand beam uses a dedicated
 `MotherBrainHandBeamInstructionProgramDefinitions` catalog because its three callback

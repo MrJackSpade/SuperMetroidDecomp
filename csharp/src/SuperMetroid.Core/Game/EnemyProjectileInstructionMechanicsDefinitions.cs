@@ -32,6 +32,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary><c>$86:C432</c>, Mother Brain blue/onion-ring radius-and-frame program.</summary>
     internal const ushort MotherBrainBlueRingInitial = 0xc432;
 
+    /// <summary><c>$86:C464</c>, Mother Brain blue/onion-ring impact program.</summary>
+    internal const ushort MotherBrainBlueRingTouch = 0xc464;
+
     /// <summary><c>$86:C76E</c>, looping Mother Brain bomb animation program.</summary>
     internal const ushort MotherBrainBombInitial = 0xc76e;
 
@@ -155,6 +158,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// shared Mother Brain/misc-dust catalog.
     /// </summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
+        RoomEnemyProjectileKind.MotherBrainOnionRing or
         RoomEnemyProjectileKind.MotherBrainBomb or
         RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
         RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
@@ -246,6 +250,23 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         }
         words.Add(new(bluePointer,
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
+
+        // `$86:C464-C480` is the dormant generic-contact presentation for an onion ring.
+        // Its normal pre-instruction resolves collisions first, but restored/native slots
+        // can still enter this complete palette-zero, inert, six-frame impact program.
+        ushort blueTouchPointer = MotherBrainBlueRingTouch;
+        words.Add(new(blueTouchPointer,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0_Duplicate));
+        words.Add(new(unchecked((ushort)(blueTouchPointer + 2)),
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction));
+        blueTouchPointer = unchecked((ushort)(blueTouchPointer + 4));
+        for (int frame = 0; frame < 6; frame++)
+        {
+            words.Add(new(blueTouchPointer, 5));
+            blueTouchPointer = unchecked((ushort)(blueTouchPointer + 4));
+        }
+        words.Add(new(blueTouchPointer,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
 
         // `$86:C8B0-C8CE` displays five attached maps, switches to the falling
         // pre-instruction, lowers the actor twelve pixels, displays its released map, and

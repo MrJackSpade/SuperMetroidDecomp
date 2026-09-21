@@ -130,7 +130,12 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.MotherBrainGlassSparkle => new(
             0xCE6D, 0x84FB, MotherBrainGlassInstructionProgramDefinitions.Sparkle,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-        RoomEnemyProjectileKind.MotherBrainOnionRing => new(0xC2F3, 0xC335, 0xC432, 0x0606, 0x3050, 0xC464, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainOnionRing => new(
+            0xC2F3, 0xC335,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingInitial,
+            0x0606, 0x3050,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingTouch,
+            0x84FC),
         RoomEnemyProjectileKind.MotherBrainBomb => new(
             0xC482, 0xC4C8,
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial,

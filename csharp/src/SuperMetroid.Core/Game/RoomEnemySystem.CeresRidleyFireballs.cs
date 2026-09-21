@@ -1529,7 +1529,8 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY:
                 {
-                    ushort radii = ReadWord(_bus!, 0x860000 |
+                    ushort radii = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.XRadius = unchecked((byte)radii);
                     projectile.YRadius = unchecked((byte)(radii >> 8));
@@ -1784,8 +1785,12 @@ public sealed partial class RoomEnemySystem
                         projectile,
                         unchecked((ushort)(cursor + 2 + projectile.Variable0)));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
-                    // First instruction of the shared touch/shot smoke sequence.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0
+                    when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0_Duplicate
+                    when projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing:
+                    // Both native aliases clear the projectile's palette selection before
+                    // their respective turret-smoke or onion-ring impact frames.
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;

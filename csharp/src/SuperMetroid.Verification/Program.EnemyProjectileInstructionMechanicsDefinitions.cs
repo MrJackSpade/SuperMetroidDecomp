@@ -7,7 +7,7 @@ internal static partial class Program
 {
     /// <summary>
     /// Compares every compiled Mother Brain/misc-dust mechanics word to the pinned ROM,
-    /// then runs all 38 production programs while rejecting reads from those source bytes.
+    /// then runs all 39 production programs while rejecting reads from those source bytes.
     /// </summary>
     private static void VerifyEnemyProjectileInstructionMechanicsDefinitions()
     {
@@ -126,7 +126,7 @@ internal static partial class Program
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
             $"{EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount} words and " +
-            "all 38 Mother Brain/misc-dust programs plus the 25-word recursive hand-beam " +
+            "all 39 Mother Brain/misc-dust programs plus the 25-word recursive hand-beam " +
             "program pass with mechanics and callback reads forbidden.");
     }
 
@@ -312,6 +312,53 @@ internal static partial class Program
             [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
         AssertTrue(!handBeam.IsActive,
             "hand-beam charge deletes on the frame after its exact 39-frame lifetime");
+
+        RoomEnemySystem ringEnemies = CreateRoomEnemySystem();
+        var ringBody = new RoomEnemySlot(0);
+        var ringHead = new RoomEnemySlot(1)
+        {
+            XPosition = 0x0080,
+            YPosition = 0x0060,
+        };
+        var ringState = new MotherBrainEnemyState(ringBody)
+        {
+            Head = ringHead,
+        };
+        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+            .SetValue(ringEnemies, ringState);
+        MethodInfo spawnRingMethod = typeof(RoomEnemySystem).GetMethod(
+            "SpawnMotherBrainOnionRing",
+            instanceFlags)!;
+        spawnRingMethod.Invoke(ringEnemies, [ringState, (byte)0]);
+        RoomEnemyProjectileSlot ring = ringEnemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing);
+        for (int frame = 0; frame < 52; frame++)
+            processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+        AssertEqual(6, ring.XRadius,
+            "real room onion ring reaches its compiled final X radius");
+        AssertEqual(6, ring.YRadius,
+            "real room onion ring reaches its compiled final Y radius");
+        processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+        AssertEqual(0xc462, ring.InstructionPointer,
+            "real room onion ring sleeps at its authored initial-program terminal");
+
+        ring.InstructionPointer =
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingTouch;
+        ring.InstructionTimer = 1;
+        ring.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsOnionRings;
+        ring.GraphicsIndex = 0x0400;
+        for (int frame = 0; frame < 30; frame++)
+            processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+        AssertTrue(ring.IsActive,
+            "onion-ring impact survives all six exact five-frame stages");
+        AssertEqual(0, ring.GraphicsIndex,
+            "onion-ring impact's duplicate native opcode selects palette zero");
+        AssertEqual(EnemyProjectileCodePointers.RTS_868170, ring.PreInstruction,
+            "onion-ring impact clears its movement pre-instruction");
+        processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+        AssertTrue(!ring.IsActive,
+            "onion-ring impact deletes on the frame after its exact 30-frame lifetime");
 
         VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDrool, 0x007f);
         VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080);

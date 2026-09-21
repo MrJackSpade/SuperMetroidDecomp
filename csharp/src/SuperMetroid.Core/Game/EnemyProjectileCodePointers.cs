@@ -436,6 +436,9 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>Instruction_EnemyProjectile_UsePalette0</c> at $86:C1B4. First instruction of the shared touch/shot smoke sequence.</summary>
     public const ushort Instruction_EnemyProjectile_UsePalette0 = 0xc1b4;
 
+    /// <summary><c>Instruction_EnemyProjectile_UsePalette0_duplicate</c> at $86:C42E. Mother Brain onion-ring impact switches to palette zero.</summary>
+    public const ushort Instruction_EnemyProjectile_UsePalette0_Duplicate = 0xc42e;
+
     /// <summary><c>Instruction_EnemyProj_MotherBrainsDrool_MoveDownCPixels</c> at $86:C8D0. After changing to the falling pre-instruction, the list lowers the</summary>
     public const ushort Instruction_EnemyProj_MotherBrainsDrool_MoveDownCPixels = 0xc8d0;
 

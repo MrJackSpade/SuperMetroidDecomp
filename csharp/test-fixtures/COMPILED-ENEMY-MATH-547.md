@@ -2857,8 +2857,8 @@ and executes every program with the mechanics source bytes forbidden.
 
 # Mother Brain and misc-dust projectile instruction mechanics
 
-The bounded mechanics half of 38 bank-$86 enemy-projectile programs now lives in
-`EnemyProjectileInstructionMechanicsDefinitions`. Its 298 compiled words cover Mother
+The bounded mechanics half of 39 bank-$86 enemy-projectile programs now lives in
+`EnemyProjectileInstructionMechanicsDefinitions`. Its 307 compiled words cover Mother
 Brain's blue rings, bombs, rainbow-beam charging, attached and falling drool, purple breath,
 escape-door fragments and subtitle plus all
 thirty shared misc-dust programs. Durations, opcodes, branch targets and packed collision
@@ -2870,8 +2870,8 @@ shared translated handler previously accepted only clear-pre-instruction and del
 handler now performs the native same-bank goto instead of failing when that authored
 program reaches its terminal command.
 
-Verification compares all 298 mechanics words with the pinned cartridge, runs every one
-of the 38 programs through production code while their source bytes are forbidden, rejects
+Verification compares all 307 mechanics words with the pinned cartridge, runs every one
+of the 39 programs through production code while their source bytes are forbidden, rejects
 a restored pointer outside the bounded domain, and proves warmed lookups allocate nothing.
 
 The ordinary room-projectile interpreter now routes both Eye Door smoke and shared
@@ -2888,6 +2888,13 @@ lifetime. The real rainbow-impact producer also proves its signed placement and 
 18-frame lifetime through the compiled `$86:E152` misc-explosion program. This closes
 another integration gap between the previously covered Mother Brain projectile pool and
 the general room projectile pool.
+
+The ordinary room onion-ring producer now shares the catalog's existing compiled six-radius
+growth list and adds the complete `$86:C464` generic-contact impact program. Guarded
+execution exposed that the interpreter still read the packed radius operand directly even
+when the opcode itself came from the catalog; owner-aware lookup now covers both. The real
+producer reaches radius six and terminal sleep, and the impact regression proves palette
+zero, movement cancellation, six exact five-frame maps and frame-31 deletion.
 
 The recursive Mother Brain hand beam has its own strict
 `MotherBrainHandBeamInstructionProgramDefinitions` owner. Its 25 fixed durations, external-

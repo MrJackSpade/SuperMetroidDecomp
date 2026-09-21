@@ -3681,3 +3681,20 @@ four loops and both real zero-crossing handoffs while private and shared mechani
 forbidden, observes every live spritemap operand, and proves the shared shot-list deletion.
 Presentation and adjacent initializer code fail as mechanics; warmed lookup remains
 allocation-free.
+
+# Eye Door projectile instruction mechanics
+
+The Eye Door's aimed attack, steady flying loop, wall/door-bit impact, and shot programs
+now resolve all nineteen fixed durations, setup callbacks, callback operand, gotos, loop
+targets, and terminal deletes through
+`EyeDoorProjectileInstructionProgramDefinitions`. Their eleven interleaved spritemap
+operands remain live cartridge presentation data. Generic pre-instruction installation now
+resolves its operand through the projectile owner, matching the already owner-aware goto
+path. The separate Eye Door sweat program remains outside this owner.
+
+Verification compares every mechanics word with the pinned cartridge and executes the
+complete aimed setup, flying loop, real opened-door impact handoff, impact deletion, and
+shot deletion while every mechanics byte is forbidden. It observes all eleven spritemap
+operands, rejects presentation and the adjacent sweat program as mechanics, and proves
+warmed lookup is allocation-free. The existing constructed Eye Door test now advances the
+native compiled setup cadence instead of installing a shortened mechanics override.

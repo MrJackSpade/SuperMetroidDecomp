@@ -146,7 +146,7 @@ public sealed partial class RoomEnemySystem
         {
             SetEyeDoorEffectImpactList(
                 projectile,
-                EyeDoorEnemyProjectileRomData.ProjectileImpactInstructionList);
+                EyeDoorProjectileInstructionProgramDefinitions.Impact);
             return;
         }
 
@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
         {
             SetEyeDoorEffectImpactList(
                 projectile,
-                EyeDoorEnemyProjectileRomData.ProjectileImpactInstructionList);
+                EyeDoorProjectileInstructionProgramDefinitions.Impact);
         }
     }
 

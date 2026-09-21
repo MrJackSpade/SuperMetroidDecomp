@@ -1570,9 +1570,9 @@ public sealed partial class RoomEnemySystem
                     projectile.InstructionTimer = 0;
                     return;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY:
-                    projectile.PreInstruction = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
+                        unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CalculateDirectionTowardsSamus:
@@ -1956,6 +1956,11 @@ public sealed partial class RoomEnemySystem
         if (projectile.Kind == RoomEnemyProjectileKind.DragonFireball)
         {
             return DragonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile)
+        {
+            return EyeDoorProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);

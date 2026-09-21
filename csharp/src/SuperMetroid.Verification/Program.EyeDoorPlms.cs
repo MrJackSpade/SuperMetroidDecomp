@@ -22,7 +22,6 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         bus.WriteBytes(0xa19600, [0xff, 0xff]);
-        SeedEyeDoorEnemyProjectileRom(bus);
         RoomLevelData level = CreateRoom(
             16,
             16,
@@ -59,7 +58,8 @@ internal static partial class Program
             "eye-door attack initializer applies cartridge PLM X offset");
         AssertEqual((ushort)80, attack.YPosition,
             "eye-door attack initializer applies cartridge PLM Y offset");
-        enemies.StepEnemyProjectiles(level, samus);
+        for (int frame = 0; frame < 10; frame++)
+            enemies.StepEnemyProjectiles(level, samus);
         AssertEqual((ushort)0x0080, attack.Variable0,
             "direction opcode stores twice the rightward byte angle");
         AssertEqual((ushort)0x0100, attack.XVelocity,
@@ -68,9 +68,9 @@ internal static partial class Program
             "direction opcode seeds zero Y velocity for a level target");
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual(EyeDoorEnemyProjectileRomData.SmokeInertPreInstruction,
+        AssertEqual(EnemyProjectileCodePointers.RTS_868170,
             attack.PreInstruction,
-            "opened door switches attack into its impact animation");
+            "opened door impact executes its native clear-pre-instruction command");
 
         enemies.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
@@ -300,24 +300,6 @@ internal static partial class Program
             0xb4, 0x86,
         ]);
         WriteWord(bus, 0x840000 | openedTarget, RoomPlmInstructionCodes.Delete);
-    }
-
-    private static void SeedEyeDoorEnemyProjectileRom(TestAddressSpace bus)
-    {
-        // Enemy-projectile headers are compiled definition data. Install a minimal program
-        // at the real eye-door attack list selected by that catalog; the fixture still owns
-        // replaceable frame timing and art.
-        bus.WriteBytes(0x86b5d9, [
-            0x61, 0x81, 0xb9, 0xb6,
-            0xa5, 0x82,
-            0x10, 0x00, 0x00, 0x80,
-        ]);
-        bus.WriteBytes(0x86b5f3, [0x10, 0x00, 0x00, 0x80]);
-
-        // Rightward angle $40 reads sine[$40] for X and sine[$00] for Y.
-        WriteWord(bus, EnemyRomTablePointers.Common.SignedSineCosineWords, 0);
-        WriteWord(bus, EnemyRomTablePointers.Common.SignedSineCosineWords + 0x80, 0x0100);
-
     }
 
     private static void StepEyeDoorPlms(

@@ -67,6 +67,16 @@ if (args is ["--dragon-fireball-instruction-mechanics"])
     VerifyDragonFireballInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--eye-door-projectile-instruction-mechanics"])
+{
+    VerifyEyeDoorProjectileInstructionProgramDefinitions();
+    return 0;
+}
+if (args is ["--eye-door-plms"])
+{
+    VerifyEyeDoorPlms();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

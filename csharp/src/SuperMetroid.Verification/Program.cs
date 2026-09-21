@@ -52,6 +52,11 @@ if (args is ["--falling-spark-instruction-mechanics"])
     VerifyFallingSparkInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--fune-namihe-fireball-instruction-mechanics"])
+{
+    VerifyFuneNamiheFireballInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

@@ -1933,6 +1933,14 @@ public sealed partial class RoomEnemySystem
             return FallingSparkInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind is
+            RoomEnemyProjectileKind.FuneFireball or
+            RoomEnemyProjectileKind.NamiheFireball)
+        {
+            return FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

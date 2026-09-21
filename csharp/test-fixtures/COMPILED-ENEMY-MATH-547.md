@@ -3636,3 +3636,16 @@ Verification compares every mechanics word with the pinned cartridge, executes t
 falling loop and all eleven impact blink frames with every mechanics byte forbidden, and
 observes every presentation operand through the live bus. Presentation and adjacent
 initializer pointers fail as mechanics, and warmed lookup remains allocation-free.
+
+# Fune/Namihe fireball instruction mechanics
+
+Both directional Fune/Namihe fireball loops now resolve all ten fixed durations, goto
+commands, and loop targets through `FuneNamiheFireballInstructionProgramDefinitions`.
+Their six interleaved spritemap operands remain live cartridge presentation data. The
+projectile definitions and the shared initializer's directional handoff use the same named
+program entries.
+
+Verification compares every mechanics word with the pinned cartridge and executes both
+directions for both species with every mechanics byte forbidden. It observes all six live
+spritemap operands, rejects presentation and adjacent velocity-table pointers as mechanics,
+and proves warmed lookup is allocation-free.

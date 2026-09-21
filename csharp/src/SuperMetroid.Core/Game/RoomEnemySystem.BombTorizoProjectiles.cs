@@ -525,7 +525,7 @@ public sealed partial class RoomEnemySystem
         if (impact)
         {
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.GoldenTorizoSuperMissileImpact;
+                GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact;
             projectile.InstructionTimer = 1;
             return;
         }

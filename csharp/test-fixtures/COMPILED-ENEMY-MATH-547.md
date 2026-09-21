@@ -4341,3 +4341,20 @@ loop, real synthetic-floor collision, the 26/24-frame facing-specific break path
 shared 20-frame shot break. Exact RNG consumption, every private presentation read,
 strict rejection, and allocation-free warmed lookup pass with all mechanics bytes
 forbidden.
+
+# Golden Torizo reflected-Super-Missile instruction mechanics
+
+Golden Torizo's reflected Super Missile now resolves all forty-three fixed durations, aim
+callbacks, thrown-callback install, branches, radius/property operands, and deletion
+through `GoldenTorizoSuperMissileInstructionProgramDefinitions`. Its twenty-four
+interleaved spritemap operands remain live cartridge presentation data and the packed
+impact sound ID remains owned by the separate audio seam. The existing facing selector,
+projectile definition, collision handoff, and shot path now use the same named program
+catalog.
+
+Verification compares every mechanics word with the pinned cartridge and invokes both
+real facing producers through the 48-frame held pose, opposite aim callbacks, and complete
+sixteen-frame flight loops. A synthetic solid wall exercises the production movement
+collision and proves the shared shot/impact program's radius, collision/property,
+priority, thirty-frame lifetime, and deletion. Every presentation read, strict rejection,
+and allocation-free warmed lookup pass with all mechanics bytes forbidden.

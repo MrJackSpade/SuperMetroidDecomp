@@ -1332,6 +1332,17 @@ shared shot break with mechanics bytes forbidden. Exact ROM parity, launch RNG c
 every private presentation read, strict rejection, and allocation-free warmed lookup are
 verified.
 
+## Golden Torizo reflected-Super-Missile instruction mechanics
+
+Golden Torizo's reflected Super Missile now compiles forty-three fixed control words while
+retaining twenty-four spritemap operands and one packed impact sound ID as live
+presentation/audio data. Both real facing producers execute through their held pose,
+opposite aim callbacks, thrown-callback install, and complete sixteen-frame flight loops.
+A synthetic solid wall exercises the real collision handoff and the definition's shot path
+shares that same compiled six-pose impact. Exact radii/property changes, lifetime, ROM
+parity, every presentation read, strict rejection, and allocation-free warmed lookup are
+verified with mechanics bytes forbidden.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

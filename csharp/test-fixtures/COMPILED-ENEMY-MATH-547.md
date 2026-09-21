@@ -3995,6 +3995,19 @@ every bubble lifecycle with private/shared mechanics reads forbidden. It proves 
 flicker formats, counted phase boundaries, private and shared deletion, every presentation
 read, invalid-address rejection, and allocation-free warmed lookup.
 
+# Mother Brain ceiling-tube instruction mechanics
+
+Mother Brain's four falling ceiling-tube actors now resolve their one-frame duration and
+terminal sleep through `MotherBrainTopTubeInstructionProgramDefinitions`. Their four
+distinct spritemap operands remain live cartridge presentation data, and shot reactions
+reach the independently compiled shared delete program.
+
+Verification compares all eight mechanics words with the pinned cartridge, invokes all
+four real fake-death producers with their authored positions, and executes every pose and
+terminal sleep plus shared deletion with mechanics reads forbidden. It observes every
+presentation operand, rejects neighboring definition data, and proves warmed lookup is
+allocation-free.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

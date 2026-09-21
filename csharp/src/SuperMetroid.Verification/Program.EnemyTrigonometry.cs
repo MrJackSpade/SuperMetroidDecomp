@@ -59,6 +59,7 @@ internal static partial class Program
         VerifySaveStationElectricityInstructionProgramDefinitions(rom);
         VerifyDownwardGateProjectileInstructionProgramDefinitions(rom);
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
+        VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);
         VerifyGunshipDustInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);

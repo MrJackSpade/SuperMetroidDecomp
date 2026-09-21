@@ -129,10 +129,18 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.MotherBrainDrool => new(0xC843, 0xC84D, 0xC8B0, 0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainDyingDrool => new(0xC843, 0xC84D, 0xC8B0, 0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion => new(0xC92F, 0xC94C, 0xE152, 0x0101, 0x7000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainTopRightTube => new(0xCBC9, 0xCBE7, 0xCC43, 0x1008, 0x5000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainTopLeftTube => new(0xCBC9, 0xCBE7, 0xCC49, 0x1008, 0x5000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => new(0xCBC9, 0xCBE7, 0xCC4F, 0x1808, 0x5000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube => new(0xCBC9, 0xCBE7, 0xCC55, 0x1808, 0x5000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainTopRightTube => new(
+            0xCBC9, 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopRight,
+            0x1008, 0x5000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainTopLeftTube => new(
+            0xCBC9, 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopLeft,
+            0x1008, 0x5000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => new(
+            0xCBC9, 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleLeft,
+            0x1808, 0x5000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube => new(
+            0xCBC9, 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight,
+            0x1808, 0x5000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyFireball => new(
             0x93CA, 0x940E, CeresRidleyProjectileInstructionProgramDefinitions.Fireball,
             0x0606, 0x5003, 0x0000,

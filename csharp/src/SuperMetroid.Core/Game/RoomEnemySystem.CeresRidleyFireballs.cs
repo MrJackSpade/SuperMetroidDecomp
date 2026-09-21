@@ -1594,9 +1594,9 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case DownwardGateEnemyProjectileRomData.SetYVelocityInstruction:
-                    projectile.YVelocity = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    projectile.YVelocity = ReadEnemyProjectileInstructionMechanicsWord(
+                        projectile,
+                        unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
@@ -1982,6 +1982,12 @@ public sealed partial class RoomEnemySystem
         if (projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity)
         {
             return SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
+        if (DownwardGateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return DownwardGateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
         }
 

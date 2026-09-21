@@ -11,7 +11,8 @@ internal static class DownwardGateEnemyProjectileRomData
 
     /// <summary>Instruction <c>$86:E533</c>, which consumes one signed Y-velocity word.</summary>
     public const ushort SetYVelocityInstruction = 0xe533;
-    public const ushort ClosedSleepInstruction = 0xe566;
+    public const ushort ClosedSleepInstruction =
+        DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep;
 
     /// <summary>One block of accumulated 8.8 motion before advancing a sleeping list.</summary>
     public const ushort OneBlockDistance = 0x1000;

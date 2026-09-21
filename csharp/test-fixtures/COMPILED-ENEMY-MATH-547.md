@@ -3967,6 +3967,20 @@ displayed frames) through private deletion with mechanics reads forbidden. It al
 shared shot deletion, observes every presentation operand, rejects spritemap and initializer
 addresses as mechanics, and proves warmed lookup is allocation-free.
 
+# Downward-gate projectile instruction mechanics
+
+Both downward-gate actors now resolve their fixed velocity commands, movement-callback
+installation, one-frame durations, sleeps, callback clearing, and private deletion through
+`DownwardGateProjectileInstructionProgramDefinitions`. Their nine interleaved spritemap
+operands remain live cartridge presentation data, and shot reactions reach the independently
+compiled shared delete program.
+
+Verification compares all twenty-eight mechanics words with the pinned cartridge, invokes
+both real gate producers, and executes the complete four-stage downward close and upward open
+lifecycles with mechanics reads forbidden. It proves the resident closed handoff, exact
+sixteen-pixel stage boundaries, private and shared deletion, every presentation read,
+invalid-address rejection, and allocation-free warmed lookup.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

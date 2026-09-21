@@ -128,6 +128,18 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>Number of compiled mechanics words retained for exhaustive ROM comparison.</summary>
     internal static int NativeWordCount => MechanicsWords.Length;
 
+    /// <summary>
+    /// Returns whether the ordinary room-projectile pool owns a program compiled by this
+    /// shared Mother Brain/misc-dust catalog.
+    /// </summary>
+    internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
+        RoomEnemyProjectileKind.MotherBrainBomb or
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
+        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
+        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
+        RoomEnemyProjectileKind.EyeDoorSmoke or
+        RoomEnemyProjectileKind.MiscDustExplosion;
+
     /// <summary>Returns one of the thirty authored misc-dust program entry points.</summary>
     internal static ushort MiscDustInitialPointer(ushort animationIndex)
     {

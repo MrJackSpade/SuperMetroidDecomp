@@ -4036,6 +4036,18 @@ contact frame, private deletion, and shared shot deletion with mechanics reads f
 observes every presentation operand, rejects adjacent code and presentation data, and proves
 warmed lookup is allocation-free.
 
+# Shared Mother Brain room-projectile programs
+
+The ordinary eighteen-slot room-projectile interpreter now uses the existing compiled
+Mother Brain/misc-dust mechanics catalog for bombs, large purple breath, looping escape-door
+fragments, and the sleeping escape subtitle as well as Eye Door smoke and room dust. Their
+named initial programs replace duplicate raw pointers in the projectile definition catalog.
+
+The shared verifier runs the same authored programs through both the dedicated Mother Brain
+projectile pool and the ordinary room-projectile pool while every compiled mechanics byte is
+forbidden at the bus. It proves both bomb and fragment loops, purple-breath deletion, subtitle
+sleep, all thirty dust selections, and Eye Door smoke deletion use the compiled owner.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

@@ -131,11 +131,19 @@ internal static class EnemyProjectileDefinitionCatalog
             0xCE6D, 0x84FB, MotherBrainGlassInstructionProgramDefinitions.Sparkle,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainOnionRing => new(0xC2F3, 0xC335, 0xC432, 0x0606, 0x3050, 0xC464, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainBomb => new(0xC482, 0xC4C8, 0xC76E, 0x0606, 0x40A0, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainBomb => new(
+            0xC482, 0xC4C8,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial,
+            0x0606, 0x40A0, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainHandBeamCharging => new(0xC605, 0xC76D, 0xC796, 0x0606, 0x1190, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainHandBeamFired => new(0xC684, 0xC76D, 0xC796, 0x0606, 0x1190, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging => new(0xC80A, 0xC814, 0xC829, 0x0000, 0x7000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig => new(0xCA6A, 0xCAA3, 0xCAA4, 0x0000, 0x3000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig => new(
+            0xCA6A, 0xCAA3,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial,
+            0x0000, 0x3000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDrool => new(0xC843, 0xC84D, 0xC8B0, 0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainDyingDrool => new(0xC843, 0xC84D, 0xC8B0, 0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion => new(0xC92F, 0xC94C, 0xE152, 0x0101, 0x7000, 0x0000, 0x84FC),
@@ -384,8 +392,16 @@ internal static class EnemyProjectileDefinitionCatalog
             0xD774, 0x84FB, NoobTubeProjectileInstructionProgramDefinitions.ReleasedAirBubble,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDeathExplosion => new(0xC8F5, 0xC914, 0x0000, 0x0000, 0x2000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => new(0xC961, 0xC9D2, 0xCA22, 0x0000, 0x3000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => new(0xCAF6, 0xCAFA, 0xCB0D, 0x0000, 0x1000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => new(
+            0xC961, 0xC9D2,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainEscapeDoorFragmentInitial,
+            0x0000, 0x3000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => new(
+            0xCAF6, 0xCAFA,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainSubtitleInitial,
+            0x0000, 0x1000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         _ => throw new InvalidDataException(
             $"Enemy projectile definition $86:{(ushort)kind:X4} is not compiled."),
     };

@@ -2096,9 +2096,7 @@ public sealed partial class RoomEnemySystem
             return EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (projectile.Kind is
-            RoomEnemyProjectileKind.EyeDoorSmoke or
-            RoomEnemyProjectileKind.MiscDustExplosion)
+        if (EnemyProjectileInstructionMechanicsDefinitions.Owns(projectile.Kind))
         {
             return EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address);
         }

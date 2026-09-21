@@ -49,7 +49,7 @@ internal static partial class Program
         VerifyCompiledEscapeDoorProgram(guarded, motherBrain, samus);
         VerifyCompiledSubtitleProgram(guarded, motherBrain, samus);
         VerifyCompiledMiscDustPrograms(guarded, motherBrain, samus);
-        VerifyCompiledRoomMiscDustPrograms(guarded, samus);
+        VerifyCompiledRoomSharedPrograms(guarded, samus);
 
         var invalid = new MotherBrainEnemyProjectileSystem();
         int invalidSlotIndex = invalid.SpawnTimeBombSetSubtitle() ??
@@ -89,7 +89,7 @@ internal static partial class Program
     /// catalog audit alone cannot prove that Eye Door smoke and room-graphics dust use the
     /// compiled mechanics resolver.
     /// </summary>
-    private static void VerifyCompiledRoomMiscDustPrograms(
+    private static void VerifyCompiledRoomSharedPrograms(
         ISnesAddressSpace bus,
         SamusState samus)
     {
@@ -100,6 +100,10 @@ internal static partial class Program
         MethodInfo spawnDustMethod = typeof(RoomEnemySystem).GetMethod(
             "SpawnRoomGraphicsDustExplosion",
             instanceFlags)!;
+        var initialize = typeof(RoomEnemySystem).GetMethod(
+                "InitializeEnemyProjectileFromDefinition",
+                BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort>>();
 
         for (ushort animation = 0;
              animation < EnemyProjectileInstructionMechanicsDefinitions.MiscDustProgramCount;
@@ -144,6 +148,40 @@ internal static partial class Program
         RunForcedTicks(smokeEnemies, smoke, 7);
         AssertTrue(!smoke.IsActive,
             "Eye Door smoke reaches delete through the shared compiled mechanics owner");
+
+        RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
+        RoomEnemyProjectileSlot bomb = bombEnemies.EnemyProjectiles[^1];
+        initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, 0x0400);
+        RunForcedTicks(bombEnemies, bomb, 10);
+        AssertTrue(bomb.IsActive,
+            "room-system Mother Brain bomb survives its compiled animation loop");
+        AssertTrue(bomb.InstructionPointer is >= 0xc772 and <= 0xc792,
+            "room-system Mother Brain bomb remains inside its compiled loop");
+
+        RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
+        RoomEnemyProjectileSlot breath = breathEnemies.EnemyProjectiles[^1];
+        initialize(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, 0);
+        RunForcedTicks(breathEnemies, breath, 9);
+        AssertTrue(!breath.IsActive,
+            "room-system Mother Brain purple breath reaches compiled deletion");
+
+        RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
+        RoomEnemyProjectileSlot fragment = fragmentEnemies.EnemyProjectiles[^1];
+        initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, 0);
+        RunForcedTicks(fragmentEnemies, fragment, 9);
+        AssertTrue(fragment.IsActive,
+            "room-system Mother Brain escape fragment survives its compiled loop");
+        AssertTrue(fragment.InstructionPointer is >= 0xca26 and <= 0xca42,
+            "room-system Mother Brain escape fragment remains inside its compiled loop");
+
+        RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
+        RoomEnemyProjectileSlot subtitle = subtitleEnemies.EnemyProjectiles[^1];
+        initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, 0);
+        RunForcedTicks(subtitleEnemies, subtitle, 2);
+        AssertTrue(subtitle.IsActive,
+            "room-system Mother Brain escape subtitle survives compiled sleep");
+        AssertEqual(0xcb11, subtitle.InstructionPointer,
+            "room-system Mother Brain escape subtitle retains its sleep opcode");
 
         RoomEnemySystem CreateRoomEnemySystem()
         {

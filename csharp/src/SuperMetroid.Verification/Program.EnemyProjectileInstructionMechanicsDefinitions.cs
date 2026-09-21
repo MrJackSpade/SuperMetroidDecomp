@@ -1,5 +1,7 @@
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
@@ -47,6 +49,7 @@ internal static partial class Program
         VerifyCompiledEscapeDoorProgram(guarded, motherBrain, samus);
         VerifyCompiledSubtitleProgram(guarded, motherBrain, samus);
         VerifyCompiledMiscDustPrograms(guarded, motherBrain, samus);
+        VerifyCompiledRoomMiscDustPrograms(guarded, samus);
 
         var invalid = new MotherBrainEnemyProjectileSystem();
         int invalidSlotIndex = invalid.SpawnTimeBombSetSubtitle() ??
@@ -78,6 +81,92 @@ internal static partial class Program
             $"  Enemy-projectile instruction mechanics: " +
             $"{EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount} words and " +
             "all 35 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
+    }
+
+    /// <summary>
+    /// Exercises the same thirty shared programs through the ordinary room-projectile
+    /// interpreter. Mother Brain owns a separate slot pool and interpreter, so its complete
+    /// catalog audit alone cannot prove that Eye Door smoke and room-graphics dust use the
+    /// compiled mechanics resolver.
+    /// </summary>
+    private static void VerifyCompiledRoomMiscDustPrograms(
+        ISnesAddressSpace bus,
+        SamusState samus)
+    {
+        const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+        MethodInfo processMethod = typeof(RoomEnemySystem).GetMethod(
+            "ProcessEnemyProjectileInstructions",
+            instanceFlags)!;
+        MethodInfo spawnDustMethod = typeof(RoomEnemySystem).GetMethod(
+            "SpawnRoomGraphicsDustExplosion",
+            instanceFlags)!;
+
+        for (ushort animation = 0;
+             animation < EnemyProjectileInstructionMechanicsDefinitions.MiscDustProgramCount;
+             animation++)
+        {
+            RoomEnemySystem enemies = CreateRoomEnemySystem();
+            spawnDustMethod.Invoke(enemies, [(ushort)128, (ushort)96, animation]);
+            RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.Single(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
+
+            if (animation == 28)
+            {
+                RunForcedTicks(enemies, dust, 4);
+                AssertTrue(dust.IsActive,
+                    "room-system looping misc-dust animation remains active");
+                AssertTrue(dust.InstructionPointer is 0xe200 or 0xe204,
+                    "room-system looping misc-dust pointer remains in `$E1FC` program");
+                continue;
+            }
+
+            int calls = 0;
+            while (dust.IsActive && calls < 40)
+            {
+                RunForcedTicks(enemies, dust, 1);
+                calls++;
+            }
+            AssertTrue(!dust.IsActive,
+                $"room-system finite misc-dust animation {animation} reaches delete");
+        }
+
+        RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
+        smokeEnemies.SpawnEyeDoorProjectile(
+            new EyeDoorProjectileRequest(
+                EyeDoorEnemyProjectileRomData.SmokeDefinition,
+                Parameter: 3,
+                PlmBlockIndex: 4 * 16 + 7,
+                DoorBit: 0),
+            roomWidthInBlocks: 16,
+            new Bank80SystemState());
+        RoomEnemyProjectileSlot smoke = smokeEnemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
+        RunForcedTicks(smokeEnemies, smoke, 7);
+        AssertTrue(!smoke.IsActive,
+            "Eye Door smoke reaches delete through the shared compiled mechanics owner");
+
+        RoomEnemySystem CreateRoomEnemySystem()
+        {
+            var enemies = new RoomEnemySystem();
+            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
+            typeof(RoomEnemySystem).GetField("_readRandomNumber", instanceFlags)!
+                .SetValue(enemies, (Func<ushort>)(() => 0));
+            typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!
+                .SetValue(enemies, (Func<ushort>)(() => 0));
+            return enemies;
+        }
+
+        void RunForcedTicks(
+            RoomEnemySystem enemies,
+            RoomEnemyProjectileSlot projectile,
+            int count)
+        {
+            for (int tick = 0; tick < count; tick++)
+            {
+                projectile.InstructionTimer = 1;
+                processMethod.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+            }
+        }
     }
 
     private static void VerifyCompiledBlueRingProgram(

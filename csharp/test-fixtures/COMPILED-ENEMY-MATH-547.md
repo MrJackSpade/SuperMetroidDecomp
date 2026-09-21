@@ -2873,6 +2873,13 @@ Verification compares all 275 mechanics words with the pinned cartridge, runs ev
 of the 35 programs through production code while their source bytes are forbidden, rejects
 a restored pointer outside the bounded domain, and proves warmed lookups allocate nothing.
 
+The ordinary room-projectile interpreter now routes both Eye Door smoke and shared
+room-graphics dust/explosions through this same catalog. Its regression separately drives
+all thirty dust variants through the real room-graphics producer, including the persistent
+two-frame loop, and advances a real Eye Door smoke spawn through deletion while every
+compiled mechanics byte remains forbidden. This closes the integration gap between the
+previously covered Mother Brain projectile pool and the general room projectile pool.
+
 # Spore Spawn instruction mechanics
 
 Spore Spawn's five mixed bank-$A5 programs now split engine behavior from presentation in

@@ -132,11 +132,6 @@ if (args is ["--enemy-projectile-instruction-owner-coverage"])
     VerifyEnemyProjectileInstructionOwnerCoverage();
     return 0;
 }
-if (args is ["--enemy-instruction-owner-boundary"])
-{
-    VerifyEnemyInstructionOwnerBoundary();
-    return 0;
-}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

@@ -4008,6 +4008,20 @@ terminal sleep plus shared deletion with mechanics reads forbidden. It observes 
 presentation operand, rejects neighboring definition data, and proves warmed lookup is
 allocation-free.
 
+# Mother Brain glass-projectile instruction mechanics
+
+Mother Brain's eight glass-shard loops and finite sparkle animation now resolve their
+durations, loop targets, and deletion through
+`MotherBrainGlassInstructionProgramDefinitions`. The shard selector used by the real PLM
+producer shares those named program definitions, while all 68 spritemap operands remain
+live cartridge presentation data.
+
+Verification compares all 85 mechanics words with the pinned cartridge, drives the real
+PLM-to-shard producer into every unique loop, invokes the real child-sparkle producer, and
+executes every frame, loop, private deletion, and shared shot deletion with mechanics reads
+forbidden. It observes every presentation operand, rejects neighboring data, and proves
+warmed lookup is allocation-free.
+
 # Gunship liftoff-dust instruction mechanics
 
 The gunship's six liftoff-dust actors now resolve their timer initialization, frame

@@ -118,8 +118,12 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0808, 0x1080, 0x0000, 0xE138),
         RoomEnemyProjectileKind.MotherBrainRoomTurret => new(0xBE4F, 0xBFDF, 0xC10D, 0x0000, 0x6000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet => new(0xBF59, 0xC0E0, 0xC131, 0x0303, 0x4014, 0xC19A, 0xC19A),
-        RoomEnemyProjectileKind.MotherBrainGlassShard => new(0xCDC5, 0xCE9B, 0xCC93, 0x0000, 0x3000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainGlassSparkle => new(0xCE6D, 0x84FB, 0xCDB3, 0x0000, 0x3000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainGlassShard => new(
+            0xCDC5, 0xCE9B, MotherBrainGlassInstructionProgramDefinitions.ShardGroup0,
+            0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainGlassSparkle => new(
+            0xCE6D, 0x84FB, MotherBrainGlassInstructionProgramDefinitions.Sparkle,
+            0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainOnionRing => new(0xC2F3, 0xC335, 0xC432, 0x0606, 0x3050, 0xC464, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainBomb => new(0xC482, 0xC4C8, 0xC76E, 0x0606, 0x40A0, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainHandBeamCharging => new(0xC605, 0xC76D, 0xC796, 0x0606, 0x1190, 0x0000, 0x84FC),

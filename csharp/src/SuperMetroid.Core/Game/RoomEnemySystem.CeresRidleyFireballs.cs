@@ -2001,6 +2001,11 @@ public sealed partial class RoomEnemySystem
             return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (MotherBrainGlassInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)
         {
             return GunshipDustInstructionProgramDefinitions.ReadMechanicsWord(address);

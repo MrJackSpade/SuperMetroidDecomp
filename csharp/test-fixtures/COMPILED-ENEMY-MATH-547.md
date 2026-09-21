@@ -4374,3 +4374,16 @@ floor collisions exercise the production movement callback, exact impact alignme
 twenty-frame wall burst, disabled blank floor loop, enabled thirty-nine-frame explosion,
 collision transition, and deletion. Every presentation read, strict rejection, and
 allocation-free warmed lookup pass with all mechanics bytes forbidden.
+
+# Enemy-projectile instruction-owner completion guard
+
+The generic enemy-projectile instruction resolver no longer falls back to reading an
+uncatalogued mechanics word from bank $86. Every translated projectile identity must now
+route through a strict family catalog or the one-word shared delete program; an unknown
+identity/address pair fails explicitly without probing cartridge data.
+
+Verification enumerates the complete `RoomEnemyProjectileKind` domain, obtains every
+compiled definition, and resolves each nonzero initial, touch, and shot program entry with
+an address space that rejects every read. This is an entry-point completion certificate;
+the family-specific verifiers remain responsible for traversing each program's internal
+branches and presentation operands.

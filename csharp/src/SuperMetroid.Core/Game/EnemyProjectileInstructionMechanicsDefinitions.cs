@@ -200,6 +200,20 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// </summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
+        if (TryReadMechanicsWord(address, out ushort value))
+            return value;
+
+        throw new InvalidDataException(
+            $"Bank-$86 projectile mechanics pointer ${address:X4} is outside the translated program domain.");
+    }
+
+    /// <summary>
+    /// Resolves a mechanics word by its global bank-$86 address. Misc-dust impact lists are
+    /// shared as touch/shot programs by projectile families whose private catalogs do not
+    /// own those addresses.
+    /// </summary>
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    {
         int low = 0;
         int high = MechanicsWords.Length - 1;
         while (low <= high)
@@ -207,15 +221,18 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
             int middle = low + ((high - low) >> 1);
             EnemyProjectileMechanicsWordDefinition candidate = MechanicsWords[middle];
             if (candidate.Address == address)
-                return candidate.Value;
+            {
+                value = candidate.Value;
+                return true;
+            }
             if (candidate.Address < address)
                 low = middle + 1;
             else
                 high = middle - 1;
         }
 
-        throw new InvalidDataException(
-            $"Bank-$86 projectile mechanics pointer ${address:X4} is outside the translated program domain.");
+        value = 0;
+        return false;
     }
 
     /// <summary>Returns one compiled address/value pair for exhaustive verification.</summary>

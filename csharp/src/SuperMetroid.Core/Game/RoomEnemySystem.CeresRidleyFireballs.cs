@@ -1934,7 +1934,7 @@ public sealed partial class RoomEnemySystem
             "Enemy projectile list did not reach a timed frame within 24 operations.");
     }
 
-    private ushort ReadEnemyProjectileInstructionMechanicsWord(
+    private static ushort ReadEnemyProjectileInstructionMechanicsWord(
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
@@ -1943,6 +1943,13 @@ public sealed partial class RoomEnemySystem
                 out ushort sharedWord))
         {
             return sharedWord;
+        }
+
+        if (EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord(
+                address,
+                out ushort sharedImpactWord))
+        {
+            return sharedImpactWord;
         }
 
         if (KraidRockProjectileInstructionProgramDefinitions.Owns(projectile.Kind, address))
@@ -2212,7 +2219,9 @@ public sealed partial class RoomEnemySystem
             return GoldenTorizoEyeBeamInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
+        throw new InvalidDataException(
+            $"Enemy projectile {projectile.Kind} reached uncompiled bank-$86 mechanics " +
+            $"pointer ${address:X4}.");
     }
 
     /// <summary>

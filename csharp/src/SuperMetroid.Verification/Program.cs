@@ -127,6 +127,11 @@ if (args is ["--golden-torizo-eye-beam-instruction-mechanics"])
     VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--enemy-projectile-instruction-owner-coverage"])
+{
+    VerifyEnemyProjectileInstructionOwnerCoverage();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

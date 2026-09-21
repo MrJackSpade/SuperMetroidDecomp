@@ -1353,6 +1353,16 @@ handoffs, exact floor alignment, twenty-frame wall burst, disabled blank floor l
 enabled thirty-nine-frame damaging explosion. ROM parity, every presentation read, strict
 rejection, and allocation-free warmed lookup are verified with mechanics bytes forbidden.
 
+## Enemy-projectile instruction-owner completion guard
+
+The ordinary bank-$86 enemy-projectile instruction resolver no longer contains a generic
+ROM fallback. Every translated projectile definition's nonzero initial, touch, and shot
+entry resolves through its family catalog or the compiled shared delete program while a
+read-forbidden address space is installed. Unknown identities and pointers now fail
+explicitly without probing cartridge data. Family-specific traversal tests remain the
+proof for internal branches and live presentation operands; this guard proves definition
+entry coverage and prevents new projectile kinds from silently restoring the fallback.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

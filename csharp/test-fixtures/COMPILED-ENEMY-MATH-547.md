@@ -3842,3 +3842,17 @@ Verification compares every mechanics word with the pinned cartridge, invokes bo
 directional Stoke producers, and drives complete two-frame loops plus shared shot deletion
 with mechanics reads forbidden. It also observes both live presentation operands, rejects
 adjacent initializer data, and proves warmed lookup is allocation-free.
+
+# Nuclear Waffle projectile instruction mechanics
+
+Nuclear Waffle/Puromi's four damaging articulated body links now resolve their fourteen
+fixed duration, goto, and loop-target words through
+`NuclearWaffleProjectileInstructionProgramDefinitions`. Their twelve interleaved
+spritemap operands remain live cartridge presentation data, and the projectile definition
+uses the independently compiled shared delete program.
+
+Verification compares every mechanics word with the pinned cartridge, initializes a real
+Nuclear Waffle through the production initializer, and drives all four projectile links
+through complete twelve-frame loops plus shared deletion with mechanics reads forbidden.
+It also observes all twelve live presentation operands, rejects adjacent spritemap and
+initializer data, and proves warmed lookup is allocation-free.

@@ -1969,6 +1969,12 @@ public sealed partial class RoomEnemySystem
             return StokeProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.NuclearWaffleBody)
+        {
+            return NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(

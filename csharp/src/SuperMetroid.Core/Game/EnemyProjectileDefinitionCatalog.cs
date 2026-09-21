@@ -148,7 +148,9 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0005,
             0x0000,
             0x84FC),
-        RoomEnemyProjectileKind.NuclearWaffleBody => new(0xBB92, 0xBBC6, 0xBB5E, 0x0808, 0xC040, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.NuclearWaffleBody => new(
+            0xBB92, 0xBBC6, NuclearWaffleProjectileInstructionProgramDefinitions.Initial,
+            0x0808, 0xC040, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.FakeKraidSpit => new(
             0x9DEC, 0x9E1E, FakeKraidProjectileInstructionProgramDefinitions.Spit,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

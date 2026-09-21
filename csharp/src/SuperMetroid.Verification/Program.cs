@@ -122,6 +122,11 @@ if (args is ["--stoke-projectile-instruction-mechanics"])
     VerifyStokeProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--nuclear-waffle-projectile-instruction-mechanics"])
+{
+    VerifyNuclearWaffleProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

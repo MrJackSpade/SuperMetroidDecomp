@@ -3547,3 +3547,16 @@ seventeen selector-reachable programs while every mechanics byte is forbidden. I
 asserts physical radius changes, spit-frame publication, sound, sleep boundaries, and
 all live presentation reads. The two selector-skipped horizontal records and adjacent
 non-head program are deliberately rejected; warmed lookup is allocation-free.
+
+# Kraid belly-lint instruction mechanics
+
+Kraid's three belly-lint actors now resolve both their initial and post-growth static
+poses through `KraidLintInstructionProgramDefinitions`. Four fixed duration/sleep words
+are compiled mechanics; the two interleaved extended-spritemap operands remain live
+cartridge presentation data. Initialization and Kraid's growth handoff share the named
+program entries.
+
+Verification compares every mechanics word with the pinned cartridge and forces all
+three physical lint definitions through both production programs while every mechanics
+byte is forbidden. Both presentation reads remain observable, the adjacent foot program
+is rejected as lint mechanics, and warmed lookup is allocation-free.

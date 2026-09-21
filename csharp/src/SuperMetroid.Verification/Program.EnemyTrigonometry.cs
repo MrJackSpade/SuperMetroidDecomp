@@ -93,6 +93,7 @@ internal static partial class Program
         VerifyKraidNailInstructionProgramDefinitions(rom);
         VerifyKraidArmInstructionProgramDefinitions(rom);
         VerifyKraidFootInstructionProgramDefinitions(rom);
+        VerifyKraidLintInstructionProgramDefinitions(rom);
         VerifyPhantoonInstructionProgramDefinitions(rom);
         VerifyWorkRobotInstructionProgramDefinitions(rom);
         VerifyYardInstructionProgramDefinitions(rom);

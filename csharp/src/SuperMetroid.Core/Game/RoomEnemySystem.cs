@@ -3561,6 +3561,14 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == BotwoonDefinition)
             return BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
+        if (slot.EnemyDefinitionPointer is
+            KraidTopLintDefinition or
+            KraidMiddleLintDefinition or
+            KraidBottomLintDefinition)
+        {
+            return KraidLintInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (slot.EnemyDefinitionPointer == CrocomireTongueDefinition)
             return CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address);
 

@@ -322,6 +322,11 @@ if (args is ["--botwoon-instruction-mechanics"])
     VerifyBotwoonInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--kraid-lint-instruction-mechanics"])
+{
+    VerifyKraidLintInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--ceres-elevator-arrival-definitions"])
 {
     VerifyCeresElevatorArrivalGraphicsIndex();

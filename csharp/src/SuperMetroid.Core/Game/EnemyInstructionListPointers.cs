@@ -119,9 +119,9 @@ internal static class RidleyInstructionLists
 internal static class KraidLintInstructionLists
 {
     /// <summary>Initial lint list at $A7:8AFE.</summary>
-    public const ushort InitialLint = 0x8afe;
+    public const ushort InitialLint = KraidLintInstructionProgramDefinitions.Initial;
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>
-    public const ushort Ilist_8B04 = 0x8b04;
+    public const ushort Ilist_8B04 = KraidLintInstructionProgramDefinitions.PostGrowth;
 }
 
 /// <summary>Named bank-$A2 instruction opcodes used by Rio.</summary>

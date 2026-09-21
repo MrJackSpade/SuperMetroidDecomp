@@ -87,6 +87,11 @@ if (args is ["--kraid-rock-projectile-instruction-mechanics"])
     VerifyKraidRockProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--fake-kraid-projectile-instruction-mechanics"])
+{
+    VerifyFakeKraidProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

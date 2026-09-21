@@ -135,9 +135,15 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0000,
             0x84FC),
         RoomEnemyProjectileKind.NuclearWaffleBody => new(0xBB92, 0xBBC6, 0xBB5E, 0x0808, 0xC040, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.FakeKraidSpit => new(0x9DEC, 0x9E1E, 0x9DDA, 0x0404, 0x0014, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.FakeKraidSpikeLeft => new(0x9E46, 0x9E83, 0x9DE0, 0x0204, 0x0006, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.FakeKraidSpikeRight => new(0x9E4B, 0x9E83, 0x9DE6, 0x0204, 0x0006, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.FakeKraidSpit => new(
+            0x9DEC, 0x9E1E, FakeKraidProjectileInstructionProgramDefinitions.Spit,
+            0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.FakeKraidSpikeLeft => new(
+            0x9E46, 0x9E83, FakeKraidProjectileInstructionProgramDefinitions.SpikeLeft,
+            0x0204, 0x0006, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.FakeKraidSpikeRight => new(
+            0x9E4B, 0x9E83, FakeKraidProjectileInstructionProgramDefinitions.SpikeRight,
+            0x0204, 0x0006, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KiHunterAcidSpitLeft => new(0xCF90, 0xCFF7, 0xCF34, 0x0802, 0x0014, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.KiHunterAcidSpitRight => new(0xCFA6, 0xCFF7, 0xCF6E, 0x0802, 0x0014, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.PirateMotherBrainLaser => new(0xA009, 0xA05C, 0x9F41, 0x0410, 0x100A, 0x0000, 0x84FC),

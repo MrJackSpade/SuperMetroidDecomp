@@ -3751,3 +3751,15 @@ real Kraid-rock producers plus the real Kago-bug producer with mechanics reads f
 It proves both terminal sleeps, the full five-frame spit-rock shot explosion, shared shot
 deletion, every live spritemap read, owner/address boundaries, invalid-pointer rejection,
 and allocation-free warmed lookup.
+
+# Fake Kraid projectile instruction mechanics
+
+Fake Kraid's spit and left/right spike projectiles now resolve their six fixed duration and
+sleep words through `FakeKraidProjectileInstructionProgramDefinitions`. Their three
+interleaved spritemap operands remain live cartridge presentation data, while all three
+shot reactions use the independently compiled shared delete program.
+
+Verification compares every mechanics word with the pinned cartridge and drives the real
+spit producer plus both directional spike producers through their terminal sleeps with
+mechanics reads forbidden. It proves shared shot deletion, every live spritemap read,
+invalid-pointer rejection, and allocation-free warmed lookup.

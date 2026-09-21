@@ -1934,6 +1934,11 @@ public sealed partial class RoomEnemySystem
             return KraidRockProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(

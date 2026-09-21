@@ -4162,3 +4162,19 @@ production definition path, and executes every program through deletion with mec
 bytes forbidden. It verifies the exact random offsets, four- and six-pose lifetimes, the
 Tourian actor's 64 four-pose cycles and 257th-tick deletion, every presentation read,
 strict pointer rejection, and allocation-free warmed lookup.
+
+# Tourian entrance-statue projectile instruction mechanics
+
+All eight Tourian entrance-statue projectile families now resolve fifty-eight fixed
+durations, callbacks, displacements, branches, loop targets, and deletions through
+`TourianStatueProjectileInstructionProgramDefinitions`. Their twenty-eight interleaved
+spritemap operands remain live cartridge presentation data. The particle-tail Y-offset
+instruction now obtains each displacement through the owner's compiled mechanics resolver
+instead of bypassing it with a raw ROM read.
+
+Verification compares every mechanics word with the pinned cartridge and executes the real
+eye-glow, particle, tail, splash, soul, base-decoration, Ridley, and Phantoon actors. It
+proves the four-particle/earthquake release, the cartridge's unset-timer FFFF wrap, all
+three tail displacements, stable statue loops, private deletion list, every presentation
+read, strict pointer rejection, and allocation-free warmed lookup while mechanics bytes
+are forbidden.

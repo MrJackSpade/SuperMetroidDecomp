@@ -2139,6 +2139,12 @@ public sealed partial class RoomEnemySystem
             return ChozoTourianDustInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return TourianStatueProjectileInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

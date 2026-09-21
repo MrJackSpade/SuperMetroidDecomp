@@ -114,7 +114,9 @@ public sealed partial class RoomEnemySystem
                 EarthquakeTimer |= 0x20;
                 break;
             case TourianStatueRomData.AddY:
-                projectile.YPosition += ReadWord(_bus!, TourianStatueRomData.ProjectileBank | (cursor + 2));
+                projectile.YPosition += ReadEnemyProjectileInstructionMechanicsWord(
+                    projectile,
+                    unchecked((ushort)(cursor + 2)));
                 cursor += 2;
                 break;
             default: return false;

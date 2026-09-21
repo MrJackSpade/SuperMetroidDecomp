@@ -62,6 +62,11 @@ if (args is ["--chozo-tourian-dust-instruction-mechanics"])
     VerifyChozoTourianDustInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--tourian-statue-projectile-instruction-mechanics"])
+{
+    VerifyTourianStatueProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

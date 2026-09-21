@@ -1236,6 +1236,16 @@ conversion frames and through tail deletion with mechanics bytes forbidden; cart
 parity, sounds, callback effects, every presentation read, strict rejection, and
 allocation-free warmed lookup are verified.
 
+## Tourian entrance-statue projectile instruction mechanics
+
+All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed
+control words while retaining twenty-eight spritemap operands as live presentation data.
+The actual eye release, particles, tails, splash, soul, base decoration, Ridley, and
+Phantoon actors execute through their native loops and deletion paths with mechanics bytes
+forbidden. The particle-tail Y displacements now use the owner resolver too. Exact ROM
+parity, callback effects, timer wrap, every presentation read, strict rejection, and
+allocation-free warmed lookup are verified.
+
 ## Enemy-pickup instruction mechanics
 
 All five live bank-$86 enemy-pickup animation programs now compile their thirty fixed

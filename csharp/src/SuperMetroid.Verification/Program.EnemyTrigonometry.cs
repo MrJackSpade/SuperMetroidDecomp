@@ -41,6 +41,7 @@ internal static partial class Program
         VerifySkreeMetareeParticleInstructionProgramDefinitions(rom);
         VerifyKraidRockProjectileInstructionProgramDefinitions(rom);
         VerifyFakeKraidProjectileInstructionProgramDefinitions(rom);
+        VerifyAlcoonFireballInstructionProgramDefinitions(rom);
         VerifyCacatacInstructionProgramDefinitions(rom);
         VerifyMagdolliteInstructionProgramDefinitions(rom);
         VerifyKiHunterInstructionProgramDefinitions(rom);

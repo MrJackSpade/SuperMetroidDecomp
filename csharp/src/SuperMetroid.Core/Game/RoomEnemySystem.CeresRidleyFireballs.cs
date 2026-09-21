@@ -1939,6 +1939,11 @@ public sealed partial class RoomEnemySystem
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)
+        {
+            return AlcoonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(

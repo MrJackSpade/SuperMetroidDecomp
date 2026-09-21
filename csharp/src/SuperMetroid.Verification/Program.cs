@@ -92,6 +92,11 @@ if (args is ["--fake-kraid-projectile-instruction-mechanics"])
     VerifyFakeKraidProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--alcoon-fireball-instruction-mechanics"])
+{
+    VerifyAlcoonFireballInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

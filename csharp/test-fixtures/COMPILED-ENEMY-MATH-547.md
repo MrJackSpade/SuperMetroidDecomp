@@ -3763,3 +3763,16 @@ Verification compares every mechanics word with the pinned cartridge and drives 
 spit producer plus both directional spike producers through their terminal sleeps with
 mechanics reads forbidden. It proves shared shot deletion, every live spritemap read,
 invalid-pointer rejection, and allocation-free warmed lookup.
+
+# Alcoon-fireball instruction mechanics
+
+Alcoon's projectile now resolves its six fixed duration, goto, and loop-target words
+through `AlcoonFireballInstructionProgramDefinitions`. Its four interleaved spritemap
+operands remain live cartridge presentation data, and its shot reaction uses the
+independently compiled shared delete program.
+
+Verification compares every mechanics word with the pinned cartridge and invokes all
+three real fire commands in both facings. Six production projectiles execute complete
+four-frame loops with mechanics reads forbidden, while the test also proves shared shot
+deletion, every live spritemap read, invalid-pointer rejection, and allocation-free warmed
+lookup.

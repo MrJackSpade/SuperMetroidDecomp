@@ -197,6 +197,36 @@ internal static partial class Program
         AssertTrue(!rainbow.IsActive,
             "rainbow charge deletes on the frame after its exact 30-frame lifetime");
 
+        RoomEnemySystem explosionEnemies = CreateRoomEnemySystem();
+        MethodInfo spawnRainbowExplosionMethod = typeof(RoomEnemySystem).GetMethod(
+            "SpawnMotherBrainRainbowExplosion",
+            instanceFlags)!;
+        spawnRainbowExplosionMethod.Invoke(
+            explosionEnemies,
+            [
+                (ushort)0x0100,
+                (ushort)0x0080,
+                new MotherBrainRainbowExplosionRequest(
+                    SequenceIndex: 3,
+                    XOffset: -9,
+                    YOffset: 7,
+                    SoundEffect: 0x0024),
+            ]);
+        RoomEnemyProjectileSlot explosion = explosionEnemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind ==
+                RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion);
+        AssertEqual(0x00f7, explosion.XPosition,
+            "real rainbow-impact producer applies its signed X offset");
+        AssertEqual(0x0087, explosion.YPosition,
+            "real rainbow-impact producer applies its signed Y offset");
+        for (int frame = 0; frame < 18; frame++)
+            processMethod.Invoke(explosionEnemies, [explosion, samus, (ushort)0, (ushort)0]);
+        AssertTrue(explosion.IsActive,
+            "rainbow impact survives its exact five-stage 18-frame lifetime");
+        processMethod.Invoke(explosionEnemies, [explosion, samus, (ushort)0, (ushort)0]);
+        AssertTrue(!explosion.IsActive,
+            "rainbow impact deletes on the frame after its exact lifetime");
+
         VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDrool, 0x007f);
         VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080);
 

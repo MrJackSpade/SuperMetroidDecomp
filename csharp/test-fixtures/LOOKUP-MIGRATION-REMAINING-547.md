@@ -894,7 +894,9 @@ also runs Mother Brain's exact six-stage, 30-frame rainbow-beam charging actor w
 reading its fixed durations or terminal delete from the cartridge. Both normal and dying
 drool variants likewise execute the five-stage head-attached interval, falling handoff,
 twelve-pixel release correction, terminal sleep, and four-stage floor splash from compiled
-control data.
+control data. Mother Brain's rainbow-impact actor now also shares the already compiled
+`$86:E152` misc-explosion owner instead of rereading that same 18-frame program through a
+different projectile-kind path.
 
 ## Spore Spawn instruction mechanics
 

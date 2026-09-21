@@ -53,6 +53,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary><c>$86:CB0D</c>, alternate-language subtitle frame followed by sleep.</summary>
     internal const ushort MotherBrainSubtitleInitial = 0xcb0d;
 
+    /// <summary><c>$86:E152</c>, Mother Brain rainbow-impact explosion program.</summary>
+    internal const ushort MotherBrainRainbowExplosionInitial = 0xe152;
+
     private static readonly ushort[] BlueRingDurations = [0x0010, 0x000a, 0x0008, 0x0007, 0x0006, 0x0005];
 
     /// <summary>
@@ -62,7 +65,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// </summary>
     private static readonly ushort[] MiscDustInitialPointers =
     [
-        0xe0ee, 0xe100, 0xe11a, 0xe138, 0xe152, 0xe168, 0xe17e, 0xe198,
+        0xe0ee, 0xe100, 0xe11a, 0xe138, MotherBrainRainbowExplosionInitial, 0xe168, 0xe17e, 0xe198,
         0xe1a6, 0xe1b0, 0xe1c6, 0xe1d8, 0xe1ea, 0xe222, 0xe234, 0xe246,
         0xe258, 0xe266, 0xe2a8, 0xe2ba, 0xe2d4, 0xe2f2, 0xe314, 0xe392,
         0xe3a0, 0xe3c6, 0xe3e8, 0xe40a, 0xe1fc, 0xe208,
@@ -157,6 +160,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
         RoomEnemyProjectileKind.MotherBrainDrool or
         RoomEnemyProjectileKind.MotherBrainDyingDrool or
+        RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion or
         RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
         RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
         RoomEnemyProjectileKind.EyeDoorSmoke or

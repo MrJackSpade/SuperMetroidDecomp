@@ -2884,8 +2884,10 @@ then proves the actor survives exactly six five-frame stages and deletes on fram
 same regression invokes the real drool producer on both sides of its native normal/dying
 kind threshold, proves the five attached ten-frame stages, falling pre-instruction handoff,
 twelve-pixel release adjustment, sleep, floor-impact transition and exact forty-frame splash
-lifetime. This closes another integration gap between the previously covered Mother Brain
-projectile pool and the general room projectile pool.
+lifetime. The real rainbow-impact producer also proves its signed placement and complete
+18-frame lifetime through the compiled `$86:E152` misc-explosion program. This closes
+another integration gap between the previously covered Mother Brain projectile pool and
+the general room projectile pool.
 
 # Spore Spawn instruction mechanics
 

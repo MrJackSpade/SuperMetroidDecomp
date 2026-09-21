@@ -159,7 +159,10 @@ internal static class EnemyProjectileDefinitionCatalog
             0xC843, 0xC84D,
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,
             0x0000, 0x7000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion => new(0xC92F, 0xC94C, 0xE152, 0x0101, 0x7000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion => new(
+            0xC92F, 0xC94C,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainRainbowExplosionInitial,
+            0x0101, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => new(
             0xCBC9, 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopRight,
             0x1008, 0x5000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

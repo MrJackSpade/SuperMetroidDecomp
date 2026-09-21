@@ -97,6 +97,11 @@ if (args is ["--torizo-explosion-instruction-mechanics"])
     VerifyTorizoExplosionInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--torizo-chozo-orb-instruction-mechanics"])
+{
+    VerifyTorizoChozoOrbInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

@@ -312,7 +312,7 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
             projectile.InstructionPointer =
-                EnemyProjectileInstructionLists.BombTorizoOrbWallImpact;
+                TorizoChozoOrbInstructionProgramDefinitions.WallImpact;
             projectile.InstructionTimer = 1;
             projectile.CanDamageSamus = false;
             return;
@@ -323,7 +323,8 @@ public sealed partial class RoomEnemySystem
         {
             projectile.YPosition = unchecked((ushort)(
                 (projectile.YPosition & 0xfff0) + 6));
-            projectile.InstructionPointer = EnemyProjectileInstructionLists.TorizoOrbFloorImpact;
+            projectile.InstructionPointer =
+                TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
             projectile.InstructionTimer = 1;
             projectile.CanDamageSamus = false;
             return;
@@ -419,7 +420,7 @@ public sealed partial class RoomEnemySystem
                 projectile.YPosition = unchecked((ushort)(
                     (projectile.YPosition & 0xfff0) + 6));
                 projectile.InstructionPointer =
-                    EnemyProjectileInstructionLists.TorizoOrbFloorImpact;
+                    TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
                 projectile.InstructionTimer = 1;
                 projectile.CanDamageSamus = false;
                 return;
@@ -595,10 +596,12 @@ public sealed partial class RoomEnemySystem
         }
 
         bool golden = GoldenTorizo is not null;
-        ushort header = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(instructionCursor + (golden ? 4 : 2))));
-        ushort expectedHeader = golden ? (ushort)0xefbf : (ushort)0xef3f;
+        ushort header = ReadEnemyProjectileInstructionMechanicsWord(
+            projectile,
+            unchecked((ushort)(instructionCursor + (golden ? 4 : 2))));
+        ushort expectedHeader = golden
+            ? TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader
+            : TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader;
         if (header != expectedHeader)
         {
             throw new InvalidDataException(

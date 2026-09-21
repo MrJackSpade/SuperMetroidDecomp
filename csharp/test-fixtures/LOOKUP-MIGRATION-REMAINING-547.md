@@ -1291,6 +1291,15 @@ forbidden. The probability branch target now uses the owner resolver too. Exact 
 RNG consumption, every presentation read, strict rejection, and allocation-free warmed
 lookup are verified.
 
+## Torizo Chozo-orb instruction mechanics
+
+Bomb and Golden Torizo's shared Chozo-orb actors now compile forty fixed control words
+while retaining eighteen spritemap operands as live presentation data. Both real producers
+execute in both facings through their 85-frame loops, and the wall, floor, and shot/drop
+paths reach their exact property changes, lifetimes, native drop headers, and deletion.
+Drop operands now use the owner resolver too. Exact ROM parity, every presentation read,
+strict rejection, and allocation-free warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

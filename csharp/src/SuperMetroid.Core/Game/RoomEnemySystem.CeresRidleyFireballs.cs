@@ -2179,6 +2179,11 @@ public sealed partial class RoomEnemySystem
             return TorizoExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (TorizoChozoOrbInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return TorizoChozoOrbInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

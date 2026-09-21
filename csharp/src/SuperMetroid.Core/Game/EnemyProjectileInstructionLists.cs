@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 animation-list pointers assigned to translated enemy projectiles.</summary>
 internal static class EnemyProjectileInstructionLists
 {
-    /// <summary>Bomb Torizo Chozo-orb wall-impact list at $86:AB25.</summary>
-    public const ushort BombTorizoOrbWallImpact = 0xab25;
-    /// <summary>Shared Torizo Chozo-orb floor-impact list at $86:AB41.</summary>
-    public const ushort TorizoOrbFloorImpact = 0xab41;
     /// <summary>Bomb Torizo sonic-boom list facing left at $86:ADBF.</summary>
     public const ushort BombTorizoSonicBoomLeft = 0xadbf;
     /// <summary>Bomb Torizo sonic-boom list facing right at $86:ADD2.</summary>

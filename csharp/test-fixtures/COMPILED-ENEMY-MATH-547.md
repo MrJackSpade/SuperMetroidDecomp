@@ -4273,3 +4273,20 @@ two-cycle probabilistic death paths (62-frame explosion or 64-frame smoke), exac
 reset and signed random jitter, timer evolution, RNG consumption, and following deletion.
 Every presentation read, strict rejection, and allocation-free warmed lookup pass with
 mechanics bytes forbidden.
+
+# Torizo Chozo-orb instruction mechanics
+
+Bomb and Golden Torizo's shared Chozo-orb actors now resolve all forty fixed durations,
+property masks, branches, loop targets, callback clears, drop operands, and deletions
+through `TorizoChozoOrbInstructionProgramDefinitions`. Their eighteen interleaved
+spritemap operands remain live cartridge presentation data, and the floor-impact sound ID
+remains owned by the separate audio seam. Definition records and collision handoffs now
+use the same named program catalog. The drop callback obtains both native enemy-header
+operands through the owner resolver rather than reading bank $86 directly.
+
+Verification compares every mechanics word with the pinned cartridge, invokes both real
+producers in both facings, and proves their exact 85-frame loops. It also executes the
+20-frame wall impact, 39-frame floor impact with its collision/property transition, and
+both 20-frame shot paths through the correct Bomb/Golden drop request and deletion. Every
+presentation read, strict rejection, and allocation-free warmed lookup pass with mechanics
+bytes forbidden.

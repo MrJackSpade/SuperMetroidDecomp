@@ -82,6 +82,11 @@ if (args is ["--torizo-landing-dust-instruction-mechanics"])
     VerifyTorizoLandingDustInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--torizo-explosive-swipe-instruction-mechanics"])
+{
+    VerifyTorizoExplosiveSwipeInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

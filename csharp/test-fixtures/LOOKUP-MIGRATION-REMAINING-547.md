@@ -1263,6 +1263,14 @@ including symmetric spawn coordinates, three four-pixel rises, and deletion, wit
 bytes forbidden. Exact ROM parity, every presentation read, strict rejection, and
 allocation-free warmed lookup are verified.
 
+## Bomb Torizo explosive-swipe instruction mechanics
+
+Bomb Torizo's explosive-swipe program now compiles its seven fixed opcode, duration, and
+deletion words while retaining five spritemap operands as live presentation data. The real
+producer executes with ordinary frame timers through its exact 25-frame visible lifetime
+and next-tick deletion with mechanics bytes forbidden. Exact ROM parity, every presentation
+read, strict rejection, and allocation-free warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

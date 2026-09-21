@@ -4222,3 +4222,16 @@ dual-foot producer, proves its symmetric 24-pixel X offsets and 48-pixel Y offse
 executes both four-pose sequences through their exact twelve-pixel rise and deletion with
 mechanics bytes forbidden. Every presentation read, strict rejection of spritemaps and
 the callback body, and allocation-free warmed lookup pass.
+
+# Bomb Torizo explosive-swipe instruction mechanics
+
+Bomb Torizo's explosive-swipe actor now resolves its sound opcode, five fixed durations,
+and deletion through `TorizoExplosiveSwipeInstructionProgramDefinitions`. Its five
+spritemap operands remain live cartridge presentation data; the packed sound ID remains
+outside the mechanics catalog for the separate enemy-projectile audio migration.
+
+Verification compares all seven mechanics words with the pinned cartridge, invokes the
+real swipe producer, checks its compiled placement handoff, and advances ordinary frame
+timers through the exact 25 visible frames and following deletion tick with mechanics bytes
+forbidden. Every presentation read, strict rejection of spritemaps and adjacent program
+data, and allocation-free warmed lookup pass.

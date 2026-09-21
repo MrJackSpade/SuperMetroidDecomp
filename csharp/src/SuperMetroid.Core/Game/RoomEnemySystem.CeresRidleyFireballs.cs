@@ -2160,6 +2160,11 @@ public sealed partial class RoomEnemySystem
             return TorizoLandingDustInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.BombTorizoExplosiveSwipe)
+        {
+            return TorizoExplosiveSwipeInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

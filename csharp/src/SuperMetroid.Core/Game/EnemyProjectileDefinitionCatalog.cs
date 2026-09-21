@@ -352,7 +352,9 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BotwoonSpit => new(0xEBC6, 0xEC05, 0xEBAE, 0x0202, 0x1060, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool => new(0xA5D3, 0x84FB, 0xA472, 0x0201, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoInitialDrool => new(0xA65D, 0x84FB, 0xA472, 0x0201, 0x2000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.BombTorizoExplosiveSwipe => new(0xA6F6, 0xA919, 0xA4AA, 0x1010, 0x500A, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.BombTorizoExplosiveSwipe => new(
+            0xA6F6, 0xA919, TorizoExplosiveSwipeInstructionProgramDefinitions.Initial,
+            0x1010, 0x500A, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoLowHealthExplosion => new(0xA81B, 0x84FB, 0xA3CB, 0x1004, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoDeathExplosion => new(0xA871, 0x84FB, 0xA3FA, 0x1004, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoStatueBreaking => new(0xA764, 0x84FB, 0xA54B, 0x0808, 0x3000, 0x0000, 0x84FC),

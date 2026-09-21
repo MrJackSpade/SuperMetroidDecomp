@@ -2857,9 +2857,9 @@ and executes every program with the mechanics source bytes forbidden.
 
 # Mother Brain and misc-dust projectile instruction mechanics
 
-The bounded mechanics half of 35 bank-$86 enemy-projectile programs now lives in
-`EnemyProjectileInstructionMechanicsDefinitions`. Its 275 compiled words cover Mother
-Brain's blue rings, bombs, purple breath, escape-door fragments and subtitle plus all
+The bounded mechanics half of 36 bank-$86 enemy-projectile programs now lives in
+`EnemyProjectileInstructionMechanicsDefinitions`. Its 282 compiled words cover Mother
+Brain's blue rings, bombs, rainbow-beam charging, purple breath, escape-door fragments and subtitle plus all
 thirty shared misc-dust programs. Durations, opcodes, branch targets and packed collision
 radii are engine behavior; interleaved bank-$8D spritemap pointers remain cartridge-backed
 presentation data.
@@ -2869,16 +2869,19 @@ shared translated handler previously accepted only clear-pre-instruction and del
 handler now performs the native same-bank goto instead of failing when that authored
 program reaches its terminal command.
 
-Verification compares all 275 mechanics words with the pinned cartridge, runs every one
-of the 35 programs through production code while their source bytes are forbidden, rejects
+Verification compares all 282 mechanics words with the pinned cartridge, runs every one
+of the 36 programs through production code while their source bytes are forbidden, rejects
 a restored pointer outside the bounded domain, and proves warmed lookups allocate nothing.
 
 The ordinary room-projectile interpreter now routes both Eye Door smoke and shared
 room-graphics dust/explosions through this same catalog. Its regression separately drives
 all thirty dust variants through the real room-graphics producer, including the persistent
 two-frame loop, and advances a real Eye Door smoke spawn through deletion while every
-compiled mechanics byte remains forbidden. This closes the integration gap between the
-previously covered Mother Brain projectile pool and the general room projectile pool.
+compiled mechanics byte remains forbidden. The same production-path regression invokes
+Mother Brain's real rainbow-charge producer, verifies its head-relative initial placement,
+then proves the actor survives exactly six five-frame stages and deletes on frame 31. This
+closes another integration gap between the previously covered Mother Brain projectile pool
+and the general room projectile pool.
 
 # Spore Spawn instruction mechanics
 

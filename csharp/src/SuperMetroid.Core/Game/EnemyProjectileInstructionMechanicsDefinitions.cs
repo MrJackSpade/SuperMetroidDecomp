@@ -38,6 +38,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary><c>$86:CAA4</c>, finite large purple-breath animation program.</summary>
     internal const ushort MotherBrainPurpleBreathInitial = 0xcaa4;
 
+    /// <summary><c>$86:C829</c>, finite Mother Brain rainbow-beam charge program.</summary>
+    internal const ushort MotherBrainRainbowBeamChargingInitial = 0xc829;
+
     /// <summary><c>$86:CA22</c>, looping exploded escape-door fragment program.</summary>
     internal const ushort MotherBrainEscapeDoorFragmentInitial = 0xca22;
 
@@ -69,6 +72,11 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         new(MotherBrainPurpleBreathInitial,
             [8, 8, 9, 9, 10, 10, 11, 11],
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            null),
+        new(MotherBrainRainbowBeamChargingInitial,
+            [5, 5, 5, 5, 5, 5],
+            null,
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
             null),
         new(MotherBrainEscapeDoorFragmentInitial,
@@ -135,6 +143,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainBomb or
         RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
+        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
         RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
         RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
         RoomEnemyProjectileKind.EyeDoorSmoke or

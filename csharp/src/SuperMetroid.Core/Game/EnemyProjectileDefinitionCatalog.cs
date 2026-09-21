@@ -138,7 +138,14 @@ internal static class EnemyProjectileDefinitionCatalog
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainHandBeamCharging => new(0xC605, 0xC76D, 0xC796, 0x0606, 0x1190, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainHandBeamFired => new(0xC684, 0xC76D, 0xC796, 0x0606, 0x1190, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging => new(0xC80A, 0xC814, 0xC829, 0x0000, 0x7000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging => new(
+            0xC80A,
+            0xC814,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainRainbowBeamChargingInitial,
+            0x0000,
+            0x7000,
+            0x0000,
+            0x84FC),
         RoomEnemyProjectileKind.MotherBrainPurpleBreathBig => new(
             0xCA6A, 0xCAA3,
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial,

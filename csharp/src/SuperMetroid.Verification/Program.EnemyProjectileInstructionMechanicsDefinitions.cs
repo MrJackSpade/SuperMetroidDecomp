@@ -7,7 +7,7 @@ internal static partial class Program
 {
     /// <summary>
     /// Compares every compiled Mother Brain/misc-dust mechanics word to the pinned ROM,
-    /// then runs all 35 production programs while rejecting reads from those source bytes.
+    /// then runs all 36 production programs while rejecting reads from those source bytes.
     /// </summary>
     private static void VerifyEnemyProjectileInstructionMechanicsDefinitions()
     {
@@ -80,7 +80,7 @@ internal static partial class Program
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
             $"{EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount} words and " +
-            "all 35 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
+            "all 36 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
     }
 
     /// <summary>
@@ -164,6 +164,38 @@ internal static partial class Program
         RunForcedTicks(breathEnemies, breath, 9);
         AssertTrue(!breath.IsActive,
             "room-system Mother Brain purple breath reaches compiled deletion");
+
+        RoomEnemySystem rainbowEnemies = CreateRoomEnemySystem();
+        var motherBrainBody = new RoomEnemySlot(0);
+        var motherBrainHead = new RoomEnemySlot(1)
+        {
+            XPosition = 0x0137,
+            YPosition = 0x008b,
+        };
+        var motherBrainState = new MotherBrainEnemyState(motherBrainBody)
+        {
+            Head = motherBrainHead,
+        };
+        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+            .SetValue(rainbowEnemies, motherBrainState);
+        MethodInfo spawnRainbowMethod = typeof(RoomEnemySystem).GetMethod(
+            "SpawnMotherBrainRainbowChargingProjectile",
+            instanceFlags)!;
+        spawnRainbowMethod.Invoke(rainbowEnemies, [motherBrainState]);
+        RoomEnemyProjectileSlot rainbow = rainbowEnemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind ==
+                RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging);
+        AssertEqual(0x0137, rainbow.XPosition,
+            "real rainbow-charge producer pins its initial X to Mother Brain's head");
+        AssertEqual(0x008b, rainbow.YPosition,
+            "real rainbow-charge producer pins its initial Y to Mother Brain's head");
+        for (int frame = 0; frame < 30; frame++)
+            processMethod.Invoke(rainbowEnemies, [rainbow, samus, (ushort)0, (ushort)0]);
+        AssertTrue(rainbow.IsActive,
+            "rainbow charge survives all six exact five-frame animation stages");
+        processMethod.Invoke(rainbowEnemies, [rainbow, samus, (ushort)0, (ushort)0]);
+        AssertTrue(!rainbow.IsActive,
+            "rainbow charge deletes on the frame after its exact 30-frame lifetime");
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot fragment = fragmentEnemies.EnemyProjectiles[^1];

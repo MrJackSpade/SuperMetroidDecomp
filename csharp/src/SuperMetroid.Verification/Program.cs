@@ -72,6 +72,11 @@ if (args is ["--spore-spawn-projectile-instruction-mechanics"])
     VerifySporeSpawnProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--botwoon-projectile-instruction-mechanics"])
+{
+    VerifyBotwoonProjectileInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

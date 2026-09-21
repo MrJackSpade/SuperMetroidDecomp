@@ -1245,6 +1245,15 @@ loop, stalk sleep, and complete shot/drop/deletion path with mechanics bytes for
 Exact ROM parity, callback effects, every presentation read, strict rejection, and
 allocation-free warmed lookup are verified.
 
+## Botwoon projectile instruction mechanics
+
+All seventeen selector-reachable Botwoon body/tail programs and the spit loop now compile
+their seventy-three fixed duration, sleep, goto, and target words. Forty-six spritemap
+operands remain live presentation data. The real body and spit producers execute every
+program through its stable sleep or loop with mechanics bytes forbidden; exact ROM parity,
+every presentation read, strict rejection of adjacent unused data, and allocation-free
+warmed lookup are verified.
+
 ## Tourian entrance-statue projectile instruction mechanics
 
 All eight Tourian entrance-statue projectile families now compile their fifty-eight fixed

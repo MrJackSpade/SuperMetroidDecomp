@@ -4192,3 +4192,19 @@ real producers. It executes the closed and releasing emitter, complete airborne-
 stalk sleep, and full shot explosion through its property change, sound, real enemy-drop
 selection, and deletion. Every presentation read, strict pointer rejection, and
 allocation-free warmed lookup pass with mechanics bytes forbidden.
+
+# Botwoon projectile instruction mechanics
+
+Botwoon's eight looping body orientations, eight sleeping tail orientations, shared
+hidden pose, and five-pose spit loop now resolve all seventy-three fixed durations,
+sleeps, gotos, and loop targets through
+`BotwoonProjectileInstructionProgramDefinitions`. Their forty-six interleaved spritemap
+operands remain live cartridge presentation data. Body selectors, death-state code
+pointers, the landed explosion handoff, and the spit producer now use named domain
+catalog entries rather than raw hexadecimal constants in functional code.
+
+Verification compares every mechanics word with the pinned cartridge, invokes the real
+body and spit producers, and executes every selector-reachable projectile program beyond
+its sleep or loop edge with mechanics bytes forbidden. Every presentation read, strict
+rejection of spritemaps and the adjacent unused body program, and allocation-free warmed
+lookup pass.

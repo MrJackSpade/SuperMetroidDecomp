@@ -10,14 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort BotwoonBodyMainFunction = 0xea98;
-    private const ushort BotwoonBodyBeginDyingFunction = 0xeaf4;
-    private const ushort BotwoonBodyDyingDelayFunction = 0xeb04;
-    private const ushort BotwoonBodyFallingFunction = 0xeb1f;
-    private const ushort BotwoonBodyLandedFunction = 0xeb8f;
-    private const ushort BotwoonBodyLandedInstruction = 0xe208;
-    private const ushort BotwoonSpitInstruction = 0xebae;
-
     /// <summary>Ports <c>EprojInit_BotwoonsBody</c> at <c>$86:EA31</c>.</summary>
     private void SpawnBotwoonBodySegment(
         RoomEnemySlot head,
@@ -49,7 +41,7 @@ public sealed partial class RoomEnemySystem
         segment.InstructionTimer = 1;
         segment.Variable0 = instruction;
         segment.DirectionParameter = orientation;
-        segment.XVelocity = BotwoonBodyMainFunction;
+        segment.XVelocity = BotwoonProjectileCodePointers.BodyMainFunction;
 
         int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
@@ -65,36 +57,40 @@ public sealed partial class RoomEnemySystem
     {
         BotwoonEnemyState state = _botwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
-        if (state.BodyDeathStarted && segment.XVelocity == BotwoonBodyMainFunction)
-            segment.XVelocity = BotwoonBodyBeginDyingFunction;
+        if (state.BodyDeathStarted &&
+            segment.XVelocity == BotwoonProjectileCodePointers.BodyMainFunction)
+        {
+            segment.XVelocity = BotwoonProjectileCodePointers.BodyBeginDyingFunction;
+        }
 
         switch (segment.XVelocity)
         {
-            case BotwoonBodyMainFunction:
+            case BotwoonProjectileCodePointers.BodyMainFunction:
                 AnimateBotwoonBodySegment(segment, randomEnemyCounter);
                 return;
 
-            case BotwoonBodyBeginDyingFunction:
+            case BotwoonProjectileCodePointers.BodyBeginDyingFunction:
                 // The delay is based on native projectile index, not body order. Botwoon
                 // normally owns indexes $0A..$22 because allocation descended from $22.
                 segment.DirectionParameter = unchecked((ushort)(
                     4 * (segment.SlotIndex * 2) + 96));
-                segment.XVelocity = BotwoonBodyDyingDelayFunction;
-                goto case BotwoonBodyDyingDelayFunction;
+                segment.XVelocity = BotwoonProjectileCodePointers.BodyDyingDelayFunction;
+                goto case BotwoonProjectileCodePointers.BodyDyingDelayFunction;
 
-            case BotwoonBodyDyingDelayFunction:
+            case BotwoonProjectileCodePointers.BodyDyingDelayFunction:
                 segment.DirectionParameter = unchecked((ushort)(segment.DirectionParameter + 1));
                 if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
-                    segment.XVelocity = BotwoonBodyFallingFunction;
+                    segment.XVelocity = BotwoonProjectileCodePointers.BodyFallingFunction;
                 segment.InstructionTimer = 0;
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
 
-            case BotwoonBodyFallingFunction:
+            case BotwoonProjectileCodePointers.BodyFallingFunction:
                 RunBotwoonBodyFall(segment, state, randomEnemyCounter);
                 return;
 
-            case BotwoonBodyLandedFunction:
+            case BotwoonProjectileCodePointers.BodyLandedFunction:
+            case BotwoonProjectileCodePointers.LegacyBodyLandedFunction:
                 return;
 
             default:
@@ -151,8 +147,8 @@ public sealed partial class RoomEnemySystem
         }
 
         segment.YPosition = 200;
-        segment.XVelocity = BotwoonBodyLandedFunction;
-        segment.InstructionPointer = BotwoonBodyLandedInstruction;
+        segment.XVelocity = BotwoonProjectileCodePointers.BodyLandedFunction;
+        segment.InstructionPointer = BotwoonProjectileCodePointers.BodyLandedInstruction;
         segment.InstructionTimer = 1;
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;
         segment.CanDamageSamus = false;
@@ -181,7 +177,7 @@ public sealed partial class RoomEnemySystem
         spit.YPosition = head.YPosition;
         spit.XSubposition = 0;
         spit.YSubposition = 0;
-        spit.InstructionPointer = BotwoonSpitInstruction;
+        spit.InstructionPointer = BotwoonProjectileInstructionProgramDefinitions.Spit;
         spit.InstructionTimer = 1;
         spit.DirectionParameter = angle;
 

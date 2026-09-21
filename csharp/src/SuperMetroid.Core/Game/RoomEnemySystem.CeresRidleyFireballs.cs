@@ -2150,6 +2150,11 @@ public sealed partial class RoomEnemySystem
             return SporeSpawnProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (BotwoonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
+        {
+            return BotwoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

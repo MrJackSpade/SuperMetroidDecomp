@@ -72,6 +72,11 @@ if (args is ["--eye-door-projectile-instruction-mechanics"])
     VerifyEyeDoorProjectileInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--eye-door-sweat-instruction-mechanics"])
+{
+    VerifyEyeDoorSweatInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();

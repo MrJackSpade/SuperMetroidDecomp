@@ -3698,3 +3698,20 @@ shot deletion while every mechanics byte is forbidden. It observes all eleven sp
 operands, rejects presentation and the adjacent sweat program as mechanics, and proves
 warmed lookup is allocation-free. The existing constructed Eye Door test now advances the
 native compiled setup cadence instead of installing a shortened mechanics override.
+
+# Eye Door sweat instruction mechanics
+
+The Eye Door sweat drop's falling loop and floor-impact sequence now resolve all eight
+fixed durations, clear-pre-instruction command, goto, loop target, and terminal delete
+words through `EyeDoorSweatInstructionProgramDefinitions`. Its four interleaved spritemap
+operands remain live cartridge presentation data. The projectile definition and the real
+floor-collision handoff use named program entries, while its generic shot reaction uses
+the independently compiled shared delete program.
+
+Verification compares every private mechanics word with the pinned cartridge, executes
+the complete falling loop, collides the production projectile with a constructed solid
+floor, checks the native four-pixel impact correction, and advances all three impact
+frames through deletion while private and shared mechanics bytes are forbidden. It
+observes every live spritemap operand, proves the shared shot-list deletion, rejects
+presentation and the adjacent origin table as mechanics, and verifies warmed lookup is
+allocation-free.

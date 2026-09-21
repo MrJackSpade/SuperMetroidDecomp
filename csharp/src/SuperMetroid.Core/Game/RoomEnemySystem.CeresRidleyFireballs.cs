@@ -1963,6 +1963,11 @@ public sealed partial class RoomEnemySystem
             return EyeDoorProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
+        if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat)
+        {
+            return EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         return ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | address);
     }
 

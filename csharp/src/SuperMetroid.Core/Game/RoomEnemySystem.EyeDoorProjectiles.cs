@@ -177,7 +177,7 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition = unchecked((ushort)(projectile.YPosition - 4));
             SetEyeDoorEffectImpactList(
                 projectile,
-                EyeDoorEnemyProjectileRomData.SweatImpactInstructionList);
+                EyeDoorSweatInstructionProgramDefinitions.Impact);
             return;
         }
 

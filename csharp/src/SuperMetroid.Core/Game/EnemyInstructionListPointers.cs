@@ -92,29 +92,6 @@ internal static class DraygonInstructionLists
     public const ushort Ilist_9F15 = 0x9f15;
 }
 
-/// <summary>Named bank-$A6 animation-list pointers used by both Ceres and Norfair Ridley.</summary>
-internal static class RidleyInstructionLists
-{
-    /// <summary><c>kRidley_Ilist_E538</c> at $A6:E538.</summary>
-    public const ushort Ilist_E538 = 0xe538;
-    /// <summary><c>kRidley_Ilist_E548</c> at $A6:E548.</summary>
-    public const ushort Ilist_E548 = 0xe548;
-    /// <summary><c>kRidley_Ilist_E658</c> at $A6:E658.</summary>
-    public const ushort Ilist_E658 = 0xe658;
-    /// <summary><c>kRidley_Ilist_E690</c> at $A6:E690.</summary>
-    public const ushort Ilist_E690 = 0xe690;
-    /// <summary><c>kRidley_Ilist_E6C8</c> at $A6:E6C8.</summary>
-    public const ushort Ilist_E6C8 = 0xe6c8;
-    /// <summary><c>kRidley_Ilist_E6F0</c> at $A6:E6F0.</summary>
-    public const ushort Ilist_E6F0 = 0xe6f0;
-    /// <summary><c>kRidley_Ilist_E706</c> at $A6:E706.</summary>
-    public const ushort Ilist_E706 = 0xe706;
-    /// <summary><c>kRidley_Ilist_E73A</c> at $A6:E73A.</summary>
-    public const ushort Ilist_E73A = 0xe73a;
-    /// <summary><c>kRidley_Ilist_E91D</c> at $A6:E91D.</summary>
-    public const ushort Ilist_E91D = 0xe91d;
-}
-
 /// <summary>Named bank-$A7 instruction-list pointers used by Kraid's inert lint maps.</summary>
 internal static class KraidLintInstructionLists
 {

@@ -37,7 +37,7 @@ internal static partial class Program
             (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
             (typeof(DraygonInstructionLists), 0xa5),
-            (typeof(RidleyInstructionLists), 0xa6),
+            (typeof(RidleyInstructionProgramDefinitions), 0xa6),
             (typeof(KraidLintInstructionLists), 0xa7),
             (typeof(PhantoonInstructionProgramDefinitions), 0xa7),
             (typeof(TorizoInstructionLists), 0xaa),

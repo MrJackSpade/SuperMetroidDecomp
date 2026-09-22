@@ -147,8 +147,8 @@ internal static partial class Program
                 NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture))
             .ToHashSet();
-        AssertTrue(unresolvedDefinitions.SetEquals([0xde3f, 0xe13f]),
-            "pending translated mechanics owners are exactly Draygon and Ridley; actual=" +
+        AssertTrue(unresolvedDefinitions.SetEquals([0xde3f]),
+            "pending translated mechanics owner is exactly Draygon; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
         var unknown = new RoomEnemySlot(0)

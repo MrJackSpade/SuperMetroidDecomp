@@ -3249,9 +3249,9 @@ public sealed partial class RoomEnemySystem
                             "Ceres Ridley fireball branch requires the active Samus actor.");
                     }
                     cursor = unchecked((short)(samus.Health - 30)) < 0
-                        ? ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        ? ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
                 case CeresEnemyCodePointers.RidleyGotoIfNotHoldingBaby:
@@ -3259,39 +3259,44 @@ public sealed partial class RoomEnemySystem
                     ushort branchOperand = grabbedBranch.GrabState != 0
                         ? (ushort)2
                         : (ushort)4;
-                    cursor = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + branchOperand)));
+                    cursor = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + branchOperand)));
                     break;
                 case CeresEnemyCodePointers.RidleyGotoIfHoldingBaby:
                     RidleyEnemyState carryBranch = RequireRidley(slot);
                     cursor = carryBranch.GrabState != 0
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                        : ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     break;
                 case EnemyInstructionCodePointers.Inst_RidleyCeres_UpdateSamusPrevPosition_HeldYDisplacement:
-                    RequireRidley(slot).FeetDistanceIndex = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    RequireRidley(slot).FeetDistanceIndex =
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case CeresEnemyCodePointers.RidleyGotoIfNotFacingLeft:
                     RidleyEnemyState ridley = RequireRidley(slot);
                     cursor = ridley.FacingDirection != 0
-                        ? ReadWord(
-                            _bus!,
-                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        ? ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
                 case CeresEnemyCodePointers.MoveRidley:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition +
-                        ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))));
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 2)))));
                     slot.YPosition = unchecked((ushort)(
                         slot.YPosition +
-                        ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
+                        ReadEnemyInstructionMechanicsWord(
+                            slot,
+                            unchecked((ushort)(cursor + 4)))));
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
                 case CeresEnemyCodePointers.FaceRidleyLeft:
@@ -3872,6 +3877,9 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition)
             return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
+            return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
     }

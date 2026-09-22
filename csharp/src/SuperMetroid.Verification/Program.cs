@@ -147,6 +147,11 @@ if (args is ["--gunship-instruction-mechanics"])
     VerifyGunshipInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ridley-instruction-mechanics"])
+{
+    VerifyRidleyInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--walking-space-pirate-instruction-mechanics"])
 {
     VerifyWalkingSpacePirateInstructionProgramDefinitions();

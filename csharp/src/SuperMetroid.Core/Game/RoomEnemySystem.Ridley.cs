@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
 
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
-        SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E538);
+        SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Initial);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
@@ -170,7 +170,7 @@ public sealed partial class RoomEnemySystem
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
                 if ((short)state.FunctionTimer < 0)
                 {
-                    SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E690);
+                    SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.OpeningRoar);
                     state.FunctionTimer = 0;
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -409,7 +409,7 @@ public sealed partial class RoomEnemySystem
         PublishRidleyLiquidMotion(state, RidleyLiquidRomData.BattleHeight,
             RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
         state.FadePaletteOffset = 0;
-        SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E91D);
+        SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.TransitionToFlying);
         state.WingAnimationTimer = 8;
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
@@ -617,7 +617,7 @@ public sealed partial class RoomEnemySystem
         {
             state.PogoBounceCount = 0;
             if (state.FacingDirection != 1)
-                SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E73A);
+                SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
         }
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
@@ -807,8 +807,8 @@ public sealed partial class RoomEnemySystem
         SetRidleyInstruction(
             slot,
             state.FacingDirection == 0
-                ? RidleyInstructionLists.Ilist_E6F0
-                : RidleyInstructionLists.Ilist_E706);
+                ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
+                : RidleyInstructionProgramDefinitions.TurnFromRightToLeft);
         slot.InstructionTimer = 2;
     }
 

@@ -1369,8 +1369,8 @@ The retail-wide owner audit now enumerates all 163 named enemy definitions and e
 population record in all 323 compiled room states. It invokes the real initializer
 dispatcher, preserves each record's initial instruction/property words, and probes the
 production mechanics resolver with cartridge reads forbidden. This covers 154 translated
-initializer identities and currently proves 103 compiled instruction-processing owners.
-The only explicitly inventoried fallback families are Draygon and Ridley.
+initializer identities and currently proves 104 compiled instruction-processing owners.
+The only explicitly inventoried fallback family is Draygon.
 The allowlist is intentionally exact and must shrink as
 those families are compiled; an unlisted fallback, including a newly translated actor,
 fails verification. Once it is empty, the generic ordinary-enemy ROM fallback can be
@@ -1393,6 +1393,17 @@ The real body initializer selects that named program, the zero-duration frame re
 native timer wrap, and its single spritemap operand remains live presentation data. The
 body definition now rejects unknown mechanics addresses instead of falling back to bank
 $A9 cartridge code.
+
+## Ridley instruction mechanics
+
+The shared Ceres and Lower Norfair Ridley owner now compiles all 221 command, timing,
+branch-target, pose-distance, and movement-displacement words reachable from its nine
+production entry programs. Both facing paths execute through the real ordinary-enemy
+interpreter, including the Ceres and Norfair liftoff handoffs, while all compiled mechanics
+bytes are forbidden. The 86 interleaved extended-spritemap operands remain live cartridge
+presentation data. Exact ROM parity, every presentation read, strict rejection, and
+allocation-free warmed lookup are verified. Draygon is now the sole remaining translated
+ordinary-enemy instruction owner using the terminal cartridge fallback.
 
 ## Walking Space Pirate instruction mechanics
 

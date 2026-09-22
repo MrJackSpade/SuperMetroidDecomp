@@ -30,6 +30,15 @@ internal static class ChootInstructionProgramDefinitions
     internal const ushort Jumping = 0xd834;
 
     /// <summary><c>InstructionList_Choot_Falling</c> at $A2:D840.</summary>
+    /// <remarks>
+    /// The pinned NTSC J/U v1.0 ROM contains
+    /// <c>8173,0008,E15C,0001,E16F,812F</c>: enable off-screen processing,
+    /// display <c>E15C</c> for eight frames and <c>E16F</c> for one, then sleep.
+    /// Retain this bounded authored command/timing sequence. It shares the
+    /// jumping program's mechanics prefix but selects a different final
+    /// spritemap; the operands remain live presentation reads.
+    /// Investigation: #625 / #664.
+    /// </remarks>
     internal const ushort Falling = 0xd840;
 
     private static readonly ChootInstructionMechanicsWord[] Words =

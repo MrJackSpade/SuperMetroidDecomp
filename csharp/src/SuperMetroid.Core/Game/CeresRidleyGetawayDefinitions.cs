@@ -7,6 +7,17 @@ public readonly record struct CeresRidleyGetawayFrame(ushort Zoom, ushort XVeloc
 public static class CeresRidleyGetawayDefinitions
 {
     /// <summary>$A6:AE4D, CeresRidleyGetawayZoomLevelTable: 112 frames followed by $FFFF.</summary>
+    /// <remarks>
+    /// #625 / #652 exact NTSC J/U v1.0 reconstruction for frame f=0..111:
+    /// hold $0800 for f&lt;32; use $0800-(f-31)*$0010 for 32..47; use
+    /// $0700-(f-47)*$0020 for 48..95, except f=70 is $0430 and f=86 is
+    /// $0230; use max($0020, $0100-(f-95)*$0010) for 96..111.
+    /// Frame 112 is the $FFFF terminator and consumes no velocity record.
+    /// All 113 words match the pinned ROM and bank-A6
+    /// disassembly. The caller uses even byte offsets 0..224; odd and later
+    /// offsets are outside the curve. VerifyCompiledCeresRidleyGetaway checks
+    /// every word, and the real Ceres encounter consumes every frame.
+    /// </remarks>
     public const int ZoomReferenceAddress = 0xa6ae4d;
     /// <summary>$A6:AF2F, CeresRidleyGetawayYVelocityTable: signed vertical increments.</summary>
     public const int YReferenceAddress = 0xa6af2f;

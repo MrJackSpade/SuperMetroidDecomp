@@ -129,12 +129,15 @@ the 58 compressed room BG tilemaps. Seven contiguous scrolling-sky pages are
 installed alongside them as `scrolling-sky-*.json`; copies under
 `overrides/room-backgrounds/` change both door-selected and per-frame sky rows.
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
-engine behavior. Other direct-ROM background transfers are not yet editable.
+engine behavior. Kraid's direct HUD-character upload also uses the existing
+`game/maps/hud-tiles.png` and `overrides/maps/hud-tiles.png` artwork instead of
+rereading those characters from the ROM. The remaining Tourian statue-ghost
+character upload is not yet editable.
 Stock hashes and override repair follow the same rules as the room-character
 sheets.
 
-This room-art slice does not yet expose block arrangement or background-tilemap
-editing. The current sheet and palette filenames encode source identities;
+This room-art slice does not yet expose block arrangement editing. The current
+sheet and palette filenames encode source identities;
 semantic artwork names are still part of the broader room-art migration.
 
 ## Projectile composition and beam PNG overrides

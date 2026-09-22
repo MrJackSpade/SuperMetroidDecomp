@@ -33,10 +33,67 @@ static void VerifyLibraryBackgroundSourceInventory()
         .Select(source => source.SourceAddress).Distinct())
         RoomBackgroundTilemapFormat.ValidatePageCount(
             RomDataReader.Decompress(bus, source).Length);
+    VerifyKraidLibraryHudArtwork(bus, romTransfers);
     Console.WriteLine($"  Library BG inventory: {sources.Count} source operands, " +
         $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +
         $"{romTransfers.Length} direct ROM transfers, " +
         $"{workRamTransfers.Length} work-RAM transfers.");
+    foreach (LibraryBackgroundSource transfer in romTransfers
+        .DistinctBy(source => (source.SourceAddress, source.TransferByteCount, source.VramDestination)))
+        Console.WriteLine($"    ROM ${transfer.SourceAddress:X6}: {transfer.TransferByteCount} bytes to " +
+            $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
+}
+
+static void VerifyKraidLibraryHudArtwork(
+    ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundSource> romTransfers)
+{
+    LibraryBackgroundSource transfer = romTransfers.First(source =>
+        source.SourceAddress == HudTileAtlasFormat.SourceAddress);
+    if (romTransfers.Where(source => source.SourceAddress == HudTileAtlasFormat.SourceAddress)
+        .Any(source => source.Command != transfer.Command ||
+            source.TransferByteCount != transfer.TransferByteCount ||
+            source.VramDestination != transfer.VramDestination))
+        throw new InvalidDataException("Kraid HUD lists disagree about their direct-ROM upload geometry.");
+    AssertEqual(LibraryBackgroundCommand.TransferToVramForKraid, transfer.Command,
+        "Kraid HUD upload uses the special library-background transfer");
+    AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, transfer.TransferByteCount!.Value,
+        "Kraid HUD upload contains characters without the normal clearing half");
+
+    byte[] planar = RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress,
+        HudTileAtlasFormat.CharacterByteCount);
+    byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
+        out int width, out int height);
+    AssertEqual(MapTileAtlasFormat.Width, width, "Kraid HUD atlas width");
+    AssertEqual(MapTileAtlasFormat.Height, height, "Kraid HUD atlas height");
+
+    HudTileAtlas Compile(ReadOnlySpan<byte> selectedPixels)
+    {
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, selectedPixels, SnesGraphics.DiagnosticPalette(4));
+        png.Position = 0;
+        return HudTileAtlas.Load(png);
+    }
+
+    var stockVram = new SnesVram();
+    LibraryBackgroundExecutionResult native = LibraryBackgroundLoader.Execute(bus, stockVram,
+        transfer.ListPointer, activeDoorPointer: 0);
+    var installedVram = new SnesVram();
+    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram,
+        transfer.ListPointer, activeDoorPointer: 0, hudArt: Compile(pixels));
+    AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
+    int destinationByte = transfer.VramDestination!.Value * 2;
+    for (int index = 0; index < planar.Length; index++)
+        AssertEqual(stockVram.ReadByte(destinationByte + index),
+            installedVram.ReadByte(destinationByte + index),
+            $"Kraid installed HUD VRAM byte {index}");
+
+    pixels[0] = (byte)((pixels[0] + 1) & 3);
+    var editedVram = new SnesVram();
+    LibraryBackgroundLoader.Execute(bus, editedVram, transfer.ListPointer,
+        activeDoorPointer: 0, hudArt: Compile(pixels));
+    if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
+        throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
+    Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
 }
 
 static void VerifyLibraryBackgroundLoader()

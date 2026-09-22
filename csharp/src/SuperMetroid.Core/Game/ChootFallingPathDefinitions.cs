@@ -13,6 +13,16 @@ internal static class ChootFallingPathDefinitions
     private const ushort NormalPointer = 0xd84c;
     private const ushort WidePointer = 0xd976;
     private const ushort VeryWidePointer = 0xdaa0;
+
+    /// <summary>
+    /// <c>$A2:DBCA-$A2:DD41</c>: the normal path with ten extra copies of
+    /// normal frame 27 at physical frames 28..37 and normal frame 62 at
+    /// physical frames 73..82. Physical frame 93 remains the terminator.
+    /// All 188 physical words match this expansion in the pinned NTSC J/U
+    /// v1.0 ROM; <c>$DD42</c> is the separate loop Y distance. The bounded
+    /// mapping is applied by <see cref="CollapseExpandedPlateaus"/>.
+    /// Investigation: #625 / #658.
+    /// </summary>
     private const ushort SlowPointer = 0xdbca;
     private const ushort VerySlowPointer = 0xdd44;
 

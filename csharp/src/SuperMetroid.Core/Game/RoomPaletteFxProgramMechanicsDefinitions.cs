@@ -14,6 +14,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (PlanetZebesTextPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out value))
             return true;
         if (WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(

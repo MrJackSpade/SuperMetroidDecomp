@@ -1694,3 +1694,14 @@ All three real definitions execute and repeat their complete cycles with mechani
 forbidden. Verification proves exact ROM parity, every live color read, the gunship's
 two-frame white/black flicker, and both native Ceres entry paths converging on the same
 fourteen-record, 56-frame red/blue cross-fade loop at `$8D:C892`.
+
+## PLANET ZEBES text-fade palette mechanics
+
+The opening cinematic's PLANET ZEBES fade-in and fade-out programs now compile all 38
+color-index, duration, wait, and delete words through
+`PlanetZebesTextPaletteFxProgramMechanicsDefinitions`. Their 48 BGR555 color words remain
+live presentation data.
+
+Both real definitions execute their complete eight-record, 24-frame one-shot programs
+with mechanics reads forbidden and delete themselves after the final hold. Verification
+proves exact ROM parity, every live color read, and the mirrored native fade entries.

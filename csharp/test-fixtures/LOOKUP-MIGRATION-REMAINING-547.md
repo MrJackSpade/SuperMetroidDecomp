@@ -1750,6 +1750,18 @@ The real `$E194` definition executes its complete eight-record, 24-frame fade wi
 mechanics reads forbidden, remains active through the final hold, and deletes on the
 following frame. Verification proves exact ROM parity and every live color read.
 
+## Nintendo-logo shared fade mechanics
+
+The unused Nintendo boot-logo fade and live copyright fade now compile all 23 unique
+color-index, duration, wait, branch, and delete words through
+`NintendoLogoFadePaletteFxProgramMechanicsDefinitions`. Their sixteen shared BGR555 color
+words remain live presentation data.
+
+Both real definitions execute the complete eight-record, 24-frame shared body with
+mechanics reads forbidden, remain active through the final hold, and delete on the
+following frame. Verification proves exact ROM parity, every live color read, the boot
+entry's native fall-through, and the copyright entry's explicit branch to `$8D:C7B0`.
+
 ## Samus-loading suit palette mechanics
 
 The power, Varia, and gravity Samus-loading programs now compile all 99 color-index,

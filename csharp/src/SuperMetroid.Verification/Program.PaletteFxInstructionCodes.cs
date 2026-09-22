@@ -48,6 +48,7 @@ internal static partial class Program
 
         VerifyBeaconSoundInstruction(bus);
         VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(bus);
+        VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(bus);
         VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus);
@@ -88,8 +89,83 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1664 control words and 32 byte operands are compiled; all four audio opcodes " +
+            "plus 1687 control words and 32 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoEntry;
+             pointer <= NintendoLogoFadePaletteFxProgramMechanicsDefinitions
+                 .CopyrightGotoInstructionPointer + sizeof(ushort);
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!NintendoLogoFadePaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Nintendo-logo fade catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Nintendo-logo fade compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Nintendo-logo fade cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(23, mechanicsWords,
+            "compiled Nintendo-logo fade mechanics words");
+
+        for (int frame = 0;
+             frame < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                sizeof(ushort)));
+            for (int color = 0;
+                 color < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "Nintendo-logo fade colors remain presentation-owned");
+            }
+        }
+
+        foreach (NintendoLogoFadePaletteFxProgramDefinition definition in
+                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All)
+        {
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int step = 0;
+                 step < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
+                 step++)
+            {
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            }
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} fade remains active through its final hold");
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} fade deletes after its final hold");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} fade avoids mechanics ROM reads");
+            AssertEqual(
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount *
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} fade retains every live color");
+        }
     }
 
     private static void VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(
@@ -2765,6 +2841,22 @@ internal static partial class Program
 
             if (source.Bank == 0x8d)
             {
+                for (int frame = 0;
+                     frame < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                        sizeof(ushort)));
+                    if ((uint)offset <
+                        NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
                 for (int frame = 0;
                      frame < TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)

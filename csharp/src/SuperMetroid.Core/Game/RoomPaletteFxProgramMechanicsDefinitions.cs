@@ -14,6 +14,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (NintendoLogoFadePaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
                 out value))

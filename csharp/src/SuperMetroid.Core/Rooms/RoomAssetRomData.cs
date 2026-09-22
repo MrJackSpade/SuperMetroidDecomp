@@ -115,6 +115,19 @@ public static class RoomAssetRomData
     /// <summary>Bank-$82 library-background command memory and transfer definitions.</summary>
     public static class LibraryBackground
     {
+        /// <summary>Direct-ROM character upload for the Tourian entrance statue's ghostly BG effect.</summary>
+        public static class TourianStatueGhost
+        {
+            /// <summary><c>$87:AD64</c>, the 48 raw 4-bpp ghost characters named <c>kTileData_TourianEntranceStatueGhost</c>.</summary>
+            public const int SourceAddress = 0x87ad64;
+
+            /// <summary>48 complete 4-bpp characters uploaded by the native library-background command.</summary>
+            public const ushort TransferByteCount = 0x0600;
+
+            /// <summary>Native destination VRAM word for the ghost character upload.</summary>
+            public const ushort VramDestinationWord = 0x6d00;
+        }
+
         /// <summary>Lowest full 24-bit SNES ROM address for command-source classification.</summary>
         public const int RomSourceAddressFloor = 0x800000;
 

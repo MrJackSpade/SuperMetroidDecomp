@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomCharacterArtworkFiles
 {
     public const string ManifestFileName = "room-characters.json";
-    private const int FormatVersion = 1;
+    private const int FormatVersion = 2;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -29,7 +29,10 @@ public static class RoomCharacterArtworkFiles
         foreach ((string name, int sourceAddress) in sources)
         {
             byte[] png = pngs[name];
-            int nativeByteCount = RomDataReader.Decompress(bus, sourceAddress).Length;
+            int nativeByteCount = sourceAddress ==
+                RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress
+                ? RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount
+                : RomDataReader.Decompress(bus, sourceAddress).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);
@@ -116,6 +119,8 @@ public static class RoomCharacterArtworkFiles
             int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
             sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
         }
+        int ghostAddress = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
+        sources[RoomCharacterAtlasFormat.SourceFileName(ghostAddress)] = ghostAddress;
         return sources;
     }
 

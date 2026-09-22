@@ -46,6 +46,50 @@ internal static partial class Program
             AssertTrue(stock.Get(source).Transfer.Span.SequenceEqual(native.RoomCharacters),
                 "room override does not mutate stock artwork already loaded");
 
+            int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
+            string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
+            string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
+            byte[] nativeGhost = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+                ghostSource, RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
+            AssertTrue(stock.Get(ghostSource).Transfer.Span.SequenceEqual(nativeGhost),
+                "installed statue-ghost PNG preserves every native character byte");
+            LibraryBackgroundSource ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
+                .Single(entry => entry.SourceAddress == ghostSource);
+            AssertEqual((ushort)RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount,
+                ghostTransfer.TransferByteCount!.Value, "statue-ghost library upload length");
+            AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.VramDestinationWord,
+                ghostTransfer.VramDestination!.Value, "statue-ghost library VRAM destination");
+            var nativeGhostVram = new SnesVram();
+            LibraryBackgroundLoader.Execute(bus, nativeGhostVram, ghostTransfer.ListPointer,
+                activeDoorPointer: 0);
+            var installedGhostVram = new SnesVram();
+            LibraryBackgroundLoader.Execute(bus, installedGhostVram, ghostTransfer.ListPointer,
+                activeDoorPointer: 0, characterArt: stock);
+            AssertTrue(nativeGhostVram.Bytes.SequenceEqual(installedGhostVram.Bytes),
+                "installed statue-ghost PNG matches the complete native library upload");
+            int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
+            int ghostColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, ghostTileCount);
+            int ghostRows = (ghostTileCount + ghostColumns - 1) / ghostColumns;
+            IndexedPngImage ghostImage;
+            using (var stockFile = File.OpenRead(ghostStockPath))
+                ghostImage = IndexedPng.Read(stockFile, ghostColumns * 8, ghostRows * 8);
+            ghostImage.Pixels[0] ^= 1;
+            string ghostOverridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, ghostName);
+            using (var output = File.Create(ghostOverridePath))
+                IndexedPng.Write(output, ghostImage.Width, ghostImage.Height,
+                    ghostImage.Pixels, ghostImage.Palette);
+            RoomCharacterAtlasCatalog editedGhost = installed.LoadRoomCharacters();
+            var editedGhostVram = new SnesVram();
+            LibraryBackgroundLoader.Execute(bus, editedGhostVram, ghostTransfer.ListPointer,
+                activeDoorPointer: 0, characterArt: editedGhost);
+            int ghostDestinationByte = ghostTransfer.VramDestination.Value * 2;
+            AssertTrue(nativeGhostVram.ReadByte(ghostDestinationByte) !=
+                    editedGhostVram.ReadByte(ghostDestinationByte) &&
+                nativeGhostVram.Bytes.Slice(ghostDestinationByte + 1, nativeGhost.Length - 1)
+                    .SequenceEqual(editedGhostVram.Bytes.Slice(
+                        ghostDestinationByte + 1, nativeGhost.Length - 1)),
+                "edited statue-ghost pixel changes only its selected live VRAM byte");
+
             AssertTrue(File.Exists(Path.Combine(installed.RoomPaletteDirectory,
                     RoomStaticPaletteArtworkFiles.ManifestFileName)),
                 "room-palette stock manifest is installed");
@@ -174,6 +218,7 @@ internal static partial class Program
             // A missing stock resource causes atomic re-extraction from the installed
             // cartridge; the edit remains outside the replaceable game directory.
             File.Delete(Path.Combine(installed.RoomCharacterDirectory, name));
+            File.Delete(ghostStockPath);
             File.Delete(paletteStockPath);
             File.Delete(blockStockPath);
             File.Delete(backgroundStockPath);
@@ -183,6 +228,11 @@ internal static partial class Program
             AssertTrue(File.Exists(overridePath), "room-character override survives stock repair");
             AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, name)),
                 "room-character stock sheet is restored by repair");
+            AssertTrue(File.Exists(ghostOverridePath) &&
+                File.Exists(Path.Combine(repaired.RoomCharacterDirectory, ghostName)) &&
+                repaired.LoadRoomCharacters().Get(ghostSource).Transfer.Span.SequenceEqual(
+                    editedGhost.Get(ghostSource).Transfer.Span),
+                "statue-ghost stock sheet is repaired without losing the user edit");
             AssertTrue(File.Exists(paletteOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),
                 "room-palette stock is restored while its override survives repair");
@@ -225,6 +275,10 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
                 "invalid room-art override fails loudly instead of reverting to stock");
             File.Delete(overridePath);
+            File.WriteAllBytes(ghostOverridePath, "invalid indexed PNG"u8.ToArray());
+            AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
+                "invalid statue-ghost override fails loudly");
+            File.Delete(ghostOverridePath);
             File.WriteAllText(paletteOverridePath, "invalid RGB5 JSON");
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomPalettes(),
                 "invalid room-palette override fails loudly instead of reverting to stock");
@@ -239,7 +293,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomSkyTilemaps(),
                 "invalid scrolling-sky override fails loudly instead of reverting to stock");
 
-            Console.WriteLine("  Room artwork installation: PNG, RGB5, block, BG and sky stock import, live edits, " +
+            Console.WriteLine("  Room artwork installation: PNG, statue ghost, RGB5, block, BG and sky stock import, live edits, " +
                 "repair preservation and invalid-override rejection verified.");
         }
         finally

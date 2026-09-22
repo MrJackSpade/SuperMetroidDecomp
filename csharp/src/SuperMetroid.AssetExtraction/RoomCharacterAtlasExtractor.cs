@@ -20,11 +20,18 @@ public static class RoomCharacterAtlasExtractor
             string name = RoomCharacterAtlasFormat.SourceFileName(sourceAddress);
             if (!files.ContainsKey(name)) Add(name, sourceAddress);
         }
+        Add(RoomCharacterAtlasFormat.SourceFileName(
+                RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress),
+            RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress,
+            compressed: false);
         return files;
 
-        void Add(string fileName, int sourceAddress)
+        void Add(string fileName, int sourceAddress, bool compressed = true)
         {
-            byte[] planar = RomDataReader.Decompress(bus, sourceAddress);
+            byte[] planar = compressed
+                ? RomDataReader.Decompress(bus, sourceAddress)
+                : RomDataReader.ReadFixedBank(bus, sourceAddress,
+                    RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
             int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,
                 RoomCharacterAtlasFormat.TileColumns, out int width, out int height);

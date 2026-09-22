@@ -59,7 +59,7 @@ public static class GameInstallationLayout
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 6;
+    public const int FormatVersion = 7;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

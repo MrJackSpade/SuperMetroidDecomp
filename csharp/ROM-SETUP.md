@@ -88,8 +88,9 @@ require their input directories. Keep all ROMs and generated game resources out 
 
 ## Room-character PNG overrides
 
-Setup extracts the shared CRE characters and each distinct graphics-set character
-stream to `game/room-characters/*.png`. These are indexed 8x8 tile sheets, not
+Setup extracts the shared CRE characters, each distinct graphics-set character
+stream, and the Tourian statue-ghost characters to `game/room-characters/*.png`.
+The ghost sheet is `room-characters-87AD64.png`. These are indexed 8x8 tile sheets, not
 screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixed,
 and the neutral PNG palette is only a preview. The room palette and metatile map
 still supply the on-screen colors and arrangement.
@@ -131,8 +132,8 @@ installed alongside them as `scrolling-sky-*.json`; copies under
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
 engine behavior. Kraid's direct HUD-character upload also uses the existing
 `game/maps/hud-tiles.png` and `overrides/maps/hud-tiles.png` artwork instead of
-rereading those characters from the ROM. The remaining Tourian statue-ghost
-character upload is not yet editable.
+rereading those characters from the ROM. The Tourian statue-ghost library upload
+likewise uses the installed room-character sheet instead of the raw ROM source.
 Stock hashes and override repair follow the same rules as the room-character
 sheets.
 

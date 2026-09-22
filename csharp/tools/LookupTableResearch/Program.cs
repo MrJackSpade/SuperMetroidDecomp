@@ -24,6 +24,7 @@ internal static partial class Program
             VerifyGaussian();
             VerifyGrapple(rom);
             VerifyEffectPatterns(rom);
+            VerifyCeresRotation(rom);
             return 0;
         }
         catch (Exception exception)

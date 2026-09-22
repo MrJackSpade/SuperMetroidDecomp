@@ -33,6 +33,17 @@ public static class CeresRidleyGetawayDefinitions
     /// </remarks>
     public const int YReferenceAddress = 0xa6af2f;
     /// <summary>$A6:B00F, CeresRidleyGetawayXVelocityTable: signed values subtracted from horizontal offset.</summary>
+    /// <remarks>
+    /// #625 / #654 exact signed NTSC J/U v1.0 reconstruction for frame f=0..111:
+    /// -1 at 0..79, zero at 80..87, +1 at 88..95,
+    /// 2+(f-96)/2 using integer division at 96..103,
+    /// 8+4*(f-104) at 104..107, and +32 at 108..111.
+    /// All 112 words at $A6:B00F-$B0EE match the pinned ROM and bank-A6
+    /// disassembly. The caller subtracts each signed word with 16-bit wrapping,
+    /// indexed by even byte offsets 0..222. The zoom terminator at byte offset
+    /// 224 prevents any X read on that frame. VerifyCompiledCeresRidleyGetaway
+    /// checks every word; the real Ceres encounter consumes the full schedule.
+    /// </remarks>
     public const int XReferenceAddress = 0xa6b00f;
     /// <summary>Native zoom terminator; no translation records are consumed on this frame.</summary>
     public const ushort Finished = 0xffff;

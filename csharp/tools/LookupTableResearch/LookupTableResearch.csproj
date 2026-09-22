@@ -13,5 +13,11 @@
     <Compile Include="../../src/SuperMetroid.Core/Audio/SpcMusicTables.cs" Link="SpcMusicTables.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Audio/SnesDspTables.cs" Link="SnesDspTables.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/SuitPickupBeamCurveDefinitions.cs" Link="SuitPickupBeamCurveDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/DraygonHealthPaletteDefinitions.cs" Link="DraygonHealthPaletteDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/BotwoonHealthPaletteDefinitions.cs" Link="BotwoonHealthPaletteDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/BotwoonSpeedDefinitions.cs" Link="BotwoonSpeedDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/DraygonIntroDanceDefinitions.cs" Link="DraygonIntroDanceDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/WorkRobotPaletteTimingDefinitions.cs" Link="WorkRobotPaletteTimingDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs" Link="SamusComboMechanicsDefinitions.cs" />
   </ItemGroup>
 </Project>

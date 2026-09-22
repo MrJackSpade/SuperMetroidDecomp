@@ -19,6 +19,13 @@ internal static class WorkRobotPaletteTimingDefinitions
     /// <summary>Four color words plus one timer word per record.</summary>
     public const ushort RecordByteCount = 10;
 
+    /// <summary>$A8:CCC9+10*i, six timer words interleaved with palette colors.</summary>
+    /// <remarks>Issue #625 exact cadence: validate record i=0..5, then return
+    /// 64 when i%3==0 and 16 otherwise. LookupTableResearch checks all six timers
+    /// against the NTSC ROM, pinned bank_A8.asm and DurationForByteOffset(10*i).
+    /// Byte alignment must be validated before dividing by ten; modulo describes
+    /// the two authored cycles, not permission to wrap an invalid input. The
+    /// terminator and NormalizeByteOffset remain separate from duration selection.</remarks>
     private static ReadOnlySpan<ushort> Durations => [64, 16, 16, 64, 16, 16];
 
     /// <summary>Returns the duration for one aligned authored palette-record offset.</summary>

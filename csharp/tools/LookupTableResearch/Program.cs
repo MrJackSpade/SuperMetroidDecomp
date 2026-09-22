@@ -20,6 +20,7 @@ internal static partial class Program
             VerifyGeometry(rom);
             VerifyAudio(rom);
             VerifySuitCurve(rom);
+            VerifyPolicies(rom);
             return 0;
         }
         catch (Exception exception)
@@ -237,11 +238,11 @@ internal static partial class Program
             int start = assembly.IndexOf(label + ':', StringComparison.Ordinal);
             if (start < 0) throw new InvalidDataException($"Missing pinned assembly label {label}.");
             int cursor = address;
-            foreach (Match line in Regex.Matches(assembly[start..], @"(?m)^\s*d([bw])\s+(\$[\dA-Fa-f]{2,4}(?:,\$[\dA-Fa-f]{2,4})*)"))
+            foreach (Match line in Regex.Matches(assembly[start..], @"(?m)^\s*d([bw])\s+(\$[\dA-Fa-f]{2,4}(?:,\s*\$[\dA-Fa-f]{2,4})*)"))
             {
                 foreach (string token in line.Groups[2].Value.Split(','))
                 {
-                    int value = Convert.ToInt32(token[1..], 16);
+                    int value = Convert.ToInt32(token.Trim()[1..], 16);
                     asmBytes[cursor++] = (byte)value;
                     if (line.Groups[1].Value == "w") asmBytes[cursor++] = (byte)(value >> 8);
                 }

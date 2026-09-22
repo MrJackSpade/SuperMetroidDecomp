@@ -15,6 +15,16 @@ internal static class BotwoonHealthPaletteDefinitions
     /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
     public const ushort CompletePhaseByteOffset = 16;
 
+    /// <summary>$B3:981B, BotwoonHealthThresholdsForPaletteChange, eight palette-phase thresholds.</summary>
+    /// <remarks>
+    /// Issue #625 exact arithmetic: threshold(i)=375*(8-i), i=0..7; the public
+    /// phase input is the even byte offset 2*i. Preserve the current sixteen-bit
+    /// subtraction followed by SIGNED comparison, not an unsigned health comparison.
+    /// LookupTableResearch checks all eight native words and all 8*65,536 phase/health
+    /// pairs against ShouldAdvance, independently using ROM thresholds verified with
+    /// pinned bank_B3.asm. Odd offsets and the terminal offset 16 remain invalid;
+    /// the caller, not an extrapolated ninth threshold, owns completion.
+    /// </remarks>
     private static ReadOnlySpan<ushort> Thresholds =>
         [3000, 2625, 2250, 1875, 1500, 1125, 750, 375];
 

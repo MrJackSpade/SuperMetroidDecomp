@@ -2055,3 +2055,10 @@ the verifier also checks VRAM upload, an edited pixel, and rejection of edited
 unused cells in a partial final row. Extraction/round-trip is ready, but room
 loading and installation still use the cartridge character streams until the
 room-art catalog and override handoff are implemented under #533.
+
+`CartridgeRoomAssets.Load` now accepts a complete compiled character catalog. With
+that catalog bound, it does not read either CRE or graphics-set character sources
+from the ROM. Landing Site and Ceres produce byte-identical room characters and
+VRAM/CGRAM under source-read guards, preserving Ceres' overwrite ordering. A
+painted room PNG changes the real room loader's character output. Production hosts
+have not yet installed/bound this catalog, so their visible art is unchanged.

@@ -178,11 +178,15 @@ internal static partial class Program
         }
         AssertEqual(sources.Count, files.Count, "one PNG per distinct retail room-character source");
 
+        var compiledBySource = new Dictionary<int, RoomCharacterAtlas>();
+        RoomCharacterAtlas? compiledCre = null;
         foreach ((string name, int sourceAddress) in sources)
         {
             byte[] native = RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];
             RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);
+            if (name == RoomCharacterAtlasFormat.CreFileName) compiledCre = atlas;
+            else compiledBySource.Add(sourceAddress, atlas);
             AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
                 $"room atlas {name} preserves every native character byte");
             var vram = new SnesVram();
@@ -190,6 +194,49 @@ internal static partial class Program
             AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
                 $"room atlas {name} uploads exactly the native character range");
         }
+        var catalog = new RoomCharacterAtlasCatalog(compiledCre!, compiledBySource);
+        foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
+        {
+            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, room);
+            int areaSource = native.Tileset.CharacterAddress;
+            var guardedBus = new RoomCharacterReadGuard(bus, areaSource);
+            CartridgeRoomAssets installed = CartridgeRoomAssets.Load(guardedBus, room, catalog);
+            AssertTrue(installed.CreCharacters.AsSpan().SequenceEqual(native.CreCharacters) &&
+                installed.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
+                $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
+            var nativeVram = new SnesVram();
+            var installedVram = new SnesVram();
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
+            native.LoadGraphics(nativeVram, nativeCgram);
+            installed.LoadGraphics(installedVram, installedCgram);
+            AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes) &&
+                nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
+        }
+
+        CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+        int landingSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).CharacterAddress;
+        byte[] landingNative = RomDataReader.Decompress(bus, landingSource);
+        int landingTiles = landingNative.Length / RoomCharacterAtlasFormat.BytesPerTile;
+        int landingColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, landingTiles);
+        int landingRows = (landingTiles + landingColumns - 1) / landingColumns;
+        IndexedPngImage landingImage = IndexedPng.Read(
+            new MemoryStream(files[RoomCharacterAtlasFormat.SourceFileName(landingSource)]),
+            landingColumns * 8, landingRows * 8);
+        byte[] painted = (byte[])landingImage.Pixels.Clone();
+        painted[0] ^= 1;
+        using var paintedPng = new MemoryStream();
+        IndexedPng.Write(paintedPng, landingImage.Width, landingImage.Height, painted,
+            landingImage.Palette);
+        compiledBySource[landingSource] = RoomCharacterAtlas.Load(
+            new MemoryStream(paintedPng.ToArray()), landingNative.Length);
+        var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre!, compiledBySource);
+        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(
+            new RoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
+        AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(landingNative),
+            "edited installed room PNG changes real room-loader character bytes");
 
         // A painted pixel must change the runtime character transfer, while edits in
         // empty padding cells must fail rather than disappear silently.
@@ -224,7 +271,23 @@ internal static partial class Program
             "room atlas rejects artwork in unused final-row cells");
 
         Console.WriteLine($"  Room character atlases: {files.Count} distinct CRE/graphics-set PNGs " +
-            "roundtrip and upload byte-exactly; edited pixels are honored and padding edits rejected.");
+            "roundtrip exactly; Ceres/Landing Site load without source reads, edits reach room loading, " +
+            "and padding edits are rejected.");
+    }
+
+    private sealed class RoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
+        : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if (address == RoomAssetRomData.Tilesets.CreCharactersAddress ||
+                address == areaCharacters)
+                throw new InvalidOperationException(
+                    $"Installed room loader reread character source ${address:X6}.");
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace

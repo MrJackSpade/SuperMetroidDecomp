@@ -1568,6 +1568,6 @@ words remain live presentation data. The shared resolver now supports explicitly
 byte mechanics without absorbing live audio command operands.
 
 Both real definitions execute their complete nested timer cycles with all mechanics bytes
-forbidden, preserving 503/703-frame cadence and every live color read. Focused coverage
+forbidden, preserving 503/743-frame cadence and every live color read. Focused coverage
 also lowers Samus across the native Y=$0380 boundary and proves that each pre-instruction
 restarts its neutral record immediately without restoring a cartridge read.

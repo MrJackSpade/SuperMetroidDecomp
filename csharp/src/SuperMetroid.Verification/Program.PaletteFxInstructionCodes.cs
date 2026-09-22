@@ -468,9 +468,13 @@ internal static partial class Program
         }
 
         AssertEqual(36, mechanicsWords, "compiled Torizo belly mechanics words");
-        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xe2e0, out _),
+        AssertTrue(!TorizoBellyPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                0xe2e0,
+                out _),
             "Torizo belly owner rejects adjacent pre-instruction code");
-        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xe379, out _),
+        AssertTrue(!TorizoBellyPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                0xe379,
+                out _),
             "Torizo belly owner rejects adjacent heat pre-instruction code");
     }
 
@@ -566,7 +570,9 @@ internal static partial class Program
                 $"palette-FX definition $8D:{definition:X4} retains statue color reads");
         }
 
-        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xe2e0, out _),
+        AssertTrue(!TourianStatueGreyPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                0xe2e0,
+                out _),
             "Tourian statue grey owner rejects adjacent pre-instruction code");
     }
 
@@ -654,7 +660,8 @@ internal static partial class Program
                 $"palette-FX definition $8D:{definition:X4} retains green-light color reads");
         }
 
-        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xeae0, out _),
+        AssertTrue(!WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.
+                TryReadMechanicsWord(0xeae0, out _),
             "Wrecked Ship green-light owner rejects adjacent code");
     }
 
@@ -820,7 +827,17 @@ internal static partial class Program
                 7),
             "Norfair heat selector gives Gravity Suit native priority");
 
-        _ = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0);
+        // Warm the same hot loop before measuring. A handful of calls covers the switch
+        // arms but does not cross the tiered-runtime threshold, whose one-time bookkeeping
+        // would otherwise masquerade as a production lookup allocation.
+        ushort warmChecksum = 0;
+        for (int iteration = 0; iteration < 65_536; iteration++)
+        {
+            warmChecksum ^= PaletteFxHeatInstructionListDefinitions.Resolve(
+                (PaletteFxHeatSuit)(iteration % 3),
+                (ushort)(iteration & 15));
+        }
+        GC.KeepAlive(warmChecksum);
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         ushort checksum = 0;
         for (int iteration = 0; iteration < 65_536; iteration++)

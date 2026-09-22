@@ -66,6 +66,7 @@ public sealed class RoomPaletteFxSystem
         }
 
         slot.Id = ushort.MaxValue;
+        slot.PreInstruction = PaletteFxPreInstructionCodes.Null;
         slot.InstructionPointer = instructionPointer;
         slot.InstructionTimer = 1;
     }
@@ -399,9 +400,7 @@ public sealed class RoomPaletteFxSystem
                     // The assembly writes only the low byte addressed by the physical
                     // object index. The high byte was cleared at spawn and remains intact.
                     slot.Timer = (ushort)((slot.Timer & 0xff00) |
-                        bus.ReadByte(
-                            RoomFxRomData.Banks.PaletteFx |
-                            unchecked((ushort)(cursor + 2))));
+                        ReadBank8dByte(bus, unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
 

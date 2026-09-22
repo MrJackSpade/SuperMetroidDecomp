@@ -146,7 +146,7 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
                 new(0xed34, 1, 7), new(0xed46, 1, 7),
                 new(0xed58, 1, 7), new(0xed6a, 2, 7),
             ],
-            cycleFrames: 703,
+            cycleFrames: 743,
             displayedRecordsPerCycle: 22);
 
     private static CrateriaLightningPaletteFxProgramDefinition Create(

@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs" Link="GrappleFiringDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/EnemyTrigonometryTables.cs" Link="EnemyTrigonometryTables.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs" Link="AbsoluteTangentDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/ShaktoolOrbitTables.cs" Link="ShaktoolOrbitTables.cs" />

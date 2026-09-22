@@ -1785,3 +1785,14 @@ Both real definitions execute their complete eight-record one-shot programs with
 mechanics reads forbidden and delete themselves after their final holds. Verification
 proves exact ROM parity, every live color read, and the distinct 160-frame crust and
 112-frame grey-cloud fade durations.
+
+## Zebes explosion gunship palette mechanics
+
+The gunship emerging from the Zebes explosion now compiles all 35 color-index,
+duration, wait, and delete words through
+`ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions`. Its 256 BGR555 color words
+remain live presentation data.
+
+The real definition executes its complete sixteen-record, 384-frame one-shot reveal with
+mechanics reads forbidden and deletes itself after the final hold. Verification proves
+exact ROM parity and every live color read.

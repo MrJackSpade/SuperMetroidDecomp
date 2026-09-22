@@ -86,14 +86,43 @@ public static class SamusSpecialSequenceRomData
         /// <summary>Explosion unsigned 8.8 acceleration.</summary>
         public const ushort ExplosionAcceleration = 0x0030;
         /// <summary>First yellow ellipse definition in bank <c>$88</c>.</summary>
+        /// <remarks>
+        /// #625 exact pre-scaled profile generator: yellow frame f=0..3 uses n=f+3 and
+        /// R=min(255, floor(4+48*n-n*(n-1)/4)). This is the initial radius 4, velocity 48,
+        /// and per-frame deceleration 1/2, integrated before discarding the fractional radius.
+        /// Feed R into the quantized ellipse/scaling recipe on FirstWhiteShape. All 768
+        /// bytes match the ROM and pinned PowerBomb_PreExplosion_ShapeDefinitionTables_PreScaled.
+        /// The last frame clamps R to 255; it is not a per-row correction. Use the authored
+        /// frame number, not the live radius: stage boundaries affect runtime accumulator timing.
+        /// </remarks>
         public const ushort FirstYellowShape = 0x9f06;
         /// <summary>Exclusive end of yellow ellipse definitions.</summary>
         public const ushort YellowShapeEnd = 0xa206;
         /// <summary>First white ellipse definition in bank <c>$88</c>.</summary>
+        /// <remarks>
+        /// #625 exact, correction-free generator for all 17*192 white-profile bytes:
+        /// frame f=0..16 uses n=f+37 and R=min(255, 4+floor(3*n*(n-1)/32)). This integrates
+        /// radius 4, initial speed zero, acceleration 3/16; round only after the quadratic sum.
+        /// Generate a 192-row unit profile B: for j=0..191, k=floor(512*asin((j+1)/192)/pi),
+        /// then B(j)=min(255, floor(256*cos(k*pi/512))). The endpoint j=191 is exactly zero.
+        /// Thus the ellipse uses a 1,024-step full circle BEFORE rasterization, not a smooth square root.
+        /// For output row y=0..191 let j=max(0, ceil(256*y/R)-1), equivalently
+        /// max(0, (256*y-1)/R) with integer division. Return zero if j&gt;=192, else floor(B(j)*R/256).
+        /// Preserve both quantization stages and the lower-side inverse-scale boundary.
+        /// LookupTableResearch verifies all 4,032 white/yellow bytes against NTSC J/U v1.0 ROM
+        /// and pinned bank_88.asm. Its deterministic decimal implementation selects k by bounded
+        /// sine comparisons rather than platform asin, and certifies every resulting integer.
+        /// Both true pi and 3.14159 reproduce the bytes, so their historical choice is undetermined.
+        /// A continuous ellipse basis misses 955 bytes; ordinary floor(256*y/R) misses 59.
+        /// Full-circle resolutions 256, 512, 2048, and 4096 also fail. No stored shape/radius table
+        /// or per-entry exceptions are required. These are authored frame profiles: do not substitute
+        /// the live ExplosionRadius, whose white-phase threshold is offset from n=37.
+        /// Runtime replacement, caching strategy, and performance verification remain deferred.
+        /// </remarks>
         public const ushort FirstWhiteShape = 0x9246;
         /// <summary>Exclusive end of white ellipse definitions.</summary>
         public const ushort WhiteShapeEnd = 0x9f06;
-        /// <summary>Bytes occupied by one 96-word ellipse definition.</summary>
+        /// <summary>Bytes occupied by one ellipse definition: 192 one-byte pixel-row widths.</summary>
         public const ushort ShapeStride = 192;
         /// <summary>Radius at which white pre-explosion becomes yellow.</summary>
         public const ushort PreExplosionWhiteLimit = 0x9200;

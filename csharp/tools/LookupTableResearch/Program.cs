@@ -25,6 +25,7 @@ internal static partial class Program
             VerifyGrapple(rom);
             VerifyEffectPatterns(rom);
             VerifyCeresRotation(rom);
+            VerifyPowerBombProfiles(rom);
             return 0;
         }
         catch (Exception exception)

@@ -1762,3 +1762,14 @@ Both real definitions execute the complete fifteen-record, 210-frame one-shot ra
 mechanics reads forbidden and delete themselves after the final hold. Verification proves
 exact ROM parity, every live color read, and both the explicit background branch and
 space-whiteout fall-through entry paths into the common program at `$8D:D36E`.
+
+## Zebes explosion ambient palette mechanics
+
+The post-explosion planet afterglow and lava pulse now compile all 40 color-index,
+duration, wait, loop, and target words through
+`ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions`. Their 58 BGR555 color words
+remain live presentation data.
+
+Both real definitions execute and repeat their complete loops with mechanics reads
+forbidden. Verification proves exact ROM parity, every live color read, the six-record /
+96-frame afterglow, and the lava pulse's symmetric ten-record / 70-frame duration curve.

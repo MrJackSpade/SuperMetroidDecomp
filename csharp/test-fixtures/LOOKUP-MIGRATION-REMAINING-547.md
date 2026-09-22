@@ -1116,6 +1116,20 @@ through its complete real loop with every program mechanics byte forbidden and e
 color read observed. Damage accumulation, the one-frame shared-phase handoff, and
 environmental sound cadence remain asserted.
 
+## Wrecked Ship green-light palette mechanics
+
+The powered Wrecked Ship green-light program shared by palette-FX definitions `$F76D`
+and `$F771` now compiles its color-index setup, eight durations, eight waits, goto, and
+loop target through `WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions`. Its
+sixteen BGR555 colors remain live presentation data. The room palette interpreter now
+routes translated mechanics through the shared `RoomPaletteFxProgramMechanicsDefinitions`
+owner rather than accumulating family checks in functional code.
+
+Verification compares all twenty control words with the pinned cartridge, executes both
+real definitions through a complete loop with mechanics bytes forbidden, observes all
+live color reads plus the repeated first frame, rejects adjacent code, and retains the
+exhaustive palette-FX and allocation checks.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

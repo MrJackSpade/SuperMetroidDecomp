@@ -511,7 +511,7 @@ public sealed class RoomPaletteFxSystem
 
     private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
     {
-        if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+        if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
                 out ushort compiled))
         {

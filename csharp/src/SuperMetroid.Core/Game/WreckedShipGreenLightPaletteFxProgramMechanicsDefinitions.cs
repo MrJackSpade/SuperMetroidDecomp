@@ -1,0 +1,82 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Immutable control words for Wrecked Ship's powered green-light palette loop.
+/// </summary>
+/// <remarks>
+/// Palette-FX definitions <c>$F76D</c> and <c>$F771</c> share this program. Its sixteen
+/// BGR555 colors remain live presentation data; only setup, timing, waits, and loop control
+/// are compiled here.
+/// </remarks>
+public static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions
+{
+    /// <summary><c>InstList_PaletteFXObject_WreckedShip1_0</c> at $8D:EAE2.</summary>
+    public const ushort ProgramStart = 0xeae2;
+
+    /// <summary>First timed record, <c>InstList_PaletteFXObject_WreckedShip1_1</c>.</summary>
+    public const ushort FirstFramePointer = 0xeae6;
+
+    /// <summary>Terminal <c>goto</c> command at $8D:EB26.</summary>
+    public const ushort LoopInstructionPointer = 0xeb26;
+
+    /// <summary>Eight ten-frame records form the powered-light cycle.</summary>
+    public const int FrameCount = 8;
+
+    /// <summary>Two BGR555 colors are presentation-owned by each record.</summary>
+    public const int ColorsPerFrame = 2;
+
+    /// <summary>Bytes from one duration word through its terminal wait command.</summary>
+    public const int FrameByteCount = 8;
+
+    /// <summary>Reads one fixed control word while excluding BGR555 presentation words.</summary>
+    public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
+    {
+        if (pointer == ProgramStart)
+        {
+            value = PaletteFxInstructionCodes.SetColorIndex;
+            return true;
+        }
+        if (pointer == unchecked((ushort)(ProgramStart + sizeof(ushort))))
+        {
+            value = 0x0098;
+            return true;
+        }
+        if (pointer == LoopInstructionPointer)
+        {
+            value = PaletteFxInstructionCodes.Goto;
+            return true;
+        }
+        if (pointer == unchecked((ushort)(LoopInstructionPointer + sizeof(ushort))))
+        {
+            value = FirstFramePointer;
+            return true;
+        }
+
+        int frameOffset = pointer - FirstFramePointer;
+        if (frameOffset >= 0 && frameOffset < FrameCount * FrameByteCount)
+        {
+            int inFrame = frameOffset % FrameByteCount;
+            if (inFrame == 0)
+            {
+                value = 10;
+                return true;
+            }
+            if (inFrame == FrameByteCount - sizeof(ushort))
+            {
+                value = PaletteFxInstructionCodes.Wait;
+                return true;
+            }
+        }
+
+        value = 0;
+        return false;
+    }
+
+    /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
+    public static ushort FramePointer(int frame)
+    {
+        if ((uint)frame >= FrameCount)
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
+    }
+}

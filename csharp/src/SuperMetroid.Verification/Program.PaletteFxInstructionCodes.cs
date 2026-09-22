@@ -49,7 +49,8 @@ internal static partial class Program
         VerifyBeaconSoundInstruction(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
-        var guardedHeatBus = new PaletteFxHeatMechanicsForbiddenBus(bus);
+        VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
+        var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
             "Norfair heat pre-instruction performs no selector-table ROM reads");
@@ -58,8 +59,96 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "and 114 program-control words are compiled; all four audio opcodes and " +
-            "retail $F781's byte/cursor handoff agree.");
+            "plus 134 heat/green-light control words are compiled; all four audio opcodes " +
+            "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(
+        ISnesAddressSpace bus)
+    {
+        var expected = new Dictionary<ushort, ushort>
+        {
+            [WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ProgramStart] =
+                PaletteFxInstructionCodes.SetColorIndex,
+            [unchecked((ushort)(
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ProgramStart + 2))] =
+                0x0098,
+            [WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer] =
+                PaletteFxInstructionCodes.Goto,
+            [unchecked((ushort)(
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2))] =
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FirstFramePointer,
+        };
+        for (int frame = 0;
+             frame < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort pointer =
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            expected.Add(pointer, 10);
+            expected.Add(
+                unchecked((ushort)(pointer +
+                    WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
+                PaletteFxInstructionCodes.Wait);
+            for (int color = 0;
+                 color < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                ushort presentationPointer = unchecked((ushort)(
+                    pointer + sizeof(ushort) + color * sizeof(ushort)));
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        presentationPointer,
+                        out _),
+                    $"Wrecked Ship green-light color $8D:{presentationPointer:X4} remains presentation-owned");
+            }
+        }
+
+        AssertEqual(20, expected.Count, "Wrecked Ship green-light mechanics word count");
+        foreach ((ushort pointer, ushort value) in expected)
+        {
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Wrecked Ship green-light program catalogs $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Wrecked Ship green-light compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Wrecked Ship green-light cartridge word $8D:{pointer:X4}");
+        }
+
+        foreach (ushort definition in new ushort[] { 0xf76d, 0xf771 })
+        {
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+            int steps = 1 +
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount * 10;
+            for (int step = 0; step <= steps; step++)
+            {
+                paletteFx.Step(
+                    guarded,
+                    cgram,
+                    samusY: 0,
+                    equippedItems: 0,
+                    enemyZeroIsDead: false,
+                    areaMiniBossDefeated: false);
+            }
+
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"palette-FX definition $8D:{definition:X4} avoids green-light mechanics ROM reads");
+            AssertEqual(
+                (WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"palette-FX definition $8D:{definition:X4} retains green-light color reads");
+        }
+
+        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xeae0, out _),
+            "Wrecked Ship green-light owner rejects adjacent code");
     }
 
     private static void VerifyPaletteFxHeatProgramMechanicsDefinitions(
@@ -114,7 +203,7 @@ internal static partial class Program
                 mechanicsWords++;
             }
 
-            var guarded = new PaletteFxHeatMechanicsForbiddenBus(bus);
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             ushort equippedItems = definition.Suit switch
@@ -294,7 +383,7 @@ internal static partial class Program
             "retail Norfair heat owner publishes on frame-eight boundaries");
     }
 
-    private sealed class PaletteFxHeatMechanicsForbiddenBus(ISnesAddressSpace inner)
+    private sealed class PaletteFxMechanicsForbiddenBus(ISnesAddressSpace inner)
         : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
@@ -309,10 +398,10 @@ internal static partial class Program
                     PaletteFxHeatInstructionListDefinitions.PhaseCount * sizeof(ushort)));
             SnesAddress source = SnesAddress.FromBusAddress(address);
             bool compiledProgramByte = source.Bank == 0x8d &&
-                (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                     source.Offset,
                     out _) ||
-                 PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                 RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                     unchecked((ushort)(source.Offset - 1)),
                     out _));
             if (address >= first && address < lastExclusive || compiledProgramByte)
@@ -337,6 +426,24 @@ internal static partial class Program
                             PresentationReadCount++;
                             break;
                         }
+                    }
+                }
+
+
+                for (int frame = 0;
+                     frame < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort firstColor = unchecked((ushort)(
+                        WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                        sizeof(ushort)));
+                    int colorOffset = source.Offset - firstColor;
+                    if ((uint)colorOffset <
+                        WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
                     }
                 }
             }

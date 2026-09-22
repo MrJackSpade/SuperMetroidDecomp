@@ -25,6 +25,16 @@ internal static class ChootFallingPathDefinitions
     /// <c>ChootFallingPatternData_0_Normal</c> at <c>$A2:D84C-$A2:D973</c>.
     /// Each adjacent pair is a signed X/Y word; the final X word is the terminator.
     /// </summary>
+    /// <remarks>
+    /// The pinned NTSC J/U v1.0 ROM matches all 73 motion pairs and the final
+    /// <c>$8000,$8000</c> sentinel. Choot consumes one pair per fall frame and
+    /// adds its signed offsets to the 16-bit path origin; the following
+    /// <c>$D974</c> word is the loop Y distance, outside this path. Retain the
+    /// bounded authored trajectory: its unequal plateaus and phase transitions
+    /// would require correction data in a lossless arithmetic reconstruction.
+    /// Slow and very-slow selectors reuse these pairs with separate repeated
+    /// plateau frames. Investigation: #625 / #655.
+    /// </remarks>
     private static ReadOnlySpan<ushort> Normal =>
     [
         0x0000, 0x0000, 0x0001, 0x0001, 0x0002, 0x0001, 0x0003, 0x0002,

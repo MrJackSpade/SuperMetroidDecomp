@@ -33,6 +33,17 @@ public static class BullMovementDefinitions
     }
 
     /// <summary>Returns the authored frame intervals selected by population parameter one.</summary>
+    /// <remarks>
+    /// #625 / #649: the acceleration field in each four-byte record at
+    /// $A8:D895-$D8C8 is exactly selector+3 for selector 0..12. All 13 first
+    /// words match the pinned NTSC J/U v1.0 ROM and bank-A8 disassembly.
+    /// The native initializer multiplies parameter one by four and copies this
+    /// word to both the timer reset and live timer. Selector 13 would read the
+    /// following code and is rejected. The interleaved deceleration field has
+    /// a separate sequence and requires its own #625 decision.
+    /// VerifyCompiledBullMovement covers all 13 values through 104 real
+    /// initializer combinations without a ROM bus.
+    /// </remarks>
     public static (ushort Acceleration, ushort Deceleration) Intervals(ushort selector)
     {
         if (selector >= IntervalCount)

@@ -14,6 +14,9 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     /// <summary><c>PalFxInstList_Crateria8</c> at <c>$8D:FA69</c>.</summary>
     public const ushort ProgramStart = 0xfa69;
 
+    /// <summary>The first CGRAM destination byte for the old-Tourian red flash.</summary>
+    public const ushort ColorByteIndex = 0x00a2;
+
     /// <summary>The first timed record at <c>$8D:FA6D</c>.</summary>
     public const ushort FirstFramePointer = 0xfa6d;
 
@@ -32,6 +35,9 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     /// <summary>The complete loop lasts 42 frames.</summary>
     public const int CycleFrames = 42;
 
+    /// <summary>Color offsets around the two inline CGRAM-index skips.</summary>
+    private static readonly ushort[] ColorOffsets = [2, 4, 6, 10, 12, 14, 16, 20];
+
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {
@@ -40,13 +46,21 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one color word, skipping the two inline CGRAM-index instructions.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + ColorOffsets[color]));
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         value = pointer switch
         {
             ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => 0x00a2,
+            ProgramStart + 2 => ColorByteIndex,
             LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
             LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,

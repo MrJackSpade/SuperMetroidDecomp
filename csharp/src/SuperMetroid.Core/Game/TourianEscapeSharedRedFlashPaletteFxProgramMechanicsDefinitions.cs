@@ -67,6 +67,15 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one color word, skipping the inline CGRAM-index instruction.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        int offset = color < 6 ? sizeof(ushort) + color * sizeof(ushort) : 16;
+        return unchecked((ushort)(FramePointer(frame) + offset));
+    }
+
     /// <summary>Resolves one compiled mechanics word across both entries and the loop.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {

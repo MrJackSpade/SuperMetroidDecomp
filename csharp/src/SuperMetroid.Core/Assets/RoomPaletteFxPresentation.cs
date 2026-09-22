@@ -347,6 +347,52 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
+                 TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                TourianEscapeRedFlashPaletteOwner.Shutter => document.TourianEscapeShutter,
+                TourianEscapeRedFlashPaletteOwner.Background =>
+                    document.TourianEscapeBackground,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Tourian escape red-flash owner {definition.Owner}."),
+            };
+            ValidateAndCompile($"Tourian escape {definition.Owner}", frames,
+                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame, definition.ColorPointer, colors);
+        }
+        ValidateAndCompile(
+            "Tourian escape shared red flash",
+            document.TourianEscapeSharedRedFlash,
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        ValidateAndCompile(
+            "old Tourian escape red flash",
+            document.OldTourianEscapeRedFlash,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
+                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                OldTourianEscapeAccentPaletteOwner.OrangeRailings =>
+                    document.OldTourianEscapeOrangeRailings,
+                OldTourianEscapeAccentPaletteOwner.YellowPanels =>
+                    document.OldTourianEscapeYellowPanels,
+                _ => throw new InvalidDataException(
+                    $"Unsupported old Tourian escape accent owner {definition.Owner}."),
+            };
+            ValidateAndCompile($"old Tourian escape {definition.Owner}", frames,
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount,
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer, colors);
+        }
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -445,10 +491,16 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] SamusLoadingVariaSuit { get; init; }
     public required PaletteRgb5[][] SamusLoadingGravitySuit { get; init; }
     public required PaletteRgb5[][] PostCreditsIconGlare { get; init; }
+    public required PaletteRgb5[][] TourianEscapeShutter { get; init; }
+    public required PaletteRgb5[][] TourianEscapeBackground { get; init; }
+    public required PaletteRgb5[][] TourianEscapeSharedRedFlash { get; init; }
+    public required PaletteRgb5[][] OldTourianEscapeRedFlash { get; init; }
+    public required PaletteRgb5[][] OldTourianEscapeOrangeRailings { get; init; }
+    public required PaletteRgb5[][] OldTourianEscapeYellowPanels { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 14;
+    public const int Version = 15;
 }

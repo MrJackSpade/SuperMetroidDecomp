@@ -125,6 +125,22 @@ internal static class RoomPaletteFxPresentationExtractor
                 PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
                 PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer),
+            TourianEscapeShutter = ExtractTourianEscapeRedFlash(
+                TourianEscapeRedFlashPaletteOwner.Shutter),
+            TourianEscapeBackground = ExtractTourianEscapeRedFlash(
+                TourianEscapeRedFlashPaletteOwner.Background),
+            TourianEscapeSharedRedFlash = ExtractFrames(
+                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            OldTourianEscapeRedFlash = ExtractFrames(
+                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            OldTourianEscapeOrangeRailings = ExtractOldTourianEscapeAccent(
+                OldTourianEscapeAccentPaletteOwner.OrangeRailings),
+            OldTourianEscapeYellowPanels = ExtractOldTourianEscapeAccent(
+                OldTourianEscapeAccentPaletteOwner.YellowPanels),
         });
         return json.ToArray();
 
@@ -283,6 +299,30 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractTourianEscapeRedFlash(
+            TourianEscapeRedFlashPaletteOwner owner)
+        {
+            TourianEscapeRedFlashPaletteFxProgramDefinition definition =
+                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractOldTourianEscapeAccent(
+            OldTourianEscapeAccentPaletteOwner owner)
+        {
+            OldTourianEscapeAccentPaletteFxProgramDefinition definition =
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount,
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

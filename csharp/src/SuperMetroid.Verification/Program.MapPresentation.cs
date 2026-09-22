@@ -317,6 +317,12 @@ internal static partial class Program
         ChangeRed(document.SamusLoadingVariaSuit);
         ChangeRed(document.SamusLoadingGravitySuit);
         ChangeRed(document.PostCreditsIconGlare);
+        ChangeRed(document.TourianEscapeShutter);
+        ChangeRed(document.TourianEscapeBackground);
+        ChangeRed(document.TourianEscapeSharedRedFlash);
+        ChangeRed(document.OldTourianEscapeRedFlash);
+        ChangeRed(document.OldTourianEscapeOrangeRailings);
+        ChangeRed(document.OldTourianEscapeYellowPanels);
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -479,13 +485,35 @@ internal static partial class Program
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             "post-credits icon glare");
+        foreach (TourianEscapeRedFlashPaletteFxProgramDefinition flashDefinition in
+                 TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(flashDefinition.DefinitionPointer, flashDefinition.ColorByteIndex,
+                $"Tourian escape {flashDefinition.Owner}");
+        }
+        foreach (TourianEscapeSharedRedFlashPaletteFxProgramDefinition sharedDefinition in
+                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(sharedDefinition.DefinitionPointer, sharedDefinition.ColorByteIndex,
+                $"Tourian escape shared {sharedDefinition.Owner}");
+        }
+        AssertOverride(
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "old Tourian escape red flash");
+        foreach (OldTourianEscapeAccentPaletteFxProgramDefinition accentDefinition in
+                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(accentDefinition.DefinitionPointer, accentDefinition.ColorByteIndex,
+                $"old Tourian escape {accentDefinition.Owner}");
+        }
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and thirty-six live palette " +
+            "Room palette-FX override: content identity and forty-three live palette " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

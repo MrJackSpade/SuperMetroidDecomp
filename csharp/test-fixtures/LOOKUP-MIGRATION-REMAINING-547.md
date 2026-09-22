@@ -2003,3 +2003,10 @@ blocks all 1,312 color-source bytes, compares native CGRAM frame-by-frame throug
 the three 265-frame counted suit programs and fourteen-frame icon glare, and checks
 independent live overrides. Group timers, replay targets, destinations, waits, and
 deletion remain compiled mechanics.
+
+The early and old Tourian escape red-flash and accent programs now source 440
+BGR555 words from six named arrays. Seven definition entry points run for two
+complete loops with their source-color reads forbidden and exact native CGRAM
+parity. The shared red flash converges at its native entry; its inline CGRAM
+skip and both skips in the old shaft stay compiled mechanics. All seven live
+destinations respond to independent JSON overrides.

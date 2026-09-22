@@ -301,10 +301,44 @@ internal static partial class Program
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer,
             [PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
+                 TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"Tourian escape {definition.Owner}",
+                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame, definition.ColorPointer,
+                [definition.DefinitionPointer], definition.CycleFrames * 2);
+        }
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "Tourian escape shared red flash",
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All
+                .Select(definition => definition.DefinitionPointer).ToArray(),
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "old Tourian escape red flash",
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+        foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
+                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"old Tourian escape {definition.Owner}",
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount,
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer, [definition.DefinitionPointer],
+                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+        }
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 3634 editable palette colors match ROM; " +
-            "forty-one installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 4074 editable palette colors match ROM; " +
+            "forty-eight installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -666,9 +700,39 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete post-credits icon-glare frame");
         document.PostCreditsIconGlare[0] = iconFrame;
 
+        PaletteRgb5[][] shutter = document.TourianEscapeShutter;
+        document = document with { TourianEscapeShutter = shutter[..^1] };
+        Reject("room palette-FX rejects incomplete Tourian escape shutter flash");
+        document = document with { TourianEscapeShutter = shutter };
+
+        PaletteRgb5[] backgroundFrame = document.TourianEscapeBackground[0];
+        document.TourianEscapeBackground[0] = backgroundFrame[..^1];
+        Reject("room palette-FX rejects incomplete Tourian escape background frame");
+        document.TourianEscapeBackground[0] = backgroundFrame;
+
+        PaletteRgb5[][] shared = document.TourianEscapeSharedRedFlash;
+        document = document with { TourianEscapeSharedRedFlash = shared[..^1] };
+        Reject("room palette-FX rejects incomplete shared Tourian escape flash");
+        document = document with { TourianEscapeSharedRedFlash = shared };
+
+        PaletteRgb5[] oldRedFrame = document.OldTourianEscapeRedFlash[0];
+        document.OldTourianEscapeRedFlash[0] = oldRedFrame[..^1];
+        Reject("room palette-FX rejects incomplete old Tourian escape red-flash frame");
+        document.OldTourianEscapeRedFlash[0] = oldRedFrame;
+
+        PaletteRgb5[][] railings = document.OldTourianEscapeOrangeRailings;
+        document = document with { OldTourianEscapeOrangeRailings = railings[..^1] };
+        Reject("room palette-FX rejects incomplete old Tourian orange railings");
+        document = document with { OldTourianEscapeOrangeRailings = railings };
+
+        PaletteRgb5[] panelsFrame = document.OldTourianEscapeYellowPanels[0];
+        document.OldTourianEscapeYellowPanels[0] = panelsFrame[..^1];
+        Reject("room palette-FX rejects incomplete old Tourian yellow-panel frame");
+        document.OldTourianEscapeYellowPanels[0] = panelsFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 14",
-            "\"version\": 14,\n  \"nativeAddress\": 9240718",
+            "\"version\": 15",
+            "\"version\": 15,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

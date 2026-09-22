@@ -279,7 +279,8 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstructionCodes.SwitchAboveY380:
-                if (samusY < 0x0380)
+                if (samusY <
+                    CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = 1;
                     slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380;
@@ -287,7 +288,8 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstructionCodes.SwitchAboveY380Second:
-                if (samusY < 0x0380)
+                if (samusY <
+                    CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = 1;
                     slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380Second;

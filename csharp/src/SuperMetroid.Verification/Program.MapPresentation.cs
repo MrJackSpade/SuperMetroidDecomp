@@ -245,6 +245,16 @@ internal static partial class Program
         {
             Green = statueGrey.Green == 31 ? 30 : statueGrey.Green + 1,
         };
+        PaletteRgb5 surfaceLightning = document.CrateriaSurfaceLightning[0][0];
+        document.CrateriaSurfaceLightning[0][0] = surfaceLightning with
+        {
+            Blue = surfaceLightning.Blue == 31 ? 30 : surfaceLightning.Blue + 1,
+        };
+        PaletteRgb5 darkLightning = document.CrateriaUnusedDarkLightning[0][0];
+        document.CrateriaUnusedDarkLightning[0][0] = darkLightning with
+        {
+            Red = darkLightning.Red == 31 ? 30 : darkLightning.Red + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -293,13 +303,21 @@ internal static partial class Program
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All[0];
         AssertOverride(statueDefinition.DefinitionPointer,
             statueDefinition.ColorByteIndex, "Tourian statue grey-out");
+        foreach (CrateriaLightningPaletteFxProgramDefinition lightningDefinition in
+                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(
+                lightningDefinition.DefinitionPointer,
+                lightningDefinition.ColorByteIndex,
+                $"Crateria {lightningDefinition.Owner}");
+        }
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and nine live environmental " +
+            "Room palette-FX override: content identity and eleven live environmental " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

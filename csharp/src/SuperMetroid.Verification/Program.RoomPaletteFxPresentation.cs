@@ -129,10 +129,24 @@ internal static partial class Program
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray(),
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramesThroughDeletion);
+        foreach (CrateriaLightningPaletteFxProgramDefinition definition in
+                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus,
+                presentation,
+                $"Crateria {definition.Owner}",
+                definition.Frames.Count,
+                definition.ColorsPerFrame,
+                definition.ColorPointer,
+                [definition.DefinitionPointer],
+                definition.CycleFrames * 2,
+                CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY);
+        }
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 790 editable environmental colors match ROM; " +
-            "fourteen installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 992 editable environmental colors match ROM; " +
+            "sixteen installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -143,7 +157,8 @@ internal static partial class Program
         int colorsPerFrame,
         Func<int, int, ushort> colorPointer,
         IReadOnlyList<ushort> definitions,
-        int framesToRun)
+        int framesToRun,
+        ushort samusY = 0)
     {
         var colorAddresses = new HashSet<int>();
         for (int frame = 0; frame < frameCount; frame++)
@@ -176,8 +191,8 @@ internal static partial class Program
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                native.Step(bus, nativeCgram, 0, 0, false, false);
-                installed.Step(guarded, installedCgram, 0, 0, false, false);
+                native.Step(bus, nativeCgram, samusY, 0, false, false);
+                installed.Step(guarded, installedCgram, samusY, 0, false, false);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -370,9 +385,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Tourian statue grey-out");
         document = document with { TourianStatueGrey = statueGrey };
 
+        PaletteRgb5[][] surfaceLightning = document.CrateriaSurfaceLightning;
+        document = document with { CrateriaSurfaceLightning = surfaceLightning[..^1] };
+        Reject("room palette-FX rejects incomplete Crateria surface lightning");
+        document = document with { CrateriaSurfaceLightning = surfaceLightning };
+
+        PaletteRgb5[] darkLightningFrame = document.CrateriaUnusedDarkLightning[0];
+        document.CrateriaUnusedDarkLightning[0] = darkLightningFrame[..^1];
+        Reject("room palette-FX rejects incomplete Crateria dark-lightning frame");
+        document.CrateriaUnusedDarkLightning[0] = darkLightningFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 6",
-            "\"version\": 6,\n  \"nativeAddress\": 9240718",
+            "\"version\": 7",
+            "\"version\": 7,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

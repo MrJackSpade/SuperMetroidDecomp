@@ -1947,3 +1947,10 @@ payload from the installed asset. Their definition identities are part of the do
 catalog, and verification runs Draygon, Kraid, Ridley, and Phantoon through the complete
 fade and terminal deletion with all 128 source bytes forbidden. Boss-specific CGRAM
 destinations, entry branches, eight-frame timing, and deletion remain compiled mechanics.
+
+Crateria's live surface lightning and unused dark-lightning counterpart now source all
+202 BGR555 words from two named installed arrays. Verification blocks all 404 source
+bytes and runs both native nested-timer programs for two complete 503/743-frame cycles
+with exact CGRAM parity. Their destinations, pre-instructions, timer operands, branches,
+and the shared $0380 Samus-Y boundary remain compiled domain mechanics; the boundary is
+no longer repeated as a raw literal in the runtime dispatcher.

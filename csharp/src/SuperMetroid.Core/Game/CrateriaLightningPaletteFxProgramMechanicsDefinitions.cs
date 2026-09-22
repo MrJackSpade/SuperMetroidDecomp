@@ -49,6 +49,12 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
     public static IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition> All =>
         ReadOnlyDefinitions;
 
+    /// <summary>
+    /// Samus Y boundary used by <c>PaletteFxPreInstruction_SwitchAboveY380</c> and its
+    /// second-program counterpart. Values below $0380 restart the neutral record.
+    /// </summary>
+    public const ushort VerticalSwitchSamusY = 0x0380;
+
     /// <summary>Resolves one compiled word-sized mechanic across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
@@ -202,6 +208,7 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
             owner,
             definitionPointer,
             programStart,
+            colorByteIndex,
             firstFrame.Pointer,
             frames.ToArray(),
             words.ToArray(),
@@ -219,6 +226,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         CrateriaLightningPaletteOwner owner,
         ushort definitionPointer,
         ushort programStart,
+        ushort colorByteIndex,
         ushort firstFramePointer,
         CrateriaLightningPaletteFrame[] frames,
         PaletteFxMechanicsWord[] mechanicsWords,
@@ -229,6 +237,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         Owner = owner;
         DefinitionPointer = definitionPointer;
         ProgramStart = programStart;
+        ColorByteIndex = colorByteIndex;
         FirstFramePointer = firstFramePointer;
         Frames = Array.AsReadOnly(frames);
         MechanicsWords = Array.AsReadOnly(mechanicsWords);
@@ -245,6 +254,9 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
 
     /// <summary>The setup entry for this program.</summary>
     public ushort ProgramStart { get; }
+
+    /// <summary>The byte index of the first CGRAM color written by this program.</summary>
+    public ushort ColorByteIndex { get; }
 
     /// <summary>The neutral record selected by the vertical-position pre-instruction.</summary>
     public ushort FirstFramePointer { get; }
@@ -263,4 +275,18 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
 
     /// <summary>Number of records displayed including the repeated initial record.</summary>
     public int DisplayedRecordsPerCycle { get; }
+
+    /// <summary>The uniform BGR555 color count in each timed record.</summary>
+    public int ColorsPerFrame => Frames[0].ColorCount;
+
+    /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)frame >= Frames.Count)
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        CrateriaLightningPaletteFrame definition = Frames[frame];
+        if ((uint)color >= definition.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(definition.FirstColorPointer + color * sizeof(ushort)));
+    }
 }

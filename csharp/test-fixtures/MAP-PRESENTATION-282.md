@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 46 uses `room-palette-effects.json` schema version 6 (forty-five
+Catalog version 47 uses `room-palette-effects.json` schema version 7 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1377,18 +1377,20 @@ split eight-color frames live in `tourianGlow`. The shared `brinstarBlueSpores`
 array contains fourteen three-color frames used by both its standard-room and Spore
 Spawn programs. `bombTorizoBelly` and `goldenTorizoBelly` each contain six distinct
 three-color frames. `tourianStatueGrey` contains the shared eight frames of eight
-colors used by all four boss-statue entries.
+colors used by all four boss-statue entries. `crateriaSurfaceLightning` exposes
+thirteen eight-color records; `crateriaUnusedDarkLightning` exposes fourteen
+seven-color records.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room effects without changing the cartridge or engine code.
 
-Only the 790 authored RGB5 entries are presentation data. Native record layouts,
+Only the 992 authored RGB5 entries are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
 content rebinds; an unbound diagnostic interpreter retains its explicit cartridge
 fallback.
 
-Verification compares every extracted mapping with the cartridge, forbids all 1664
+Verification compares every extracted mapping with the cartridge, forbids all 2068
 source bytes, executes all four Norfair programs through two complete 116-frame cycles,
 and executes the three Maridia programs through two complete cycles of their 40/40/16
 cadences. Both Wrecked Ship definitions execute two complete 80-frame cycles from
@@ -1397,7 +1399,8 @@ their shared color payload; Red Brinstar and both Tourian callers execute two co
 shared payload, while both Torizo belly programs run two 52-frame cycles and retain
 their enemy/boss deletion callbacks. CGRAM and Norfair heat-phase output match
 frame-by-frame. All four Tourian statue entries also run through their shared fade and
-terminal deletion. A valid override changes catalog identity and nine independent live
+terminal deletion. Both Crateria lightning definitions run two complete 503/743-frame
+nested-timer cycles. A valid override changes catalog identity and eleven independent live
 runtime outputs, while removing it
 restores both exactly. Wrong frame or color counts, unsupported versions, invalid RGB5
 values, unknown/native-address fields, corrupt stock, and malformed overrides fail loudly.

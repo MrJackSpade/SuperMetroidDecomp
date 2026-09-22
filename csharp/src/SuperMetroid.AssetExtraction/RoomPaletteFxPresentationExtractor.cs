@@ -49,6 +49,10 @@ internal static class RoomPaletteFxPresentationExtractor
                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            CrateriaSurfaceLightning = ExtractCrateriaLightning(
+                CrateriaLightningPaletteOwner.SurfaceLightning),
+            CrateriaUnusedDarkLightning = ExtractCrateriaLightning(
+                CrateriaLightningPaletteOwner.UnusedDarkLightning),
         });
         return json.ToArray();
 
@@ -139,6 +143,17 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount,
                 TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractCrateriaLightning(CrateriaLightningPaletteOwner owner)
+        {
+            CrateriaLightningPaletteFxProgramDefinition definition =
+                CrateriaLightningPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                definition.Frames.Count,
+                definition.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

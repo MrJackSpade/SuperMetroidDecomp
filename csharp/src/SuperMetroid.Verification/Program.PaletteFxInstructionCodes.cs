@@ -2128,12 +2128,12 @@ internal static partial class Program
                     $"{definition.Owner} cartridge byte $8D:{item.Pointer:X4}");
                 mechanicsBytes++;
             }
-            foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
+            for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
+                CrateriaLightningPaletteFrame frame = definition.Frames[frameIndex];
                 for (int color = 0; color < frame.ColorCount; color++)
                 {
-                    ushort pointer = unchecked((ushort)(
-                        frame.FirstColorPointer + color * sizeof(ushort)));
+                    ushort pointer = definition.ColorPointer(frameIndex, color);
                     AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                             pointer,
                             out _),
@@ -2154,7 +2154,8 @@ internal static partial class Program
                 paletteFx.Step(
                     guarded,
                     cgram,
-                    samusY: 0x0380,
+                    samusY:
+                        CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY,
                     equippedItems: 0,
                     enemyZeroIsDead: false,
                     areaMiniBossDefeated: false);
@@ -2173,8 +2174,22 @@ internal static partial class Program
             var resetGuard = new PaletteFxMechanicsForbiddenBus(bus);
             var resetFx = new RoomPaletteFxSystem();
             resetFx.SpawnDefinition(resetGuard, definition.DefinitionPointer, equippedItems: 0);
-            resetFx.Step(resetGuard, new SnesCgram(), 0x0380, 0, false, false);
-            resetFx.Step(resetGuard, new SnesCgram(), 0x037f, 0, false, false);
+            resetFx.Step(
+                resetGuard,
+                new SnesCgram(),
+                CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY,
+                0,
+                false,
+                false);
+            resetFx.Step(
+                resetGuard,
+                new SnesCgram(),
+                unchecked((ushort)(
+                    CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY -
+                    1)),
+                0,
+                false,
+                false);
             AssertEqual(2 * colorsPerRecord * sizeof(ushort),
                 resetGuard.PresentationReadCount,
                 $"{definition.Owner} low-Samus pre-instruction restarts its neutral frame");

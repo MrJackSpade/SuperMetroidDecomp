@@ -142,6 +142,26 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        foreach (CrateriaLightningPaletteFxProgramDefinition definition in
+                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                CrateriaLightningPaletteOwner.SurfaceLightning =>
+                    document.CrateriaSurfaceLightning,
+                CrateriaLightningPaletteOwner.UnusedDarkLightning =>
+                    document.CrateriaUnusedDarkLightning,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Crateria lightning owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"Crateria {definition.Owner}",
+                frames,
+                definition.Frames.Count,
+                definition.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -216,10 +236,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] BombTorizoBelly { get; init; }
     public required PaletteRgb5[][] GoldenTorizoBelly { get; init; }
     public required PaletteRgb5[][] TourianStatueGrey { get; init; }
+    public required PaletteRgb5[][] CrateriaSurfaceLightning { get; init; }
+    public required PaletteRgb5[][] CrateriaUnusedDarkLightning { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 6;
+    public const int Version = 7;
 }

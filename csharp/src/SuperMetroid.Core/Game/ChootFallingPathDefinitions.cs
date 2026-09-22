@@ -92,6 +92,15 @@ internal static class ChootFallingPathDefinitions
     ];
 
     /// <summary><c>ChootFallingPatternData_2_VeryWide</c> at <c>$A2:DAA0-$A2:DBC7</c>.</summary>
+    /// <remarks>
+    /// All 73 signed X/Y motion pairs and the <c>$8000,$8000</c> sentinel
+    /// match the pinned NTSC J/U v1.0 ROM. Selector 2 consumes one pair per
+    /// frame; the following <c>$DBC8</c> word is its loop Y distance.
+    /// Retain this bounded authored trajectory: its X and Y transitions do
+    /// not follow a single lossless scaling of the normal or wide paths, and
+    /// a fitted formula with correction data would obscure these path samples.
+    /// Investigation: #625 / #657.
+    /// </remarks>
     private static ReadOnlySpan<ushort> VeryWide =>
     [
         0x0000, 0x0000, 0x0003, 0x0001, 0x0006, 0x0001, 0x0009, 0x0002,

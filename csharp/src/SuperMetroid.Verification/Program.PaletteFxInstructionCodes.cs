@@ -58,6 +58,7 @@ internal static partial class Program
         VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(bus);
         VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(bus);
+        VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -85,8 +86,110 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1515 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1614 control words and 32 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        int mechanicsBytes = 0;
+        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        {
+            int actualWords = 0;
+            for (ushort pointer = definition.ProgramStart;
+                 pointer <= definition.DeleteInstructionPointer;
+                 pointer = unchecked((ushort)(pointer + 1)))
+            {
+                if (!definition.TryReadMechanicsWord(pointer, out ushort value))
+                    continue;
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} loading catalogs word $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} loading compiled word $8D:{pointer:X4}");
+                AssertEqual(value,
+                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} loading cartridge word $8D:{pointer:X4}");
+                actualWords++;
+                mechanicsWords++;
+            }
+            AssertEqual(33, actualWords,
+                $"{definition.Owner} loading mechanics word count");
+
+            for (int group = 0;
+                 group < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupCount;
+                 group++)
+            {
+                ushort pointer = definition.GroupTimerBytePointer(group);
+                AssertTrue(definition.TryReadMechanicsByte(pointer, out byte value),
+                    $"{definition.Owner} loading owns timer byte $8D:{pointer:X4}");
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                        pointer,
+                        out byte compiled),
+                    $"{definition.Owner} loading catalogs timer byte $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} loading compiled timer byte $8D:{pointer:X4}");
+                AssertEqual(value,
+                    bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} loading cartridge timer byte $8D:{pointer:X4}");
+                mechanicsBytes++;
+            }
+
+            for (int frame = 0;
+                 frame < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort firstColor = unchecked((ushort)(
+                    definition.FramePointer(frame) + sizeof(ushort)));
+                for (int color = 0;
+                     color < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
+                         .ColorsPerFrame;
+                     color++)
+                {
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                            out _),
+                        $"{definition.Owner} loading colors remain presentation-owned");
+                }
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int step = 0;
+                 step < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.CycleFrames;
+                 step++)
+            {
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            }
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} loading remains active through its final hold");
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} loading deletes after its final hold");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} loading avoids mechanics ROM reads");
+            AssertEqual(
+                (SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupTimerValue(0) +
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupTimerValue(1) +
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupTimerValue(2) +
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.GroupTimerValue(3)) *
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FramesPerGroup *
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort) +
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} loading retains every replayed live color");
+        }
+        AssertEqual(99, mechanicsWords,
+            "compiled Samus-loading mechanics words");
+        AssertEqual(12, mechanicsBytes,
+            "compiled Samus-loading byte operands");
     }
 
     private static void VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(
@@ -2710,6 +2813,25 @@ internal static partial class Program
                     {
                         PresentationReadCount++;
                         break;
+                    }
+                }
+
+                foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
+                         SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount;
+                         frame++)
+                    {
+                        int offset = source.Offset - unchecked((ushort)(
+                            definition.FramePointer(frame) + sizeof(ushort)));
+                        if ((uint)offset <
+                            SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
+                                .ColorsPerFrame * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
                     }
                 }
 

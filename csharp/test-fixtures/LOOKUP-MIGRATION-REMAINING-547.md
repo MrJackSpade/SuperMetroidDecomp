@@ -1740,6 +1740,18 @@ with mechanics reads forbidden and deletes itself after the final hold. Verifica
 proves exact ROM parity and every live color read even though retail gameplay never
 installs this object.
 
+## Samus-loading suit palette mechanics
+
+The power, Varia, and gravity Samus-loading programs now compile all 99 color-index,
+timer, duration, wait, counted-branch, and delete words plus their twelve byte-sized
+timer operands through `SamusLoadingSuitPaletteFxProgramMechanicsDefinitions`. Their 432
+BGR555 color words remain live presentation data.
+
+All three real definitions execute their complete 265-frame programs with mechanics reads
+forbidden, remain active through the terminal hold, and delete on the following frame.
+Verification proves exact ROM parity, every replayed live color read, and the native
+36/3/3/2 group replay schedule.
+
 ## Zebes explosion foreground palette mechanics
 
 The wide foreground part of the Zebes explosion now compiles all 35 color-index,

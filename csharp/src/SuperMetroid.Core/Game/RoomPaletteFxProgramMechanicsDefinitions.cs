@@ -74,6 +74,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out value))
             return true;
         if (WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
@@ -180,6 +186,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
     /// <summary>Resolves one compiled bank-$8D byte operand across translated owners.</summary>
     public static bool TryReadMechanicsByte(ushort pointer, out byte value)
     {
+        if (SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                 pointer,
                 out value))

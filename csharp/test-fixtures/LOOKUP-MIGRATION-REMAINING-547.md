@@ -1659,3 +1659,14 @@ remain live presentation data.
 Both real definitions execute and repeat their complete fifteen-record, 64-frame cycles
 with mechanics reads forbidden. Verification proves exact ROM parity, every live color
 read, and the shared nonuniform duration schedule.
+
+## Upper-Crateria escape red-flash palette mechanics
+
+Upper Crateria's escape red-flash program now compiles all 32 color-index, duration,
+wait, loop, and target words through
+`UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions`. Its 98 BGR555 color
+words remain live presentation data.
+
+The real definition executes and repeats its complete fourteen-record, 63-frame cycle
+with mechanics reads forbidden. Verification proves exact ROM parity, every live color
+read, and the authored descending-then-ascending duration schedule.

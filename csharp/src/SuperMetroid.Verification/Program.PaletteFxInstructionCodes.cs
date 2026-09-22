@@ -63,6 +63,7 @@ internal static partial class Program
         VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -72,8 +73,48 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 965 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 997 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ProgramStart;
+             pointer <= unchecked((ushort)(UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2));
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort value))
+                continue;
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled),
+                $"upper-Crateria escape flash catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled, $"upper-Crateria escape flash compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"upper-Crateria escape flash cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(32, mechanicsWords, "compiled upper-Crateria escape mechanics words");
+
+        for (int frame = 0; frame < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+        {
+            ushort firstColor = unchecked((ushort)(UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame) + sizeof(ushort)));
+            for (int color = 0; color < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; color++)
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(unchecked((ushort)(firstColor + color * sizeof(ushort))), out _),
+                    "upper-Crateria escape colors remain presentation-owned");
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(guarded, UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer, 0);
+        for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames; step++)
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        AssertTrue(paletteFx.IsDefinitionActive(UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "upper-Crateria escape flash completes and repeats its cycle");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
+        AssertEqual((UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort),
+            guarded.PresentationReadCount, "upper-Crateria escape flash retains every live color");
     }
 
     private static void VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(
@@ -1902,6 +1943,17 @@ internal static partial class Program
                             PresentationReadCount++;
                             break;
                         }
+                    }
+                }
+
+                for (int frame = 0; frame < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
                     }
                 }
             }

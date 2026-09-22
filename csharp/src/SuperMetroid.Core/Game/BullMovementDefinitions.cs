@@ -39,8 +39,11 @@ public static class BullMovementDefinitions
     /// words match the pinned NTSC J/U v1.0 ROM and bank-A8 disassembly.
     /// The native initializer multiplies parameter one by four and copies this
     /// word to both the timer reset and live timer. Selector 13 would read the
-    /// following code and is rejected. The interleaved deceleration field has
-    /// a separate sequence and requires its own #625 decision.
+    /// following code and is rejected.
+    /// #625 / #650 retains the 13 interleaved deceleration words at
+    /// $A8:D897+4*selector: 1,1,2,2,2,3,3,4,4,5,5,6,6. All match the same
+    /// ROM and disassembly. A half-rate formula needs an exception at selector
+    /// 4's extra hold, so the short authored timing sequence is clearer.
     /// VerifyCompiledBullMovement covers all 13 values through 104 real
     /// initializer combinations without a ROM bus.
     /// </remarks>

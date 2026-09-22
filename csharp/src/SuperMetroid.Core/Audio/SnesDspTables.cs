@@ -43,6 +43,24 @@ internal static class SnesDspTables
     /// The S-DSP's fixed 512-entry Gaussian interpolation curve. Four mirrored lookups from
     /// this table reconstruct each fractional BRR sample exactly as the native reference does.
     /// </summary>
+    /// <remarks>
+    /// Issue #625 exact generation: validate j=0..511; k=511.5-j and
+    /// r(j)=sin(pi*k/800)/k * (0.42+0.50*cos(2*pi*k/1023)+0.08*cos(4*pi*k/1023)).
+    /// Let p=j%256 and d=r(p)+r(255-p)+r(256+p)+r(511-p). The stored coefficient
+    /// is floor(2048*r(j)/d+0.5). This windowed-sinc model normalizes each four-tap
+    /// phase BEFORE independently rounding its coefficients. Global normalization
+    /// fails at 23 entries; do not force the rounded four-tap sum to equal 2048.
+    /// The analytic recipe follows Mednafen/nocash's original investigation:
+    /// https://forums.nesdev.org/viewtopic.php?start=15&amp;t=10586 .
+    /// LookupTableResearch independently proves 512/512 values against this array
+    /// and gaussValues in pinned upstream-sm/src/snes/dsp.c. Its 24-term decimal
+    /// trigonometry propagates conservative error intervals through normalization;
+    /// both bounds round to the same integer at every index. No entry corrections,
+    /// fitted coefficient list, platform libm or ROM dependency are required.
+    /// Actual DSP sample multiplication, wrapping and saturation remain separate.
+    /// Runtime migration and the cost of evaluating four kernels per lookup require
+    /// a later pass; this research changes no mixer behavior.
+    /// </remarks>
     internal static readonly ushort[] GaussianValues =
     [
         0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000,

@@ -21,6 +21,7 @@ internal static partial class Program
             VerifyAudio(rom);
             VerifySuitCurve(rom);
             VerifyPolicies(rom);
+            VerifyGaussian();
             return 0;
         }
         catch (Exception exception)

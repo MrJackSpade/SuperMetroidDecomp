@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -152,6 +153,78 @@ internal static partial class Program
             $"  Room assets: {boundedAssets.Length} bounded streams and " +
             $"{graphicsSets.Count} retail graphics sets validated; all " +
             $"{RoomTilesetDefinitions.Count} definitions compiled with live table reads blocked.");
+    }
+
+    /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
+    static void VerifyRoomCharacterAtlases()
+    {
+        string romPath = Path.GetFullPath("Super Metroid.smc");
+        if (!File.Exists(romPath))
+        {
+            Console.WriteLine("  Room character atlases: private ROM absent; retail audit skipped.");
+            return;
+        }
+
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        IReadOnlyDictionary<string, byte[]> files = RoomCharacterAtlasExtractor.Extract(bus);
+        var sources = new Dictionary<string, int>
+        {
+            [RoomCharacterAtlasFormat.CreFileName] = RoomAssetRomData.Tilesets.CreCharactersAddress,
+        };
+        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        {
+            int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
+            sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
+        }
+        AssertEqual(sources.Count, files.Count, "one PNG per distinct retail room-character source");
+
+        foreach ((string name, int sourceAddress) in sources)
+        {
+            byte[] native = RomDataReader.Decompress(bus, sourceAddress);
+            byte[] png = files[name];
+            RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);
+            AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
+                $"room atlas {name} preserves every native character byte");
+            var vram = new SnesVram();
+            atlas.LoadTo(vram, 0);
+            AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
+                $"room atlas {name} uploads exactly the native character range");
+        }
+
+        // A painted pixel must change the runtime character transfer, while edits in
+        // empty padding cells must fail rather than disappear silently.
+        // Retail sources happen to end on complete 32-tile rows. A bounded 33-tile
+        // prefix from a real source tests the partial-row policy independently.
+        int partialSource = RoomTilesetDefinitions.Get(0).CharacterAddress;
+        byte[] partialNative = RomDataReader.Decompress(bus, partialSource)
+            .AsSpan(0, 33 * RoomCharacterAtlasFormat.BytesPerTile).ToArray();
+        int tileCount = partialNative.Length / RoomCharacterAtlasFormat.BytesPerTile;
+        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
+        int rows = (tileCount + columns - 1) / columns;
+        byte[] partialPixels = SnesGraphics.DecodePlanarTiles(partialNative, 4,
+            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+        using var partialPng = new MemoryStream();
+        IndexedPng.Write(partialPng, width, height, partialPixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPngImage decoded = IndexedPng.Read(new MemoryStream(partialPng.ToArray()),
+            columns * 8, rows * 8);
+        byte[] edited = (byte[])decoded.Pixels.Clone();
+        edited[0] ^= 1;
+        using var changedPng = new MemoryStream();
+        IndexedPng.Write(changedPng, decoded.Width, decoded.Height, edited, decoded.Palette);
+        AssertTrue(!RoomCharacterAtlas.Load(new MemoryStream(changedPng.ToArray()), partialNative.Length)
+                .Transfer.Span.SequenceEqual(partialNative),
+            "painting a room PNG changes the compiled runtime character bytes");
+        int firstPaddingTile = tileCount;
+        edited = (byte[])decoded.Pixels.Clone();
+        edited[(firstPaddingTile / columns * 8) * decoded.Width + firstPaddingTile % columns * 8] = 1;
+        using var invalidPng = new MemoryStream();
+        IndexedPng.Write(invalidPng, decoded.Width, decoded.Height, edited, decoded.Palette);
+        AssertThrows<InvalidDataException>(() => RoomCharacterAtlas.Load(
+                new MemoryStream(invalidPng.ToArray()), partialNative.Length),
+            "room atlas rejects artwork in unused final-row cells");
+
+        Console.WriteLine($"  Room character atlases: {files.Count} distinct CRE/graphics-set PNGs " +
+            "roundtrip and upload byte-exactly; edited pixels are honored and padding edits rejected.");
     }
 
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace

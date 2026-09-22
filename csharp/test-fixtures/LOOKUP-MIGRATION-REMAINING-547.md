@@ -2046,3 +2046,12 @@ Ceres room loads forbid reads across the full table/record interval and retain
 identical decompressed art, VRAM, and CGRAM output. Room tile and background
 payloads remain cartridge-backed until the indexed-PNG/JSON assets in #533 are
 installed; this change compiles source selection, not presentation bytes.
+
+The CRE character stream and all twenty-nine graphics-set references now have a
+lossless indexed-PNG extractor. Its seventeen distinct output sheets encode the
+native four-bit palette indexes, not RGB guesses. Every sheet is decoded back to
+planar tiles and compared byte-for-byte with the decompressed cartridge source;
+the verifier also checks VRAM upload, an edited pixel, and rejection of edited
+unused cells in a partial final row. Extraction/round-trip is ready, but room
+loading and installation still use the cartridge character streams until the
+room-art catalog and override handoff are implemented under #533.

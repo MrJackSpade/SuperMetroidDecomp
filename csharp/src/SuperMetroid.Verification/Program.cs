@@ -1432,6 +1432,11 @@ if (args is ["--room-tileset-definitions"])
     VerifyRoomAssetRomData();
     return 0;
 }
+if (args is ["--room-character-atlases"])
+{
+    VerifyRoomCharacterAtlases();
+    return 0;
+}
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();

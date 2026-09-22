@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 58 uses `room-palette-effects.json` schema version 17 (forty-six
+Catalog version 59 uses `room-palette-effects.json` schema version 17 (forty-seven
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1464,6 +1464,21 @@ recolor the damage states without altering the ROM. Verification compares all
 eight threshold-boundary cases to native CGRAM output with palette ROM reads
 forbidden, checks body and leg edits through the runtime binding, rejects
 malformed arrays, and confirms override removal restores content identity.
+
+## Editable Mother Brain rainbow and grey-drain colors (#536, #549)
+
+`mother-brain-rainbow-palette.json` exposes ten paired rainbow-beam frames,
+eight to-grey drain frames, eight from-grey revival frames, and the normal
+body/rear-leg restoration pair. The grey frames each include the trailing RGB5
+word that the cartridge publishes to WRAM `$017C`; revival still copies only
+thirteen body/brain colors, preserving its two existing tail colors. The native
+phase transitions, ten-entry loop cursor, CGRAM destinations, and copy lengths
+remain compiled behavior. Copy the stock file to
+`overrides/maps/mother-brain-rainbow-palette.json` to recolor these frames.
+Stock verification checks every frame against the cartridge's CGRAM and trailing
+WRAM output with runtime ROM reads forbidden, then checks independent rainbow,
+drain, drain-tail, revival, and normal edits, strict schema validation, and
+identity restore.
 
 ## Editable title artwork (#549)
 

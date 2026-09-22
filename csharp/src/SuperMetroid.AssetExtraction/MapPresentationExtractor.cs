@@ -245,6 +245,11 @@ public static class MapPresentationExtractor
             file.Write(motherBrainHealthBytes);
         hashes.Add(MotherBrainHealthPaletteFormat.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainHealthBytes)));
+        byte[] motherBrainRainbowBytes = MotherBrainRainbowPaletteExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, MotherBrainRainbowPaletteFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(motherBrainRainbowBytes);
+        hashes.Add(MotherBrainRainbowPaletteFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(motherBrainRainbowBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

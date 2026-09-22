@@ -2030,3 +2030,11 @@ installed as editable RGB5 colors in `mother-brain-health-palette.json`. The
 normal installed gameplay no longer follows the two bank-$AD palette pointer tables
 at runtime. Eight threshold-boundary cases retain exact native CGRAM output, while
 an override independently changes both color families without ROM source reads.
+
+Mother Brain's ten rainbow-beam frames, eight drain frames, eight revival frames,
+and normal restoration pair are installed in `mother-brain-rainbow-palette.json`.
+The native pointer lists are read at extraction, while their loop cursor, phase
+selection, copy lengths, partial revival writes, and WRAM trailing-word publication
+remain compiled runtime mechanics. Stock checks compare all 27 color states and
+sixteen trailing words with exact cartridge output; live overrides change the
+four color families independently without runtime palette-source reads.

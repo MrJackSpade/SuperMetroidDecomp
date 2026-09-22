@@ -115,6 +115,7 @@ internal static partial class Program
         VerifyTitleGradientOverride(bus, stock, overrides, original);
         VerifyRoomPaletteFxOverride(bus, stock, overrides, original);
         VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original);
+        VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
@@ -187,6 +188,185 @@ internal static partial class Program
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+    }
+
+    private sealed class PaletteReadForbiddenBus : ISnesAddressSpace
+    {
+        public Dictionary<int, byte> Writes { get; } = new();
+        public byte ReadByte(int address) => throw new InvalidOperationException(
+            $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.");
+        public void WriteByte(int address, byte value)
+        {
+            if (address is not (MotherBrainDrainedPaletteRomData.TrailingWordWram or
+                MotherBrainDrainedPaletteRomData.TrailingWordWram + 1))
+                throw new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}.");
+            Writes[address] = value;
+        }
+    }
+
+    private static void VerifyMotherBrainRainbowPaletteOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string source = Path.Combine(stock, MotherBrainRainbowPaletteFormat.FileName);
+        MotherBrainRainbowPaletteDocument document =
+            JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
+                File.ReadAllBytes(source), MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
+        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
+        {
+            var native = new SnesCgram();
+            var installed = new SnesCgram();
+            int pointer = MotherBrainRainbowPaletteRomData.PointerTable + frame * sizeof(ushort);
+            int palette = MotherBrainRainbowPaletteRomData.SourceBank |
+                bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
+            native.LoadFromBus(bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
+                MotherBrainRainbowPaletteRomData.BodyColor);
+            native.LoadFromBus(bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
+                MotherBrainRainbowPaletteRomData.BrainColor);
+            native.LoadFromBus(bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
+                MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
+            original.MotherBrainRainbowPalette.ApplyRainbow(installed, frame);
+            AssertTrue(native.Colors.SequenceEqual(installed.Colors),
+                $"Mother Brain rainbow frame {frame} matches all native CGRAM colors");
+        }
+
+        foreach (bool draining in new[] { true, false })
+        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
+        {
+            var native = new SnesCgram();
+            var installed = new SnesCgram();
+            // Revival writes thirteen colors and deliberately leaves the last two from
+            // the preceding phase. Seed both CGRAM images to catch an overlong copy.
+            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, 0x1234);
+            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, 0x1235);
+            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, 0x2234);
+            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, 0x2235);
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, 0x1234);
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, 0x1235);
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, 0x2234);
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, 0x2235);
+            int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable :
+                MotherBrainDrainedPaletteRomData.FromGreyTable;
+            int count = draining ? MotherBrainDrainedPaletteRomData.DrainedColors :
+                MotherBrainDrainedPaletteRomData.RevivalColors;
+            int pointer = table + frame * sizeof(ushort);
+            int palette = MotherBrainRainbowPaletteRomData.SourceBank |
+                bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
+            native.LoadFromBus(bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
+            native.LoadFromBus(bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
+            native.LoadFromBus(bus, palette + count * sizeof(ushort),
+                MotherBrainDrainedPaletteRomData.BackLegCount,
+                MotherBrainDrainedPaletteRomData.BackLegColor);
+            var guard = new PaletteReadForbiddenBus();
+            if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(guard, installed, frame);
+            else original.MotherBrainRainbowPalette.ApplyFromGrey(guard, installed, frame);
+            AssertTrue(native.Colors.SequenceEqual(installed.Colors),
+                $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
+            int tail = palette + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * sizeof(ushort);
+            AssertEqual(bus.ReadByte(tail), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram],
+                "grey transition publishes native trailing WRAM low byte");
+            AssertEqual(bus.ReadByte(tail + 1), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1],
+                "grey transition publishes native trailing WRAM high byte");
+            AssertEqual(2, guard.Writes.Count, "grey transition writes only its two native WRAM bytes");
+        }
+
+        var nativeNormal = new SnesCgram();
+        var installedNormal = new SnesCgram();
+        nativeNormal.LoadFromBus(bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
+            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BodyColor);
+        nativeNormal.LoadFromBus(bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
+            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BrainColor);
+        nativeNormal.LoadFromBus(bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
+            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
+        original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
+        AssertTrue(nativeNormal.Colors.SequenceEqual(installedNormal.Colors),
+            "Mother Brain normal restoration matches both fixed native sources");
+
+        PaletteRgb5 beam = document.Rainbow[0].Body[0];
+        document.Rainbow[0].Body[0] = beam with { Red = beam.Red == 31 ? 30 : beam.Red + 1 };
+        PaletteRgb5 drain = document.ToGrey[0].Body[0];
+        document.ToGrey[0].Body[0] = drain with { Blue = drain.Blue == 31 ? 30 : drain.Blue + 1 };
+        PaletteRgb5 authoredTail = document.ToGrey[0].TrailingColor!;
+        document.ToGrey[0] = document.ToGrey[0] with
+        {
+            TrailingColor = authoredTail with
+            {
+                Green = authoredTail.Green == 31 ? 30 : authoredTail.Green + 1,
+            },
+        };
+        PaletteRgb5 revive = document.FromGrey[0].BackLegs[0];
+        document.FromGrey[0].BackLegs[0] = revive with { Green = revive.Green == 31 ? 30 : revive.Green + 1 };
+        PaletteRgb5 normal = document.Normal.Body[0];
+        document.Normal.Body[0] = normal with { Red = normal.Red == 31 ? 30 : normal.Red + 1 };
+        string replacement = Path.Combine(overrides, MotherBrainRainbowPaletteFormat.FileName);
+        using (var stream = File.Create(replacement))
+            MotherBrainRainbowPalettePresentation.Write(stream, document);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "Mother Brain rainbow edit changes installed-content identity");
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
+        {
+            MapPresentation = edited,
+        };
+        var stockOutput = new SnesCgram();
+        var editedOutput = new SnesCgram();
+        original.MotherBrainRainbowPalette.ApplyRainbow(stockOutput, 0);
+        runtime.Enemies.MotherBrainRainbowColors!.ApplyRainbow(editedOutput, 0);
+        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
+            editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+            "installed rainbow override reaches the room-enemy binding");
+        stockOutput.Clear();
+        editedOutput.Clear();
+        var stockTailBus = new PaletteReadForbiddenBus();
+        var editedTailBus = new PaletteReadForbiddenBus();
+        original.MotherBrainRainbowPalette.ApplyToGrey(stockTailBus, stockOutput, 0);
+        runtime.Enemies.MotherBrainRainbowColors.ApplyToGrey(editedTailBus, editedOutput, 0);
+        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
+            editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+            "drain override reaches the native body destination");
+        AssertTrue(stockTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram] !=
+            editedTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram] ||
+            stockTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1] !=
+            editedTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1],
+            "drain trailing-color override reaches native WRAM publication");
+        stockOutput.Clear();
+        editedOutput.Clear();
+        original.MotherBrainRainbowPalette.ApplyFromGrey(new PaletteReadForbiddenBus(), stockOutput, 0);
+        runtime.Enemies.MotherBrainRainbowColors.ApplyFromGrey(new PaletteReadForbiddenBus(), editedOutput, 0);
+        AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
+            editedOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor],
+            "revival override reaches the native rear-leg destination");
+        stockOutput.Clear();
+        editedOutput.Clear();
+        original.MotherBrainRainbowPalette.ApplyNormal(stockOutput);
+        runtime.Enemies.MotherBrainRainbowColors.ApplyNormal(editedOutput);
+        AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
+            editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+            "normal-restoration override reaches the native body destination");
+
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                Rainbow = document.Rainbow.Take(9).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain rainbow loop");
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                ToGrey = document.ToGrey.Select((item, index) => index == 0 ?
+                    item with { TrailingColor = null } : item).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject missing Mother Brain grey trailing color");
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
+            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain normal palette");
+        File.Delete(replacement);
+        AssertEqual(original.ContentIdentity, AreaMapPresentationCatalog.Load(stock, overrides).ContentIdentity,
+            "removing Mother Brain rainbow override restores installed-content identity");
+        Console.WriteLine("Mother Brain rainbow palette: 10 beam, 16 grey, and normal native outputs; ROM-free copies/WRAM tail, five live edits and strict validation pass.");
     }
 
     private static void VerifyMotherBrainHealthPaletteOverride(

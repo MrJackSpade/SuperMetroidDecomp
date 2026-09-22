@@ -2934,6 +2934,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            int presentationReadsBefore = PresentationReadCount;
             int first = RoomFxRomData.Banks.PaletteFx |
                 PaletteFxHeatInstructionListDefinitions.GravitySourceTable;
             int lastExclusive = RoomFxRomData.Banks.PaletteFx |
@@ -3555,6 +3556,15 @@ internal static partial class Program
                             break;
                         }
                     }
+                }
+
+                bool livePayloadRead = PresentationReadCount != presentationReadsBefore ||
+                    source.Offset == BeaconPaletteFxProgramMechanicsDefinitions.SoundOperandPointer;
+                if (!livePayloadRead)
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Production read unclassified palette-FX byte ${address:X6}.");
                 }
             }
 

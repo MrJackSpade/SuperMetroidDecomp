@@ -1863,3 +1863,20 @@ remain live presentation data.
 The real definition executes its complete sixteen-record, 384-frame one-shot reveal with
 mechanics reads forbidden and deletes itself after the final hold. Verification proves
 exact ROM parity and every live color read.
+
+## Complete palette-FX program-mechanics ownership
+
+The two standalone deletion lists at `$8D:E192` and `$8D:E220` now compile through
+`PaletteFxDeleteProgramMechanicsDefinitions`. The latter is the complete program for the
+retail `$F745` no-op room effect; it occupies a native slot and deletes itself on its first
+handler pass without reading cartridge mechanics or presentation data.
+
+All 63 compiled retail palette-FX definitions are now inventoried at their program entry.
+Sixty-two enter `RoomPaletteFxProgramMechanicsDefinitions` at a compiled control word; the
+remaining Hyper Beam definition enters its existing specialized compiled interpreter.
+Every generic program is exercised with a strict bank-$8D read guard that permits only its
+catalogued BGR555 presentation payloads and the beacon's live sound-ID byte. A control,
+operand, branch target, timer, or other unclassified program read now fails verification
+instead of silently falling through to the ROM. Together with exact word/byte parity and
+the specialized Hyper Beam coverage, this completes the palette-program mechanics portion
+of #547 while leaving the broader lookup/callback and #530/#549 integration scope open.

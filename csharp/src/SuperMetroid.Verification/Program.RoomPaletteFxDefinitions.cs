@@ -24,6 +24,8 @@ internal static partial class Program
         AssertEqual(63, pointers.Length, "compiled palette-FX definition count");
 
         var forbidden = new HashSet<int>();
+        int genericCompiledPrograms = 0;
+        int specializedCompiledPrograms = 0;
         foreach (ushort pointer in pointers)
         {
             int address = RoomFxRomData.Banks.PaletteFx | pointer;
@@ -35,7 +37,25 @@ internal static partial class Program
                 $"palette-FX ${pointer:X4} setup callback");
             AssertEqual(Word(address + 2), definition.InitialInstructionList,
                 $"palette-FX ${pointer:X4} initial list");
+            if (definition.InitialInstructionList ==
+                HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer)
+            {
+                specializedCompiledPrograms++;
+            }
+            else
+            {
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        definition.InitialInstructionList,
+                        out _),
+                    $"palette-FX ${pointer:X4} begins at compiled mechanics word " +
+                    $"$8D:{definition.InitialInstructionList:X4}");
+                genericCompiledPrograms++;
+            }
         }
+        AssertEqual(62, genericCompiledPrograms,
+            "generic palette-FX definitions with compiled initial mechanics");
+        AssertEqual(1, specializedCompiledPrograms,
+            "specialized Hyper Beam palette-FX definition count");
 
         ReadOnlySpan<ushort> areaLists = RoomPaletteFxDefinitions.NativeAreaListPointers;
         AssertEqual(RoomPaletteFxDefinitions.AreaCount, areaLists.Length,
@@ -132,7 +152,8 @@ internal static partial class Program
         Console.WriteLine(
             "Palette-FX definitions: 63 setup/list records, eight native area lists, " +
             "64 area selections, every production spawn, all retail room-load selections, " +
-            "and the Hyper Beam owner pass with fixed metadata reads forbidden.");
+            "62 compiled generic program entries, and the specialized Hyper Beam owner pass " +
+            "with fixed metadata reads forbidden.");
     }
 
     private static IEnumerable<ushort> DefinitionRange(ushort first, ushort last)

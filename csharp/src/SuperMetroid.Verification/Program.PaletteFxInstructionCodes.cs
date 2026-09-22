@@ -57,6 +57,7 @@ internal static partial class Program
         VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(bus);
         VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyBeaconPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -66,8 +67,106 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 464 control words and four timer bytes are compiled; all four audio opcodes " +
+            "plus 499 control words and four timer bytes are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyBeaconPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = BeaconPaletteFxProgramMechanicsDefinitions.ProgramStart;
+             pointer <= unchecked((ushort)(
+                 BeaconPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2));
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!BeaconPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"beacon program catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled, $"beacon compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"beacon cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(35, mechanicsWords, "compiled beacon mechanics words");
+        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                BeaconPaletteFxProgramMechanicsDefinitions.SoundOperandPointer,
+                out _),
+            "beacon sound ID remains live audio data");
+
+        for (int frame = 0;
+             frame < BeaconPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort framePointer = BeaconPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            for (int color = 0;
+                 color < BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                ushort pointer = color < 3
+                    ? unchecked((ushort)(framePointer + 2 + color * 2))
+                    : unchecked((ushort)(framePointer + 10));
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out _),
+                    $"beacon color $8D:{pointer:X4} remains presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        var cgram = new SnesCgram();
+        paletteFx.SpawnDefinition(
+            guarded,
+            BeaconPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            equippedItems: 0);
+        int soundCount = 0;
+        for (int step = 0;
+             step <= BeaconPaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, cgram, 0, 0, false, false);
+            if (paletteFx.SoundRequests.Count == 0)
+                continue;
+            AssertEqual(1, paletteFx.SoundRequests.Count,
+                "beacon publishes one sound at its midpoint");
+            AssertEqual(SoundEffectLibrary.Library2,
+                paletteFx.SoundRequests[0].SoundEffect.Library,
+                "beacon selects sound library two");
+            AssertEqual((byte)0x18,
+                paletteFx.SoundRequests[0].SoundEffect.Value,
+                "beacon retains its live sound ID");
+            soundCount++;
+        }
+
+        AssertEqual(1, soundCount, "beacon queues its sound once per complete cycle");
+        AssertTrue(paletteFx.IsDefinitionActive(
+                BeaconPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "beacon remains active after its complete cycle");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "beacon avoids mechanics ROM reads");
+        AssertEqual(
+            (BeaconPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2,
+            guarded.PresentationReadCount,
+            "beacon retains every live color read through its complete cycle");
+        AssertEqual((ushort)0x02bf, cgram.Colors[0x71],
+            "beacon writes its first live color");
+        AssertEqual((ushort)0, cgram.Colors[0x74],
+            "beacon preserves the first skipped CGRAM color");
+        AssertEqual((ushort)0, cgram.Colors[0x7c],
+            "beacon preserves the ninth skipped CGRAM color");
+        AssertEqual((ushort)0x7fff, cgram.Colors[0x7d],
+            "beacon resumes after the native eighteen-byte skip");
     }
 
     private static void VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(
@@ -1281,6 +1380,26 @@ internal static partial class Program
                     int laterColorOffset = source.Offset - unchecked((ushort)(framePointer + 6));
                     if ((uint)laterColorOffset <
                         (TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame - 1) * 2)
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < BeaconPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort framePointer =
+                        BeaconPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                    int leadingColorOffset = source.Offset - unchecked((ushort)(framePointer + 2));
+                    if ((uint)leadingColorOffset < 3 * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                    int finalColorOffset = source.Offset - unchecked((ushort)(framePointer + 10));
+                    if ((uint)finalColorOffset < sizeof(ushort))
                     {
                         PresentationReadCount++;
                         break;

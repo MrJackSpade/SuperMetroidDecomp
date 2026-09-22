@@ -1592,3 +1592,14 @@ and target words. All 88 BGR555 colors remain live presentation data.
 Both real definitions execute the complete 110-frame loop with mechanics bytes forbidden.
 Verification also proves the native six-byte CGRAM gap and the slot-sensitive callback that
 deletes the owner when two later palette-FX slots have been populated.
+
+## Crateria/Brinstar beacon palette mechanics
+
+The shared beacon-flashing program now compiles 35 color-index, duration, inline CGRAM
+skip, wait, audio-opcode, branch, and target words. Its forty BGR555 colors and byte-sized
+sound ID remain live presentation/audio data.
+
+The real definition executes its complete 100-frame cycle with mechanics bytes forbidden,
+queues exactly one library-two sound at the native midpoint, and repeats its first record.
+Verification proves exact ROM parity, every live color read, cursor alignment across the
+three-byte sound command, and the native eighteen-byte CGRAM gap.

@@ -44,6 +44,12 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
     /// <summary>Frames from the first record through the next first record.</summary>
     public const int CycleFrames = 100;
 
+    /// <summary>Three colors precede each record's inline CGRAM-index skip.</summary>
+    private const int ColorsBeforeIndexSkip = 3;
+
+    /// <summary>The fourth color follows the inline CGRAM-index skip at byte ten.</summary>
+    private const int PostSkipColorOffset = 10;
+
     /// <summary>The first destination byte in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x00e2;
 
@@ -56,6 +62,17 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
             return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
         return unchecked((ushort)(
             PostSoundFramePointer + (frame - PreSoundFrameCount) * FrameByteCount));
+    }
+
+    /// <summary>Returns one live BGR555 word, skipping the inline CGRAM-index command.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        int offset = color < ColorsBeforeIndexSkip
+            ? sizeof(ushort) + color * sizeof(ushort)
+            : PostSkipColorOffset;
+        return unchecked((ushort)(FramePointer(frame) + offset));
     }
 
     /// <summary>Resolves one compiled mechanics word while retaining color/audio data.</summary>

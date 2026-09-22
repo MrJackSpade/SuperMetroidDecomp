@@ -149,6 +149,10 @@ internal static class RoomPaletteFxPresentationExtractor
                 CrateriaEscapeLightningPaletteOwner.YellowLightning),
             CrateriaEscapeCreBlockPixel = ExtractCrateriaEscapeLightning(
                 CrateriaEscapeLightningPaletteOwner.CreBlockPixel),
+            BeaconFlashing = ExtractFrames(
+                BeaconPaletteFxProgramMechanicsDefinitions.FrameCount,
+                BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 

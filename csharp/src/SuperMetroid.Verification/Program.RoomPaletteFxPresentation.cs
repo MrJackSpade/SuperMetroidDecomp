@@ -352,10 +352,17 @@ internal static partial class Program
                 [definition.DefinitionPointer],
                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "Crateria and Brinstar beacon flash",
+            BeaconPaletteFxProgramMechanicsDefinitions.FrameCount,
+            BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [BeaconPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            BeaconPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 4348 editable palette colors match ROM; " +
-            "fifty-one installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 4388 editable palette colors match ROM; " +
+            "fifty-two installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -405,6 +412,9 @@ internal static partial class Program
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
+                AssertTrue(native.SoundRequests.SequenceEqual(installed.SoundRequests),
+                    $"installed {description} definition ${definition:X4} preserves native " +
+                    $"audio requests on frame {frame}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"installed {description} definition ${definition:X4} avoids color reads");
@@ -762,9 +772,14 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Crateria escape CRE pixel");
         document = document with { CrateriaEscapeCreBlockPixel = pixel };
 
+        PaletteRgb5[] beaconFrame = document.BeaconFlashing[0];
+        document.BeaconFlashing[0] = beaconFrame[..^1];
+        Reject("room palette-FX rejects incomplete beacon flash frame");
+        document.BeaconFlashing[0] = beaconFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 16",
-            "\"version\": 16,\n  \"nativeAddress\": 9240718",
+            "\"version\": 17",
+            "\"version\": 17,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

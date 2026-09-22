@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 56 uses `room-palette-effects.json` schema version 16 (forty-five
+Catalog version 57 uses `room-palette-effects.json` schema version 17 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1409,10 +1409,12 @@ fifteen-record accent loops.
 `upperCrateriaEscapeRedFlash` exposes its fourteen seven-color red-flash records;
 `crateriaEscapeYellowLightning` and `crateriaEscapeCreBlockPixel` expose the
 late-Crateria paired eleven-record loops with distinct eleven/five-color widths.
+`beaconFlashing` exposes the shared ten-record Crateria/Brinstar beacon colors;
+its inline CGRAM skip and mid-cycle sound command are not editable color data.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room and cinematic effects without changing the cartridge or engine code.
 
-Only the 4348 authored RGB5 entries are presentation data. Native record layouts,
+Only the 4388 authored RGB5 entries are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
@@ -1442,9 +1444,11 @@ both destinations. All three Samus loading-suit programs run through their compl
 runs through its fourteen-frame one-shot.
 The seven Tourian escape entries each run for two complete loops, retaining both
 inline CGRAM skips and the shared entry routing. Upper Crateria's red flash and both
-late escape-lightning entries also run for two complete loops. A valid override changes
-catalog identity and forty-six independent live runtime outputs, while removing it restores
-both exactly. Wrong frame or color counts,
+late escape-lightning entries also run for two complete loops.
+The beacon loop runs twice with exact palette and audio-request parity, including the
+mid-cycle sound command. A valid override changes catalog identity and forty-seven
+independent live runtime outputs, while removing it restores both exactly. Wrong frame
+or color counts,
 unsupported versions, invalid RGB5 values, unknown/native-address fields, corrupt stock,
 and malformed overrides fail loudly.
 

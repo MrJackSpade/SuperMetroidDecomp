@@ -1825,14 +1825,12 @@ internal static partial class Program
              frame < BeaconPaletteFxProgramMechanicsDefinitions.FrameCount;
              frame++)
         {
-            ushort framePointer = BeaconPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
             for (int color = 0;
                  color < BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
-                ushort pointer = color < 3
-                    ? unchecked((ushort)(framePointer + 2 + color * 2))
-                    : unchecked((ushort)(framePointer + 10));
+                ushort pointer = BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                    frame, color);
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                         pointer,
                         out _),

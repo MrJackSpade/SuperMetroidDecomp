@@ -416,6 +416,13 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount,
                 definition.ColorsPerFrame, definition.ColorPointer, colors);
         }
+        ValidateAndCompile(
+            "Crateria and Brinstar beacon flash",
+            document.BeaconFlashing,
+            BeaconPaletteFxProgramMechanicsDefinitions.FrameCount,
+            BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -523,10 +530,11 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] UpperCrateriaEscapeRedFlash { get; init; }
     public required PaletteRgb5[][] CrateriaEscapeYellowLightning { get; init; }
     public required PaletteRgb5[][] CrateriaEscapeCreBlockPixel { get; init; }
+    public required PaletteRgb5[][] BeaconFlashing { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 16;
+    public const int Version = 17;
 }

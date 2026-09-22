@@ -2016,3 +2016,10 @@ loops now source 274 BGR555 words from three named arrays. All three definitions
 execute two full cycles with source-color reads forbidden and exact native CGRAM
 parity. Their distinct widths, duration schedules, destinations, waits, and loop
 targets remain compiled mechanics; independent overrides reach all three outputs.
+
+The shared Crateria/Brinstar beacon loop now sources all forty BGR555 color words
+from one editable installed array. Verification blocks its eighty color-source
+bytes, compares two complete native cycles of CGRAM and sound-request output,
+and confirms a live override. Its inline CGRAM skip, sound-command placement,
+timing, and loop target remain compiled mechanics; the sound-ID byte is still
+live audio data, not an editable palette color.

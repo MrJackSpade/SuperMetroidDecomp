@@ -46,6 +46,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
 
         value = 0;
         return false;

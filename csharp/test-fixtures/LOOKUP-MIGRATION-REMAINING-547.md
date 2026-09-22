@@ -1571,3 +1571,14 @@ Both real definitions execute their complete nested timer cycles with all mechan
 forbidden, preserving 503/743-frame cadence and every live color read. Focused coverage
 also lowers Samus across the native Y=$0380 boundary and proves that each pre-instruction
 restarts its neutral record immediately without restoring a cartridge read.
+
+## Maridia environmental palette mechanics
+
+Maridia's sand-pit, sand-fall, and background-waterfall programs now compile all 44
+color-index, duration, wait, branch, and target words through
+`MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions`. Their 112 BGR555 color words
+remain live presentation data.
+
+All three real definitions execute a complete 40/40/16-frame cycle and repeat their first
+record with mechanics bytes forbidden. Exact ROM parity, every live color read, strict
+owner boundaries, and continued slot activity are verified.

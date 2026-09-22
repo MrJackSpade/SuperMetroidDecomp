@@ -1670,3 +1670,15 @@ words remain live presentation data.
 The real definition executes and repeats its complete fourteen-record, 63-frame cycle
 with mechanics reads forbidden. Verification proves exact ROM parity, every live color
 read, and the authored descending-then-ascending duration schedule.
+
+## Late-Crateria escape palette mechanics
+
+The yellow-lightning and subtle CRE-block pixel programs now compile all 52 color-index,
+duration, wait, loop, and target words through
+`CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions`. Their 176 BGR555 color
+words remain live presentation data.
+
+Both real definitions execute and repeat their complete eleven-record, 98-frame cycles
+with mechanics reads forbidden. Verification proves exact ROM parity, every live color
+read, and the shared irregular lightning schedule at both record widths. This completes
+the mechanics migration of all ten escape palette programs in `$8D:F7A9-FFC8`.

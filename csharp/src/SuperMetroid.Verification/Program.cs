@@ -152,6 +152,11 @@ if (args is ["--ridley-instruction-mechanics"])
     VerifyRidleyInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--draygon-instruction-mechanics"])
+{
+    VerifyDraygonInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--walking-space-pirate-instruction-mechanics"])
 {
     VerifyWalkingSpacePirateInstructionProgramDefinitions();

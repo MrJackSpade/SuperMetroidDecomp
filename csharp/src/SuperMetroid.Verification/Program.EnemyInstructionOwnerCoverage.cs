@@ -147,8 +147,8 @@ internal static partial class Program
                 NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture))
             .ToHashSet();
-        AssertTrue(unresolvedDefinitions.SetEquals([0xde3f]),
-            "pending translated mechanics owner is exactly Draygon; actual=" +
+        AssertEqual(0, unresolvedDefinitions.Count,
+            "every translated ordinary-enemy instruction owner is compiled; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
         var unknown = new RoomEnemySlot(0)
@@ -158,14 +158,15 @@ internal static partial class Program
             CurrentInstruction = 0x9000,
         };
         var unknownSystem = new RoomEnemySystem();
-        AssertTrue(!HasCompiledEnemyInstructionOwner(
-                busField,
-                readMechanics,
+        TargetInvocationException unknownException = AssertThrows<TargetInvocationException>(
+            () => readMechanics.Invoke(
                 unknownSystem,
-                rom,
-                unknown,
-                unknown.CurrentInstruction),
-            "unknown ordinary-enemy definition has no implicit cartridge owner");
+                [unknown, unknown.CurrentInstruction]),
+            "unknown ordinary-enemy definition fails instead of reading cartridge mechanics");
+        AssertTrue(
+            unknownException.InnerException is InvalidDataException invalid &&
+            invalid.Message.Contains("has no compiled owner", StringComparison.Ordinal),
+            "unknown ordinary-enemy failure identifies the missing compiled owner");
 
         Console.WriteLine(
             $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +

@@ -1369,12 +1369,11 @@ The retail-wide owner audit now enumerates all 163 named enemy definitions and e
 population record in all 323 compiled room states. It invokes the real initializer
 dispatcher, preserves each record's initial instruction/property words, and probes the
 production mechanics resolver with cartridge reads forbidden. This covers 154 translated
-initializer identities and currently proves 104 compiled instruction-processing owners.
-The only explicitly inventoried fallback family is Draygon.
-The allowlist is intentionally exact and must shrink as
-those families are compiled; an unlisted fallback, including a newly translated actor,
-fails verification. Once it is empty, the generic ordinary-enemy ROM fallback can be
-removed with definition-wide evidence rather than scenario sampling.
+initializer identities and proves all 105 instruction-processing owners. The terminal
+cartridge fallback has been removed; an unknown definition now fails with its identity
+and pointer instead of reading fixed ROM mechanics. Family-specific traversal tests remain
+the proof for internal branches and live presentation operands, while this audit prevents
+a newly translated actor from silently restoring the fallback.
 
 ## Gunship instruction mechanics
 
@@ -1402,8 +1401,18 @@ production entry programs. Both facing paths execute through the real ordinary-e
 interpreter, including the Ceres and Norfair liftoff handoffs, while all compiled mechanics
 bytes are forbidden. The 86 interleaved extended-spritemap operands remain live cartridge
 presentation data. Exact ROM parity, every presentation read, strict rejection, and
-allocation-free warmed lookup are verified. Draygon is now the sole remaining translated
-ordinary-enemy instruction owner using the terminal cartridge fallback.
+allocation-free warmed lookup are verified.
+
+## Draygon instruction mechanics
+
+Draygon's body, eye, tail, and arms now share a compiled owner for all 524 command,
+timing, branch-target, displacement, sound, and function words reachable from the 37
+production entry programs. The 250 interleaved extended-spritemap operands remain live
+presentation data. Verification matches every compiled word against the pinned ROM,
+routes every word through all four physical definition identities with cartridge reads
+forbidden, exercises the atomic four-list reset command, and covers both native HUD IRQ
+opcodes (including the right-facing duplicate at `$A5:9C8A`). This completes the retail
+ordinary-enemy owner inventory and removes its generic mechanics fallback.
 
 ## Walking Space Pirate instruction mechanics
 

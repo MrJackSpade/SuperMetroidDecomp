@@ -47,7 +47,7 @@ public sealed partial class RoomEnemySystem
         _vram!.LoadBytes(0x9000, bg2Bytes); // VRAM word $4800 expressed as a byte address.
 
         body.PaletteIndex = EnemyPaletteBits.Palette7;
-        body.CurrentInstruction = DraygonInstructionLists.Ilist_9889;
+        body.CurrentInstruction = DraygonInstructionProgramDefinitions.BodyFacingLeftIdle;
         body.InstructionTimer = 1;
 
         _processAllEnemies = true;
@@ -74,7 +74,7 @@ public sealed partial class RoomEnemySystem
             case DraygonEyeDefinition:
                 if (part.SlotIndex != 1)
                     throw new InvalidDataException("Draygon's eye must own native slot $0040.");
-                part.CurrentInstruction = DraygonInstructionLists.Ilist_9944;
+                part.CurrentInstruction = DraygonInstructionProgramDefinitions.EyeFacingLeftIdle;
                 part.VariableA = 0x804b; // Literal RTS until the body publishes facing AI.
                 state.Eye = part;
                 return;
@@ -82,7 +82,7 @@ public sealed partial class RoomEnemySystem
             case DraygonTailDefinition:
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own native slot $0080.");
-                part.CurrentInstruction = DraygonInstructionLists.Ilist_99FC;
+                part.CurrentInstruction = DraygonInstructionProgramDefinitions.TailFacingLeftInitialFakeWhip;
                 part.PaletteIndex = EnemyPaletteBits.Palette7;
                 state.Tail = part;
                 return;
@@ -92,7 +92,7 @@ public sealed partial class RoomEnemySystem
                     throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
                 // Body init briefly writes $9813 before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop at $97E7.
-                part.CurrentInstruction = DraygonInstructionLists.Ilist_97E7;
+                part.CurrentInstruction = DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle;
                 part.PaletteIndex = EnemyPaletteBits.Palette7;
                 part.Layer = 2;
                 state.Arms = part;
@@ -338,7 +338,7 @@ public sealed partial class RoomEnemySystem
 
         BuildDraygonSwoopYPositions(state, samus);
         state.Function = DraygonAiFunction.SwoopRightDescending;
-        InstallDraygonInstruction(state.Body, DraygonInstructionLists.Ilist_97D1);
+        InstallDraygonInstruction(state.Body, DraygonInstructionProgramDefinitions.BodyFacingRightReset);
         state.FacingRight = true;
     }
 
@@ -394,7 +394,7 @@ public sealed partial class RoomEnemySystem
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon descent path index {pathIndex} is outside WRAM.");
         if (body.VariableB == 0x0068)
-            InstallDraygonInstruction(state.Arms!, DraygonInstructionLists.Ilist_9C06);
+            InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingRightNearSwoopApex);
 
         body.YPosition = state.SwoopYPositions[pathIndex];
         body.VariableB = unchecked((ushort)(body.VariableB - 4));
@@ -436,7 +436,7 @@ public sealed partial class RoomEnemySystem
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon ascent path index {pathIndex} is outside WRAM.");
         if (body.VariableB == 0x0068)
-            InstallDraygonInstruction(state.Arms!, DraygonInstructionLists.Ilist_9BDA);
+            InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingRightIdle);
 
         body.YPosition = state.SwoopYPositions[pathIndex];
         body.VariableB = unchecked((ushort)(body.VariableB + 4));
@@ -471,7 +471,7 @@ public sealed partial class RoomEnemySystem
         state.Body.VariableD = unchecked((ushort)(velocity >> 16));
         state.Body.VariableE = unchecked((ushort)velocity);
         state.Function = DraygonAiFunction.SwoopLeftDescending;
-        InstallDraygonInstruction(state.Body, DraygonInstructionLists.Ilist_97BB);
+        InstallDraygonInstruction(state.Body, DraygonInstructionProgramDefinitions.BodyFacingLeftReset);
         state.FacingRight = false;
         state.Body.VariableB = state.Body.VariableC;
     }
@@ -489,7 +489,7 @@ public sealed partial class RoomEnemySystem
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon descent path index {pathIndex} is outside WRAM.");
         if (body.VariableB == 0x0068)
-            InstallDraygonInstruction(state.Arms!, DraygonInstructionLists.Ilist_9813);
+            InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingLeftNearSwoopApex);
 
         body.YPosition = state.SwoopYPositions[pathIndex];
         body.VariableB = unchecked((ushort)(body.VariableB - 4));
@@ -539,7 +539,7 @@ public sealed partial class RoomEnemySystem
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon ascent path index {pathIndex} is outside WRAM.");
         if (body.VariableB == 0x0068)
-            InstallDraygonInstruction(state.Arms!, DraygonInstructionLists.Ilist_97E7);
+            InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle);
 
         body.YPosition = state.SwoopYPositions[pathIndex];
         body.VariableB = unchecked((ushort)(body.VariableB + 4));
@@ -600,15 +600,15 @@ public sealed partial class RoomEnemySystem
         state.GoopYOscillationAngle = 0;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
         // the body reset opcode replaces all four lists. Preserve the literal write.
-        InstallDraygonInstruction(state.Arms!, DraygonInstructionLists.Ilist_9C06);
+        InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingRightNearSwoopApex);
         state.Function = movingRight
             ? DraygonAiFunction.GoopRight
             : DraygonAiFunction.GoopLeft;
         InstallDraygonInstruction(
             body,
             movingRight
-                ? DraygonInstructionLists.Ilist_97D1
-                : DraygonInstructionLists.Ilist_97BB);
+                ? DraygonInstructionProgramDefinitions.BodyFacingRightReset
+                : DraygonInstructionProgramDefinitions.BodyFacingLeftReset);
         state.FacingRight = movingRight;
     }
 
@@ -663,8 +663,8 @@ public sealed partial class RoomEnemySystem
             InstallDraygonInstruction(
                 state.Body,
                 movingRight
-                    ? DraygonInstructionLists.Ilist_9C90
-                    : DraygonInstructionLists.Ilist_98FE);
+                    ? DraygonInstructionProgramDefinitions.BodyFacingRightFireGoop
+                    : DraygonInstructionProgramDefinitions.BodyFacingLeftFireGoop);
         }
 
         MoveDraygonAlongGoopPath(state, movingRight);
@@ -681,8 +681,8 @@ public sealed partial class RoomEnemySystem
         InstallDraygonInstruction(
             state.Arms!,
             movingRight
-                ? DraygonInstructionLists.Ilist_9BDA
-                : DraygonInstructionLists.Ilist_97E7);
+                ? DraygonInstructionProgramDefinitions.ArmsFacingRightIdle
+                : DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle);
         state.Function = movingRight
             ? DraygonAiFunction.GoopRightRecovery
             : DraygonAiFunction.GoopLeftRecovery;
@@ -798,20 +798,20 @@ public sealed partial class RoomEnemySystem
         eye.CurrentInstruction = angle switch
         {
             < 0x20 => facingRight
-                ? DraygonInstructionLists.Ilist_9D5C
-                : DraygonInstructionLists.Ilist_99BA,
+                ? DraygonInstructionProgramDefinitions.EyeFacingRightLookingUp
+                : DraygonInstructionProgramDefinitions.EyeFacingLeftLookingUp,
             < 0x60 => facingRight
-                ? DraygonInstructionLists.Ilist_9D50
-                : DraygonInstructionLists.Ilist_99B4,
+                ? DraygonInstructionProgramDefinitions.EyeFacingRightLookingRight
+                : DraygonInstructionProgramDefinitions.EyeFacingLeftLookingRight,
             < 0xa0 => facingRight
-                ? DraygonInstructionLists.Ilist_9D62
-                : DraygonInstructionLists.Ilist_99C0,
+                ? DraygonInstructionProgramDefinitions.EyeFacingRightLookingDown
+                : DraygonInstructionProgramDefinitions.EyeFacingLeftLookingDown,
             < 0xe0 => facingRight
-                ? DraygonInstructionLists.Ilist_9D56
-                : DraygonInstructionLists.Ilist_99AE,
+                ? DraygonInstructionProgramDefinitions.EyeFacingRightLookingLeft
+                : DraygonInstructionProgramDefinitions.EyeFacingLeftLookingLeft,
             _ => facingRight
-                ? DraygonInstructionLists.Ilist_9D5C
-                : DraygonInstructionLists.Ilist_99BA,
+                ? DraygonInstructionProgramDefinitions.EyeFacingRightLookingUp
+                : DraygonInstructionProgramDefinitions.EyeFacingLeftLookingUp,
         };
         eye.InstructionTimer = 1;
         eye.Timer = 0;
@@ -841,24 +841,24 @@ public sealed partial class RoomEnemySystem
 
         DraygonEnemyState state = _draygon ??
             throw new InvalidDataException("Draygon instruction ran without encounter state.");
-        int bank = slot.Definition.Bank << 16;
         switch (instruction)
         {
             case DraygonCodePointers.Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms:
                 state.Body.CurrentInstruction =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 state.Eye!.CurrentInstruction =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 4)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4)));
                 state.Tail!.CurrentInstruction =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 6)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6)));
                 state.Arms!.CurrentInstruction =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 8)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 8)));
                 state.Body.InstructionTimer = state.Eye.InstructionTimer =
                     state.Tail.InstructionTimer = state.Arms.InstructionTimer = 1;
                 cursor = unchecked((ushort)(cursor + 10));
                 return true;
 
             case DraygonCodePointers.Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw:
+            case DraygonCodePointers.Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate:
                 state.RoomLoadingIrqCommand = 0x000c;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
@@ -866,32 +866,34 @@ public sealed partial class RoomEnemySystem
             case DraygonCodePointers.Instruction_Draygon_EyeFunctionInY:
                 if (state.Eye is null)
                     throw new InvalidDataException("Draygon eye-function opcode ran before eye load.");
-                state.Eye.VariableA = ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                state.Eye.VariableA = ReadEnemyInstructionMechanicsWord(
+                    slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case DraygonCodePointers.Instruction_Draygon_FunctionInY:
-                slot.VariableA = ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                slot.VariableA = ReadEnemyInstructionMechanicsWord(
+                    slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case DraygonCodePointers.Instruction_DraygonBody_DisplaceGraphics:
                 state.BodyGraphicsXDisplacement =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 state.BodyGraphicsYDisplacement =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 4)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4)));
                 cursor = unchecked((ushort)(cursor + 6));
                 return true;
 
             case DraygonCodePointers.Instruction_Draygon_QueueSFXInY_Lib2_Max6:
                 state.LastSoundLibrary2 =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case DraygonCodePointers.Instruction_Draygon_QueueSFXInY_Lib3_Max6:
                 state.LastSoundLibrary3 =
-                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -916,8 +918,8 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case DraygonCodePointers.Instruction_Draygon_ParalyseDraygonTailAndArms:
-                InstallDraygonInstruction(state.Tail!, DraygonInstructionLists.Ilist_97B9);
-                InstallDraygonInstruction(state.Arms!, DraygonInstructionLists.Ilist_97B9);
+                InstallDraygonInstruction(state.Tail!, DraygonInstructionProgramDefinitions.Sleep);
+                InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.Sleep);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -928,9 +930,9 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case DraygonCodePointers.Instruction_Draygon_BodyFunctionInY:
-                state.Function = (DraygonAiFunction)ReadWord(
-                    _bus!,
-                    bank | unchecked((ushort)(cursor + 2)));
+                state.Function = (DraygonAiFunction)ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 

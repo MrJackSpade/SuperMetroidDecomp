@@ -18,6 +18,9 @@ internal static class DraygonCodePointers
     /// <summary><c>Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw</c> at $A5:9895.</summary>
     public const ushort Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw = 0x9895;
 
+    /// <summary><c>Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw_dup</c> at $A5:9C8A.</summary>
+    public const ushort Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate = 0x9c8a;
+
     /// <summary><c>Instruction_Draygon_EyeFunctionInY</c> at $A5:C47B.</summary>
     public const ushort Instruction_Draygon_EyeFunctionInY = 0xc47b;
 

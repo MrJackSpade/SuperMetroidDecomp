@@ -3552,6 +3552,10 @@ public sealed partial class RoomEnemySystem
     /// Resolves simulation-owned enemy instruction words from compiled definitions while
     /// leaving frame spritemap operands on their explicit cartridge read path.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Performance",
+        "CA1822:Mark members as static",
+        Justification = "The instance interpreter owns this dispatcher and tests replace it by reflection.")]
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
         if (slot.EnemyDefinitionPointer is
@@ -3881,7 +3885,12 @@ public sealed partial class RoomEnemySystem
         if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
             return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
+        if (IsDraygonDefinition(slot.EnemyDefinitionPointer))
+            return DraygonInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        throw new InvalidDataException(
+            $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction mechanics pointer " +
+            $"${slot.Definition.Bank:X2}:{address:X4} has no compiled owner.");
     }
 
     private void DetermineWhichEnemiesToProcess(ushort cameraX, ushort cameraY)

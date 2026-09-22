@@ -95,13 +95,13 @@ public sealed partial class RoomEnemySystem
         InstallDraygonInstruction(
             body,
             state.FacingRight
-                ? DraygonInstructionLists.Ilist_9C5A
-                : DraygonInstructionLists.Ilist_9867);
+                ? DraygonInstructionProgramDefinitions.ArmsFacingRightDying
+                : DraygonInstructionProgramDefinitions.ArmsFacingLeftDying);
         InstallDraygonInstruction(
             state.Eye!,
             state.FacingRight
-                ? DraygonInstructionLists.Ilist_9D1C
-                : DraygonInstructionLists.Ilist_997A);
+                ? DraygonInstructionProgramDefinitions.EyeFacingRightDying
+                : DraygonInstructionProgramDefinitions.EyeFacingLeftDying);
         state.Eye!.VariableA = 0x804b;
         state.Function = DraygonAiFunction.Dying;
 

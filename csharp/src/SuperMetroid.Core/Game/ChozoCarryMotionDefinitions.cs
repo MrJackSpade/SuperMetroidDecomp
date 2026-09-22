@@ -14,6 +14,15 @@ public static class ChozoCarryMotionDefinitions
     /// </remarks>
     private static ReadOnlySpan<short> Magnitudes => [0,0,0,0,0x200,0x300,0xe00,0x800,0x200,0x300,0xe00,0x800,0,0,0,0];
     /// <summary>$AA:E6B0: Samus Y offsets, identical for both facing halves.</summary>
+    /// <remarks>
+    /// All 32 signed words match the pinned NTSC J/U v1.0 ROM; the same
+    /// sixteen-position sequence is used in both facing halves. These
+    /// negative whole-pixel offsets follow the authored carried-Samus poses,
+    /// with unequal one-pixel steps and holds. Retain the bounded pose data
+    /// rather than fit a less readable curve. The caller adds the selected
+    /// offset after statue collision and slope alignment with 16-bit wrapping.
+    /// Investigation: #625 / #667.
+    /// </remarks>
     private static ReadOnlySpan<short> YOffsets => [-32,-25,-23,-23,-23,-24,-25,-24,-23,-24,-25,-24,-23,-23,-23,-23];
 
     /// <summary>$AA:E630/E670/E6B0: one of 32 velocity/X-joint/Y-joint records, selected by an even byte offset.</summary>

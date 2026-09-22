@@ -27,6 +27,7 @@ internal static class RoomPaletteFxPresentationExtractor
             MaridiaSandFalls = ExtractMaridia(MaridiaEnvironmentalPaletteOwner.SandFalls),
             MaridiaBackgroundWaterfalls = ExtractMaridia(
                 MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
+            WreckedShipGreenLights = ExtractWreckedShipGreenLights(),
         });
         return json.ToArray();
 
@@ -70,6 +71,35 @@ internal static class RoomPaletteFxPresentationExtractor
                 for (int index = 0; index < definition.ColorsPerFrame; index++)
                 {
                     ushort pointer = definition.ColorPointer(frame, index);
+                    ushort bgr555 = RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer);
+                    frames[frame][index] = new PaletteRgb5
+                    {
+                        Red = bgr555 & 31,
+                        Green = bgr555 >> 5 & 31,
+                        Blue = bgr555 >> 10 & 31,
+                    };
+                }
+            }
+            return frames;
+        }
+
+        PaletteRgb5[][] ExtractWreckedShipGreenLights()
+        {
+            int frameCount =
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
+            int colorCount =
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+            var frames = new PaletteRgb5[frameCount][];
+            for (int frame = 0; frame < frameCount; frame++)
+            {
+                frames[frame] = new PaletteRgb5[colorCount];
+                for (int index = 0; index < colorCount; index++)
+                {
+                    ushort pointer =
+                        WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                            frame, index);
                     ushort bgr555 = RomDataReader.ReadWordFixedBank(
                         bus,
                         RoomFxRomData.Banks.PaletteFx | pointer);

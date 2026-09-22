@@ -1363,28 +1363,30 @@ and malformed JSON fail loudly.
 
 ## Editable Norfair and Maridia room palette effects (#536, #549)
 
-Catalog version 42 uses `room-palette-effects.json` schema version 2 (forty-five
+Catalog version 43 uses `room-palette-effects.json` schema version 3 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
 `norfairForegroundPalette6`. Each contains sixteen frames of five RGB5 colors. It
 also exposes `maridiaSandPits` (four frames of eight colors), `maridiaSandFalls`
 (four frames of four colors), and `maridiaBackgroundWaterfalls` (eight frames of
-eight colors).
+eight colors). The shared `wreckedShipGreenLights` array contains eight two-color
+frames used by both powered Wrecked Ship palette definitions.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room effects without changing the cartridge or engine code.
 
-Only the 432 authored BGR555 color words are presentation data. Native record layouts,
+Only the 448 authored BGR555 color words are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
 content rebinds; an unbound diagnostic interpreter retains its explicit cartridge
 fallback.
 
-Verification compares all 432 extracted words with the cartridge, forbids all 864
+Verification compares all 448 extracted words with the cartridge, forbids all 896
 source bytes, executes all four Norfair programs through two complete 116-frame cycles,
 and executes the three Maridia programs through two complete cycles of their 40/40/16
-cadences. CGRAM and Norfair heat-phase output match frame-by-frame. A valid override
+cadences. Both Wrecked Ship definitions also execute two complete 80-frame cycles from
+their shared color payload. CGRAM and Norfair heat-phase output match frame-by-frame. A valid override
 changes catalog identity and live runtime output for both areas, while removing it
 restores both exactly. Wrong frame or color counts, unsupported versions, invalid RGB5
 values, unknown/native-address fields, corrupt stock, and malformed overrides fail loudly.

@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>Powered Wrecked Ship palette-FX definition at $8D:F76D.</summary>
+    public const ushort PoweredDefinition = 0xf76d;
+
+    /// <summary>Alternate caller of the powered-light program at $8D:F771.</summary>
+    public const ushort PoweredDefinitionAlternate = 0xf771;
+
     /// <summary><c>InstList_PaletteFXObject_WreckedShip1_0</c> at $8D:EAE2.</summary>
     public const ushort ProgramStart = 0xeae2;
 
@@ -18,6 +24,9 @@ public static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions
 
     /// <summary>Terminal <c>goto</c> command at $8D:EB26.</summary>
     public const ushort LoopInstructionPointer = 0xeb26;
+
+    /// <summary>The first powered-light destination byte in CGRAM.</summary>
+    public const ushort ColorByteIndex = 0x0098;
 
     /// <summary>Eight ten-frame records form the powered-light cycle.</summary>
     public const int FrameCount = 8;
@@ -38,7 +47,7 @@ public static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions
         }
         if (pointer == unchecked((ushort)(ProgramStart + sizeof(ushort))))
         {
-            value = 0x0098;
+            value = ColorByteIndex;
             return true;
         }
         if (pointer == LoopInstructionPointer)
@@ -78,5 +87,14 @@ public static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions
         if ((uint)frame >= FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
+    }
+
+    /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
     }
 }

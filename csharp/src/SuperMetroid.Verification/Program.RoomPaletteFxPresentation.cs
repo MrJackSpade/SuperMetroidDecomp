@@ -70,10 +70,68 @@ internal static partial class Program
             "installed Norfair palette loops avoid cartridge color reads");
 
         VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation);
+        VerifyExtractedWreckedShipPaletteFxPresentation(bus, presentation);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 432 editable Norfair/Maridia colors match ROM; " +
-            "seven installed programs match two native cycles without color-source reads.");
+            "  Room palette presentation: 448 editable environmental colors match ROM; " +
+            "eight installed programs match two native cycles without color-source reads.");
+    }
+
+    private static void VerifyExtractedWreckedShipPaletteFxPresentation(
+        ISnesAddressSpace bus,
+        RoomPaletteFxPresentation presentation)
+    {
+        var colorAddresses = new HashSet<int>();
+        for (int frame = 0;
+             frame < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        for (int color = 0;
+             color < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+             color++)
+        {
+            ushort pointer =
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                    frame, color);
+            ushort expected = RomDataReader.ReadWordFixedBank(
+                bus,
+                RoomFxRomData.Banks.PaletteFx | pointer);
+            AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
+                $"installed Wrecked Ship color resolves $8D:{pointer:X4}");
+            AssertEqual(expected, actual,
+                $"installed Wrecked Ship color matches cartridge $8D:{pointer:X4}");
+            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
+            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+                unchecked((ushort)(pointer + 1)));
+        }
+        AssertEqual(32, colorAddresses.Count,
+            "Wrecked Ship presentation owns all 16 BGR555 source words");
+
+        foreach (ushort definition in new ushort[]
+                 {
+                     WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.PoweredDefinition,
+                     WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.PoweredDefinitionAlternate,
+                 })
+        {
+            var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+            var native = new RoomPaletteFxSystem();
+            var installed = new RoomPaletteFxSystem();
+            installed.BindPresentationColors(presentation);
+            native.SpawnDefinition(bus, definition, equippedItems: 0);
+            installed.SpawnDefinition(guarded, definition, equippedItems: 0);
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
+            const int frames = 160;
+            for (int frame = 0; frame < frames; frame++)
+            {
+                native.Step(bus, nativeCgram, 0, 0, false, false);
+                installed.Step(guarded, installedCgram, 0, 0, false, false);
+                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                    $"installed Wrecked Ship definition ${definition:X4} equals native " +
+                    $"output on frame {frame}");
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"installed Wrecked Ship definition ${definition:X4} avoids color reads");
+        }
     }
 
     private static void VerifyExtractedMaridiaPaletteFxPresentation(
@@ -172,9 +230,14 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Maridia frame");
         document.MaridiaSandFalls[0] = sandFallFrame;
 
+        PaletteRgb5[][] greenLights = document.WreckedShipGreenLights;
+        document = document with { WreckedShipGreenLights = greenLights[..^1] };
+        Reject("room palette-FX rejects incomplete Wrecked Ship animation");
+        document = document with { WreckedShipGreenLights = greenLights };
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 2",
-            "\"version\": 2,\n  \"nativeAddress\": 9240718",
+            "\"version\": 3",
+            "\"version\": 3,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

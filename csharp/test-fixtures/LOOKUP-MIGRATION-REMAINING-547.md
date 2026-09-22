@@ -1121,7 +1121,7 @@ environmental sound cadence remain asserted.
 The powered Wrecked Ship green-light program shared by palette-FX definitions `$F76D`
 and `$F771` now compiles its color-index setup, eight durations, eight waits, goto, and
 loop target through `WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions`. Its
-sixteen BGR555 colors remain live presentation data. The room palette interpreter now
+sixteen BGR555 colors are installed from `room-palette-effects.json`. The room palette interpreter now
 routes translated mechanics through the shared `RoomPaletteFxProgramMechanicsDefinitions`
 owner rather than accumulating family checks in functional code.
 
@@ -1899,7 +1899,7 @@ control-data ownership.
 ## Installed Norfair environmental palette payloads
 
 The 320 BGR555 presentation words interleaved through Norfair's four environmental
-programs now live in schema-version-1 `room-palette-effects.json`. The shared
+programs now live in schema-version-3 `room-palette-effects.json`. The shared
 `IPaletteFxColorSource` binding supplies those words to the generic bank-$8D interpreter;
 all 224 control words and sixteen byte operands remain in the compiled mechanics catalog.
 This retains the cartridge's split color runs around its palette-pointer instruction and
@@ -1917,3 +1917,8 @@ background-waterfall BGR555 words. Verification forbids all 224 source bytes and
 three real programs through two complete cycles with exact native CGRAM parity. Named
 Maridia overrides reach live runtime output without moving their destinations, cadence,
 waits, or loop mechanics into presentation data.
+
+The asset additionally owns the sixteen Wrecked Ship powered-light colors shared by
+definitions `$F76D` and `$F771`. Both callers run two complete cycles with all 32 source
+bytes forbidden and exact native CGRAM parity, proving that the installed payload follows
+the shared program rather than being duplicated per definition.

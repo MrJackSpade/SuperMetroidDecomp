@@ -85,6 +85,13 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 definition.ColorPointer,
                 colors);
         }
+        ValidateAndCompile(
+            "Wrecked Ship green lights",
+            document.WreckedShipGreenLights,
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount,
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -152,10 +159,11 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] MaridiaSandPits { get; init; }
     public required PaletteRgb5[][] MaridiaSandFalls { get; init; }
     public required PaletteRgb5[][] MaridiaBackgroundWaterfalls { get; init; }
+    public required PaletteRgb5[][] WreckedShipGreenLights { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 2;
+    public const int Version = 3;
 }

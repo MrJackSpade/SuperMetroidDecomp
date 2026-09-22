@@ -210,6 +210,11 @@ internal static partial class Program
         {
             Blue = waterfall.Blue == 31 ? 30 : waterfall.Blue + 1,
         };
+        PaletteRgb5 greenLight = document.WreckedShipGreenLights[0][0];
+        document.WreckedShipGreenLights[0][0] = greenLight with
+        {
+            Green = greenLight.Green == 31 ? 30 : greenLight.Green + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -252,12 +257,27 @@ internal static partial class Program
             editedRuntime.Cgram.Colors[waterfallDefinition.ColorByteIndex / 2],
             "runtime catalog binding consumes selected Maridia palette-FX override");
 
+        const ushort wreckedShipDefinition =
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.PoweredDefinition;
+        const int wreckedShipColorIndex =
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorByteIndex /
+            sizeof(ushort);
+        stockRuntime.RoomPaletteFx.SpawnDefinition(bus, wreckedShipDefinition, 0);
+        editedRuntime.RoomPaletteFx.SpawnDefinition(bus, wreckedShipDefinition, 0);
+        stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
+        editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
+        AssertTrue(
+            stockRuntime.Cgram.Colors[wreckedShipColorIndex] !=
+            editedRuntime.Cgram.Colors[wreckedShipColorIndex],
+            "runtime catalog binding consumes Wrecked Ship palette-FX override");
+
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and live Norfair/Maridia CGRAM output " +
+            "Room palette-FX override: content identity and live Norfair/Maridia/Wrecked " +
+            "Ship CGRAM output " +
             "change immediately, then restore exactly.");
     }
 

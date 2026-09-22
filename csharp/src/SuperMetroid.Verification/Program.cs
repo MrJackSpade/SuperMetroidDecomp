@@ -1452,6 +1452,11 @@ if (args is ["--room-static-palettes"])
     VerifyRoomStaticPaletteExtraction();
     return 0;
 }
+if (args is ["--room-metatiles"])
+{
+    VerifyRoomMetatileExtraction();
+    return 0;
+}
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();

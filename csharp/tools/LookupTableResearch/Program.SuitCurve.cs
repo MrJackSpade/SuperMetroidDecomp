@@ -39,8 +39,9 @@ internal static partial class Program
         }
         Equal(1, best, "best reduced-precision ellipse still has a counterexample");
         VerifyMidpointEllipse(native);
+        VerifySuitQuantization(native);
         CheckBounds(SuitWidth, 127);
-        Console.WriteLine("PASS: 128/128 suit contour bytes; explicit seven-row opening and row-31 correction; precision/raster alternatives checked.");
+        Console.WriteLine("PASS: 128/128 suit contour bytes; seven-row opening plus either exact ellipse/row-31 correction OR angle/Q6 double rounding without that correction.");
     }
 
     private static int SuitWidth(int i)
@@ -91,5 +92,47 @@ internal static partial class Program
             if (value != native[i]) exceptions.Add(i);
         }
         Equal("31", string.Join(',', exceptions), "midpoint raster has the same single counterexample");
+    }
+
+    private static void VerifySuitQuantization(int[] native)
+    {
+        foreach (int cycle in new[] { 8192, 16384 })
+        for (int i = 0; i < 128; i++)
+            Equal(native[i], SuitQuantizedWidth(i, cycle, 6), $"suit angle/Q6 generator {cycle}/{i}");
+        foreach (int cycle in new[] { 512, 1024, 2048, 4096 })
+        {
+            int mismatches = Enumerable.Range(7, 121).Count(i => native[i] != SuitQuantizedWidth(i, cycle, 6));
+            Equal(true, mismatches > 0, $"suit rejected Q6 angular resolution {cycle}");
+        }
+        foreach (int bits in new[] { 4, 5, 7, 8, 12 })
+        {
+            int mismatches = Enumerable.Range(7, 121).Count(i => native[i] != SuitQuantizedWidth(i, 8192, bits));
+            Equal(true, mismatches > 0, $"suit rejected intermediate fractional precision {bits}");
+        }
+        CheckBounds(i => SuitQuantizedWidth(i, 8192, 6), 127);
+    }
+
+    private static int SuitQuantizedWidth(int i, int cycle, int bits)
+    {
+        Bound(i, 127);
+        if (i < 7) return i + 1;
+        int y = 128 - i, lower = 0, upper = cycle / 4;
+        decimal step = 2 * ResearchData.Pi / cycle;
+        // Round acos(y/127)/step without a floating-point inverse trig dependency.
+        // cos is decreasing; half-step boundaries decide the nearest angle index.
+        while (lower < upper)
+        {
+            int middle = (lower + upper) / 2;
+            decimal boundary = FullCosine((middle + .5m) * step);
+            bool belowLow = y <= 127 * (boundary - ResearchData.Error);
+            bool belowHigh = y <= 127 * (boundary + ResearchData.Error);
+            Equal(belowLow, belowHigh, $"suit angular rounding interval {cycle}/{i}/{middle}");
+            if (belowLow) lower = middle + 1;
+            else upper = middle;
+        }
+        int scale = 1 << bits;
+        int fixedWidth = StableFloor(24 * scale * FullSine(lower * step) + .5m,
+            24 * scale * ResearchData.Error);
+        return (fixedWidth + scale / 2) / scale;
     }
 }

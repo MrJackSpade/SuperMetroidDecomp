@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// Compiled timing metadata for the Crystal Flash body-palette cycle. Palette pointers
 /// remain presentation data; this catalog owns only the fixed delays interleaved with
-/// those pointers by <c>HandleCrystalFlashPalette</c> at <c>$91:D9B2</c>.
+/// those pointers by <c>HandleCrystalFlashPalette</c> at <c>$91:DB93</c>.
 /// </summary>
 internal static class CrystalFlashPaletteTimingDefinitions
 {
@@ -23,6 +23,14 @@ internal static class CrystalFlashPaletteTimingDefinitions
     public const ushort AuthoredDuration = 10;
 
     /// <summary>Returns the duration selected by an aligned byte offset into the records.</summary>
+    /// <remarks>
+    /// All ten timer words at <c>$91:DC02</c> plus a four-byte record stride
+    /// are <c>$000A</c> in the pinned NTSC J/U v1.0 ROM. Thus every aligned
+    /// offset from 0 through 36 returns ten after validation; the native
+    /// handler advances and wraps that offset at 40. A complete 100-call
+    /// production cycle matches with timer-word ROM reads forbidden.
+    /// Investigation: #625 / #668.
+    /// </remarks>
     public static ushort DurationForByteOffset(ushort byteOffset)
     {
         if (byteOffset % RecordByteCount != 0 ||

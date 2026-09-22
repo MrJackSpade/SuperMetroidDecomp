@@ -8,6 +8,12 @@ public static class EnemyTrigonometryTables
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
     /// the sign-extended 8.8 table. The positive half equals the stored unsigned
     /// half-wave shifted right once; sign is restored only after that truncation.</summary>
+    /// <remarks>Issue #625 research: for byte angle a, let n = a &amp; 127 and
+    /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
+    /// negated only when a &gt;= 128. All 256 words match the NTSC J/U v1.0 ROM
+    /// and pinned bank_A0.asm in csharp/tools/LookupTableResearch. This preserves
+    /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
+    /// The research evaluator uses bounded decimal arithmetic, not Math.Sin.</remarks>
     public static short SignedSixteenBitSine(byte angle)
     {
         int magnitude = UnsignedHalfWave[angle & 127] >> 1;
@@ -26,6 +32,13 @@ public static class EnemyTrigonometryTables
 
     /// <summary>$A0:B443-$B642, SineCosineTables_8bitSine_SignExtended and
     /// its three quadrant continuations. Unlike the byte table, peaks are +/-256.</summary>
+    /// <remarks>Issue #625 research: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
+    /// with positive sign for a &lt; 128, reproduces the native words. Treat the
+    /// quarter-turn magnitude as exactly 256; the byte table saturates it to 255.
+    /// LookupTableResearch checks the entire 320-word negative-cosine prefix/full
+    /// sine view as well. Any later replacement must preserve PhantoonWaveRomData's
+    /// separate odd-byte composition and final $8B instruction-byte overread;
+    /// these are byte-addressing behavior, not additional sine samples.</remarks>
     public static short SignedSine(byte angle)
     {
         int halfWaveIndex = angle & 127;
@@ -44,6 +57,20 @@ public static class EnemyTrigonometryTables
 
     /// <summary>$A0:B143, SineCosineTables_8bitSine and its cosine continuation.
     /// The positive half-wave peaks at 255, not 256. Callers supply sign separately.</summary>
+    /// <remarks>
+    /// Issue #625 algorithm finding: for integer n in 0..127, every byte equals
+    /// min(255, floor(256*sin(n*pi/128))). Scaling by 255 is not equivalent.
+    /// csharp/tools/LookupTableResearch exhaustively compares all 128 values to
+    /// this span, the SHA-256-pinned NTSC J/U v1.0 ROM, and pinned bank_A0.asm.
+    /// Its deterministic candidate reflects n to min(n,128-n), handles 0 and 64
+    /// exactly, and evaluates twelve decimal Taylor terms through x^23/23! with
+    /// x = n*pi/128. Pi is 3.1415926535897932384626433833m; each remaining scaled
+    /// result has the same floor at both ends of a conservative +/-256e-19
+    /// error interval. Thus no platform Math.Sin rounding is required for parity.
+    /// Reject indices outside 0..127 before reflection; caller angle wrapping
+    /// remains a separate operation. Production migration and hot-path cost have
+    /// not been evaluated; the table is intentionally retained for a later pass.
+    /// </remarks>
     public static ReadOnlySpan<byte> EightBitHalfWave =>
     [
         0x00,0x06,0x0c,0x12,0x19,0x1f,0x25,0x2b,0x31,0x38,0x3e,0x44,0x4a,0x50,0x56,0x5c,
@@ -58,6 +85,20 @@ public static class EnemyTrigonometryTables
 
     /// <summary>$A0:B7EE, UnsignedSineTable: 128 samples of the positive half-wave
     /// scaled to 65535. Preserve the stored truncation rather than evaluating Math.Sin.</summary>
+    /// <remarks>
+    /// Issue #625 algorithm finding: floor(65535*sin(n*pi/128)) matches all 128
+    /// words for n in 0..127. A scale of 65536, even with a saturated peak, differs
+    /// at 84 indices. LookupTableResearch checks the exact 65535 formula against
+    /// this span, the NTSC J/U v1.0 ROM and pinned bank_A0.asm using the same
+    /// reflected twelve-term decimal evaluator described on EightBitHalfWave.
+    /// Handle n=0 and n=64 exactly; for every other index, both endpoints of the
+    /// scaled +/-65535e-19 error interval truncate to the same stored integer.
+    /// This is an exhaustively verified deterministic candidate, not evidence of
+    /// the original author's generator. A replacement must reject indices outside
+    /// 0..127 and preserve callers' multiplication/truncation/sign order; benchmarks
+    /// and consumer migration are deferred. Run: dotnet run --project
+    /// csharp/tools/LookupTableResearch (repository root, local retail ROM required).
+    /// </remarks>
     public static ReadOnlySpan<ushort> UnsignedHalfWave =>
     [
         0x0000,0x0648,0x0c8f,0x12d5,0x1917,0x1f56,0x258f,0x2bc3,

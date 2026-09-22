@@ -6,6 +6,23 @@ public static class ShaktoolOrbitTables
     /// <summary>$AA:E03D-$E2BC, SineCosineTables_negativeCosine through its
     /// duplicate final quadrant. The 320 signed 8.8 words retain the cartridge's
     /// asymmetric rounding; deriving them from a scaled shared sine is not exact.</summary>
+    /// <remarks>
+    /// Issue #625 exact algorithm: validate word index i in 0..319, then let
+    /// a=(i+192) mod 256. Return trunc(3072*sin(a*3.14159/128)), toward zero,
+    /// and reinterpret the signed result as ushort. ALL 320 words match, with
+    /// no per-entry exceptions or peak saturation. The short decimal pi and
+    /// FULL-CYCLE phase are essential: do not fold the index into a quadrant or
+    /// substitute -cos(i*3.14159/128). Their phase errors differ. True pi misses
+    /// indices 37,38,61 and duplicates 293,294,317: native -1890,-1830,-226
+    /// become -1889,-1829,-225. Reduced pi naturally gives these asymmetries and
+    /// the +/-3071 peaks. LookupTableResearch evaluates 24 decimal Taylor terms
+    /// through x^47/47! directly on [0,2*pi], checking that the +/-3072e-19 error
+    /// interval truncates to one integer. Every word matches the NTSC J/U v1.0
+    /// ROM and pinned bank_AA.asm; both Displacement outputs are also checked
+    /// for every byte angle, including the 64-word offset and 8-bit promotion.
+    /// This is a proven reproduction recipe, not an identification of the original
+    /// generator. The table remains pending consumer migration and benchmarking.
+    /// </remarks>
     private static ReadOnlySpan<ushort> NegativeCosineAndSineWords =>
     [
         0xf401,0xf401,0xf404,0xf409,0xf40f,0xf418,0xf422,0xf42e,
@@ -57,4 +74,3 @@ public static class ShaktoolOrbitTables
         (unchecked((short)NegativeCosineAndSineWords[angle + 64]) << 8,
          unchecked((short)NegativeCosineAndSineWords[angle]) << 8);
 }
-

@@ -20,6 +20,14 @@ internal static class ChootPatternDefinitions
     /// Retain these five named path identities: deriving their addresses from
     /// physical stream lengths would encode ROM layout rather than behavior.
     /// Investigation: #625 / #660.
+    /// <para>
+    /// Loop Y distances: the five native pointers at <c>$A2:DF6A-$DF73</c>
+    /// resolve to <c>$001E,$001C,$0020,$001E,$001E</c> in the pinned ROM.
+    /// The sixth pointer aliases <c>$DF5E</c> and would misread a path pointer
+    /// as a distance. Retain these bounded authored loop advances; the slow
+    /// variants share normal's distance despite longer paths, while wide and
+    /// very-wide use separate values. Investigation: #625 / #661.
+    /// </para>
     /// </remarks>
     private static readonly ChootPatternDefinition[] Patterns =
     [

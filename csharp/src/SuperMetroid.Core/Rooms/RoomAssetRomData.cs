@@ -115,6 +115,9 @@ public static class RoomAssetRomData
     /// <summary>Bank-$82 library-background command memory and transfer definitions.</summary>
     public static class LibraryBackground
     {
+        /// <summary>Lowest full 24-bit SNES ROM address for command-source classification.</summary>
+        public const int RomSourceAddressFloor = 0x800000;
+
         /// <summary>Bank containing room-authored library-background command lists.</summary>
         public const int CommandBank = 0x8f0000;
 

@@ -1457,6 +1457,16 @@ if (args is ["--room-metatiles"])
     VerifyRoomMetatileExtraction();
     return 0;
 }
+if (args is ["--library-background-inventory"])
+{
+    VerifyLibraryBackgroundSourceInventory();
+    return 0;
+}
+if (args is ["--room-background-tilemaps"])
+{
+    VerifyRoomBackgroundTilemapExtraction();
+    return 0;
+}
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();

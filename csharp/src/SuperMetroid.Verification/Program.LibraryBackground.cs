@@ -1,8 +1,44 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+static void VerifyLibraryBackgroundSourceInventory()
+{
+    ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    IReadOnlyList<LibraryBackgroundSource> sources =
+        LibraryBackgroundSourceInventory.Scan(bus);
+    int listCount = sources.Select(source => source.ListPointer).Distinct().Count();
+    int compressedCount = sources
+        .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+        .Select(source => source.SourceAddress).Distinct().Count();
+    LibraryBackgroundSource[] romTransfers = sources
+        .Where(source => source.Command != LibraryBackgroundCommand.DecompressToWorkRam &&
+            source.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor).ToArray();
+    LibraryBackgroundSource[] workRamTransfers = sources
+        .Where(source => source.Command != LibraryBackgroundCommand.DecompressToWorkRam &&
+            source.SourceAddress < RoomAssetRomData.LibraryBackground.RomSourceAddressFloor).ToArray();
+    AssertEqual(190, sources.Count, "retail library-background source operand count");
+    AssertEqual(66, listCount, "retail source-bearing background list count");
+    AssertEqual(RoomBackgroundTilemapFormat.RetailCompressedSourceCount, compressedCount,
+        "retail distinct compressed background count");
+    AssertEqual(18, romTransfers.Length, "retail direct ROM background transfer count");
+    AssertEqual(114, workRamTransfers.Length, "retail work-RAM background transfer count");
+    foreach (int source in sources
+        .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+        .Select(source => source.SourceAddress).Distinct())
+        RoomBackgroundTilemapFormat.ValidatePageCount(
+            RomDataReader.Decompress(bus, source).Length);
+    Console.WriteLine($"  Library BG inventory: {sources.Count} source operands, " +
+        $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +
+        $"{romTransfers.Length} direct ROM transfers, " +
+        $"{workRamTransfers.Length} work-RAM transfers.");
+}
+
 static void VerifyLibraryBackgroundLoader()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];

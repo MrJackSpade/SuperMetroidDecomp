@@ -333,6 +333,10 @@ public static class RoomStateDefinitions
     /// <summary>Number of distinct room-state payloads selected by the 262 retail rooms.</summary>
     public const int RetailStateCount = 323;
 
+    /// <summary>Every compiled retail state, including alternate states selected by events and bosses.</summary>
+    public static IReadOnlyList<CartridgeRoomState> All { get; } =
+        Array.AsReadOnly(definitions);
+
     static RoomStateDefinitions()
     {
         if (definitions.Length != RetailStateCount)
@@ -372,4 +376,3 @@ public static class RoomStateDefinitions
             "Pointer is not one of the 323 selected retail room states.");
     }
 }
-

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Bank-$82 command words accepted by room library-background lists.</summary>
-internal enum LibraryBackgroundCommand : ushort
+public enum LibraryBackgroundCommand : ushort
 {
     /// <summary>Terminate the command list.</summary>
     End = 0x0000,

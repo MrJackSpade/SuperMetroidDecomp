@@ -1549,3 +1549,12 @@ remain live presentation data. Both real definitions execute a complete fourteen
 cycle and repeat the first frame with mechanics bytes forbidden. The Spore Spawn variant
 then deletes through its area-mini-boss callback while the standard-room owner remains
 active. Exact ROM parity and every live color read are verified.
+
+## Red Brinstar background-glow palette mechanics
+
+Red Brinstar's fourteen-frame background-glow loop now compiles all 32 color-index,
+duration, wait, branch, and target words through
+`RedBrinstarGlowPaletteFxProgramMechanicsDefinitions`. Its 112 BGR555 colors remain live
+presentation data. The real definition executes a complete 140-frame cycle and repeats
+the first frame with mechanics bytes forbidden. Exact ROM parity and every live color read
+are verified.

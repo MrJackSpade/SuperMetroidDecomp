@@ -53,6 +53,7 @@ internal static partial class Program
         VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(bus);
         VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(bus);
+        VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -62,8 +63,92 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 267 translated program-control words are compiled; all four audio opcodes " +
+            "plus 299 translated program-control words are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(
+        ISnesAddressSpace bus)
+    {
+        var expected = new Dictionary<ushort, ushort>
+        {
+            [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ProgramStart] =
+                PaletteFxInstructionCodes.SetColorIndex,
+            [unchecked((ushort)(
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ProgramStart + 2))] =
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer] =
+                PaletteFxInstructionCodes.Goto,
+            [unchecked((ushort)(
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2))] =
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FirstFramePointer,
+        };
+        for (int frame = 0;
+             frame < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort pointer = RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            expected.Add(pointer, 10);
+            expected.Add(
+                unchecked((ushort)(pointer +
+                    RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
+                PaletteFxInstructionCodes.Wait);
+            for (int color = 0;
+                 color < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                ushort presentationPointer = unchecked((ushort)(
+                    pointer + sizeof(ushort) + color * sizeof(ushort)));
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        presentationPointer,
+                        out _),
+                    $"Red Brinstar glow color $8D:{presentationPointer:X4} remains presentation-owned");
+            }
+        }
+
+        AssertEqual(32, expected.Count, "Red Brinstar glow mechanics word count");
+        foreach ((ushort pointer, ushort value) in expected)
+        {
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Red Brinstar glow program catalogs $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Red Brinstar glow compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Red Brinstar glow cartridge word $8D:{pointer:X4}");
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        var cgram = new SnesCgram();
+        const ushort definition = 0xf77d;
+        paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+        const int cycleFrames =
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount * 10;
+        for (int step = 0; step <= cycleFrames; step++)
+        {
+            paletteFx.Step(
+                guarded,
+                cgram,
+                samusY: 0,
+                equippedItems: 0,
+                enemyZeroIsDead: false,
+                areaMiniBossDefeated: false);
+        }
+
+        AssertTrue(paletteFx.IsDefinitionActive(definition),
+            "Red Brinstar glow program loops after fourteen frames");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "Red Brinstar glow program avoids mechanics ROM reads");
+        AssertEqual(
+            (RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort),
+            guarded.PresentationReadCount,
+            "Red Brinstar glow program retains live colors through loop");
     }
 
     private static void VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(
@@ -822,6 +907,23 @@ internal static partial class Program
                             PresentationReadCount++;
                             break;
                         }
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort firstColor = unchecked((ushort)(
+                        RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                        sizeof(ushort)));
+                    int colorOffset = source.Offset - firstColor;
+                    if ((uint)colorOffset <
+                        RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
                     }
                 }
             }

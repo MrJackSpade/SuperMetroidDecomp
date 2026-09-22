@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 55 uses `room-palette-effects.json` schema version 15 (forty-five
+Catalog version 56 uses `room-palette-effects.json` schema version 16 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1406,10 +1406,13 @@ colors shared by the general-level and Arkanoid entries. The old-Tourian shaft u
 `oldTourianEscapeRedFlash` around its two inline CGRAM skips;
 `oldTourianEscapeOrangeRailings` and `oldTourianEscapeYellowPanels` expose the paired
 fifteen-record accent loops.
+`upperCrateriaEscapeRedFlash` exposes its fourteen seven-color red-flash records;
+`crateriaEscapeYellowLightning` and `crateriaEscapeCreBlockPixel` expose the
+late-Crateria paired eleven-record loops with distinct eleven/five-color widths.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room and cinematic effects without changing the cartridge or engine code.
 
-Only the 4074 authored RGB5 entries are presentation data. Native record layouts,
+Only the 4348 authored RGB5 entries are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
@@ -1438,8 +1441,9 @@ both destinations. All three Samus loading-suit programs run through their compl
 265-frame counted schedules and terminal deletion, and the post-credits icon glare
 runs through its fourteen-frame one-shot.
 The seven Tourian escape entries each run for two complete loops, retaining both
-inline CGRAM skips and the shared entry routing. A valid override changes catalog
-identity and forty-three independent live runtime outputs, while removing it restores
+inline CGRAM skips and the shared entry routing. Upper Crateria's red flash and both
+late escape-lightning entries also run for two complete loops. A valid override changes
+catalog identity and forty-six independent live runtime outputs, while removing it restores
 both exactly. Wrong frame or color counts,
 unsupported versions, invalid RGB5 values, unknown/native-address fields, corrupt stock,
 and malformed overrides fail loudly.

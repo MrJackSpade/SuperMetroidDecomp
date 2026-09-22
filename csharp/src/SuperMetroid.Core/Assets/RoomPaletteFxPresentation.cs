@@ -393,6 +393,29 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer, colors);
         }
+        ValidateAndCompile(
+            "upper Crateria escape red flash",
+            document.UpperCrateriaEscapeRedFlash,
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
+                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                CrateriaEscapeLightningPaletteOwner.YellowLightning =>
+                    document.CrateriaEscapeYellowLightning,
+                CrateriaEscapeLightningPaletteOwner.CreBlockPixel =>
+                    document.CrateriaEscapeCreBlockPixel,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Crateria escape lightning owner {definition.Owner}."),
+            };
+            ValidateAndCompile($"Crateria escape {definition.Owner}", frames,
+                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame, definition.ColorPointer, colors);
+        }
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -497,10 +520,13 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] OldTourianEscapeRedFlash { get; init; }
     public required PaletteRgb5[][] OldTourianEscapeOrangeRailings { get; init; }
     public required PaletteRgb5[][] OldTourianEscapeYellowPanels { get; init; }
+    public required PaletteRgb5[][] UpperCrateriaEscapeRedFlash { get; init; }
+    public required PaletteRgb5[][] CrateriaEscapeYellowLightning { get; init; }
+    public required PaletteRgb5[][] CrateriaEscapeCreBlockPixel { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 15;
+    public const int Version = 16;
 }

@@ -12,6 +12,8 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     public const ushort DefinitionPointer = 0xffe5;
     /// <summary><c>PalFxInstList_Crateria2</c> at <c>$8D:FCFD</c>.</summary>
     public const ushort ProgramStart = 0xfcfd;
+    /// <summary>The first CGRAM destination byte for upper Crateria's red flash.</summary>
+    public const ushort ColorByteIndex = 0x0082;
     /// <summary>The first timed record at <c>$8D:FD01</c>.</summary>
     public const ushort FirstFramePointer = 0xfd01;
     /// <summary>The terminal <c>goto</c> at <c>$8D:FDFD</c>.</summary>
@@ -35,13 +37,22 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         value = pointer switch
         {
             ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => 0x0082,
+            ProgramStart + 2 => ColorByteIndex,
             LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
             LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,

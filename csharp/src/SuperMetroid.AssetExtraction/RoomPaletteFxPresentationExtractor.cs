@@ -141,6 +141,14 @@ internal static class RoomPaletteFxPresentationExtractor
                 OldTourianEscapeAccentPaletteOwner.OrangeRailings),
             OldTourianEscapeYellowPanels = ExtractOldTourianEscapeAccent(
                 OldTourianEscapeAccentPaletteOwner.YellowPanels),
+            UpperCrateriaEscapeRedFlash = ExtractFrames(
+                UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            CrateriaEscapeYellowLightning = ExtractCrateriaEscapeLightning(
+                CrateriaEscapeLightningPaletteOwner.YellowLightning),
+            CrateriaEscapeCreBlockPixel = ExtractCrateriaEscapeLightning(
+                CrateriaEscapeLightningPaletteOwner.CreBlockPixel),
         });
         return json.ToArray();
 
@@ -323,6 +331,18 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount,
                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractCrateriaEscapeLightning(
+            CrateriaEscapeLightningPaletteOwner owner)
+        {
+            CrateriaEscapeLightningPaletteFxProgramDefinition definition =
+                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

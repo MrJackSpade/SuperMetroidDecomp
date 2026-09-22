@@ -2010,3 +2010,9 @@ complete loops with their source-color reads forbidden and exact native CGRAM
 parity. The shared red flash converges at its native entry; its inline CGRAM
 skip and both skips in the old shaft stay compiled mechanics. All seven live
 destinations respond to independent JSON overrides.
+
+Upper Crateria's escape red flash and the two paired late-Crateria lightning/pixel
+loops now source 274 BGR555 words from three named arrays. All three definitions
+execute two full cycles with source-color reads forbidden and exact native CGRAM
+parity. Their distinct widths, duration schedules, destinations, waits, and loop
+targets remain compiled mechanics; independent overrides reach all three outputs.

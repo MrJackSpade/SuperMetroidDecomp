@@ -335,10 +335,27 @@ internal static partial class Program
                 definition.ColorPointer, [definition.DefinitionPointer],
                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "upper Crateria escape red flash",
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+        foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
+                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"Crateria escape {definition.Owner}",
+                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame, definition.ColorPointer,
+                [definition.DefinitionPointer],
+                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+        }
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 4074 editable palette colors match ROM; " +
-            "forty-eight installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 4348 editable palette colors match ROM; " +
+            "fifty-one installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -730,9 +747,24 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete old Tourian yellow-panel frame");
         document.OldTourianEscapeYellowPanels[0] = panelsFrame;
 
+        PaletteRgb5[][] upperFlash = document.UpperCrateriaEscapeRedFlash;
+        document = document with { UpperCrateriaEscapeRedFlash = upperFlash[..^1] };
+        Reject("room palette-FX rejects incomplete upper Crateria escape red flash");
+        document = document with { UpperCrateriaEscapeRedFlash = upperFlash };
+
+        PaletteRgb5[] lightningFrame = document.CrateriaEscapeYellowLightning[0];
+        document.CrateriaEscapeYellowLightning[0] = lightningFrame[..^1];
+        Reject("room palette-FX rejects incomplete Crateria escape lightning frame");
+        document.CrateriaEscapeYellowLightning[0] = lightningFrame;
+
+        PaletteRgb5[][] pixel = document.CrateriaEscapeCreBlockPixel;
+        document = document with { CrateriaEscapeCreBlockPixel = pixel[..^1] };
+        Reject("room palette-FX rejects incomplete Crateria escape CRE pixel");
+        document = document with { CrateriaEscapeCreBlockPixel = pixel };
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 15",
-            "\"version\": 15,\n  \"nativeAddress\": 9240718",
+            "\"version\": 16",
+            "\"version\": 16,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

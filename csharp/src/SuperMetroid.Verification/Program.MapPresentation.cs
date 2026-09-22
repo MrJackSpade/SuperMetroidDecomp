@@ -323,6 +323,9 @@ internal static partial class Program
         ChangeRed(document.OldTourianEscapeRedFlash);
         ChangeRed(document.OldTourianEscapeOrangeRailings);
         ChangeRed(document.OldTourianEscapeYellowPanels);
+        ChangeRed(document.UpperCrateriaEscapeRedFlash);
+        ChangeRed(document.CrateriaEscapeYellowLightning);
+        ChangeRed(document.CrateriaEscapeCreBlockPixel);
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -507,13 +510,24 @@ internal static partial class Program
             AssertOverride(accentDefinition.DefinitionPointer, accentDefinition.ColorByteIndex,
                 $"old Tourian escape {accentDefinition.Owner}");
         }
+        AssertOverride(
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "upper Crateria escape red flash");
+        foreach (CrateriaEscapeLightningPaletteFxProgramDefinition lightningDefinition in
+                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(lightningDefinition.DefinitionPointer,
+                lightningDefinition.ColorByteIndex,
+                $"Crateria escape {lightningDefinition.Owner}");
+        }
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and forty-three live palette " +
+            "Room palette-FX override: content identity and forty-six live palette " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

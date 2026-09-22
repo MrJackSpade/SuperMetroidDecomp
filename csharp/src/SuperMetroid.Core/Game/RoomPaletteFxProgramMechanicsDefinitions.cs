@@ -70,6 +70,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
 
         value = 0;
         return false;

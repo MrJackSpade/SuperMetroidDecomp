@@ -1615,3 +1615,14 @@ All four real definitions execute and repeat their complete 116-frame cycles wit
 bytes forbidden. Verification proves exact ROM parity, every live color read, all sixteen
 published heat phases, and the mixed-width cursor alignment used by the separate
 Samus-in-heat palette owner.
+
+## Early Tourian escape red-flash palette mechanics
+
+The shutter and background red-flash programs now compile all 64 color-index, duration,
+wait, branch, and target words through
+`TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions`. Their 140 BGR555 color words
+remain live presentation data.
+
+Both real definitions execute and repeat their complete fourteen-record cycles with
+mechanics reads forbidden. Verification proves exact ROM parity, every live color read,
+and the 28-frame shutter and 56-frame background loop boundaries independently.

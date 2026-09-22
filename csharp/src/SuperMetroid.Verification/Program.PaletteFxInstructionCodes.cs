@@ -59,6 +59,7 @@ internal static partial class Program
         VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(bus);
         VerifyBeaconPaletteFxProgramMechanicsDefinitions(bus);
         VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -68,8 +69,74 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 723 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 787 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
+                 TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        {
+            int actualWords = 0;
+            for (ushort pointer = definition.ProgramStart;
+                 pointer <= unchecked((ushort)(definition.LoopInstructionPointer + 2));
+                 pointer = unchecked((ushort)(pointer + 1)))
+            {
+                if (!definition.TryReadMechanicsWord(pointer, out ushort value))
+                    continue;
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} catalogs word $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} compiled word $8D:{pointer:X4}");
+                AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} cartridge word $8D:{pointer:X4}");
+                actualWords++;
+                mechanicsWords++;
+            }
+            AssertEqual(32, actualWords, $"{definition.Owner} mechanics word count");
+
+            for (int frame = 0;
+                 frame < TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort firstColor = unchecked((ushort)(
+                    definition.FramePointer(frame) + sizeof(ushort)));
+                for (int color = 0; color < definition.ColorsPerFrame; color++)
+                {
+                    ushort pointer = unchecked((ushort)(firstColor + color * sizeof(ushort)));
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            pointer,
+                            out _),
+                        $"{definition.Owner} color $8D:{pointer:X4} remains presentation-owned");
+                }
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            for (int step = 0; step <= definition.CycleFrames; step++)
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} completes and repeats its full cycle");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} avoids mechanics ROM reads");
+            AssertEqual(
+                (TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    definition.ColorsPerFrame * sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} retains every live color through its cycle");
+        }
+
+        AssertEqual(64, mechanicsWords,
+            "compiled early Tourian escape red-flash mechanics words");
     }
 
     private static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
@@ -1522,6 +1589,23 @@ internal static partial class Program
                         int trailingOffset = source.Offset - unchecked((ushort)(
                             framePointer + durationOffset + 10));
                         if ((uint)trailingOffset < 2 * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
+                    }
+                }
+
+                foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
+                         TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+                         frame++)
+                    {
+                        int offset = source.Offset - unchecked((ushort)(
+                            definition.FramePointer(frame) + sizeof(ushort)));
+                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
                         {
                             PresentationReadCount++;
                             break;

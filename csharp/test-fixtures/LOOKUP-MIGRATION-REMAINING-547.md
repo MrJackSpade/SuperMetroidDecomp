@@ -1682,3 +1682,15 @@ Both real definitions execute and repeat their complete eleven-record, 98-frame 
 with mechanics reads forbidden. Verification proves exact ROM parity, every live color
 read, and the shared irregular lightning schedule at both record widths. This completes
 the mechanics migration of all ten escape palette programs in `$8D:F7A9-FFC8`.
+
+## Ceres cinematic-light palette mechanics
+
+The cutscene gunship-engine flicker and both Ceres navigation-light entries now compile
+all 44 color-index, duration, wait, branch, and target words through
+`CeresCinematicLightPaletteFxProgramMechanicsDefinitions`. Their 30 BGR555 color words
+remain live presentation data.
+
+All three real definitions execute and repeat their complete cycles with mechanics reads
+forbidden. Verification proves exact ROM parity, every live color read, the gunship's
+two-frame white/black flicker, and both native Ceres entry paths converging on the same
+fourteen-record, 56-frame red/blue cross-fade loop at `$8D:C892`.

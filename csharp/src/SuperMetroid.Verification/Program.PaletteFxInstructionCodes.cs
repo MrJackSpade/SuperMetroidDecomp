@@ -47,6 +47,7 @@ internal static partial class Program
         }
 
         VerifyBeaconSoundInstruction(bus);
+        VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -74,8 +75,108 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1049 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1093 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer =
+                 CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineProgramStart;
+             pointer <= unchecked((ushort)(
+                 CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                     .BackgroundNavigationLightsProgramStart + 6));
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!CeresCinematicLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Ceres cinematic lights catalog word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Ceres cinematic lights compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Ceres cinematic lights cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(44, mechanicsWords, "compiled Ceres cinematic-light mechanics words");
+
+        for (int frame = 0;
+             frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                 .GunshipEngineFrameCount;
+             frame++)
+        {
+            ushort color = unchecked((ushort)(
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineFramePointer(frame) + sizeof(ushort)));
+            AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    color,
+                    out _),
+                "gunship-engine colors remain presentation-owned");
+        }
+
+        for (int frame = 0;
+             frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                 .NavigationLightsFrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsFramePointer(frame) + sizeof(ushort)));
+            for (int color = 0;
+                 color < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                     .NavigationLightsColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "Ceres navigation-light colors remain presentation-owned");
+            }
+        }
+
+        foreach (CeresCinematicLightPaletteFxProgramDefinition definition in
+                 CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All)
+        {
+            bool isGunship = definition.Owner ==
+                CeresCinematicLightPaletteFxProgramOwner.GunshipEngine;
+            int cycleFrames = isGunship
+                ? CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineCycleFrames
+                : CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsCycleFrames;
+            int frameCount = isGunship
+                ? CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineFrameCount
+                : CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsFrameCount;
+            int colorsPerFrame = isGunship
+                ? CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineColorsPerFrame
+                : CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsColorsPerFrame;
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int step = 0; step <= cycleFrames; step++)
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} completes and repeats its cycle");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} avoids mechanics ROM reads");
+            AssertEqual((frameCount + 1) * colorsPerFrame * sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} retains every live color");
+        }
     }
 
     private static void VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(
@@ -1712,6 +1813,40 @@ internal static partial class Program
 
             if (source.Bank == 0x8d)
             {
+                for (int frame = 0;
+                     frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                         .GunshipEngineFrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                            .GunshipEngineFramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                            .GunshipEngineColorsPerFrame * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                         .NavigationLightsFrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                            .NavigationLightsFramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                            .NavigationLightsColorsPerFrame * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
                 foreach (PaletteFxHeatProgramDefinition definition in
                          PaletteFxHeatProgramMechanicsDefinitions.All)
                 {

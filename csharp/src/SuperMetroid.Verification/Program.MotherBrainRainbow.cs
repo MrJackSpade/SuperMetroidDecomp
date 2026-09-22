@@ -510,8 +510,8 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     WriteTestWord(unknownInstructionBus, 0xa99000, 0xffff);
     var unknownBody = new MotherBrainBodyAnimationState();
     unknownBody.SetInstructionList(0x9000);
-    AssertThrows<InvalidOperationException>(() => unknownBody.Step(unknownInstructionBus),
-        "unknown Mother Brain animation command is an explicit translation seam");
+    AssertThrows<InvalidDataException>(() => unknownBody.Step(unknownInstructionBus),
+        "uncompiled Mother Brain body pointer fails at the compiled-mechanics boundary");
 
     // Now drive the entire `$B8EB-$B983` repeat cycle with the body interpreter after each
     // AI call. This validates both independent timers and their three native fallthroughs.

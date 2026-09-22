@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -19,7 +20,8 @@ public static class LibraryBackgroundLoader
         ISnesAddressSpace bus,
         SnesVram vram,
         ushort listPointer,
-        ushort activeDoorPointer)
+        ushort activeDoorPointer,
+        RoomBackgroundTilemapCatalog? tilemapArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -52,7 +54,7 @@ public static class LibraryBackgroundLoader
                     break;
 
                 case LibraryBackgroundCommand.DecompressToWorkRam:
-                    cursor = DecompressToWorkRam(bus, cursor);
+                    cursor = DecompressToWorkRam(bus, cursor, tilemapArt);
                     break;
 
                 case LibraryBackgroundCommand.ClearFxTilemap:
@@ -116,11 +118,13 @@ public static class LibraryBackgroundLoader
         return unchecked((ushort)(cursor + 7));
     }
 
-    private static ushort DecompressToWorkRam(ISnesAddressSpace bus, ushort cursor)
+    private static ushort DecompressToWorkRam(ISnesAddressSpace bus, ushort cursor,
+        RoomBackgroundTilemapCatalog? tilemapArt)
     {
         int sourceAddress = ReadLong(bus, cursor);
         ushort destination = ReadWord(bus, unchecked((ushort)(cursor + 3)));
-        byte[] decompressed = RomDataReader.Decompress(bus, sourceAddress);
+        byte[] decompressed = tilemapArt?.Get(sourceAddress).Transfer.ToArray() ??
+            RomDataReader.Decompress(bus, sourceAddress);
         if (destination + decompressed.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
         {
             throw new InvalidDataException(

@@ -106,11 +106,49 @@ internal static partial class Program
                     editedBlocks.LevelData.BehaviorBytes.Span),
                 "installed visual-block override changes room art without changing collision/BTS");
 
+            AssertTrue(File.Exists(Path.Combine(installed.RoomBackgroundTilemapDirectory,
+                    RoomBackgroundTilemapArtworkFiles.ManifestFileName)),
+                "room-background stock manifest is installed");
+            RoomBackgroundTilemapCatalog stockBackgrounds = installed.LoadRoomBackgroundTilemaps();
+            CartridgeRoomHeader ceres = CartridgeRoomHeader.Load(bus, 0xdf8d);
+            int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
+                .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
+                    source.Command == LibraryBackgroundCommand.DecompressToWorkRam).SourceAddress;
+            string backgroundName = RoomBackgroundTilemapFormat.SourceFileName(backgroundSource);
+            var nativeBackgroundVram = new SnesVram();
+            var stockBackgroundVram = new SnesVram();
+            LibraryBackgroundLoader.Execute(bus, nativeBackgroundVram,
+                ceres.State.BackgroundDataPointer, activeDoorPointer: 0);
+            LibraryBackgroundLoader.Execute(bus, stockBackgroundVram,
+                ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
+                tilemapArt: stockBackgrounds);
+            AssertTrue(nativeBackgroundVram.Bytes.SequenceEqual(stockBackgroundVram.Bytes),
+                "installed Ceres background tilemap retains native VRAM words");
+            string backgroundStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
+                backgroundName);
+            JsonNode backgroundDocument = JsonNode.Parse(File.ReadAllText(backgroundStockPath))
+                ?? throw new InvalidDataException("Installed background JSON is empty.");
+            JsonNode backgroundCell = backgroundDocument["pages"]![0]!["cells"]![0]!;
+            backgroundCell["tileColumn"] = (backgroundCell["tileColumn"]!.GetValue<int>() + 1)
+                % RoomBackgroundTilemapFormat.TileColumns;
+            Directory.CreateDirectory(installed.RoomBackgroundTilemapOverrideDirectory);
+            string backgroundOverridePath = Path.Combine(
+                installed.RoomBackgroundTilemapOverrideDirectory, backgroundName);
+            File.WriteAllText(backgroundOverridePath, backgroundDocument.ToJsonString());
+            var editedBackgroundVram = new SnesVram();
+            LibraryBackgroundLoader.Execute(bus, editedBackgroundVram,
+                ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
+                tilemapArt: installed.LoadRoomBackgroundTilemaps());
+            AssertTrue(nativeBackgroundVram.ReadWord(0x4800) != editedBackgroundVram.ReadWord(0x4800) &&
+                nativeBackgroundVram.ReadWord(0x4801) == editedBackgroundVram.ReadWord(0x4801),
+                "installed background override changes only its selected Ceres BG tile");
+
             // A missing stock resource causes atomic re-extraction from the installed
             // cartridge; the edit remains outside the replaceable game directory.
             File.Delete(Path.Combine(installed.RoomCharacterDirectory, name));
             File.Delete(paletteStockPath);
             File.Delete(blockStockPath);
+            File.Delete(backgroundStockPath);
             GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed room-art repair lost its ROM.");
             AssertTrue(File.Exists(overridePath), "room-character override survives stock repair");
@@ -122,6 +160,9 @@ internal static partial class Program
             AssertTrue(File.Exists(blockOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomMetatileDirectory, blockName)),
                 "room-block stock is restored while its override survives repair");
+            AssertTrue(File.Exists(backgroundOverridePath) &&
+                File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, backgroundName)),
+                "room-background stock is restored while its override survives repair");
             CartridgeRoomAssets repairedEdited = CartridgeRoomAssets.Load(bus, landing,
                 repaired.LoadRoomCharacters());
             AssertTrue(repairedEdited.RoomCharacters.AsSpan().SequenceEqual(editedRoom.RoomCharacters),
@@ -137,6 +178,12 @@ internal static partial class Program
             AssertTrue(repairedBlocks.LevelData.BlockDefinitions.Span.SequenceEqual(
                     editedBlocks.LevelData.BlockDefinitions.Span),
                 "repaired installation retains selected user visual blocks");
+            var repairedBackgroundVram = new SnesVram();
+            LibraryBackgroundLoader.Execute(bus, repairedBackgroundVram,
+                ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
+                tilemapArt: repaired.LoadRoomBackgroundTilemaps());
+            AssertTrue(repairedBackgroundVram.Bytes.SequenceEqual(editedBackgroundVram.Bytes),
+                "repaired installation retains selected user background tilemap");
 
             File.WriteAllBytes(overridePath, "invalid indexed PNG"u8.ToArray());
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
@@ -149,7 +196,11 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomMetatiles(),
                 "invalid room-block override fails loudly instead of reverting to stock");
 
-            Console.WriteLine("  Room artwork installation: PNG, RGB5 and visual-block stock import, live edits, " +
+            File.WriteAllText(backgroundOverridePath, "invalid background tilemap JSON");
+            AssertThrows<InvalidDataException>(() => repaired.LoadRoomBackgroundTilemaps(),
+                "invalid room-background override fails loudly instead of reverting to stock");
+
+            Console.WriteLine("  Room artwork installation: PNG, RGB5, block and BG tilemap stock import, live edits, " +
                 "repair preservation and invalid-override rejection verified.");
         }
         finally

@@ -78,6 +78,7 @@ public static class GameAssetInstaller
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
             RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
             RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
+            RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
         }
         catch (IOException) { return false; }
@@ -128,6 +129,13 @@ public static class GameAssetInstaller
             RoomMetatileArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomMetatiles,
                 SupportedCartridge.Sha256);
             RoomMetatileArtworkFiles.ValidateStock(roomMetatiles);
+            progress?.Report("Extracting room background tilemaps...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string roomBackgrounds = Path.Combine(staging,
+                GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+            RoomBackgroundTilemapArtworkFiles.Extract(new SuperMetroidAddressSpace(rom),
+                roomBackgrounds, SupportedCartridge.Sha256);
+            RoomBackgroundTilemapArtworkFiles.ValidateStock(roomBackgrounds);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

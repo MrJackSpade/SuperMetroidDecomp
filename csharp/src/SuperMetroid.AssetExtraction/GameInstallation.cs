@@ -30,6 +30,11 @@ public sealed record GameInstallation(string Root)
     public string RoomMetatileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomMetatileDirectoryName);
     public RoomMetatileCatalog LoadRoomMetatiles() =>
         RoomMetatileArtworkFiles.Load(RoomMetatileDirectory, RoomMetatileOverrideDirectory);
+    public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+    /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
+    public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+    public RoomBackgroundTilemapCatalog LoadRoomBackgroundTilemaps() =>
+        RoomBackgroundTilemapArtworkFiles.Load(RoomBackgroundTilemapDirectory, RoomBackgroundTilemapOverrideDirectory);
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
     public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
@@ -50,8 +55,9 @@ public static class GameInstallationLayout
     public const string RoomCharacterDirectoryName = "room-characters";
     public const string RoomPaletteDirectoryName = "room-palettes";
     public const string RoomMetatileDirectoryName = "room-blocks";
+    public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 4;
+    public const int FormatVersion = 5;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

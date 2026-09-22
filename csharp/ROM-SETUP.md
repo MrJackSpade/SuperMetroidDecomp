@@ -52,6 +52,7 @@ Within either platform's application-data root:
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
+- `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
@@ -117,6 +118,16 @@ encode their graphics-set source. These files control visual tile composition on
 not collision type, BTS behavior, room placement or palette animation. Stock hashes
 are verified and repaired; an invalid override fails with its path instead of
 silently reverting to stock.
+
+Library-background tilemaps are installed as `game/room-backgrounds/*.json`.
+Each file contains one or two ordered 32x32 pages of 8x8 tile references with
+`tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Copy a file
+to `overrides/room-backgrounds/` under the same name to edit it, then restart.
+The library-background command sequence, WRAM staging, VRAM transfer order and
+door conditions remain engine behavior, not editable data. These files cover
+the 58 compressed room BG tilemaps; direct-ROM scrolling skies and other
+background art transfers are not yet editable. Stock hashes and override repair
+follow the same rules as the room-character sheets.
 
 This room-art slice does not yet expose block arrangement or background-tilemap
 editing. The current sheet and palette filenames encode source identities;

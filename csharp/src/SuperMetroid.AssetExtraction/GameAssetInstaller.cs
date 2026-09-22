@@ -77,6 +77,7 @@ public static class GameAssetInstaller
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
             RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
+            RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
             return true;
         }
         catch (IOException) { return false; }
@@ -121,6 +122,12 @@ public static class GameAssetInstaller
             RoomStaticPaletteArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomPalettes,
                 SupportedCartridge.Sha256);
             RoomStaticPaletteArtworkFiles.ValidateStock(roomPalettes);
+            progress?.Report("Extracting room block compositions...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string roomMetatiles = Path.Combine(staging, GameInstallationLayout.RoomMetatileDirectoryName);
+            RoomMetatileArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomMetatiles,
+                SupportedCartridge.Sha256);
+            RoomMetatileArtworkFiles.ValidateStock(roomMetatiles);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

@@ -51,6 +51,7 @@ Within either platform's application-data root:
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
+- `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
@@ -73,7 +74,7 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:
 # Synthetic validation, or full integration when a private ROM is supplied.
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
-# Check room-character stock import, edit selection, repair and invalid overrides.
+# Check room-character, palette and visual-block stock import, edits, repair and invalid overrides.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
 ```
 
@@ -105,6 +106,17 @@ Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keepin
 load the edit. Stock palette hashes and user overrides follow the same repair
 rules as the PNG sheets. Palette-FX scripts may animate or replace these base
 colors later in the room; this file does not edit those effects or their timing.
+
+Visual 16x16 blocks are installed as `game/room-blocks/*.json`. Each ordered
+`blocks` entry names its four 8x8 children (`topLeft`, `topRight`, `bottomLeft`,
+`bottomRight`), with `tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and
+`flipY`. Copy the desired file to the same filename under `overrides/room-blocks/`,
+edit it, and restart. Preserve block order and count: room level data refers to
+these indices. `room-blocks-cre.json` holds the common Zebes blocks; other filenames
+encode their graphics-set source. These files control visual tile composition only,
+not collision type, BTS behavior, room placement or palette animation. Stock hashes
+are verified and repaired; an invalid override fails with its path instead of
+silently reverting to stock.
 
 This room-art slice does not yet expose block arrangement or background-tilemap
 editing. The current sheet and palette filenames encode source identities;

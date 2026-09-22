@@ -21,6 +21,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
     private readonly SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog? roomCharacters;
     private readonly SuperMetroid.Core.Assets.RoomStaticPaletteCatalog? roomPalettes;
+    private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog? roomMetatiles;
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectiles;
     private readonly DebuggerSaveStateStore states;
     private ControllerInputRecorder recorder;
@@ -49,6 +50,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPalettes = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPalettes() : null;
         Game.BindRoomPaletteArt(roomPalettes);
+        roomMetatiles = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomMetatiles() : null;
+        Game.BindRoomMetatileArt(roomMetatiles);
         projectiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadProjectiles() : null;
         Game.BindProjectileCompositions(projectiles?.Catalog);
         Game.BindBeamArtwork(projectiles?.BeamTiles);
@@ -130,6 +134,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindMapPresentation(maps);
         Game.BindRoomCharacterArt(roomCharacters);
         Game.BindRoomPaletteArt(roomPalettes);
+        Game.BindRoomMetatileArt(roomMetatiles);
         Game.BindProjectileCompositions(projectiles?.Catalog);
         Game.BindBeamArtwork(projectiles?.BeamTiles);
         Game.BindTrailArtwork(projectiles?.Trails);

@@ -45,13 +45,15 @@ public sealed class CartridgeRoomAssets
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
     public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header,
         RoomCharacterAtlasCatalog? characterArt = null,
-        RoomStaticPaletteCatalog? paletteArt = null)
+        RoomStaticPaletteCatalog? paletteArt = null,
+        RoomMetatileCatalog? metatileArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(header);
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
-        byte[] roomBlockDefinitions = RomDataReader.Decompress(bus, tileset.BlockDefinitionsAddress);
+        byte[] roomBlockDefinitions = metatileArt?.Get(tileset.BlockDefinitionsAddress)
+            .Transfer.ToArray() ?? RomDataReader.Decompress(bus, tileset.BlockDefinitionsAddress);
         byte[] blockDefinitions;
         if (header.AreaIndex == AreaId.Ceres)
         {
@@ -61,9 +63,8 @@ public sealed class CartridgeRoomAssets
         }
         else
         {
-            byte[] creDefinitions = RomDataReader.Decompress(
-                bus,
-                RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
+            byte[] creDefinitions = metatileArt?.Cre.Transfer.ToArray() ??
+                RomDataReader.Decompress(bus, RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
             blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
             creDefinitions.CopyTo(blockDefinitions, 0);
             roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);

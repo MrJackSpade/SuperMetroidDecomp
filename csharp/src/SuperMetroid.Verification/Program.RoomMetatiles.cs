@@ -37,6 +37,31 @@ internal static partial class Program
             AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
                 $"metatile source ${source:X6} roundtrips every tile reference, palette, priority and flip");
         }
+        var bySource = new Dictionary<int, RoomMetatileAtlas>();
+        foreach ((string name, int source) in sources)
+        {
+            if (name == RoomMetatileFormat.CreFileName) continue;
+            int nativeLength = RomDataReader.Decompress(bus, source).Length;
+            bySource.Add(source, RoomMetatileAtlas.Load(
+                new MemoryStream(files[name], writable: false), nativeLength));
+        }
+        RoomMetatileAtlas stockCre = RoomMetatileAtlas.Load(
+            new MemoryStream(files[RoomMetatileFormat.CreFileName], writable: false),
+            RomDataReader.Decompress(bus,
+                RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress).Length);
+        var stockCatalog = new RoomMetatileCatalog(stockCre, bySource);
+        foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
+        {
+            CartridgeRoomHeader header = CartridgeRoomHeader.Load(bus, roomPointer);
+            int areaSource = RoomTilesetDefinitions.Get(header.State.GraphicsSet).BlockDefinitionsAddress;
+            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
+            CartridgeRoomAssets installed = CartridgeRoomAssets.Load(
+                new RoomMetatileSourceReadGuard(bus, areaSource), header,
+                metatileArt: stockCatalog);
+            AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
+                    installed.LevelData.BlockDefinitions.Span),
+                $"room $8F:{roomPointer:X4} installs exact visual blocks without ROM source reads");
+        }
 
         byte[] cre = RomDataReader.Decompress(bus,
             RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
@@ -64,6 +89,20 @@ internal static partial class Program
         AssertTrue(before.TopLeft != after.TopLeft && before.TopRight == after.TopRight &&
             before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight,
             "edited JSON changes only the intended 8x8 visual child of a solid block");
+        RoomMetatileCatalog editedCatalog = new(modified, bySource);
+        CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+        CartridgeRoomAssets nativeLanding = CartridgeRoomAssets.Load(bus, landing);
+        CartridgeRoomAssets editedLanding = CartridgeRoomAssets.Load(
+            new RoomMetatileSourceReadGuard(bus,
+                RoomTilesetDefinitions.Get(landing.State.GraphicsSet).BlockDefinitionsAddress),
+            landing, metatileArt: editedCatalog);
+        AssertTrue(!nativeLanding.LevelData.BlockDefinitions.Span.SequenceEqual(
+                editedLanding.LevelData.BlockDefinitions.Span) &&
+            nativeLanding.LevelData.ForegroundEntries.Span.SequenceEqual(
+                editedLanding.LevelData.ForegroundEntries.Span) &&
+            nativeLanding.LevelData.BehaviorBytes.Span.SequenceEqual(
+                editedLanding.LevelData.BehaviorBytes.Span),
+            "real room loader applies the visual CRE edit without changing level placement or BTS");
 
         topLeft["palette"] = RoomMetatileFormat.PaletteCount;
         byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited);
@@ -72,5 +111,20 @@ internal static partial class Program
             "metatile JSON rejects an invalid palette selector");
         Console.WriteLine($"  Room metatiles: {files.Count} distinct CRE/area resources roundtrip " +
             "byte-exactly; a visual edit changes one child without changing collision/BTS.");
+    }
+
+    private sealed class RoomMetatileSourceReadGuard(ISnesAddressSpace source, int areaSource)
+        : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if (address == areaSource ||
+                address == RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress)
+                throw new InvalidOperationException(
+                    $"Installed room loader reread metatile source ${address:X6}.");
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

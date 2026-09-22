@@ -77,10 +77,40 @@ internal static partial class Program
             AssertTrue(stockCgram.Colors.SequenceEqual(compiledStockCgram.Colors),
                 "installed stock room palette matches native room CGRAM");
 
+            AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
+                    RoomMetatileArtworkFiles.ManifestFileName)),
+                "room-block stock manifest is installed");
+            RoomMetatileCatalog stockBlocks = installed.LoadRoomMetatiles();
+            CartridgeRoomAssets installedBlocks = CartridgeRoomAssets.Load(bus, landing,
+                metatileArt: stockBlocks);
+            AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
+                    installedBlocks.LevelData.BlockDefinitions.Span),
+                "installed stock room-block JSON retains native visual tile words");
+            string blockName = RoomMetatileFormat.CreFileName;
+            string blockStockPath = Path.Combine(installed.RoomMetatileDirectory, blockName);
+            JsonNode blockDocument = JsonNode.Parse(File.ReadAllText(blockStockPath))
+                ?? throw new InvalidDataException("Installed room-block JSON is empty.");
+            JsonNode firstTile = blockDocument["blocks"]![0]!["topLeft"]!;
+            firstTile["tileColumn"] = (firstTile["tileColumn"]!.GetValue<int>() + 1)
+                % RoomMetatileFormat.TileColumns;
+            Directory.CreateDirectory(installed.RoomMetatileOverrideDirectory);
+            string blockOverridePath = Path.Combine(installed.RoomMetatileOverrideDirectory, blockName);
+            File.WriteAllText(blockOverridePath, blockDocument.ToJsonString());
+            CartridgeRoomAssets editedBlocks = CartridgeRoomAssets.Load(bus, landing,
+                metatileArt: installed.LoadRoomMetatiles());
+            AssertTrue(!native.LevelData.BlockDefinitions.Span.SequenceEqual(
+                    editedBlocks.LevelData.BlockDefinitions.Span) &&
+                native.LevelData.ForegroundEntries.Span.SequenceEqual(
+                    editedBlocks.LevelData.ForegroundEntries.Span) &&
+                native.LevelData.BehaviorBytes.Span.SequenceEqual(
+                    editedBlocks.LevelData.BehaviorBytes.Span),
+                "installed visual-block override changes room art without changing collision/BTS");
+
             // A missing stock resource causes atomic re-extraction from the installed
             // cartridge; the edit remains outside the replaceable game directory.
             File.Delete(Path.Combine(installed.RoomCharacterDirectory, name));
             File.Delete(paletteStockPath);
+            File.Delete(blockStockPath);
             GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed room-art repair lost its ROM.");
             AssertTrue(File.Exists(overridePath), "room-character override survives stock repair");
@@ -89,6 +119,9 @@ internal static partial class Program
             AssertTrue(File.Exists(paletteOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),
                 "room-palette stock is restored while its override survives repair");
+            AssertTrue(File.Exists(blockOverridePath) &&
+                File.Exists(Path.Combine(repaired.RoomMetatileDirectory, blockName)),
+                "room-block stock is restored while its override survives repair");
             CartridgeRoomAssets repairedEdited = CartridgeRoomAssets.Load(bus, landing,
                 repaired.LoadRoomCharacters());
             AssertTrue(repairedEdited.RoomCharacters.AsSpan().SequenceEqual(editedRoom.RoomCharacters),
@@ -99,6 +132,11 @@ internal static partial class Program
             repairedPaletteRoom.LoadGraphics(new SnesVram(), repairedCgram);
             AssertTrue(repairedCgram.Colors.SequenceEqual(editedCgram.Colors),
                 "repaired installation retains the selected user room palette");
+            CartridgeRoomAssets repairedBlocks = CartridgeRoomAssets.Load(bus, landing,
+                metatileArt: repaired.LoadRoomMetatiles());
+            AssertTrue(repairedBlocks.LevelData.BlockDefinitions.Span.SequenceEqual(
+                    editedBlocks.LevelData.BlockDefinitions.Span),
+                "repaired installation retains selected user visual blocks");
 
             File.WriteAllBytes(overridePath, "invalid indexed PNG"u8.ToArray());
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
@@ -107,8 +145,11 @@ internal static partial class Program
             File.WriteAllText(paletteOverridePath, "invalid RGB5 JSON");
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomPalettes(),
                 "invalid room-palette override fails loudly instead of reverting to stock");
+            File.WriteAllText(blockOverridePath, "invalid visual block JSON");
+            AssertThrows<InvalidDataException>(() => repaired.LoadRoomMetatiles(),
+                "invalid room-block override fails loudly instead of reverting to stock");
 
-            Console.WriteLine("  Room artwork installation: PNG and RGB5 stock import, live edits, " +
+            Console.WriteLine("  Room artwork installation: PNG, RGB5 and visual-block stock import, live edits, " +
                 "repair preservation and invalid-override rejection verified.");
         }
         finally

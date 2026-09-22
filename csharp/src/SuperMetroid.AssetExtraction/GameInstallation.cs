@@ -25,6 +25,11 @@ public sealed record GameInstallation(string Root)
     public string RoomPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPaletteDirectoryName);
     public RoomStaticPaletteCatalog LoadRoomPalettes() =>
         RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory, RoomPaletteOverrideDirectory);
+    public string RoomMetatileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomMetatileDirectoryName);
+    /// <summary>Editable visual block compositions survive stock content replacement.</summary>
+    public string RoomMetatileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomMetatileDirectoryName);
+    public RoomMetatileCatalog LoadRoomMetatiles() =>
+        RoomMetatileArtworkFiles.Load(RoomMetatileDirectory, RoomMetatileOverrideDirectory);
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
     public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
@@ -44,8 +49,9 @@ public static class GameInstallationLayout
     public const string ProjectileDirectoryName = "projectiles";
     public const string RoomCharacterDirectoryName = "room-characters";
     public const string RoomPaletteDirectoryName = "room-palettes";
+    public const string RoomMetatileDirectoryName = "room-blocks";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 3;
+    public const int FormatVersion = 4;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

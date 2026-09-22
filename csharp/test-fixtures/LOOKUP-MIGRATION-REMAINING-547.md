@@ -1996,3 +1996,10 @@ destinations), and confirms each editable override reaches its own live output.
 The long foreground hold, finale's two duration phases, whiteout branch, loop
 targets, layer-fade holds, gunship timing, and terminal deletion remain compiled
 mechanics.
+
+The three Samus loading-suit palette programs and post-credits Super Metroid icon
+glare now source 656 BGR555 words from four named installed arrays. Verification
+blocks all 1,312 color-source bytes, compares native CGRAM frame-by-frame through
+the three 265-frame counted suit programs and fourteen-frame icon glare, and checks
+independent live overrides. Group timers, replay targets, destinations, waits, and
+deletion remain compiled mechanics.

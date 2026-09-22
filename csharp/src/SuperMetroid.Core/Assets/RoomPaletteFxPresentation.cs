@@ -318,6 +318,35 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                SamusLoadingSuitPaletteFxProgramOwner.PowerSuit =>
+                    document.SamusLoadingPowerSuit,
+                SamusLoadingSuitPaletteFxProgramOwner.VariaSuit =>
+                    document.SamusLoadingVariaSuit,
+                SamusLoadingSuitPaletteFxProgramOwner.GravitySuit =>
+                    document.SamusLoadingGravitySuit,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Samus loading-suit owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"Samus loading {definition.Owner}",
+                frames,
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
+        ValidateAndCompile(
+            "post-credits icon glare",
+            document.PostCreditsIconGlare,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -412,10 +441,14 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] ZebesExplosionCrust { get; init; }
     public required PaletteRgb5[][] ZebesExplosionGreyClouds { get; init; }
     public required PaletteRgb5[][] ZebesExplosionGunship { get; init; }
+    public required PaletteRgb5[][] SamusLoadingPowerSuit { get; init; }
+    public required PaletteRgb5[][] SamusLoadingVariaSuit { get; init; }
+    public required PaletteRgb5[][] SamusLoadingGravitySuit { get; init; }
+    public required PaletteRgb5[][] PostCreditsIconGlare { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 13;
+    public const int Version = 14;
 }

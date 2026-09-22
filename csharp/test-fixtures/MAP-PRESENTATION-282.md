@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 53 uses `room-palette-effects.json` schema version 13 (forty-five
+Catalog version 54 uses `room-palette-effects.json` schema version 14 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1397,10 +1397,13 @@ The independent `zebesExplosionAfterglow` and `zebesExplosionLava` loops contain
 eight-color and ten one-color records. `zebesExplosionCrust` and
 `zebesExplosionGreyClouds` each contain eight fifteen-color fade records, while
 `zebesExplosionGunship` contains sixteen sixteen-color reveal records.
+The three independently authored `samusLoadingPowerSuit`, `samusLoadingVariaSuit`,
+and `samusLoadingGravitySuit` arrays each contain nine sixteen-color records;
+`postCreditsIconGlare` contains fourteen sixteen-color one-frame records.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room and cinematic effects without changing the cartridge or engine code.
 
-Only the 2978 authored RGB5 entries are presentation data. Native record layouts,
+Only the 3634 authored RGB5 entries are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
@@ -1425,7 +1428,9 @@ run through their complete 56/22-frame one-shot programs and delete after the te
 hold. The title-logo and both Nintendo callers likewise execute their 24-frame fades
 through deletion. All nine explosion entries execute complete one-shot or two-loop
 programs with exact native CGRAM parity; the shared whiteout payload is tested at
-both destinations. A valid override changes catalog identity and thirty-two independent
+both destinations. All three Samus loading-suit programs run through their complete
+265-frame counted schedules and terminal deletion, and the post-credits icon glare
+runs through its fourteen-frame one-shot. A valid override changes catalog identity and thirty-six independent
 live runtime outputs, while removing it restores both exactly. Wrong frame or color counts,
 unsupported versions, invalid RGB5 values, unknown/native-address fields, corrupt stock,
 and malformed overrides fail loudly.

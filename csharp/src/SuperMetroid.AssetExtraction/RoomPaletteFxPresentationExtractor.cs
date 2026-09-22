@@ -115,6 +115,16 @@ internal static class RoomPaletteFxPresentationExtractor
                 ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
                 ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            SamusLoadingPowerSuit = ExtractSamusLoadingSuit(
+                SamusLoadingSuitPaletteFxProgramOwner.PowerSuit),
+            SamusLoadingVariaSuit = ExtractSamusLoadingSuit(
+                SamusLoadingSuitPaletteFxProgramOwner.VariaSuit),
+            SamusLoadingGravitySuit = ExtractSamusLoadingSuit(
+                SamusLoadingSuitPaletteFxProgramOwner.GravitySuit),
+            PostCreditsIconGlare = ExtractFrames(
+                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
+                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 
@@ -262,6 +272,17 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount,
                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractSamusLoadingSuit(SamusLoadingSuitPaletteFxProgramOwner owner)
+        {
+            SamusLoadingSuitPaletteFxProgramDefinition definition =
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

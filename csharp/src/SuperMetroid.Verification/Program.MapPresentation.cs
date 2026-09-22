@@ -313,6 +313,10 @@ internal static partial class Program
         ChangeRed(document.ZebesExplosionCrust);
         ChangeRed(document.ZebesExplosionGreyClouds);
         ChangeRed(document.ZebesExplosionGunship);
+        ChangeRed(document.SamusLoadingPowerSuit);
+        ChangeRed(document.SamusLoadingVariaSuit);
+        ChangeRed(document.SamusLoadingGravitySuit);
+        ChangeRed(document.PostCreditsIconGlare);
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -464,13 +468,24 @@ internal static partial class Program
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             "Zebes explosion gunship");
+        foreach (SamusLoadingSuitPaletteFxProgramDefinition suitDefinition in
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(suitDefinition.DefinitionPointer,
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+                $"Samus loading {suitDefinition.Owner}");
+        }
+        AssertOverride(
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "post-credits icon glare");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and thirty-two live palette " +
+            "Room palette-FX override: content identity and thirty-six live palette " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

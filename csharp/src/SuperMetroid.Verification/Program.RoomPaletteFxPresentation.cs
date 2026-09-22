@@ -284,10 +284,27 @@ internal static partial class Program
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
+                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"Samus loading {definition.Owner}",
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer, [definition.DefinitionPointer],
+                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        }
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "post-credits icon glare",
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 2978 editable palette colors match ROM; " +
-            "thirty-seven installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 3634 editable palette colors match ROM; " +
+            "forty-one installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -629,9 +646,29 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete explosion gunship reveal");
         document = document with { ZebesExplosionGunship = explosionGunship };
 
+        PaletteRgb5[][] powerSuit = document.SamusLoadingPowerSuit;
+        document = document with { SamusLoadingPowerSuit = powerSuit[..^1] };
+        Reject("room palette-FX rejects incomplete Samus power-suit loading");
+        document = document with { SamusLoadingPowerSuit = powerSuit };
+
+        PaletteRgb5[] variaFrame = document.SamusLoadingVariaSuit[0];
+        document.SamusLoadingVariaSuit[0] = variaFrame[..^1];
+        Reject("room palette-FX rejects incomplete Samus Varia-suit frame");
+        document.SamusLoadingVariaSuit[0] = variaFrame;
+
+        PaletteRgb5[][] gravitySuit = document.SamusLoadingGravitySuit;
+        document = document with { SamusLoadingGravitySuit = gravitySuit[..^1] };
+        Reject("room palette-FX rejects incomplete Samus gravity-suit loading");
+        document = document with { SamusLoadingGravitySuit = gravitySuit };
+
+        PaletteRgb5[] iconFrame = document.PostCreditsIconGlare[0];
+        document.PostCreditsIconGlare[0] = iconFrame[..^1];
+        Reject("room palette-FX rejects incomplete post-credits icon-glare frame");
+        document.PostCreditsIconGlare[0] = iconFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 13",
-            "\"version\": 13,\n  \"nativeAddress\": 9240718",
+            "\"version\": 14",
+            "\"version\": 14,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

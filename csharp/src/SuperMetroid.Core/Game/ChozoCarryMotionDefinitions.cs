@@ -4,6 +4,14 @@ namespace SuperMetroid.Core.Game;
 public static class ChozoCarryMotionDefinitions
 {
     /// <summary>$AA:E630: X velocity in 8.8; its absolute magnitude also drives downward collision.</summary>
+    /// <remarks>
+    /// All 32 signed words match the pinned NTSC J/U v1.0 ROM. The nonzero
+    /// first-half words are negative; the second half is their positive mirror.
+    /// Each half holds four zero frames, repeats the authored
+    /// <c>0200,0300,0E00,0800</c> burst twice, then holds four more zeros.
+    /// Retain these four tuned magnitudes rather than fit an opaque curve.
+    /// Investigation: #625 / #665.
+    /// </remarks>
     private static ReadOnlySpan<short> Magnitudes => [0,0,0,0,0x200,0x300,0xe00,0x800,0x200,0x300,0xe00,0x800,0,0,0,0];
     /// <summary>$AA:E6B0: Samus Y offsets, identical for both facing halves.</summary>
     private static ReadOnlySpan<short> YOffsets => [-32,-25,-23,-23,-23,-24,-25,-24,-23,-24,-25,-24,-23,-23,-23,-23];

@@ -235,6 +235,11 @@ public static class MapPresentationExtractor
             file.Write(titleGradientBytes);
         hashes.Add(TitleGradientFormat.FileName,
             Convert.ToHexString(SHA256.HashData(titleGradientBytes)));
+        byte[] roomPaletteFxBytes = RoomPaletteFxPresentationExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, RoomPaletteFxPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(roomPaletteFxBytes);
+        hashes.Add(RoomPaletteFxPresentationFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(roomPaletteFxBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

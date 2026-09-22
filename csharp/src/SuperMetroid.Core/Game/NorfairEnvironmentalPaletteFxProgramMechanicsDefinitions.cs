@@ -82,6 +82,11 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Norfair environmental palette control program.</summary>
 public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
 {
+    private const int HeatPhasePublicationByteCount = 3;
+    private const int LeadingColorCount = 3;
+    private const int LeadingColorsOffset = 2;
+    private const int TrailingColorsOffset = 10;
+
     internal NorfairEnvironmentalPaletteFxProgramDefinition(
         NorfairEnvironmentalPaletteOwner owner,
         ushort definitionPointer,
@@ -122,6 +127,19 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
         if ((uint)frame >= NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
+    }
+
+    /// <summary>Returns one interleaved presentation-color address within a frame.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        int mechanicsPrefix = PublishesHeatPhase ? HeatPhasePublicationByteCount : 0;
+        int colorOffset = color < LeadingColorCount
+            ? mechanicsPrefix + LeadingColorsOffset + color * sizeof(ushort)
+            : mechanicsPrefix + TrailingColorsOffset +
+                (color - LeadingColorCount) * sizeof(ushort);
+        return unchecked((ushort)(FramePointer(frame) + colorOffset));
     }
 
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>

@@ -1361,6 +1361,30 @@ output; removing it restores all three exactly. Wrong initial/frame color counts
 unsupported versions, out-of-range RGB5 components, unknown native-address fields,
 and malformed JSON fail loudly.
 
+## Editable Norfair room palette effects (#536, #549)
+
+Catalog version 41 adds `room-palette-effects.json` (forty-five shared resource
+hashes). Its version-1 document exposes the four synchronized Norfair environmental
+programs as named arrays: `norfairForegroundAndHeatPhase`,
+`norfairForegroundPalette4`, `norfairForegroundPalette5`, and
+`norfairForegroundPalette6`. Each contains sixteen frames of five RGB5 colors.
+Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
+room effects without changing the cartridge or engine code.
+
+Only the 320 authored BGR555 color words are presentation data. The native mixed-width
+record layout, heat-phase publication, destinations, durations, palette-pointer skips,
+waits, and loop targets remain compiled mechanics. The installed catalog binds its
+color provider to the existing room palette interpreter, including after debugger-state
+content rebinds; an unbound diagnostic interpreter retains its explicit cartridge
+fallback.
+
+Verification compares all 320 extracted words with the cartridge, forbids all 640
+source bytes, and executes all four programs through two complete 116-frame cycles with
+frame-by-frame CGRAM and heat-phase parity. A valid override changes catalog identity
+and live runtime CGRAM output, while removing it restores both exactly. Wrong frame or
+color counts, unsupported versions, invalid RGB5 values, unknown/native-address fields,
+corrupt stock, and malformed overrides fail loudly.
+
 ## Editable title artwork (#549)
 
 Catalog version 39 adds four resources (forty-four shared hashes):

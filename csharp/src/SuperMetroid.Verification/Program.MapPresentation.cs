@@ -113,6 +113,7 @@ internal static partial class Program
         VerifyTitleGraphicsOverride(bus, stock, overrides, original);
         VerifyTitlePaletteOverride(bus, stock, overrides, original);
         VerifyTitleGradientOverride(bus, stock, overrides, original);
+        VerifyRoomPaletteFxOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
@@ -185,6 +186,60 @@ internal static partial class Program
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+    }
+
+    private static void VerifyRoomPaletteFxOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string source = Path.Combine(stock, RoomPaletteFxPresentationFormat.FileName);
+        RoomPaletteFxPresentationDocument document =
+            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
+                File.ReadAllBytes(source),
+                MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted room palette-FX document is null.");
+        PaletteRgb5 color = document.NorfairForegroundAndHeatPhase[0][0];
+        document.NorfairForegroundAndHeatPhase[0][0] = color with
+        {
+            Red = color.Red == 31 ? 30 : color.Red + 1,
+        };
+
+        string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
+        using (var stream = File.Create(replacement))
+            RoomPaletteFxPresentation.Write(stream, document);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "room palette-FX override changes installed-content identity");
+
+        NorfairEnvironmentalPaletteFxProgramDefinition definition =
+            NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(item =>
+                item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase);
+        var stockRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
+        {
+            MapPresentation = original,
+        };
+        var editedRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
+        {
+            MapPresentation = edited,
+        };
+        stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definition.DefinitionPointer, 0);
+        editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definition.DefinitionPointer, 0);
+        stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
+        editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
+        AssertTrue(
+            stockRuntime.Cgram.Colors[definition.ColorByteIndex / 2] !=
+            editedRuntime.Cgram.Colors[definition.ColorByteIndex / 2],
+            "runtime catalog binding consumes selected room palette-FX override");
+
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing room palette-FX override restores installed-content identity");
+        Console.WriteLine(
+            "Room palette-FX override: content identity and live Norfair CGRAM output " +
+            "change immediately, then restore exactly.");
     }
 
     private static void VerifyTitleGradientOverride(

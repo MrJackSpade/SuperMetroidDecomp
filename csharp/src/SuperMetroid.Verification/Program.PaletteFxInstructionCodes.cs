@@ -87,6 +87,7 @@ internal static partial class Program
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
             "Norfair heat pre-instruction performs no selector-table ROM reads");
         VerifyNorfairGlowCycles(bus);
+        VerifyExtractedRoomPaletteFxPresentation(bus);
         VerifyTitleGradientTables(bus);
 
         Console.WriteLine(
@@ -1767,9 +1768,7 @@ internal static partial class Program
                      color < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                      color++)
                 {
-                    ushort pointer = color < 3
-                        ? unchecked((ushort)(framePointer + durationOffset + 2 + color * 2))
-                        : unchecked((ushort)(framePointer + durationOffset + 10 + (color - 3) * 2));
+                    ushort pointer = definition.ColorPointer(frame, color);
                     AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                             pointer,
                             out _),
@@ -3438,22 +3437,20 @@ internal static partial class Program
                          frame < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount;
                          frame++)
                     {
-                        ushort framePointer = definition.FramePointer(frame);
-                        int durationOffset = definition.PublishesHeatPhase ? 3 : 0;
-                        int leadingOffset = source.Offset - unchecked((ushort)(
-                            framePointer + durationOffset + 2));
-                        if ((uint)leadingOffset < 3 * sizeof(ushort))
+                        bool presentationByte = false;
+                        for (int color = 0;
+                             color < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                             color++)
                         {
+                            int colorOffset = source.Offset - definition.ColorPointer(frame, color);
+                            if ((uint)colorOffset >= sizeof(ushort))
+                                continue;
+                            presentationByte = true;
                             PresentationReadCount++;
                             break;
                         }
-                        int trailingOffset = source.Offset - unchecked((ushort)(
-                            framePointer + durationOffset + 10));
-                        if ((uint)trailingOffset < 2 * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
+                        if (presentationByte)
                             break;
-                        }
                     }
                 }
 

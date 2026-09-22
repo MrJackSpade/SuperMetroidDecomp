@@ -1608,8 +1608,8 @@ three-byte sound command, and the native eighteen-byte CGRAM gap.
 
 Norfair's four synchronized environmental programs now compile all 224 color-index,
 heat-phase publication, duration, inline CGRAM-skip, wait, branch, and target words plus
-the first program's sixteen byte-sized heat-phase operands. Their 320 BGR555 colors remain
-live presentation data.
+the first program's sixteen byte-sized heat-phase operands. Their 320 BGR555 colors are
+separate presentation data, installed from `room-palette-effects.json` in normal sessions.
 
 All four real definitions execute and repeat their complete 116-frame cycles with mechanics
 bytes forbidden. Verification proves exact ROM parity, every live color read, all sixteen
@@ -1894,3 +1894,19 @@ ambient source-byte read, and executes both real palette objects for two complet
 with frame-by-frame CGRAM parity. This removes the title ambient presentation dependency
 from normal installed sessions without conflating editable colors with #547's immutable
 control-data ownership.
+
+## Installed Norfair environmental palette payloads
+
+The 320 BGR555 presentation words interleaved through Norfair's four environmental
+programs now live in schema-version-1 `room-palette-effects.json`. The shared
+`IPaletteFxColorSource` binding supplies those words to the generic bank-$8D interpreter;
+all 224 control words and sixteen byte operands remain in the compiled mechanics catalog.
+This retains the cartridge's split color runs around its palette-pointer instruction and
+the heat stream's one-byte phase operand without exposing either layout detail to authors.
+
+Verification compares every extracted color with the pinned cartridge, forbids all 640
+source bytes, and runs all four real palette objects for two complete cycles with exact
+CGRAM and heat-phase parity. Installed-content override tests also prove that a named RGB5
+edit reaches the live runtime after catalog binding and that removing it restores the
+original content identity. This removes the first normal-room palette payload from
+installed ROM dependencies while leaving #547's broader lookup/callback inventory open.

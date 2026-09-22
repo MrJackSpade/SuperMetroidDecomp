@@ -16,6 +16,7 @@ public sealed partial class SuperMetroidRuntime
             Hud.BindPresentation(value?.GameplayHud, Samus);
             MessageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
                 value?.GameplayMessageNotices);
+            RoomPaletteFx.BindPresentationColors(value?.RoomPaletteFx);
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
             Enemies.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;

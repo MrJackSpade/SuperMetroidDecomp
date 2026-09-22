@@ -23,6 +23,7 @@ internal static partial class Program
             VerifyPolicies(rom);
             VerifyGaussian();
             VerifyGrapple(rom);
+            VerifyEffectPatterns(rom);
             return 0;
         }
         catch (Exception exception)

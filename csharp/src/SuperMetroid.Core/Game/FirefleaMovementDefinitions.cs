@@ -8,6 +8,8 @@ internal static class FirefleaMovementDefinitions
     /// high byte of enemy population parameter two. These define circular and
     /// vertical travel bounds, not sprite extents.
     /// </summary>
+    /// <remarks>#625 exact candidate: 8*(i+1) for i=0..7. LookupTableResearch verifies all eight
+    /// words against NTSC J/U v1.0 ROM, pinned assembly, and this table. Preserve the index bound.</remarks>
     private static ReadOnlySpan<ushort> Radii =>
     [
         8, 16, 24, 32, 40, 48, 56, 64,

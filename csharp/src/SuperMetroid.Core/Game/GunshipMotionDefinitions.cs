@@ -10,6 +10,10 @@ internal static class GunshipMotionDefinitions
     /// <c>ShipBrakesMovementData</c> at <c>$A2:A622-$A2:A643</c>. The native brake
     /// timer is a word index that advances once per frame through all seventeen deltas.
     /// </summary>
+    /// <remarks>#625 exact run model, i=0..16: +1 for i&lt;6, zero for 6..10, -1 for 11..16.
+    /// Equivalently clamp(truncate((8-i)/3), -1, +1), truncating toward zero rather than floor.
+    /// LookupTableResearch checks all seventeen signed words against ROM, pinned assembly, and this table.
+    /// The six/five/six authored phase lengths are retained; no physical deceleration law is inferred.</remarks>
     private static ReadOnlySpan<short> LandingBrakeYDeltas =>
         [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 
@@ -17,6 +21,10 @@ internal static class GunshipMotionDefinitions
     /// <c>Function_Ship_Hover.timer/YVelocity</c> at <c>$A2:A7CF-$A2:A7D6</c>.
     /// The four records are byte-packed timer/signed-Y pairs.
     /// </summary>
+    /// <remarks>#625 exact four-phase model: timer=16; Y=1-2*((i XOR (i&gt;&gt;1)) &amp; 1), i=0..3.
+    /// This Gray-code sign pattern gives +1,-1,-1,+1 without four records. All eight bytes are
+    /// checked against ROM, pinned assembly, and compiled data by LookupTableResearch.
+    /// Input bounds and the caller's timer expiration behavior remain unchanged.</remarks>
     private static readonly GunshipIdleBobDefinition[] IdleBobCycle =
     [
         new(0x10, 1),

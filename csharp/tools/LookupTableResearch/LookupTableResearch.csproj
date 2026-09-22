@@ -4,6 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/SuperMetroid.Core/Game/RoomShakeDefinitions.cs" Link="RoomShakeDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/FirefleaMovementDefinitions.cs" Link="FirefleaMovementDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/FirefleaFxDefinitions.cs" Link="FirefleaFxDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs" Link="CrocomireMeltingDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/GunshipMotionDefinitions.cs" Link="GunshipMotionDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs" Link="GrappleFiringDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/EnemyTrigonometryTables.cs" Link="EnemyTrigonometryTables.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs" Link="AbsoluteTangentDefinitions.cs" />

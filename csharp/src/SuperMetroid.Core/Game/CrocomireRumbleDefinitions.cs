@@ -16,6 +16,19 @@ internal readonly record struct CrocomireRumbleDefinition(
 /// <summary>Fixed hidden-wall rumble schedule from <c>$A4:98CA-$A4:9909</c>.</summary>
 internal static class CrocomireRumbleDefinitions
 {
+    /// <summary>
+    /// The pinned NTSC J/U v1.0 ROM's complete 32-word hidden-wall schedule.
+    /// </summary>
+    /// <remarks>
+    /// Nonnegative target Y offsets occupy one word; negative targets are followed
+    /// by cooldown and approach-delta words. The final negative target loads
+    /// <c>$8080,$8080</c> timing before the reachable <c>$8080</c> target
+    /// terminator; a second terminator at offset <c>$3E</c> supports restored
+    /// cursors. Retain this bounded authored amplitude/cadence sequence: its
+    /// unequal rebounds and cooldowns have no clearer lossless generator.
+    /// All words and the complete production rumble match the native stream.
+    /// Investigation: #625 / #671.
+    /// </remarks>
     private static readonly CrocomireRumbleDefinition[] Definitions =
     [
         new(0x00, 4, 0x02, 0, 0, HasTiming: false, IsTerminator: false),

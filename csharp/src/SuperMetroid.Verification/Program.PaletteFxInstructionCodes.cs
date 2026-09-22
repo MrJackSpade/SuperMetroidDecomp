@@ -61,6 +61,7 @@ internal static partial class Program
         VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -70,8 +71,89 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 837 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 897 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer =
+                 OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ProgramStart;
+             pointer <= unchecked((ushort)(
+                 OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2));
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"old-Tourian red flash catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"old-Tourian red flash compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"old-Tourian red flash cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(60, mechanicsWords, "compiled old-Tourian red-flash mechanics words");
+
+        for (int frame = 0;
+             frame < OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort framePointer =
+                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            ushort[] colorPointers =
+            [
+                unchecked((ushort)(framePointer + 2)),
+                unchecked((ushort)(framePointer + 4)),
+                unchecked((ushort)(framePointer + 6)),
+                unchecked((ushort)(framePointer + 10)),
+                unchecked((ushort)(framePointer + 12)),
+                unchecked((ushort)(framePointer + 14)),
+                unchecked((ushort)(framePointer + 16)),
+                unchecked((ushort)(framePointer + 20)),
+            ];
+            foreach (ushort pointer in colorPointers)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out _),
+                    $"old-Tourian color $8D:{pointer:X4} remains presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            equippedItems: 0);
+        for (int step = 0;
+             step <= OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        }
+
+        AssertTrue(paletteFx.IsDefinitionActive(
+                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "old-Tourian red flash completes and repeats its full cycle");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "old-Tourian red flash avoids mechanics ROM reads");
+        AssertEqual(
+            (OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort),
+            guarded.PresentationReadCount,
+            "old-Tourian red flash retains every live color through its cycle");
     }
 
     private static void VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(
@@ -1706,6 +1788,24 @@ internal static partial class Program
                     int trailingOffset = source.Offset - unchecked((ushort)(
                         framePointer + 16));
                     if ((uint)trailingOffset < sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort framePointer =
+                        OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                    int firstOffset = source.Offset - unchecked((ushort)(framePointer + 2));
+                    int secondOffset = source.Offset - unchecked((ushort)(framePointer + 10));
+                    int thirdOffset = source.Offset - unchecked((ushort)(framePointer + 20));
+                    if ((uint)firstOffset < 3 * sizeof(ushort) ||
+                        (uint)secondOffset < 4 * sizeof(ushort) ||
+                        (uint)thirdOffset < sizeof(ushort))
                     {
                         PresentationReadCount++;
                         break;

@@ -1637,3 +1637,14 @@ words remain live presentation data.
 Both real definitions execute and repeat the shared fourteen-record, 28-frame cycle with
 mechanics reads forbidden. Verification proves exact ROM parity, every live color read,
 and both the explicit general-level branch and arkanoid fall-through entry paths.
+
+## Old-Tourian escape-shaft red-flash palette mechanics
+
+The old-Tourian shaft red-flash program now compiles all 60 color-index, duration,
+dual inline CGRAM-skip, wait, loop, and target words through
+`OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions`. Its 112 BGR555 color
+words remain live presentation data.
+
+The real definition executes and repeats its complete fourteen-record, 42-frame cycle
+with mechanics reads forbidden. Verification proves exact ROM parity, every live color
+read, and cursor alignment across both skips in every record.

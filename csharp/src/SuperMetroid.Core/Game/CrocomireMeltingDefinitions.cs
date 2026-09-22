@@ -7,6 +7,14 @@ internal static class CrocomireMeltingDefinitions
     /// <c>CrocomireMeltingXOffsetTable</c> at <c>$A4:9697-$A4:96C7</c>.
     /// The cartridge uses this permutation to choose the next physical X column.
     /// </summary>
+    /// <remarks>
+    /// All 49 bytes match the pinned NTSC J/U v1.0 ROM and permute X columns
+    /// 0..48 exactly once. Retain this bounded authored dissolve order: a
+    /// modular stride or simple block traversal does not reproduce it, and
+    /// a guessed shuffle would obscure the visual sequence. The separate
+    /// bitplane mask uses the chronological cursor's low three bits, not the
+    /// selected X column's. Investigation: #625 / #672.
+    /// </remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
         0x2b, 0x28, 0x21, 0x1f, 0x2c, 0x10, 0x16, 0x17,

@@ -215,6 +215,16 @@ internal static partial class Program
         {
             Green = greenLight.Green == 31 ? 30 : greenLight.Green + 1,
         };
+        PaletteRgb5 redBrinstar = document.RedBrinstarBackgroundGlow[0][0];
+        document.RedBrinstarBackgroundGlow[0][0] = redBrinstar with
+        {
+            Red = redBrinstar.Red == 31 ? 30 : redBrinstar.Red + 1,
+        };
+        PaletteRgb5 tourian = document.TourianGlow[0][0];
+        document.TourianGlow[0][0] = tourian with
+        {
+            Blue = tourian.Blue == 31 ? 30 : tourian.Blue + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -226,59 +236,56 @@ internal static partial class Program
         NorfairEnvironmentalPaletteFxProgramDefinition definition =
             NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(item =>
                 item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase);
-        var stockRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
-        {
-            MapPresentation = original,
-        };
-        var editedRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
-        {
-            MapPresentation = edited,
-        };
-        stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definition.DefinitionPointer, 0);
-        editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definition.DefinitionPointer, 0);
-        stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
-        editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
-        AssertTrue(
-            stockRuntime.Cgram.Colors[definition.ColorByteIndex / 2] !=
-            editedRuntime.Cgram.Colors[definition.ColorByteIndex / 2],
-            "runtime catalog binding consumes selected room palette-FX override");
+        AssertOverride(definition.DefinitionPointer, definition.ColorByteIndex,
+            "selected Norfair");
 
         MaridiaEnvironmentalPaletteFxProgramDefinition waterfallDefinition =
             MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(item =>
                 item.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls);
-        stockRuntime.RoomPaletteFx.SpawnDefinition(
-            bus, waterfallDefinition.DefinitionPointer, 0);
-        editedRuntime.RoomPaletteFx.SpawnDefinition(
-            bus, waterfallDefinition.DefinitionPointer, 0);
-        stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
-        editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
-        AssertTrue(
-            stockRuntime.Cgram.Colors[waterfallDefinition.ColorByteIndex / 2] !=
-            editedRuntime.Cgram.Colors[waterfallDefinition.ColorByteIndex / 2],
-            "runtime catalog binding consumes selected Maridia palette-FX override");
-
-        const ushort wreckedShipDefinition =
-            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.PoweredDefinition;
-        const int wreckedShipColorIndex =
-            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorByteIndex /
-            sizeof(ushort);
-        stockRuntime.RoomPaletteFx.SpawnDefinition(bus, wreckedShipDefinition, 0);
-        editedRuntime.RoomPaletteFx.SpawnDefinition(bus, wreckedShipDefinition, 0);
-        stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
-        editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
-        AssertTrue(
-            stockRuntime.Cgram.Colors[wreckedShipColorIndex] !=
-            editedRuntime.Cgram.Colors[wreckedShipColorIndex],
-            "runtime catalog binding consumes Wrecked Ship palette-FX override");
+        AssertOverride(waterfallDefinition.DefinitionPointer,
+            waterfallDefinition.ColorByteIndex, "selected Maridia");
+        AssertOverride(
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.PoweredDefinition,
+            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Wrecked Ship");
+        AssertOverride(
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Red Brinstar");
+        AssertOverride(
+            TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Tourian");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and live Norfair/Maridia/Wrecked " +
-            "Ship CGRAM output " +
+            "Room palette-FX override: content identity and five live environmental " +
+            "CGRAM outputs " +
             "change immediately, then restore exactly.");
+
+        void AssertOverride(ushort definitionPointer, ushort colorByteIndex,
+            string description)
+        {
+            var stockRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
+            {
+                MapPresentation = original,
+            };
+            var editedRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
+            {
+                MapPresentation = edited,
+            };
+            stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
+            editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
+            stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
+            editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
+            AssertTrue(
+                stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
+                editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],
+                $"runtime catalog binding consumes {description} palette-FX override");
+        }
     }
 
     private static void VerifyTitleGradientOverride(

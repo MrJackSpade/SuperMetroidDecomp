@@ -27,7 +27,18 @@ internal static class RoomPaletteFxPresentationExtractor
             MaridiaSandFalls = ExtractMaridia(MaridiaEnvironmentalPaletteOwner.SandFalls),
             MaridiaBackgroundWaterfalls = ExtractMaridia(
                 MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
-            WreckedShipGreenLights = ExtractWreckedShipGreenLights(),
+            WreckedShipGreenLights = ExtractFrames(
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount,
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            RedBrinstarBackgroundGlow = ExtractFrames(
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            TourianGlow = ExtractFrames(
+                TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 
@@ -85,24 +96,20 @@ internal static class RoomPaletteFxPresentationExtractor
             return frames;
         }
 
-        PaletteRgb5[][] ExtractWreckedShipGreenLights()
+        PaletteRgb5[][] ExtractFrames(
+            int frameCount,
+            int colorCount,
+            Func<int, int, ushort> colorPointer)
         {
-            int frameCount =
-                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
-            int colorCount =
-                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
             var frames = new PaletteRgb5[frameCount][];
             for (int frame = 0; frame < frameCount; frame++)
             {
                 frames[frame] = new PaletteRgb5[colorCount];
                 for (int index = 0; index < colorCount; index++)
                 {
-                    ushort pointer =
-                        WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer(
-                            frame, index);
                     ushort bgr555 = RomDataReader.ReadWordFixedBank(
                         bus,
-                        RoomFxRomData.Banks.PaletteFx | pointer);
+                        RoomFxRomData.Banks.PaletteFx | colorPointer(frame, index));
                     frames[frame][index] = new PaletteRgb5
                     {
                         Red = bgr555 & 31,

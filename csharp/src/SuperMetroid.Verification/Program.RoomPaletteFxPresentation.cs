@@ -71,10 +71,83 @@ internal static partial class Program
 
         VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation);
         VerifyExtractedWreckedShipPaletteFxPresentation(bus, presentation);
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "Red Brinstar glow",
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.CycleFrames);
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "Tourian glow",
+            TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [
+                TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer,
+                TourianGlowPaletteFxProgramMechanicsDefinitions.CloneDefinitionPointer,
+            ],
+            TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 448 editable environmental colors match ROM; " +
-            "eight installed programs match two native cycles without color-source reads.");
+            "  Room palette presentation: 648 editable environmental colors match ROM; " +
+            "ten installed programs match two native cycles without color-source reads.");
+    }
+
+    private static void VerifyInstalledPaletteFxFamily(
+        ISnesAddressSpace bus,
+        RoomPaletteFxPresentation presentation,
+        string description,
+        int frameCount,
+        int colorsPerFrame,
+        Func<int, int, ushort> colorPointer,
+        IReadOnlyList<ushort> definitions,
+        int cycleFrames)
+    {
+        var colorAddresses = new HashSet<int>();
+        for (int frame = 0; frame < frameCount; frame++)
+        for (int color = 0; color < colorsPerFrame; color++)
+        {
+            ushort pointer = colorPointer(frame, color);
+            ushort expected = RomDataReader.ReadWordFixedBank(
+                bus,
+                RoomFxRomData.Banks.PaletteFx | pointer);
+            AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
+                $"installed {description} color resolves $8D:{pointer:X4}");
+            AssertEqual(expected, actual,
+                $"installed {description} color matches cartridge $8D:{pointer:X4}");
+            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
+            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+                unchecked((ushort)(pointer + 1)));
+        }
+        AssertEqual(frameCount * colorsPerFrame * sizeof(ushort), colorAddresses.Count,
+            $"{description} presentation owns every BGR555 source byte");
+
+        foreach (ushort definition in definitions)
+        {
+            var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+            var native = new RoomPaletteFxSystem();
+            var installed = new RoomPaletteFxSystem();
+            installed.BindPresentationColors(presentation);
+            native.SpawnDefinition(bus, definition, equippedItems: 0);
+            installed.SpawnDefinition(guarded, definition, equippedItems: 0);
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
+            for (int frame = 0; frame < cycleFrames * 2; frame++)
+            {
+                native.Step(bus, nativeCgram, 0, 0, false, false);
+                installed.Step(guarded, installedCgram, 0, 0, false, false);
+                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                    $"installed {description} definition ${definition:X4} equals native " +
+                    $"output on frame {frame}");
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"installed {description} definition ${definition:X4} avoids color reads");
+        }
     }
 
     private static void VerifyExtractedWreckedShipPaletteFxPresentation(
@@ -235,9 +308,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Wrecked Ship animation");
         document = document with { WreckedShipGreenLights = greenLights };
 
+        PaletteRgb5[][] redBrinstar = document.RedBrinstarBackgroundGlow;
+        document = document with { RedBrinstarBackgroundGlow = redBrinstar[..^1] };
+        Reject("room palette-FX rejects incomplete Red Brinstar animation");
+        document = document with { RedBrinstarBackgroundGlow = redBrinstar };
+
+        PaletteRgb5[] tourianFrame = document.TourianGlow[0];
+        document.TourianGlow[0] = tourianFrame[..^1];
+        Reject("room palette-FX rejects incomplete Tourian glow frame");
+        document.TourianGlow[0] = tourianFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 3",
-            "\"version\": 3,\n  \"nativeAddress\": 9240718",
+            "\"version\": 4",
+            "\"version\": 4,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

@@ -1934,9 +1934,8 @@ internal static partial class Program
              frame < TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
              frame++)
         {
-            ushort framePointer =
-                TourianGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
-            ushort firstColor = unchecked((ushort)(framePointer + 2));
+            ushort firstColor =
+                TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, 0);
             AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                     firstColor,
                     out _),
@@ -1945,7 +1944,8 @@ internal static partial class Program
                  color < TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
-                ushort pointer = unchecked((ushort)(framePointer + 4 + color * 2));
+                ushort pointer =
+                    TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color);
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                         pointer,
                         out _),
@@ -2216,8 +2216,9 @@ internal static partial class Program
                  color < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
-                ushort presentationPointer = unchecked((ushort)(
-                    pointer + sizeof(ushort) + color * sizeof(ushort)));
+                ushort presentationPointer =
+                    RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                        frame, color);
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                         presentationPointer,
                         out _),
@@ -2243,7 +2244,8 @@ internal static partial class Program
         var guarded = new PaletteFxMechanicsForbiddenBus(bus);
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
-        const ushort definition = 0xf77d;
+        const ushort definition =
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.DefinitionPointer;
         paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
         const int cycleFrames =
             RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount * 10;
@@ -3392,22 +3394,22 @@ internal static partial class Program
                      frame < TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)
                 {
-                    ushort framePointer =
-                        TourianGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
-                    ushort firstColor = unchecked((ushort)(framePointer + 2));
-                    int firstColorOffset = source.Offset - firstColor;
-                    if ((uint)firstColorOffset < sizeof(ushort))
+                    bool presentationByte = false;
+                    for (int color = 0;
+                         color < TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                         color++)
                     {
+                        int colorOffset = source.Offset -
+                            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                                frame, color);
+                        if ((uint)colorOffset >= sizeof(ushort))
+                            continue;
+                        presentationByte = true;
                         PresentationReadCount++;
                         break;
                     }
-                    int laterColorOffset = source.Offset - unchecked((ushort)(framePointer + 6));
-                    if ((uint)laterColorOffset <
-                        (TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame - 1) * 2)
-                    {
-                        PresentationReadCount++;
+                    if (presentationByte)
                         break;
-                    }
                 }
 
                 for (int frame = 0;

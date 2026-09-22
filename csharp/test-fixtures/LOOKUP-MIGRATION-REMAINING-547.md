@@ -1554,8 +1554,9 @@ active. Exact ROM parity and every live color read are verified.
 
 Red Brinstar's fourteen-frame background-glow loop now compiles all 32 color-index,
 duration, wait, branch, and target words through
-`RedBrinstarGlowPaletteFxProgramMechanicsDefinitions`. Its 112 BGR555 colors remain live
-presentation data. The real definition executes a complete 140-frame cycle and repeats
+`RedBrinstarGlowPaletteFxProgramMechanicsDefinitions`. Its 112 BGR555 colors are
+presentation data installed from `room-palette-effects.json` in normal sessions. The real
+definition executes a complete 140-frame cycle and repeats
 the first frame with mechanics bytes forbidden. Exact ROM parity and every live color read
 are verified.
 
@@ -1588,7 +1589,8 @@ owner boundaries, and continued slot activity are verified.
 
 The live Tourian 2 object and unused Tourian 4 clone now compile both entries and their
 shared program: 43 color-index, pre-instruction, inline CGRAM-skip, duration, wait, branch,
-and target words. All 88 BGR555 colors remain live presentation data.
+and target words. All 88 BGR555 colors are installed from
+`room-palette-effects.json` in normal sessions.
 
 Both real definitions execute the complete 110-frame loop with mechanics bytes forbidden.
 Verification also proves the native six-byte CGRAM gap and the slot-sensitive callback that
@@ -1922,3 +1924,11 @@ The asset additionally owns the sixteen Wrecked Ship powered-light colors shared
 definitions `$F76D` and `$F771`. Both callers run two complete cycles with all 32 source
 bytes forbidden and exact native CGRAM parity, proving that the installed payload follows
 the shared program rather than being duplicated per definition.
+
+Red Brinstar's 112 background-glow words and Tourian's 88 glowing-block/red-orb words
+now use the same installed source. Their contiguous and split frame layouts are exposed
+through domain-owned color resolvers rather than repeated offsets. Verification forbids
+all 400 source bytes, runs the Red Brinstar definition and both Tourian definitions for
+two complete cycles, and matches native CGRAM every frame. Independent named overrides
+reach both live destinations while the Tourian six-byte CGRAM skip and slot-sensitive
+pre-instruction remain compiled mechanics.

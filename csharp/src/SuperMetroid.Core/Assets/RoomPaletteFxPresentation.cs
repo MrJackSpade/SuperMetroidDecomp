@@ -92,6 +92,20 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        ValidateAndCompile(
+            "Red Brinstar background glow",
+            document.RedBrinstarBackgroundGlow,
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        ValidateAndCompile(
+            "Tourian glow",
+            document.TourianGlow,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -160,10 +174,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] MaridiaSandFalls { get; init; }
     public required PaletteRgb5[][] MaridiaBackgroundWaterfalls { get; init; }
     public required PaletteRgb5[][] WreckedShipGreenLights { get; init; }
+    public required PaletteRgb5[][] RedBrinstarBackgroundGlow { get; init; }
+    public required PaletteRgb5[][] TourianGlow { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 3;
+    public const int Version = 4;
 }

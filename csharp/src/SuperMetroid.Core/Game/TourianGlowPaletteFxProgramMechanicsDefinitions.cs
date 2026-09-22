@@ -52,6 +52,17 @@ public static class TourianGlowPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one split presentation-color address within a frame.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        int offset = color == 0
+            ? sizeof(ushort)
+            : 6 + (color - 1) * sizeof(ushort);
+        return unchecked((ushort)(FramePointer(frame) + offset));
+    }
+
     /// <summary>Resolves one compiled mechanics word across both entries and shared code.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {

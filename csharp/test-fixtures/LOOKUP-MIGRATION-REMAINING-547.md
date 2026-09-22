@@ -1962,3 +1962,9 @@ convergence at `$8D:C892`. Verification blocks all 60 color bytes and runs the g
 for two complete two-frame cycles plus both navigation-light definitions for two complete
 56-frame cycles with exact CGRAM parity; placement, waits, timing, and branches remain
 compiled mechanics.
+
+The opening cinematic's PLANET ZEBES text fade-in and fade-out now source all 48
+BGR555 words from two named installed arrays. Verification blocks all 96 source bytes,
+compares every CGRAM frame through each complete 24-frame one-shot fade and its
+terminal deletion, and confirms independent override output for both entries.
+Placement, hold durations, waits, and deletion remain compiled mechanics.

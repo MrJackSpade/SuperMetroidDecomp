@@ -4,7 +4,7 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Editable colors for normal-room palette animations. Native timing, destinations,
+/// Editable colors for room and cinematic palette animations. Native timing, destinations,
 /// instructions, and side effects remain compiled engine mechanics.
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
@@ -182,6 +182,26 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                 .NavigationLightsColorPointer,
             colors);
+        foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
+                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                PlanetZebesTextPaletteFxProgramOwner.FadeIn =>
+                    document.PlanetZebesTextFadeIn,
+                PlanetZebesTextPaletteFxProgramOwner.FadeOut =>
+                    document.PlanetZebesTextFadeOut,
+                _ => throw new InvalidDataException(
+                    $"Unsupported PLANET ZEBES text-fade owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"PLANET ZEBES {definition.Owner}",
+                frames,
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount,
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -260,10 +280,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] CrateriaUnusedDarkLightning { get; init; }
     public required PaletteRgb5[][] CeresGunshipEngineLights { get; init; }
     public required PaletteRgb5[][] CeresNavigationLights { get; init; }
+    public required PaletteRgb5[][] PlanetZebesTextFadeIn { get; init; }
+    public required PaletteRgb5[][] PlanetZebesTextFadeOut { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 8;
+    public const int Version = 9;
 }

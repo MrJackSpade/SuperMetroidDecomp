@@ -116,6 +116,15 @@ public sealed class PlanetZebesTextPaletteFxProgramDefinition
             PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameByteCount));
     }
 
+    /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {

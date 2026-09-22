@@ -1190,14 +1190,12 @@ internal static partial class Program
                  frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount;
                  frame++)
             {
-                ushort firstColor = unchecked((ushort)(
-                    definition.FramePointer(frame) + sizeof(ushort)));
                 for (int color = 0;
                      color < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                      color++)
                 {
                     AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                            unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                            definition.ColorPointer(frame, color),
                             out _),
                         $"{definition.Owner} PLANET ZEBES colors remain presentation-owned");
                 }

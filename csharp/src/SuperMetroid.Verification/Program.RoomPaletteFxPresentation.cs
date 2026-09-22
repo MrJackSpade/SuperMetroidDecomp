@@ -173,10 +173,23 @@ internal static partial class Program
             ],
             CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                 .NavigationLightsCycleFrames * 2);
+        foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
+                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus,
+                presentation,
+                $"PLANET ZEBES {definition.Owner}",
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount,
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                [definition.DefinitionPointer],
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        }
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 1022 editable environmental colors match ROM; " +
-            "nineteen installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 1070 editable environmental colors match ROM; " +
+            "twenty-one installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -435,9 +448,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Ceres navigation-light frame");
         document.CeresNavigationLights[0] = navigationFrame;
 
+        PaletteRgb5[][] fadeIn = document.PlanetZebesTextFadeIn;
+        document = document with { PlanetZebesTextFadeIn = fadeIn[..^1] };
+        Reject("room palette-FX rejects incomplete PLANET ZEBES fade-in");
+        document = document with { PlanetZebesTextFadeIn = fadeIn };
+
+        PaletteRgb5[] fadeOutFrame = document.PlanetZebesTextFadeOut[0];
+        document.PlanetZebesTextFadeOut[0] = fadeOutFrame[..^1];
+        Reject("room palette-FX rejects incomplete PLANET ZEBES fade-out frame");
+        document.PlanetZebesTextFadeOut[0] = fadeOutFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 8",
-            "\"version\": 8,\n  \"nativeAddress\": 9240718",
+            "\"version\": 9",
+            "\"version\": 9,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

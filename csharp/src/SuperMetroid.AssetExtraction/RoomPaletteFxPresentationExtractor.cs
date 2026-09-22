@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Extracts authored normal-room palette animation colors to RGB5 JSON.</summary>
+/// <summary>Extracts authored room and cinematic palette animation colors to RGB5 JSON.</summary>
 internal static class RoomPaletteFxPresentationExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
@@ -67,6 +67,10 @@ internal static class RoomPaletteFxPresentationExtractor
                     .NavigationLightsColorsPerFrame,
                 CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                     .NavigationLightsColorPointer),
+            PlanetZebesTextFadeIn = ExtractPlanetZebesText(
+                PlanetZebesTextPaletteFxProgramOwner.FadeIn),
+            PlanetZebesTextFadeOut = ExtractPlanetZebesText(
+                PlanetZebesTextPaletteFxProgramOwner.FadeOut),
         });
         return json.ToArray();
 
@@ -168,6 +172,17 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 definition.Frames.Count,
                 definition.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractPlanetZebesText(PlanetZebesTextPaletteFxProgramOwner owner)
+        {
+            PlanetZebesTextPaletteFxProgramDefinition definition =
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount,
+                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

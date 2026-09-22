@@ -265,6 +265,16 @@ internal static partial class Program
         {
             Blue = navigationLight.Blue == 31 ? 30 : navigationLight.Blue + 1,
         };
+        PaletteRgb5 fadeInColor = document.PlanetZebesTextFadeIn[0][0];
+        document.PlanetZebesTextFadeIn[0][0] = fadeInColor with
+        {
+            Red = fadeInColor.Red == 31 ? 30 : fadeInColor.Red + 1,
+        };
+        PaletteRgb5 fadeOutColor = document.PlanetZebesTextFadeOut[0][0];
+        document.PlanetZebesTextFadeOut[0][0] = fadeOutColor with
+        {
+            Green = fadeOutColor.Green == 31 ? 30 : fadeOutColor.Green + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -338,13 +348,21 @@ internal static partial class Program
             CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                 .BackgroundNavigationLightsColorIndex,
             "background Ceres navigation lights");
+        foreach (PlanetZebesTextPaletteFxProgramDefinition fadeDefinition in
+                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(
+                fadeDefinition.DefinitionPointer,
+                fadeDefinition.ColorByteIndex,
+                $"PLANET ZEBES {fadeDefinition.Owner}");
+        }
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and fourteen live environmental " +
+            "Room palette-FX override: content identity and sixteen live environmental " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

@@ -1740,6 +1740,16 @@ with mechanics reads forbidden and deletes itself after the final hold. Verifica
 proves exact ROM parity and every live color read even though retail gameplay never
 installs this object.
 
+## Title-logo fade palette mechanics
+
+The Super Metroid title-logo fade now compiles all 19 color-index, duration, wait, and
+delete words through `TitleLogoFadePaletteFxProgramMechanicsDefinitions`. Its 120 BGR555
+color words remain live presentation data.
+
+The real `$E194` definition executes its complete eight-record, 24-frame fade with
+mechanics reads forbidden, remains active through the final hold, and deletes on the
+following frame. Verification proves exact ROM parity and every live color read.
+
 ## Samus-loading suit palette mechanics
 
 The power, Varia, and gravity Samus-loading programs now compile all 99 color-index,

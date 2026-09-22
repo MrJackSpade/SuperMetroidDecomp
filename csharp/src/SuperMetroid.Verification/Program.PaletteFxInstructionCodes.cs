@@ -47,6 +47,7 @@ internal static partial class Program
         }
 
         VerifyBeaconSoundInstruction(bus);
+        VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(bus);
         VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus);
@@ -87,8 +88,83 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1645 control words and 32 byte operands are compiled; all four audio opcodes " +
+            "plus 1664 control words and 32 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = TitleLogoFadePaletteFxProgramMechanicsDefinitions.ProgramStart;
+             pointer <= TitleLogoFadePaletteFxProgramMechanicsDefinitions
+                 .DeleteInstructionPointer;
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!TitleLogoFadePaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"title-logo fade catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"title-logo fade compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"title-logo fade cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(19, mechanicsWords,
+            "compiled title-logo fade mechanics words");
+
+        for (int frame = 0;
+             frame < TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                TitleLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                sizeof(ushort)));
+            for (int color = 0;
+                 color < TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "title-logo fade colors remain presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            0);
+        for (int step = 0;
+             step < TitleLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        }
+        AssertTrue(paletteFx.IsDefinitionActive(
+                TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "title-logo fade remains active through its final hold");
+        paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        AssertTrue(!paletteFx.IsDefinitionActive(
+                TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "title-logo fade deletes after its final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "title-logo fade avoids mechanics ROM reads");
+        AssertEqual(
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount *
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort),
+            guarded.PresentationReadCount,
+            "title-logo fade retains every live color");
     }
 
     private static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
@@ -2689,6 +2765,22 @@ internal static partial class Program
 
             if (source.Bank == 0x8d)
             {
+                for (int frame = 0;
+                     frame < TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        TitleLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                        sizeof(ushort)));
+                    if ((uint)offset <
+                        TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
                 for (int frame = 0;
                      frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                          .GunshipEngineFrameCount;

@@ -47,6 +47,7 @@ internal static partial class Program
         }
 
         VerifyBeaconSoundInstruction(bus);
+        VerifyPaletteFxDeleteProgramMechanicsDefinitions(bus);
         VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(bus);
@@ -90,8 +91,65 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1715 control words and 32 byte operands are compiled; all four audio opcodes " +
+            "plus 1717 control words and 32 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyPaletteFxDeleteProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        ushort[] pointers =
+        [
+            PaletteFxDeleteProgramMechanicsDefinitions.CinematicDelete,
+            PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffect,
+        ];
+        foreach (ushort pointer in pointers)
+        {
+            AssertTrue(PaletteFxDeleteProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort value),
+                $"standalone palette-FX delete catalogs $8D:{pointer:X4}");
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"standalone palette-FX delete is registered at $8D:{pointer:X4}");
+            AssertEqual(PaletteFxInstructionCodes.Delete, value,
+                $"standalone palette-FX delete value at $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"standalone palette-FX compiled word at $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"standalone palette-FX cartridge word at $8D:{pointer:X4}");
+        }
+
+        AssertTrue(!PaletteFxDeleteProgramMechanicsDefinitions.TryReadMechanicsWord(
+                unchecked((ushort)(PaletteFxDeleteProgramMechanicsDefinitions.CinematicDelete -
+                    sizeof(ushort))),
+                out _),
+            "standalone delete owner rejects the preceding cinematic payload word");
+        AssertTrue(!PaletteFxDeleteProgramMechanicsDefinitions.TryReadMechanicsWord(
+                unchecked((ushort)(PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffect +
+                    sizeof(ushort))),
+                out _),
+            "standalone delete owner rejects the following statue setup command");
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition,
+            equippedItems: 0);
+        AssertTrue(paletteFx.IsDefinitionActive(
+                PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition),
+            "empty room palette-FX definition occupies a slot before its first handler pass");
+        paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        AssertTrue(!paletteFx.IsDefinitionActive(
+                PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition),
+            "empty room palette-FX definition deletes itself on its first handler pass");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "empty room palette-FX deletion performs no mechanics ROM reads");
+        AssertEqual(0, guarded.PresentationReadCount,
+            "empty room palette-FX deletion has no presentation payload");
     }
 
     private static void VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(

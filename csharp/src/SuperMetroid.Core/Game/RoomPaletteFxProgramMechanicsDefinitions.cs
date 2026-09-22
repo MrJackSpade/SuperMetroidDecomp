@@ -8,6 +8,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
     /// <summary>Resolves one compiled bank-$8D program word across translated owners.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
+        if (PaletteFxDeleteProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (TitleLogoFadePaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
                 out value))

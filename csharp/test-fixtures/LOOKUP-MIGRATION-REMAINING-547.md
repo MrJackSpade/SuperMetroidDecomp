@@ -880,6 +880,16 @@ and instruction streams outside this translated family. Verification compares ev
 with the pinned cartridge and executes all 18 programs while every compiled source byte is
 forbidden, while proving that live spritemap reads still occur.
 
+## Mother Brain fake-death room-palette mechanics
+
+Mother Brain's independent fake-death room-palette loop now compiles its fourteen
+two-frame durations, goto opcode, and loop target in
+`MotherBrainRoomPaletteProgramDefinitions`. The real production interpreter completes
+and repeats the full flash sequence with all sixteen control words forbidden, while the
+fourteen interleaved palette pointers and their BGR555 payloads remain live presentation
+data. Exact ROM parity, every presentation read, strict rejection, and allocation-free
+warmed lookup are verified.
+
 ## Mother Brain and misc-dust projectile instruction mechanics
 
 Fixed control data for nine translated Mother Brain projectile programs is now compiled in

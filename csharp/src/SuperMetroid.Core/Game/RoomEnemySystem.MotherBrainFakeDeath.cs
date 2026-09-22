@@ -10,11 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainPaletteFlashStart = 0xd046;
-    private const ushort MotherBrainPaletteFlashGoto = 0x9b0f;
-    private const ushort MotherBrainPaletteFlashFinal = 0xd082;
-    private const ushort MotherBrainGrayFadePointerTable = 0xed8a;
-
     private static readonly (ushort X, ushort Y)[] MotherBrainFakeDeathExplosionPositions =
     [
         (136, 116),
@@ -78,7 +73,8 @@ public sealed partial class RoomEnemySystem
 
                 // `$A9:88A0-$88AF` starts the looping room flash, selects FX entry two,
                 // arms the head's independent tube sequence, and clears both fade words.
-                state.RoomPaletteInstructionPointer = MotherBrainPaletteFlashStart;
+                state.RoomPaletteInstructionPointer =
+                    MotherBrainRoomPaletteProgramDefinitions.FlashStart;
                 state.RoomPaletteInstructionTimer = 1;
                 state.FxEntry = 2;
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
@@ -190,7 +186,8 @@ public sealed partial class RoomEnemySystem
             ushort step = state.GrayFadeIndex++;
             ushort palettePointer = ReadWord(
                 _bus!,
-                0xad0000 | unchecked((ushort)(MotherBrainGrayFadePointerTable + step * 2)));
+                0xad0000 | unchecked((ushort)(
+                    MotherBrainRoomPaletteProgramDefinitions.GrayFadePointerTable + step * 2)));
             if (palettePointer == 0)
             {
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentCollapseTubes;
@@ -223,18 +220,19 @@ public sealed partial class RoomEnemySystem
         for (int commandCount = 0; commandCount < 16; commandCount++)
         {
             ushort pointer = state.RoomPaletteInstructionPointer;
-            ushort command = ReadWord(_bus!, 0xa90000 | pointer);
+            ushort command =
+                MotherBrainRoomPaletteProgramDefinitions.ReadMechanicsWord(pointer);
             if ((command & 0x8000) != 0)
             {
-                if (command != MotherBrainPaletteFlashGoto)
+                if (command != MotherBrainRoomPaletteProgramDefinitions.GotoInstruction)
                 {
                     throw new InvalidDataException(
                         $"Mother Brain room-palette opcode $A9:{command:X4} is not translated.");
                 }
 
-                state.RoomPaletteInstructionPointer = ReadWord(
-                    _bus!,
-                    0xa90000 | unchecked((ushort)(pointer + 2)));
+                state.RoomPaletteInstructionPointer =
+                    MotherBrainRoomPaletteProgramDefinitions.ReadMechanicsWord(
+                        unchecked((ushort)(pointer + 2)));
                 state.RoomPaletteInstructionTimer = 0;
                 continue;
             }
@@ -291,7 +289,7 @@ public sealed partial class RoomEnemySystem
     {
         state.RoomPaletteInstructionPointer = 0;
         state.RoomPaletteInstructionTimer = 0;
-        CopyMotherBrainRoomPalette(MotherBrainPaletteFlashFinal);
+        CopyMotherBrainRoomPalette(MotherBrainRoomPaletteProgramDefinitions.FinalPalette);
     }
 
     private void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)

@@ -142,6 +142,11 @@ if (args is ["--mother-brain-body-instruction-mechanics"])
     VerifyMotherBrainBodyInstructionPrograms();
     return 0;
 }
+if (args is ["--mother-brain-room-palette-mechanics"])
+{
+    VerifyMotherBrainRoomPaletteProgramDefinitions();
+    return 0;
+}
 if (args is ["--gunship-instruction-mechanics"])
 {
     VerifyGunshipInstructionProgramDefinitions();

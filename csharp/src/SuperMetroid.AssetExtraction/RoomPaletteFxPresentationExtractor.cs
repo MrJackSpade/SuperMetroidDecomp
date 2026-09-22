@@ -75,6 +75,14 @@ internal static class RoomPaletteFxPresentationExtractor
                 CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights),
             CinematicGunshipGlow = ExtractCinematicGlow(
                 CinematicGlowPaletteFxProgramOwner.GunshipGlow),
+            ExplodingZebesFade = ExtractFrames(
+                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+            UnusedCinematicFade = ExtractFrames(
+                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 

@@ -575,16 +575,14 @@ internal static partial class Program
              frame < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount;
              frame++)
         {
-            ushort firstColor = unchecked((ushort)(
-                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                sizeof(ushort)));
             for (int color = 0;
                  color < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
                      .ColorsPerFrame;
                  color++)
             {
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                            .ColorPointer(frame, color),
                         out _),
                     "unused cinematic-fade colors remain presentation-owned");
             }
@@ -1057,15 +1055,13 @@ internal static partial class Program
              frame < ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount;
              frame++)
         {
-            ushort firstColor = unchecked((ushort)(
-                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                sizeof(ushort)));
             for (int color = 0;
                  color < ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
+                            .ColorPointer(frame, color),
                         out _),
                     "exploding-Zebes fade colors remain presentation-owned");
             }

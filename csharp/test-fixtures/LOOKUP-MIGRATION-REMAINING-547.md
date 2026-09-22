@@ -1974,3 +1974,9 @@ The old Mother Brain background-light pulse and cinematic gunship glow now sourc
 bytes and compares installed output against the native 84/70-frame programs for two
 complete cycles each. Live overrides change both destinations. Palette placement,
 distinct durations, waits, and loop targets remain compiled mechanics.
+
+The zoomed-out exploding-Zebes fade and cartridge-unused cinematic fade now source all
+232 BGR555 words from two named installed arrays. Verification blocks their 464 color
+bytes, compares every CGRAM frame through the 56/22-frame one-shot programs and terminal
+deletions, and checks independent overrides. CGRAM placement, durations, waits, and
+deletion remain compiled mechanics.

@@ -222,6 +222,20 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 definition.ColorPointer,
                 colors);
         }
+        ValidateAndCompile(
+            "exploding Zebes fade",
+            document.ExplodingZebesFade,
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        ValidateAndCompile(
+            "unused cinematic fade",
+            document.UnusedCinematicFade,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -304,10 +318,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] PlanetZebesTextFadeOut { get; init; }
     public required PaletteRgb5[][] OldMotherBrainBackgroundLights { get; init; }
     public required PaletteRgb5[][] CinematicGunshipGlow { get; init; }
+    public required PaletteRgb5[][] ExplodingZebesFade { get; init; }
+    public required PaletteRgb5[][] UnusedCinematicFade { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 10;
+    public const int Version = 11;
 }

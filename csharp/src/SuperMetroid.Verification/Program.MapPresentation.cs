@@ -285,6 +285,16 @@ internal static partial class Program
         {
             Red = gunshipGlow.Red == 31 ? 30 : gunshipGlow.Red + 1,
         };
+        PaletteRgb5 zebesFade = document.ExplodingZebesFade[0][0];
+        document.ExplodingZebesFade[0][0] = zebesFade with
+        {
+            Green = zebesFade.Green == 31 ? 30 : zebesFade.Green + 1,
+        };
+        PaletteRgb5 unusedFade = document.UnusedCinematicFade[0][0];
+        document.UnusedCinematicFade[0][0] = unusedFade with
+        {
+            Blue = unusedFade.Blue == 31 ? 30 : unusedFade.Blue + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -374,13 +384,21 @@ internal static partial class Program
                 glowDefinition.ColorByteIndex,
                 $"cinematic glow {glowDefinition.Owner}");
         }
+        AssertOverride(
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "exploding Zebes fade");
+        AssertOverride(
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "unused cinematic fade");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and eighteen live palette " +
+            "Room palette-FX override: content identity and twenty live palette " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

@@ -199,10 +199,28 @@ internal static partial class Program
                 [definition.DefinitionPointer],
                 definition.CycleFrames * 2);
         }
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "exploding Zebes fade",
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "unused cinematic fade",
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 1126 editable palette colors match ROM; " +
-            "twenty-three installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 1358 editable palette colors match ROM; " +
+            "twenty-five installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -484,9 +502,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete cinematic gunship-glow frame");
         document.CinematicGunshipGlow[0] = gunshipGlowFrame;
 
+        PaletteRgb5[][] zebesFade = document.ExplodingZebesFade;
+        document = document with { ExplodingZebesFade = zebesFade[..^1] };
+        Reject("room palette-FX rejects incomplete exploding-Zebes fade");
+        document = document with { ExplodingZebesFade = zebesFade };
+
+        PaletteRgb5[] unusedFadeFrame = document.UnusedCinematicFade[0];
+        document.UnusedCinematicFade[0] = unusedFadeFrame[..^1];
+        Reject("room palette-FX rejects incomplete unused cinematic-fade frame");
+        document.UnusedCinematicFade[0] = unusedFadeFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 10",
-            "\"version\": 10,\n  \"nativeAddress\": 9240718",
+            "\"version\": 11",
+            "\"version\": 11,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

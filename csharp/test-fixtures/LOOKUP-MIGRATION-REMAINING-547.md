@@ -2038,3 +2038,11 @@ selection, copy lengths, partial revival writes, and WRAM trailing-word publicat
 remain compiled runtime mechanics. Stock checks compare all 27 color states and
 sixteen trailing words with exact cartridge output; live overrides change the
 four color families independently without runtime palette-source reads.
+
+The complete twenty-nine-entry `$8F:E7A7` room graphics-set table is now compiled
+in `RoomTilesetDefinitions`. Every pointer and the three source addresses in each
+nine-byte record are compared with the pinned cartridge. Both Landing Site and
+Ceres room loads forbid reads across the full table/record interval and retain
+identical decompressed art, VRAM, and CGRAM output. Room tile and background
+payloads remain cartridge-backed until the indexed-PNG/JSON assets in #533 are
+installed; this change compiles source selection, not presentation bytes.

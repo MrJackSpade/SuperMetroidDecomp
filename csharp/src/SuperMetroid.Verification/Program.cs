@@ -1427,6 +1427,11 @@ if (args is ["--room-header-definitions"])
     VerifyCompiledRoomHeaderDefinitions();
     return 0;
 }
+if (args is ["--room-tileset-definitions"])
+{
+    VerifyRoomAssetRomData();
+    return 0;
+}
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();

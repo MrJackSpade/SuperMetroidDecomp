@@ -46,7 +46,7 @@ public sealed class CartridgeRoomAssets
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(header);
-        TilesetDefinition tileset = ReadTileset(bus, header.State.GraphicsSet);
+        TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
         byte[] roomBlockDefinitions = RomDataReader.Decompress(bus, tileset.BlockDefinitionsAddress);
         byte[] blockDefinitions;
@@ -107,25 +107,6 @@ public sealed class CartridgeRoomAssets
         cgram.LoadBytes(
             PaletteBytes.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount),
             destinationIndex: 0);
-    }
-
-    private static TilesetDefinition ReadTileset(ISnesAddressSpace bus, byte graphicsSet)
-    {
-        ushort pointer = RomDataReader.ReadWordFixedBank(
-            bus,
-            RoomAssetRomData.Tilesets.PointerTableAddress + graphicsSet * sizeof(ushort));
-        int address = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
-        return new TilesetDefinition(
-            pointer,
-            BlockDefinitionsAddress: RomDataReader.ReadLongFixedBank(
-                bus,
-                address + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset),
-            CharacterAddress: RomDataReader.ReadLongFixedBank(
-                bus,
-                address + RoomAssetRomData.Tilesets.CharacterAddressOffset),
-            PaletteAddress: RomDataReader.ReadLongFixedBank(
-                bus,
-                address + RoomAssetRomData.Tilesets.PaletteAddressOffset));
     }
 
     private static RoomLevelData ParseLevelData(

@@ -69,6 +69,33 @@ internal static partial class Program
             }
         }
 
+        // Test the complete native table, including entries not reached by the room-state
+        // contexts above. This is definition metadata, not an editable visual payload.
+        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        {
+            TilesetDefinition compiled = RoomTilesetDefinitions.Get(graphicsSet);
+            int pointerAddress = RoomAssetRomData.Tilesets.PointerTableAddress +
+                graphicsSet * sizeof(ushort);
+            ushort pointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+            int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
+            AssertEqual(pointer, compiled.Pointer,
+                $"graphics set ${graphicsSet:X2} compiled definition pointer");
+            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+                    definitionAddress + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset),
+                compiled.BlockDefinitionsAddress,
+                $"graphics set ${graphicsSet:X2} compiled block source");
+            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+                    definitionAddress + RoomAssetRomData.Tilesets.CharacterAddressOffset),
+                compiled.CharacterAddress,
+                $"graphics set ${graphicsSet:X2} compiled character source");
+            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+                    definitionAddress + RoomAssetRomData.Tilesets.PaletteAddressOffset),
+                compiled.PaletteAddress,
+                $"graphics set ${graphicsSet:X2} compiled palette source");
+        }
+        AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(RoomTilesetDefinitions.Count),
+            "graphics set after the last retail entry fails rather than reading unrelated bank-$8F data");
+
         foreach (byte graphicsSet in graphicsSets)
         {
             int pointerAddress = RoomAssetRomData.Tilesets.PointerTableAddress +
@@ -95,9 +122,52 @@ internal static partial class Program
                 $"graphics set ${graphicsSet:X2} has the complete background palette range");
         }
 
+        // Both ordinary and Ceres rooms must exercise the real loader with the whole
+        // source table forbidden, including the overlapping Ceres character transfers.
+        var guardedBus = new TilesetDefinitionReadGuard(bus);
+        foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
+        {
+            CartridgeRoomHeader header = CartridgeRoomHeader.Load(bus, roomPointer);
+            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
+            CartridgeRoomAssets guarded = CartridgeRoomAssets.Load(guardedBus, header);
+            AssertEqual(native.Tileset, guarded.Tileset,
+                $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
+            AssertTrue(native.CreCharacters.AsSpan().SequenceEqual(guarded.CreCharacters) &&
+                native.RoomCharacters.AsSpan().SequenceEqual(guarded.RoomCharacters) &&
+                native.PaletteBytes.AsSpan().SequenceEqual(guarded.PaletteBytes) &&
+                native.LevelData.BlockDefinitions.Span.SequenceEqual(guarded.LevelData.BlockDefinitions.Span),
+                $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
+            var nativeVram = new SnesVram();
+            var guardedVram = new SnesVram();
+            var nativeCgram = new SnesCgram();
+            var guardedCgram = new SnesCgram();
+            native.LoadGraphics(nativeVram, nativeCgram);
+            guarded.LoadGraphics(guardedVram, guardedCgram);
+            AssertTrue(nativeVram.Bytes.SequenceEqual(guardedVram.Bytes) &&
+                nativeCgram.Colors.SequenceEqual(guardedCgram.Colors),
+                $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
+        }
+
         Console.WriteLine(
             $"  Room assets: {boundedAssets.Length} bounded streams and " +
-            $"{graphicsSets.Count} retail graphics sets validated.");
+            $"{graphicsSets.Count} retail graphics sets validated; all " +
+            $"{RoomTilesetDefinitions.Count} definitions compiled with live table reads blocked.");
+    }
+
+    private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            int first = RoomAssetRomData.Tilesets.DefinitionBank | RoomTilesetDefinitions.Get(0).Pointer;
+            int end = RoomAssetRomData.Tilesets.PointerTableAddress +
+                RoomTilesetDefinitions.Count * sizeof(ushort);
+            if (address >= first && address < end)
+                throw new InvalidOperationException(
+                    $"Room loader reread compiled tileset definition data at ${address:X6}.");
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private static byte[] DecompressBoundedRoomAsset(

@@ -55,6 +55,7 @@ internal static partial class Program
         VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -82,8 +83,75 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1417 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1455 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
+                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+        {
+            int actualWords = 0;
+            for (ushort pointer = definition.ProgramStart;
+                 pointer <= definition.DeleteInstructionPointer;
+                 pointer = unchecked((ushort)(pointer + 1)))
+            {
+                if (!definition.TryReadMechanicsWord(pointer, out ushort value))
+                    continue;
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} explosion fade catalogs word $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} explosion fade compiled word $8D:{pointer:X4}");
+                AssertEqual(value,
+                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} explosion fade cartridge word $8D:{pointer:X4}");
+                actualWords++;
+                mechanicsWords++;
+            }
+            AssertEqual(19, actualWords,
+                $"{definition.Owner} explosion fade mechanics word count");
+
+            for (int frame = 0;
+                 frame < ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort firstColor = unchecked((ushort)(
+                    definition.FramePointer(frame) + sizeof(ushort)));
+                for (int color = 0;
+                     color < ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
+                         .ColorsPerFrame;
+                     color++)
+                {
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                            out _),
+                        $"{definition.Owner} explosion fade colors remain presentation-owned");
+                }
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int step = 0; step <= definition.CycleFrames; step++)
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} explosion fade deletes after its final hold");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} explosion fade avoids mechanics ROM reads");
+            AssertEqual(
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount *
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} explosion fade retains every live color");
+        }
+        AssertEqual(38, mechanicsWords,
+            "compiled Zebes explosion layer-fade mechanics words");
     }
 
     private static void VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(
@@ -2436,6 +2504,26 @@ internal static partial class Program
                         int offset = source.Offset - unchecked((ushort)(
                             definition.FramePointer(frame) + sizeof(ushort)));
                         if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
+                    }
+                }
+
+                foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
+                         ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
+                             .FrameCount;
+                         frame++)
+                    {
+                        int offset = source.Offset - unchecked((ushort)(
+                            definition.FramePointer(frame) + sizeof(ushort)));
+                        if ((uint)offset <
+                            ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
+                                .ColorsPerFrame * sizeof(ushort))
                         {
                             PresentationReadCount++;
                             break;

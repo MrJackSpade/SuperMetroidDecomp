@@ -1773,3 +1773,15 @@ remain live presentation data.
 Both real definitions execute and repeat their complete loops with mechanics reads
 forbidden. Verification proves exact ROM parity, every live color read, the six-record /
 96-frame afterglow, and the lava pulse's symmetric ten-record / 70-frame duration curve.
+
+## Zebes explosion layer-fade palette mechanics
+
+The exploding planet's crust and grey-cloud fade-outs now compile all 38 color-index,
+duration, wait, and delete words through
+`ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions`. Their 240 BGR555 color
+words remain live presentation data.
+
+Both real definitions execute their complete eight-record one-shot programs with
+mechanics reads forbidden and delete themselves after their final holds. Verification
+proves exact ROM parity, every live color read, and the distinct 160-frame crust and
+112-frame grey-cloud fade durations.

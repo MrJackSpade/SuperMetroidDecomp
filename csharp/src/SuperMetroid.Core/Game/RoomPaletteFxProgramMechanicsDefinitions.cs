@@ -56,6 +56,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out value))
             return true;
         if (WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(

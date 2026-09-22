@@ -21,6 +21,15 @@ public static class BoyonSpeedDefinitions
     public const int StoredSampleCount = 23;
 
     /// <summary>The native curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
+    /// <remarks>
+    /// #625 / #643 exact NTSC J/U v1.0 proof: each of the 23 unsigned bytes at
+    /// $A2:8701-$8717 equals k*(k+1)/2 for authored index k in 0..22, ending at $FD.
+    /// The native caller reads first, then substitutes $FF for every index at or above
+    /// 23 before its eight-bit hardware multiply; the nominal overread at index 23 is
+    /// discarded. This method models that effective caller result, not a larger table.
+    /// VerifyCompiledBoyonSpeeds checks all ROM bytes, all 65,536 input indices, and
+    /// every low-byte multiplier through the real production calculation.
+    /// </remarks>
     public static byte Sample(ushort index) => index < StoredSampleCount
         ? (byte)(index * (index + 1) / 2)
         : byte.MaxValue;

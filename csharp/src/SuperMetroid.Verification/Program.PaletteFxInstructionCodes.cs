@@ -48,7 +48,8 @@ internal static partial class Program
 
         VerifyBeaconSoundInstruction(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
-        var guardedHeatBus = new PaletteFxHeatSelectorForbiddenBus(bus);
+        VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
+        var guardedHeatBus = new PaletteFxHeatMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
             "Norfair heat pre-instruction performs no selector-table ROM reads");
@@ -56,8 +57,115 @@ internal static partial class Program
         VerifyTitleGradientTables(bus);
 
         Console.WriteLine(
-            "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat program " +
-            "selectors are compiled; all four audio opcodes and retail $F781's byte/cursor handoff agree.");
+            "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
+            "and 114 program-control words are compiled; all four audio opcodes and " +
+            "retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyPaletteFxHeatProgramMechanicsDefinitions(
+        ISnesAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        foreach (PaletteFxHeatProgramDefinition definition in
+                 PaletteFxHeatProgramMechanicsDefinitions.All)
+        {
+            var expected = new Dictionary<ushort, ushort>
+            {
+                [definition.ProgramStart] = PaletteFxInstructionCodes.SetPreInstruction,
+                [unchecked((ushort)(definition.ProgramStart + 2))] =
+                    PaletteFxPreInstructionCodes.Heat,
+                [unchecked((ushort)(definition.ProgramStart + 4))] =
+                    PaletteFxInstructionCodes.SetColorIndex,
+                [unchecked((ushort)(definition.ProgramStart + 6))] = 0x0182,
+                [definition.LoopInstructionPointer] = PaletteFxInstructionCodes.Goto,
+                [unchecked((ushort)(definition.LoopInstructionPointer + 2))] =
+                    definition.Frames[0].InstructionPointer,
+            };
+            foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+            {
+                expected.Add(frame.InstructionPointer, frame.Duration);
+                expected.Add(frame.WaitInstructionPointer, PaletteFxInstructionCodes.Wait);
+                for (int color = 0;
+                     color < PaletteFxHeatProgramDefinition.ColorsPerFrame;
+                     color++)
+                {
+                    ushort presentationPointer = unchecked((ushort)(
+                        frame.FirstColorPointer + color * sizeof(ushort)));
+                    AssertTrue(!PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            presentationPointer,
+                            out _),
+                        $"{definition.Suit} heat color ${presentationPointer:X4} remains presentation-owned");
+                }
+            }
+
+            AssertEqual(38, expected.Count, $"{definition.Suit} heat mechanics word count");
+            foreach ((ushort pointer, ushort value) in expected)
+            {
+                AssertTrue(PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Suit} heat program catalogs $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Suit} compiled heat word $8D:{pointer:X4}");
+                AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Suit} cartridge heat word $8D:{pointer:X4}");
+                mechanicsWords++;
+            }
+
+            var guarded = new PaletteFxHeatMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            ushort equippedItems = definition.Suit switch
+            {
+                PaletteFxHeatSuit.Power => 0,
+                PaletteFxHeatSuit.Varia => (ushort)SamusEquipmentFlags.VariaSuit,
+                PaletteFxHeatSuit.Gravity => (ushort)SamusEquipmentFlags.GravitySuit,
+                _ => throw new InvalidOperationException(),
+            };
+            paletteFx.SpawnDefinition(guarded, definition: 0xf761, equippedItems);
+            int steps = 1 + definition.Frames.Sum(frame => frame.Duration);
+            for (int step = 0; step <= steps; step++)
+            {
+                paletteFx.Step(
+                    guarded,
+                    cgram,
+                    samusY: 0,
+                    equippedItems,
+                    enemyZeroIsDead: false,
+                    areaMiniBossDefeated: false);
+            }
+
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Suit} heat program performs no mechanics ROM reads");
+            AssertEqual(
+                (definition.Frames.Count + 1) *
+                    PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Suit} heat program retains live BGR555 reads through loop");
+        }
+
+        AssertEqual(114, mechanicsWords, "compiled Norfair heat program mechanics words");
+        AssertTrue(!PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(0xe45c, out _),
+            "Norfair heat owner rejects adjacent setup code");
+
+        _ = PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(0xe45e, out _);
+        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+        ushort checksum = 0;
+        for (int iteration = 0; iteration < 65_536; iteration++)
+        {
+            if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    (ushort)(0xe45e + (iteration & 0x7ff)),
+                    out ushort value))
+            {
+                checksum ^= value;
+            }
+        }
+        long allocatedAfter = GC.GetAllocatedBytesForCurrentThread();
+        GC.KeepAlive(checksum);
+        AssertEqual(0L, allocatedAfter - allocatedBefore,
+            "warmed Norfair heat program lookup allocates no managed memory");
     }
 
     private static void VerifyPaletteFxHeatInstructionListDefinitions(
@@ -186,10 +294,11 @@ internal static partial class Program
             "retail Norfair heat owner publishes on frame-eight boundaries");
     }
 
-    private sealed class PaletteFxHeatSelectorForbiddenBus(ISnesAddressSpace inner)
+    private sealed class PaletteFxHeatMechanicsForbiddenBus(ISnesAddressSpace inner)
         : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
+        public int PresentationReadCount { get; private set; }
 
         public byte ReadByte(int address)
         {
@@ -198,11 +307,38 @@ internal static partial class Program
             int lastExclusive = RoomFxRomData.Banks.PaletteFx |
                 unchecked((ushort)(PaletteFxHeatInstructionListDefinitions.PowerSourceTable +
                     PaletteFxHeatInstructionListDefinitions.PhaseCount * sizeof(ushort)));
-            if (address >= first && address < lastExclusive)
+            SnesAddress source = SnesAddress.FromBusAddress(address);
+            bool compiledProgramByte = source.Bank == 0x8d &&
+                (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    source.Offset,
+                    out _) ||
+                 PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    unchecked((ushort)(source.Offset - 1)),
+                    out _));
+            if (address >= first && address < lastExclusive || compiledProgramByte)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Production read compiled Norfair heat selector ${address:X6}.");
+            }
+
+
+            if (source.Bank == 0x8d)
+            {
+                foreach (PaletteFxHeatProgramDefinition definition in
+                         PaletteFxHeatProgramMechanicsDefinitions.All)
+                {
+                    foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+                    {
+                        int colorOffset = source.Offset - frame.FirstColorPointer;
+                        if ((uint)colorOffset <
+                            PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
+                    }
+                }
             }
 
             return inner.ReadByte(address);

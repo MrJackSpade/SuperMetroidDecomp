@@ -509,8 +509,17 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
-    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer) =>
-        ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
+    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
+    {
+        if (PaletteFxHeatProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out ushort compiled))
+        {
+            return compiled;
+        }
+
+        return ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
+    }
 
     private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer);

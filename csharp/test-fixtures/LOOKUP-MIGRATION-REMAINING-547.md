@@ -1104,12 +1104,17 @@ The Samus-in-heat pre-instruction now resolves all forty-eight fixed Power/Varia
 phase program selectors through `PaletteFxHeatInstructionListDefinitions`. The sixteen
 published phase values and Gravity-before-Varia equipment priority remain cartridge-exact;
 out-of-domain restored phases fail explicitly instead of reading adjacent bank-$8D code.
-The selected programs' BGR555 records remain live presentation data.
+The three selected programs now compile their setup, sixteen durations, sixteen waits,
+and terminal loop as well: 114 additional control words are owned by
+`PaletteFxHeatProgramMechanicsDefinitions`, while all 720 BGR555 color words remain live
+presentation data.
 
 Verification compares every selector word to the pinned cartridge, exercises all four
 equipment-priority cases, proves allocation-free warmed lookup, and runs the real paired
-Norfair heat owners while all bytes of `$8D:E3E0-$E43F` are forbidden. Damage accumulation,
-the one-frame shared-phase handoff, and environmental sound cadence remain asserted.
+Norfair heat owners while all bytes of `$8D:E3E0-$E43F` are forbidden. Each suit also runs
+through its complete real loop with every program mechanics byte forbidden and every live
+color read observed. Damage accumulation, the one-frame shared-phase handoff, and
+environmental sound cadence remain asserted.
 
 ## Room-FX animated-tile mechanics
 

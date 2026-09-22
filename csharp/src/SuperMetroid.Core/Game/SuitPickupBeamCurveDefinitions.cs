@@ -12,6 +12,27 @@ internal static class SuitPickupBeamCurveDefinitions
     /// <summary>Number of authored offsets before the native vertical mirror.</summary>
     public const int OffsetCount = 128;
 
+    /// <summary>$88:E3C9, SuitPickup_LightBeam_CurveWidths: 128 upper-half window widths.</summary>
+    /// <remarks>
+    /// Issue #625 exact bounded model: reject i outside 0..127; for i&lt;7 return
+    /// i+1, for i=31 return 16, and otherwise round(24*sqrt(1-((128-i)/127)^2))
+    /// to the nearest integer. This reproduces ALL 128 bytes. The opening seven
+    /// rows are a unit-width-per-row ramp. Row 31 is an explicit one-pixel authored
+    /// correction: the unmodified ellipse returns 15. Its purpose is not established.
+    /// Investigation checked ordinary single/double arithmetic, decimal and binary
+    /// root quantization through eight fractional places, and two-region integer
+    /// midpoint ellipse rasterization. None removes that remaining discrepancy;
+    /// midpoint rasterization with the opening ramp likewise differs only at 31.
+    /// The broader radius/offset/rounding search did not yield a uniform exact ellipse.
+    /// Do not describe this as a proven original generator or silently omit the
+    /// correction. csharp/tools/LookupTableResearch verifies the full model against
+    /// OffsetAt, the NTSC J/U v1.0 ROM and pinned bank_88.asm, and retains precision
+    /// and raster counterexamples. Its final candidate needs no floating point:
+    /// for y=128-i, increment w from zero while 127^2*(2*w+1)^2 is at most
+    /// 4*24^2*(127^2-y^2). This implements nearest-integer sqrt exactly; ties cannot
+    /// occur because the left side is odd and the right divisible by four.
+    /// Runtime replacement, lower-half mirroring and performance checks are deferred.
+    /// </remarks>
     private static ReadOnlySpan<byte> Offsets =>
     [
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x07,

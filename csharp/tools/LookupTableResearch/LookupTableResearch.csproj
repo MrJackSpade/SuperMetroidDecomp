@@ -12,5 +12,6 @@
     <Compile Include="../../src/SuperMetroid.Core/Game/SquareSlopeDefinitions.cs" Link="SquareSlopeDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Audio/SpcMusicTables.cs" Link="SpcMusicTables.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Audio/SnesDspTables.cs" Link="SnesDspTables.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/SuitPickupBeamCurveDefinitions.cs" Link="SuitPickupBeamCurveDefinitions.cs" />
   </ItemGroup>
 </Project>

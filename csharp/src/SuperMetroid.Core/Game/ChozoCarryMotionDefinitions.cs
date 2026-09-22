@@ -17,6 +17,15 @@ public static class ChozoCarryMotionDefinitions
     private static ReadOnlySpan<short> YOffsets => [-32,-25,-23,-23,-23,-24,-25,-24,-23,-24,-25,-24,-23,-23,-23,-23];
 
     /// <summary>$AA:E630/E670/E6B0: one of 32 velocity/X-joint/Y-joint records, selected by an even byte offset.</summary>
+    /// <remarks>
+    /// The carried-Samus X field at <c>$AA:E670</c> is exactly
+    /// <c>sign * (local == 0 ? 28 : local == 1 ? 30 : 32)</c>, where
+    /// <c>local = (byteOffset / 2) &amp; 15</c> and sign is negative for the
+    /// first sixteen records, positive for the second. All 32 native words
+    /// match the pinned NTSC J/U v1.0 ROM. The caller adds this signed whole
+    /// pixel offset after moving the statue, with 16-bit position wrapping.
+    /// Odd and post-table offsets are rejected. Investigation: #625 / #666.
+    /// </remarks>
     public static (short Velocity, short SamusX, short SamusY) Read(ushort byteOffset)
     {
         if ((byteOffset & 1) != 0 || byteOffset > 62)

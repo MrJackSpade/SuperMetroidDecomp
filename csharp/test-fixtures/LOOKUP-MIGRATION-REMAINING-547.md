@@ -1739,3 +1739,14 @@ The real definition executes its complete sixteen-record, 144-frame one-shot pro
 with mechanics reads forbidden and deletes itself after the final hold. Verification
 proves exact ROM parity, every live color read, and the authored 60-frame fourth-stage
 hold rather than approximating it as a uniform schedule.
+
+## Zebes explosion finale palette mechanics
+
+The Zebes explosion finale now compiles all 93 color-index, duration, wait, and delete
+words through `ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions`. Its 675 BGR555
+color words remain live presentation data.
+
+The real definition executes its complete 45-record, 300-frame one-shot program with
+mechanics reads forbidden and deletes itself after the final hold. Verification proves
+exact ROM parity, every live color read, and the authored split between fifteen fast
+two-frame gradient-fill records and thirty nine-frame rotation/restore records.

@@ -52,6 +52,7 @@ internal static partial class Program
         VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus);
         VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -79,8 +80,80 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1247 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1340 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer =
+                 ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ProgramStart;
+             pointer <= ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
+                 .DeleteInstructionPointer;
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Zebes explosion finale catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Zebes explosion finale compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Zebes explosion finale cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(93, mechanicsWords, "compiled Zebes explosion finale mechanics words");
+
+        for (int frame = 0;
+             frame < ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                sizeof(ushort)));
+            for (int color = 0;
+                 color < ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
+                     .ColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "Zebes explosion finale colors remain presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            0);
+        for (int step = 0;
+             step <= ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        }
+        AssertTrue(!paletteFx.IsDefinitionActive(
+                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "Zebes explosion finale deletes after its final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "Zebes explosion finale avoids mechanics ROM reads");
+        AssertEqual(
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount *
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+            sizeof(ushort),
+            guarded.PresentationReadCount,
+            "Zebes explosion finale retains every live color");
     }
 
     private static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
@@ -2189,6 +2262,22 @@ internal static partial class Program
                     if ((uint)offset <
                         ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
                             .ColorsPerFrame * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
+                            .FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
                     {
                         PresentationReadCount++;
                         break;

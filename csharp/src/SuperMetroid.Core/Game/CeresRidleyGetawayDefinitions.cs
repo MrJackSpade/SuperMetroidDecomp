@@ -20,6 +20,17 @@ public static class CeresRidleyGetawayDefinitions
     /// </remarks>
     public const int ZoomReferenceAddress = 0xa6ae4d;
     /// <summary>$A6:AF2F, CeresRidleyGetawayYVelocityTable: signed vertical increments.</summary>
+    /// <remarks>
+    /// #625 / #653 exact signed NTSC J/U v1.0 reconstruction for frame f=0..111:
+    /// -6 at 0..11, -4 at 12..21, -2 at 22..28, -1 at 29..44, zero at
+    /// 45..79, +1 at 80..87, +2 at 88..95, +3 at 96, 2*(f-95) at 97..103,
+    /// then +20,+24,+44,+48,+128 at 104..108 and +256 at 109..111.
+    /// All 112 words at $A6:AF2F-$B00E match the pinned ROM and bank-A6
+    /// disassembly. The caller adds each signed word with 16-bit wrapping,
+    /// indexed by even byte offsets 0..222. The zoom terminator at byte offset
+    /// 224 prevents any Y read on that frame. VerifyCompiledCeresRidleyGetaway
+    /// checks every word; the real Ceres encounter consumes the full schedule.
+    /// </remarks>
     public const int YReferenceAddress = 0xa6af2f;
     /// <summary>$A6:B00F, CeresRidleyGetawayXVelocityTable: signed values subtracted from horizontal offset.</summary>
     public const int XReferenceAddress = 0xa6b00f;

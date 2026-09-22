@@ -4,6 +4,14 @@ namespace SuperMetroid.Core.Game;
 public static class BoyonSpeedDefinitions
 {
     /// <summary>$A2:86DF, BoyonData.speedMultipliers: parameter one's low byte selects a hardware multiplier.</summary>
+    /// <remarks>
+    /// #625 / #645 retained table: all eight unsigned words at $A2:86DF-$86EE
+    /// match the pinned NTSC J/U v1.0 ROM and bank-A2 disassembly. Values double
+    /// through index 3, then rise by 2, 3, 3, and 4; a piecewise rounded formula
+    /// would obscure these eight authored choices. The initializer selects indices
+    /// 0..7 and rejects 8, which would read the adjacent jump-height table.
+    /// VerifyCompiledBoyonSpeeds covers all eight real initializer selections.
+    /// </remarks>
     public static ushort InitialMultiplier(int index) => index switch
     {
         0 => 1, 1 => 2, 2 => 4, 3 => 8, 4 => 10, 5 => 13, 6 => 16, 7 => 20,

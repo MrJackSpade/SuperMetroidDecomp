@@ -2,7 +2,7 @@
 
 Desktop and Android use the same `SuperMetroid.AssetExtraction` library. Application
 packages contain no ROM or extracted audio. Most graphics and room data are still read
-from the installed ROM; setup extracts room-character PNGs, other selected presentation
+from the installed ROM; setup extracts room-character PNGs, base room palettes, other selected presentation
 assets, and the audio catalog/112 PCM WAVs. No upstream disassembly checkout is needed.
 
 Supported image: Super Metroid Japan/USA NTSC v1.0, 3 MiB, SHA-256
@@ -50,6 +50,7 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
+- `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
@@ -73,7 +74,7 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
 # Check room-character stock import, edit selection, repair and invalid overrides.
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-character-installation "C:\ROMs\Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
 ```
 
 The integration verifier accepts an optional second argument containing reference audio
@@ -98,8 +99,15 @@ may retain its saved pixels until the next room load. Do not edit stock
 files or `room-characters.json`: stock hashes are validated and repaired from the
 installed ROM, while overrides survive repair and updates. Invalid override PNGs
 produce a path-specific load error rather than silently falling back to stock.
-This first room-art slice does not yet expose palette, block arrangement, or
-background-tilemap editing. The current sheet filenames encode source identities;
+Base room colors are separately extracted into `game/room-palettes/*.json`.
+Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
+`version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to
+load the edit. Stock palette hashes and user overrides follow the same repair
+rules as the PNG sheets. Palette-FX scripts may animate or replace these base
+colors later in the room; this file does not edit those effects or their timing.
+
+This room-art slice does not yet expose block arrangement or background-tilemap
+editing. The current sheet and palette filenames encode source identities;
 semantic artwork names are still part of the broader room-art migration.
 
 ## Projectile composition and beam PNG overrides

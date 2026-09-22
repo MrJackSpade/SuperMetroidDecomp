@@ -44,7 +44,8 @@ public sealed class CartridgeRoomAssets
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
     public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header,
-        RoomCharacterAtlasCatalog? characterArt = null)
+        RoomCharacterAtlasCatalog? characterArt = null,
+        RoomStaticPaletteCatalog? paletteArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(header);
@@ -86,7 +87,8 @@ public sealed class CartridgeRoomAssets
                 RomDataReader.Decompress(bus, RoomAssetRomData.Tilesets.CreCharactersAddress),
             characterArt?.Get(tileset.CharacterAddress).Transfer.ToArray() ??
                 RomDataReader.Decompress(bus, tileset.CharacterAddress),
-            RomDataReader.Decompress(bus, tileset.PaletteAddress),
+            paletteArt?.Get(tileset.PaletteAddress).Transfer.ToArray() ??
+                RomDataReader.Decompress(bus, tileset.PaletteAddress),
             tileset);
     }
 

@@ -544,7 +544,8 @@ public sealed partial class SuperMetroidRuntime
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // state $0B with no destination on the following frame.
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room, RoomCharacterArt);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room,
+            RoomCharacterArt, RoomPaletteArt);
         CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
@@ -696,7 +697,8 @@ public sealed partial class SuperMetroidRuntime
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
-        CartridgeRoomAssets assets = preloadedAssets ?? CartridgeRoomAssets.Load(_addressSpace, room, RoomCharacterArt);
+        CartridgeRoomAssets assets = preloadedAssets ?? CartridgeRoomAssets.Load(_addressSpace,
+            room, RoomCharacterArt, RoomPaletteArt);
 
         ActiveDoor = door;
         ActiveRoom = room;

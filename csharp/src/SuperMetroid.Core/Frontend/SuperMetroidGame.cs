@@ -1332,6 +1332,7 @@ public sealed partial class SuperMetroidGame
         runtime.System.SetRandomNumber(incomingRandom);
         runtime.MapPresentation = mapPresentation;
         runtime.RoomCharacterArt = roomCharacterArt;
+        runtime.RoomPaletteArt = roomPaletteArt;
         runtime.ProjectileCompositions = projectileCompositions;
         runtime.TrailArtwork = trailArtwork;
         runtime.ChargeFlarePlacement = chargeFlarePlacement;

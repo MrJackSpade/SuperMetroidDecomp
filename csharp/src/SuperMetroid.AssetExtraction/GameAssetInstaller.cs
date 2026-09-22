@@ -76,6 +76,7 @@ public static class GameAssetInstaller
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
+            RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
             return true;
         }
         catch (IOException) { return false; }
@@ -114,6 +115,12 @@ public static class GameAssetInstaller
             RoomCharacterArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomCharacters,
                 SupportedCartridge.Sha256);
             RoomCharacterArtworkFiles.ValidateStock(roomCharacters);
+            progress?.Report("Extracting room base palettes...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string roomPalettes = Path.Combine(staging, GameInstallationLayout.RoomPaletteDirectoryName);
+            RoomStaticPaletteArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomPalettes,
+                SupportedCartridge.Sha256);
+            RoomStaticPaletteArtworkFiles.ValidateStock(roomPalettes);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

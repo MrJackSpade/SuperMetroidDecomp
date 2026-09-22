@@ -38,8 +38,23 @@ internal static partial class Program
         AssertEqual(compiled.Count, files.Count,
             "one extracted room palette per distinct graphics-set color source");
         var catalog = new RoomStaticPaletteCatalog(compiled);
+        foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
+        {
+            CartridgeRoomHeader header = CartridgeRoomHeader.Load(bus, roomPointer);
+            int source = RoomTilesetDefinitions.Get(header.State.GraphicsSet).PaletteAddress;
+            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
+            CartridgeRoomAssets installed = CartridgeRoomAssets.Load(
+                new RoomBasePaletteReadGuard(bus, source), header, paletteArt: catalog);
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
+            native.LoadGraphics(new SnesVram(), nativeCgram);
+            installed.LoadGraphics(new SnesVram(), installedCgram);
+            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                $"room $8F:{roomPointer:X4} loads installed palette without source reads");
+        }
 
-        int selectedSource = RoomTilesetDefinitions.Get(0).PaletteAddress;
+        CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+        int selectedSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).PaletteAddress;
         string selectedName = RoomStaticPaletteFormat.SourceFileName(selectedSource);
         JsonNode edited = JsonNode.Parse(files[selectedName])
             ?? throw new InvalidDataException("Extracted room palette JSON is empty.");
@@ -56,6 +71,14 @@ internal static partial class Program
             stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
             "editing one RGB5 component changes only its selected runtime CGRAM color");
+        compiled[selectedSource] = replacement;
+        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(
+            new RoomBasePaletteReadGuard(bus, selectedSource), landing,
+            paletteArt: new RoomStaticPaletteCatalog(compiled));
+        var editedRoomCgram = new SnesCgram();
+        editedRoom.LoadGraphics(new SnesVram(), editedRoomCgram);
+        AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],
+            "edited RGB5 room palette changes real room-loader CGRAM");
 
         color["red"] = 32;
         byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited);
@@ -63,6 +86,21 @@ internal static partial class Program
                 new MemoryStream(invalid, writable: false)),
             "room palette rejects out-of-range RGB5 components");
         Console.WriteLine($"  Room static palettes: {files.Count} distinct palettes cover all " +
-            $"{RoomTilesetDefinitions.Count} graphics sets with exact CGRAM output and editable RGB5 colors.");
+            $"{RoomTilesetDefinitions.Count} graphics sets; Landing Site/Ceres load without source reads, " +
+            "and RGB5 edits reach room CGRAM.");
+    }
+
+    private sealed class RoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource)
+        : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if (address == paletteSource)
+                throw new InvalidOperationException(
+                    $"Installed room loader reread base palette source ${address:X6}.");
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

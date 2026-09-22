@@ -1439,7 +1439,12 @@ if (args is ["--room-character-atlases"])
 }
 if (args is ["--room-character-installation", var roomCharacterRom])
 {
-    VerifyRoomCharacterInstallation(roomCharacterRom);
+    VerifyRoomArtworkInstallation(roomCharacterRom);
+    return 0;
+}
+if (args is ["--room-artwork-installation", var roomArtworkRom])
+{
+    VerifyRoomArtworkInstallation(roomArtworkRom);
     return 0;
 }
 if (args is ["--room-static-palettes"])

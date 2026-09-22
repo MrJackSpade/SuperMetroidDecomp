@@ -1728,6 +1728,18 @@ The real definition executes its complete seven-record, 56-frame one-shot progra
 mechanics reads forbidden and deletes itself after the final hold. Verification proves
 exact ROM parity and every live color read.
 
+## Unused cinematic-fade palette mechanics
+
+The cartridge's unused palette program at `$8D:D9D0` now compiles all 25 color-index,
+duration, wait, and delete words through
+`UnusedCinematicFadePaletteFxProgramMechanicsDefinitions`. Its 176 BGR555 color words
+remain live presentation data.
+
+The real `$E1EC` definition executes its complete eleven-record, 22-frame one-shot fade
+with mechanics reads forbidden and deletes itself after the final hold. Verification
+proves exact ROM parity and every live color read even though retail gameplay never
+installs this object.
+
 ## Zebes explosion foreground palette mechanics
 
 The wide foreground part of the Zebes explosion now compiles all 35 color-index,

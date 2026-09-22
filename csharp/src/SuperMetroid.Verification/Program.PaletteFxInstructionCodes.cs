@@ -57,6 +57,7 @@ internal static partial class Program
         VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -84,8 +85,81 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1490 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1515 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                 .ProgramStart;
+             pointer <= UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                 .DeleteInstructionPointer;
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"unused cinematic fade catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"unused cinematic fade compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"unused cinematic fade cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(25, mechanicsWords,
+            "compiled unused cinematic-fade mechanics words");
+
+        for (int frame = 0;
+             frame < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                sizeof(ushort)));
+            for (int color = 0;
+                 color < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                     .ColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "unused cinematic-fade colors remain presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            0);
+        for (int step = 0;
+             step <= UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        }
+        AssertTrue(!paletteFx.IsDefinitionActive(
+                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "unused cinematic fade deletes after its final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "unused cinematic fade avoids mechanics ROM reads");
+        AssertEqual(
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount *
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+            sizeof(ushort),
+            guarded.PresentationReadCount,
+            "unused cinematic fade retains every live color");
     }
 
     private static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
@@ -2615,6 +2689,23 @@ internal static partial class Program
                             .FramePointer(frame) + sizeof(ushort)));
                     if ((uint)offset <
                         ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
+                            .ColorsPerFrame * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                         .FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                            .FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
                             .ColorsPerFrame * sizeof(ushort))
                     {
                         PresentationReadCount++;

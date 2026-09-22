@@ -112,15 +112,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MagentaWallSpacePirateDefinition = 0xf453;
     internal const ushort SilverWallSpacePirateDefinition = 0xf493;
 
-    private const ushort WallPirateFireAndJumpLeft = 0xecc0;
-    private const ushort WallPirateLandedOnLeftWall = 0xece4;
-    private const ushort WallPirateMovingUpLeftWall = 0xecec;
-    private const ushort WallPirateMovingDownLeftWall = 0xed36;
-    private const ushort WallPirateFireAndJumpRight = 0xed80;
-    private const ushort WallPirateLandedOnRightWall = 0xeda4;
-    private const ushort WallPirateMovingDownRightWall = 0xedac;
-    private const ushort WallPirateMovingUpRightWall = 0xedf6;
-
     private const int WallPirateSamusDetectionBand = 32;
     private const int WallPirateLaserMuzzleYOffset = 16;
     private const ushort WallPirateLaserSound = 0x0067;
@@ -156,8 +147,8 @@ public sealed partial class RoomEnemySystem
         bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0;
 
         slot.CurrentInstruction = startsOnRight
-            ? WallPirateMovingDownRightWall
-            : WallPirateMovingDownLeftWall;
+            ? WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall
+            : WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall;
         state.Function = startsOnRight
             ? WallSpacePirateFunction.ClimbingRightWall
             : WallSpacePirateFunction.ClimbingLeftWall;
@@ -183,12 +174,20 @@ public sealed partial class RoomEnemySystem
         {
             case WallSpacePirateFunction.ClimbingLeftWall:
                 if (WallSpacePirateCanAttack(slot, RequireSamus()))
-                    InstallWallSpacePirateInstruction(slot, WallPirateFireAndJumpRight);
+                {
+                    InstallWallSpacePirateInstruction(
+                        slot,
+                        WallSpacePirateInstructionProgramDefinitions.FireAndJumpRight);
+                }
                 return;
 
             case WallSpacePirateFunction.ClimbingRightWall:
                 if (WallSpacePirateCanAttack(slot, RequireSamus()))
-                    InstallWallSpacePirateInstruction(slot, WallPirateFireAndJumpLeft);
+                {
+                    InstallWallSpacePirateInstruction(
+                        slot,
+                        WallSpacePirateInstructionProgramDefinitions.FireAndJumpLeft);
+                }
                 return;
 
             case WallSpacePirateFunction.AttackAnimationOnLeftWall:
@@ -224,7 +223,9 @@ public sealed partial class RoomEnemySystem
         if (state.WallJumpArcAngle != state.RightJumpTargetAngle)
             return;
 
-        InstallWallSpacePirateInstruction(slot, WallPirateLandedOnRightWall);
+        InstallWallSpacePirateInstruction(
+            slot,
+            WallSpacePirateInstructionProgramDefinitions.LandedOnRightWall);
         SnapWallSpacePirateXToTile(slot);
     }
 
@@ -238,7 +239,9 @@ public sealed partial class RoomEnemySystem
         if (state.WallJumpArcAngle != state.LeftJumpTargetAngle)
             return;
 
-        InstallWallSpacePirateInstruction(slot, WallPirateLandedOnLeftWall);
+        InstallWallSpacePirateInstruction(
+            slot,
+            WallSpacePirateInstructionProgramDefinitions.LandedOnLeftWall);
         SnapWallSpacePirateXToTile(slot);
     }
 
@@ -326,10 +329,14 @@ public sealed partial class RoomEnemySystem
         bool onRightWall,
         WallSpacePirateClimbDirection direction) => (onRightWall, direction) switch
     {
-        (false, WallSpacePirateClimbDirection.Down) => WallPirateMovingDownLeftWall,
-        (false, WallSpacePirateClimbDirection.Up) => WallPirateMovingUpLeftWall,
-        (true, WallSpacePirateClimbDirection.Down) => WallPirateMovingDownRightWall,
-        (true, WallSpacePirateClimbDirection.Up) => WallPirateMovingUpRightWall,
+        (false, WallSpacePirateClimbDirection.Down) =>
+            WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall,
+        (false, WallSpacePirateClimbDirection.Up) =>
+            WallSpacePirateInstructionProgramDefinitions.MovingUpLeftWall,
+        (true, WallSpacePirateClimbDirection.Down) =>
+            WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall,
+        (true, WallSpacePirateClimbDirection.Up) =>
+            WallSpacePirateInstructionProgramDefinitions.MovingUpRightWall,
         _ => throw new InvalidOperationException(
             $"Wall Pirate climb direction ${(ushort)direction} is not binary."),
     };
@@ -377,8 +384,6 @@ public sealed partial class RoomEnemySystem
             return false;
 
         WallSpacePirateEnemyState state = RequireWallSpacePirateState(slot);
-        int operandAddress = (slot.Definition.Bank << 16) |
-            unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
             case SpacePirateInstructionCodes.Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left:
@@ -386,7 +391,9 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     level,
-                    ReadWord(_bus!, operandAddress),
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2))),
                     onRightWall: false,
                     ref cursor);
                 return true;
@@ -396,7 +403,9 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     level,
-                    ReadWord(_bus!, operandAddress),
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2))),
                     onRightWall: true,
                     ref cursor);
                 return true;
@@ -430,7 +439,9 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY:
-                state.Function = (WallSpacePirateFunction)ReadWord(_bus!, operandAddress);
+                state.Function = (WallSpacePirateFunction)ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 

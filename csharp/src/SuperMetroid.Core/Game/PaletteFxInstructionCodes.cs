@@ -102,24 +102,6 @@ public static class PaletteFxInstructionListPointers
 /// </summary>
 public static class PaletteFxHeatData
 {
-    /// <summary>
-    /// Base of <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.gravity</c>
-    /// at $8D:E3E0. Each heat-animation index selects one word.
-    /// </summary>
-    public const ushort GravitySuitListPointerTable = 0xe3e0;
-
-    /// <summary>
-    /// Base of <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.varia</c>
-    /// at $8D:E400. Each heat-animation index selects one word.
-    /// </summary>
-    public const ushort VariaSuitListPointerTable = 0xe400;
-
-    /// <summary>
-    /// Base of <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.power</c>
-    /// at $8D:E420. Each heat-animation index selects one word.
-    /// </summary>
-    public const ushort PowerSuitListPointerTable = 0xe420;
-
     /// <summary>Fractional 16.16 damage added by $8D:E379 on every unprotected frame.</summary>
     public const ushort SubdamagePerFrame = 0x4000;
 

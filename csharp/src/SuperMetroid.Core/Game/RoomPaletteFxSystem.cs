@@ -272,7 +272,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstructionCodes.Heat:
-                RunHeatPreInstruction(bus, slot, equippedItems, samus, nmiFrameCounter);
+                RunHeatPreInstruction(slot, equippedItems, samus, nmiFrameCounter);
                 return;
 
             case PaletteFxPreInstructionCodes.InspectAdjacentSlot:
@@ -302,7 +302,6 @@ public sealed class RoomPaletteFxSystem
     /// the animation index consumed here on the following descending-slot pass.
     /// </summary>
     private void RunHeatPreInstruction(
-        ISnesAddressSpace bus,
         PaletteFxSlot slot,
         ushort equippedItems,
         SamusState? samus,
@@ -329,15 +328,10 @@ public sealed class RoomPaletteFxSystem
             return;
 
         previousSamusInHeatPaletteIndex = samusInHeatPaletteIndex;
-        ushort table = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? PaletteFxHeatData.GravitySuitListPointerTable
-            : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? PaletteFxHeatData.VariaSuitListPointerTable
-                : PaletteFxHeatData.PowerSuitListPointerTable;
         slot.InstructionTimer = 1;
-        slot.InstructionPointer = ReadBank8dWord(
-            bus,
-            unchecked((ushort)(table + samusInHeatPaletteIndex * 2)));
+        slot.InstructionPointer = PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
+            equippedItems,
+            samusInHeatPaletteIndex);
     }
 
     private void ExecuteProgram(

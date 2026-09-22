@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -16,7 +17,7 @@ internal static partial class Program
         AssertPaletteFxCatalog(typeof(PaletteFxSetupCodes), expectedCount: 4);
         AssertPaletteFxCatalog(typeof(PaletteFxPreInstructionCodes), expectedCount: 9);
         AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
-        AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 5, requireMappedPointers: false);
+        AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 2, requireMappedPointers: false);
         VerifyConstructedAudioInstructions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -46,13 +47,88 @@ internal static partial class Program
         }
 
         VerifyBeaconSoundInstruction(bus);
-        VerifyNorfairHeatPaletteHandshake(bus);
+        VerifyPaletteFxHeatInstructionListDefinitions(bus);
+        var guardedHeatBus = new PaletteFxHeatSelectorForbiddenBus(bus);
+        VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
+        AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
+            "Norfair heat pre-instruction performs no selector-table ROM reads");
         VerifyNorfairGlowCycles(bus);
         VerifyTitleGradientTables(bus);
 
         Console.WriteLine(
-            "  Palette FX: all 37 code/list pointers are ROM-readable; all four audio " +
-            "opcodes and retail $F781's byte/cursor handoff agree.");
+            "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat program " +
+            "selectors are compiled; all four audio opcodes and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyPaletteFxHeatInstructionListDefinitions(
+        ISnesAddressSpace bus)
+    {
+        PaletteFxHeatSuit[] suits = Enum.GetValues<PaletteFxHeatSuit>();
+        AssertEqual(3, suits.Length, "Norfair heat suit domain count");
+        foreach (PaletteFxHeatSuit suit in suits)
+        {
+            for (ushort phase = 0;
+                 phase < PaletteFxHeatInstructionListDefinitions.PhaseCount;
+                 phase++)
+            {
+                ushort source = PaletteFxHeatInstructionListDefinitions.NativeSourceAddress(
+                    suit,
+                    phase);
+                ushort expected = RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | source);
+                AssertEqual(expected,
+                    PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase),
+                    $"{suit} heat program phase {phase}");
+            }
+        }
+
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => PaletteFxHeatInstructionListDefinitions.Resolve(
+                PaletteFxHeatSuit.Power,
+                PaletteFxHeatInstructionListDefinitions.PhaseCount),
+            "Norfair heat selector rejects phase sixteen");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => PaletteFxHeatInstructionListDefinitions.Resolve(
+                (PaletteFxHeatSuit)3,
+                0),
+            "Norfair heat selector rejects unknown suit");
+        AssertEqual(
+            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 7),
+            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(0, 7),
+            "Norfair heat selector uses Power Suit without protection bits");
+        AssertEqual(
+            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Varia, 7),
+            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
+                (ushort)SamusEquipmentFlags.VariaSuit,
+                7),
+            "Norfair heat selector uses Varia Suit when equipped");
+        AssertEqual(
+            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Gravity, 7),
+            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
+                (ushort)SamusEquipmentFlags.GravitySuit,
+                7),
+            "Norfair heat selector uses Gravity Suit when equipped");
+        AssertEqual(
+            PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Gravity, 7),
+            PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
+                (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+                7),
+            "Norfair heat selector gives Gravity Suit native priority");
+
+        _ = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0);
+        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+        ushort checksum = 0;
+        for (int iteration = 0; iteration < 65_536; iteration++)
+        {
+            checksum ^= PaletteFxHeatInstructionListDefinitions.Resolve(
+                (PaletteFxHeatSuit)(iteration % 3),
+                (ushort)(iteration & 15));
+        }
+        long allocatedAfter = GC.GetAllocatedBytesForCurrentThread();
+        GC.KeepAlive(checksum);
+        AssertEqual(0L, allocatedAfter - allocatedBefore,
+            "warmed Norfair heat selector allocates no managed memory");
     }
 
     /// <summary>
@@ -61,7 +137,7 @@ internal static partial class Program
     /// alignment; `$F761` must then consume that index, add quarter-energy subdamage, and
     /// queue the native environmental-damage sound on an eight-frame boundary.
     /// </summary>
-    private static void VerifyNorfairHeatPaletteHandshake(SuperMetroidAddressSpace bus)
+    private static void VerifyNorfairHeatPaletteHandshake(ISnesAddressSpace bus)
     {
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
@@ -108,6 +184,31 @@ internal static partial class Program
             "shared heat owner consumes $F785 phase on following frame");
         AssertEqual(2, damageSoundCount,
             "retail Norfair heat owner publishes on frame-eight boundaries");
+    }
+
+    private sealed class PaletteFxHeatSelectorForbiddenBus(ISnesAddressSpace inner)
+        : ISnesAddressSpace
+    {
+        public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            int first = RoomFxRomData.Banks.PaletteFx |
+                PaletteFxHeatInstructionListDefinitions.GravitySourceTable;
+            int lastExclusive = RoomFxRomData.Banks.PaletteFx |
+                unchecked((ushort)(PaletteFxHeatInstructionListDefinitions.PowerSourceTable +
+                    PaletteFxHeatInstructionListDefinitions.PhaseCount * sizeof(ushort)));
+            if (address >= first && address < lastExclusive)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Production read compiled Norfair heat selector ${address:X6}.");
+            }
+
+            return inner.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 
     private static void VerifyConstructedAudioInstructions()

@@ -1098,6 +1098,19 @@ mechanics bytes forbidden, observes every spritemap, and proves the complete thr
 speed callback schedule in both directions. Presentation and adjacent selector-table
 pointers fail as restored mechanics cursors, and warmed lookup is allocation-free.
 
+## Norfair heat palette program selection
+
+The Samus-in-heat pre-instruction now resolves all forty-eight fixed Power/Varia/Gravity
+phase program selectors through `PaletteFxHeatInstructionListDefinitions`. The sixteen
+published phase values and Gravity-before-Varia equipment priority remain cartridge-exact;
+out-of-domain restored phases fail explicitly instead of reading adjacent bank-$8D code.
+The selected programs' BGR555 records remain live presentation data.
+
+Verification compares every selector word to the pinned cartridge, exercises all four
+equipment-priority cases, proves allocation-free warmed lookup, and runs the real paired
+Norfair heat owners while all bytes of `$8D:E3E0-$E43F` are forbidden. Damage accumulation,
+the one-frame shared-phase handoff, and environmental sound cadence remain asserted.
+
 ## Room-FX animated-tile mechanics
 
 The five simple room-FX animated-tile objects are now split by ownership too. Lava,

@@ -1717,3 +1717,13 @@ Both real definitions execute and repeat their complete fourteen-record loops wi
 mechanics reads forbidden. Verification proves exact ROM parity, every live color read,
 and the distinct 84-frame three-color background cycle and 70-frame one-color gunship
 cycle.
+
+## Exploding-Zebes fade palette mechanics
+
+The zoomed-out exploding-Zebes fade-out now compiles all 17 color-index, duration, wait,
+and delete words through `ExplodingZebesFadePaletteFxProgramMechanicsDefinitions`. Its
+56 BGR555 color words remain live presentation data.
+
+The real definition executes its complete seven-record, 56-frame one-shot program with
+mechanics reads forbidden and deletes itself after the final hold. Verification proves
+exact ROM parity and every live color read.

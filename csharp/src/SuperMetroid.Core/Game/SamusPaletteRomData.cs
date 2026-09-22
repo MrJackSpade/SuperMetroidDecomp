@@ -129,6 +129,14 @@ public static class SamusPaletteRomData
         /// <summary>Bank <c>$90</c>, containing the restored projectile palettes.</summary>
         public const int BeamPaletteBank = 0x900000;
         /// <summary><c>$91:DC00</c>, ten body-palette pointer/timer records.</summary>
+        /// <remarks>
+        /// The stock bank-$9B pointers at four-byte record offsets are exactly
+        /// <c>$96C0 + $20 * (i &lt;= 5 ? i : 10 - i)</c> for record index
+        /// <c>i = 0..9</c>; all ten match the pinned NTSC J/U v1.0 ROM.
+        /// Keep the pointer words as live presentation data so installed
+        /// palette content can select its authored colours. The adjacent
+        /// duration words are compiled separately. Investigation: #625 / #669.
+        /// </remarks>
         public const int BodyRecords = 0x91dc00;
         /// <summary><c>$91:DC28</c>, six bubble-palette pointers.</summary>
         public const int BubblePointers = 0x91dc28;

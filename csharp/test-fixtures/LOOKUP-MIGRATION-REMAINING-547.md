@@ -1705,3 +1705,15 @@ live presentation data.
 Both real definitions execute their complete eight-record, 24-frame one-shot programs
 with mechanics reads forbidden and delete themselves after the final hold. Verification
 proves exact ROM parity, every live color read, and the mirrored native fade entries.
+
+## Cinematic glow palette mechanics
+
+The old Mother Brain fight's background-light pulse and the cinematic gunship glow now
+compile all 64 color-index, duration, wait, loop, and target words through
+`CinematicGlowPaletteFxProgramMechanicsDefinitions`. Their 56 BGR555 color words remain
+live presentation data.
+
+Both real definitions execute and repeat their complete fourteen-record loops with
+mechanics reads forbidden. Verification proves exact ROM parity, every live color read,
+and the distinct 84-frame three-color background cycle and 70-frame one-color gunship
+cycle.

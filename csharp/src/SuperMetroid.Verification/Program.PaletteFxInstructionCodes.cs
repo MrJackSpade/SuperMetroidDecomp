@@ -49,6 +49,7 @@ internal static partial class Program
         VerifyBeaconSoundInstruction(bus);
         VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -76,8 +77,69 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1131 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1195 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        foreach (CinematicGlowPaletteFxProgramDefinition definition in
+                 CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
+        {
+            int actualWords = 0;
+            for (ushort pointer = definition.ProgramStart;
+                 pointer <= unchecked((ushort)(definition.LoopInstructionPointer + 2));
+                 pointer = unchecked((ushort)(pointer + 1)))
+            {
+                if (!definition.TryReadMechanicsWord(pointer, out ushort value))
+                    continue;
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} glow catalogs word $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} glow compiled word $8D:{pointer:X4}");
+                AssertEqual(value,
+                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} glow cartridge word $8D:{pointer:X4}");
+                actualWords++;
+                mechanicsWords++;
+            }
+            AssertEqual(32, actualWords, $"{definition.Owner} glow mechanics word count");
+
+            for (int frame = 0;
+                 frame < CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort firstColor = unchecked((ushort)(
+                    definition.FramePointer(frame) + sizeof(ushort)));
+                for (int color = 0; color < definition.ColorsPerFrame; color++)
+                {
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                            out _),
+                        $"{definition.Owner} glow colors remain presentation-owned");
+                }
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int step = 0; step <= definition.CycleFrames; step++)
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} glow completes and repeats its cycle");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} glow avoids mechanics ROM reads");
+            AssertEqual(
+                (CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                definition.ColorsPerFrame * sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} glow retains every live color");
+        }
+        AssertEqual(64, mechanicsWords, "compiled cinematic-glow mechanics words");
     }
 
     private static void VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(
@@ -1930,6 +1992,23 @@ internal static partial class Program
                         if ((uint)offset <
                             PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                             sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
+                    }
+                }
+
+                foreach (CinematicGlowPaletteFxProgramDefinition definition in
+                         CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                         frame++)
+                    {
+                        int offset = source.Offset - unchecked((ushort)(
+                            definition.FramePointer(frame) + sizeof(ushort)));
+                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
                         {
                             PresentationReadCount++;
                             break;

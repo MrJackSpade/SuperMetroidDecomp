@@ -1752,6 +1752,16 @@ forbidden, remain active through the terminal hold, and delete on the following 
 Verification proves exact ROM parity, every replayed live color read, and the native
 36/3/3/2 group replay schedule.
 
+## Post-credits icon-glare palette mechanics
+
+The Super Metroid icon glare now compiles all 31 color-index, duration, wait, and delete
+words through `PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions`. Its 224 BGR555
+color words remain live presentation data.
+
+The real `$E200` definition executes its complete fourteen-frame one-shot glare with
+mechanics reads forbidden, remains active through the final hold, and deletes on the
+following frame. Verification proves exact ROM parity and every live color read.
+
 ## Zebes explosion foreground palette mechanics
 
 The wide foreground part of the Zebes explosion now compiles all 35 color-index,

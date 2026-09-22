@@ -59,6 +59,7 @@ internal static partial class Program
         VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(bus);
         VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -86,8 +87,85 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1614 control words and 32 byte operands are compiled; all four audio opcodes " +
+            "plus 1645 control words and 32 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                 .ProgramStart;
+             pointer <= PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                 .DeleteInstructionPointer;
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"post-credits icon glare catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"post-credits icon glare compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"post-credits icon glare cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(31, mechanicsWords,
+            "compiled post-credits icon-glare mechanics words");
+
+        for (int frame = 0;
+             frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                sizeof(ushort)));
+            for (int color = 0;
+                 color < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                     .ColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "post-credits icon-glare colors remain presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            0);
+        for (int step = 0;
+             step < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        }
+        AssertTrue(paletteFx.IsDefinitionActive(
+                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "post-credits icon glare remains active through its final hold");
+        paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        AssertTrue(!paletteFx.IsDefinitionActive(
+                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "post-credits icon glare deletes after its final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "post-credits icon glare avoids mechanics ROM reads");
+        AssertEqual(
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount *
+            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+            sizeof(ushort),
+            guarded.PresentationReadCount,
+            "post-credits icon glare retains every live color");
     }
 
     private static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
@@ -2832,6 +2910,23 @@ internal static partial class Program
                             PresentationReadCount++;
                             break;
                         }
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                         .FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                            .FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                            .ColorsPerFrame * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
                     }
                 }
 

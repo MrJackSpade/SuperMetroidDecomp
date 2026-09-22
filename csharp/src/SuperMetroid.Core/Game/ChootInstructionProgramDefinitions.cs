@@ -9,6 +9,13 @@ internal readonly record struct ChootInstructionMechanicsWord(ushort Address, us
 internal static class ChootInstructionProgramDefinitions
 {
     /// <summary><c>InstructionList_Choot_Idle</c> at $A2:D82C.</summary>
+    /// <remarks>
+    /// The pinned NTSC J/U v1.0 ROM contains <c>817D,0001,E146,812F</c>:
+    /// disable off-screen processing, display spritemap <c>E146</c> for one
+    /// frame, then sleep. Retain this bounded authored command sequence; the
+    /// opcode and duration are compiled mechanics, while the spritemap word
+    /// remains a live presentation read. Investigation: #625 / #662.
+    /// </remarks>
     internal const ushort Idle = 0xd82c;
 
     /// <summary><c>InstructionList_Choot_Jumping</c> at $A2:D834.</summary>

@@ -1626,3 +1626,14 @@ remain live presentation data.
 Both real definitions execute and repeat their complete fourteen-record cycles with
 mechanics reads forbidden. Verification proves exact ROM parity, every live color read,
 and the 28-frame shutter and 56-frame background loop boundaries independently.
+
+## Shared Tourian escape red-flash palette mechanics
+
+The general-level and arkanoid/red-orb entries now compile all 50 color-index, entry
+branch, duration, inline CGRAM-skip, wait, loop, and target words through
+`TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions`. Their 98 BGR555 color
+words remain live presentation data.
+
+Both real definitions execute and repeat the shared fourteen-record, 28-frame cycle with
+mechanics reads forbidden. Verification proves exact ROM parity, every live color read,
+and both the explicit general-level branch and arkanoid fall-through entry paths.

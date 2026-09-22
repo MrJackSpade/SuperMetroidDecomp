@@ -60,6 +60,7 @@ internal static partial class Program
         VerifyBeaconPaletteFxProgramMechanicsDefinitions(bus);
         VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -69,8 +70,84 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 787 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 837 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer =
+                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.GeneralLevelProgramStart;
+             pointer <= unchecked((ushort)(
+                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2));
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"shared Tourian escape red flash catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"shared Tourian escape red flash compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"shared Tourian escape red flash cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(50, mechanicsWords,
+            "compiled shared Tourian escape red-flash mechanics words");
+
+        for (int frame = 0;
+             frame < TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort framePointer =
+                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            for (int color = 0;
+                 color < TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                ushort pointer = color < 6
+                    ? unchecked((ushort)(framePointer + sizeof(ushort) + color * sizeof(ushort)))
+                    : unchecked((ushort)(framePointer + 16));
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out _),
+                    $"shared Tourian escape color $8D:{pointer:X4} remains presentation-owned");
+            }
+        }
+
+        foreach (TourianEscapeSharedRedFlashPaletteFxProgramDefinition definition in
+                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        {
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            for (int step = 0;
+                 step <= TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames;
+                 step++)
+            {
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            }
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} completes and repeats the shared cycle");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} avoids mechanics ROM reads");
+            AssertEqual(
+                (TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} retains every live color through the shared cycle");
+        }
     }
 
     private static void VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
@@ -1610,6 +1687,28 @@ internal static partial class Program
                             PresentationReadCount++;
                             break;
                         }
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort framePointer =
+                        TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                    int leadingOffset = source.Offset - unchecked((ushort)(
+                        framePointer + sizeof(ushort)));
+                    if ((uint)leadingOffset < 6 * sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                    int trailingOffset = source.Offset - unchecked((ushort)(
+                        framePointer + 16));
+                    if ((uint)trailingOffset < sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
                     }
                 }
             }

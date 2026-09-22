@@ -1648,3 +1648,14 @@ words remain live presentation data.
 The real definition executes and repeats its complete fourteen-record, 42-frame cycle
 with mechanics reads forbidden. Verification proves exact ROM parity, every live color
 read, and cursor alignment across both skips in every record.
+
+## Old-Tourian escape accent palette mechanics
+
+The orange-railing and yellow-panel flash programs now compile all 68 color-index,
+duration, wait, loop, and target words through
+`OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions`. Their 90 BGR555 color words
+remain live presentation data.
+
+Both real definitions execute and repeat their complete fifteen-record, 64-frame cycles
+with mechanics reads forbidden. Verification proves exact ROM parity, every live color
+read, and the shared nonuniform duration schedule.

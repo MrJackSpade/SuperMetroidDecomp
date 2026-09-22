@@ -92,10 +92,36 @@ internal static partial class Program
                 TourianGlowPaletteFxProgramMechanicsDefinitions.CloneDefinitionPointer,
             ],
             TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames);
+        foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
+                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus,
+                presentation,
+                $"Brinstar blue spores ({definition.Owner})",
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount,
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                [definition.DefinitionPointer],
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.CycleFrames);
+        }
+        foreach (TorizoBellyPaletteFxProgramDefinition definition in
+                 TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus,
+                presentation,
+                $"{definition.Owner} belly",
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                [definition.DefinitionPointer],
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.CycleFrames);
+        }
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 648 editable environmental colors match ROM; " +
-            "ten installed programs match two native cycles without color-source reads.");
+            "  Room palette presentation: 726 editable environmental colors match ROM; " +
+            "thirteen installed programs match two native cycles without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -318,9 +344,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Tourian glow frame");
         document.TourianGlow[0] = tourianFrame;
 
+        PaletteRgb5[][] blueSpores = document.BrinstarBlueSpores;
+        document = document with { BrinstarBlueSpores = blueSpores[..^1] };
+        Reject("room palette-FX rejects incomplete blue-spore animation");
+        document = document with { BrinstarBlueSpores = blueSpores };
+
+        PaletteRgb5[] bombTorizoFrame = document.BombTorizoBelly[0];
+        document.BombTorizoBelly[0] = bombTorizoFrame[..^1];
+        Reject("room palette-FX rejects incomplete Bomb Torizo belly frame");
+        document.BombTorizoBelly[0] = bombTorizoFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 4",
-            "\"version\": 4,\n  \"nativeAddress\": 9240718",
+            "\"version\": 5",
+            "\"version\": 5,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

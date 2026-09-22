@@ -36,6 +36,9 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     /// <summary>The byte index of the first Torizo belly color in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x0132;
 
+    /// <summary>Frames from the first record through the next first record.</summary>
+    public const int CycleFrames = 52;
+
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> All =>
         ReadOnlyDefinitions;
@@ -100,6 +103,15 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
             throw new ArgumentOutOfRangeException(nameof(frame));
         return unchecked((ushort)(FirstFramePointer +
             frame * TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameByteCount));
+    }
+
+    /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
     }
 
     /// <summary>Reads one mechanics word while excluding live BGR555 colors.</summary>

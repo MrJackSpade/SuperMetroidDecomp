@@ -2315,8 +2315,7 @@ internal static partial class Program
                      color < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                      color++)
                 {
-                    ushort presentationPointer = unchecked((ushort)(
-                        pointer + sizeof(ushort) + color * sizeof(ushort)));
+                    ushort presentationPointer = definition.ColorPointer(frame, color);
                     AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                             presentationPointer,
                             out _),
@@ -2424,8 +2423,7 @@ internal static partial class Program
                      color < TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                      color++)
                 {
-                    ushort presentationPointer = unchecked((ushort)(
-                        pointer + sizeof(ushort) + color * sizeof(ushort)));
+                    ushort presentationPointer = definition.ColorPointer(frame, color);
                     AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                             presentationPointer,
                             out _),
@@ -3307,8 +3305,7 @@ internal static partial class Program
                          frame < TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount;
                          frame++)
                     {
-                        ushort firstColor = unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
+                        ushort firstColor = definition.ColorPointer(frame, 0);
                         int colorOffset = source.Offset - firstColor;
                         if ((uint)colorOffset <
                             TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
@@ -3327,8 +3324,7 @@ internal static partial class Program
                          frame < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount;
                          frame++)
                     {
-                        ushort firstColor = unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
+                        ushort firstColor = definition.ColorPointer(frame, 0);
                         int colorOffset = source.Offset - firstColor;
                         if ((uint)colorOffset <
                             BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
@@ -3344,9 +3340,9 @@ internal static partial class Program
                      frame < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)
                 {
-                    ushort firstColor = unchecked((ushort)(
-                        RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                        sizeof(ushort)));
+                    ushort firstColor =
+                        RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                            frame, 0);
                     int colorOffset = source.Offset - firstColor;
                     if ((uint)colorOffset <
                         RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *

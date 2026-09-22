@@ -1535,7 +1535,8 @@ mechanics catalog.
 Bomb and Golden Torizo's matching six-frame belly loops now compile all 36 color-index,
 pre-instruction, duration, wait, branch, and target words through
 `TorizoBellyPaletteFxProgramMechanicsDefinitions`. Their 36 distinct BGR555 colors remain
-live presentation data. Both real definitions execute through a full cycle and repeat the
+presentation data installed from `room-palette-effects.json`. Both real definitions
+execute through a full cycle and repeat the
 first frame with mechanics bytes forbidden, then delete through the cartridge's shared
 enemy-zero-death pre-instruction. Exact ROM parity, every live color read, and adjacent-code
 rejection are verified.
@@ -1545,7 +1546,8 @@ rejection are verified.
 The standard Brinstar and Spore Spawn room variants now compile all 66 color-index,
 pre-instruction, duration, wait, branch, and target words through
 `BrinstarBlueSporePaletteFxProgramMechanicsDefinitions`. Their 84 BGR555 color words
-remain live presentation data. Both real definitions execute a complete fourteen-frame
+map to one shared presentation array installed from `room-palette-effects.json`. Both
+real definitions execute a complete fourteen-frame
 cycle and repeat the first frame with mechanics bytes forbidden. The Spore Spawn variant
 then deletes through its area-mini-boss callback while the standard-room owner remains
 active. Exact ROM parity and every live color read are verified.
@@ -1932,3 +1934,10 @@ all 400 source bytes, runs the Red Brinstar definition and both Tourian definiti
 two complete cycles, and matches native CGRAM every frame. Independent named overrides
 reach both live destinations while the Tourian six-byte CGRAM skip and slot-sensitive
 pre-instruction remain compiled mechanics.
+
+The shared asset now also owns the Brinstar blue-spore and Torizo belly payloads. One
+fourteen-frame blue-spore array feeds both identical cartridge programs, while Bomb and
+Golden Torizo retain separate six-frame arrays. Verification covers all four definitions
+for two cycles with all 240 source bytes forbidden, exact native CGRAM parity, and live
+overrides, without moving the Spore Spawn mini-boss or enemy-zero deletion callbacks out
+of compiled mechanics.

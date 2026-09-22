@@ -37,6 +37,9 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
     /// <summary>The byte index of the first blue-spore color in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x00e2;
 
+    /// <summary>Frames from the first record through the next first record.</summary>
+    public const int CycleFrames = 140;
+
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
     public static IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition> All =>
         ReadOnlyDefinitions;
@@ -99,6 +102,15 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
             throw new ArgumentOutOfRangeException(nameof(frame));
         return unchecked((ushort)(FirstFramePointer +
             frame * BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameByteCount));
+    }
+
+    /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
     }
 
     /// <summary>Reads one mechanics word while excluding live BGR555 colors.</summary>

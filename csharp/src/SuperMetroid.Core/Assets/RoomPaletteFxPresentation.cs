@@ -106,6 +106,35 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
+                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+        {
+            ValidateAndCompile(
+                $"Brinstar blue spores ({definition.Owner})",
+                document.BrinstarBlueSpores,
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount,
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
+        foreach (TorizoBellyPaletteFxProgramDefinition definition in
+                 TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                TorizoBellyPaletteOwner.BombTorizo => document.BombTorizoBelly,
+                TorizoBellyPaletteOwner.GoldenTorizo => document.GoldenTorizoBelly,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Torizo belly owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"{definition.Owner} belly",
+                frames,
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -176,10 +205,13 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] WreckedShipGreenLights { get; init; }
     public required PaletteRgb5[][] RedBrinstarBackgroundGlow { get; init; }
     public required PaletteRgb5[][] TourianGlow { get; init; }
+    public required PaletteRgb5[][] BrinstarBlueSpores { get; init; }
+    public required PaletteRgb5[][] BombTorizoBelly { get; init; }
+    public required PaletteRgb5[][] GoldenTorizoBelly { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 4;
+    public const int Version = 5;
 }

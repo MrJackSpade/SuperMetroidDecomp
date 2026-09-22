@@ -39,6 +39,12 @@ internal static class RoomPaletteFxPresentationExtractor
                 TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
                 TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            BrinstarBlueSpores = ExtractFrames(
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount,
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All[0].ColorPointer),
+            BombTorizoBelly = ExtractTorizo(TorizoBellyPaletteOwner.BombTorizo),
+            GoldenTorizoBelly = ExtractTorizo(TorizoBellyPaletteOwner.GoldenTorizo),
         });
         return json.ToArray();
 
@@ -119,6 +125,17 @@ internal static class RoomPaletteFxPresentationExtractor
                 }
             }
             return frames;
+        }
+
+        PaletteRgb5[][] ExtractTorizo(TorizoBellyPaletteOwner owner)
+        {
+            TorizoBellyPaletteFxProgramDefinition definition =
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer);
         }
     }
 }

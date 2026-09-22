@@ -225,6 +225,21 @@ internal static partial class Program
         {
             Blue = tourian.Blue == 31 ? 30 : tourian.Blue + 1,
         };
+        PaletteRgb5 blueSpore = document.BrinstarBlueSpores[0][0];
+        document.BrinstarBlueSpores[0][0] = blueSpore with
+        {
+            Green = blueSpore.Green == 31 ? 30 : blueSpore.Green + 1,
+        };
+        PaletteRgb5 bombTorizo = document.BombTorizoBelly[0][0];
+        document.BombTorizoBelly[0][0] = bombTorizo with
+        {
+            Red = bombTorizo.Red == 31 ? 30 : bombTorizo.Red + 1,
+        };
+        PaletteRgb5 goldenTorizo = document.GoldenTorizoBelly[0][0];
+        document.GoldenTorizoBelly[0][0] = goldenTorizo with
+        {
+            Blue = goldenTorizo.Blue == 31 ? 30 : goldenTorizo.Blue + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -256,13 +271,26 @@ internal static partial class Program
             TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer,
             TourianGlowPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             "Tourian");
+        BrinstarBlueSporePaletteFxProgramDefinition blueSporeDefinition =
+            BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All.Single(item =>
+                item.Owner == BrinstarBlueSporePaletteOwner.StandardRooms);
+        AssertOverride(blueSporeDefinition.DefinitionPointer,
+            BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Brinstar blue-spore");
+        foreach (TorizoBellyPaletteFxProgramDefinition torizoDefinition in
+                 TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(torizoDefinition.DefinitionPointer,
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+                $"{torizoDefinition.Owner} belly");
+        }
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and five live environmental " +
+            "Room palette-FX override: content identity and eight live environmental " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

@@ -1339,23 +1339,27 @@ loudly.
 
 ## Editable title palette (#549)
 
-Catalog version 38 adds `title-palette.json`, schema version 1 (forty shared
-resource hashes). Its `colors` array contains all 256 initial CGRAM entries as
-RGB5 objects. Copy the stock file to `overrides/maps/title-palette.json` to
-replace title colors without modifying the cartridge.
+Catalog version 40 uses `title-palette.json` schema version 2 (forty-four shared
+resource hashes). Its `colors` array contains all 256 initial CGRAM entries as RGB5
+objects. `babyMetroidTubeLight` contains eight four-color frames and
+`flickeringDisplays` contains two two-color frames. Copy the stock file to
+`overrides/maps/title-palette.json` to replace title colors without modifying the
+cartridge.
 
-The resource owns initial color values only. Console-light instruction streams,
-animation cadence, color destinations, title phases, and brightness remain
-compiled/native behavior. New title sequences—including attract-demo returns—use
-the selected installed palette. A debugger state retains its already-materialized
-CGRAM so restoring a mid-animation frame does not reset visual phase.
+The resource owns color values only. Console-light instruction streams, animation
+cadence, color destinations, title phases, and brightness remain compiled/native
+behavior. New title sequences—including attract-demo returns—use the selected
+installed palette. A debugger state retains its already-materialized CGRAM so
+restoring a mid-animation frame does not reset visual phase, then rebinds the current
+installed colors for subsequent animation frames.
 
-Verification compares every extracted word with the cartridge, constructs the
-real title owner while all 512 source palette bytes are forbidden, and proves a
-valid override changes content identity and rendered title pixels. Removing the
-override restores both exactly. Wrong color counts, unsupported versions,
-out-of-range RGB5 components, unknown native-address fields, and malformed JSON
-fail loudly.
+Verification compares every initial and ambient extracted word with the cartridge,
+constructs the real title owner while all source color bytes are forbidden, and runs
+both ambient programs through two complete cycles with exact native CGRAM parity. A
+valid override changes content identity, rendered title pixels, and live ambient
+output; removing it restores all three exactly. Wrong initial/frame color counts,
+unsupported versions, out-of-range RGB5 components, unknown native-address fields,
+and malformed JSON fail loudly.
 
 ## Editable title artwork (#549)
 

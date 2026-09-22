@@ -12,8 +12,9 @@ public enum TitleScreenAmbientPaletteFxProgramOwner
 /// <summary>Immutable mechanics for the looping title-screen ambient palettes.</summary>
 /// <remarks>
 /// Definitions <c>$E1A0</c> and <c>$E1A4</c> use distinct record counts and cadences.
-/// Their 36 BGR555 words remain live presentation data; this catalog owns palette
-/// placement, timing, waits, and loop branches.
+/// Their 36 BGR555 words are installed presentation data; this catalog owns palette
+/// placement, timing, waits, and loop branches. Diagnostic sessions without an installed
+/// presentation retain the cartridge-backed color path.
 /// </remarks>
 public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions
 {

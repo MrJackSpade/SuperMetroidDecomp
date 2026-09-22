@@ -1,19 +1,31 @@
 using System.Text.Json;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Editable initial 256-color title palette. Animation programs and destination
-/// selection remain compiled engine behavior rather than authored palette data.
+/// Editable initial 256-color title palette and ambient title-screen color frames.
+/// Animation programs and destination selection remain compiled engine behavior.
 /// </summary>
-public sealed class TitlePalettePresentation
+public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
     private readonly ushort[] colors;
+    private readonly Dictionary<ushort, ushort> animatedColors;
 
-    private TitlePalettePresentation(ushort[] colors) => this.colors = colors;
+    private TitlePalettePresentation(
+        ushort[] colors,
+        Dictionary<ushort, ushort> animatedColors)
+    {
+        this.colors = colors;
+        this.animatedColors = animatedColors;
+    }
 
     public ReadOnlySpan<ushort> Colors => colors;
+
+    /// <inheritdoc />
+    public bool TryReadColor(ushort pointer, out ushort color) =>
+        animatedColors.TryGetValue(pointer, out color);
 
     /// <summary>Loads the complete authored palette into native CGRAM slots zero through 255.</summary>
     public void Apply(SnesCgram destination)
@@ -59,7 +71,58 @@ public sealed class TitlePalettePresentation
             }
             colors[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
         }
-        return new TitlePalettePresentation(colors);
+        var animatedColors = new Dictionary<ushort, ushort>();
+        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
+                 TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight =>
+                    document.BabyMetroidTubeLight,
+                TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays =>
+                    document.FlickeringDisplays,
+                _ => throw new InvalidDataException(
+                    $"Unsupported title ambient palette owner {definition.Owner}."),
+            };
+            if (frames is null || frames.Length != definition.FrameCount)
+            {
+                throw new InvalidDataException(
+                    $"Title palette {definition.Owner} requires exactly " +
+                    $"{definition.FrameCount} frames.");
+            }
+
+            for (int frame = 0; frame < frames.Length; frame++)
+            {
+                PaletteRgb5[]? frameColors = frames[frame];
+                if (frameColors is null || frameColors.Length != definition.ColorsPerFrame)
+                {
+                    throw new InvalidDataException(
+                        $"Title palette {definition.Owner} frame {frame} requires exactly " +
+                        $"{definition.ColorsPerFrame} colors.");
+                }
+
+                for (int index = 0; index < frameColors.Length; index++)
+                {
+                    PaletteRgb5? color = frameColors[index];
+                    if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
+                        (uint)color.Blue > 31)
+                    {
+                        throw new InvalidDataException(
+                            $"Title palette {definition.Owner} frame {frame} color {index} " +
+                            "requires RGB components from 0 to 31.");
+                    }
+
+                    ushort pointer = unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort) +
+                        index * sizeof(ushort)));
+                    animatedColors.Add(
+                        pointer,
+                        (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
+                }
+            }
+        }
+
+        return new TitlePalettePresentation(colors, animatedColors);
     }
 
     public static void Write(Stream json, TitlePaletteDocument document)
@@ -74,10 +137,12 @@ public sealed record TitlePaletteDocument
 {
     public required int Version { get; init; }
     public required PaletteRgb5[] Colors { get; init; }
+    public required PaletteRgb5[][] BabyMetroidTubeLight { get; init; }
+    public required PaletteRgb5[][] FlickeringDisplays { get; init; }
 }
 
 public static class TitlePaletteFormat
 {
     public const string FileName = "title-palette.json";
-    public const int Version = 1;
+    public const int Version = 2;
 }

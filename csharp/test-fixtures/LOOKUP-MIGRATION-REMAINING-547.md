@@ -1880,3 +1880,17 @@ operand, branch target, timer, or other unclassified program read now fails veri
 instead of silently falling through to the ROM. Together with exact word/byte parity and
 the specialized Hyper Beam coverage, this completes the palette-program mechanics portion
 of #547 while leaving the broader lookup/callback and #530/#549 integration scope open.
+
+## Installed title ambient palette payloads
+
+The 36 BGR555 presentation words used by the baby-Metroid tube light and flickering
+title displays now live in schema-version-2 `title-palette.json`. The generic bank-$8D
+interpreter resolves those words through `IPaletteFxColorSource`; destinations, frame
+durations, waits, and loop targets remain compiled mechanics. Diagnostic sessions can
+still fall back to the cartridge when no installed presentation is bound.
+
+Verification compares every extracted color with the pinned cartridge, forbids every
+ambient source-byte read, and executes both real palette objects for two complete cycles
+with frame-by-frame CGRAM parity. This removes the title ambient presentation dependency
+from normal installed sessions without conflating editable colors with #547's immutable
+control-data ownership.

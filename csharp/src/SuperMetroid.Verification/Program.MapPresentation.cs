@@ -239,6 +239,11 @@ internal static partial class Program
             PaletteRgb5 color = document.Colors[index];
             document.Colors[index] = color with { Red = color.Red == 31 ? 30 : color.Red + 1 };
         }
+        PaletteRgb5 ambient = document.BabyMetroidTubeLight[0][0];
+        document.BabyMetroidTubeLight[0][0] = ambient with
+        {
+            Blue = ambient.Blue == 31 ? 30 : ambient.Blue + 1,
+        };
 
         string replacement = Path.Combine(overrides, TitlePaletteFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -252,6 +257,13 @@ internal static partial class Program
             "production title consumes selected palette override");
         stockTitle.Step(0);
         editedTitle.Step(0);
+        TitleScreenAmbientPaletteFxProgramDefinition tube =
+            TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Single(
+                definition => definition.Owner ==
+                    TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
+        AssertTrue(stockTitle.PaletteColors[tube.ColorByteIndex / 2] !=
+            editedTitle.PaletteColors[tube.ColorByteIndex / 2],
+            "production title consumes selected ambient palette override");
         AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
 

@@ -27,6 +27,7 @@ public sealed class TitleSequenceState
     private readonly ControllerInputState controller = new();
     private readonly byte[] babyMetroidCharacters;
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
+    [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
 
     private TitleSequencePhase phase;
     private int phaseTimer;
@@ -70,6 +71,7 @@ public sealed class TitleSequenceState
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
         this.titleGradientPresentation = titleGradientPresentation;
+        this.titlePalettePresentation = titlePalettePresentation;
         if (queueOpeningMusic)
         {
             audio?.QueueMusicDelayed8(
@@ -175,6 +177,13 @@ public sealed class TitleSequenceState
     /// <summary>Rebinds the host-selected presentation after debugger-state restoration.</summary>
     internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
         titleGradientPresentation = presentation;
+
+    /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>
+    internal void BindTitlePalette(TitlePalettePresentation? presentation)
+    {
+        titlePalettePresentation = presentation;
+        consolePaletteFx.BindPresentationColors(presentation);
+    }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
     public void Step(ushort controllerInput)
@@ -327,6 +336,7 @@ public sealed class TitleSequenceState
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
+        consolePaletteFx.BindPresentationColors(titlePalettePresentation);
         consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
         consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using System.Text.Json;
 
@@ -105,6 +106,8 @@ internal static partial class Program
         if (!presentation.Colors.SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
 
+        VerifyExtractedTitleAmbientPalette(bus, presentation);
+
         VerifyTitlePaletteValidation(extracted);
         var paletteAddresses = Enumerable.Range(
             TitleSequenceRomData.Assets.PaletteAddress,
@@ -118,8 +121,69 @@ internal static partial class Program
                 "Production title initialization did not use the installed palette exclusively.");
         }
         Console.WriteLine(
-            $"  Title palette presentation: {SnesCgram.ColorCount} editable colors match ROM; " +
-            $"production avoided {paletteAddresses.Count} cartridge source bytes.");
+            $"  Title palette presentation: {SnesCgram.ColorCount} initial and 36 ambient " +
+            $"editable colors match ROM; production avoided {paletteAddresses.Count} " +
+            "initial cartridge source bytes.");
+    }
+
+    private static void VerifyExtractedTitleAmbientPalette(
+        ISnesAddressSpace bus,
+        TitlePalettePresentation presentation)
+    {
+        var colorAddresses = new HashSet<int>();
+        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
+                 TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            for (int frame = 0; frame < definition.FrameCount; frame++)
+            {
+                for (int color = 0; color < definition.ColorsPerFrame; color++)
+                {
+                    ushort pointer = unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort) +
+                        color * sizeof(ushort)));
+                    ushort expected = RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer);
+                    if (!presentation.TryReadColor(pointer, out ushort actual) ||
+                        actual != expected)
+                    {
+                        throw new InvalidDataException(
+                            $"Extracted title ambient color $8D:{pointer:X4} differs from cartridge data.");
+                    }
+                    colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
+                    colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+                        unchecked((ushort)(pointer + 1)));
+                }
+            }
+        }
+
+        var guardedBus = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+        var native = new RoomPaletteFxSystem();
+        var installed = new RoomPaletteFxSystem();
+        installed.BindPresentationColors(presentation);
+        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
+                 TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            native.SpawnDefinition(bus, definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(guardedBus, definition.DefinitionPointer, 0);
+        }
+
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
+        int frames = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Max(
+            definition => definition.CycleFrames) * 2;
+        for (int frame = 0; frame < frames; frame++)
+        {
+            native.Step(bus, nativeCgram, 0, 0, false, false);
+            installed.Step(guardedBus, installedCgram, 0, 0, false, false);
+            if (!nativeCgram.Colors.SequenceEqual(installedCgram.Colors))
+            {
+                throw new InvalidDataException(
+                    $"Installed title ambient palette diverged from native output on frame {frame}.");
+            }
+        }
+        AssertEqual(0, guardedBus.ForbiddenReadAttempts,
+            "installed title ambient loops avoid cartridge color reads");
     }
 
     private static void VerifyTitlePaletteValidation(byte[] extracted)
@@ -148,8 +212,23 @@ internal static partial class Program
         Reject("title palette rejects non-RGB5 color");
         colors[0] = first;
 
+        PaletteRgb5[][] tube = document.BabyMetroidTubeLight;
+        document = document with { BabyMetroidTubeLight = tube[..^1] };
+        Reject("title palette rejects incomplete tube-light animation");
+        document = document with { BabyMetroidTubeLight = tube };
+
+        PaletteRgb5[] firstDisplayFrame = document.FlickeringDisplays[0];
+        document.FlickeringDisplays[0] = firstDisplayFrame[..^1];
+        Reject("title palette rejects incomplete display animation frame");
+        document.FlickeringDisplays[0] = firstDisplayFrame;
+
+        PaletteRgb5 firstAmbient = tube[0][0];
+        tube[0][0] = firstAmbient with { Green = 32 };
+        Reject("title palette rejects non-RGB5 ambient color");
+        tube[0][0] = firstAmbient;
+
         string unknownField = System.Text.Encoding.UTF8.GetString(extracted)
-            .Replace("\"version\": 1", "\"version\": 1,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
+            .Replace("\"version\": 2", "\"version\": 2,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => TitlePalettePresentation.Load(new MemoryStream(
                 System.Text.Encoding.UTF8.GetBytes(unknownField), writable: false)),

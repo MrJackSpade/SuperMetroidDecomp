@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -23,6 +24,7 @@ public sealed class RoomPaletteFxSystem
         .ToArray();
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    [NonSerialized] private IPaletteFxColorSource? presentationColors;
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
     private ushort samusInHeatPaletteIndex;
     private ushort previousSamusInHeatPaletteIndex;
@@ -51,6 +53,13 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
     public bool IsDefinitionActive(ushort definition) =>
         slots.Any(slot => slot.Id == definition);
+
+    /// <summary>
+    /// Binds host-authored colors after construction or debugger-state restoration.
+    /// Program timing and control words are always resolved from compiled mechanics.
+    /// </summary>
+    public void BindPresentationColors(IPaletteFxColorSource? source) =>
+        presentationColors = source;
 
     /// <summary>
     /// Installs a constructed instruction program for focused interpreter verification
@@ -460,7 +469,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
-    private static void WritePaletteRecord(
+    private void WritePaletteRecord(
         ISnesAddressSpace bus,
         SnesCgram cgram,
         PaletteFxSlot slot,
@@ -526,7 +535,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
-    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
+    private ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
@@ -534,6 +543,9 @@ public sealed class RoomPaletteFxSystem
         {
             return compiled;
         }
+
+        if (presentationColors?.TryReadColor(pointer, out ushort color) == true)
+            return color;
 
         return ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
     }

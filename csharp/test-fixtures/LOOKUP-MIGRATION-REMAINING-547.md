@@ -1762,6 +1762,17 @@ mechanics reads forbidden, remain active through the final hold, and delete on t
 following frame. Verification proves exact ROM parity, every live color read, the boot
 entry's native fall-through, and the copyright entry's explicit branch to `$8D:C7B0`.
 
+## Title-screen ambient palette mechanics
+
+The baby-Metroid tube light and flickering title-screen displays now compile all 28
+color-index, duration, wait, and loop words through
+`TitleScreenAmbientPaletteFxProgramMechanicsDefinitions`. Their 36 BGR555 color words
+remain live presentation data.
+
+Both real definitions execute two complete cycles with mechanics reads forbidden and
+remain active. Verification proves exact ROM parity, every live color read, the tube
+light's eight-record / 80-frame cadence, and the displays' two-record / two-frame cadence.
+
 ## Samus-loading suit palette mechanics
 
 The power, Varia, and gravity Samus-loading programs now compile all 99 color-index,

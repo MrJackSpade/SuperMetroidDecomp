@@ -20,6 +20,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
                 out value))

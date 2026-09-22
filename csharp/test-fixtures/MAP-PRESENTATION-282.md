@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 52 uses `room-palette-effects.json` schema version 12 (forty-five
+Catalog version 53 uses `room-palette-effects.json` schema version 13 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1390,18 +1390,25 @@ three-color records for the opening cinematic's one-shot text fade.
 the cartridge's eleven sixteen-color records even though retail never installs it.
 `titleLogoFade` contains eight fifteen-color records; `nintendoSharedFade` contains
 eight two-color records used by both the unused boot logo and live copyright fade.
+The Zebes explosion sequence adds `zebesExplosionForeground` (sixteen fifteen-color
+records), `zebesExplosionFinale` (forty-five fifteen-color records), and the shared
+fifteen-record `zebesExplosionWhiteout` used by both its background and space entries.
+The independent `zebesExplosionAfterglow` and `zebesExplosionLava` loops contain six
+eight-color and ten one-color records. `zebesExplosionCrust` and
+`zebesExplosionGreyClouds` each contain eight fifteen-color fade records, while
+`zebesExplosionGunship` contains sixteen sixteen-color reveal records.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room and cinematic effects without changing the cartridge or engine code.
 
-Only the 1494 authored RGB5 entries are presentation data. Native record layouts,
+Only the 2978 authored RGB5 entries are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
 content rebinds; an unbound diagnostic interpreter retains its explicit cartridge
 fallback.
 
-Verification compares every extracted mapping with the cartridge, forbids all 3072
-source bytes, executes all four Norfair programs through two complete 116-frame cycles,
+Verification compares every extracted mapping with the cartridge, forbids color-source
+reads for every installed program, and executes all four Norfair programs through two complete 116-frame cycles,
 and executes the three Maridia programs through two complete cycles of their 40/40/16
 cadences. Both Wrecked Ship definitions execute two complete 80-frame cycles from
 their shared color payload; Red Brinstar and both Tourian callers execute two complete
@@ -1416,7 +1423,9 @@ payload. Both PLANET ZEBES text fades execute all 24 frames and their terminal d
 Both cinematic-glow definitions run two complete 84/70-frame cycles. Both cinematic fades
 run through their complete 56/22-frame one-shot programs and delete after the terminal
 hold. The title-logo and both Nintendo callers likewise execute their 24-frame fades
-through deletion. A valid override changes catalog identity and twenty-three independent
+through deletion. All nine explosion entries execute complete one-shot or two-loop
+programs with exact native CGRAM parity; the shared whiteout payload is tested at
+both destinations. A valid override changes catalog identity and thirty-two independent
 live runtime outputs, while removing it restores both exactly. Wrong frame or color counts,
 unsupported versions, invalid RGB5 values, unknown/native-address fields, corrupt stock,
 and malformed overrides fail loudly.

@@ -52,6 +52,15 @@ public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Returns the cartridge-authored duration for one finale record.</summary>
     public static ushort FrameDuration(int frame)
     {

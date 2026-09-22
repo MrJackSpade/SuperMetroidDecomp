@@ -305,6 +305,14 @@ internal static partial class Program
         {
             Green = nintendoFade.Green == 31 ? 30 : nintendoFade.Green + 1,
         };
+        ChangeRed(document.ZebesExplosionForeground);
+        ChangeRed(document.ZebesExplosionFinale);
+        ChangeRed(document.ZebesExplosionWhiteout);
+        ChangeRed(document.ZebesExplosionAfterglow);
+        ChangeRed(document.ZebesExplosionLava);
+        ChangeRed(document.ZebesExplosionCrust);
+        ChangeRed(document.ZebesExplosionGreyClouds);
+        ChangeRed(document.ZebesExplosionGunship);
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -414,15 +422,66 @@ internal static partial class Program
                 nintendoDefinition.ColorByteIndex,
                 $"Nintendo shared fade {nintendoDefinition.Owner}");
         }
+        AssertOverride(
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Zebes explosion foreground");
+        AssertOverride(
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Zebes explosion finale");
+        foreach (ZebesExplosionWhiteoutPaletteFxProgramDefinition whiteoutDefinition in
+                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All)
+        {
+            ushort colorByteIndex = whiteoutDefinition.Owner switch
+            {
+                ZebesExplosionWhiteoutPaletteFxProgramOwner.WideExplosionBackground =>
+                    ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                        .WideExplosionBackgroundColorByteIndex,
+                ZebesExplosionWhiteoutPaletteFxProgramOwner.SpaceWhiteout =>
+                    ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                        .SpaceWhiteoutColorByteIndex,
+                _ => throw new InvalidOperationException(
+                    $"Unknown whiteout owner {whiteoutDefinition.Owner}."),
+            };
+            AssertOverride(whiteoutDefinition.DefinitionPointer, colorByteIndex,
+                $"Zebes explosion whiteout {whiteoutDefinition.Owner}");
+        }
+        foreach (ZebesExplosionAmbientPaletteFxProgramDefinition ambientDefinition in
+                 ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(ambientDefinition.DefinitionPointer,
+                ambientDefinition.ColorByteIndex,
+                $"Zebes explosion ambient {ambientDefinition.Owner}");
+        }
+        foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition layerDefinition in
+                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(layerDefinition.DefinitionPointer, layerDefinition.ColorByteIndex,
+                $"Zebes explosion layer fade {layerDefinition.Owner}");
+        }
+        AssertOverride(
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "Zebes explosion gunship");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and twenty-three live palette " +
+            "Room palette-FX override: content identity and thirty-two live palette " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
+
+        static void ChangeRed(PaletteRgb5[][] frames)
+        {
+            PaletteRgb5 color = frames[0][0];
+            frames[0][0] = color with
+            {
+                Red = color.Red == 31 ? 30 : color.Red + 1,
+            };
+        }
 
         void AssertOverride(ushort definitionPointer, ushort colorByteIndex,
             string description)

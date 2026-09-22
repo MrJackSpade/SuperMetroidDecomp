@@ -250,6 +250,74 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        ValidateAndCompile(
+            "Zebes explosion foreground",
+            document.ZebesExplosionForeground,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        ValidateAndCompile(
+            "Zebes explosion finale",
+            document.ZebesExplosionFinale,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        ValidateAndCompile(
+            "Zebes explosion shared whiteout",
+            document.ZebesExplosionWhiteout,
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
+                 ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow =>
+                    document.ZebesExplosionAfterglow,
+                ZebesExplosionAmbientPaletteFxProgramOwner.Lava =>
+                    document.ZebesExplosionLava,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Zebes explosion ambient owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"Zebes explosion {definition.Owner}",
+                frames,
+                definition.FrameCount,
+                definition.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
+        foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
+                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                ZebesExplosionLayerFadePaletteFxProgramOwner.Crust =>
+                    document.ZebesExplosionCrust,
+                ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds =>
+                    document.ZebesExplosionGreyClouds,
+                _ => throw new InvalidDataException(
+                    $"Unsupported Zebes explosion layer owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"Zebes explosion {definition.Owner}",
+                frames,
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
+        ValidateAndCompile(
+            "Zebes explosion gunship",
+            document.ZebesExplosionGunship,
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -336,10 +404,18 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] UnusedCinematicFade { get; init; }
     public required PaletteRgb5[][] TitleLogoFade { get; init; }
     public required PaletteRgb5[][] NintendoSharedFade { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionForeground { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionFinale { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionWhiteout { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionAfterglow { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionLava { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionCrust { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionGreyClouds { get; init; }
+    public required PaletteRgb5[][] ZebesExplosionGunship { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 12;
+    public const int Version = 13;
 }

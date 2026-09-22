@@ -80,6 +80,15 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns the shared whiteout BGR555 color word in a timed record.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {

@@ -127,6 +127,15 @@ public sealed class ZebesExplosionAmbientPaletteFxProgramDefinition
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Returns the cartridge-authored duration for one timed record.</summary>
     public ushort FrameDuration(int frame)
     {

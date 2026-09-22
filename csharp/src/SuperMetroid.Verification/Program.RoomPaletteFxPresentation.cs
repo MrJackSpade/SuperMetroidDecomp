@@ -237,10 +237,57 @@ internal static partial class Program
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray(),
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "Zebes explosion foreground",
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "Zebes explosion finale",
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "Zebes explosion shared whiteout",
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All
+                .Select(definition => definition.DefinitionPointer).ToArray(),
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
+                 ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"Zebes explosion {definition.Owner}",
+                definition.FrameCount, definition.ColorsPerFrame, definition.ColorPointer,
+                [definition.DefinitionPointer], definition.CycleFrames * 2);
+        }
+        foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
+                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus, presentation, $"Zebes explosion {definition.Owner}",
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer, [definition.DefinitionPointer],
+                definition.CycleFrames + 1);
+        }
+        VerifyInstalledPaletteFxFamily(
+            bus, presentation, "Zebes explosion gunship",
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 1494 editable palette colors match ROM; " +
-            "twenty-eight installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 2978 editable palette colors match ROM; " +
+            "thirty-seven installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -542,9 +589,49 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Nintendo shared-fade frame");
         document.NintendoSharedFade[0] = nintendoFrame;
 
+        PaletteRgb5[][] explosionForeground = document.ZebesExplosionForeground;
+        document = document with { ZebesExplosionForeground = explosionForeground[..^1] };
+        Reject("room palette-FX rejects incomplete Zebes explosion foreground");
+        document = document with { ZebesExplosionForeground = explosionForeground };
+
+        PaletteRgb5[] finaleFrame = document.ZebesExplosionFinale[0];
+        document.ZebesExplosionFinale[0] = finaleFrame[..^1];
+        Reject("room palette-FX rejects incomplete Zebes explosion finale frame");
+        document.ZebesExplosionFinale[0] = finaleFrame;
+
+        PaletteRgb5[][] whiteout = document.ZebesExplosionWhiteout;
+        document = document with { ZebesExplosionWhiteout = whiteout[..^1] };
+        Reject("room palette-FX rejects incomplete shared whiteout");
+        document = document with { ZebesExplosionWhiteout = whiteout };
+
+        PaletteRgb5[][] afterglow = document.ZebesExplosionAfterglow;
+        document = document with { ZebesExplosionAfterglow = afterglow[..^1] };
+        Reject("room palette-FX rejects incomplete Zebes afterglow");
+        document = document with { ZebesExplosionAfterglow = afterglow };
+
+        PaletteRgb5[] lavaFrame = document.ZebesExplosionLava[0];
+        document.ZebesExplosionLava[0] = lavaFrame[..^1];
+        Reject("room palette-FX rejects incomplete Zebes explosion lava frame");
+        document.ZebesExplosionLava[0] = lavaFrame;
+
+        PaletteRgb5[][] crust = document.ZebesExplosionCrust;
+        document = document with { ZebesExplosionCrust = crust[..^1] };
+        Reject("room palette-FX rejects incomplete Zebes explosion crust fade");
+        document = document with { ZebesExplosionCrust = crust };
+
+        PaletteRgb5[] greyCloudFrame = document.ZebesExplosionGreyClouds[0];
+        document.ZebesExplosionGreyClouds[0] = greyCloudFrame[..^1];
+        Reject("room palette-FX rejects incomplete Zebes grey-cloud frame");
+        document.ZebesExplosionGreyClouds[0] = greyCloudFrame;
+
+        PaletteRgb5[][] explosionGunship = document.ZebesExplosionGunship;
+        document = document with { ZebesExplosionGunship = explosionGunship[..^1] };
+        Reject("room palette-FX rejects incomplete explosion gunship reveal");
+        document = document with { ZebesExplosionGunship = explosionGunship };
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 12",
-            "\"version\": 12,\n  \"nativeAddress\": 9240718",
+            "\"version\": 13",
+            "\"version\": 13,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

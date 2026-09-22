@@ -91,6 +91,30 @@ internal static class RoomPaletteFxPresentationExtractor
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+            ZebesExplosionForeground = ExtractFrames(
+                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            ZebesExplosionFinale = ExtractFrames(
+                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorPointer),
+            ZebesExplosionWhiteout = ExtractFrames(
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer),
+            ZebesExplosionAfterglow = ExtractZebesExplosionAmbient(
+                ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow),
+            ZebesExplosionLava = ExtractZebesExplosionAmbient(
+                ZebesExplosionAmbientPaletteFxProgramOwner.Lava),
+            ZebesExplosionCrust = ExtractZebesExplosionLayerFade(
+                ZebesExplosionLayerFadePaletteFxProgramOwner.Crust),
+            ZebesExplosionGreyClouds = ExtractZebesExplosionLayerFade(
+                ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds),
+            ZebesExplosionGunship = ExtractFrames(
+                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 
@@ -214,6 +238,30 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
                 definition.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractZebesExplosionAmbient(
+            ZebesExplosionAmbientPaletteFxProgramOwner owner)
+        {
+            ZebesExplosionAmbientPaletteFxProgramDefinition definition =
+                ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                definition.FrameCount,
+                definition.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractZebesExplosionLayerFade(
+            ZebesExplosionLayerFadePaletteFxProgramOwner owner)
+        {
+            ZebesExplosionLayerFadePaletteFxProgramDefinition definition =
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

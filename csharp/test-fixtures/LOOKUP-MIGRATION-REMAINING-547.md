@@ -1987,3 +1987,12 @@ converge on the same eight-record color payload. Verification blocks all 272 sou
 compares every CGRAM frame through each 24-frame one-shot fade and terminal deletion,
 and checks overrides at all three destinations. Palette placement, durations, waits,
 entry branches, and deletion remain compiled mechanics.
+
+The Zebes explosion foreground, finale, shared whiteout, planet afterglow, lava,
+crust, grey-cloud, and gunship programs now source 1484 BGR555 words from eight named
+installed arrays. Verification blocks source-color reads, compares native CGRAM
+frame-by-frame through all nine definition entry points (including both whiteout
+destinations), and confirms each editable override reaches its own live output.
+The long foreground hold, finale's two duration phases, whiteout branch, loop
+targets, layer-fade holds, gunship timing, and terminal deletion remain compiled
+mechanics.

@@ -1582,3 +1582,13 @@ remain live presentation data.
 All three real definitions execute a complete 40/40/16-frame cycle and repeat their first
 record with mechanics bytes forbidden. Exact ROM parity, every live color read, strict
 owner boundaries, and continued slot activity are verified.
+
+## Tourian glowing-block and red-orb palette mechanics
+
+The live Tourian 2 object and unused Tourian 4 clone now compile both entries and their
+shared program: 43 color-index, pre-instruction, inline CGRAM-skip, duration, wait, branch,
+and target words. All 88 BGR555 colors remain live presentation data.
+
+Both real definitions execute the complete 110-frame loop with mechanics bytes forbidden.
+Verification also proves the native six-byte CGRAM gap and the slot-sensitive callback that
+deletes the owner when two later palette-FX slots have been populated.

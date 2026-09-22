@@ -56,6 +56,7 @@ internal static partial class Program
         VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(bus);
         VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(bus);
         VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -65,8 +66,109 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 421 control words and four timer bytes are compiled; all four audio opcodes " +
+            "plus 464 control words and four timer bytes are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = TourianGlowPaletteFxProgramMechanicsDefinitions.CloneProgramStart;
+             pointer <= unchecked((ushort)(
+                 TourianGlowPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2));
+             pointer = unchecked((ushort)(pointer + 2)))
+        {
+            if (!TourianGlowPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Tourian glow catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled, $"Tourian glow compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Tourian glow cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(43, mechanicsWords, "compiled Tourian glow mechanics words");
+
+        for (int frame = 0;
+             frame < TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort framePointer =
+                TourianGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            ushort firstColor = unchecked((ushort)(framePointer + 2));
+            AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    firstColor,
+                    out _),
+                $"Tourian glow first color $8D:{firstColor:X4} remains presentation-owned");
+            for (int color = 1;
+                 color < TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                ushort pointer = unchecked((ushort)(framePointer + 4 + color * 2));
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out _),
+                    $"Tourian glow color $8D:{pointer:X4} remains presentation-owned");
+            }
+        }
+
+        foreach (ushort definition in new ushort[]
+                 {
+                     TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer,
+                     TourianGlowPaletteFxProgramMechanicsDefinitions.CloneDefinitionPointer,
+                 })
+        {
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+            for (int step = 0;
+                 step <= TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames;
+                 step++)
+            {
+                paletteFx.Step(guarded, cgram, 0, 0, false, false);
+            }
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition),
+                $"Tourian glow definition $8D:{definition:X4} completes its loop");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"Tourian glow definition $8D:{definition:X4} avoids mechanics ROM reads");
+            AssertEqual(
+                (TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2,
+                guarded.PresentationReadCount,
+                $"Tourian glow definition $8D:{definition:X4} retains all live colors");
+            AssertEqual((ushort)0x5294, cgram.Colors[0x74],
+                "Tourian glow writes its isolated first color");
+            AssertEqual((ushort)0, cgram.Colors[0x75],
+                "Tourian glow preserves first skipped CGRAM color");
+            AssertEqual((ushort)0, cgram.Colors[0x76],
+                "Tourian glow preserves second skipped CGRAM color");
+            AssertEqual((ushort)0, cgram.Colors[0x77],
+                "Tourian glow preserves third skipped CGRAM color");
+            AssertEqual((ushort)0x0019, cgram.Colors[0x78],
+                "Tourian glow resumes after the native six-byte skip");
+        }
+
+        var deletionFx = new RoomPaletteFxSystem();
+        deletionFx.SpawnDefinition(bus,
+            TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer, 0);
+        deletionFx.SpawnDefinition(bus, 0xf795, 0);
+        deletionFx.SpawnDefinition(bus, 0xf799, 0);
+        deletionFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        deletionFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        AssertTrue(!deletionFx.IsDefinitionActive(
+                TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer),
+            "Tourian glow pre-instruction deletes its owner when two later slots exist");
     }
 
     private static void VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(
@@ -1160,6 +1262,28 @@ internal static partial class Program
                             PresentationReadCount++;
                             break;
                         }
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort framePointer =
+                        TourianGlowPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                    ushort firstColor = unchecked((ushort)(framePointer + 2));
+                    int firstColorOffset = source.Offset - firstColor;
+                    if ((uint)firstColorOffset < sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                    int laterColorOffset = source.Offset - unchecked((ushort)(framePointer + 6));
+                    if ((uint)laterColorOffset <
+                        (TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame - 1) * 2)
+                    {
+                        PresentationReadCount++;
+                        break;
                     }
                 }
             }

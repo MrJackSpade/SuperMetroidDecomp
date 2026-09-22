@@ -45,6 +45,10 @@ internal static class RoomPaletteFxPresentationExtractor
                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All[0].ColorPointer),
             BombTorizoBelly = ExtractTorizo(TorizoBellyPaletteOwner.BombTorizo),
             GoldenTorizoBelly = ExtractTorizo(TorizoBellyPaletteOwner.GoldenTorizo),
+            TourianStatueGrey = ExtractFrames(
+                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 

@@ -135,6 +135,13 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 definition.ColorPointer,
                 colors);
         }
+        ValidateAndCompile(
+            "Tourian statue grey-out",
+            document.TourianStatueGrey,
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -208,10 +215,11 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] BrinstarBlueSpores { get; init; }
     public required PaletteRgb5[][] BombTorizoBelly { get; init; }
     public required PaletteRgb5[][] GoldenTorizoBelly { get; init; }
+    public required PaletteRgb5[][] TourianStatueGrey { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 5;
+    public const int Version = 6;
 }

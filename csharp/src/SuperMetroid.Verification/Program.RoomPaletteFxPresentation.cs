@@ -79,7 +79,7 @@ internal static partial class Program
             RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.CycleFrames);
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
@@ -91,7 +91,7 @@ internal static partial class Program
                 TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer,
                 TourianGlowPaletteFxProgramMechanicsDefinitions.CloneDefinitionPointer,
             ],
-            TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames);
+            TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
                  BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
         {
@@ -103,7 +103,7 @@ internal static partial class Program
                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 [definition.DefinitionPointer],
-                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.CycleFrames);
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
         foreach (TorizoBellyPaletteFxProgramDefinition definition in
                  TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
@@ -116,12 +116,23 @@ internal static partial class Program
                 TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 [definition.DefinitionPointer],
-                TorizoBellyPaletteFxProgramMechanicsDefinitions.CycleFrames);
+                TorizoBellyPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "Tourian statue grey-out",
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All
+                .Select(definition => definition.DefinitionPointer)
+                .ToArray(),
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramesThroughDeletion);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 726 editable environmental colors match ROM; " +
-            "thirteen installed programs match two native cycles without color-source reads.");
+            "  Room palette presentation: 790 editable environmental colors match ROM; " +
+            "fourteen installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -132,7 +143,7 @@ internal static partial class Program
         int colorsPerFrame,
         Func<int, int, ushort> colorPointer,
         IReadOnlyList<ushort> definitions,
-        int cycleFrames)
+        int framesToRun)
     {
         var colorAddresses = new HashSet<int>();
         for (int frame = 0; frame < frameCount; frame++)
@@ -163,7 +174,7 @@ internal static partial class Program
             installed.SpawnDefinition(guarded, definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
-            for (int frame = 0; frame < cycleFrames * 2; frame++)
+            for (int frame = 0; frame < framesToRun; frame++)
             {
                 native.Step(bus, nativeCgram, 0, 0, false, false);
                 installed.Step(guarded, installedCgram, 0, 0, false, false);
@@ -354,9 +365,14 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Bomb Torizo belly frame");
         document.BombTorizoBelly[0] = bombTorizoFrame;
 
+        PaletteRgb5[][] statueGrey = document.TourianStatueGrey;
+        document = document with { TourianStatueGrey = statueGrey[..^1] };
+        Reject("room palette-FX rejects incomplete Tourian statue grey-out");
+        document = document with { TourianStatueGrey = statueGrey };
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 5",
-            "\"version\": 5,\n  \"nativeAddress\": 9240718",
+            "\"version\": 6",
+            "\"version\": 6,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

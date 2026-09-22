@@ -21,10 +21,10 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 {
     private static readonly TourianStatueGreyPaletteFxProgramDefinition[] Definitions =
     [
-        new(TourianStatueBoss.Draygon, 0xe222, 0x00c0, usesGoto: true),
-        new(TourianStatueBoss.Kraid, 0xe22a, 0x00e0, usesGoto: true),
-        new(TourianStatueBoss.Ridley, 0xe232, 0x0120, usesGoto: true),
-        new(TourianStatueBoss.Phantoon, 0xe23a, 0x0140, usesGoto: false),
+        new(TourianStatueBoss.Draygon, 0xf749, 0xe222, 0x00c0, usesGoto: true),
+        new(TourianStatueBoss.Kraid, 0xf74d, 0xe22a, 0x00e0, usesGoto: true),
+        new(TourianStatueBoss.Ridley, 0xf751, 0xe232, 0x0120, usesGoto: true),
+        new(TourianStatueBoss.Phantoon, 0xf755, 0xe23a, 0x0140, usesGoto: false),
     ];
     private static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
@@ -90,6 +90,18 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
             throw new ArgumentOutOfRangeException(nameof(frame));
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
+
+    /// <summary>Returns the presentation-owned BGR555 word for one fade frame/color.</summary>
+    public static ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
+    /// <summary>Handler frames from initial setup through the terminal delete.</summary>
+    public const int FramesThroughDeletion = 1 + FrameCount * 8 + 1;
 }
 
 /// <summary>One boss-specific entry into the shared Tourian statue grey-out program.</summary>
@@ -97,11 +109,13 @@ public sealed class TourianStatueGreyPaletteFxProgramDefinition
 {
     internal TourianStatueGreyPaletteFxProgramDefinition(
         TourianStatueBoss boss,
+        ushort definitionPointer,
         ushort programStart,
         ushort colorByteIndex,
         bool usesGoto)
     {
         Boss = boss;
+        DefinitionPointer = definitionPointer;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
         UsesGoto = usesGoto;
@@ -109,6 +123,9 @@ public sealed class TourianStatueGreyPaletteFxProgramDefinition
 
     /// <summary>The statue boss represented by this entry.</summary>
     public TourianStatueBoss Boss { get; }
+
+    /// <summary>The boss-specific <c>PalFxDef</c> identity in bank $8D.</summary>
+    public ushort DefinitionPointer { get; }
 
     /// <summary>The boss-specific entry instruction-list pointer.</summary>
     public ushort ProgramStart { get; }

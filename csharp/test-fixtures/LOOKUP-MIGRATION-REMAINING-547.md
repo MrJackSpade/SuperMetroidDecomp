@@ -1941,3 +1941,9 @@ Golden Torizo retain separate six-frame arrays. Verification covers all four def
 for two cycles with all 240 source bytes forbidden, exact native CGRAM parity, and live
 overrides, without moving the Spore Spawn mini-boss or enemy-zero deletion callbacks out
 of compiled mechanics.
+
+Tourian's four boss-statue entries now likewise resolve their shared 64-color grey-out
+payload from the installed asset. Their definition identities are part of the domain
+catalog, and verification runs Draygon, Kraid, Ridley, and Phantoon through the complete
+fade and terminal deletion with all 128 source bytes forbidden. Boss-specific CGRAM
+destinations, entry branches, eight-frame timing, and deletion remain compiled mechanics.

@@ -2531,8 +2531,9 @@ internal static partial class Program
                  color < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
-                ushort presentationPointer = unchecked((ushort)(
-                    pointer + sizeof(ushort) + color * sizeof(ushort)));
+                ushort presentationPointer =
+                    TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                        frame, color);
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                         presentationPointer,
                         out _),
@@ -2558,14 +2559,15 @@ internal static partial class Program
                 $"Tourian statue grey cartridge word $8D:{pointer:X4}");
         }
 
-        ushort[] definitions = [0xf749, 0xf74d, 0xf751, 0xf755];
-        foreach (ushort definition in definitions)
+        foreach (TourianStatueGreyPaletteFxProgramDefinition definition in
+                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All)
         {
             var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
-            for (int step = 0; step <= 1 +
-                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount * 8; step++)
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            for (int step = 0;
+                 step < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramesThroughDeletion;
+                 step++)
             {
                 paletteFx.Step(
                     guarded,
@@ -2576,16 +2578,19 @@ internal static partial class Program
                     areaMiniBossDefeated: false);
             }
 
-            AssertTrue(!paletteFx.IsDefinitionActive(definition),
-                $"palette-FX definition $8D:{definition:X4} reaches compiled deletion");
+            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"palette-FX definition $8D:{definition.DefinitionPointer:X4} reaches " +
+                "compiled deletion");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"palette-FX definition $8D:{definition:X4} avoids statue mechanics ROM reads");
+                $"palette-FX definition $8D:{definition.DefinitionPointer:X4} avoids statue " +
+                "mechanics ROM reads");
             AssertEqual(
                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount *
                     TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
                 guarded.PresentationReadCount,
-                $"palette-FX definition $8D:{definition:X4} retains statue color reads");
+                $"palette-FX definition $8D:{definition.DefinitionPointer:X4} retains statue " +
+                "color reads");
         }
 
         AssertTrue(!TourianStatueGreyPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(

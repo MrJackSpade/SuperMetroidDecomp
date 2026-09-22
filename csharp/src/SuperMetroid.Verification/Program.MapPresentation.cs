@@ -240,6 +240,11 @@ internal static partial class Program
         {
             Blue = goldenTorizo.Blue == 31 ? 30 : goldenTorizo.Blue + 1,
         };
+        PaletteRgb5 statueGrey = document.TourianStatueGrey[0][0];
+        document.TourianStatueGrey[0][0] = statueGrey with
+        {
+            Green = statueGrey.Green == 31 ? 30 : statueGrey.Green + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -284,13 +289,17 @@ internal static partial class Program
                 TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
                 $"{torizoDefinition.Owner} belly");
         }
+        TourianStatueGreyPaletteFxProgramDefinition statueDefinition =
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All[0];
+        AssertOverride(statueDefinition.DefinitionPointer,
+            statueDefinition.ColorByteIndex, "Tourian statue grey-out");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and eight live environmental " +
+            "Room palette-FX override: content identity and nine live environmental " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

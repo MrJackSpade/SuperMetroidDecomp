@@ -1750,3 +1750,15 @@ The real definition executes its complete 45-record, 300-frame one-shot program 
 mechanics reads forbidden and deletes itself after the final hold. Verification proves
 exact ROM parity, every live color read, and the authored split between fifteen fast
 two-frame gradient-fill records and thirty nine-frame rotation/restore records.
+
+## Zebes explosion whiteout palette mechanics
+
+The wide explosion background and space-whiteout entries now compile all 37 color-index,
+entry-branch, duration, wait, and delete words through
+`ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions`. Their shared fifteen
+BGR555 color words remain live presentation data.
+
+Both real definitions execute the complete fifteen-record, 210-frame one-shot ramp with
+mechanics reads forbidden and delete themselves after the final hold. Verification proves
+exact ROM parity, every live color read, and both the explicit background branch and
+space-whiteout fall-through entry paths into the common program at `$8D:D36E`.

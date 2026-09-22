@@ -53,6 +53,7 @@ internal static partial class Program
         VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(bus);
         VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(bus);
+        VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -80,8 +81,74 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1340 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1377 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer = ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                 .WideExplosionBackgroundProgramStart;
+             pointer <= ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                 .DeleteInstructionPointer;
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Zebes explosion whiteout catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Zebes explosion whiteout compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Zebes explosion whiteout cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(37, mechanicsWords, "compiled Zebes explosion whiteout mechanics words");
+
+        for (int frame = 0;
+             frame < ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort color = unchecked((ushort)(
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                    .FramePointer(frame) + sizeof(ushort)));
+            AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    color,
+                    out _),
+                "Zebes explosion whiteout colors remain presentation-owned");
+        }
+
+        foreach (ZebesExplosionWhiteoutPaletteFxProgramDefinition definition in
+                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All)
+        {
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int step = 0;
+                 step <= ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames;
+                 step++)
+            {
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+            }
+            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} whiteout deletes after its final hold");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} whiteout avoids mechanics ROM reads");
+            AssertEqual(
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount *
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} whiteout retains every live color");
+        }
     }
 
     private static void VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(
@@ -2278,6 +2345,23 @@ internal static partial class Program
                     if ((uint)offset <
                         ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                         sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                         .FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                            .FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                            .ColorsPerFrame * sizeof(ushort))
                     {
                         PresentationReadCount++;
                         break;

@@ -142,6 +142,11 @@ if (args is ["--wall-space-pirate-instruction-mechanics"])
     VerifyWallSpacePirateInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ninja-space-pirate-instruction-mechanics"])
+{
+    VerifyNinjaSpacePirateInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--cacatac-projectile-instruction-mechanics"])
 {
     VerifyCacatacProjectileInstructionProgramDefinitions();

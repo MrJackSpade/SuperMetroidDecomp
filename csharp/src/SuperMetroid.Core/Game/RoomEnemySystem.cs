@@ -3605,6 +3605,12 @@ public sealed partial class RoomEnemySystem
                 address);
         }
 
+        if (IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer))
+        {
+            return NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
+                address);
+        }
+
         if (IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
             return WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(address);
 

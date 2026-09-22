@@ -77,6 +77,7 @@ internal static partial class Program
         VerifyEnemyProjectileInstructionOwnerCoverage();
         VerifyWalkingSpacePirateInstructionProgramDefinitions(rom);
         VerifyWallSpacePirateInstructionProgramDefinitions(rom);
+        VerifyNinjaSpacePirateInstructionProgramDefinitions(rom);
         VerifyDownwardGateProjectileInstructionProgramDefinitions(rom);
         VerifyNoobTubeProjectileInstructionProgramDefinitions(rom);
         VerifyMotherBrainTopTubeInstructionProgramDefinitions(rom);

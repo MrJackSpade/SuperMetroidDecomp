@@ -107,27 +107,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MagentaNinjaSpacePirateDefinition = 0xf5d3;
     internal const ushort SilverNinjaSpacePirateDefinition = 0xf613;
 
-    private const ushort NinjaPirateClawAttackLeft = 0xf15c;
-    private const ushort NinjaPirateSpinJumpLeft = 0xf1c4;
-    private const ushort NinjaPirateActiveFacingLeft = 0xf22e;
-    private const ushort NinjaPirateFlinchFacingLeft = 0xf270;
-    private const ushort NinjaPirateDivekickLeftJump = 0xf27c;
-    private const ushort NinjaPirateDivekickLeftDive = 0xf2a0;
-    private const ushort NinjaPirateWalkToLeftPost = 0xf2b2;
-    private const ushort NinjaPirateInitialFacingLeft = 0xf2da;
-    private const ushort NinjaPirateLandFacingLeft = 0xf2f8;
-    private const ushort NinjaPirateKickFacingLeft = 0xf32e;
-    private const ushort NinjaPirateClawAttackRight = 0xf34a;
-    private const ushort NinjaPirateSpinJumpRight = 0xf3b2;
-    private const ushort NinjaPirateActiveFacingRight = 0xf420;
-    private const ushort NinjaPirateFlinchFacingRight = 0xf462;
-    private const ushort NinjaPirateDivekickRightJump = 0xf46e;
-    private const ushort NinjaPirateDivekickRightDive = 0xf492;
-    private const ushort NinjaPirateWalkToRightPost = 0xf4a4;
-    private const ushort NinjaPirateInitialFacingRight = 0xf4cc;
-    private const ushort NinjaPirateLandFacingRight = 0xf4ea;
-    private const ushort NinjaPirateKickFacingRight = 0xf51a;
-
     private const ushort NinjaPiratePaletteNormal = 0x0200;
     private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
     private const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
@@ -162,8 +141,8 @@ public sealed partial class RoomEnemySystem
         bool startsAtLeft = ((NinjaSpacePirateParameterFlags)slot.Parameter1 &
             NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0;
         slot.CurrentInstruction = startsAtLeft
-            ? NinjaPirateInitialFacingRight
-            : NinjaPirateInitialFacingLeft;
+            ? NinjaSpacePirateInstructionProgramDefinitions.InitialFacingRight
+            : NinjaSpacePirateInstructionProgramDefinitions.InitialFacingLeft;
         state.ActiveInstruction = slot.CurrentInstruction;
 
         // Parameter two describes the requested distance between posts. The native setup
@@ -285,8 +264,8 @@ public sealed partial class RoomEnemySystem
         }
 
         ushort active = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
-            ? NinjaPirateActiveFacingRight
-            : NinjaPirateActiveFacingLeft;
+            ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
+            : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
         state.ActiveInstruction = active;
         InstallNinjaPirateInstruction(slot, active);
     }
@@ -340,8 +319,8 @@ public sealed partial class RoomEnemySystem
         InstallNinjaPirateInstruction(
             slot,
             unchecked((short)(slot.XPosition - samus.XPosition)) < 0
-                ? NinjaPirateFlinchFacingRight
-                : NinjaPirateFlinchFacingLeft);
+                ? NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingRight
+                : NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingLeft);
         return true;
     }
 
@@ -358,8 +337,8 @@ public sealed partial class RoomEnemySystem
         InstallNinjaPirateInstruction(
             slot,
             unchecked((short)(slot.XPosition - samus.XPosition)) < 0
-                ? NinjaPirateKickFacingRight
-                : NinjaPirateKickFacingLeft);
+                ? NinjaSpacePirateInstructionProgramDefinitions.KickFacingRight
+                : NinjaSpacePirateInstructionProgramDefinitions.KickFacingLeft);
         return true;
     }
 
@@ -377,8 +356,8 @@ public sealed partial class RoomEnemySystem
         InstallNinjaPirateInstruction(
             slot,
             slot.XPosition == state.LeftPostX
-                ? NinjaPirateSpinJumpRight
-                : NinjaPirateSpinJumpLeft);
+                ? NinjaSpacePirateInstructionProgramDefinitions.SpinJumpRight
+                : NinjaSpacePirateInstructionProgramDefinitions.SpinJumpLeft);
         return true;
     }
 
@@ -394,13 +373,17 @@ public sealed partial class RoomEnemySystem
         {
             if (unchecked((short)(slot.XPosition - samus.XPosition)) < 0)
                 return;
-            InstallNinjaPirateInstruction(slot, NinjaPirateClawAttackLeft);
+            InstallNinjaPirateInstruction(
+                slot,
+                NinjaSpacePirateInstructionProgramDefinitions.ClawAttackLeft);
             return;
         }
 
         if (unchecked((short)(slot.XPosition - samus.XPosition)) >= 0)
             return;
-        InstallNinjaPirateInstruction(slot, NinjaPirateClawAttackRight);
+        InstallNinjaPirateInstruction(
+            slot,
+            NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight);
     }
 
     private void RunNinjaPirateReadyToDivekick(
@@ -432,8 +415,8 @@ public sealed partial class RoomEnemySystem
         InstallNinjaPirateInstruction(
             slot,
             slot.XPosition == state.LeftPostX
-                ? NinjaPirateDivekickRightJump
-                : NinjaPirateDivekickLeftJump);
+                ? NinjaSpacePirateInstructionProgramDefinitions.DivekickRightJump
+                : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftJump);
     }
 
     private void StepNinjaPirateSpinJump(
@@ -470,7 +453,9 @@ public sealed partial class RoomEnemySystem
         slot.XPosition = movingRight ? state.RightPostX : state.LeftPostX;
         InstallNinjaPirateInstruction(
             slot,
-            movingRight ? NinjaPirateLandFacingRight : NinjaPirateLandFacingLeft);
+            movingRight
+                ? NinjaSpacePirateInstructionProgramDefinitions.LandFacingRight
+                : NinjaSpacePirateInstructionProgramDefinitions.LandFacingLeft);
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
@@ -501,7 +486,9 @@ public sealed partial class RoomEnemySystem
             : NinjaSpacePirateFunction.DivekickLeftDive;
         InstallNinjaPirateInstruction(
             slot,
-            movingRight ? NinjaPirateDivekickRightDive : NinjaPirateDivekickLeftDive);
+            movingRight
+                ? NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive
+                : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftDive);
         state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
@@ -539,7 +526,9 @@ public sealed partial class RoomEnemySystem
             : NinjaSpacePirateFunction.DivekickLeftWalkToPost;
         InstallNinjaPirateInstruction(
             slot,
-            movingRight ? NinjaPirateWalkToRightPost : NinjaPirateWalkToLeftPost);
+            movingRight
+                ? NinjaSpacePirateInstructionProgramDefinitions.WalkToRightPost
+                : NinjaSpacePirateInstructionProgramDefinitions.WalkToLeftPost);
         slot.YPosition = state.SpawnY;
         slot.YSubposition = 0;
         SpawnNinjaPirateLandingDust(slot, state);
@@ -561,7 +550,9 @@ public sealed partial class RoomEnemySystem
         slot.XPosition = movingRight ? state.RightPostX : state.LeftPostX;
         InstallNinjaPirateInstruction(
             slot,
-            movingRight ? NinjaPirateLandFacingRight : NinjaPirateLandFacingLeft);
+            movingRight
+                ? NinjaSpacePirateInstructionProgramDefinitions.LandFacingRight
+                : NinjaSpacePirateInstructionProgramDefinitions.LandFacingLeft);
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
@@ -662,29 +653,33 @@ public sealed partial class RoomEnemySystem
             return false;
 
         NinjaSpacePirateEnemyState state = RequireNinjaSpacePirateState(slot);
-        int operandAddress = (slot.Definition.Bank << 16) |
-            unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
             case SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY:
-                state.Function = (NinjaSpacePirateFunction)ReadWord(_bus!, operandAddress);
+                state.Function = (NinjaSpacePirateFunction)ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             case SpacePirateInstructionCodes.Instruction_PirateNinja_PaletteIndexInY:
-                slot.PaletteIndex = ReadWord(_bus!, operandAddress);
+                slot.PaletteIndex = ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             case SpacePirateInstructionCodes.Instruction_PirateNinja_QueueSoundInY_Lib2_Max6:
-                LastSpacePirateSoundEffect = ReadWord(_bus!, operandAddress);
+                LastSpacePirateSoundEffect = ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             case SpacePirateInstructionCodes.Instruction_PirateNinja_SpawnClawProjWithThrowDirSpawnOffset:
                 SpawnNinjaPirateClaw(
                     slot,
                     state,
-                    ReadWord(_bus!, operandAddress),
-                    ReadWord(_bus!, operandAddress + 2),
-                    ReadWord(_bus!, operandAddress + 4));
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))),
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4))),
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6))));
                 cursor = unchecked((ushort)(cursor + 8));
                 return true;
             case SpacePirateInstructionCodes.Instruction_PirateNinja_SetFunction0FAC_Active:
@@ -694,8 +689,8 @@ public sealed partial class RoomEnemySystem
                         "Ninja Space Pirate facing selection requires the active Samus actor.");
                 }
                 state.ActiveInstruction = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
-                    ? NinjaPirateActiveFacingRight
-                    : NinjaPirateActiveFacingLeft;
+                    ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
+                    : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
                 slot.InstructionTimer = 1;
                 // The native instruction returns the selected list, not its next word.
                 // Re-entering that list executes FunctionInY and restores decision AI

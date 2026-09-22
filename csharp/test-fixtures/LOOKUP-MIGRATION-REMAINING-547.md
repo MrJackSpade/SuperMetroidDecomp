@@ -1370,7 +1370,7 @@ laser-offset, branch, and target words. Both complete three-shot attacks, the tw
 loops, both flinches, and both look-around handoffs execute through the real ordinary-enemy
 interpreter with mechanics bytes forbidden. Fifty extended-spritemap operands remain live
 cartridge presentation data. Wall Pirate mechanics are covered below; ninja Pirate body
-programs remain separate work.
+programs are covered below.
 
 ## Wall Space Pirate instruction mechanics
 
@@ -1379,7 +1379,16 @@ movement, branch, and target words. Both laser/jump attacks, both landed fallthr
 and all four climb directions execute through the real ordinary-enemy interpreter. Both
 walls also reverse through the real solid-collision path with mechanics bytes forbidden.
 Forty-two extended-spritemap operands
-remain live cartridge presentation data. Ninja Pirate body programs remain separate work.
+remain live cartridge presentation data. Ninja Pirate mechanics are covered below.
+
+## Ninja Space Pirate instruction mechanics
+
+All twenty production ninja Space Pirate body programs now compile their 308 function,
+palette, sound, claw geometry, timing, branch, and target words. Both claw attacks, both
+spin jumps, active/flinch/kick programs, both divekick phases, both return walks, initial
+loops, and landing handoffs execute through the real ordinary-enemy interpreter with
+mechanics bytes forbidden. The claw and dive side effects are asserted directly, while
+140 extended-spritemap operands remain live cartridge presentation data.
 
 ## Tourian entrance-statue projectile instruction mechanics
 

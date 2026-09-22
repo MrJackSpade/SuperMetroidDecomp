@@ -162,6 +162,26 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 definition.ColorPointer,
                 colors);
         }
+        ValidateAndCompile(
+            "Ceres gunship-engine lights",
+            document.CeresGunshipEngineLights,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineFrameCount,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineColorsPerFrame,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineColorPointer,
+            colors);
+        ValidateAndCompile(
+            "Ceres navigation lights",
+            document.CeresNavigationLights,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .NavigationLightsFrameCount,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .NavigationLightsColorsPerFrame,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .NavigationLightsColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -238,10 +258,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] TourianStatueGrey { get; init; }
     public required PaletteRgb5[][] CrateriaSurfaceLightning { get; init; }
     public required PaletteRgb5[][] CrateriaUnusedDarkLightning { get; init; }
+    public required PaletteRgb5[][] CeresGunshipEngineLights { get; init; }
+    public required PaletteRgb5[][] CeresNavigationLights { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 7;
+    public const int Version = 8;
 }

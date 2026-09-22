@@ -105,6 +105,15 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
             frame * GunshipEngineFrameByteCount));
     }
 
+    /// <summary>Returns one presentation-owned gunship-engine BGR555 word.</summary>
+    public static ushort GunshipEngineColorPointer(int frame, int color)
+    {
+        if ((uint)color >= GunshipEngineColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(GunshipEngineFramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Returns one shared Ceres navigation-light timed-record pointer.</summary>
     public static ushort NavigationLightsFramePointer(int frame)
     {
@@ -112,6 +121,15 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
             throw new ArgumentOutOfRangeException(nameof(frame));
         return unchecked((ushort)(NavigationLightsFirstFramePointer +
             frame * NavigationLightsFrameByteCount));
+    }
+
+    /// <summary>Returns one presentation-owned shared navigation-light BGR555 word.</summary>
+    public static ushort NavigationLightsColorPointer(int frame, int color)
+    {
+        if ((uint)color >= NavigationLightsColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(NavigationLightsFramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
     }
 
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>

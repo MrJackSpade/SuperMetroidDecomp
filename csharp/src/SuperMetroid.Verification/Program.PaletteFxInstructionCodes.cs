@@ -1262,9 +1262,8 @@ internal static partial class Program
                  .GunshipEngineFrameCount;
              frame++)
         {
-            ushort color = unchecked((ushort)(
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                    .GunshipEngineFramePointer(frame) + sizeof(ushort)));
+            ushort color = CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineColorPointer(frame, 0);
             AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                     color,
                     out _),
@@ -1276,16 +1275,14 @@ internal static partial class Program
                  .NavigationLightsFrameCount;
              frame++)
         {
-            ushort firstColor = unchecked((ushort)(
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                    .NavigationLightsFramePointer(frame) + sizeof(ushort)));
             for (int color = 0;
                  color < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                      .NavigationLightsColorsPerFrame;
                  color++)
             {
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                            .NavigationLightsColorPointer(frame, color),
                         out _),
                     "Ceres navigation-light colors remain presentation-owned");
             }

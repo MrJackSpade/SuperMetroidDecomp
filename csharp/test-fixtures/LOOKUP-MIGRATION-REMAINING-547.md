@@ -1954,3 +1954,11 @@ bytes and runs both native nested-timer programs for two complete 503/743-frame 
 with exact CGRAM parity. Their destinations, pre-instructions, timer operands, branches,
 and the shared $0380 Samus-Y boundary remain compiled domain mechanics; the boundary is
 no longer repeated as a raw literal in the runtime dispatcher.
+
+The Ceres cinematic gunship-engine flicker and both navigation-light callers now source
+their 30 BGR555 words from two named installed arrays. The sprite and background Ceres
+entries intentionally share one fourteen-record payload, preserving their native
+convergence at `$8D:C892`. Verification blocks all 60 color bytes and runs the gunship
+for two complete two-frame cycles plus both navigation-light definitions for two complete
+56-frame cycles with exact CGRAM parity; placement, waits, timing, and branches remain
+compiled mechanics.

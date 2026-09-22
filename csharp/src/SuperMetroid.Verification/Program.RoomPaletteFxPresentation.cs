@@ -143,10 +143,40 @@ internal static partial class Program
                 definition.CycleFrames * 2,
                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY);
         }
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "Ceres gunship-engine lights",
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineFrameCount,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineColorsPerFrame,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineColorPointer,
+            [CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineDefinitionPointer],
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineCycleFrames * 2);
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "Ceres navigation lights",
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions.NavigationLightsFrameCount,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .NavigationLightsColorsPerFrame,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .NavigationLightsColorPointer,
+            [
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .SpriteNavigationLightsDefinitionPointer,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .BackgroundNavigationLightsDefinitionPointer,
+            ],
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .NavigationLightsCycleFrames * 2);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 992 editable environmental colors match ROM; " +
-            "sixteen installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 1022 editable environmental colors match ROM; " +
+            "nineteen installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -395,9 +425,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete Crateria dark-lightning frame");
         document.CrateriaUnusedDarkLightning[0] = darkLightningFrame;
 
+        PaletteRgb5[][] gunshipLights = document.CeresGunshipEngineLights;
+        document = document with { CeresGunshipEngineLights = gunshipLights[..^1] };
+        Reject("room palette-FX rejects incomplete Ceres gunship-engine lights");
+        document = document with { CeresGunshipEngineLights = gunshipLights };
+
+        PaletteRgb5[] navigationFrame = document.CeresNavigationLights[0];
+        document.CeresNavigationLights[0] = navigationFrame[..^1];
+        Reject("room palette-FX rejects incomplete Ceres navigation-light frame");
+        document.CeresNavigationLights[0] = navigationFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 7",
-            "\"version\": 7,\n  \"nativeAddress\": 9240718",
+            "\"version\": 8",
+            "\"version\": 8,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

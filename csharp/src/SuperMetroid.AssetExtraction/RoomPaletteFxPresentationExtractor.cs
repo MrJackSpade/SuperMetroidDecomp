@@ -53,6 +53,20 @@ internal static class RoomPaletteFxPresentationExtractor
                 CrateriaLightningPaletteOwner.SurfaceLightning),
             CrateriaUnusedDarkLightning = ExtractCrateriaLightning(
                 CrateriaLightningPaletteOwner.UnusedDarkLightning),
+            CeresGunshipEngineLights = ExtractFrames(
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineFrameCount,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineColorsPerFrame,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .GunshipEngineColorPointer),
+            CeresNavigationLights = ExtractFrames(
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsFrameCount,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsColorsPerFrame,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                    .NavigationLightsColorPointer),
         });
         return json.ToArray();
 

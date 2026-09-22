@@ -255,6 +255,16 @@ internal static partial class Program
         {
             Red = darkLightning.Red == 31 ? 30 : darkLightning.Red + 1,
         };
+        PaletteRgb5 gunshipLight = document.CeresGunshipEngineLights[0][0];
+        document.CeresGunshipEngineLights[0][0] = gunshipLight with
+        {
+            Green = gunshipLight.Green == 31 ? 30 : gunshipLight.Green + 1,
+        };
+        PaletteRgb5 navigationLight = document.CeresNavigationLights[0][0];
+        document.CeresNavigationLights[0][0] = navigationLight with
+        {
+            Blue = navigationLight.Blue == 31 ? 30 : navigationLight.Blue + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -311,13 +321,30 @@ internal static partial class Program
                 lightningDefinition.ColorByteIndex,
                 $"Crateria {lightningDefinition.Owner}");
         }
+        AssertOverride(
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .GunshipEngineDefinitionPointer,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorIndex,
+            "Ceres gunship engine");
+        AssertOverride(
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .SpriteNavigationLightsDefinitionPointer,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .SpriteNavigationLightsColorIndex,
+            "sprite Ceres navigation lights");
+        AssertOverride(
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .BackgroundNavigationLightsDefinitionPointer,
+            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                .BackgroundNavigationLightsColorIndex,
+            "background Ceres navigation lights");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and eleven live environmental " +
+            "Room palette-FX override: content identity and fourteen live environmental " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

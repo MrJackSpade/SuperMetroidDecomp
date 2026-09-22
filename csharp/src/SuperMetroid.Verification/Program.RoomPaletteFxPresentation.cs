@@ -217,10 +217,30 @@ internal static partial class Program
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
             [UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "title-logo fade",
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            [TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+        VerifyInstalledPaletteFxFamily(
+            bus,
+            presentation,
+            "Nintendo shared fade",
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All
+                .Select(definition => definition.DefinitionPointer)
+                .ToArray(),
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 1358 editable palette colors match ROM; " +
-            "twenty-five installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 1494 editable palette colors match ROM; " +
+            "twenty-eight installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -512,9 +532,19 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete unused cinematic-fade frame");
         document.UnusedCinematicFade[0] = unusedFadeFrame;
 
+        PaletteRgb5[][] titleLogo = document.TitleLogoFade;
+        document = document with { TitleLogoFade = titleLogo[..^1] };
+        Reject("room palette-FX rejects incomplete title-logo fade");
+        document = document with { TitleLogoFade = titleLogo };
+
+        PaletteRgb5[] nintendoFrame = document.NintendoSharedFade[0];
+        document.NintendoSharedFade[0] = nintendoFrame[..^1];
+        Reject("room palette-FX rejects incomplete Nintendo shared-fade frame");
+        document.NintendoSharedFade[0] = nintendoFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 11",
-            "\"version\": 11,\n  \"nativeAddress\": 9240718",
+            "\"version\": 12",
+            "\"version\": 12,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

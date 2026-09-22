@@ -246,15 +246,13 @@ internal static partial class Program
              frame < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
              frame++)
         {
-            ushort firstColor = unchecked((ushort)(
-                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                sizeof(ushort)));
             for (int color = 0;
                  color < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        NintendoLogoFadePaletteFxProgramMechanicsDefinitions
+                            .ColorPointer(frame, color),
                         out _),
                     "Nintendo-logo fade colors remain presentation-owned");
             }
@@ -321,15 +319,13 @@ internal static partial class Program
              frame < TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
              frame++)
         {
-            ushort firstColor = unchecked((ushort)(
-                TitleLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                sizeof(ushort)));
             for (int color = 0;
                  color < TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
             {
                 AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        TitleLogoFadePaletteFxProgramMechanicsDefinitions
+                            .ColorPointer(frame, color),
                         out _),
                     "title-logo fade colors remain presentation-owned");
             }

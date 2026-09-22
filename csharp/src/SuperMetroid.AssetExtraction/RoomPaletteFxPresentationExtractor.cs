@@ -83,6 +83,14 @@ internal static class RoomPaletteFxPresentationExtractor
                 UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount,
                 UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
                 UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+            TitleLogoFade = ExtractFrames(
+                TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+            NintendoSharedFade = ExtractFrames(
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
 

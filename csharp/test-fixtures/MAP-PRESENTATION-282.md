@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 51 uses `room-palette-effects.json` schema version 11 (forty-five
+Catalog version 52 uses `room-palette-effects.json` schema version 12 (forty-five
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1388,17 +1388,19 @@ three-color records for the opening cinematic's one-shot text fade.
 `cinematicGunshipGlow` exposes fourteen one-color glow records. The zoomed-out
 `explodingZebesFade` has seven eight-color records, and `unusedCinematicFade` preserves
 the cartridge's eleven sixteen-color records even though retail never installs it.
+`titleLogoFade` contains eight fifteen-color records; `nintendoSharedFade` contains
+eight two-color records used by both the unused boot logo and live copyright fade.
 Copy the stock file to `overrides/maps/room-palette-effects.json` to recolor these
 room and cinematic effects without changing the cartridge or engine code.
 
-Only the 1358 authored RGB5 entries are presentation data. Native record layouts,
+Only the 1494 authored RGB5 entries are presentation data. Native record layouts,
 heat-phase publication, destinations, durations, palette-pointer skips, waits, and loop
 targets remain compiled mechanics. The installed catalog binds its
 color provider to the existing room palette interpreter, including after debugger-state
 content rebinds; an unbound diagnostic interpreter retains its explicit cartridge
 fallback.
 
-Verification compares every extracted mapping with the cartridge, forbids all 2800
+Verification compares every extracted mapping with the cartridge, forbids all 3072
 source bytes, executes all four Norfair programs through two complete 116-frame cycles,
 and executes the three Maridia programs through two complete cycles of their 40/40/16
 cadences. Both Wrecked Ship definitions execute two complete 80-frame cycles from
@@ -1413,10 +1415,11 @@ Ceres navigation-light definitions run two complete 56-frame cycles through thei
 payload. Both PLANET ZEBES text fades execute all 24 frames and their terminal deletion.
 Both cinematic-glow definitions run two complete 84/70-frame cycles. Both cinematic fades
 run through their complete 56/22-frame one-shot programs and delete after the terminal
-hold. A valid override changes catalog identity and twenty independent live runtime
-outputs, while removing it restores both exactly. Wrong frame or color counts, unsupported
-versions, invalid RGB5
-values, unknown/native-address fields, corrupt stock, and malformed overrides fail loudly.
+hold. The title-logo and both Nintendo callers likewise execute their 24-frame fades
+through deletion. A valid override changes catalog identity and twenty-three independent
+live runtime outputs, while removing it restores both exactly. Wrong frame or color counts,
+unsupported versions, invalid RGB5 values, unknown/native-address fields, corrupt stock,
+and malformed overrides fail loudly.
 
 ## Editable title artwork (#549)
 

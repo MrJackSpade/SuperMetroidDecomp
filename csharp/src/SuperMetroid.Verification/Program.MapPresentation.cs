@@ -295,6 +295,16 @@ internal static partial class Program
         {
             Blue = unusedFade.Blue == 31 ? 30 : unusedFade.Blue + 1,
         };
+        PaletteRgb5 titleLogo = document.TitleLogoFade[0][0];
+        document.TitleLogoFade[0][0] = titleLogo with
+        {
+            Red = titleLogo.Red == 31 ? 30 : titleLogo.Red + 1,
+        };
+        PaletteRgb5 nintendoFade = document.NintendoSharedFade[0][0];
+        document.NintendoSharedFade[0][0] = nintendoFade with
+        {
+            Green = nintendoFade.Green == 31 ? 30 : nintendoFade.Green + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -392,13 +402,25 @@ internal static partial class Program
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             "unused cinematic fade");
+        AssertOverride(
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+            "title-logo fade");
+        foreach (NintendoLogoFadePaletteFxProgramDefinition nintendoDefinition in
+                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All)
+        {
+            AssertOverride(
+                nintendoDefinition.DefinitionPointer,
+                nintendoDefinition.ColorByteIndex,
+                $"Nintendo shared fade {nintendoDefinition.Owner}");
+        }
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and twenty live palette " +
+            "Room palette-FX override: content identity and twenty-three live palette " +
             "CGRAM outputs " +
             "change immediately, then restore exactly.");
 

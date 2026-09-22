@@ -1980,3 +1980,10 @@ The zoomed-out exploding-Zebes fade and cartridge-unused cinematic fade now sour
 bytes, compares every CGRAM frame through the 56/22-frame one-shot programs and terminal
 deletions, and checks independent overrides. CGRAM placement, durations, waits, and
 deletion remain compiled mechanics.
+
+The Super Metroid title-logo fade and Nintendo shared fade now source 136 BGR555 words
+from two installed arrays. The unused Nintendo boot entry and live copyright entry
+converge on the same eight-record color payload. Verification blocks all 272 source bytes,
+compares every CGRAM frame through each 24-frame one-shot fade and terminal deletion,
+and checks overrides at all three destinations. Palette placement, durations, waits,
+entry branches, and deletion remain compiled mechanics.

@@ -236,6 +236,20 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
             colors);
+        ValidateAndCompile(
+            "title-logo fade",
+            document.TitleLogoFade,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
+        ValidateAndCompile(
+            "Nintendo shared fade",
+            document.NintendoSharedFade,
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            colors);
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -320,10 +334,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] CinematicGunshipGlow { get; init; }
     public required PaletteRgb5[][] ExplodingZebesFade { get; init; }
     public required PaletteRgb5[][] UnusedCinematicFade { get; init; }
+    public required PaletteRgb5[][] TitleLogoFade { get; init; }
+    public required PaletteRgb5[][] NintendoSharedFade { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 11;
+    public const int Version = 12;
 }

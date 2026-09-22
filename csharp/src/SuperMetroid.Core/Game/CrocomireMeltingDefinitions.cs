@@ -30,10 +30,15 @@ internal static class CrocomireMeltingDefinitions
     /// <c>TilePixelColumnBitmasks</c> at <c>$A4:9BBD-$A4:9BC4</c>. Native indexes
     /// these by chronological table cursor rather than selected X column.
     /// </summary>
-    /// <remarks>#625 exact candidate: 255 XOR (128 &gt;&gt; (cursor &amp; 7)), for cursor=0..48.
-    /// LookupTableResearch checks all eight ROM/assembly bytes and every compiled cursor result.
-    /// This generates the clear-bit masks only, not the separate 49-column permutation.
-    /// Preserve the native chronological-cursor indexing bug; using SelectColumn(cursor) would change behavior.</remarks>
+    /// <remarks>
+    /// Exact bounded rule for cursor 0..48:
+    /// <c>$FF XOR ($80 &gt;&gt; (cursor &amp; 7))</c>. All eight physical bytes
+    /// match the pinned NTSC J/U v1.0 ROM; the rule reproduces all 49 cursor
+    /// results and the complete production erase silhouette. The cartridge
+    /// selects the mask by chronological cursor, not by the separately selected
+    /// X column. This proof covers only the masks, not that column permutation.
+    /// Investigation: #625 / #673.
+    /// </remarks>
     private static ReadOnlySpan<byte> ColumnMasks =>
         [0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe];
 

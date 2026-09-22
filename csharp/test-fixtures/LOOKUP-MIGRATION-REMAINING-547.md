@@ -1577,7 +1577,8 @@ restarts its neutral record immediately without restoring a cartridge read.
 Maridia's sand-pit, sand-fall, and background-waterfall programs now compile all 44
 color-index, duration, wait, branch, and target words through
 `MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions`. Their 112 BGR555 color words
-remain live presentation data.
+are separate presentation data, installed from `room-palette-effects.json` in normal
+sessions.
 
 All three real definitions execute a complete 40/40/16-frame cycle and repeat their first
 record with mechanics bytes forbidden. Exact ROM parity, every live color read, strict
@@ -1910,3 +1911,9 @@ CGRAM and heat-phase parity. Installed-content override tests also prove that a 
 edit reaches the live runtime after catalog binding and that removing it restores the
 original content identity. This removes the first normal-room palette payload from
 installed ROM dependencies while leaving #547's broader lookup/callback inventory open.
+
+The same installed asset now owns Maridia's 112 sand-pit, sand-fall, and
+background-waterfall BGR555 words. Verification forbids all 224 source bytes and runs all
+three real programs through two complete cycles with exact native CGRAM parity. Named
+Maridia overrides reach live runtime output without moving their destinations, cadence,
+waits, or loop mechanics into presentation data.

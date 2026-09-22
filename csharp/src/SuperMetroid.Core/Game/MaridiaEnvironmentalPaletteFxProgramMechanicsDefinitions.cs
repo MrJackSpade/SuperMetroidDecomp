@@ -139,6 +139,15 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
+    /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    public ushort ColorPointer(int frame, int color)
+    {
+        if ((uint)color >= ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
+            color * sizeof(ushort)));
+    }
+
     /// <summary>Reads one fixed mechanics word while excluding BGR555 presentation words.</summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {

@@ -205,6 +205,11 @@ internal static partial class Program
         {
             Red = color.Red == 31 ? 30 : color.Red + 1,
         };
+        PaletteRgb5 waterfall = document.MaridiaBackgroundWaterfalls[0][0];
+        document.MaridiaBackgroundWaterfalls[0][0] = waterfall with
+        {
+            Blue = waterfall.Blue == 31 ? 30 : waterfall.Blue + 1,
+        };
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -233,12 +238,26 @@ internal static partial class Program
             editedRuntime.Cgram.Colors[definition.ColorByteIndex / 2],
             "runtime catalog binding consumes selected room palette-FX override");
 
+        MaridiaEnvironmentalPaletteFxProgramDefinition waterfallDefinition =
+            MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(item =>
+                item.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls);
+        stockRuntime.RoomPaletteFx.SpawnDefinition(
+            bus, waterfallDefinition.DefinitionPointer, 0);
+        editedRuntime.RoomPaletteFx.SpawnDefinition(
+            bus, waterfallDefinition.DefinitionPointer, 0);
+        stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, 0, 0, false, false);
+        editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, 0, 0, false, false);
+        AssertTrue(
+            stockRuntime.Cgram.Colors[waterfallDefinition.ColorByteIndex / 2] !=
+            editedRuntime.Cgram.Colors[waterfallDefinition.ColorByteIndex / 2],
+            "runtime catalog binding consumes selected Maridia palette-FX override");
+
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
-            "Room palette-FX override: content identity and live Norfair CGRAM output " +
+            "Room palette-FX override: content identity and live Norfair/Maridia CGRAM output " +
             "change immediately, then restore exactly.");
     }
 

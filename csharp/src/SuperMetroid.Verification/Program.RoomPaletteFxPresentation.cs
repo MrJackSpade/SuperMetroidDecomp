@@ -69,10 +69,63 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed Norfair palette loops avoid cartridge color reads");
 
+        VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation);
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 320 editable Norfair colors match ROM; " +
-            "four installed programs match two native cycles without color-source reads.");
+            "  Room palette presentation: 432 editable Norfair/Maridia colors match ROM; " +
+            "seven installed programs match two native cycles without color-source reads.");
+    }
+
+    private static void VerifyExtractedMaridiaPaletteFxPresentation(
+        ISnesAddressSpace bus,
+        RoomPaletteFxPresentation presentation)
+    {
+        var colorAddresses = new HashSet<int>();
+        foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
+                 MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        {
+            for (int frame = 0; frame < definition.FrameCount; frame++)
+            for (int color = 0; color < definition.ColorsPerFrame; color++)
+            {
+                ushort pointer = definition.ColorPointer(frame, color);
+                ushort expected = RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer);
+                AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
+                    $"installed Maridia color resolves $8D:{pointer:X4}");
+                AssertEqual(expected, actual,
+                    $"installed Maridia color matches cartridge $8D:{pointer:X4}");
+                colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
+                colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+                    unchecked((ushort)(pointer + 1)));
+            }
+        }
+        AssertEqual(224, colorAddresses.Count,
+            "Maridia presentation owns all 112 BGR555 source words");
+
+        var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+        var native = new RoomPaletteFxSystem();
+        var installed = new RoomPaletteFxSystem();
+        installed.BindPresentationColors(presentation);
+        foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
+                 MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        {
+            native.SpawnDefinition(bus, definition.DefinitionPointer, equippedItems: 0);
+            installed.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+        }
+
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
+        const int frames = 80;
+        for (int frame = 0; frame < frames; frame++)
+        {
+            native.Step(bus, nativeCgram, 0, 0, false, false);
+            installed.Step(guarded, installedCgram, 0, 0, false, false);
+            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                $"installed Maridia palette equals native output on frame {frame}");
+        }
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed Maridia palette loops avoid cartridge color reads");
     }
 
     private static void VerifyRoomPaletteFxPresentationValidation(byte[] extracted)
@@ -109,9 +162,19 @@ internal static partial class Program
         Reject("room palette-FX rejects non-RGB5 room color");
         document.NorfairForegroundPalette5[0][0] = first;
 
+        PaletteRgb5[][] waterfalls = document.MaridiaBackgroundWaterfalls;
+        document = document with { MaridiaBackgroundWaterfalls = waterfalls[..^1] };
+        Reject("room palette-FX rejects incomplete Maridia animation");
+        document = document with { MaridiaBackgroundWaterfalls = waterfalls };
+
+        PaletteRgb5[] sandFallFrame = document.MaridiaSandFalls[0];
+        document.MaridiaSandFalls[0] = sandFallFrame[..^1];
+        Reject("room palette-FX rejects incomplete Maridia frame");
+        document.MaridiaSandFalls[0] = sandFallFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 1",
-            "\"version\": 1,\n  \"nativeAddress\": 9240718",
+            "\"version\": 2",
+            "\"version\": 2,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

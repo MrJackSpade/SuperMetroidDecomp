@@ -19,6 +19,14 @@ internal static class ChootInstructionProgramDefinitions
     internal const ushort Idle = 0xd82c;
 
     /// <summary><c>InstructionList_Choot_Jumping</c> at $A2:D834.</summary>
+    /// <remarks>
+    /// The pinned NTSC J/U v1.0 ROM contains
+    /// <c>8173,0008,E15C,0001,E168,812F</c>: enable off-screen processing,
+    /// display <c>E15C</c> for eight frames and <c>E168</c> for one, then sleep.
+    /// Retain this bounded authored command/timing sequence. Opcodes and
+    /// durations are compiled mechanics; spritemap operands remain live
+    /// presentation reads. Investigation: #625 / #663.
+    /// </remarks>
     internal const ushort Jumping = 0xd834;
 
     /// <summary><c>InstructionList_Choot_Falling</c> at $A2:D840.</summary>

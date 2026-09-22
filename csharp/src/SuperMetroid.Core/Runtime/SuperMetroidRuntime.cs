@@ -570,7 +570,7 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer2ScrollX = 0x81;
         BackgroundScroll.Layer2ScrollY = 0x01;
         BackgroundScroll.PrimePreviousBlocks();
-        LevelData = LandingSiteStreamingData.LoadLevel(_addressSpace);
+        LevelData = LandingSiteStreamingData.LoadLevel(_addressSpace, RoomMetatileArt);
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(sizeOfBg2: 0);
         // Supplying the ROM bus matters at the landing-cutscene's Y=0 edge: bank $88's
         // unsigned cameraY-16 table index intentionally reads adjacent ROM instructions.
@@ -654,7 +654,7 @@ public sealed partial class SuperMetroidRuntime
             throw new InvalidOperationException("Landing Site entry metadata was not initialized.");
 
         LandingSiteStreamingData.LoadCharacterGraphics(_addressSpace, Vram, LandingSiteEntry,
-            RoomSkyTilemapArt);
+            RoomSkyTilemapArt, RoomCharacterArt);
 
         // The selected room-state record owns both of these pointers. This call parses the
         // terminated $A1 population and $B4 graphics set, loads palettes/tiles, constructs

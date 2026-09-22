@@ -95,6 +95,11 @@ screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixe
 and the neutral PNG palette is only a preview. The room palette and metatile map
 still supply the on-screen colors and arrangement.
 
+Landing Site's dedicated setup path uses these same installed CRE and area
+sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
+allocation remains cartridge-backed because those words also drive collision
+and placement; artwork overrides do not edit room geometry.
+
 Copy a sheet to the matching filename under `overrides/room-characters/`, edit it,
 and restart. The selected sheet is loaded on desktop and Android; debugger-state
 loads rebind it for subsequent room loads, though an already-captured VRAM frame

@@ -18,21 +18,26 @@ public static class LandingSiteStreamingData
     /// Decompresses the same three inputs that bank $82 installs in WRAM and constructs the
     /// verified bank-$80 row/column producer over them.
     /// </summary>
-    public static BackgroundTilemapStreamer CreateStreamer(ISnesAddressSpace bus)
+    public static BackgroundTilemapStreamer CreateStreamer(ISnesAddressSpace bus,
+        RoomMetatileCatalog? metatileArt = null)
     {
-        return LoadLevel(bus).CreateBackgroundStreamer(sizeOfBg2: 0);
+        return LoadLevel(bus, metatileArt).CreateBackgroundStreamer(sizeOfBg2: 0);
     }
 
     /// <summary>
     /// Decompresses Landing Site's unified BG1/BTS/BG2 allocation exactly once so visual
     /// streaming and the forthcoming bank-$94 collision port share identical source data.
     /// </summary>
-    public static RoomLevelData LoadLevel(ISnesAddressSpace bus)
+    public static RoomLevelData LoadLevel(ISnesAddressSpace bus,
+        RoomMetatileCatalog? metatileArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        byte[] creDefinitions = DecompressExact(bus, RoomAssetRomData.LandingSite.CreBlockDefinitions);
-        byte[] areaDefinitions = DecompressExact(bus, RoomAssetRomData.LandingSite.AreaBlockDefinitions);
+        byte[] creDefinitions = metatileArt?.Cre.Transfer.ToArray() ??
+            DecompressExact(bus, RoomAssetRomData.LandingSite.CreBlockDefinitions);
+        byte[] areaDefinitions = metatileArt?.Get(
+                RoomAssetRomData.LandingSite.AreaBlockDefinitions.Address).Transfer.ToArray() ??
+            DecompressExact(bus, RoomAssetRomData.LandingSite.AreaBlockDefinitions);
         if (creDefinitions.Length != RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount)
             throw new InvalidDataException($"CRE block table expanded to ${creDefinitions.Length:X}, expected $800.");
 
@@ -90,13 +95,17 @@ public static class LandingSiteStreamingData
         ISnesAddressSpace bus,
         SnesVram vram,
         LandingSiteEntryState entry,
-        RoomSkyTilemapCatalog? skyArt = null)
+        RoomSkyTilemapCatalog? skyArt = null,
+        RoomCharacterAtlasCatalog? characterArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(entry);
-        byte[] creTiles = DecompressExact(bus, RoomAssetRomData.LandingSite.CreCharacters);
-        byte[] areaTiles = DecompressExact(bus, RoomAssetRomData.LandingSite.AreaCharacters);
+        byte[] creTiles = characterArt?.Cre.Transfer.ToArray() ??
+            DecompressExact(bus, RoomAssetRomData.LandingSite.CreCharacters);
+        byte[] areaTiles = characterArt?.Get(
+                RoomAssetRomData.LandingSite.AreaCharacters.Address).Transfer.ToArray() ??
+            DecompressExact(bus, RoomAssetRomData.LandingSite.AreaCharacters);
         vram.LoadBytes(RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset, creTiles);
         vram.LoadBytes(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset, areaTiles);
 

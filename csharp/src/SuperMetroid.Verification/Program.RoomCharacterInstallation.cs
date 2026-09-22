@@ -189,6 +189,8 @@ internal static partial class Program
 
             RoomSkyTilemapCatalog stockSky = installed.LoadRoomSkyTilemaps();
             LandingSiteEntryState landingEntry = LandingSiteEntryState.LoadLandingCutscene(bus);
+            VerifyLandingSiteInstalledArtwork(installed, bus, landingEntry,
+                stock, edited, stockBlocks, stockSky);
             int skyPage = (landingEntry.SkySourceAddress -
                 RoomSkyTilemapFormat.FirstSourceAddress) / RoomSkyTilemapFormat.PageByteCount;
             string skyName = RoomSkyTilemapFormat.FileName(skyPage);

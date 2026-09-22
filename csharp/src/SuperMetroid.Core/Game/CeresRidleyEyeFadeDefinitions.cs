@@ -20,6 +20,16 @@ internal static class CeresRidleyEyeFadeDefinitions
     /// Resolves one authored scheduler offset. The first sixteen frames select rows
     /// fifteen down through zero; the remaining 48 frames hold row zero before completion.
     /// </summary>
+    /// <remarks>
+    /// #625 / #651 exact NTSC J/U v1.0 algorithm: offset 0..15 selects row
+    /// 15-offset, offset 16..63 selects row zero, and offset 64 is the $FF
+    /// completion marker. All 65 bytes at $A6:E269-$E2A9 match the pinned ROM
+    /// and bank-A6 disassembly. Native code reads a word at each byte offset
+    /// and masks its low byte; the overlapping high byte is discarded. Offset
+    /// 65 would read the adjacent eye-palette byte and is outside this schedule.
+    /// VerifyCeresRidleyEyeFadeDefinitions checks every row and the terminal
+    /// transition through the real fade consumer with schedule reads forbidden.
+    /// </remarks>
     public static CeresRidleyEyeFadeStep Get(ushort offset) => offset switch
     {
         < 16 => new(false, unchecked((byte)(15 - offset))),

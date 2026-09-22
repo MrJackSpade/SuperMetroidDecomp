@@ -34,7 +34,7 @@ internal static partial class Program
 
         (Type Catalog, byte Bank)[] bankLocalCatalogs =
         [
-            (typeof(GunshipInstructionLists), 0xa2),
+            (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
             (typeof(DraygonInstructionLists), 0xa5),
             (typeof(RidleyInstructionLists), 0xa6),

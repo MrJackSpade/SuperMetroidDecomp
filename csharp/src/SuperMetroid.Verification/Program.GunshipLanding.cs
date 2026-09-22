@@ -50,15 +50,17 @@ internal static partial class Program
         WriteWord(bus, 0xa00000 | (bottomDefinition + 18), 0xa6d2);
         WriteWord(bus, 0xa00000 | (bottomDefinition + 24), 0x804c);
 
-        // The exact gunship lists are animation owners, not phase timers. Small sleeping
-        // fixture maps keep ProcessInstructions alive without borrowing the adjacent
-        // $A622 motion table as a synthetic Goto operand. The main-AI assertions below
-        // still prove that opening/closing selects cartridge entries $A5BE/$A5EE.
-        foreach (ushort list in new ushort[] { 0xa616, 0xa61c, 0xa60e, 0xa5be, 0xa5ee })
+        // Gunship control words are compiled engine data. This synthetic address space
+        // supplies only the interleaved spritemap operands that remain presentation-owned.
+        for (int index = 0;
+             index < GunshipInstructionProgramDefinitions.PresentationWordCount;
+             index++)
         {
-            WriteWord(bus, 0xa20000 | list, 1);
-            WriteWord(bus, (0xa20000 | list) + 2, 0xa700);
-            WriteWord(bus, (0xa20000 | list) + 4, CommonEnemyInstructionCodes.Sleep);
+            WriteWord(
+                bus,
+                0xa20000 |
+                    GunshipInstructionProgramDefinitions.PresentationWordAddress(index),
+                0xa700);
         }
 
         // Function 17 uploads five consecutive $400-byte dust-cloud chunks from bank $94.
@@ -145,13 +147,19 @@ internal static partial class Program
             {
                 // EnemyMain installs $A5BE, then this same slot's ordinary instruction
                 // phase consumes its first four-byte timed frame before StepFrame returns.
-                AssertEqual(0xa5c2, pad.CurrentInstruction,
+                AssertEqual(
+                    unchecked((ushort)(
+                        GunshipInstructionProgramDefinitions.EntrancePadOpening + 4)),
+                    pad.CurrentInstruction,
                     "bounce completion advances the cartridge pad-open list once");
             }
             observedPadClose |= enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed;
             if (enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed)
             {
-                AssertEqual(0xa5f2, pad.CurrentInstruction,
+                AssertEqual(
+                    unchecked((ushort)(
+                        GunshipInstructionProgramDefinitions.EntrancePadClosing + 4)),
+                    pad.CurrentInstruction,
                     "Samus lift advances the cartridge pad-close list once");
             }
         }

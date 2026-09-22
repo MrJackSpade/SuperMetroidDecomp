@@ -44,18 +44,3 @@ internal static class GunshipCodePointers
     /// <summary>Shared accelerating vertical integrator at $A2:AD2D.</summary>
     public const ushort MoveAccelerating = 0xad2d;
 }
-
-/// <summary>Gunship animation-list pointers in bank $A2.</summary>
-internal static class GunshipInstructionLists
-{
-    /// <summary>Bottom entrance-pad instruction list at $A2:A60E.</summary>
-    public const ushort BottomEntrancePad = 0xa60e;
-    /// <summary>Static bottom-hull instruction list at $A2:A61C.</summary>
-    public const ushort BottomHull = 0xa61c;
-    /// <summary>Static top-hull instruction list at $A2:A616.</summary>
-    public const ushort TopHull = 0xa616;
-    /// <summary>Entrance-pad opening instruction list at $A2:A5BE.</summary>
-    public const ushort EntrancePadOpening = 0xa5be;
-    /// <summary>Entrance-pad closing instruction list at $A2:A5EE.</summary>
-    public const ushort EntrancePadClosing = 0xa5ee;
-}

@@ -1369,12 +1369,21 @@ The retail-wide owner audit now enumerates all 163 named enemy definitions and e
 population record in all 323 compiled room states. It invokes the real initializer
 dispatcher, preserves each record's initial instruction/property words, and probes the
 production mechanics resolver with cartridge reads forbidden. This covers 154 translated
-initializer identities and currently proves 100 compiled instruction-processing owners.
-The only explicitly inventoried fallback families are the two Gunship definitions plus
-Draygon, Ridley, and Mother Brain. The allowlist is intentionally exact and must shrink as
+initializer identities and currently proves 102 compiled instruction-processing owners.
+The only explicitly inventoried fallback families are Draygon, Ridley, and Mother Brain.
+The allowlist is intentionally exact and must shrink as
 those families are compiled; an unlisted fallback, including a newly translated actor,
 fails verification. Once it is empty, the generic ordinary-enemy ROM fallback can be
 removed with definition-wide evidence rather than scenario sampling.
+
+## Gunship instruction mechanics
+
+The top hull, bottom hull, and entrance-pad definition now compile all 28 fixed duration,
+sleep, goto, and target words across their five program paths. The real top, bottom, and
+entrance-pad initializer routes install those compiled programs, the complete opening and
+closing animations reach their native open/closed loops, and both hulls reach terminal
+sleep with mechanics bytes forbidden. All 22 interleaved spritemap operands remain live
+cartridge presentation data.
 
 ## Walking Space Pirate instruction mechanics
 

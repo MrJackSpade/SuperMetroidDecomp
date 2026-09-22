@@ -837,7 +837,7 @@ public sealed partial class RoomEnemySystem
         GunshipSaveRequested = save;
         top.VariableF = GunshipCodePointers.WaitForExitPadToOpen;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadOpening;
+        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
@@ -1568,7 +1568,7 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = GunshipInstructionLists.TopHull;
+        slot.CurrentInstruction = GunshipInstructionProgramDefinitions.TopHull;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
@@ -1597,8 +1597,8 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = slot.Parameter2 != 0
-            ? GunshipInstructionLists.BottomEntrancePad
-            : GunshipInstructionLists.BottomHull;
+            ? GunshipInstructionProgramDefinitions.BottomEntrancePad
+            : GunshipInstructionProgramDefinitions.BottomHull;
 
         // $A2:A6F1 reads enemy_drawing_queue[(cur_enemy_index >> 1) + 106].
         // For the two Landing Site bottom slots those WRAM addresses alias the preceding
@@ -2257,7 +2257,7 @@ public sealed partial class RoomEnemySystem
         top.VariableC = 0;
         samus.XPosition = unchecked((ushort)(top.XPosition + 1));
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadOpening;
+        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
     }
@@ -2275,7 +2275,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.VariableF = GunshipCodePointers.FinishLanding;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
+        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
     }
@@ -2343,7 +2343,7 @@ public sealed partial class RoomEnemySystem
             samus.PrimeGraphics(_bus!);
             pad.YPosition = unchecked((ushort)(top.YPosition - 1));
             pad.InstructionTimer = 1;
-            pad.CurrentInstruction = GunshipInstructionLists.EntrancePadOpening;
+            pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
             top.VariableA = 144;
             LastGunshipEvent = GunshipFrameEvent.EntryStarted;
         }
@@ -2367,7 +2367,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.VariableF = GunshipCodePointers.WaitForEntranceToClose;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
+        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
     }
@@ -2418,7 +2418,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.VariableF = GunshipCodePointers.FinishSamusExit;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
+        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
         QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePadClosing, maximumQueued: 6);
@@ -3549,6 +3549,13 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        if (slot.EnemyDefinitionPointer is
+            GunshipEnemyDefinitions.Top or
+            GunshipEnemyDefinitions.BottomEntrance)
+        {
+            return GunshipInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
         if (slot.EnemyDefinitionPointer ==
             MotherBrainBabyMetroidDefinitions.EnemyDefinition)
         {

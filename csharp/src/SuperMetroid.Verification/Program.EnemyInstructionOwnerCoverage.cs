@@ -147,10 +147,9 @@ internal static partial class Program
                 NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture))
             .ToHashSet();
-        AssertTrue(unresolvedDefinitions.SetEquals(
-            [0xd07f, 0xd0bf, 0xde3f, 0xe13f, 0xec7f]),
-            "pending translated mechanics owners are exactly both Gunship actors, " +
-            "Draygon, Ridley, and Mother Brain; actual=" +
+        AssertTrue(unresolvedDefinitions.SetEquals([0xde3f, 0xe13f, 0xec7f]),
+            "pending translated mechanics owners are exactly Draygon, Ridley, and " +
+            "Mother Brain; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
         var unknown = new RoomEnemySlot(0)

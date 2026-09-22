@@ -75,6 +75,7 @@ internal static partial class Program
         VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(rom);
         VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(rom);
         VerifyEnemyProjectileInstructionOwnerCoverage();
+        VerifyGunshipInstructionProgramDefinitions(rom);
         VerifyWalkingSpacePirateInstructionProgramDefinitions(rom);
         VerifyWallSpacePirateInstructionProgramDefinitions(rom);
         VerifyNinjaSpacePirateInstructionProgramDefinitions(rom);

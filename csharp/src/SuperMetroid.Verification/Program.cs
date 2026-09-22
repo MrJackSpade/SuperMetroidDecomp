@@ -137,6 +137,11 @@ if (args is ["--enemy-instruction-owner-coverage"])
     VerifyEnemyInstructionOwnerCoverage();
     return 0;
 }
+if (args is ["--gunship-instruction-mechanics"])
+{
+    VerifyGunshipInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--walking-space-pirate-instruction-mechanics"])
 {
     VerifyWalkingSpacePirateInstructionProgramDefinitions();

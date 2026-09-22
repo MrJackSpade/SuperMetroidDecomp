@@ -54,6 +54,7 @@ internal static partial class Program
         VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(bus);
         VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(bus);
         VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -63,8 +64,108 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 299 translated program-control words are compiled; all four audio opcodes " +
+            "plus 377 control words and four timer bytes are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        int mechanicsBytes = 0;
+        foreach (CrateriaLightningPaletteFxProgramDefinition definition in
+                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            int expectedWordCount = definition.Owner ==
+                CrateriaLightningPaletteOwner.SurfaceLightning ? 38 : 40;
+            AssertEqual(expectedWordCount, definition.MechanicsWords.Count,
+                $"{definition.Owner} mechanics word count");
+            AssertEqual(2, definition.MechanicsBytes.Count,
+                $"{definition.Owner} mechanics byte count");
+
+            foreach (PaletteFxMechanicsWord word in definition.MechanicsWords)
+            {
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        word.Pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} catalogs word $8D:{word.Pointer:X4}");
+                AssertEqual(word.Value, compiled,
+                    $"{definition.Owner} compiled word $8D:{word.Pointer:X4}");
+                AssertEqual(word.Value, RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | word.Pointer),
+                    $"{definition.Owner} cartridge word $8D:{word.Pointer:X4}");
+                mechanicsWords++;
+            }
+            foreach (PaletteFxMechanicsByte item in definition.MechanicsBytes)
+            {
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                        item.Pointer,
+                        out byte compiled),
+                    $"{definition.Owner} catalogs byte $8D:{item.Pointer:X4}");
+                AssertEqual(item.Value, compiled,
+                    $"{definition.Owner} compiled byte $8D:{item.Pointer:X4}");
+                AssertEqual(item.Value,
+                    bus.ReadByte(RoomFxRomData.Banks.PaletteFx | item.Pointer),
+                    $"{definition.Owner} cartridge byte $8D:{item.Pointer:X4}");
+                mechanicsBytes++;
+            }
+            foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
+            {
+                for (int color = 0; color < frame.ColorCount; color++)
+                {
+                    ushort pointer = unchecked((ushort)(
+                        frame.FirstColorPointer + color * sizeof(ushort)));
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            pointer,
+                            out _),
+                        $"{definition.Owner} color $8D:{pointer:X4} remains presentation-owned");
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                            pointer,
+                            out _),
+                        $"{definition.Owner} color byte $8D:{pointer:X4} remains presentation-owned");
+                }
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            for (int step = 0; step <= definition.CycleFrames; step++)
+            {
+                paletteFx.Step(
+                    guarded,
+                    cgram,
+                    samusY: 0x0380,
+                    equippedItems: 0,
+                    enemyZeroIsDead: false,
+                    areaMiniBossDefeated: false);
+            }
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} loops through its complete timer program");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} avoids mechanics ROM reads");
+            int colorsPerRecord = definition.Frames[0].ColorCount;
+            AssertEqual(
+                definition.DisplayedRecordsPerCycle * colorsPerRecord * sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} retains all live colors through its complete cycle");
+
+            var resetGuard = new PaletteFxMechanicsForbiddenBus(bus);
+            var resetFx = new RoomPaletteFxSystem();
+            resetFx.SpawnDefinition(resetGuard, definition.DefinitionPointer, equippedItems: 0);
+            resetFx.Step(resetGuard, new SnesCgram(), 0x0380, 0, false, false);
+            resetFx.Step(resetGuard, new SnesCgram(), 0x037f, 0, false, false);
+            AssertEqual(2 * colorsPerRecord * sizeof(ushort),
+                resetGuard.PresentationReadCount,
+                $"{definition.Owner} low-Samus pre-instruction restarts its neutral frame");
+            AssertEqual(0, resetGuard.ForbiddenReadAttempts,
+                $"{definition.Owner} restart avoids mechanics ROM reads");
+        }
+
+        AssertEqual(78, mechanicsWords, "compiled Crateria lightning mechanics words");
+        AssertEqual(4, mechanicsBytes, "compiled Crateria lightning mechanics bytes");
     }
 
     private static void VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(
@@ -809,12 +910,15 @@ internal static partial class Program
                     out _) ||
                  RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                     unchecked((ushort)(source.Offset - 1)),
+                    out _) ||
+                 RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                    source.Offset,
                     out _));
             if (address >= first && address < lastExclusive || compiledProgramByte)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Norfair heat selector ${address:X6}.");
+                    $"Production read compiled palette-FX mechanic ${address:X6}.");
             }
 
 
@@ -924,6 +1028,20 @@ internal static partial class Program
                     {
                         PresentationReadCount++;
                         break;
+                    }
+                }
+
+                foreach (CrateriaLightningPaletteFxProgramDefinition definition in
+                         CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
+                    {
+                        int colorOffset = source.Offset - frame.FirstColorPointer;
+                        if ((uint)colorOffset < frame.ColorCount * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
                     }
                 }
             }

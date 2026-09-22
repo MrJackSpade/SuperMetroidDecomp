@@ -539,8 +539,17 @@ public sealed class RoomPaletteFxSystem
         return ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
     }
 
-    private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer);
+    private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer)
+    {
+        if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                pointer,
+                out byte compiled))
+        {
+            return compiled;
+        }
+
+        return bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer);
+    }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(bus, address);

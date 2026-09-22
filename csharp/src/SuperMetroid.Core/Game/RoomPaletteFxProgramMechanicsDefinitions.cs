@@ -40,6 +40,26 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
+
+        value = 0;
+        return false;
+    }
+
+    /// <summary>Resolves one compiled bank-$8D byte operand across translated owners.</summary>
+    public static bool TryReadMechanicsByte(ushort pointer, out byte value)
+    {
+        if (CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                pointer,
+                out value))
+        {
+            return true;
+        }
 
         value = 0;
         return false;

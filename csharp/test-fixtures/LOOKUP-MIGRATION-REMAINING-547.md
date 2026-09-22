@@ -1558,3 +1558,16 @@ duration, wait, branch, and target words through
 presentation data. The real definition executes a complete 140-frame cycle and repeats
 the first frame with mechanics bytes forbidden. Exact ROM parity and every live color read
 are verified.
+
+## Crateria lightning palette mechanics
+
+The live surface-lightning and unused dark-lightning programs now compile all 78 setup,
+duration, wait, timer, branch, and target words plus their four byte-sized timer operands
+through `CrateriaLightningPaletteFxProgramMechanicsDefinitions`. Their 202 BGR555 color
+words remain live presentation data. The shared resolver now supports explicitly owned
+byte mechanics without absorbing live audio command operands.
+
+Both real definitions execute their complete nested timer cycles with all mechanics bytes
+forbidden, preserving 503/703-frame cadence and every live color read. Focused coverage
+also lowers Samus across the native Y=$0380 boundary and proves that each pre-instruction
+restarts its neutral record immediately without restoring a cartridge read.

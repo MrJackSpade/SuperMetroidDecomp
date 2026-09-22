@@ -8,5 +8,7 @@
     <Compile Include="../../src/SuperMetroid.Core/Game/AbsoluteTangentDefinitions.cs" Link="AbsoluteTangentDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/ShaktoolOrbitTables.cs" Link="ShaktoolOrbitTables.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs" Link="PowerBombShapeDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/SlopeHeightDefinitions.cs" Link="SlopeHeightDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Game/SquareSlopeDefinitions.cs" Link="SquareSlopeDefinitions.cs" />
   </ItemGroup>
 </Project>

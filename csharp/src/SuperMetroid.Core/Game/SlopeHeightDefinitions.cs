@@ -8,6 +8,27 @@ public static class SlopeHeightDefinitions
     /// Despite the assembly label's swapped axes, these are top Y offsets indexed by X:
     /// thirty-two authored sixteen-column profiles, including unused/overhanging shapes.
     /// </summary>
+    /// <remarks>
+    /// Issue #625 exact geometric reconstruction: validate shape s=0..31 and
+    /// column x=0..15 before applying these integer rules (division floors).
+    /// Shapes 0/7 are flat 8; 4,8..13,19 are zero. For 1..3, the left eight
+    /// columns are 16 except shape 3 (8), and the right eight are zero except
+    /// shape 2 (8). Shapes 5/6 are V profiles: 16-(s-4)*min(x,15-x).
+    /// For 14/15, step=1&lt;&lt;(16-s), height=16-step*(x/step+1).
+    /// Shape 16 is flat 16; shape 17 is 20 until x=13, then 16; shape 18 is 16-x.
+    /// Shapes 20/21 use clamp(24-16*(s-20)-x,0,16). Shapes 22/23 concatenate
+    /// a half slope: 16-floor((16*(s-22)+x)/2); 24..26 concatenate a third
+    /// slope: 16-floor((16*(s-24)+x)/3), including the carry across tile seams.
+    /// For 27/28 let h=32-16*(s-27)-2*x; for 29..31 let h=48-16*(s-29)-3*x.
+    /// Both steep families encode h&gt;16 as 20 and h&lt;0 as zero, rather than
+    /// numerically saturating at 20. Shape 17's overhang is explicit authored
+    /// geometry, not a floating-point discrepancy. These families replace the
+    /// pixel samples, but their shape identities remain domain definitions.
+    /// csharp/tools/LookupTableResearch proves all 512 stored bytes against Read,
+    /// the NTSC J/U v1.0 ROM and pinned bank_94.asm, and rejects invalid inputs
+    /// independently on both axes. No floating-point math or per-pixel exceptions
+    /// are required. Runtime migration is deferred; caller BTS mirrors stay separate.
+    /// </remarks>
     private static ReadOnlySpan<byte> Heights =>
     [
         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,

@@ -17,6 +17,7 @@ internal static partial class Program
             byte[] rom = File.ReadAllBytes(args.Length == 0 ? "Super Metroid.smc" : args.Single());
             Equal(ResearchData.RomSha256, Convert.ToHexString(SHA256.HashData(rom)), "NTSC J/U v1.0 oracle identity");
             Verify(rom);
+            VerifyGeometry(rom);
             return 0;
         }
         catch (Exception exception)
@@ -225,10 +226,26 @@ internal static partial class Program
         }
     }
 
-    private static int[] Oracle(byte[] rom, int address, int count, int size)
+    private static int[] Oracle(byte[] rom, int address, int count, int size, string? label = null)
     {
         string assembly = File.ReadAllText($"upstream-disassembly/src/bank_{address >> 16:X2}.asm");
         var asmBytes = new Dictionary<int, byte>();
+        if (label is not null)
+        {
+            int start = assembly.IndexOf(label + ':', StringComparison.Ordinal);
+            if (start < 0) throw new InvalidDataException($"Missing pinned assembly label {label}.");
+            int cursor = address;
+            foreach (Match line in Regex.Matches(assembly[start..], @"(?m)^\s*d([bw])\s+(\$[\dA-Fa-f]{2,4}(?:,\$[\dA-Fa-f]{2,4})*)"))
+            {
+                foreach (string token in line.Groups[2].Value.Split(','))
+                {
+                    int value = Convert.ToInt32(token[1..], 16);
+                    asmBytes[cursor++] = (byte)value;
+                    if (line.Groups[1].Value == "w") asmBytes[cursor++] = (byte)(value >> 8);
+                }
+                if (cursor >= address + count * size) break;
+            }
+        }
         foreach (Match line in Regex.Matches(assembly, @"(?m)^\s*d([bw])\s+(\$[\dA-Fa-f]{2,4}(?:,\$[\dA-Fa-f]{2,4})*)\s*;([\dA-Fa-f]{6});"))
         {
             int cursor = Convert.ToInt32(line.Groups[3].Value, 16);

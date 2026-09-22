@@ -58,13 +58,31 @@ internal static partial class Program
             }
         }
 
+        var initial = new MotherBrainBodyAnimationState();
+        initial.SetInstructionList(MotherBrainBodyInstructionProgramDefinitions.InitialDummy);
+        MotherBrainBodyAnimationStepResult initialStep = initial.Step(guarded);
+        AssertEqual((ushort)0x0000, initial.InstructionTimer,
+            "Mother Brain initial dummy preserves its native zero duration");
+        AssertEqual((ushort)0x9c17, initial.InstructionPointer,
+            "Mother Brain initial dummy advances to its dormant sleep");
+        AssertEqual((ushort)0xa320, initial.SpritemapPointer,
+            "Mother Brain initial dummy retains its live presentation operand");
+        AssertTrue(initialStep.LoadedFrame,
+            "Mother Brain initial dummy publishes its presentation frame");
+        MotherBrainBodyAnimationStepResult wrappedStep = initial.Step(guarded);
+        AssertEqual((ushort)0xffff, initial.InstructionTimer,
+            "Mother Brain initial dummy timer wraps on its dormant second call");
+        AssertTrue(!wrappedStep.LoadedFrame && !wrappedStep.Sleeping,
+            "Mother Brain initial dummy wrap does not execute its unreachable sleep");
+
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Mother Brain body programs do not reread compiled mechanics words");
         AssertTrue(guarded.AllowedReadAttempts > 0,
             "Mother Brain body programs retain live presentation spritemap reads");
         Console.WriteLine(
             $"  Mother Brain: {MotherBrainBodyInstructionProgramDefinitions.AllWords.Count} " +
-            "body command/duration words are compiled; 18 programs run with mechanics ROM reads forbidden.");
+            "body command/duration words are compiled; 18 active programs and the " +
+            "initial dummy run with mechanics ROM reads forbidden.");
 
         static ushort ReadRetailWord(ISnesAddressSpace source, int address) =>
             unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));

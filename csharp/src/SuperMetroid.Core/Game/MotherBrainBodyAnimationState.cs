@@ -101,11 +101,8 @@ public sealed class MotherBrainBodyAnimationState
         // until a duration/spritemap pair or a command that stops processing is encountered.
         for (int commandCount = 0; commandCount < 32; commandCount++)
         {
-            ushort word = MotherBrainBodyInstructionProgramDefinitions.TryGetWord(
-                InstructionPointer,
-                out ushort compiledWord)
-                ? compiledWord
-                : ReadWord(bus, InstructionPointer);
+            ushort word = MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(
+                InstructionPointer);
             if ((word & 0x8000) == 0)
             {
                 InstructionTimer = word;

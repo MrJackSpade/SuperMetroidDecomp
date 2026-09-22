@@ -3870,11 +3870,8 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
-            MotherBrainBodyInstructionProgramDefinitions.TryGetWord(address, out ushort word))
-        {
-            return word;
-        }
+        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition)
+            return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
     }

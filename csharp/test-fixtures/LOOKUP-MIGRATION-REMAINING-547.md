@@ -1369,8 +1369,8 @@ The retail-wide owner audit now enumerates all 163 named enemy definitions and e
 population record in all 323 compiled room states. It invokes the real initializer
 dispatcher, preserves each record's initial instruction/property words, and probes the
 production mechanics resolver with cartridge reads forbidden. This covers 154 translated
-initializer identities and currently proves 102 compiled instruction-processing owners.
-The only explicitly inventoried fallback families are Draygon, Ridley, and Mother Brain.
+initializer identities and currently proves 103 compiled instruction-processing owners.
+The only explicitly inventoried fallback families are Draygon and Ridley.
 The allowlist is intentionally exact and must shrink as
 those families are compiled; an unlisted fallback, including a newly translated actor,
 fails verification. Once it is empty, the generic ordinary-enemy ROM fallback can be
@@ -1384,6 +1384,15 @@ entrance-pad initializer routes install those compiled programs, the complete op
 closing animations reach their native open/closed loops, and both hulls reach terminal
 sleep with mechanics bytes forbidden. All 22 interleaved spritemap operands remain live
 cartridge presentation data.
+
+## Mother Brain initial body instruction mechanics
+
+Mother Brain's previously omitted initial dummy frame and its dormant terminal sleep now
+share the compiled body-program owner used by all eighteen active walk/posture programs.
+The real body initializer selects that named program, the zero-duration frame retains its
+native timer wrap, and its single spritemap operand remains live presentation data. The
+body definition now rejects unknown mechanics addresses instead of falling back to bank
+$A9 cartridge code.
 
 ## Walking Space Pirate instruction mechanics
 

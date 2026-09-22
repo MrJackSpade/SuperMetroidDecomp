@@ -19,7 +19,6 @@ public sealed partial class RoomEnemySystem
     private const int MotherBrainBg2WordCount = 0x0800;
     private const int MotherBrainGlassShardPalette = 0xa99514;
     private const int MotherBrainTubeProjectilePalette = 0xa994f4;
-    private const ushort MotherBrainInitialDummyInstruction = 0x9c13;
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
 
     private MotherBrainEnemyState? _motherBrain;
@@ -49,7 +48,7 @@ public sealed partial class RoomEnemySystem
         Array.Fill(clearedTilemap, MotherBrainBlankBg2Tile);
         _vram!.ExecuteWordTransfer(clearedTilemap, MotherBrainBg2VramBase, wordIncrement: 1);
 
-        body.CurrentInstruction = MotherBrainInitialDummyInstruction;
+        body.CurrentInstruction = MotherBrainBodyInstructionProgramDefinitions.InitialDummy;
         body.InstructionTimer = 1;
         body.VramTilesIndex = 0;
         body.Properties = body.Properties.With(

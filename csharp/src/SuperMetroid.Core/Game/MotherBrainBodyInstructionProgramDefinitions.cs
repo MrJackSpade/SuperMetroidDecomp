@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class MotherBrainBodyInstructionProgramDefinitions
 {
+    /// <summary>$A9:9C13, <c>InstList_MotherBrainHead_InitialDummy</c>.</summary>
+    internal const ushort InitialDummy = 0x9c13;
+
     /// <summary>$A9:9730-$A9:9851, five forward-walk programs.</summary>
     private const ushort ForwardWalkReallyFast = 0x9730;
 
@@ -74,6 +77,18 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>
+    /// Reads one compiled mechanics word and rejects presentation or foreign addresses.
+    /// </summary>
+    internal static ushort ReadMechanicsWord(ushort address)
+    {
+        if (TryGetWord(address, out ushort word))
+            return word;
+
+        throw new InvalidDataException(
+            $"Mother Brain body instruction mechanics pointer $A9:{address:X4} is not compiled.");
+    }
+
     private static MotherBrainBodyInstructionMechanicsWord[] CreateWords()
     {
         var words = new List<MotherBrainBodyInstructionMechanicsWord>();
@@ -98,6 +113,12 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
         AddCrouched(words);
         AddCrouch(words, CrouchSlow, 8, 8, 8, 8);
         AddCrouch(words, CrouchFast, 8, 2, 2, 8);
+
+        // The native initializer installs a zero-duration dummy frame. Its timer wraps
+        // after that first frame, so the adjacent sleep is normally dormant but remains
+        // part of the authored mechanics stream.
+        Add(words, InitialDummy, 0);
+        Add(words, InitialDummy + 4, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
 
         words.Sort(static (left, right) => left.Address.CompareTo(right.Address));
         for (int index = 1; index < words.Count; index++)

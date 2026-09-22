@@ -137,6 +137,11 @@ if (args is ["--enemy-instruction-owner-coverage"])
     VerifyEnemyInstructionOwnerCoverage();
     return 0;
 }
+if (args is ["--mother-brain-body-instruction-mechanics"])
+{
+    VerifyMotherBrainBodyInstructionPrograms();
+    return 0;
+}
 if (args is ["--gunship-instruction-mechanics"])
 {
     VerifyGunshipInstructionProgramDefinitions();

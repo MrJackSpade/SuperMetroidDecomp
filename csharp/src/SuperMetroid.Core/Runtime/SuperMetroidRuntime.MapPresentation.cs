@@ -17,6 +17,7 @@ public sealed partial class SuperMetroidRuntime
             MessageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
                 value?.GameplayMessageNotices);
             RoomPaletteFx.BindPresentationColors(value?.RoomPaletteFx);
+            Enemies.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
             Enemies.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;

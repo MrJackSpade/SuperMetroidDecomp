@@ -1363,7 +1363,7 @@ and malformed JSON fail loudly.
 
 ## Editable environmental room palette effects (#536, #549)
 
-Catalog version 57 uses `room-palette-effects.json` schema version 17 (forty-five
+Catalog version 58 uses `room-palette-effects.json` schema version 17 (forty-six
 shared resource hashes). The document exposes the four synchronized Norfair environmental
 programs as named arrays: `norfairForegroundAndHeatPhase`,
 `norfairForegroundPalette4`, `norfairForegroundPalette5`, and
@@ -1451,6 +1451,19 @@ independent live runtime outputs, while removing it restores both exactly. Wrong
 or color counts,
 unsupported versions, invalid RGB5 values, unknown/native-address fields, corrupt stock,
 and malformed overrides fail loudly.
+
+## Editable Mother Brain health colors (#536, #549)
+
+`mother-brain-health-palette.json` contains four fifteen-color `body` and
+`backLegs` RGB5 arrays, following the cartridge's bank-$AD pointer tables.
+The active room-enemy system copies the selected body array to both body and
+brain CGRAM slots and the rear-leg array to its own slot. The three strict
+health thresholds and final-battle update cadence remain compiled mechanics.
+Copy the stock file to `overrides/maps/mother-brain-health-palette.json` to
+recolor the damage states without altering the ROM. Verification compares all
+eight threshold-boundary cases to native CGRAM output with palette ROM reads
+forbidden, checks body and leg edits through the runtime binding, rejects
+malformed arrays, and confirms override removal restores content identity.
 
 ## Editable title artwork (#549)
 

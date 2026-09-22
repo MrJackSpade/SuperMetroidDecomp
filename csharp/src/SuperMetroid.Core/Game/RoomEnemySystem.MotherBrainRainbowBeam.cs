@@ -188,7 +188,7 @@ public sealed partial class RoomEnemySystem
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
         // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
         if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState >= 2)
-            MotherBrainHealthPalette.Apply(_bus!, _cgram!, state.Head!.Health);
+            MotherBrainHealthPalette.Apply(_bus!, _cgram!, state.Head!.Health, MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
         state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)

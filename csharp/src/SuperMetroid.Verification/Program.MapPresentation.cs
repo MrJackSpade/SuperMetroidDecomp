@@ -114,6 +114,7 @@ internal static partial class Program
         VerifyTitlePaletteOverride(bus, stock, overrides, original);
         VerifyTitleGradientOverride(bus, stock, overrides, original);
         VerifyRoomPaletteFxOverride(bus, stock, overrides, original);
+        VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
@@ -186,6 +187,92 @@ internal static partial class Program
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+    }
+
+    private static void VerifyMotherBrainHealthPaletteOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string source = Path.Combine(stock, MotherBrainHealthPaletteFormat.FileName);
+        MotherBrainHealthPaletteDocument document =
+            JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(
+                File.ReadAllBytes(source), MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted Mother Brain health palette is null.");
+        foreach (var (health, state) in new (ushort, int)[]
+            { (36000, 0), (9000, 0), (8999, 1), (5400, 1), (5399, 2), (1800, 2), (1799, 3), (0, 3) })
+        {
+            var native = new SnesCgram();
+            var installed = new SnesCgram();
+            MotherBrainHealthPalette.Apply(bus, native, health);
+            MotherBrainHealthPalette.Apply(new ForbiddenMapBus(), installed, health,
+                original.MotherBrainHealthPalette);
+            AssertTrue(native.Colors.SequenceEqual(installed.Colors),
+                $"Mother Brain health {health} stock colors exactly match the native three-copy output");
+            AssertEqual((ushort)0, installed.Colors[MotherBrainRainbowPaletteRomData.BrainColor - 1],
+                "Mother Brain health palette leaves transparent color untouched");
+            AssertEqual((ushort)0, installed.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor +
+                MotherBrainRainbowPaletteRomData.ColorCount],
+                "Mother Brain health palette leaves adjacent colors untouched");
+            AssertEqual(state, health >= MotherBrainHealthPaletteRomData.FirstThreshold ? 0 :
+                health >= MotherBrainHealthPaletteRomData.SecondThreshold ? 1 :
+                health >= MotherBrainHealthPaletteRomData.FinalThreshold ? 2 : 3,
+                "native health thresholds still choose the four damage states");
+        }
+
+        PaletteRgb5 body = document.Body[2][0];
+        document.Body[2][0] = body with { Red = body.Red == 31 ? 30 : body.Red + 1 };
+        PaletteRgb5 leg = document.BackLegs[2][0];
+        document.BackLegs[2][0] = leg with { Blue = leg.Blue == 31 ? 30 : leg.Blue + 1 };
+        string replacement = Path.Combine(overrides, MotherBrainHealthPaletteFormat.FileName);
+        using (var stream = File.Create(replacement))
+            MotherBrainHealthPalettePresentation.Write(stream, document);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "Mother Brain health palette override changes installed-content identity");
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus)
+        {
+            MapPresentation = edited,
+        };
+        var output = new SnesCgram();
+        var stockOutput = new SnesCgram();
+        MotherBrainHealthPalette.Apply(new ForbiddenMapBus(), stockOutput, 5399,
+            original.MotherBrainHealthPalette);
+        MotherBrainHealthPalette.Apply(new ForbiddenMapBus(), output, 5399,
+            runtime.Enemies.MotherBrainHealthColors);
+        AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
+            stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+            "installed Mother Brain body edit reaches the live enemy binding");
+        AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor] !=
+            stockOutput.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor],
+            "installed Mother Brain leg edit reaches the live enemy binding");
+        AssertEqual(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
+            output.Colors[MotherBrainRainbowPaletteRomData.BrainColor],
+            "body and brain still share the native palette");
+
+        AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                Version = MotherBrainHealthPaletteFormat.Version + 1,
+            }, MapPresentationFormat.JsonOptions))), "reject unsupported Mother Brain palette version");
+        AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                Body = document.Body.Take(3).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject incomplete Mother Brain damage states");
+        AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                BackLegs = document.BackLegs.Select((colors, index) => index == 0 ?
+                    colors.Take(14).ToArray() : colors).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain rear-leg palette");
+
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing Mother Brain health palette override restores installed-content identity");
+        Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
     }
 
     private static void VerifyRoomPaletteFxOverride(

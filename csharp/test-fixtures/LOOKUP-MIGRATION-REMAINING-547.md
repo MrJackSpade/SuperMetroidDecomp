@@ -2023,3 +2023,10 @@ bytes, compares two complete native cycles of CGRAM and sound-request output,
 and confirms a live override. Its inline CGRAM skip, sound-command placement,
 timing, and loop target remain compiled mechanics; the sound-ID byte is still
 live audio data, not an editable palette color.
+
+Mother Brain's four health-selected body/brain and rear-leg palette pairs are now
+installed as editable RGB5 colors in `mother-brain-health-palette.json`. The
+`$AD:E3D5` health thresholds and final-fight scheduling remain executable code;
+normal installed gameplay no longer follows the two bank-$AD palette pointer tables
+at runtime. Eight threshold-boundary cases retain exact native CGRAM output, while
+an override independently changes both color families without ROM source reads.

@@ -139,6 +139,15 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int BodyRecords = 0x91dc00;
         /// <summary><c>$91:DC28</c>, six bubble-palette pointers.</summary>
+        /// <remarks>
+        /// The six stock bank-$9B pointers are exactly
+        /// <c>$96D4 + $20 * i</c> for even byte offsets <c>2*i</c>,
+        /// <c>i = 0..5</c>; all match the pinned NTSC J/U v1.0 ROM.
+        /// The next word at <c>$91:DC34</c> is instruction bytes, not a
+        /// seventh pointer. Keep the six words as live presentation data for
+        /// installed palettes; the bubble cursor wraps at byte offset 12.
+        /// Investigation: #625 / #670.
+        /// </remarks>
         public const int BubblePointers = 0x91dc28;
         /// <summary>Number of beam-loadout palette pointers.</summary>
         public const int BeamPaletteCount = 12;

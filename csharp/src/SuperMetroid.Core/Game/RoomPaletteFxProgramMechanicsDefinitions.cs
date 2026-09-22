@@ -64,6 +64,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
         {
             return true;
         }
+        if (NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                pointer,
+                out value))
+        {
+            return true;
+        }
 
         value = 0;
         return false;
@@ -73,6 +79,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
     public static bool TryReadMechanicsByte(ushort pointer, out byte value)
     {
         if (CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                pointer,
+                out value))
+        {
+            return true;
+        }
+        if (NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                 pointer,
                 out value))
         {

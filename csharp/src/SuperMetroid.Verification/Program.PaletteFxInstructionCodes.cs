@@ -58,6 +58,7 @@ internal static partial class Program
         VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(bus);
         VerifyBeaconPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -67,8 +68,102 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 499 control words and four timer bytes are compiled; all four audio opcodes " +
+            "plus 723 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        int mechanicsBytes = 0;
+        foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
+                 NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        {
+            int actualWords = 0;
+            for (ushort pointer = definition.ProgramStart;
+                 pointer <= unchecked((ushort)(definition.LoopInstructionPointer + 2));
+                 pointer = unchecked((ushort)(pointer + 1)))
+            {
+                if (!definition.TryReadMechanicsWord(pointer, out ushort value))
+                    continue;
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} catalogs word $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} compiled word $8D:{pointer:X4}");
+                AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} cartridge word $8D:{pointer:X4}");
+                actualWords++;
+                mechanicsWords++;
+            }
+            AssertEqual(definition.PublishesHeatPhase ? 68 : 52, actualWords,
+                $"{definition.Owner} mechanics word count");
+
+            for (int frame = 0;
+                 frame < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort framePointer = definition.FramePointer(frame);
+                int durationOffset = definition.PublishesHeatPhase ? 3 : 0;
+                if (definition.PublishesHeatPhase)
+                {
+                    ushort bytePointer = unchecked((ushort)(framePointer + 2));
+                    AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                            bytePointer,
+                            out byte compiledByte),
+                        $"{definition.Owner} catalogs phase byte $8D:{bytePointer:X4}");
+                    AssertEqual((byte)frame, compiledByte,
+                        $"{definition.Owner} compiled phase byte {frame}");
+                    AssertEqual((byte)frame,
+                        bus.ReadByte(RoomFxRomData.Banks.PaletteFx | bytePointer),
+                        $"{definition.Owner} cartridge phase byte {frame}");
+                    mechanicsBytes++;
+                }
+
+                for (int color = 0;
+                     color < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                     color++)
+                {
+                    ushort pointer = color < 3
+                        ? unchecked((ushort)(framePointer + durationOffset + 2 + color * 2))
+                        : unchecked((ushort)(framePointer + durationOffset + 10 + (color - 3) * 2));
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            pointer,
+                            out _),
+                        $"{definition.Owner} color $8D:{pointer:X4} remains presentation-owned");
+                }
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            for (int step = 0;
+                 step <= NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.CycleFrames;
+                 step++)
+                paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} completes and repeats its full cycle");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} avoids mechanics ROM reads");
+            AssertEqual(
+                (NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2,
+                guarded.PresentationReadCount,
+                $"{definition.Owner} retains every live color through its cycle");
+            if (definition.PublishesHeatPhase)
+            {
+                AssertEqual((ushort)0, paletteFx.SamusInHeatPaletteIndex,
+                    "Norfair phase publisher repeats phase zero after a complete cycle");
+            }
+        }
+
+        AssertEqual(224, mechanicsWords, "compiled Norfair environmental mechanics words");
+        AssertEqual(16, mechanicsBytes, "compiled Norfair heat-phase bytes");
     }
 
     private static void VerifyBeaconPaletteFxProgramMechanicsDefinitions(
@@ -1350,7 +1445,9 @@ internal static partial class Program
                 foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
                          MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
                 {
-                    for (int frame = 0; frame < definition.FrameCount; frame++)
+                    for (int frame = 0;
+                         frame < definition.FrameCount;
+                         frame++)
                     {
                         ushort firstColor = unchecked((ushort)(
                             definition.FramePointer(frame) + sizeof(ushort)));
@@ -1403,6 +1500,32 @@ internal static partial class Program
                     {
                         PresentationReadCount++;
                         break;
+                    }
+                }
+
+                foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
+                         NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount;
+                         frame++)
+                    {
+                        ushort framePointer = definition.FramePointer(frame);
+                        int durationOffset = definition.PublishesHeatPhase ? 3 : 0;
+                        int leadingOffset = source.Offset - unchecked((ushort)(
+                            framePointer + durationOffset + 2));
+                        if ((uint)leadingOffset < 3 * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
+                        int trailingOffset = source.Offset - unchecked((ushort)(
+                            framePointer + durationOffset + 10));
+                        if ((uint)trailingOffset < 2 * sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
                     }
                 }
             }

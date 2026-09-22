@@ -1603,3 +1603,15 @@ The real definition executes its complete 100-frame cycle with mechanics bytes f
 queues exactly one library-two sound at the native midpoint, and repeats its first record.
 Verification proves exact ROM parity, every live color read, cursor alignment across the
 three-byte sound command, and the native eighteen-byte CGRAM gap.
+
+## Norfair environmental palette mechanics
+
+Norfair's four synchronized environmental programs now compile all 224 color-index,
+heat-phase publication, duration, inline CGRAM-skip, wait, branch, and target words plus
+the first program's sixteen byte-sized heat-phase operands. Their 320 BGR555 colors remain
+live presentation data.
+
+All four real definitions execute and repeat their complete 116-frame cycles with mechanics
+bytes forbidden. Verification proves exact ROM parity, every live color read, all sixteen
+published heat phases, and the mixed-width cursor alignment used by the separate
+Samus-in-heat palette owner.

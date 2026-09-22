@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using System.Text.RegularExpressions;
 
 internal static partial class Program
 {
@@ -55,6 +56,21 @@ internal static partial class Program
         CheckBounds(GunshipBrake, 16);
         CheckBounds(GunshipBob, 3);
         Console.WriteLine("PASS: 269/269 effect values: 216 earthquake words, 20 Fireflea words, 8 melt masks, 25 gunship values.");
+        int[] distances = Oracle(rom, EffectResearchData.OwtchDistance, 8, 2);
+        int[] timers = NtscFrameWordOracle(rom, EffectResearchData.OwtchTimer, 6);
+        for (int i = 0; i < 8; i++)
+        {
+            Equal(distances[i], OwtchDistance(i), $"Owtch distance {i}");
+            Equal(distances[i], (int)OwtchMovementDefinitions.TravelDistance((byte)i), $"compiled Owtch distance {i}");
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            Equal(timers[i], OwtchTimer(i), $"Owtch timer {i}");
+            Equal(timers[i], (int)OwtchMovementDefinitions.UndergroundTimer((byte)i), $"compiled Owtch timer {i}");
+        }
+        CheckBounds(OwtchDistance, 7);
+        CheckBounds(OwtchTimer, 5);
+        Console.WriteLine("PASS: 14/14 Owtch patrol-distance and underground-duration words.");
     }
 
     private static RoomShakeDefinition Shake(int type)
@@ -71,6 +87,33 @@ internal static partial class Program
     private static int MeltMask(int cursor) { Bound(cursor, 48); return 255 ^ (128 >> (cursor & 7)); }
     private static int GunshipBrake(int i) { Bound(i, 16); return i < 6 ? 1 : i < 11 ? 0 : -1; }
     private static int GunshipBob(int i) { Bound(i, 3); return 1 - 2 * ((i ^ (i >> 1)) & 1); }
+    private static int OwtchDistance(int i) { Bound(i, 7); return 16 * (i + 1); }
+    private static int OwtchTimer(int i) { Bound(i, 5); return 32 * (i + 1); }
+
+    private static int[] NtscFrameWordOracle(byte[] rom, int address, int count)
+    {
+        // The supported cartridge hash is NTSC; pinned main.asm sets !FPS=1 for that build.
+        // Parse multiplication only, never evaluate assembler text as executable code.
+        string config = File.ReadAllText("upstream-disassembly/src/main.asm");
+        Equal(true, config.Contains("!FPS = 1", StringComparison.Ordinal), "pinned NTSC FPS multiplier");
+        string assembly = File.ReadAllText($"upstream-disassembly/src/bank_{address >> 16:X2}.asm");
+        Match line = Regex.Match(assembly, @"(?m)^\s*dw\s+([^;\r\n]+);" + address.ToString("X6") + ';');
+        if (!line.Success) throw new InvalidDataException($"Missing FPS word table ${address:X6}.");
+        string[] tokens = line.Groups[1].Value.Trim().Split(',');
+        Equal(count, tokens.Length, "FPS table length");
+        var result = new int[count];
+        int offset = ((address >> 16 & 127) << 15) | (address & 32767);
+        for (int i = 0; i < count; i++)
+        {
+            Match term = Regex.Match(tokens[i].Trim(), @"\A\$([\dA-Fa-f]+)\*!FPS(?:\*(\d+))?\z");
+            if (!term.Success) throw new InvalidDataException($"Unsupported FPS word expression {tokens[i]}.");
+            int factor = term.Groups[2].Success ? int.Parse(term.Groups[2].Value) : 1;
+            int value = Convert.ToInt32(term.Groups[1].Value, 16) * factor;
+            result[i] = rom[offset + 2 * i] | rom[offset + 2 * i + 1] << 8;
+            Equal(value, result[i], $"ROM/FPS assembly ${address + 2 * i:X6}");
+        }
+        return result;
+    }
 }
 
 internal static class EffectResearchData
@@ -89,4 +132,8 @@ internal static class EffectResearchData
     internal const int GunshipBrakes = 0xa2a622;
     /// <summary>$A2:A7CF, ProcessShipHover timer/YVelocity, four byte pairs.</summary>
     internal const int GunshipBob = 0xa2a7cf;
+    /// <summary>$A2:A3DD, OwtchData.XDistanceRanges, eight words.</summary>
+    internal const int OwtchDistance = 0xa2a3dd;
+    /// <summary>$A2:A3ED, OwtchData.undergroundTimers, six words.</summary>
+    internal const int OwtchTimer = 0xa2a3ed;
 }

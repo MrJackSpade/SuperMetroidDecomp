@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/SuperMetroid.Core/Game/OwtchMovementDefinitions.cs" Link="OwtchMovementDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs" Link="SamusSpecialSequenceRomData.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Runtime/CeresShaftRotationDefinitions.cs" Link="CeresShaftRotationDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/RoomShakeDefinitions.cs" Link="RoomShakeDefinitions.cs" />

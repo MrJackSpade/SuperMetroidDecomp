@@ -1727,3 +1727,15 @@ and delete words through `ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
 The real definition executes its complete seven-record, 56-frame one-shot program with
 mechanics reads forbidden and deletes itself after the final hold. Verification proves
 exact ROM parity and every live color read.
+
+## Zebes explosion foreground palette mechanics
+
+The wide foreground part of the Zebes explosion now compiles all 35 color-index,
+duration, wait, and delete words through
+`ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions`. Its 240 BGR555 color
+words remain live presentation data.
+
+The real definition executes its complete sixteen-record, 144-frame one-shot program
+with mechanics reads forbidden and deletes itself after the final hold. Verification
+proves exact ROM parity, every live color read, and the authored 60-frame fourth-stage
+hold rather than approximating it as a uniform schedule.

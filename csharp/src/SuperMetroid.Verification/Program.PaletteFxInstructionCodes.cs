@@ -51,6 +51,7 @@ internal static partial class Program
         VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(bus);
         VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus);
         VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(bus);
+        VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(bus);
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
@@ -78,8 +79,81 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1212 control words and twenty byte operands are compiled; all four audio opcodes " +
+            "plus 1247 control words and twenty byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
+        SuperMetroidAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        for (ushort pointer =
+                 ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ProgramStart;
+             pointer <= ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                 .DeleteInstructionPointer;
+             pointer = unchecked((ushort)(pointer + 1)))
+        {
+            if (!ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                    .TryReadMechanicsWord(pointer, out ushort value))
+            {
+                continue;
+            }
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Zebes explosion foreground catalogs word $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Zebes explosion foreground compiled word $8D:{pointer:X4}");
+            AssertEqual(value,
+                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Zebes explosion foreground cartridge word $8D:{pointer:X4}");
+            mechanicsWords++;
+        }
+        AssertEqual(35, mechanicsWords,
+            "compiled Zebes explosion foreground mechanics words");
+
+        for (int frame = 0;
+             frame < ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort firstColor = unchecked((ushort)(
+                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                    .FramePointer(frame) + sizeof(ushort)));
+            for (int color = 0;
+                 color < ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                     .ColorsPerFrame;
+                 color++)
+            {
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                        out _),
+                    "Zebes explosion foreground colors remain presentation-owned");
+            }
+        }
+
+        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(
+            guarded,
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
+            0);
+        for (int step = 0;
+             step <= ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames;
+             step++)
+        {
+            paletteFx.Step(guarded, new SnesCgram(), 0, 0, false, false);
+        }
+        AssertTrue(!paletteFx.IsDefinitionActive(
+                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer),
+            "Zebes explosion foreground deletes after its final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "Zebes explosion foreground avoids mechanics ROM reads");
+        AssertEqual(
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount *
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+            sizeof(ushort),
+            guarded.PresentationReadCount,
+            "Zebes explosion foreground retains every live color");
     }
 
     private static void VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(
@@ -2098,6 +2172,23 @@ internal static partial class Program
                     if ((uint)offset <
                         ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                         sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
+
+                for (int frame = 0;
+                     frame < ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                         .FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                            .FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                            .ColorsPerFrame * sizeof(ushort))
                     {
                         PresentationReadCount++;
                         break;

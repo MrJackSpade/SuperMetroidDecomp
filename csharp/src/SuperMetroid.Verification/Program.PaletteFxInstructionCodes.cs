@@ -50,6 +50,7 @@ internal static partial class Program
         VerifyPaletteFxHeatInstructionListDefinitions(bus);
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -59,8 +60,104 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 134 heat/green-light control words are compiled; all four audio opcodes " +
+            "plus 165 heat/green-light/statue control words are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(
+        ISnesAddressSpace bus)
+    {
+        var expected = new Dictionary<ushort, ushort>();
+        foreach (TourianStatueGreyPaletteFxProgramDefinition definition in
+                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All)
+        {
+            expected.Add(definition.ProgramStart, PaletteFxInstructionCodes.SetColorIndex);
+            expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
+                definition.ColorByteIndex);
+            if (definition.UsesGoto)
+            {
+                expected.Add(unchecked((ushort)(definition.ProgramStart + 4)),
+                    PaletteFxInstructionCodes.Goto);
+                expected.Add(unchecked((ushort)(definition.ProgramStart + 6)),
+                    TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FirstFramePointer);
+            }
+        }
+
+        for (int frame = 0;
+             frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount;
+             frame++)
+        {
+            ushort pointer =
+                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+            expected.Add(pointer, 8);
+            expected.Add(
+                unchecked((ushort)(pointer +
+                    TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
+                PaletteFxInstructionCodes.Wait);
+
+            for (int color = 0;
+                 color < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                 color++)
+            {
+                ushort presentationPointer = unchecked((ushort)(
+                    pointer + sizeof(ushort) + color * sizeof(ushort)));
+                AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        presentationPointer,
+                        out _),
+                    $"Tourian statue color $8D:{presentationPointer:X4} remains presentation-owned");
+            }
+        }
+        expected.Add(
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.DeleteInstructionPointer,
+            PaletteFxInstructionCodes.Delete);
+
+        AssertEqual(31, expected.Count, "Tourian statue grey mechanics word count");
+        foreach ((ushort pointer, ushort value) in expected)
+        {
+            AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                    pointer,
+                    out ushort compiled),
+                $"Tourian statue grey program catalogs $8D:{pointer:X4}");
+            AssertEqual(value, compiled,
+                $"Tourian statue grey compiled word $8D:{pointer:X4}");
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                    bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer),
+                $"Tourian statue grey cartridge word $8D:{pointer:X4}");
+        }
+
+        ushort[] definitions = [0xf749, 0xf74d, 0xf751, 0xf755];
+        foreach (ushort definition in definitions)
+        {
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+            for (int step = 0; step <= 1 +
+                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount * 8; step++)
+            {
+                paletteFx.Step(
+                    guarded,
+                    new SnesCgram(),
+                    samusY: 0,
+                    equippedItems: 0,
+                    enemyZeroIsDead: false,
+                    areaMiniBossDefeated: false);
+            }
+
+            AssertTrue(!paletteFx.IsDefinitionActive(definition),
+                $"palette-FX definition $8D:{definition:X4} reaches compiled deletion");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"palette-FX definition $8D:{definition:X4} avoids statue mechanics ROM reads");
+            AssertEqual(
+                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount *
+                    TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"palette-FX definition $8D:{definition:X4} retains statue color reads");
+        }
+
+        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xe2e0, out _),
+            "Tourian statue grey owner rejects adjacent pre-instruction code");
     }
 
     private static void VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(
@@ -446,6 +543,23 @@ internal static partial class Program
                         break;
                     }
                 }
+
+                for (int frame = 0;
+                     frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    ushort firstColor = unchecked((ushort)(
+                        TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                        sizeof(ushort)));
+                    int colorOffset = source.Offset - firstColor;
+                    if ((uint)colorOffset <
+                        TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        PresentationReadCount++;
+                        break;
+                    }
+                }
             }
 
             return inner.ReadByte(address);
@@ -501,9 +615,7 @@ internal static partial class Program
     private static (RoomPaletteFxSystem PaletteFx, TestAddressSpace Bus)
         CreateSingleAudioInstruction(ushort instruction, byte operand)
     {
-        const ushort definition = 0xf749;
-        ushort instructionList =
-            RoomPaletteFxDefinitions.Get(definition).InitialInstructionList;
+        const ushort instructionList = 0x8f00;
         var bus = new TestAddressSpace();
         bus.WriteBytes(
             0x8d0000 | instructionList,
@@ -517,7 +629,7 @@ internal static partial class Program
             ]);
 
         var paletteFx = new RoomPaletteFxSystem();
-        paletteFx.SpawnDefinition(bus, definition, equippedItems: 0);
+        paletteFx.SpawnConstructedProgramForVerification(instructionList);
         return (paletteFx, bus);
     }
 

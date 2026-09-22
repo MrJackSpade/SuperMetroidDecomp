@@ -1516,3 +1516,16 @@ remain live presentation data. The real footstep and Tourian producers plus the 
 alternate execute through their exact deletion ticks with mechanics bytes forbidden;
 cartridge parity, random placement, every presentation read, strict rejection, and
 allocation-free warmed lookup are verified.
+
+## Tourian statue grey palette mechanics
+
+The four statue-specific entries and their shared eight-frame grey fade now compile all
+31 color-index, branch, duration, wait, and deletion words through
+`TourianStatueGreyPaletteFxProgramMechanicsDefinitions`. The 64 BGR555 colors remain live
+presentation data. Constructed opcode tests now use a dedicated non-retail program seam
+instead of overwriting a stock statue entry that has acquired compiled ownership.
+
+Verification compares every mechanics word with the pinned cartridge and executes all
+four real palette-FX definitions through deletion with mechanics bytes forbidden. Every
+live color read remains observable and every presentation address is excluded from the
+mechanics catalog.

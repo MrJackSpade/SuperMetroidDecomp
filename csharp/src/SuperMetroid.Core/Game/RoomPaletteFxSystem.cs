@@ -53,6 +53,24 @@ public sealed class RoomPaletteFxSystem
         slots.Any(slot => slot.Id == definition);
 
     /// <summary>
+    /// Installs a constructed instruction program for focused interpreter verification
+    /// without overwriting a retail palette-FX definition or instruction list.
+    /// </summary>
+    internal void SpawnConstructedProgramForVerification(ushort instructionPointer)
+    {
+        PaletteFxSlot slot = slots[^1];
+        if (slot.Id != 0)
+        {
+            throw new InvalidOperationException(
+                "The constructed palette-FX verification slot is already occupied.");
+        }
+
+        slot.Id = ushort.MaxValue;
+        slot.InstructionPointer = instructionPointer;
+        slot.InstructionTimer = 1;
+    }
+
+    /// <summary>
     /// Spawns a non-room palette object through the same native allocator/interpreter used
     /// by room FX. Samus's load appearance uses definitions $E1F4/$E1F8/$E1FC and must not
     /// be reimplemented as a host-side tint.

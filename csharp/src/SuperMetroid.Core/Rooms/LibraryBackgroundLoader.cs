@@ -21,7 +21,8 @@ public static class LibraryBackgroundLoader
         SnesVram vram,
         ushort listPointer,
         ushort activeDoorPointer,
-        RoomBackgroundTilemapCatalog? tilemapArt = null)
+        RoomBackgroundTilemapCatalog? tilemapArt = null,
+        RoomSkyTilemapCatalog? skyArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -50,7 +51,7 @@ public static class LibraryBackgroundLoader
                         bg3CharacterBaseWord);
 
                 case LibraryBackgroundCommand.TransferToVram:
-                    cursor = TransferToVram(bus, vram, cursor);
+                    cursor = TransferToVram(bus, vram, cursor, skyArt);
                     break;
 
                 case LibraryBackgroundCommand.DecompressToWorkRam:
@@ -64,7 +65,7 @@ public static class LibraryBackgroundLoader
                     break;
 
                 case LibraryBackgroundCommand.TransferToVramForKraid:
-                    cursor = TransferToVram(bus, vram, cursor);
+                    cursor = TransferToVram(bus, vram, cursor, skyArt);
                     // `$82:EA66` writes BG34NBA=$02 after the transfer. BG3 therefore
                     // consumes characters at word $2000 while Kraid's private BG2 map owns
                     // word $4000. Return the register-derived base to the room PPU owner.
@@ -85,7 +86,7 @@ public static class LibraryBackgroundLoader
                     ushort candidateDoor = ReadWord(bus, cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     if (candidateDoor == activeDoorPointer)
-                        cursor = TransferToVram(bus, vram, cursor);
+                        cursor = TransferToVram(bus, vram, cursor, skyArt);
                     else
                         cursor = unchecked((ushort)(cursor + 7));
                     break;
@@ -101,7 +102,8 @@ public static class LibraryBackgroundLoader
             $"Library-background list $8F:{listPointer:X4} did not terminate within 128 commands.");
     }
 
-    private static ushort TransferToVram(ISnesAddressSpace bus, SnesVram vram, ushort cursor)
+    private static ushort TransferToVram(ISnesAddressSpace bus, SnesVram vram, ushort cursor,
+        RoomSkyTilemapCatalog? skyArt)
     {
         int sourceAddress = ReadLong(bus, cursor);
         ushort destinationWord = ReadWord(bus, unchecked((ushort)(cursor + 3)));
@@ -114,7 +116,11 @@ public static class LibraryBackgroundLoader
 
         // Command 2 configures the same $2118/$2119 consecutive-word DMA represented by
         // ExecuteQueuedWrite. Its destination is a VRAM word, not a host byte offset.
-        vram.ExecuteQueuedWrite(bus, sourceAddress, byteCount, destinationWord);
+        if (skyArt is not null && skyArt.TryResolve(sourceAddress, byteCount,
+                out ReadOnlyMemory<byte> selected))
+            vram.ExecuteQueuedAssetWrite(selected.Span, destinationWord);
+        else
+            vram.ExecuteQueuedWrite(bus, sourceAddress, byteCount, destinationWord);
         return unchecked((ushort)(cursor + 7));
     }
 

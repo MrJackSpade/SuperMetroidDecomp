@@ -79,6 +79,7 @@ public static class GameAssetInstaller
             RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
             RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
             RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
+            RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
         }
         catch (IOException) { return false; }
@@ -136,6 +137,11 @@ public static class GameAssetInstaller
             RoomBackgroundTilemapArtworkFiles.Extract(new SuperMetroidAddressSpace(rom),
                 roomBackgrounds, SupportedCartridge.Sha256);
             RoomBackgroundTilemapArtworkFiles.ValidateStock(roomBackgrounds);
+            progress?.Report("Extracting scrolling-sky tilemaps...");
+            cancellationToken.ThrowIfCancellationRequested();
+            RoomSkyTilemapArtworkFiles.Extract(new SuperMetroidAddressSpace(rom),
+                roomBackgrounds, SupportedCartridge.Sha256);
+            RoomSkyTilemapArtworkFiles.ValidateStock(roomBackgrounds);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

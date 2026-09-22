@@ -826,7 +826,8 @@ public sealed partial class SuperMetroidRuntime
                 Vram,
                 room.State.BackgroundDataPointer,
                 door.Pointer,
-                RoomBackgroundTilemapArt);
+                RoomBackgroundTilemapArt,
+                RoomSkyTilemapArt);
             if (backgroundResult.Bg3CharacterBaseWord is ushort bg3CharacterBaseWord)
                 GameplayHudCharacterBaseWord = bg3CharacterBaseWord;
         }

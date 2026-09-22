@@ -143,12 +143,41 @@ internal static partial class Program
                 nativeBackgroundVram.ReadWord(0x4801) == editedBackgroundVram.ReadWord(0x4801),
                 "installed background override changes only its selected Ceres BG tile");
 
+            RoomSkyTilemapCatalog stockSky = installed.LoadRoomSkyTilemaps();
+            LandingSiteEntryState landingEntry = LandingSiteEntryState.LoadLandingCutscene(bus);
+            int skyPage = (landingEntry.SkySourceAddress -
+                RoomSkyTilemapFormat.FirstSourceAddress) / RoomSkyTilemapFormat.PageByteCount;
+            string skyName = RoomSkyTilemapFormat.FileName(skyPage);
+            string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
+            AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");
+            byte[] nativeSky = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+                landingEntry.SkySourceAddress, landingEntry.SkyByteCount);
+            AssertTrue(stockSky.TryResolve(landingEntry.SkySourceAddress,
+                    landingEntry.SkyByteCount, out ReadOnlyMemory<byte> installedSky) &&
+                installedSky.Span.SequenceEqual(nativeSky),
+                "installed scrolling-sky page retains native door-selected bytes");
+            JsonNode skyDocument = JsonNode.Parse(File.ReadAllText(skyStockPath))
+                ?? throw new InvalidDataException("Installed scrolling-sky JSON is empty.");
+            JsonNode skyCell = skyDocument["pages"]![0]!["cells"]![0]!;
+            skyCell["tileColumn"] = (skyCell["tileColumn"]!.GetValue<int>() + 1)
+                % RoomBackgroundTilemapFormat.TileColumns;
+            string skyOverridePath = Path.Combine(
+                installed.RoomBackgroundTilemapOverrideDirectory, skyName);
+            File.WriteAllText(skyOverridePath, skyDocument.ToJsonString());
+            RoomSkyTilemapCatalog editedSky = installed.LoadRoomSkyTilemaps();
+            AssertTrue(editedSky.TryResolve(landingEntry.SkySourceAddress,
+                    landingEntry.SkyByteCount, out ReadOnlyMemory<byte> changedSky) &&
+                !changedSky.Span[..2].SequenceEqual(nativeSky.AsSpan(0, 2)) &&
+                changedSky.Span[2..].SequenceEqual(nativeSky.AsSpan(2)),
+                "installed sky override changes exactly its selected door tile word");
+
             // A missing stock resource causes atomic re-extraction from the installed
             // cartridge; the edit remains outside the replaceable game directory.
             File.Delete(Path.Combine(installed.RoomCharacterDirectory, name));
             File.Delete(paletteStockPath);
             File.Delete(blockStockPath);
             File.Delete(backgroundStockPath);
+            File.Delete(skyStockPath);
             GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed room-art repair lost its ROM.");
             AssertTrue(File.Exists(overridePath), "room-character override survives stock repair");
@@ -163,6 +192,9 @@ internal static partial class Program
             AssertTrue(File.Exists(backgroundOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, backgroundName)),
                 "room-background stock is restored while its override survives repair");
+            AssertTrue(File.Exists(skyOverridePath) &&
+                File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
+                "scrolling-sky stock is restored while its override survives repair");
             CartridgeRoomAssets repairedEdited = CartridgeRoomAssets.Load(bus, landing,
                 repaired.LoadRoomCharacters());
             AssertTrue(repairedEdited.RoomCharacters.AsSpan().SequenceEqual(editedRoom.RoomCharacters),
@@ -184,6 +216,10 @@ internal static partial class Program
                 tilemapArt: repaired.LoadRoomBackgroundTilemaps());
             AssertTrue(repairedBackgroundVram.Bytes.SequenceEqual(editedBackgroundVram.Bytes),
                 "repaired installation retains selected user background tilemap");
+            AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingEntry.SkySourceAddress,
+                    landingEntry.SkyByteCount, out ReadOnlyMemory<byte> repairedSky) &&
+                repairedSky.Span.SequenceEqual(changedSky.Span),
+                "repaired installation retains selected user scrolling sky");
 
             File.WriteAllBytes(overridePath, "invalid indexed PNG"u8.ToArray());
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
@@ -199,8 +235,11 @@ internal static partial class Program
             File.WriteAllText(backgroundOverridePath, "invalid background tilemap JSON");
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomBackgroundTilemaps(),
                 "invalid room-background override fails loudly instead of reverting to stock");
+            File.WriteAllText(skyOverridePath, "invalid scrolling-sky JSON");
+            AssertThrows<InvalidDataException>(() => repaired.LoadRoomSkyTilemaps(),
+                "invalid scrolling-sky override fails loudly instead of reverting to stock");
 
-            Console.WriteLine("  Room artwork installation: PNG, RGB5, block and BG tilemap stock import, live edits, " +
+            Console.WriteLine("  Room artwork installation: PNG, RGB5, block, BG and sky stock import, live edits, " +
                 "repair preservation and invalid-override rejection verified.");
         }
         finally

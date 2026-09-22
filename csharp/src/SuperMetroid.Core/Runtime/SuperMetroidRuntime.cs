@@ -653,7 +653,8 @@ public sealed partial class SuperMetroidRuntime
         if (LandingSiteEntry is null)
             throw new InvalidOperationException("Landing Site entry metadata was not initialized.");
 
-        LandingSiteStreamingData.LoadCharacterGraphics(_addressSpace, Vram, LandingSiteEntry);
+        LandingSiteStreamingData.LoadCharacterGraphics(_addressSpace, Vram, LandingSiteEntry,
+            RoomSkyTilemapArt);
 
         // The selected room-state record owns both of these pointers. This call parses the
         // terminated $A1 population and $B4 graphics set, loads palettes/tiles, constructs

@@ -101,7 +101,15 @@ public sealed class VramWriteQueue
         {
             VramWriteEntry entry = _entries[index];
             if (entry.AssetId == VramAssetId.None)
-                vram.ExecuteQueuedWrite(bus, entry.SourceAddress, entry.SizeInBytes, entry.EncodedVramDestination);
+            {
+                if (assets is IRomArtworkSource artwork &&
+                    artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes,
+                        out ReadOnlyMemory<byte> selected))
+                    vram.ExecuteQueuedAssetWrite(selected.Span, entry.EncodedVramDestination);
+                else
+                    vram.ExecuteQueuedWrite(bus, entry.SourceAddress, entry.SizeInBytes,
+                        entry.EncodedVramDestination);
+            }
             else
             {
                 if (assets is null) throw new InvalidOperationException($"Queued VRAM asset {entry.AssetId} has no bound provider.");

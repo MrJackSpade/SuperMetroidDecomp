@@ -125,9 +125,13 @@ Each file contains one or two ordered 32x32 pages of 8x8 tile references with
 to `overrides/room-backgrounds/` under the same name to edit it, then restart.
 The library-background command sequence, WRAM staging, VRAM transfer order and
 door conditions remain engine behavior, not editable data. These files cover
-the 58 compressed room BG tilemaps; direct-ROM scrolling skies and other
-background art transfers are not yet editable. Stock hashes and override repair
-follow the same rules as the room-character sheets.
+the 58 compressed room BG tilemaps. Seven contiguous scrolling-sky pages are
+installed alongside them as `scrolling-sky-*.json`; copies under
+`overrides/room-backgrounds/` change both door-selected and per-frame sky rows.
+The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
+engine behavior. Other direct-ROM background transfers are not yet editable.
+Stock hashes and override repair follow the same rules as the room-character
+sheets.
 
 This room-art slice does not yet expose block arrangement or background-tilemap
 editing. The current sheet and palette filenames encode source identities;

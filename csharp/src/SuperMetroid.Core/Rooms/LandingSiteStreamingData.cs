@@ -89,7 +89,8 @@ public static class LandingSiteStreamingData
     public static void LoadCharacterGraphics(
         ISnesAddressSpace bus,
         SnesVram vram,
-        LandingSiteEntryState entry)
+        LandingSiteEntryState entry,
+        RoomSkyTilemapCatalog? skyArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -102,10 +103,16 @@ public static class LandingSiteStreamingData
         // $82:E9E7's door-dependent library-background command has already been resolved
         // by LandingSiteEntryState. Copy its literal ROM slice to its literal VRAM word;
         // unlike the CRE/area inputs above, scrolling-sky tilemaps are not compressed.
-        var skyTilemap = new byte[entry.SkyByteCount];
-        for (int index = 0; index < skyTilemap.Length; index++)
-            skyTilemap[index] = bus.ReadByte(entry.SkySourceAddress + index);
-        vram.LoadBytes(entry.SkyVramDestination * 2, skyTilemap);
+        if (skyArt is not null && skyArt.TryResolve(entry.SkySourceAddress,
+                entry.SkyByteCount, out ReadOnlyMemory<byte> selected))
+            vram.LoadBytes(entry.SkyVramDestination * 2, selected.Span);
+        else
+        {
+            var skyTilemap = new byte[entry.SkyByteCount];
+            for (int index = 0; index < skyTilemap.Length; index++)
+                skyTilemap[index] = bus.ReadByte(entry.SkySourceAddress + index);
+            vram.LoadBytes(entry.SkyVramDestination * 2, skyTilemap);
+        }
     }
 
     private static byte[] DecompressExact(

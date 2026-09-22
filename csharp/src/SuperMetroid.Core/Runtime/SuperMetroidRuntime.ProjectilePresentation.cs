@@ -3,8 +3,16 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Runtime;
 
-public sealed partial class SuperMetroidRuntime : IVramAssetProvider
+public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtworkSource
 {
+    bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
+        out ReadOnlyMemory<byte> data)
+    {
+        if (RoomSkyTilemapArt is not null)
+            return RoomSkyTilemapArt.TryResolve(sourceAddress, byteCount, out data);
+        data = default;
+        return false;
+    }
     // Host content is rebound after restoring a graph; saved state must not freeze
     // an old user override into the simulation. Only composition emission uses this.
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;

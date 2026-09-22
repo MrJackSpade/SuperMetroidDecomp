@@ -1467,6 +1467,11 @@ if (args is ["--room-background-tilemaps"])
     VerifyRoomBackgroundTilemapExtraction();
     return 0;
 }
+if (args is ["--room-sky-tilemaps"])
+{
+    VerifyRoomSkyTilemaps();
+    return 0;
+}
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();

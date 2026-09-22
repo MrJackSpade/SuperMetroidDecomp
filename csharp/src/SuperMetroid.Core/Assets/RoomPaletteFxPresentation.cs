@@ -202,6 +202,26 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 definition.ColorPointer,
                 colors);
         }
+        foreach (CinematicGlowPaletteFxProgramDefinition definition in
+                 CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Owner switch
+            {
+                CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights =>
+                    document.OldMotherBrainBackgroundLights,
+                CinematicGlowPaletteFxProgramOwner.GunshipGlow =>
+                    document.CinematicGunshipGlow,
+                _ => throw new InvalidDataException(
+                    $"Unsupported cinematic glow owner {definition.Owner}."),
+            };
+            ValidateAndCompile(
+                $"Cinematic glow {definition.Owner}",
+                frames,
+                CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame,
+                definition.ColorPointer,
+                colors);
+        }
 
         return new RoomPaletteFxPresentation(colors);
     }
@@ -282,10 +302,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] CeresNavigationLights { get; init; }
     public required PaletteRgb5[][] PlanetZebesTextFadeIn { get; init; }
     public required PaletteRgb5[][] PlanetZebesTextFadeOut { get; init; }
+    public required PaletteRgb5[][] OldMotherBrainBackgroundLights { get; init; }
+    public required PaletteRgb5[][] CinematicGunshipGlow { get; init; }
 }
 
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 9;
+    public const int Version = 10;
 }

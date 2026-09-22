@@ -1128,12 +1128,10 @@ internal static partial class Program
                  frame < CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
                  frame++)
             {
-                ushort firstColor = unchecked((ushort)(
-                    definition.FramePointer(frame) + sizeof(ushort)));
                 for (int color = 0; color < definition.ColorsPerFrame; color++)
                 {
                     AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                            unchecked((ushort)(firstColor + color * sizeof(ushort))),
+                            definition.ColorPointer(frame, color),
                             out _),
                         $"{definition.Owner} glow colors remain presentation-owned");
                 }

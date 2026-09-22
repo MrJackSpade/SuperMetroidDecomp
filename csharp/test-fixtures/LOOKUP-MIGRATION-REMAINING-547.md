@@ -1968,3 +1968,9 @@ BGR555 words from two named installed arrays. Verification blocks all 96 source 
 compares every CGRAM frame through each complete 24-frame one-shot fade and its
 terminal deletion, and confirms independent override output for both entries.
 Placement, hold durations, waits, and deletion remain compiled mechanics.
+
+The old Mother Brain background-light pulse and cinematic gunship glow now source all
+56 BGR555 words from two named installed arrays. Verification blocks all 112 color
+bytes and compares installed output against the native 84/70-frame programs for two
+complete cycles each. Live overrides change both destinations. Palette placement,
+distinct durations, waits, and loop targets remain compiled mechanics.

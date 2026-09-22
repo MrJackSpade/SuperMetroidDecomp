@@ -71,6 +71,10 @@ internal static class RoomPaletteFxPresentationExtractor
                 PlanetZebesTextPaletteFxProgramOwner.FadeIn),
             PlanetZebesTextFadeOut = ExtractPlanetZebesText(
                 PlanetZebesTextPaletteFxProgramOwner.FadeOut),
+            OldMotherBrainBackgroundLights = ExtractCinematicGlow(
+                CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights),
+            CinematicGunshipGlow = ExtractCinematicGlow(
+                CinematicGlowPaletteFxProgramOwner.GunshipGlow),
         });
         return json.ToArray();
 
@@ -183,6 +187,17 @@ internal static class RoomPaletteFxPresentationExtractor
             return ExtractFrames(
                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount,
                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                definition.ColorPointer);
+        }
+
+        PaletteRgb5[][] ExtractCinematicGlow(CinematicGlowPaletteFxProgramOwner owner)
+        {
+            CinematicGlowPaletteFxProgramDefinition definition =
+                CinematicGlowPaletteFxProgramMechanicsDefinitions.All.Single(
+                    item => item.Owner == owner);
+            return ExtractFrames(
+                CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame,
                 definition.ColorPointer);
         }
     }

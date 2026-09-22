@@ -186,10 +186,23 @@ internal static partial class Program
                 [definition.DefinitionPointer],
                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
         }
+        foreach (CinematicGlowPaletteFxProgramDefinition definition in
+                 CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
+        {
+            VerifyInstalledPaletteFxFamily(
+                bus,
+                presentation,
+                $"Cinematic glow {definition.Owner}",
+                CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                definition.ColorsPerFrame,
+                definition.ColorPointer,
+                [definition.DefinitionPointer],
+                definition.CycleFrames * 2);
+        }
         VerifyRoomPaletteFxPresentationValidation(extracted);
         Console.WriteLine(
-            "  Room palette presentation: 1070 editable environmental colors match ROM; " +
-            "twenty-one installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 1126 editable palette colors match ROM; " +
+            "twenty-three installed programs match native execution without color-source reads.");
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -458,9 +471,22 @@ internal static partial class Program
         Reject("room palette-FX rejects incomplete PLANET ZEBES fade-out frame");
         document.PlanetZebesTextFadeOut[0] = fadeOutFrame;
 
+        PaletteRgb5[][] motherBrainLights = document.OldMotherBrainBackgroundLights;
+        document = document with
+        {
+            OldMotherBrainBackgroundLights = motherBrainLights[..^1],
+        };
+        Reject("room palette-FX rejects incomplete old Mother Brain glow");
+        document = document with { OldMotherBrainBackgroundLights = motherBrainLights };
+
+        PaletteRgb5[] gunshipGlowFrame = document.CinematicGunshipGlow[0];
+        document.CinematicGunshipGlow[0] = gunshipGlowFrame[..^1];
+        Reject("room palette-FX rejects incomplete cinematic gunship-glow frame");
+        document.CinematicGunshipGlow[0] = gunshipGlowFrame;
+
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 9",
-            "\"version\": 9,\n  \"nativeAddress\": 9240718",
+            "\"version\": 10",
+            "\"version\": 10,\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

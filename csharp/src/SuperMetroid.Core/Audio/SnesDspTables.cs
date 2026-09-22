@@ -19,6 +19,18 @@ internal static class SnesDspTables
     /// Number of native DSP sample cycles between envelope or noise updates for each five-bit
     /// hardware rate selector. Selector zero disables the corresponding timer.
     /// </summary>
+    /// <remarks>
+    /// Issue #625 exact counter-period formula: validate selector i=0..31;
+    /// return 0 for disabled i=0 and 1 for the every-sample i=31 endpoint.
+    /// Otherwise g=(i-1)/3 and r=(i-1)%3, and period=((8-2*r+r/2)*256)&gt;&gt;g.
+    /// Integer r/2 produces the repeating 8:6:5 counter ratios, halved each
+    /// group; the last fractional period truncates to 2. No transcendental or
+    /// floating-point generator is involved. LookupTableResearch checks all
+    /// 32 values against this array and rateValues in pinned upstream-sm/src/snes/dsp.c,
+    /// and rejects adjacent/extreme invalid selectors. This is hardware data,
+    /// so the reference is the pinned DSP implementation, not cartridge bytes.
+    /// Timer phase/admission and Gaussian interpolation remain separate concerns.
+    /// </remarks>
     internal static readonly ushort[] RateValues =
     [
         0, 2048, 1536, 1280, 1024, 768, 640, 512,

@@ -18,6 +18,7 @@ internal static partial class Program
             Equal(ResearchData.RomSha256, Convert.ToHexString(SHA256.HashData(rom)), "NTSC J/U v1.0 oracle identity");
             Verify(rom);
             VerifyGeometry(rom);
+            VerifyAudio(rom);
             return 0;
         }
         catch (Exception exception)

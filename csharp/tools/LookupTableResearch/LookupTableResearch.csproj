@@ -10,5 +10,7 @@
     <Compile Include="../../src/SuperMetroid.Core/Rendering/PowerBombShapeDefinitions.cs" Link="PowerBombShapeDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/SlopeHeightDefinitions.cs" Link="SlopeHeightDefinitions.cs" />
     <Compile Include="../../src/SuperMetroid.Core/Game/SquareSlopeDefinitions.cs" Link="SquareSlopeDefinitions.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Audio/SpcMusicTables.cs" Link="SpcMusicTables.cs" />
+    <Compile Include="../../src/SuperMetroid.Core/Audio/SnesDspTables.cs" Link="SnesDspTables.cs" />
   </ItemGroup>
 </Project>

@@ -1529,3 +1529,13 @@ Verification compares every mechanics word with the pinned cartridge and execute
 four real palette-FX definitions through deletion with mechanics bytes forbidden. Every
 live color read remains observable and every presentation address is excluded from the
 mechanics catalog.
+
+## Torizo belly palette mechanics
+
+Bomb and Golden Torizo's matching six-frame belly loops now compile all 36 color-index,
+pre-instruction, duration, wait, branch, and target words through
+`TorizoBellyPaletteFxProgramMechanicsDefinitions`. Their 36 distinct BGR555 colors remain
+live presentation data. Both real definitions execute through a full cycle and repeat the
+first frame with mechanics bytes forbidden, then delete through the cartridge's shared
+enemy-zero-death pre-instruction. Exact ROM parity, every live color read, and adjacent-code
+rejection are verified.

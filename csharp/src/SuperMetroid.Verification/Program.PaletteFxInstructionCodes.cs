@@ -51,6 +51,7 @@ internal static partial class Program
         VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -60,8 +61,113 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 165 heat/green-light/statue control words are compiled; all four audio opcodes " +
+            "plus 201 heat/green-light/statue/Torizo control words are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(
+        ISnesAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        foreach (TorizoBellyPaletteFxProgramDefinition definition in
+                 TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+        {
+            var expected = new Dictionary<ushort, ushort>
+            {
+                [definition.ProgramStart] = PaletteFxInstructionCodes.SetColorIndex,
+                [unchecked((ushort)(definition.ProgramStart + 2))] =
+                    TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
+                [unchecked((ushort)(definition.ProgramStart + 4))] =
+                    PaletteFxInstructionCodes.SetPreInstruction,
+                [unchecked((ushort)(definition.ProgramStart + 6))] =
+                    PaletteFxPreInstructionCodes.DeleteWhenEnemyZeroDies,
+                [definition.LoopInstructionPointer] = PaletteFxInstructionCodes.Goto,
+                [unchecked((ushort)(definition.LoopInstructionPointer + 2))] =
+                    definition.FirstFramePointer,
+            };
+            for (int frame = 0;
+                 frame < TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort pointer = definition.FramePointer(frame);
+                expected.Add(pointer,
+                    TorizoBellyPaletteFxProgramMechanicsDefinitions.Duration(frame));
+                expected.Add(
+                    unchecked((ushort)(pointer +
+                        TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
+                    PaletteFxInstructionCodes.Wait);
+                for (int color = 0;
+                     color < TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                     color++)
+                {
+                    ushort presentationPointer = unchecked((ushort)(
+                        pointer + sizeof(ushort) + color * sizeof(ushort)));
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            presentationPointer,
+                            out _),
+                        $"{definition.Owner} belly color $8D:{presentationPointer:X4} remains presentation-owned");
+                }
+            }
+
+            AssertEqual(18, expected.Count, $"{definition.Owner} belly mechanics word count");
+            foreach ((ushort pointer, ushort value) in expected)
+            {
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} belly program catalogs $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} belly compiled word $8D:{pointer:X4}");
+                AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} belly cartridge word $8D:{pointer:X4}");
+                mechanicsWords++;
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            const int cycleFrames = 10 + 8 + 8 + 10 + 8 + 8;
+            for (int step = 0; step <= cycleFrames; step++)
+            {
+                paletteFx.Step(
+                    guarded,
+                    cgram,
+                    samusY: 0,
+                    equippedItems: 0,
+                    enemyZeroIsDead: false,
+                    areaMiniBossDefeated: false);
+            }
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} belly program loops after six frames");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} belly program avoids mechanics ROM reads");
+            AssertEqual(
+                (TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} belly program retains live colors through loop");
+
+            paletteFx.Step(
+                guarded,
+                cgram,
+                samusY: 0,
+                equippedItems: 0,
+                enemyZeroIsDead: true,
+                areaMiniBossDefeated: false);
+            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} belly pre-instruction deletes when enemy zero dies");
+        }
+
+        AssertEqual(36, mechanicsWords, "compiled Torizo belly mechanics words");
+        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xe2e0, out _),
+            "Torizo belly owner rejects adjacent pre-instruction code");
+        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(0xe379, out _),
+            "Torizo belly owner rejects adjacent heat pre-instruction code");
     }
 
     private static void VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(
@@ -558,6 +664,26 @@ internal static partial class Program
                     {
                         PresentationReadCount++;
                         break;
+                    }
+                }
+
+                foreach (TorizoBellyPaletteFxProgramDefinition definition in
+                         TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount;
+                         frame++)
+                    {
+                        ushort firstColor = unchecked((ushort)(
+                            definition.FramePointer(frame) + sizeof(ushort)));
+                        int colorOffset = source.Offset - firstColor;
+                        if ((uint)colorOffset <
+                            TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                            sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
                     }
                 }
             }

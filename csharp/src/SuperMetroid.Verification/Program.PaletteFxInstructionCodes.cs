@@ -52,6 +52,7 @@ internal static partial class Program
         VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(bus);
         VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(bus);
+        VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(bus);
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
         VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
@@ -61,8 +62,125 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 201 heat/green-light/statue/Torizo control words are compiled; all four audio opcodes " +
+            "plus 267 translated program-control words are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(
+        ISnesAddressSpace bus)
+    {
+        int mechanicsWords = 0;
+        foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
+                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+        {
+            var expected = new Dictionary<ushort, ushort>();
+            if (definition.DeletesWithAreaMiniBoss)
+            {
+                expected.Add(definition.ProgramStart,
+                    PaletteFxInstructionCodes.SetPreInstruction);
+                expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
+                    PaletteFxPreInstructionCodes.DeleteWhenAreaMiniBossDies);
+                expected.Add(unchecked((ushort)(definition.ProgramStart + 4)),
+                    PaletteFxInstructionCodes.SetColorIndex);
+                expected.Add(unchecked((ushort)(definition.ProgramStart + 6)),
+                    BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex);
+            }
+            else
+            {
+                expected.Add(definition.ProgramStart, PaletteFxInstructionCodes.SetColorIndex);
+                expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
+                    BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex);
+            }
+
+            expected.Add(definition.LoopInstructionPointer, PaletteFxInstructionCodes.Goto);
+            expected.Add(unchecked((ushort)(definition.LoopInstructionPointer + 2)),
+                definition.FirstFramePointer);
+            for (int frame = 0;
+                 frame < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort pointer = definition.FramePointer(frame);
+                expected.Add(pointer, 10);
+                expected.Add(
+                    unchecked((ushort)(pointer +
+                        BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
+                    PaletteFxInstructionCodes.Wait);
+                for (int color = 0;
+                     color < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                     color++)
+                {
+                    ushort presentationPointer = unchecked((ushort)(
+                        pointer + sizeof(ushort) + color * sizeof(ushort)));
+                    AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                            presentationPointer,
+                            out _),
+                        $"{definition.Owner} blue-spore color $8D:{presentationPointer:X4} remains presentation-owned");
+                }
+            }
+
+            int expectedWordCount = definition.DeletesWithAreaMiniBoss ? 34 : 32;
+            AssertEqual(expectedWordCount, expected.Count,
+                $"{definition.Owner} blue-spore mechanics word count");
+            foreach ((ushort pointer, ushort value) in expected)
+            {
+                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                        pointer,
+                        out ushort compiled),
+                    $"{definition.Owner} blue-spore program catalogs $8D:{pointer:X4}");
+                AssertEqual(value, compiled,
+                    $"{definition.Owner} blue-spore compiled word $8D:{pointer:X4}");
+                AssertEqual(value, RomDataReader.ReadWordFixedBank(
+                        bus,
+                        RoomFxRomData.Banks.PaletteFx | pointer),
+                    $"{definition.Owner} blue-spore cartridge word $8D:{pointer:X4}");
+                mechanicsWords++;
+            }
+
+            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var paletteFx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            paletteFx.SpawnDefinition(
+                guarded,
+                definition.DefinitionPointer,
+                equippedItems: 0,
+                areaMiniBossDefeated: false);
+            const int cycleFrames =
+                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount * 10;
+            for (int step = 0; step <= cycleFrames; step++)
+            {
+                paletteFx.Step(
+                    guarded,
+                    cgram,
+                    samusY: 0,
+                    equippedItems: 0,
+                    enemyZeroIsDead: false,
+                    areaMiniBossDefeated: false);
+            }
+
+            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} blue-spore program loops after fourteen frames");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{definition.Owner} blue-spore program avoids mechanics ROM reads");
+            AssertEqual(
+                (BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
+                    BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort),
+                guarded.PresentationReadCount,
+                $"{definition.Owner} blue-spore program retains live colors through loop");
+
+            paletteFx.Step(
+                guarded,
+                cgram,
+                samusY: 0,
+                equippedItems: 0,
+                enemyZeroIsDead: false,
+                areaMiniBossDefeated: true);
+            AssertEqual(!definition.DeletesWithAreaMiniBoss,
+                paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+                $"{definition.Owner} blue-spore mini-boss death ownership");
+        }
+
+        AssertEqual(66, mechanicsWords, "compiled Brinstar blue-spore mechanics words");
     }
 
     private static void VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(
@@ -679,6 +797,26 @@ internal static partial class Program
                         int colorOffset = source.Offset - firstColor;
                         if ((uint)colorOffset <
                             TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                            sizeof(ushort))
+                        {
+                            PresentationReadCount++;
+                            break;
+                        }
+                    }
+                }
+
+                foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
+                         BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+                {
+                    for (int frame = 0;
+                         frame < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount;
+                         frame++)
+                    {
+                        ushort firstColor = unchecked((ushort)(
+                            definition.FramePointer(frame) + sizeof(ushort)));
+                        int colorOffset = source.Offset - firstColor;
+                        if ((uint)colorOffset <
+                            BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                             sizeof(ushort))
                         {
                             PresentationReadCount++;

@@ -1539,3 +1539,13 @@ live presentation data. Both real definitions execute through a full cycle and r
 first frame with mechanics bytes forbidden, then delete through the cartridge's shared
 enemy-zero-death pre-instruction. Exact ROM parity, every live color read, and adjacent-code
 rejection are verified.
+
+## Brinstar blue-spore palette mechanics
+
+The standard Brinstar and Spore Spawn room variants now compile all 66 color-index,
+pre-instruction, duration, wait, branch, and target words through
+`BrinstarBlueSporePaletteFxProgramMechanicsDefinitions`. Their 84 BGR555 color words
+remain live presentation data. Both real definitions execute a complete fourteen-frame
+cycle and repeat the first frame with mechanics bytes forbidden. The Spore Spawn variant
+then deletes through its area-mini-boss callback while the standard-room owner remains
+active. Exact ROM parity and every live color read are verified.

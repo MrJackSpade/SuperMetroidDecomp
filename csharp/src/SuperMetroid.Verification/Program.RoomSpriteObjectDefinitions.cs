@@ -11,7 +11,21 @@ internal static partial class Program
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
             .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind,
                 ushort, RoomSpriteObjectSlot?>>();
+        var step = typeof(RoomEnemySystem).GetMethod("StepRoomSpriteObjects", flags)!
+            .CreateDelegate<Action<RoomEnemySystem>>();
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
+
+        for (int index = 0;
+             index < RoomSpriteObjectInstructionProgramDefinitions.MechanicsWordCount;
+             index++)
+        {
+            RoomSpriteObjectInstructionMechanicsWord definition =
+                RoomSpriteObjectInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(
+                ReadRoomSpriteObjectWord(rom, 0xb40000 | definition.Address),
+                definition.Value,
+                $"room sprite-object mechanics word $B4:{definition.Address:X4}");
+        }
 
         for (ushort objectNumber = 0; objectNumber <= 0x003d; objectNumber++)
         {
@@ -36,6 +50,35 @@ internal static partial class Program
                 $"production room sprite object ${objectNumber:X2} loaded first frame");
             AssertEqual(kind, slot.Kind,
                 $"production room sprite object ${objectNumber:X2} identity");
+
+            var observedStates = new HashSet<(ushort Pointer, ushort Timer)>();
+            for (int frame = 0; frame < 8192 && slot.IsActive; frame++)
+            {
+                if (!observedStates.Add((slot.InstructionPointer, slot.InstructionTimer)))
+                    break;
+                step(enemies);
+                if (slot.InstructionTimer == 0x7fff)
+                    break;
+            }
+            AssertTrue(!slot.IsActive || slot.InstructionTimer == 0x7fff ||
+                observedStates.Contains((slot.InstructionPointer, slot.InstructionTimer)),
+                $"room sprite object ${objectNumber:X2} terminates or reaches its authored loop");
+        }
+
+        AssertEqual(0, guarded.ForbiddenMechanicsReadAttempts,
+            "room sprite-object execution avoids compiled mechanics bytes");
+        AssertEqual(
+            RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount,
+            guarded.ObservedPresentationWords.Count,
+            "every room sprite-object spritemap operand remains a live presentation read");
+        for (int index = 0;
+             index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(guarded.ObservedPresentationWords.Contains(address),
+                $"production execution reads room sprite-object presentation $B4:{address:X4}");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
@@ -45,9 +88,39 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomSpriteObjectDefinitions.InstructionPointer(RoomSpriteObjectKind.None),
             "room sprite object none selector");
+        AssertThrows<InvalidDataException>(
+            () => RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
+                RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(0)),
+            "room sprite-object spritemap pointer is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(0x8000),
+            "foreign bank-B4 data is outside room sprite-object programs");
+
+        _ = ProbeRoomSpriteObjectInstructionAllocation();
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        int checksum = ProbeRoomSpriteObjectInstructionAllocation();
+        AssertTrue(checksum != 0,
+            "room sprite-object allocation probe consumes mechanics data");
+        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
+            "warmed room sprite-object mechanics lookups allocate no per-frame storage");
 
         Console.WriteLine(
-            "Room sprite object definitions: all 62 native selectors and 62 real finite-pool spawns pass with the source table forbidden.");
+            "Room sprite object definitions: all 62 native selectors and complete " +
+            $"production programs pass with {RoomSpriteObjectInstructionProgramDefinitions.MechanicsWordCount} " +
+            "compiled mechanics words, " +
+            $"{RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount} live " +
+            "spritemap reads, strict rejection, and allocation-free lookup.");
+    }
+
+    private static int ProbeRoomSpriteObjectInstructionAllocation()
+    {
+        int checksum = 0;
+        for (int index = 0; index < 65536; index++)
+        {
+            checksum += RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
+                RoomSpriteObjectDefinitions.InstructionPointer(RoomSpriteObjectKind.DustCloud));
+        }
+        return checksum;
     }
 
     private static ushort ReadRoomSpriteObjectWord(
@@ -58,11 +131,29 @@ internal static partial class Program
     private sealed class RoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        public byte ReadByte(int address) =>
-            address is >= 0xb4bda8 and < 0xb4be24
-                ? throw new InvalidOperationException(
-                    $"Room sprite object attempted migrated selector read ${address:X6}.")
-                : source.ReadByte(address);
+        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenMechanicsReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (address is >= 0xb4bda8 and < 0xb4be24)
+            {
+                throw new InvalidOperationException(
+                    $"Room sprite object attempted migrated selector read ${address:X6}.");
+            }
+            if (RoomSpriteObjectInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            {
+                ForbiddenMechanicsReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Room sprite object attempted compiled mechanics read ${address:X6}.");
+            }
+            if (RoomSpriteObjectInstructionProgramDefinitions.TryGetPresentationWord(
+                    address, out ushort presentation))
+            {
+                ObservedPresentationWords.Add(presentation);
+            }
+            return source.ReadByte(address);
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

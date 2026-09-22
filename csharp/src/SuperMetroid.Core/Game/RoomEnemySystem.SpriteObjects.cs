@@ -76,10 +76,6 @@ public sealed class RoomSpriteObjectSlot
 public sealed partial class RoomEnemySystem
 {
     private const int RoomSpriteObjectSlotCount = 32;
-    private const ushort SpriteObjectRepeatLastInstruction = 0xbcf0;
-    private const ushort SpriteObjectTerminateInstruction = 0xbd07;
-    private const ushort SpriteObjectGotoInstruction = 0xbd12;
-
     private readonly RoomSpriteObjectSlot[] _roomSpriteObjects =
         Enumerable.Range(0, RoomSpriteObjectSlotCount)
             .Select(index => new RoomSpriteObjectSlot(index))
@@ -152,9 +148,9 @@ public sealed partial class RoomEnemySystem
                 continue;
 
             slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-            ushort durationOrOpcode = ReadWord(
-                _bus!,
-                0xb40000 | slot.InstructionPointer);
+            ushort durationOrOpcode =
+                RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
+                    slot.InstructionPointer);
             if (IsNegative16(durationOrOpcode))
             {
                 slot.InstructionTimer = durationOrOpcode;
@@ -171,28 +167,28 @@ public sealed partial class RoomEnemySystem
     {
         switch (slot.InstructionTimer)
         {
-            case SpriteObjectRepeatLastInstruction:
+            case RoomSpriteObjectInstructionProgramDefinitions.RepeatLast:
                 // Repeat-last backs up to the timed record that preceded the opcode and
                 // pins its timer at $7FFF. Its already selected spritemap remains visible.
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer - 4));
                 slot.InstructionTimer = 0x7fff;
                 return;
 
-            case SpriteObjectTerminateInstruction:
+            case RoomSpriteObjectInstructionProgramDefinitions.Terminate:
                 slot.Clear();
                 return;
 
-            case SpriteObjectGotoInstruction:
-                slot.InstructionPointer = ReadWord(
-                    _bus!,
-                    0xb40000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+            case RoomSpriteObjectInstructionProgramDefinitions.Goto:
+                slot.InstructionPointer =
+                    RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
+                        unchecked((ushort)(slot.InstructionPointer + 2)));
                 // `$B4:BD12` installs the destination's first word as the timer and returns.
                 // Usually that word is a duration, but preserving an opcode destination lets
                 // the ordinary next-frame dispatcher handle chained control records exactly
                 // as cartridge data specifies instead of assuming every Goto targets art.
-                slot.InstructionTimer = ReadWord(
-                    _bus!,
-                    0xb40000 | slot.InstructionPointer);
+                slot.InstructionTimer =
+                    RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
+                        slot.InstructionPointer);
                 if (!IsNegative16(slot.InstructionTimer))
                     LoadRoomSpriteObjectFrame(slot);
                 return;
@@ -206,7 +202,8 @@ public sealed partial class RoomEnemySystem
 
     private void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
     {
-        ushort duration = ReadWord(_bus!, 0xb40000 | slot.InstructionPointer);
+        ushort duration = RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
+            slot.InstructionPointer);
         if (duration == 0 || IsNegative16(duration))
         {
             throw new InvalidDataException(

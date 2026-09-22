@@ -740,7 +740,11 @@ movement, aim, and articulated-body consumers run with `$B3:946B-$949A` and
 The shared bank-$B4 room-sprite-object dispatcher now compiles all 62 initial instruction
 selectors, including native object numbers not yet named by a translated caller. Every entry
 runs through the real descending finite-pool allocator and first-frame loader with
-`$B4:BDA8-$BE23` forbidden. The selected mixed lifetime/artwork programs remain separate.
+`$B4:BDA8-$BE23` forbidden. All selected programs now compile their complete 552-word
+control surface: frame durations, repeat/terminate/goto commands, and goto targets. The
+real dispatcher executes every entry to termination or its authored loop with those bytes
+forbidden, while all 471 interleaved spritemap pointers remain live cartridge presentation
+reads. Exact ROM parity, strict rejection, and allocation-free warmed lookup are verified.
 
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,

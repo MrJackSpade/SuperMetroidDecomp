@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <!-- #620 starts as advisory while existing guards are migrated. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6201;SME6202</WarningsNotAsErrors>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

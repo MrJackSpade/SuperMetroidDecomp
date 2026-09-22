@@ -27,3 +27,7 @@ dotnet_diagnostic.IDE0060.severity = error
 dotnet_diagnostic.IDE0078.severity = error
 dotnet_diagnostic.SYSLIB1054.severity = error
 dotnet_diagnostic.IDE0330.severity = error
+
+# #620: advisory until the existing reusable guards are migrated.
+dotnet_diagnostic.SME6201.severity = warning
+dotnet_diagnostic.SME6202.severity = warning

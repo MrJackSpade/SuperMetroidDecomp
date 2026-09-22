@@ -5,6 +5,7 @@
     <Project Path="src/SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <Project Path="src/SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
     <Project Path="src/SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
+    <Project Path="src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj" />
   </Folder>
   <Folder Name="/Apps/">
     <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />
@@ -18,6 +19,7 @@
     <Project Path="src/SuperMetroid.IntegrationVerification/SuperMetroid.IntegrationVerification.csproj" />
     <Project Path="src/SuperMetroid.RenderVerification/SuperMetroid.RenderVerification.csproj" />
     <Project Path="src/SuperMetroid.DesktopVerification/SuperMetroid.DesktopVerification.csproj" />
+    <Project Path="src/SuperMetroid.EnsureVerification/SuperMetroid.EnsureVerification.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

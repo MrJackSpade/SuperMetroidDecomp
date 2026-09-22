@@ -75,6 +75,7 @@ public static class GameAssetInstaller
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
+            RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
             return true;
         }
         catch (IOException) { return false; }
@@ -107,6 +108,12 @@ public static class GameAssetInstaller
             cancellationToken.ThrowIfCancellationRequested();
             ProjectilePresentationFiles.Extract(new SuperMetroidAddressSpace(rom),
                 Path.Combine(staging, GameInstallationLayout.ProjectileDirectoryName));
+            progress?.Report("Extracting room character artwork...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string roomCharacters = Path.Combine(staging, GameInstallationLayout.RoomCharacterDirectoryName);
+            RoomCharacterArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomCharacters,
+                SupportedCartridge.Sha256);
+            RoomCharacterArtworkFiles.ValidateStock(roomCharacters);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

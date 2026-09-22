@@ -231,6 +231,8 @@ public sealed partial class PlayableGameControl : UserControl
             new GameInstallation(playerDataDirectory);
         mapPresentation = installation?.LoadMaps();
         game.BindMapPresentation(mapPresentation);
+        roomCharacterArt = installation?.LoadRoomCharacters();
+        game.BindRoomCharacterArt(roomCharacterArt);
         projectilePresentation = installation?.LoadProjectiles();
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
@@ -329,6 +331,7 @@ public sealed partial class PlayableGameControl : UserControl
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
         game.BindMapPresentation(mapPresentation);
+        game.BindRoomCharacterArt(roomCharacterArt);
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
         game.BindTrailArtwork(projectilePresentation?.Trails);

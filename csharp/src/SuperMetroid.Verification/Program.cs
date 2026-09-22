@@ -1437,6 +1437,11 @@ if (args is ["--room-character-atlases"])
     VerifyRoomCharacterAtlases();
     return 0;
 }
+if (args is ["--room-character-installation", var roomCharacterRom])
+{
+    VerifyRoomCharacterInstallation(roomCharacterRom);
+    return 0;
+}
 if (args is ["--room-state-payloads"])
 {
     VerifyCompiledRoomStateDefinitions();

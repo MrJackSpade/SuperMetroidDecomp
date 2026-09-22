@@ -16,6 +16,11 @@ public sealed record GameInstallation(string Root)
         ExtractedAudioAssetCatalog.Load(AudioDirectory, AudioOverrideDirectory);
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
+    public string RoomCharacterDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
+    /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
+    public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
+    public RoomCharacterAtlasCatalog LoadRoomCharacters() =>
+        RoomCharacterArtworkFiles.Load(RoomCharacterDirectory, RoomCharacterOverrideDirectory);
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
     public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
@@ -33,8 +38,9 @@ public static class GameInstallationLayout
     public const string AudioDirectoryName = "audio";
     public const string MapDirectoryName = "maps";
     public const string ProjectileDirectoryName = "projectiles";
+    public const string RoomCharacterDirectoryName = "room-characters";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 1;
+    public const int FormatVersion = 2;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

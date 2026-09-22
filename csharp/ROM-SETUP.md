@@ -1,9 +1,9 @@
 # Install game data from your ROM
 
 Desktop and Android use the same `SuperMetroid.AssetExtraction` library. Application
-packages contain no ROM or extracted audio. Graphics and room data are read directly
-from the installed ROM; setup extracts the audio upload streams, catalog, and 112 PCM
-WAVs used by the managed audio renderer. No upstream disassembly checkout is needed.
+packages contain no ROM or extracted audio. Most graphics and room data are still read
+from the installed ROM; setup extracts room-character PNGs, other selected presentation
+assets, and the audio catalog/112 PCM WAVs. No upstream disassembly checkout is needed.
 
 Supported image: Super Metroid Japan/USA NTSC v1.0, 3 MiB, SHA-256
 `12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72`.
@@ -49,6 +49,7 @@ Within either platform's application-data root:
 
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
+- `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
@@ -71,6 +72,8 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:
 # Synthetic validation, or full integration when a private ROM is supplied.
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
+# Check room-character stock import, edit selection, repair and invalid overrides.
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-character-installation "C:\ROMs\Super Metroid.smc"
 ```
 
 The integration verifier accepts an optional second argument containing reference audio
@@ -79,6 +82,25 @@ header normalization, invalid input, cancellation, asset repair, interrupted pub
 save preservation, and booting the production Android session from the installed layout.
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
+
+## Room-character PNG overrides
+
+Setup extracts the shared CRE characters and each distinct graphics-set character
+stream to `game/room-characters/*.png`. These are indexed 8x8 tile sheets, not
+screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixed,
+and the neutral PNG palette is only a preview. The room palette and metatile map
+still supply the on-screen colors and arrangement.
+
+Copy a sheet to the matching filename under `overrides/room-characters/`, edit it,
+and restart. The selected sheet is loaded on desktop and Android; debugger-state
+loads rebind it for subsequent room loads, though an already-captured VRAM frame
+may retain its saved pixels until the next room load. Do not edit stock
+files or `room-characters.json`: stock hashes are validated and repaired from the
+installed ROM, while overrides survive repair and updates. Invalid override PNGs
+produce a path-specific load error rather than silently falling back to stock.
+This first room-art slice does not yet expose palette, block arrangement, or
+background-tilemap editing. The current sheet filenames encode source identities;
+semantic artwork names are still part of the broader room-art migration.
 
 ## Projectile composition and beam PNG overrides
 

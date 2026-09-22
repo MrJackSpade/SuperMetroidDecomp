@@ -1363,6 +1363,19 @@ explicitly without probing cartridge data. Family-specific traversal tests remai
 proof for internal branches and live presentation operands; this guard proves definition
 entry coverage and prevents new projectile kinds from silently restoring the fallback.
 
+## Ordinary-enemy instruction-owner inventory
+
+The retail-wide owner audit now enumerates all 163 named enemy definitions and every
+population record in all 323 compiled room states. It invokes the real initializer
+dispatcher, preserves each record's initial instruction/property words, and probes the
+production mechanics resolver with cartridge reads forbidden. This covers 154 translated
+initializer identities and currently proves 100 compiled instruction-processing owners.
+The only explicitly inventoried fallback families are the two Gunship definitions plus
+Draygon, Ridley, and Mother Brain. The allowlist is intentionally exact and must shrink as
+those families are compiled; an unlisted fallback, including a newly translated actor,
+fails verification. Once it is empty, the generic ordinary-enemy ROM fallback can be
+removed with definition-wide evidence rather than scenario sampling.
+
 ## Walking Space Pirate instruction mechanics
 
 All eight walking Space Pirate body programs now compile their 92 function, timing,

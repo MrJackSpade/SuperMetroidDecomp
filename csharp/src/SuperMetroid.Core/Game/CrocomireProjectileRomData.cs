@@ -3,7 +3,15 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native definition tables for Crocomire's mouth volley.</summary>
 public static class CrocomireProjectileRomData
 {
-    /// <summary>$86:9059, CrocomiresProjectile_Gradients, indexed by the body's volley counter.</summary>
+    /// <summary>
+    /// $86:9059-$906A, Crocomire's nine signed projectile gradients. At even byte
+    /// offsets 0..16, word index <c>i</c> yields -16, 0, or 32 for
+    /// <c>i % 3</c> equal to 0, 1, or 2 respectively. The pinned NTSC J/U v1.0
+    /// ROM contains this exact three-word cycle three times. Native $86:9087
+    /// indexes it with enemy slot zero's volley counter; the physical fight
+    /// emits offsets 2,4,...,18, so the last shot reads the following setup
+    /// instruction's first word instead of another authored gradient.
+    /// </summary>
     public const int Gradients = 0x869059;
     /// <summary>$86:909B/$909C and $90A7/$90A8 shift each signed component left twice.</summary>
     public const int VelocityMultiplier = 4;
@@ -11,7 +19,12 @@ public static class CrocomireProjectileRomData
     /// <summary>$86:906B-$906C: $B620, the first two setup-instruction bytes read as the ninth shot's gradient.</summary>
     public const short FinalShotOverreadGradient = unchecked((short)0xb620);
 
-    /// <summary>Reads the nine authored gradients plus the known final-shot overread; preserves ignored low selector bit.</summary>
+    /// <summary>
+    /// For selectors 0..19, shifts off the ignored low bit and returns the
+    /// proved three-word gradient cycle for word indices 0..8. Index 9 is
+    /// the distinct signed $B620 instruction-byte overread at $86:906B;
+    /// selectors 20 and above fail. The fight caller emits only 2,4,...,18.
+    /// </summary>
     public static short GradientForSpawnParameter(ushort parameter) => (parameter >> 1) switch
     {
         0 or 3 or 6 => -16,

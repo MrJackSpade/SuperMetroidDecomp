@@ -991,6 +991,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $920A; no stride follows from one word.
     /// Index 1 reaches next room header $0033 at $8F:A66A. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1137, Statues $8F:A691: normalized BTS i=0..1 uses
+    /// $9216 + 12*i; i=2 names shared elevator pseudo-door $88FC.
+    /// Index 3 reaches scroll data $0001 at $8F:A697. The ROM
+    /// oracle checks all entries, aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

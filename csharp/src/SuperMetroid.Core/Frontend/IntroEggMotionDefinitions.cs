@@ -33,6 +33,16 @@ internal static class IntroEggMotionDefinitions
     };
 
     /// <summary>$8B:A9EA: six signed 16.16 shell-fragment horizontal velocities.</summary>
+    /// <remarks>
+    /// Issues #625 and #976: pinned NTSC J/U v1.0 ROM and bank_8B.asm
+    /// match all six high-word-first velocity pairs at $8B:A9EA..AA01:
+    /// FFFF:4000, 0000:4000, FFFF:8000, FFFF:2000, 0000:8000,
+    /// 0000:2000. $8B:A994 indexes them by the immutable fragment number
+    /// 0..5, scaled by four bytes; the caller adds the fraction before the
+    /// signed whole word and carries across. The directions and fractional
+    /// speeds vary irregularly by shell piece, so retain the six authored
+    /// launch velocities. Unknown indices throw rather than read adjacent data.
+    /// </remarks>
     public static (ushort Whole, ushort Fraction) FragmentX(int index) => Split(index switch
     {
         0 => -0xc000, 1 => 0x4000, 2 => -0x8000,

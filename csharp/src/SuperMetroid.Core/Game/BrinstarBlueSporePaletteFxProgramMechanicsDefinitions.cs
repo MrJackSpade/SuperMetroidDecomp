@@ -12,6 +12,14 @@ public enum BrinstarBlueSporePaletteOwner
 /// Palette-FX definitions <c>$F775</c> and <c>$F779</c> contain the same live BGR555
 /// sequence. The Spore Spawn variant additionally installs the area-mini-boss death
 /// pre-instruction. This catalog owns setup, timing, waits, and loop control only.
+/// Standard $8D:ED99 selects CGRAM byte $00E2 and enters records at
+/// $ED9D + 10*i; Spore Spawn $8D:EE2D first installs pre-instruction
+/// $EEC5, selects the same index, and enters records at $EE35 + 10*i.
+/// Each valid i=0..13 lasts ten frames, writes three live colors, and
+/// ends in $C595 wait. Their $C61E gotos at $EE29 and $EEC1 return to
+/// the respective first records, giving 140-frame cycles; i=14 reaches
+/// loop control. All 66 control words across both programs match the
+/// pinned NTSC J/U v1.0 ROM.
 /// </remarks>
 public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 {

@@ -429,6 +429,19 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int SuitPointers = 0x9bb7d3;
         /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>
+        /// <remarks>
+        /// Issue #890 / #625: all ten little-endian words at
+        /// <c>$9B:B80F..B822</c> match the pinned NTSC J/U v1.0 ROM
+        /// and native bank-$9B listing. For palette index
+        /// <c>k=0..9</c>, the pointer is exactly
+        /// <c>$A120+$0020*max(0,k-1)</c>: indices zero and one
+        /// share the first suitless row, while index nine selects
+        /// <c>$A220</c>, also the suited table's final palette.
+        /// The death caller reaches zero/one during flashing and
+        /// zero/two through nine during explosion and copies all
+        /// sixteen colors to suitless OBJ palette seven. Target
+        /// colors remain separate authored data.
+        /// </remarks>
         public const int SuitlessPointers = 0x9bb80f;
         /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>
         public const int ExplosionTimingAndPaletteIndices = 0x9bb823;

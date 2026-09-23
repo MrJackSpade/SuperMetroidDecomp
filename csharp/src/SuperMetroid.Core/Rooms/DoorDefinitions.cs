@@ -818,6 +818,10 @@ public static class DoorDefinitions
     /// valid normalized BTS i=0 resolves to $8D96. Index 1 reads
     /// $0801 at $8F:9CB2: scroll byte $01, then next room header
     /// byte $08. The ROM oracle checks the entry, aliases, and bound.
+    /// Issue #1094, Dachora $8F:9CDA: three words are $8DA2,
+    /// $8DAE, and $8DBA, exactly $8DA2 + 12*i for normalized
+    /// BTS i=0..2. Index 3 reaches scroll data $0101 at $8F:9CE0.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

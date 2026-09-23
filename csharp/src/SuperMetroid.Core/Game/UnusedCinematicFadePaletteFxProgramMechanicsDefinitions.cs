@@ -2,9 +2,22 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>Immutable mechanics for the cartridge's unused cinematic fade.</summary>
 /// <remarks>
-/// Definition <c>$E1EC</c> runs eleven timed records and then deletes itself. Its 176
-/// BGR555 words remain live presentation data; this catalog owns palette placement,
-/// timing, waits, and termination.
+/// Issue #849 / #625: pinned NTSC J/U v1.0 ROM definition <c>$8D:E1EC</c>
+/// enters at <c>$8D:D9D0</c>: <c>SetColorIndex($00A0)</c>, eleven 36-byte
+/// records of <c>2, colors[16], Wait</c>, then <c>Delete</c> at
+/// <c>$DB60</c> after 22 frames. All 25 control words match. One exact
+/// ROM-equivalent factorization starts from white and uses this possible
+/// 16-color BGR555 anchor <c>Q</c>:
+/// <c>[0000,1529,00C8,0023,0000,0508,00C7,0085,0064,1120,04C0,
+/// 0460,1484,0C21,0421,2529]</c>. For frame <c>f</c> (0..10), column
+/// <c>c</c>, and each five-bit channel <c>q</c> of <c>Q[c]</c>, the
+/// output channel is <c>floor((31*(15 - f) + q*f)/15)</c>. Anchors selected
+/// from frames 0..8 predict frames 9 and 10 and reproduce all 176 ROM
+/// words. Nine anchor components admit more than one value over this
+/// truncated fade, so this is a bounded data relationship, not a claim that
+/// the native runtime interpolates. All 176 colors remain live presentation
+/// data supplied by the presentation compiler. ROM SHA-256:
+/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
 {

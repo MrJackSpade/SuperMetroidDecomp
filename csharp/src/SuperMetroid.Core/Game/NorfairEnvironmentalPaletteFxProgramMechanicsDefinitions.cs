@@ -163,6 +163,12 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     /// $4A52,$4214,$39F5,$31D7,$29D9,$21BA,$199C,$0D7F.
     /// All 32 trailing words match the pinned ROM; the irregular color-4
     /// gradient remains live rather than generated at runtime.
+    /// For palette-4, trailing colors 3..4 at $F1D5 + 16*f + 10 and +12
+    /// use authored pairs by d=min(f,15-f): ($4309,$0C77),
+    /// ($36AC,$0CB8), ($328F,$1119), ($2A52,$157A),
+    /// ($2214,$15BB), ($1DF7,$1A1C), ($15BA,$1E7D),
+    /// ($0D7F,$22FF). All 32 ROM words match; the irregular pairs
+    /// remain live presentation data.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

@@ -36,6 +36,18 @@ internal static class DraygonIntroDanceDefinitions
 
     private const byte DeleteSentinel = 0xff;
 
+    /// <summary>Exact authored Evir movement script, packed as one byte per reachable record.</summary>
+    /// <remarks>
+    /// Issues #625 and #940 retain the 1,104-record trajectory. Four-byte-aligned
+    /// native offsets $0000..$113C select the X/Y delta bytes at $A5:CE07+offset;
+    /// this caller never selects the other two bytes of each four-byte step.
+    /// A read-only probe matched all packed records to the pinned NTSC J/U v1.0
+    /// ROM: 49 distinct packed values, including two $80,$80 delete sentinels.
+    /// The biased nibbles encode signed deltas; $FF is reserved for deletion.
+    /// This is an authored, irregular frame-by-frame route with sentinel state,
+    /// not samples of an independently evidenced trajectory function. Retain
+    /// the scripted data and the aligned, bounded ResolveMovement contract.
+    /// </remarks>
     private const string PackedMovementHex =
         "B8B8B8B8B7A7A6A6A59596969898898A8A8A7B8B8B8C8C7C7C8D7C7C7D7C7C7B7B7B7B7A8989788787878685958584949484959595A59595A695A696A6A7B6B6" +
         "B6B6B6B6B7A7A7A8A8A8998A8A8B7B7B6B6B6B6B6B6A5A69696959596857575757667696A6B6C7B8B8B8AAAAAAAA9B9B9BAB9A9B9B9B9AAAAAAAAAA9A9B9B9B8" +

@@ -104,6 +104,14 @@ internal static class CeresSteamInstructionProgramDefinitions
         new(0xf11b, RightHiddenHold),
     ];
 
+    /// <summary>
+    /// Addresses of live extended-spritemap operands, separate from compiled
+    /// mechanics. For the upward program, the operands at $F051 and $F05D
+    /// reuse $F142. Its seven active operands at <c>$F063 + 4 * frame</c>,
+    /// for frames 0..6, contain <c>$F142 + $0A * frame</c>. All nine words
+    /// match the pinned NTSC J/U v1.0 ROM. The stride is the size of each
+    /// extended-spritemap record; the authored payloads remain cartridge data.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         0xf051, 0xf05d, 0xf063, 0xf067, 0xf06b, 0xf06f, 0xf073, 0xf077, 0xf07b,

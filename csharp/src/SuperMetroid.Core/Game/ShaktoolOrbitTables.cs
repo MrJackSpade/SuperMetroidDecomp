@@ -22,6 +22,7 @@ public static class ShaktoolOrbitTables
     /// for every byte angle, including the 64-word offset and 8-bit promotion.
     /// This is a proven reproduction recipe, not an identification of the original
     /// generator. The table remains pending consumer migration and benchmarking.
+    /// Individual investigation: #625 / #913.
     /// </remarks>
     private static ReadOnlySpan<ushort> NegativeCosineAndSineWords =>
     [

@@ -70,6 +70,11 @@ internal static class CeresDoorInitializationDefinitions
     /// <summary>
     /// <c>InitAI_CeresDoor.functionPointers</c> at <c>$A6:F72B-$A6:F738</c> paired
     /// with <c>InstListPointers_CeresDoor</c> at <c>$A6:F52C-$A6:F539</c>.
+    /// For full-word population variant i = 0..6, the instruction-list
+    /// pointer at $F52C + 2*i is respectively $F56C, $F5BE, $F610,
+    /// $F53A, $F61A, $F62A, or $F634. These authored entries select the
+    /// normal right/left, pre-explosion, Ridley-room, invisible-wall, and
+    /// two mode-7 wall programs; variant seven is outside the table.
     /// </summary>
     private static readonly CeresDoorInitializationDefinition[] Definitions =
     [

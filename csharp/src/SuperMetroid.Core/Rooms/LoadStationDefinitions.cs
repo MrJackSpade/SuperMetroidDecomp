@@ -31,6 +31,17 @@ public static class LoadStationDefinitions
         new(0x0000, 0x0000, 0x0000, 0x0400, 0x0400, 0x00b0, 0x0000);
 
     /// <summary>$80:C4C5-$80:C5CE, all nineteen Crateria records.</summary>
+    /// <remarks>
+    /// Issue #1047: in the pinned NTSC J/U v1.0 ROM, indexes 2..7 and
+    /// 13..15 are the inert placeholder; 0, 1, 8..12, and 16..18 are
+    /// authored placements. Index 16 exactly repeats index 0. This
+    /// sparse classification and alias are exact, but the other room,
+    /// door, camera, and Samus fields are independent scene choices,
+    /// so retain their records. Get accepts only station bytes 0..18;
+    /// index 19 starts the adjacent Brinstar list at $80:C5CF.
+    /// Direct ROM inspection and the independent 134-record load-station
+    /// verifier agree on all nineteen rows and the invalid boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] crateria =
     [
         new(0x91f8, 0x896a, 0x0000, 0x0400, 0x0400, 0x0040, 0x0000),

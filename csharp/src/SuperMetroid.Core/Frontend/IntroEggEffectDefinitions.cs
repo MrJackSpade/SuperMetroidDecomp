@@ -35,6 +35,15 @@ internal static class IntroEggEffectDefinitions
     /// bank_8B.asm; bank_8C.asm and ROM confirm one sprite entry at each
     /// selected pointer. IntroDiscoverySprite reads the frame, then follows
     /// the self-loop, so the bounded strides preserve every selected list.
+    ///
+    /// Issues #625 and #983: the six referenced visual spritemaps at
+    /// $8C:8F7E+7*i, i=0..5, each encode one five-byte sprite entry after
+    /// a count word of one. All 42 bytes match pinned NTSC J/U v1.0 ROM
+    /// and bank_8C.asm: encoded X=$01FC, Y=$FC, and OBJ attributes
+    /// $3E00 | tile, where tile=$105+$10*(i/2)+(i%2). Thus the six tile
+    /// identities are $105/$106, $115/$116, and $125/$126 in three pairs.
+    /// The generic OAM reader consumes the count, X, Y, and attribute word
+    /// in that order; the bounded selector reaches only these six records.
     /// </remarks>
     public static IntroEggEffectActorDefinition Particle(int index)
     {

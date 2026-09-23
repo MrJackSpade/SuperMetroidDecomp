@@ -46,7 +46,8 @@ public sealed class CartridgeRoomAssets
     public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header,
         RoomCharacterAtlasCatalog? characterArt = null,
         RoomStaticPaletteCatalog? paletteArt = null,
-        RoomMetatileCatalog? metatileArt = null)
+        RoomMetatileCatalog? metatileArt = null,
+        RoomVisualLayoutCatalog? visualLayouts = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(header);
@@ -78,7 +79,8 @@ public sealed class CartridgeRoomAssets
         }
 
         byte[] levelStream = RomDataReader.Decompress(bus, header.State.CompressedLevelDataAddress);
-        RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions);
+        RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
+            visualLayouts?.Get(header.State.CompressedLevelDataAddress));
         RoomScrollGrid scrolls = LoadScrolls(bus, header);
         return new CartridgeRoomAssets(
             header,
@@ -119,7 +121,8 @@ public sealed class CartridgeRoomAssets
     private static RoomLevelData ParseLevelData(
         CartridgeRoomHeader header,
         byte[] levelStream,
-        byte[] blockDefinitions)
+        byte[] blockDefinitions,
+        RoomVisualLayout? visualLayout)
     {
         int widthInBlocks = checked(header.WidthInScreens * 16);
         int visibleHeightInBlocks = checked(header.HeightInScreens * 16);
@@ -206,7 +209,8 @@ public sealed class CartridgeRoomAssets
             blockDefinitions,
             streamingAllocation,
             header.DoorListPointer,
-            streamingBackground);
+            streamingBackground,
+            visualLayout);
     }
 
     private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)

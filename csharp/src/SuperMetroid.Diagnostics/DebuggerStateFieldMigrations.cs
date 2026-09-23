@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 // Legacy namespace is persisted in debugger identities; ownership is now platform-neutral.
 namespace SuperMetroid.Desktop;
@@ -20,6 +21,16 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(RoomLevelData) && count == current.Length - 2 &&
+            current.Any(field => field.Name == "_visualStreamingForegroundAllocation") &&
+            current.Any(field => field.Name == "_visualStreamingBackgroundAllocation"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Legacy room level predates editable visual-layout streams; restoring its native visual allocation.");
+            return current.Where(field => field.Name is not
+                "_visualStreamingForegroundAllocation" and not
+                "_visualStreamingBackgroundAllocation").ToArray();
+        }
         if (type == typeof(SamusProjectileFrameResult) && count <= 7 &&
             current.Any(field => field.Name == "<PersistentMemoryCorrupted>k__BackingField"))
         {
@@ -483,6 +494,21 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is RoomLevelData && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(RoomLevelData)) - 2)
+        {
+            // The old room graph already contains the exact native streaming arrays.
+            // Alias those arrays just as a new room with no visual override does.
+            Type type = typeof(RoomLevelData);
+            ushort[] foreground = (ushort[])type.GetField("_streamingForegroundAllocation",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(instance)!;
+            ushort[] background = (ushort[])type.GetField("_streamingBackgroundAllocation",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(instance)!;
+            type.GetField("_visualStreamingForegroundAllocation",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, foreground);
+            type.GetField("_visualStreamingBackgroundAllocation",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, background);
+        }
         if (instance is SamusXrayState xray && serializedCount <=
             GetCurrentInstanceFieldCount(typeof(SamusXrayState)) - 2)
         {

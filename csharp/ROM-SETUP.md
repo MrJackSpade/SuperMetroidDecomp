@@ -52,6 +52,7 @@ Within either platform's application-data root:
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
+- `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
 - `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
 - `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
 - `game/installation.json`: extraction format version and ROM identity.
@@ -158,10 +159,25 @@ likewise uses the installed room-character sheet instead of the raw ROM source.
 Stock hashes and override repair follow the same rules as the room-character
 sheets.
 
-This room-art slice does not yet expose room-level block arrangement editing.
-The room-ID guide makes files discoverable, but the shared sheet and palette
-filenames still encode source identities; stable semantic asset filenames remain
-part of the broader room-art migration.
+Room-level visual arrangements are installed as 246 `game/room-layouts/level-*.json`
+files. Find the active file in `game/room-art-index.json` under a room state's
+`layout` field, copy it to the same filename under `overrides/room-layouts/`,
+edit, and restart. `widthInBlocks` and `heightInBlocks` describe the complete
+native allocation, including any authored rows beyond the visible camera.
+`foregroundVisualWords` and `backgroundVisualWords` are row-major arrays of
+16x16 block references. Each decimal word uses bits 0-9 for the index into the
+combined CRE/area block table, bit 10 for horizontal flip, and bit 11 for
+vertical flip. Only values 0..4095 are valid; collision bits cannot be placed
+in this presentation file. BG2 entries that the ROM leaves uninitialized are
+exported as zero visual references. The renderer receives edited references,
+while collision, BTS, slopes, hazards and subsequent PLM block writes continue
+to use the unmodified native level allocation. Stock files are hash-checked;
+overrides survive stock repair and invalid values fail with the offending path.
+
+These visual-layout files do not yet replace the runtime ROM source for the
+native collision/BTS allocation. The room-ID guide makes the files discoverable,
+but shared sheet and palette filenames still encode source identities; stable
+semantic filenames and ROM-free mechanics remain broader migration work.
 
 ## Projectile composition and beam PNG overrides
 

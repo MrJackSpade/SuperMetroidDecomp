@@ -1,5 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 
 internal static partial class Program
@@ -9,6 +10,7 @@ internal static partial class Program
         VerifyRoomCallbackStateIdentity();
         VerifyLegacyShinesparkGraph();
         VerifyFieldIdentityRestorationIgnoresMetadataOrder();
+        VerifyLegacyRoomVisualLayoutState();
         MethodInfo expected = typeof(Program).GetMethod(nameof(DebuggerSignatureProbe), BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (bool wrongParameter in new[] { false, true })
         {
@@ -230,6 +232,33 @@ internal static partial class Program
 
         static string LegacyIdentity(Type type) => $"{type.FullName}, {type.Assembly.GetName().Name}, Version=0.2.1.0, Culture=neutral, PublicKeyToken=null";
         static Type Resolve(string name) => DebuggerStateTypeIdentity.Resolve(name) ?? throw new InvalidDataException(name);
+    }
+
+    private static void VerifyLegacyRoomVisualLayoutState()
+    {
+        var type = typeof(RoomLevelData);
+        var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer)
+            .GetMethod("GetSerializableFields", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [type])!;
+        FieldInfo[] selected = DebuggerStateFieldMigrations.SelectSerializedFields(
+            type, fields, fields.Length - 2);
+        AssertTrue(selected.Length == fields.Length - 2 &&
+            selected.All(field => field.Name is not
+                "_visualStreamingForegroundAllocation" and not
+                "_visualStreamingBackgroundAllocation"),
+            "pre-layout debugger state selects exactly its prior room fields");
+        var level = new RoomLevelData(1, 1, [0x8000], [0], [0x8000], new byte[8]);
+        foreach (string name in new[] { "_visualStreamingForegroundAllocation",
+                     "_visualStreamingBackgroundAllocation" })
+            type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(level, null);
+        DebuggerStateFieldMigrations.InitializeMissingFields(level, fields.Length - 2);
+        _ = level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(0, 0);
+        AssertTrue(type.GetField("_visualStreamingForegroundAllocation",
+                    BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(level) is ushort[] &&
+            type.GetField("_visualStreamingBackgroundAllocation",
+                    BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(level) is ushort[],
+            "pre-layout debugger state restores native visual streams without a ROM read");
     }
 
     /// <summary>

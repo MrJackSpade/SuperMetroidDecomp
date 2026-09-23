@@ -21,6 +21,8 @@ public sealed class RoomLevelData
     private readonly byte[] _blockDefinitions;
     private readonly ushort[] _streamingForegroundAllocation;
     private readonly ushort[] _streamingBackgroundAllocation;
+    private readonly ushort[] _visualStreamingForegroundAllocation;
+    private readonly ushort[] _visualStreamingBackgroundAllocation;
     private readonly ushort[] _plmForegroundAllocation;
     private readonly byte[] _plmBehaviorAllocation;
 
@@ -33,7 +35,8 @@ public sealed class RoomLevelData
         ReadOnlySpan<byte> blockDefinitions,
         ReadOnlySpan<ushort> streamingForegroundAllocation = default,
         ushort? doorListPointer = null,
-        ReadOnlySpan<ushort> streamingBackgroundAllocation = default)
+        ReadOnlySpan<ushort> streamingBackgroundAllocation = default,
+        RoomVisualLayout? visualLayout = null)
     {
         if (widthInBlocks is <= 0 or > 0xff)
             throw new ArgumentOutOfRangeException(nameof(widthInBlocks));
@@ -99,6 +102,31 @@ public sealed class RoomLevelData
             throw new ArgumentException(
                 "The streaming BG2 allocation cannot be shorter than logical BG2.",
                 nameof(streamingBackgroundAllocation));
+        }
+
+        // Collision and PLM scripts retain the unmodified native words. Only bank $80's
+        // visual producer sees an installed layout, and only in the authored room plane;
+        // native overread tails, BTS adjacency, and out-of-room prefill remain unchanged.
+        _visualStreamingForegroundAllocation = visualLayout is null
+            ? _streamingForegroundAllocation
+            : _streamingForegroundAllocation.ToArray();
+        _visualStreamingBackgroundAllocation = visualLayout is null
+            ? _streamingBackgroundAllocation
+            : _streamingBackgroundAllocation.ToArray();
+        if (visualLayout is not null)
+        {
+            if (visualLayout.WidthInBlocks != widthInBlocks ||
+                visualLayout.HeightInBlocks != heightInBlocks)
+                throw new InvalidDataException("Installed room layout dimensions do not match the native allocation.");
+            for (int index = 0; index < expectedBlocks; index++)
+            {
+                _visualStreamingForegroundAllocation[index] = unchecked((ushort)(
+                    (_foregroundEntries[index] & 0xf000) |
+                    visualLayout.ForegroundVisualWords.Span[index]));
+                _visualStreamingBackgroundAllocation[index] = unchecked((ushort)(
+                    (_backgroundEntries[index] & 0xf000) |
+                    visualLayout.BackgroundVisualWords.Span[index]));
+            }
         }
     }
 
@@ -210,6 +238,8 @@ public sealed class RoomLevelData
         _foregroundEntries[blockIndex] = levelWord;
         if (blockIndex < _streamingForegroundAllocation.Length)
             _streamingForegroundAllocation[blockIndex] = levelWord;
+        if (blockIndex < _visualStreamingForegroundAllocation.Length)
+            _visualStreamingForegroundAllocation[blockIndex] = levelWord;
     }
 
     /// <summary>Applies a bank-$84 BTS write through the bounded native PLM allocation.</summary>
@@ -375,6 +405,9 @@ public sealed class RoomLevelData
         _plmForegroundAllocation[blockIndex] = airWord;
         if (blockIndex < _streamingForegroundAllocation.Length)
             _streamingForegroundAllocation[blockIndex] = airWord;
+        if (blockIndex < _visualStreamingForegroundAllocation.Length)
+            _visualStreamingForegroundAllocation[blockIndex] = unchecked((ushort)(
+                _visualStreamingForegroundAllocation[blockIndex] & 0x0fff));
     }
 
     /// <summary>
@@ -396,6 +429,8 @@ public sealed class RoomLevelData
         _plmForegroundAllocation[blockIndex] = levelWord;
         if (blockIndex < _streamingForegroundAllocation.Length)
             _streamingForegroundAllocation[blockIndex] = levelWord;
+        if (blockIndex < _visualStreamingForegroundAllocation.Length)
+            _visualStreamingForegroundAllocation[blockIndex] = levelWord;
     }
 
     /// <summary>
@@ -446,8 +481,8 @@ public sealed class RoomLevelData
     public BackgroundTilemapStreamer CreateBackgroundStreamer(ushort sizeOfBg2 = 0) =>
         new(
             WidthInBlocks,
-            _streamingForegroundAllocation,
-            _streamingBackgroundAllocation,
+            _visualStreamingForegroundAllocation,
+            _visualStreamingBackgroundAllocation,
             _blockDefinitions,
             sizeOfBg2);
 }

@@ -570,7 +570,8 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer2ScrollX = 0x81;
         BackgroundScroll.Layer2ScrollY = 0x01;
         BackgroundScroll.PrimePreviousBlocks();
-        LevelData = LandingSiteStreamingData.LoadLevel(_addressSpace, RoomMetatileArt);
+        LevelData = LandingSiteStreamingData.LoadLevel(_addressSpace,
+            RoomMetatileArt, RoomVisualLayouts);
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(sizeOfBg2: 0);
         // Supplying the ROM bus matters at the landing-cutscene's Y=0 edge: bank $88's
         // unsigned cameraY-16 table index intentionally reads adjacent ROM instructions.

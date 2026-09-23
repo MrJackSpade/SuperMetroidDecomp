@@ -32,7 +32,7 @@ internal static partial class Program
             foreach (RoomArtStateEntry state in room.States)
             {
                 foreach (string relativePath in new[] { state.Characters, state.Blocks,
-                             state.Palette }.Concat(state.BackgroundArtwork))
+                             state.Layout, state.Palette }.Concat(state.BackgroundArtwork))
                     AssertTrue(File.Exists(Path.Combine(installed.ContentDirectory, relativePath)),
                         $"room-art guide entry {room.RoomId}/{state.Variant} references installed {relativePath}");
             }
@@ -44,6 +44,7 @@ internal static partial class Program
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
+            VerifyRoomVisualLayouts(installed, bus, landing);
             RoomArtStateEntry landingGuide = artIndex.Rooms.Single(room => room.RoomId == "00/00")
                 .States.Single(state => state.Variant == "default");
             AssertEqual("room-characters/" + RoomCharacterAtlasFormat.SourceFileName(

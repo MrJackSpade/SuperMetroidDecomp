@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomArtIndexFiles
 {
     public const string FileName = "room-art-index.json";
-    private const int Version = 1;
+    private const int Version = 2;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -67,6 +67,8 @@ public static class RoomArtIndexFiles
                 RoomCharacterAtlasFormat.SourceFileName(tileset.CharacterAddress),
             $"{GameInstallationLayout.RoomMetatileDirectoryName}/" +
                 RoomMetatileFormat.SourceFileName(tileset.BlockDefinitionsAddress),
+            $"{GameInstallationLayout.RoomVisualLayoutDirectoryName}/" +
+                RoomVisualLayoutFiles.SourceFileName(state.CompressedLevelDataAddress),
             $"{GameInstallationLayout.RoomPaletteDirectoryName}/" +
                 RoomStaticPaletteFormat.SourceFileName(tileset.PaletteAddress),
             backgroundFiles);
@@ -127,4 +129,4 @@ public sealed record RoomArtEntry(string RoomId, string Area, RoomArtStateEntry[
 
 /// <summary>Relative installed-art paths; background files include door-dependent alternatives.</summary>
 public sealed record RoomArtStateEntry(string Variant, string Characters, string Blocks,
-    string Palette, string[] BackgroundArtwork);
+    string Layout, string Palette, string[] BackgroundArtwork);

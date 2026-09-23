@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -31,6 +32,11 @@ public sealed record GameInstallation(string Root)
     public RoomMetatileCatalog LoadRoomMetatiles() =>
         RoomMetatileArtworkFiles.Load(RoomMetatileDirectory, RoomMetatileOverrideDirectory);
     public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+    public string RoomVisualLayoutDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomVisualLayoutDirectoryName);
+    public string RoomVisualLayoutOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomVisualLayoutDirectoryName);
+    /// <summary>Visual room-block references independent of native collision and BTS.</summary>
+    public RoomVisualLayoutCatalog LoadRoomVisualLayouts() =>
+        RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
     /// <summary>Read-only logical room ID to editable art-file guide for installed content.</summary>
     public string RoomArtIndexPath => Path.Combine(ContentDirectory, RoomArtIndexFiles.FileName);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
@@ -60,8 +66,9 @@ public static class GameInstallationLayout
     public const string RoomPaletteDirectoryName = "room-palettes";
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
+    public const string RoomVisualLayoutDirectoryName = "room-layouts";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 8;
+    public const int FormatVersion = 9;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

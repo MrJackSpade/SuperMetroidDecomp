@@ -545,7 +545,7 @@ public sealed partial class SuperMetroidRuntime
         // source room's pending door so such a failure remains retryable instead of leaving
         // state $0B with no destination on the following frame.
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room,
-            RoomCharacterArt, RoomPaletteArt, RoomMetatileArt);
+            RoomCharacterArt, RoomPaletteArt, RoomMetatileArt, RoomVisualLayouts);
         CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
@@ -698,7 +698,7 @@ public sealed partial class SuperMetroidRuntime
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
         CartridgeRoomAssets assets = preloadedAssets ?? CartridgeRoomAssets.Load(_addressSpace,
-            room, RoomCharacterArt, RoomPaletteArt, RoomMetatileArt);
+            room, RoomCharacterArt, RoomPaletteArt, RoomMetatileArt, RoomVisualLayouts);
 
         ActiveDoor = door;
         ActiveRoom = room;

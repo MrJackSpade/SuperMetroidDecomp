@@ -1334,6 +1334,7 @@ public sealed partial class SuperMetroidGame
         runtime.RoomCharacterArt = roomCharacterArt;
         runtime.RoomPaletteArt = roomPaletteArt;
         runtime.RoomMetatileArt = roomMetatileArt;
+        runtime.RoomVisualLayouts = roomVisualLayouts;
         runtime.RoomBackgroundTilemapArt = roomBackgroundTilemapArt;
         runtime.RoomSkyTilemapArt = roomSkyTilemapArt;
         runtime.ProjectileCompositions = projectileCompositions;

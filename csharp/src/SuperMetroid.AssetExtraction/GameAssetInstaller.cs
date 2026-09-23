@@ -83,6 +83,7 @@ public static class GameAssetInstaller
             RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
             RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
             RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
+            RoomVisualLayoutFiles.ValidateStock(installation.RoomVisualLayoutDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
         }
@@ -146,6 +147,13 @@ public static class GameAssetInstaller
             RoomSkyTilemapArtworkFiles.Extract(new SuperMetroidAddressSpace(rom),
                 roomBackgrounds, SupportedCartridge.Sha256);
             RoomSkyTilemapArtworkFiles.ValidateStock(roomBackgrounds);
+            progress?.Report("Extracting room visual layouts...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string roomLayouts = Path.Combine(staging,
+                GameInstallationLayout.RoomVisualLayoutDirectoryName);
+            RoomVisualLayoutFiles.Extract(new SuperMetroidAddressSpace(rom),
+                roomLayouts, SupportedCartridge.Sha256);
+            RoomVisualLayoutFiles.ValidateStock(roomLayouts);
             progress?.Report("Indexing room artwork by room ID...");
             cancellationToken.ThrowIfCancellationRequested();
             RoomArtIndexFiles.Extract(staging);

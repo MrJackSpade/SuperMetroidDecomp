@@ -19,9 +19,10 @@ public static class LandingSiteStreamingData
     /// verified bank-$80 row/column producer over them.
     /// </summary>
     public static BackgroundTilemapStreamer CreateStreamer(ISnesAddressSpace bus,
-        RoomMetatileCatalog? metatileArt = null)
+        RoomMetatileCatalog? metatileArt = null,
+        RoomVisualLayoutCatalog? visualLayouts = null)
     {
-        return LoadLevel(bus, metatileArt).CreateBackgroundStreamer(sizeOfBg2: 0);
+        return LoadLevel(bus, metatileArt, visualLayouts).CreateBackgroundStreamer(sizeOfBg2: 0);
     }
 
     /// <summary>
@@ -29,7 +30,8 @@ public static class LandingSiteStreamingData
     /// streaming and the forthcoming bank-$94 collision port share identical source data.
     /// </summary>
     public static RoomLevelData LoadLevel(ISnesAddressSpace bus,
-        RoomMetatileCatalog? metatileArt = null)
+        RoomMetatileCatalog? metatileArt = null,
+        RoomVisualLayoutCatalog? visualLayouts = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
@@ -84,7 +86,8 @@ public static class LandingSiteStreamingData
             behavior,
             background,
             combinedDefinitions,
-            streamingForegroundAllocation);
+            streamingForegroundAllocation,
+            visualLayout: visualLayouts?.Get(RoomAssetRomData.LandingSite.LevelData.Address));
     }
 
     /// <summary>

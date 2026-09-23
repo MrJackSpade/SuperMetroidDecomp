@@ -169,9 +169,25 @@ internal static class CrocomireInstructionProgramDefinitions
     /// than deriving side effects from the constant duration rule.
     /// </summary>
     internal const ushort PowerBombReactionMouthNotOpenLoop = 0xbe06;
-    /// <summary><c>InstList_CrocomireTongue_NearSpikeWallCharge_0</c> at $A4:BE7E.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireTongue_NearSpikeWallCharge_0</c> at
+    /// $A4:BE7E-$BEEB. Its 18 pinned-ROM durations are two $0005
+    /// words, thirteen $0002 words, then $0005, $0008, $0002.
+    /// The first hold queues cry $8CFB, and each hold calls Fight AI
+    /// $86A6. Every duration has a live spritemap operand. This
+    /// bounded timing schedule precedes the charge loop at BEEC;
+    /// the tongue's separate BE56-BE7D program has another owner.
+    /// </summary>
     internal const ushort NearSpikeWallCharge = 0xbe7e;
-    /// <summary><c>InstList_CrocomireTongue_NearSpikeWallCharge_1</c> at $A4:BEEC.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireTongue_NearSpikeWallCharge_1</c> at
+    /// $A4:BEEC-$BF3B. Twelve pinned-ROM durations are all $0003,
+    /// each followed by a live spritemap operand. Authored callbacks
+    /// shake, move left with dust, and handle the spike wall before
+    /// Fight AI $86A6; goto $80ED at BF38 targets BEEC at BF3A.
+    /// Retain callback order and possible wall redirect; the
+    /// constant duration rule alone does not determine those effects.
+    /// </summary>
     internal const ushort NearSpikeWallChargeLoop = 0xbeec;
     /// <summary><c>InstList_Crocomire_BackOffFromSpikeWall</c> at $A4:BF3C.</summary>
     internal const ushort BackOffFromSpikeWall = 0xbf3c;

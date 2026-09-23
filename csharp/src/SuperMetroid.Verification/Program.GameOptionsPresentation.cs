@@ -109,6 +109,12 @@ internal static partial class Program
             stockMenu.CaptureRenderSnapshot().Memory.Oam[0],
             "options rebind applies edited cursor anchor without resetting state");
 
+        stockMenu.Step((ushort)SnesButton.A);
+        AssertEqual(GameOptionsPhase.FadeOutToIntro, stockMenu.Phase,
+            "editable options enters intro fade-out");
+        AssertTrue(LastSpriteX(stockMenu.CaptureRenderSnapshot()) >= 256,
+            "editable options hides cursor during intro fade-out");
+
         File.WriteAllText(replacement, "{ broken options JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
             "corrupt options override fails loudly");
@@ -161,6 +167,13 @@ internal static partial class Program
                 $"installed options phase matches cartridge frame {comparedFrames}");
             AssertEqual(native.SelectedItem, installed.SelectedItem,
                 $"installed options selection matches cartridge frame {comparedFrames}");
+            if (native.Phase is GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn)
+            {
+                AssertTrue(LastSpriteX(native.CaptureRenderSnapshot()) >= 256,
+                    $"ROM options hides cursor in {native.Phase}");
+                AssertTrue(LastSpriteX(installed.CaptureRenderSnapshot()) >= 256,
+                    $"editable options hides cursor in {installed.Phase}");
+            }
             AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
                 $"installed options frame {comparedFrames} matches cartridge pixels");
             native.Step(input);

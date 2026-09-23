@@ -561,9 +561,11 @@ public sealed class GameOptionsMenuState
 
     private (ushort X, ushort Y) CursorPosition()
     {
-        // Scroll phases have null native position-table entries. The selector moves
-        // off screen until the page settles; only the heading follows the BG scroll.
-        if (Phase is GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp)
+        // These transitions have null entries in the native cursor-position table.
+        // Preserve the cursor actor in OAM but move it offscreen until selection resumes.
+        if (Phase is GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn or
+            GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
+            GameOptionsPhase.FadeOutToIntro)
         {
             MapLabelPoint hidden = mapPresentation?.GameOptions.HiddenCursor ??
                 new(GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY);

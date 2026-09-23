@@ -83,9 +83,9 @@ public static class GameOptionsRomData
     /// which places the missile offscreen at X=$0180, Y=$0010. A nonzero base
     /// is then indexed by four times MenuOptionIndex. Pinned NTSC J/U v1.0 ROM
     /// and bank_82.asm match all 13 pointers. This is authored phase policy,
-    /// not a numerical progression. Managed CursorPosition currently hides
-    /// only scroll phases 9/A, leaving the cursor visible during managed
-    /// dissolve out/in and fade out to intro; #968 tracks that parity defect.
+    /// not a numerical progression. Managed CursorPosition maps dissolve out/in,
+    /// controller scroll, and fade out to intro to their null-table phases;
+    /// file-select fade-out retains its native primary-page cursor position.
     /// </remarks>
     public static class Cursors
     {

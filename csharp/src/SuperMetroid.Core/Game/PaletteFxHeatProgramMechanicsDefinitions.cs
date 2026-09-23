@@ -164,6 +164,13 @@ public readonly record struct PaletteFxHeatProgramFrameDefinition(
     /// floor interpolation between the first and fifth authored rows
     /// misses seven of 75 distinct words, so these rows remain live
     /// presentation data. Phase sixteen reaches the terminal goto.
+    /// Varia's fifteen live colors start at $8D:E694 + $22*p. Its five
+    /// authored rows use selector (0,1,1,2,2,3,3,4,4,3,3,2,2,1,1,0).
+    /// Twelve of fifteen color positions in each row equal Power's
+    /// corresponding row; Varia authors positions 1,9,10 separately.
+    /// All 240 Varia words match the pinned ROM. Endpoint floor
+    /// interpolation misses five of its 75 distinct row/color words,
+    /// so the authored rows remain live presentation data.
     /// </remarks>
     public ushort FirstColorPointer => unchecked((ushort)(InstructionPointer + sizeof(ushort)));
 

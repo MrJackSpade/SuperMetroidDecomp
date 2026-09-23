@@ -20,6 +20,20 @@ internal static class XrayRevealDefinitions
         new(XrayRevealCodePointers.VerticalExtension, 0, 0, 0, 0);
 
     /// <summary>Returns the cartridge-authored reveal for one collision type/BTS pair.</summary>
+    /// <remarks>
+    /// Issue #1026: the outer selector in the pinned NTSC J/U v1.0 ROM is nine
+    /// little-endian (level-word high nibble, bank-$91 BTS-table pointer) pairs at
+    /// $91:D2D6..D2F9, then $FFFF at $91:D2FA. Its exact mapping is
+    /// 0:D2FC, 3:D306, 5:D310, A:D318, B:D322, C:D3CC, D:D462, E:D46A,
+    /// F:D484; nibbles 1, 2, 4, 6, 7, 8, and 9 have no reveal. The native
+    /// $91:CDD6 dispatcher masks the level word with $F000 and scans these
+    /// four-byte records to the sentinel before searching BTS. Thus the bounded
+    /// algorithm is sparse nibble classification, already expressed by this
+    /// switch, not a numeric formula or a runtime pointer table. Direct ROM
+    /// inspection and the independent ROM oracle agree for all 16 types times
+    /// 256 BTS values, including the no-match cases; each selected BTS table
+    /// has its own lookup and proof.
+    /// </remarks>
     public static XrayRevealDefinition? Find(RoomCollisionType type, byte bts) => type switch
     {
         RoomCollisionType.Air => Air,

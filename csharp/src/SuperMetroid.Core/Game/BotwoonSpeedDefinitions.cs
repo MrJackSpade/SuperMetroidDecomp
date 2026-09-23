@@ -13,8 +13,10 @@ public static class BotwoonSpeedDefinitions
 
     /// <summary>Native phase 0 is at least half health, 1 at least quarter, and 2 below quarter.</summary>
     /// <remarks>
-    /// Issue #625 exact NTSC algorithms for the two native tables: validate p=0..2;
-    /// movementSpeed=spitSpeed=p+2, segmentSpacingBytes=48/(p+2). The spacing
+    /// Issues #625 and #934 exact NTSC speed algorithm for both physical views:
+    /// validate p=0..2; movementSpeed=spitSpeed=p+2. The separate spacing proof
+    /// shares this phase domain and the interleaved movement records.
+    /// For those records, segmentSpacingBytes=48/(p+2). The spacing
     /// division is exact for all three speeds and preserves the inverse relationship
     /// between speed and body travel time; these are not independent tuning arrays.
     /// LookupTableResearch verifies all six $B3:94BB words and all three $B3:9E77

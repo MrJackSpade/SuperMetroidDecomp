@@ -11,9 +11,21 @@ internal readonly record struct CeresDoorInstructionMechanicsWord(
 /// </summary>
 internal static class CeresDoorInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at $A6:F53A.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at
+    /// $A6:F53A-$A6:F56B. An intangible/invisible $0002 frame at $F53E
+    /// precedes four visible $0002 frames at $F546 + 4*i for i = 0..3.
+    /// A $0001 frame at $F558 sets the Ridley-drawn handoff, then hides
+    /// the door before <see cref="RidleyRoomFacingRightWait"/>.
+    /// </summary>
     internal const ushort RidleyRoomFacingRight = 0xf53a;
-    /// <summary><c>InstList_CeresDoor_RidleysRoom_FacingRight_1</c> at $A6:F55E.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RidleysRoom_FacingRight_1</c> at $A6:F55E.
+    /// Its $0002 frame repeats through the $F66A boss-alive branch at
+    /// $F562. After defeat, $F6B0 restores visibility and clears the
+    /// Ridley-drawn flag; $80ED at $F568 goes to
+    /// <see cref="ClosedFacingRight"/> at $F598.
+    /// </summary>
     internal const ushort RidleyRoomFacingRightWait = 0xf55e;
     /// <summary><c>InstList_CeresDoor_Normal_FacingRight</c> at $A6:F56C.</summary>
     internal const ushort NormalFacingRight = 0xf56c;

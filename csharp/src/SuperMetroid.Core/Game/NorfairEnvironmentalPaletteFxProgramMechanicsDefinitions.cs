@@ -169,6 +169,12 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     /// ($2214,$15BB), ($1DF7,$1A1C), ($15BA,$1E7D),
     /// ($0D7F,$22FF). All 32 ROM words match; the irregular pairs
     /// remain live presentation data.
+    /// For palette-5, trailing colors 3..4 at $F2DD + 16*f + 10 and +12
+    /// use authored pairs by d=min(f,15-f): ($2DB3,$38CF),
+    /// ($2594,$30D1), ($2176,$28D3), ($1D57,$24D5),
+    /// ($1959,$20F7), ($153B,$18F9), ($111C,$14FB),
+    /// ($0D1F,$0D1F). All 32 ROM words match; the irregular pairs
+    /// remain live presentation data.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

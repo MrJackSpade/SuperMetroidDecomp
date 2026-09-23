@@ -13,6 +13,21 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 internal static class DoorScrollPrograms
 {
+    /// <summary>Ordered scroll-byte writes keyed by pure bank-$8F door callback.</summary>
+    /// <remarks>
+    /// Issue #1052: 94 configured retail door headers in the pinned
+    /// NTSC J/U v1.0 ROM name 82 distinct callbacks. Seventy-four are
+    /// straight-line pure scroll programs represented here; the other
+    /// eight perform separate stateful work. The independent native
+    /// instruction audit executes every pure routine and compares all
+    /// 50 resulting storage bytes with TryApply, including write order
+    /// and word-store effects. Each program selects room-specific
+    /// indexes 0..49 and red/blue/green values 0/1/2. Duplicate results
+    /// still have distinct native pointer identities. No common numeric
+    /// function derives these authored zone choices more clearly than
+    /// this sparse named map, so retain its bounded ordered write lists.
+    /// Unknown callback pointers have no entry and are not applied.
+    /// </remarks>
     private static readonly IReadOnlyDictionary<ushort, DoorScrollWrite[]> Programs =
         new Dictionary<ushort, DoorScrollWrite[]>
         {

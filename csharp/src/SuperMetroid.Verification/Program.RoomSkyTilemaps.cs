@@ -12,6 +12,48 @@ internal static partial class Program
     {
         ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        ushort NativeSkyPointer(int table, int index)
+        {
+            int offset = unchecked((ushort)((table & 0xffff) + index * 2));
+            return unchecked((ushort)(bus.ReadByte(0x880000 | offset) |
+                bus.ReadByte(0x880000 | unchecked((ushort)(offset + 1))) << 8));
+        }
+        // The native masked camera arithmetic can select 0..8 or 255, including
+        // words in adjacent bank-$88 data/code. Verify every reachable compiled
+        // value independently against the pinned cartridge, not only normal rows.
+        foreach (int table in new[]
+                 {
+                     RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress,
+                     RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress,
+                 })
+        foreach (int index in Enumerable.Range(0, 9).Append(byte.MaxValue))
+        {
+            AssertEqual(NativeSkyPointer(table, index),
+                ScrollingSkyChunkPointerDefinitions.Get(table, index),
+                $"scrolling-sky table ${table:X6} index {index} matches native word");
+        }
+        foreach ((int table, RoomMainCallback callback) in new[]
+                 {
+                     (RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress,
+                         RoomMainCallback.ScrollingSkyLand),
+                     (RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress,
+                         RoomMainCallback.ScrollingSkyOcean),
+                 })
+        foreach (ushort cameraY in new ushort[] { 0, 8, 0x0100, 0x0300, 0x04f0, 0x07f8 })
+        {
+            var queue = new VramWriteQueue();
+            new ScrollingSkyState().ProcessFrame(cameraY, false, queue, callback);
+            ushort upper = unchecked((ushort)((cameraY & 0x07f8) - 16));
+            ushort lower = unchecked((ushort)((cameraY & 0x07f8) + 240));
+            int upperSource = 0x8a0000 | unchecked((ushort)(
+                NativeSkyPointer(table, upper >> 8) + (upper & 0xff) * 8));
+            int lowerSource = 0x8a0000 | unchecked((ushort)(
+                NativeSkyPointer(table, lower >> 8) + (lower & 0xff) * 8));
+            AssertEqual(upperSource, queue.Entries[0].SourceAddress,
+                $"sky ${table:X6} camera Y=${cameraY:X4} upper native source");
+            AssertEqual(lowerSource, queue.Entries[2].SourceAddress,
+                $"sky ${table:X6} camera Y=${cameraY:X4} lower native source");
+        }
         var pages = new RoomBackgroundTilemapAtlas[RoomSkyTilemapFormat.PageCount];
         var json = new byte[pages.Length][];
         for (int page = 0; page < pages.Length; page++)
@@ -28,7 +70,7 @@ internal static partial class Program
         for (int cameraY = 0; cameraY <= 0x04f0; cameraY++)
         {
             var queued = new VramWriteQueue();
-            new ScrollingSkyState(bus).ProcessFrame((ushort)cameraY, false, queued);
+            new ScrollingSkyState().ProcessFrame((ushort)cameraY, false, queued);
             foreach (VramWriteEntry transfer in queued.Entries)
                 AssertTrue(stock.TryResolve(transfer.SourceAddress, transfer.SizeInBytes,
                         out _),
@@ -98,8 +140,8 @@ internal static partial class Program
 
         var nativeRows = new VramWriteQueue();
         var installedRows = new VramWriteQueue();
-        new ScrollingSkyState(bus).ProcessFrame(0x0300, false, nativeRows);
-        new ScrollingSkyState(bus).ProcessFrame(0x0300, false, installedRows);
+        new ScrollingSkyState().ProcessFrame(0x0300, false, nativeRows);
+        new ScrollingSkyState().ProcessFrame(0x0300, false, installedRows);
         AssertEqual(4, installedRows.Entries.Count,
             "scrolling-sky frame queues the four native row transfers");
         var nativeRowVram = new SnesVram();
@@ -112,8 +154,8 @@ internal static partial class Program
         {
             var nativeEdgeRows = new VramWriteQueue();
             var installedEdgeRows = new VramWriteQueue();
-            new ScrollingSkyState(bus).ProcessFrame(cameraY, false, nativeEdgeRows);
-            new ScrollingSkyState(bus).ProcessFrame(cameraY, false, installedEdgeRows);
+            new ScrollingSkyState().ProcessFrame(cameraY, false, nativeEdgeRows);
+            new ScrollingSkyState().ProcessFrame(cameraY, false, installedEdgeRows);
             var nativeEdgeVram = new SnesVram();
             var installedEdgeVram = new SnesVram();
             nativeEdgeRows.DrainTo(nativeEdgeVram, bus);
@@ -124,7 +166,7 @@ internal static partial class Program
         }
 
         var editedQueue = new VramWriteQueue();
-        new ScrollingSkyState(bus).ProcessFrame(0x0300, false, editedQueue);
+        new ScrollingSkyState().ProcessFrame(0x0300, false, editedQueue);
         VramWriteEntry firstRow = editedQueue.Entries[0];
         int sourceOffset = firstRow.SourceAddress - RoomSkyTilemapFormat.FirstSourceAddress;
         int selectedPage = sourceOffset / RoomSkyTilemapFormat.PageByteCount;

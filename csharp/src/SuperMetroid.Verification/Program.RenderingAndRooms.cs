@@ -1379,22 +1379,13 @@ static void VerifyScrollingSkyState()
     AssertEqual(new VramWriteEntry(0x0040, 0x8ab1c0, 0x4c20), writes.Entries[2], "sky wrapped lower first row");
     AssertEqual(new VramWriteEntry(0x0040, 0x8ab200, 0x4c40), writes.Entries[3], "sky wrapped lower second row");
 
-    // At the cutscene's camera Y=0, the unsigned subtraction produces $FFF0 and Y=$01FE.
-    // The 65C816 consequently reads a word at $88:AF9A, 510 bytes beyond $88:AD9C.
-    // Populate only the two ROM words this fixture needs: declared chunk zero ($B180) and
-    // the actual adjacent instruction bytes interpreted as pointer $ADA6.
-    var bank88Rom = new byte[0x048000];
-    int chunkZeroOffset = SuperMetroidAddressSpace.ToRomOffset(0x88ad9c);
-    bank88Rom[chunkZeroOffset] = 0x80;
-    bank88Rom[chunkZeroOffset + 1] = 0xb1;
-    int wrappedPointerOffset = SuperMetroidAddressSpace.ToRomOffset(0x88af9a);
-    bank88Rom[wrappedPointerOffset] = 0xa6;
-    bank88Rom[wrappedPointerOffset + 1] = 0xad;
-    var topSky = new ScrollingSkyState(new SuperMetroidAddressSpace(bank88Rom));
+    // At camera Y=0, the native indexed read reaches the fixed word at $88:AF9A.
+    // The compiled catalog preserves that top-of-room overread without a ROM bus.
+    var topSky = new ScrollingSkyState();
     var topWrites = new VramWriteQueue();
     topSky.ProcessFrame(layer1YPosition: 0, timeIsFrozen: false, topWrites);
     AssertEqual(new VramWriteEntry(0x0040, 0x8ab526, 0x4fc0), topWrites.Entries[0],
-        "sky Y=0 wrapped ROM pointer read");
+        "sky Y=0 wrapped compiled pointer");
     AssertEqual(new VramWriteEntry(0x0040, 0x8ab900, 0x4bc0), topWrites.Entries[2],
         "sky Y=0 lower row remains in chunk zero");
 
@@ -1409,7 +1400,7 @@ static void VerifyScrollingSkyState()
     AssertEqual(false, sky.HdmaEnabled, "frozen sky terminates HDMA table");
     AssertEqual(tailBeforeFreeze, writes.TailInBytes, "frozen sky queues no rows");
 
-    Console.WriteLine("  Sky: HDMA bands, circular uploads, and the Y=0 ROM overread agree.");
+    Console.WriteLine("  Sky: HDMA bands, circular uploads, and the Y=0 compiled overread agree.");
 }
 
 /// <summary>

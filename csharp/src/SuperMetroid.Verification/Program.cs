@@ -1469,6 +1469,7 @@ if (args is ["--room-background-tilemaps"])
 }
 if (args is ["--room-sky-tilemaps"])
 {
+    VerifyScrollingSkyState();
     VerifyRoomSkyTilemaps();
     return 0;
 }

@@ -769,7 +769,7 @@ public sealed partial class SuperMetroidRuntime
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(
             sizeOfBg2: usesScrollingSky ? (ushort)0 : (ushort)0x0800);
         ScrollingSky = usesScrollingSky
-            ? new ScrollingSkyState(_addressSpace)
+            ? new ScrollingSkyState()
             : null;
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);

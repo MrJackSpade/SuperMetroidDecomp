@@ -575,7 +575,7 @@ public sealed partial class SuperMetroidRuntime
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(sizeOfBg2: 0);
         // Supplying the ROM bus matters at the landing-cutscene's Y=0 edge: bank $88's
         // unsigned cameraY-16 table index intentionally reads adjacent ROM instructions.
-        ScrollingSky = new ScrollingSkyState(_addressSpace);
+        ScrollingSky = new ScrollingSkyState();
     }
 
     /// <summary>

@@ -304,7 +304,7 @@ public static class RoomFxRomData
         /// The sixth entry is a deliberate native fall-through used near the room bottom.
         /// </summary>
         public static ReadOnlySpan<ushort> LandChunkOffsets =>
-            [0xb180, 0xb980, 0xc180, 0xc980, 0xd180, 0xb180];
+            ScrollingSkyChunkPointerDefinitions.Land[..6];
 
         /// <summary>The 23 eight-byte rows beginning at bank-$88 scrolling-sky data.</summary>
         public static ReadOnlySpan<SkyScrollSection> Sections => SectionRows;

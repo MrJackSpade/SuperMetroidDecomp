@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -15,18 +14,6 @@ public sealed class ScrollingSkyState
 {
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
-    private readonly ISnesAddressSpace? _addressSpace;
-
-    /// <summary>
-    /// Creates sky state. A cartridge bus preserves out-of-range 65C816 table reads at the
-    /// very top of the room; the parameterless form remains useful for isolated arithmetic
-    /// tests whose camera positions select the declared chunk pointers.
-    /// </summary>
-    public ScrollingSkyState(ISnesAddressSpace? addressSpace = null)
-    {
-        _addressSpace = addressSpace;
-    }
-
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
     /// implementation. This is the same bank-$8F dispatch decision made by the cartridge;
@@ -129,7 +116,8 @@ public sealed class ScrollingSkyState
         int upperChunk = upperPosition >> 8;
         int upperByteOffset = (upperPosition & 0x00ff) * 8;
         int upperSource = RoomFxRomData.Banks.Tilemaps |
-            unchecked((ushort)(ReadChunkPointer(upperChunk, pointerTable) + upperByteOffset));
+            unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
+                pointerTable, upperChunk) + upperByteOffset));
 
         // Second pair: two rows just below the 224-line screen, based on cameraY+$F0.
         ushort lowerPosition = unchecked((ushort)(
@@ -138,7 +126,8 @@ public sealed class ScrollingSkyState
         int lowerChunk = lowerPosition >> 8;
         int lowerByteOffset = (lowerPosition & 0x00ff) * 8;
         int lowerSource = RoomFxRomData.Banks.Tilemaps |
-            unchecked((ushort)(ReadChunkPointer(lowerChunk, pointerTable) + lowerByteOffset));
+            unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
+                pointerTable, lowerChunk) + lowerByteOffset));
 
         ushort upperDestination = unchecked((ushort)(
             RoomFxRomData.ScrollingSky.Bg2TilemapBaseWord +
@@ -163,33 +152,6 @@ public sealed class ScrollingSkyState
             lowerSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
             unchecked((ushort)(
                 lowerDestination + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount)));
-    }
-
-    private ushort ReadChunkPointer(int index, int pointerTable)
-    {
-        if (_addressSpace is not null)
-        {
-            // The native code derives Y from the wrapped high byte and performs
-            // LDA [$00],Y without bounds checking. At camera Y=0, cameraY-16 becomes
-            // $FFF0, Y becomes $01FE, and the read lands at ROM $88:AF9A—inside the nearby
-            // ocean entry wrapper—not in the five-word land table. Reading through the ROM
-            // bus reproduces that harmless offscreen quirk without C/C# memory unsafety.
-            int offset = (pointerTable +
-                index * 2) & 0xffff;
-            SnesAddress address = new(0x88, unchecked((ushort)offset));
-            return (ushort)(
-                _addressSpace.ReadByte((int)address) |
-                (_addressSpace.ReadByte((int)address.AddWithinBank(1)) << 8));
-        }
-
-        // The sixth value is the first adjacent ocean-table word and covers ordinary
-        // bottom-of-room arithmetic in isolated tests. More distant wrapped reads require
-        // the real bank bytes and therefore deliberately fail without an address space.
-        ReadOnlySpan<ushort> landChunkOffsets = RoomFxRomData.ScrollingSky.LandChunkOffsets;
-        if (pointerTable == RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress && (uint)index < landChunkOffsets.Length)
-            return landChunkOffsets[index];
-        throw new InvalidOperationException(
-            "Wrapped scrolling-sky pointer reads require a cartridge address space.");
     }
 
     private static int FindSection(ushort worldY, ReadOnlySpan<SkyScrollSection> sections)

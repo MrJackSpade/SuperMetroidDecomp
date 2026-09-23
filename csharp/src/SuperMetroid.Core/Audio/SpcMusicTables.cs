@@ -23,6 +23,18 @@ internal static class SpcMusicTables
     ];
 
     /// <summary>Nonlinear pan curve sampled at integer positions zero through 21.</summary>
+    /// <remarks>
+    /// Issues #625 and #924 retain the 22 authored samples. The pinned NTSC
+    /// J/U v1.0 ROM at $CF:8A25 (file $278A25) matches every byte of
+    /// kVolumeTable in upstream-sm/src/spc_player.c and this array. No
+    /// independently evidenced analytic or integer generator reproduces the
+    /// quantized curve, so a fitted function would only restate these samples.
+    /// The native driver interpolates adjacent entries using the low byte of
+    /// the pan position, then mirrors the position around $1400 for the other
+    /// stereo side. It deliberately reads SPC RAM beyond this local table for
+    /// integer positions 21 and above; those address-level reads are separate
+    /// from the 22-byte catalog and must not be replaced by clamping.
+    /// </remarks>
     internal static readonly byte[] PanVolume =
         [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127, 127];
 

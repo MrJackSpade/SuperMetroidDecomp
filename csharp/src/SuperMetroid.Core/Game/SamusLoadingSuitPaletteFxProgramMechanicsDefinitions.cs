@@ -4,6 +4,16 @@ namespace SuperMetroid.Core.Game;
 public enum SamusLoadingSuitPaletteFxProgramOwner
 {
     /// <summary>Power-suit colors.</summary>
+    /// <remarks>
+    /// Issue #856 / #625: all 144 BGR555 words in ROM program <c>$8D:DB62</c>
+    /// match existing authored Samus palettes in bank <c>$9B</c>. Records
+    /// 0, 2, 4, 6, 8 equal normal Power Suit <c>$9B:9400</c>; records 1 and 3
+    /// equal speed-boost shade <c>$9B:9B80</c>; records 5 and 7 equal
+    /// <c>$9B:9B60</c> and <c>$9B:9B40</c>. Each comparison covers all sixteen
+    /// colors. The bank-$8D duplicates remain live authored presentation data;
+    /// the shared control program supplies their replay schedule. Production
+    /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
+    /// </remarks>
     PowerSuit,
     /// <summary>Varia-suit colors.</summary>
     VariaSuit,

@@ -31,6 +31,13 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
         new(0x975a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
     ];
 
+    /// <summary>
+    /// Live bank-$86 spritemap operands. The light program's sole operand at
+    /// $9752 is $8ABF in the pinned NTSC J/U v1.0 ROM. Its bank-$8D target
+    /// is a one-component authored pose with packed attribute $20EA. A
+    /// one-pose pointer has no useful indexed algorithm; retain its identity
+    /// and the live cartridge presentation read.
+    /// </summary>
     private static readonly ushort[] PresentationWords = [0x9752, 0x9758];
 
     internal static int MechanicsWordCount => Words.Length;

@@ -35,23 +35,82 @@ public static class LibraryBackgroundLoader
                 $"Library-background pointers must address the high half of bank $8F, not ${listPointer:X4}.");
         }
 
-        if (listPointer == unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
-        {
-            // The six command-E records and their terminator are fixed engine
-            // routing, compiled separately from the replaceable sky pages.
-            foreach (LandingSiteSkyTransferDefinition transfer in
-                     LandingSiteSkyTransferDefinitions.All)
-            {
-                if (transfer.DoorPointer == activeDoorPointer)
-                    TransferToVram(bus, vram, transfer.SourceAddress,
-                        transfer.VramDestination, transfer.ByteCount,
-                        skyArt, hudArt, characterArt);
-            }
+        return LibraryBackgroundProgramDefinitions.TryGet(listPointer,
+                out LibraryBackgroundProgram program)
+            ? ExecuteCompiled(bus, vram, program, activeDoorPointer,
+                tilemapArt, skyArt, hudArt, characterArt)
+            : ExecuteNative(bus, vram, listPointer, activeDoorPointer,
+                tilemapArt, skyArt, hudArt, characterArt);
+    }
 
-            return new LibraryBackgroundExecutionResult(
-                LandingSiteSkyTransferDefinitions.All.Count + 1, null);
+    private static LibraryBackgroundExecutionResult ExecuteCompiled(
+        ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundProgram program,
+        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt,
+        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
+        RoomCharacterAtlasCatalog? characterArt)
+    {
+        ushort? bg3CharacterBaseWord = null;
+        foreach (LibraryBackgroundInstruction instruction in program.Instructions)
+        {
+            switch (instruction.Command)
+            {
+                case LibraryBackgroundCommand.TransferToVram:
+                    TransferToVram(bus, vram, instruction.SourceAddress,
+                        instruction.Destination, instruction.ByteCount,
+                        skyArt, hudArt, characterArt);
+                    break;
+                case LibraryBackgroundCommand.DecompressToWorkRam:
+                    DecompressToWorkRam(bus, instruction.SourceAddress,
+                        instruction.Destination, tilemapArt);
+                    break;
+                case LibraryBackgroundCommand.ClearFxTilemap:
+                    FillAndTransfer(bus, vram, RoomAssetRomData.LibraryBackground.ClearFx);
+                    break;
+                case LibraryBackgroundCommand.TransferToVramForKraid:
+                    TransferToVram(bus, vram, instruction.SourceAddress,
+                        instruction.Destination, instruction.ByteCount,
+                        skyArt, hudArt, characterArt);
+                    bg3CharacterBaseWord =
+                        RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
+                    break;
+                case LibraryBackgroundCommand.ClearBg2:
+                    ClearBg2(bus, vram, includeKraidPage: false);
+                    break;
+                case LibraryBackgroundCommand.ClearBg2ForKraid:
+                    ClearBg2(bus, vram, includeKraidPage: true);
+                    break;
+                case LibraryBackgroundCommand.TransferForDoor:
+                    if (instruction.DoorPointer == activeDoorPointer)
+                        TransferToVram(bus, vram, instruction.SourceAddress,
+                            instruction.Destination, instruction.ByteCount,
+                            skyArt, hudArt, characterArt);
+                    break;
+                default:
+                    throw new InvalidDataException(
+                        $"Unknown compiled library-background command {instruction.Command} " +
+                        $"in list $8F:{program.Pointer:X4}.");
+            }
         }
 
+        return new LibraryBackgroundExecutionResult(
+            program.Instructions.Count + 1, bg3CharacterBaseWord);
+    }
+
+    /// <summary>Reference interpreter retained for pinned-ROM parity verification.</summary>
+    internal static LibraryBackgroundExecutionResult ExecuteNativeForVerification(
+        ISnesAddressSpace bus, SnesVram vram, ushort listPointer,
+        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt = null,
+        RoomSkyTilemapCatalog? skyArt = null, HudTileAtlas? hudArt = null,
+        RoomCharacterAtlasCatalog? characterArt = null) =>
+        ExecuteNative(bus, vram, listPointer, activeDoorPointer,
+            tilemapArt, skyArt, hudArt, characterArt);
+
+    private static LibraryBackgroundExecutionResult ExecuteNative(
+        ISnesAddressSpace bus, SnesVram vram, ushort listPointer,
+        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt,
+        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
+        RoomCharacterAtlasCatalog? characterArt)
+    {
         ushort cursor = listPointer;
         int executedCommands = 0;
         ushort? bg3CharacterBaseWord = null;
@@ -174,6 +233,13 @@ public static class LibraryBackgroundLoader
     {
         int sourceAddress = ReadLong(bus, cursor);
         ushort destination = ReadWord(bus, unchecked((ushort)(cursor + 3)));
+        DecompressToWorkRam(bus, sourceAddress, destination, tilemapArt);
+        return unchecked((ushort)(cursor + 5));
+    }
+
+    private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,
+        ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
+    {
         byte[] decompressed = tilemapArt?.Get(sourceAddress).Transfer.ToArray() ??
             RomDataReader.Decompress(bus, sourceAddress);
         if (destination + decompressed.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
@@ -186,7 +252,6 @@ public static class LibraryBackgroundLoader
             bus.WriteByte(
                 RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + index),
                 decompressed[index]);
-        return unchecked((ushort)(cursor + 5));
     }
 
     private static void ClearBg2(ISnesAddressSpace bus, SnesVram vram, bool includeKraidPage)

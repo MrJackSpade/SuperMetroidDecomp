@@ -148,7 +148,7 @@ public static class GameAssetInstaller
             RoomSkyTilemapArtworkFiles.ValidateStock(roomBackgrounds);
             progress?.Report("Indexing room artwork by room ID...");
             cancellationToken.ThrowIfCancellationRequested();
-            RoomArtIndexFiles.Extract(new SuperMetroidAddressSpace(rom), staging);
+            RoomArtIndexFiles.Extract(staging);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion,
                     SupportedCartridge.Sha256,

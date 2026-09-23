@@ -14,6 +14,7 @@ internal static partial class Program
         string sourceRom, GameInstallation installed)
     {
         SuperMetroidAddressSpace inventoryBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+        VerifyCompiledLibraryBackgroundPrograms(inventoryBus);
         IReadOnlyList<LibraryBackgroundSource> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
         RoomBackgroundTilemapCatalog backgrounds = installed.LoadRoomBackgroundTilemaps();
@@ -22,9 +23,10 @@ internal static partial class Program
         HudTileAtlas hud = installed.LoadMaps().HudTiles;
         int cases = 0;
 
-        foreach (IGrouping<ushort, LibraryBackgroundSource> list in
-            sources.GroupBy(source => source.ListPointer))
+        foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
         {
+            LibraryBackgroundSource[] list = sources
+                .Where(source => source.ListPointer == program.Pointer).ToArray();
             // Zero tests the ordinary path. Each authored door pointer additionally
             // selects its conditional DMA; a list can contain more than one.
             foreach (ushort door in list.Where(source => source.DoorPointer.HasValue)
@@ -32,21 +34,23 @@ internal static partial class Program
             {
                 SuperMetroidAddressSpace nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
-                LibraryBackgroundExecutionResult native = LibraryBackgroundLoader.Execute(
-                    nativeBus, nativeVram, list.Key, door);
+                LibraryBackgroundExecutionResult native =
+                    LibraryBackgroundLoader.ExecuteNativeForVerification(
+                        nativeBus, nativeVram, program.Pointer, door);
 
                 SuperMetroidAddressSpace selectedBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
                 var guarded = new LibraryBackgroundVisualReadGuard(selectedBus, sources);
                 var selectedVram = new SnesVram();
                 LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(
-                    guarded, selectedVram, list.Key, door, backgrounds, skies, hud, characters);
+                    guarded, selectedVram, program.Pointer, door,
+                    backgrounds, skies, hud, characters);
                 AssertEqual(native, selected,
-                    $"library background $8F:{list.Key:X4}, door ${door:X4} command result");
+                    $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
                 {
                     if (nativeVram.ReadByte(index) == selectedVram.ReadByte(index)) continue;
                     throw new InvalidDataException(
-                        $"Library background $8F:{list.Key:X4}, door ${door:X4} differs " +
+                        $"Library background $8F:{program.Pointer:X4}, door ${door:X4} differs " +
                         $"at VRAM byte ${index:X4}: native ${nativeVram.ReadByte(index):X2}, " +
                         $"installed ${selectedVram.ReadByte(index):X2}; " +
                         $"sources {string.Join(", ", list.Select(source => $"${source.SourceAddress:X6}"))}.");
@@ -61,16 +65,16 @@ internal static partial class Program
                     for (int offset = 0; offset < length; offset++)
                         AssertEqual(nativeBus.ReadByte(start + offset),
                             selectedBus.ReadByte(start + offset),
-                            $"library background $8F:{list.Key:X4} WRAM byte {offset}");
+                            $"library background $8F:{program.Pointer:X4} WRAM byte {offset}");
                 }
                 cases++;
             }
         }
 
-        AssertTrue(cases > sources.Select(source => source.ListPointer).Distinct().Count(),
+        AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
             "library background parity included door-selected variants");
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
-            "match installed VRAM/WRAM without visual ROM-source reads.");
+            "match installed VRAM/WRAM without command-list or visual ROM-source reads.");
     }
 
     private sealed class LibraryBackgroundVisualReadGuard(
@@ -79,6 +83,13 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
+            foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
+            {
+                int start = RoomAssetRomData.LibraryBackground.CommandBank | program.Pointer;
+                if (address >= start && address - start < program.NativeByteCount)
+                    throw new InvalidOperationException(
+                        $"Installed background reread compiled command list $8F:{program.Pointer:X4}.");
+            }
             foreach (LibraryBackgroundSource entry in entries)
             {
                 if (entry.Command == LibraryBackgroundCommand.DecompressToWorkRam)

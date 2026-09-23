@@ -147,8 +147,9 @@ door conditions remain engine behavior, not editable data. These files cover
 the 58 compressed room BG tilemaps. Seven contiguous scrolling-sky pages are
 installed alongside them as `scrolling-sky-*.json`; copies under
 `overrides/room-backgrounds/` change both door-selected and per-frame sky rows.
-Landing Site's six door-to-sky transfer selections are compiled from the native
-command list; only the sky page contents are replaceable artwork.
+All 68 retail library-background command lists, including Landing Site's six
+door-to-sky choices, are compiled engine definitions; only the referenced
+tilemaps and character sheets are replaceable artwork.
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
 engine behavior. Kraid's direct HUD-character upload also uses the existing
 `game/maps/hud-tiles.png` and `overrides/maps/hud-tiles.png` artwork instead of

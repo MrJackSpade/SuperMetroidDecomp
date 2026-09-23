@@ -12,6 +12,7 @@ static void VerifyLibraryBackgroundSourceInventory()
         Path.GetFullPath("Super Metroid.smc"));
     IReadOnlyList<LibraryBackgroundSource> sources =
         LibraryBackgroundSourceInventory.Scan(bus);
+    VerifyCompiledLibraryBackgroundPrograms(bus);
     int listCount = sources.Select(source => source.ListPointer).Distinct().Count();
     int compressedCount = sources
         .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)

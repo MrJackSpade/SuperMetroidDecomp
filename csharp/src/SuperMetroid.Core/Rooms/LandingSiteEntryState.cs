@@ -74,8 +74,10 @@ public sealed record LandingSiteEntryState(
         ushort statePointer = RoomStateSelectionDefinitions.Select(
             RoomHeaderPointers.LandingSite, default);
         CartridgeRoomState state = RoomStateDefinitions.Get(statePointer);
-        LandingSiteSkyTransferDefinition transfer =
-            LandingSiteSkyTransferDefinitions.Get(doorPointer);
+        LibraryBackgroundInstruction transfer =
+            LibraryBackgroundProgramDefinitions.GetDoorTransfer(
+                unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
+                doorPointer);
         return new LandingSiteEntryState(
             doorPointer,
             Direction: door.Orientation,
@@ -86,7 +88,7 @@ public sealed record LandingSiteEntryState(
             SpawnDistance: door.SamusDistance,
             DoorAsmPointer: door.SetupCodePointer,
             transfer.SourceAddress,
-            transfer.VramDestination,
+            transfer.Destination,
             transfer.ByteCount,
             RoomIdentity: roomIdentity,
             RoomMapX: room.MapX,

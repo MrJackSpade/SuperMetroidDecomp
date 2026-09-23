@@ -41,19 +41,21 @@ internal static partial class Program
             .Where(source => source.ListPointer ==
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
             .ToArray();
-        AssertEqual(LandingSiteSkyTransferDefinitions.All.Count, landingSources.Length,
+        LibraryBackgroundProgram landingProgram = LibraryBackgroundProgramDefinitions.Get(
+            unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress));
+        AssertEqual(landingProgram.Instructions.Count, landingSources.Length,
             "compiled Landing Site transfer count matches the native list");
         for (int index = 0; index < landingSources.Length; index++)
         {
             LibraryBackgroundSource native = landingSources[index];
-            LandingSiteSkyTransferDefinition compiled = LandingSiteSkyTransferDefinitions.All[index];
+            LibraryBackgroundInstruction compiled = landingProgram.Instructions[index];
             AssertEqual(LibraryBackgroundCommand.TransferForDoor, native.Command,
                 $"Landing Site command {index} is door-selected");
             AssertEqual(compiled.DoorPointer, native.DoorPointer!.Value,
                 $"Landing Site command {index} door");
             AssertEqual(compiled.SourceAddress, native.SourceAddress,
                 $"Landing Site command {index} sky source");
-            AssertEqual(compiled.VramDestination, native.VramDestination!.Value,
+            AssertEqual(compiled.Destination, native.VramDestination!.Value,
                 $"Landing Site command {index} VRAM destination");
             AssertEqual(compiled.ByteCount, native.TransferByteCount!.Value,
                 $"Landing Site command {index} transfer size");
@@ -62,14 +64,14 @@ internal static partial class Program
             AssertEqual(compiled.SourceAddress, compiledEntry.SkySourceAddress,
                 $"Landing Site door {index} uses compiled sky selection without list ROM reads");
             var expectedVram = new SnesVram();
-            expectedVram.LoadBytes(compiled.VramDestination * 2,
+            expectedVram.LoadBytes(compiled.Destination * 2,
                 RomDataReader.ReadFixedBank(bus, compiled.SourceAddress, compiled.ByteCount));
             var compiledVram = new SnesVram();
             LibraryBackgroundExecutionResult result = LibraryBackgroundLoader.Execute(
                 new SkyPageReadGuard(bus, blockLandingList: true), compiledVram,
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
                 compiled.DoorPointer, skyArt: stock);
-            AssertEqual(LandingSiteSkyTransferDefinitions.All.Count + 1,
+            AssertEqual(landingProgram.Instructions.Count + 1,
                 result.ExecutedCommandCount,
                 $"Landing Site door {index} executes every native command and terminator");
             AssertTrue(expectedVram.Bytes.SequenceEqual(compiledVram.Bytes),
@@ -78,7 +80,7 @@ internal static partial class Program
 
         var nativeDoorVram = new SnesVram();
         var installedDoorVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(bus, nativeDoorVram,
+        LibraryBackgroundLoader.ExecuteNativeForVerification(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             entry.DoorPointer);
         LibraryBackgroundLoader.Execute(new SkyPageReadGuard(bus, blockLandingList: true), installedDoorVram,
@@ -158,7 +160,9 @@ internal static partial class Program
             if (blockLandingList &&
                 address >= LandingSiteRomData.LibraryBackgroundListAddress &&
                 address < LandingSiteRomData.LibraryBackgroundListAddress +
-                    LandingSiteSkyTransferDefinitions.NativeListByteCount)
+                    LibraryBackgroundProgramDefinitions.Get(
+                        unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
+                        .NativeByteCount)
                 throw new InvalidOperationException(
                     $"Landing Site entry reread compiled transfer list ${address:X6}.");
             return source.ReadByte(address);

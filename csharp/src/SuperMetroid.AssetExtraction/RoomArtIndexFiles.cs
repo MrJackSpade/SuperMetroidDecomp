@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.AssetExtraction;
@@ -20,18 +19,14 @@ public static class RoomArtIndexFiles
         WriteIndented = true,
     };
 
-    public static RoomArtIndex Extract(ISnesAddressSpace bus, string contentDirectory)
+    public static RoomArtIndex Extract(string contentDirectory)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         Directory.CreateDirectory(contentDirectory);
-        var byList = LibraryBackgroundSourceInventory.Scan(bus)
-            .GroupBy(source => source.ListPointer)
-            .ToDictionary(group => group.Key, group => group.ToArray());
         RoomArtEntry[] rooms = RoomHeaderDefinitions.All.Select(header =>
         {
             RoomArtStateEntry[] states = RoomStateSelectionDefinitions
                 .GetStatePointers(header.Pointer)
-                .Select((pointer, index) => CreateState(index, RoomStateDefinitions.Get(pointer), byList))
+                .Select((pointer, index) => CreateState(index, RoomStateDefinitions.Get(pointer)))
                 .ToArray();
             return new RoomArtEntry($"{(byte)header.AreaIndex:X2}/{header.RoomIndex:X2}",
                 header.AreaIndex.ToString(), states);
@@ -59,13 +54,13 @@ public static class RoomArtIndexFiles
         return index;
     }
 
-    private static RoomArtStateEntry CreateState(int index, CartridgeRoomState state,
-        IReadOnlyDictionary<ushort, LibraryBackgroundSource[]> byList)
+    private static RoomArtStateEntry CreateState(int index, CartridgeRoomState state)
     {
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(state.GraphicsSet);
-        string[] backgroundFiles = unchecked((short)state.BackgroundDataPointer) < 0 &&
-            byList.TryGetValue(state.BackgroundDataPointer, out LibraryBackgroundSource[]? sources)
-            ? sources.SelectMany(BackgroundFiles).Distinct().Order(StringComparer.Ordinal).ToArray()
+        string[] backgroundFiles = unchecked((short)state.BackgroundDataPointer) < 0
+            ? LibraryBackgroundProgramDefinitions.Get(state.BackgroundDataPointer)
+                .Instructions.SelectMany(BackgroundFiles).Distinct()
+                .Order(StringComparer.Ordinal).ToArray()
             : [];
         return new RoomArtStateEntry(index == 0 ? "default" : $"alternate-{index:D2}",
             $"{GameInstallationLayout.RoomCharacterDirectoryName}/" +
@@ -77,8 +72,11 @@ public static class RoomArtIndexFiles
             backgroundFiles);
     }
 
-    private static IEnumerable<string> BackgroundFiles(LibraryBackgroundSource source)
+    private static IEnumerable<string> BackgroundFiles(LibraryBackgroundInstruction source)
     {
+        if (source.Command is LibraryBackgroundCommand.ClearFxTilemap or
+            LibraryBackgroundCommand.ClearBg2 or LibraryBackgroundCommand.ClearBg2ForKraid)
+            yield break;
         if (source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
         {
             if (!RoomBackgroundTilemapSources.Contains(source.SourceAddress))
@@ -87,9 +85,14 @@ public static class RoomArtIndexFiles
                 RoomBackgroundTilemapFormat.SourceFileName(source.SourceAddress);
             yield break;
         }
+        if (source.Command is not (LibraryBackgroundCommand.TransferToVram or
+            LibraryBackgroundCommand.TransferToVramForKraid or
+            LibraryBackgroundCommand.TransferForDoor))
+            throw new InvalidDataException(
+                $"Uncatalogued library-background command {source.Command}.");
 
         int offset = source.SourceAddress - RoomSkyTilemapFormat.FirstSourceAddress;
-        int byteCount = source.TransferByteCount ?? 0;
+        int byteCount = source.ByteCount;
         // WRAM uploads consume the decompressed tilemap named by the preceding
         // command; they are not a second editable source file.
         if ((source.SourceAddress >> 16) is 0x7e or 0x7f)

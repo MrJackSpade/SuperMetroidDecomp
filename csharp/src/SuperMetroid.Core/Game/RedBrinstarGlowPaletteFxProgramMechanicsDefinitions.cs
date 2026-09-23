@@ -12,6 +12,14 @@ public static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitions
     public const ushort DefinitionPointer = 0xf77d;
 
     /// <summary><c>InstList_PaletteFXObject_Brinstar2_0</c> at $8D:EED7.</summary>
+    /// <remarks>
+    /// Definition $8D:F77D enters a bounded fourteen-record loop. $EED7
+    /// selects CGRAM byte $00C8; record i=0..13 starts at $EEDB + 20 * i,
+    /// lasts ten frames, writes eight live BGR555 colors, and ends in
+    /// $C595 wait. The $C61E goto at $EFF3 returns to $EEDB, making a
+    /// 140-frame cycle; index fourteen reaches control rather than data.
+    /// All 32 mechanics words match the pinned NTSC J/U v1.0 ROM.
+    /// </remarks>
     public const ushort ProgramStart = 0xeed7;
 
     /// <summary>First timed record, <c>InstList_PaletteFXObject_Brinstar2_1</c>.</summary>

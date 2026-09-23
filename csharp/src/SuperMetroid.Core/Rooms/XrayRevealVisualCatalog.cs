@@ -25,6 +25,19 @@ public sealed class XrayOverlayVisualCatalog
     /// universal formula can replace this bounded installed array.
     /// </remarks>
     private readonly ushort[] itemMetatiles;
+    /// <summary>Installed room-specific X-ray tile lists keyed by room-state pointer.</summary>
+    /// <remarks>
+    /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
+    /// Bomb Torizo selects special-X-ray pointer $8F:986B. Its three
+    /// four-byte records are (X=$0F,Y=$0A..$0C,word=$0052), followed
+    /// by zero coordinates at $8F:9877. The native loop stops there;
+    /// adjacent bytes are not a fourth record. The independent installation
+    /// verifier compared all three stock records with the cartridge.
+    /// reveals.json may change coordinates and words while retaining the
+    /// pointer and record count, so the apparent Y sequence is not an
+    /// algorithm for all valid installations. Retain the bounded lists
+    /// and reject missing or duplicate pointers.
+    /// </remarks>
     private readonly Dictionary<ushort, XrayRoomOverlayVisual[]> rooms;
 
     public XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,

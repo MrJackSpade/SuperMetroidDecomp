@@ -17,7 +17,7 @@ internal static class DraygonHealthPaletteDefinitions
 
     /// <summary>$A5:96EF, DraygonHealthBasedPaletteThresholds, eight reachable thresholds.</summary>
     /// <remarks>
-    /// Issue #625 exact arithmetic: threshold(i)=750*(7-i), i=0..7. The whole
+    /// Issues #625 and #932 exact arithmetic: threshold(i)=750*(7-i), i=0..7. The whole
     /// search can also be replaced by byteIndex(h)=2*max(0,7-floor(h/750)), after
     /// rejecting h outside 0..6000. The max handles the top health band, not invalid
     /// inputs. LookupTableResearch verifies every threshold against the NTSC ROM

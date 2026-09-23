@@ -16,7 +16,8 @@ internal static class SpcMusicTables
 
     /// <summary>One-octave pitch basis plus the next C used for fractional interpolation.</summary>
     /// <remarks>
-    /// Issue #625 exact formula: for semitone n=0..12, floor(440*8.192*2^((n-9)/12)).
+    /// Issues #625 and #918 exact formula: for semitone n=0..12,
+    /// floor(440*8.192*2^((n-9)/12)).
     /// This is A440 equal temperament with the driver's pitch scaling, evaluated
     /// BEFORE rounding the C basis. Using 2143*2^(n/12) instead fails at n=7/8.
     /// csharp/tools/LookupTableResearch proves all 13 integers without floating

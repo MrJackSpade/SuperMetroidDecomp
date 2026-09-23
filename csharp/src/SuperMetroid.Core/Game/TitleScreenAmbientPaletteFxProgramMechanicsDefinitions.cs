@@ -11,10 +11,19 @@ public enum TitleScreenAmbientPaletteFxProgramOwner
 
 /// <summary>Immutable mechanics for the looping title-screen ambient palettes.</summary>
 /// <remarks>
-/// Definitions <c>$E1A0</c> and <c>$E1A4</c> use distinct record counts and cadences.
-/// Their 36 BGR555 words are installed presentation data; this catalog owns palette
-/// placement, timing, waits, and loop branches. Diagnostic sessions without an installed
-/// presentation retain the cartridge-backed color path.
+/// Issue #853 / #625: pinned NTSC J/U v1.0 ROM definition <c>$8D:E1A0</c>
+/// enters at <c>$8D:C7FA</c>: <c>SetColorIndex($0054)</c>, eight 12-byte
+/// records of <c>10, colors[4], Wait</c>, then <c>Goto($C7FE)</c> at
+/// <c>$C85E</c> (80 frames per loop). All 20 control words match. The
+/// first color row is <c>[0113,000F,175C,0299]</c>. For frame <c>f</c>
+/// (0..7), let <c>k = min(f, 8 - f)</c>. Each BGR555 component is
+/// <c>max(0, first-row component - 3*k)</c>, except the green component
+/// of column 0 gains one unit when <c>k = 2</c>. This rule matches all
+/// 32 tube-light ROM colors exactly. Definition <c>$8D:E1A4</c> has a
+/// separate two-record display loop. All 36 colors remain installed
+/// presentation data; diagnostic sessions without an installed presentation
+/// retain the cartridge-backed color path. ROM SHA-256:
+/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions
 {

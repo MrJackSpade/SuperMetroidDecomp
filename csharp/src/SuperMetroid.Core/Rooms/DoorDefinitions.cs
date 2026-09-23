@@ -830,6 +830,10 @@ public static class DoorDefinitions
     /// $8E32 and $8E3E, exactly $8E32 + 12*i for normalized BTS
     /// i=0..1. Index 2 reaches next room header $010B at $8F:9DC7.
     /// The ROM oracle checks entries, aliases, and boundary.
+    /// Issue #1097, Spore Spawn $8F:9E0D: two words are $8E4A
+    /// and $8E56, exactly $8E4A + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $010C at $8F:9E11. The ROM
+    /// oracle checks both entries, high-bit aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

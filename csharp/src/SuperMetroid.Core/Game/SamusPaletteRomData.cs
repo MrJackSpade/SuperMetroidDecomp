@@ -203,6 +203,16 @@ public static class SamusPaletteRomData
         /// 20 of 48 four-phase component sequences. Retain the four
         /// authored sixteen-color rows, including the final row that
         /// remains selected during sustained Speed Booster running.
+        ///
+        /// Issue #877 / #625: all 64 Varia Suit BGR555 target words at
+        /// <c>$9B:9D20..9D9F</c> match the pinned ROM/native listing.
+        /// Phase zero exactly equals normal Varia <c>$9B:9520</c> and
+        /// the first stored-shine row at <c>$9B:9DA0</c>; across all
+        /// four rows, only 17 of 64 positions match stored shine.
+        /// A per-slot, per-channel clipped first-step rule fits only
+        /// 23 of 48 four-phase component sequences. Retain all four
+        /// authored sixteen-color rows, with the final row selected
+        /// continuously after the active Speed Booster ramp.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>

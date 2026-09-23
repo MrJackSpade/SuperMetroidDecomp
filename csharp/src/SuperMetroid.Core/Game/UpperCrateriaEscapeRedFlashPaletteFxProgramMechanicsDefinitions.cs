@@ -47,6 +47,16 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     }
 
     /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    /// <remarks>
+    /// For frame 0..13 and color 0..6, the word is at
+    /// $8D:FD03 + 18 * frame + 2 * color. Eight distinct authored rows
+    /// appear: frames 0..7 use rows 0..7, and frames 8..13 mirror rows
+    /// 6..1, so the source row is frame when frame is at most seven and
+    /// 14 - frame afterward. All 98 words match the pinned NTSC J/U v1.0
+    /// ROM and bank-$8D annotation. Individual seven-color BGR555 values
+    /// vary irregularly, including the center pose; retain their live
+    /// authored payloads rather than imposing an unproved color formula.
+    /// </remarks>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)

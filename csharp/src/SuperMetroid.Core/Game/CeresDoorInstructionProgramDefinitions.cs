@@ -153,6 +153,14 @@ internal static class CeresDoorInstructionProgramDefinitions
         new(0xf63c, RidleyEscapeMode7RightWallLoop),
     ];
 
+    /// <summary>
+    /// Live spritemap operand addresses across the seven Ceres door variants.
+    /// The Ridley-room right-door program uses $F540, $F548, $F54C,
+    /// $F550, $F554, $F55A, and $F560, storing respectively $FAA7,
+    /// $FAA7, $FA87, $FA67, $FA3D, $FA13, and $FA13 in the pinned ROM.
+    /// Its repeated endpoints and mixed $20/$2A pose gaps preserve authored
+    /// presentation rather than a uniform pointer progression.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         0xf540, 0xf548, 0xf54c, 0xf550, 0xf554, 0xf55a, 0xf560,

@@ -146,6 +146,18 @@ public static class GameOptionsRomData
     }
 
     /// <summary>Language-dependent palette regions in the primary-page tilemap.</summary>
+    /// <remarks>
+    /// Issues #625 and #962: pinned NTSC J/U v1.0 ROM and bank_82.asm match all
+    /// eight offset/count/palette calls in Set_Language_Text_Option_Highlight.
+    /// For region i=0..3, byte offset is $0288+$0040*(i%2)+$00C0*(i/2);
+    /// byte count is $18 for i&lt;2 and $32 otherwise. Native AltText=0 selects
+    /// palette 0 for the first pair and palette 1 for the second; AltText=1
+    /// reverses them. With the consumers' equality test, the native
+    /// HighlightWhenJapanese flags would be false,false,true,true. The stored
+    /// flags below are the inverse, so both ROM-page and editable-presentation
+    /// rendering invert the native highlight. Behavior correction is tracked
+    /// separately by #963; this proof changes XML documentation only.
+    /// </remarks>
     public static ReadOnlySpan<GameOptionsLanguagePaletteRegion> LanguagePaletteRegions =>
         LanguagePaletteRegionData;
 

@@ -32,6 +32,7 @@ public static class PowerBombShapeDefinitions
     /// v1.0 ROM and pinned bank_88.asm, using the bounded deterministic sine
     /// candidate. Reject indices outside 0..31 and retain the renderer's subsequent
     /// radius scaling and inclusive-band handling. No runtime replacement yet.
+    /// Individual top-offset investigation: #625 / #912.
     /// </remarks>
     public static ReadOnlySpan<byte> TopOffsets =>
     [

@@ -987,6 +987,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $91FE; no stride follows from one word.
     /// Index 1 reaches next room header $0132 at $8F:A641. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1136, Kraid Refill $8F:A668: sole valid normalized
+    /// BTS i=0 resolves to $920A; no stride follows from one word.
+    /// Index 1 reaches next room header $0033 at $8F:A66A. The ROM
+    /// oracle checks the entry, both aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

@@ -16,6 +16,19 @@ internal static class DownwardGateShotBlockDefinitions
     /// <summary>
     /// Native table $84:C70A-$C719, which selects the eight gate-trigger instruction lists.
     /// </summary>
+    /// <remarks>
+    /// Issue #1041: for an even room argument 0..14, row i = argument / 2
+    /// selects the exact pointer $BCAF + 6*i. All eight little-endian words
+    /// in the pinned NTSC J/U v1.0 ROM at $84:C70A..C719 match, from
+    /// $BCAF through $BCD9. The six-byte stride follows consecutive native
+    /// blue, red, green, and yellow left/right instruction lists, not a
+    /// general pointer rule. Eleven retail gate PLMs use only in-range
+    /// arguments 0, 2, 8, and 10; Resolve rejects odd or above-14 values.
+    /// The independent gate verifier checks all eight rows against ROM and
+    /// runs production setup without source-table reads. Keep the named
+    /// list identities in the compiled records while documenting this
+    /// exact bounded arithmetic relation.
+    /// </remarks>
     internal const int InstructionListTableAddress = 0x84c70a;
 
     /// <summary>

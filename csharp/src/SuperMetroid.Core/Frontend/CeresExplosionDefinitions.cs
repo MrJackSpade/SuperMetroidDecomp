@@ -81,6 +81,19 @@ internal static class CeresExplosionDefinitions
         new(0xcec1, 0xc4b9, 0xc582, 0xccf5);
 
     /// <summary><c>$8B:CEC7</c>, final delayed large-explosion actor.</summary>
+    /// <remarks>
+    /// Issues #625 and #1003: all fifteen words at $8B:CD1B..CD38 match
+    /// pinned NTSC J/U v1.0 ROM and bank_8B.asm. Opcode $94D6 sets the
+    /// separate loop timer to 7; four duration-5 frames use bank-$8C
+    /// spritemaps $98D2, $98D9, $98E0, $98E7, then a duration-8 null map
+    /// runs before $94C3 decrements and jumps to $CD1F while nonzero.
+    /// Opcode $9438 deletes after the seventh pass. For bounded frame index
+    /// i=0..3, the pointer is exactly $98D2+7*i: bank_8C.asm confirms four
+    /// consecutive one-entry, seven-byte spritemaps. Their tile identities
+    /// remain authored visual data, and the loop, blank frame and deletion
+    /// are authored timing policy. Retain the finite native stream rather
+    /// than replacing only its regular pointer stride; $CD39 is another list.
+    /// </remarks>
     public static CeresExplosionActorDefinition FinalWaveActor =>
         new(0xcec7, 0xc533, 0xc582, 0xcd1b);
 

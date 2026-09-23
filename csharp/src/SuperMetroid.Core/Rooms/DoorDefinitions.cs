@@ -785,6 +785,11 @@ public static class DoorDefinitions
     /// i=0 resolves to $8C9A; no stride follows from one word. Index 1
     /// reaches scroll data $0001 at $8F:9AD8. The ROM oracle checks
     /// the entry, both high-bit forms, and this boundary.
+    /// Issue #1086, Green Brinstar Main Shaft $8F:9B00: normalized BTS
+    /// i=0..8 uses $8CA6 + 12*i; i=9 is the shared elevator
+    /// pseudo-door $88FC; i=10 resumes physical headers at $8D12
+    /// (= $8CA6 + 12*9). Index 11 reaches scroll data $0002 at
+    /// $8F:9B16. The ROM oracle checks all eleven entries and aliases.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

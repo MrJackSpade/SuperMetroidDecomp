@@ -27,10 +27,16 @@ internal static class CacatacProjectileDefinitions
         CacatacProjectileInstructionProgramDefinitions.DownRight,
     ];
 
-    /// <summary>$86:D9AD/$86:D9C4: cardinal signed 8.8 speed pair.</summary>
+    /// <summary>
+    /// Native immediate operands $86:D9BB/$86:D9C1: cardinal signed 8.8
+    /// negative/positive speed pair ($FE00, $0200).
+    /// </summary>
     private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(0xfe00, 0x0200);
 
-    /// <summary>$86:D9B7/$86:D9CD: diagonal signed 8.8 speed pair.</summary>
+    /// <summary>
+    /// Native immediate operands $86:D9CF/$86:D9D5: diagonal signed 8.8
+    /// negative/positive speed pair ($FE80, $0180).
+    /// </summary>
     private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(0xfe80, 0x0180);
 
     internal static ushort InstructionList(CacatacSpikeDirection direction)
@@ -45,6 +51,12 @@ internal static class CacatacProjectileDefinitions
         return InstructionLists[raw >> 1];
     }
 
+    /// <summary>
+    /// The native initializer compares its even direction selector to $000C
+    /// at $86:D9CA. For directions $00..$0A, magnitude is $0200; for
+    /// $0C..$12, magnitude is $0180. The positive word is that signed 8.8
+    /// magnitude and the negative word is its 16-bit two's complement.
+    /// </summary>
     internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction)
     {
         _ = InstructionList(direction); // Apply the identical native direction domain.

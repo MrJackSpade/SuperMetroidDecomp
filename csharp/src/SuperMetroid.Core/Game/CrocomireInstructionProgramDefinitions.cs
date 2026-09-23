@@ -189,7 +189,16 @@ internal static class CrocomireInstructionProgramDefinitions
     /// constant duration rule alone does not determine those effects.
     /// </summary>
     internal const ushort NearSpikeWallChargeLoop = 0xbeec;
-    /// <summary><c>InstList_Crocomire_BackOffFromSpikeWall</c> at $A4:BF3C.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_BackOffFromSpikeWall</c> at
+    /// $A4:BF3C-$BF61. Five pinned-ROM $0008 durations each precede
+    /// a live spritemap operand. Authored callbacks move right with
+    /// big dust, move plainly twice, move with dust, shake and move
+    /// plainly, then call Fight AI $86A6. Goto $80ED at BF5E targets
+    /// BF3C at BF60. Retain these native callback identities and
+    /// order; they differ from SteppingBack despite the shared
+    /// spritemap progression. Melting programs begin at BF64.
+    /// </summary>
     internal const ushort BackOffFromSpikeWall = 0xbf3c;
     /// <summary><c>InstList_Crocomire_Melting1_TopRow</c> at $A4:BF64.</summary>
     internal const ushort MeltingOneTopRow = 0xbf64;

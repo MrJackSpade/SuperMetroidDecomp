@@ -43,6 +43,14 @@ internal static class IntroRinkaDefinitions
     /// these are authored scene placements, so retain four explicit X
     /// values instead of encoding them as a fitted sequence. The production
     /// verifier runs both waves with physical-table reads forbidden.
+    ///
+    /// Issues #625 and #987: the separate Y source at $8B:B8BD+2*p has
+    /// four words $0050, $0040, $0038, $0058 in pinned NTSC J/U v1.0 ROM
+    /// and bank_8B.asm. Initializer $8B:B896 subtracts eight using a 16-bit
+    /// SBC before storing Y, yielding $0048, $0038, $0030, $0050.
+    /// Both spawn waves use the same bounded p=0..3 selector. The source
+    /// heights and final spacing are irregular scene placement, so retain
+    /// four explicit final Y values instead of a fitted progression.
     /// </remarks>
     public static IntroRinkaPhysicalDefinition Rinka(int parameter) => parameter switch
     {

@@ -13,6 +13,15 @@ internal static class XrayRevealDefinitions
     /// <summary>BTS $0E is the only spike-block value admitted by the native table.</summary>
     private const byte SpikeRevealBts = 0x0e;
 
+    /// <summary>Air reveals one $00FF tile for every BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1027: pinned NTSC J/U v1.0 ROM $91:D2FC..D305 has the sole
+    /// wildcard $FF00 to $D302, then $FFFF; $D302 holds copy-one command
+    /// $CF36 and tile $00FF. Native $91:CE08 checks the wildcard before the
+    /// unsigned BTS byte, so the exact bounded rule for BTS 0..255 is this
+    /// constant definition. Direct ROM words and the independent 256-case
+    /// air slice of the X-ray reveal oracle agree; no pointer table is needed.
+    /// </remarks>
     private static readonly XrayRevealDefinition Air = One(0x00ff);
     private static readonly XrayRevealDefinition HorizontalExtension =
         new(XrayRevealCodePointers.HorizontalExtension, 0, 0, 0, 0);

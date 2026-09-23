@@ -100,6 +100,8 @@ public static class EnemyTrigonometryTables
     /// 0..127 and preserve callers' multiplication/truncation/sign order; benchmarks
     /// and consumer migration are deferred. Run: dotnet run --project
     /// csharp/tools/LookupTableResearch (repository root, local retail ROM required).
+    /// Individual investigation: #625 / #908. The separate signed 16-bit
+    /// table is derived by shifting each unsigned sample before applying sign.
     /// </remarks>
     public static ReadOnlySpan<ushort> UnsignedHalfWave =>
     [

@@ -731,6 +731,10 @@ public static class DoorDefinitions
     /// $8B56, $8B62, and $8B6E, exactly $8B3E + 12*i for normalized
     /// BTS i=0..4. Index 5 reaches scroll data $0200 at $8F:9729.
     /// The ROM oracle checks all entries, high-bit aliases, and boundary.
+    /// Issue #1073, Pit $8F:97A1: two words are $8B7A and $8B86,
+    /// exactly $8B7A + 12*i for normalized BTS i=0..1. Index 2
+    /// reaches scroll data $0101 at $8F:97A5. The ROM oracle checks
+    /// both entries, high-bit aliases, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

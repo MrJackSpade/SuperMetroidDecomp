@@ -648,6 +648,11 @@ public static class DoorDefinitions
     /// and the independent all-room door-list oracle agree on each entry,
     /// both BTS forms, and the first invalid index. Other room lists
     /// have independent lengths and require their own proofs.
+    /// Issue #1055, Gauntlet Entrance $8F:92F9: the two door words are
+    /// $8946 and $8952, exactly $8946 + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches non-door word $0002 at $8F:92FD. The independent
+    /// ROM list oracle checks both entries, high-bit BTS aliases, and
+    /// this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

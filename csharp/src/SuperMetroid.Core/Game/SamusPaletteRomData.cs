@@ -478,6 +478,19 @@ public static class SamusPaletteRomData
         /// zero/two through nine during explosion and copies all
         /// sixteen colors to suitless OBJ palette seven. Target
         /// colors remain separate authored data.
+        ///
+        /// Issue #897 / #625: all 128 suitless Samus BGR555 words in
+        /// eight death rows at <c>$9B:A120..A21F</c> match the pinned
+        /// ROM and native bank-$9B listing. For frame <c>f=0..7</c>,
+        /// each five-bit component <c>b</c> from the authored first
+        /// row at <c>$A120</c> becomes exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
+        /// zero mismatches; color five stays <c>$7FFF</c> in every
+        /// frame. Pointer indices zero and one both select frame
+        /// zero, and indices two through eight select frames one
+        /// through seven. The death setup also directly copies
+        /// frame zero to suitless OBJ palette seven. The base row
+        /// remains authored presentation data.
         /// </remarks>
         public const int SuitlessPointers = 0x9bb80f;
         /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>

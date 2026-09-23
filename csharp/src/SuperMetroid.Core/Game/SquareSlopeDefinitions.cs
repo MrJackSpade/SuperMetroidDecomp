@@ -34,7 +34,9 @@ public static class SquareSlopeDefinitions
     /// documented on SamusQuadrants, then OR the result with quadrant q (0..3).
     /// LookupTableResearch proves all 20 bytes in EACH of the $A0 and $86 copies
     /// against the NTSC ROM, pinned assembly, and this span. Keeping q is essential
-    /// even though current collision tests primarily consume the solidity bit.</remarks>
+    /// even though current collision tests primarily consume the solidity bit.
+    /// The two physical copies are one logical table. Individual investigation:
+    /// #625 / #916.</remarks>
     public static ReadOnlySpan<byte> EnemyQuadrants =>
     [
         0x00, 0x01, 0x82, 0x83,

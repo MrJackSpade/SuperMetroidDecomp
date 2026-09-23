@@ -145,6 +145,19 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     }
 
     /// <summary>Returns one interleaved presentation-color address within a frame.</summary>
+    /// <remarks>
+    /// For the first three owners and leading colors c=0..2, phase
+    /// f=0..15 selects authored row d=min(f,15-f). Rows d=0..7 are
+    /// ($09FD,$093B,$0459), ($0E3D,$0D7C,$089A),
+    /// ($165E,$0DBC,$08FB), ($1A9E,$11FD,$0D3C),
+    /// ($1EBE,$161D,$119C), ($22FE,$1A5E,$15DD),
+    /// ($2B1F,$1A9E,$163E), ($2F5F,$1EDF,$1A7F).
+    /// The heat-phase owner places them at $F092 + 19*f + 5 + 2*c;
+    /// palette-4 and palette-5 owners use base $F1D5 or $F2DD,
+    /// respectively, plus 16*f + 2 + 2*c.
+    /// All 144 words match the pinned NTSC J/U v1.0 ROM. Their irregular
+    /// channel steps remain authored, live presentation colors.
+    /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame)

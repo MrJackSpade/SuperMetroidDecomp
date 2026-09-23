@@ -68,6 +68,11 @@ internal static class CeresElevatorArrivalDefinitions
     /// words match the pinned NTSC J/U v1.0 ROM; the reachable pointer set is
     /// $A28D, $A291, $A295, and $A28B. Other pointers fail descriptively.
     /// Spritemap operands at $A28F/$A293 are separate presentation values.
+    /// The two pinned-ROM operands are $B1BA and $B1D0. Bank-$8D record
+    /// $B1BA has four five-byte OBJ components after its two-byte count,
+    /// so its exact next-record address is <c>$B1BA + 2 + 5 * 4 = $B1D0</c>.
+    /// Both authored four-component spritemaps remain live draw data and are
+    /// also referenced by dust-cloud/explosion instruction lists.
     /// </remarks>
     internal static CeresElevatorProjectileInstruction ReadInstruction(ushort pointer) =>
         pointer switch

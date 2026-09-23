@@ -159,6 +159,17 @@ public static class SamusPaletteRomData
         /// authored exceptions. Retain the four live color rows for shade
         /// 0..3, color 0..15, with shades 2 and 1 reused by the pointer
         /// matrix's six-phase cycle.
+        ///
+        /// Issue #873 / #625: all 64 Gravity Suit BGR555 target words at
+        /// <c>$9B:A0A0..A11F</c> match the pinned ROM/native listing.
+        /// Shade zero differs from normal Gravity <c>$9B:9800</c> at
+        /// color one (<c>$00CE</c> versus <c>$0108</c>) and color twelve
+        /// (<c>$0216</c> versus <c>$0274</c>). A per-slot, per-channel
+        /// clipped linear step fits only 32 of 48 four-shade component
+        /// sequences; sixteen need authored exceptions, mostly a
+        /// blue-channel jump at the final shade. Retain the four live
+        /// color rows for shade 0..3, color 0..15; the pointer matrix
+        /// reuses shades 2 and 1 in its six-phase cycle.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>

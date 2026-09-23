@@ -43,6 +43,11 @@ public static class CeresSteamDefinitions
     /// indexes by <c>2 * parameter1</c>; production accepts only 0..5 and
     /// rejects 6. The constant stride describes four distinct instruction
     /// programs, while the last two entries are deliberate aliases.
+    /// The separate six-word function table at <c>$A6:F001-F00C</c> follows
+    /// <c>variant &lt; 4 ? $EFF4 : $F019</c> exactly in the pinned ROM: ordinary
+    /// directions use the return function, while both rotating-room variants
+    /// apply the graphical transform. The same bounded index selects both
+    /// fields; the adjacent tables have independent value rules.
     /// </summary>
     private static readonly CeresSteamInitialization[] Initializations =
     [

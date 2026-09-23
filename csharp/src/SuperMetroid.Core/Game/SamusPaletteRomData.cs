@@ -238,6 +238,16 @@ public static class SamusPaletteRomData
         /// The caller copies sixteen colors from each bank-$9B target.
         /// This formula describes list addresses only; the nested
         /// pointers and target colors are separate proof targets.
+        ///
+        /// Issue #880 / #625: the eighteen nested words at
+        /// <c>$91:DB16..DB39</c> are exactly
+        /// <c>$9BA0+$0200*s+$0020*min(p,6-p)</c> for suit index
+        /// <c>s=0..2</c> and phase <c>p=0..5</c>. Every word matches
+        /// the pinned ROM and native bank-$91 listing. Palette handler
+        /// one cycles six byte offsets <c>0,2,4,6,8,10</c>, so each
+        /// suit visits color rows <c>0,1,2,3,2,1</c> before wrapping.
+        /// Each target is a complete sixteen-color bank-$9B palette;
+        /// the formula does not describe its authored colors.
         /// </remarks>
         public const int StoredShineLists = 0x91db10;
         /// <summary><c>$91:DB75</c>, suit-indexed active-shinespark palette lists.</summary>

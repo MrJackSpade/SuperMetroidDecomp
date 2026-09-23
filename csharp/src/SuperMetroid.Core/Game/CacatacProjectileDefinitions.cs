@@ -6,6 +6,10 @@ internal static class CacatacProjectileDefinitions
     /// <summary>
     /// Cacatac spike instruction-list pointers at $86:D96A: ten word entries
     /// selected by the even <see cref="CacatacSpikeDirection"/> byte offset.
+    /// For selector index j = direction / 2 in 0..9, the physical six-byte
+    /// program index is {0, 2, 4, 5, 7, 9, 1, 3, 6, 8}[j] and its pointer is
+    /// $D92E + 6*index. The first six selectors are cardinal directions;
+    /// the final four are diagonals. Odd or out-of-range selectors are rejected.
     /// The selected programs share the compiled control definitions while retaining live
     /// cartridge spritemap operands.
     /// </summary>

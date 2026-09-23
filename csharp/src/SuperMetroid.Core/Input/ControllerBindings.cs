@@ -21,6 +21,15 @@ public readonly record struct ControllerBindings(
     ushort AimDown)
 {
     /// <summary>The literal bindings installed by <c>NewSaveFile</c> at <c>$81:B2CB</c>.</summary>
+    /// <remarks>
+    /// Issues #625 and #953: pinned NTSC J/U v1.0 ROM and bank_81.asm agree on all
+    /// seven immediate/store pairs: Shoot=X/$09B2, Jump=A/$09B4, Dash=B/$09B6,
+    /// ItemSelect=Select/$09BA, ItemCancel=Y/$09B8, AimUp=R/$09BE, and
+    /// AimDown=L/$09BC. The constructor and action indexer use menu row order
+    /// 0..6, which differs from WRAM address order for the final four fields.
+    /// This is authored control policy, not a numeric progression; retain the
+    /// explicit action mapping and its bounded indexer.
+    /// </remarks>
     public static ControllerBindings Default => new(
         Shoot: (ushort)SnesButton.X,
         Jump: (ushort)SnesButton.A,

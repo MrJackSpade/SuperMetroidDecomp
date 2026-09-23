@@ -438,6 +438,18 @@ public static class SamusPaletteRomData
         /// selects frame zero and indices two through eight select
         /// frames one through seven. The base row remains authored
         /// data; this is a bounded proof, not a runtime generator.
+        ///
+        /// Issue #895 / #625: all 128 Varia Suit BGR555 words in
+        /// eight death/beam-charge rows at <c>$9B:9920..9A1F</c>
+        /// match the pinned ROM and native bank-$9B listing. For
+        /// frame <c>f=0..7</c>, each five-bit component <c>b</c> from
+        /// the authored first row at <c>$9920</c> becomes exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison of all
+        /// 128 words found zero mismatches. Pointer index zero selects
+        /// frame zero and indices two through eight select frames
+        /// one through seven; the first four frames are also used
+        /// for beam charging, and alternate rows feed stored shine.
+        /// The base row remains authored presentation data.
         /// </remarks>
         public const int SuitPointers = 0x9bb7d3;
         /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>

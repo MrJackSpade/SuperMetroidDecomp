@@ -41,7 +41,8 @@ public static class EnemyTrigonometryTables
     /// LookupTableResearch checks the entire 320-word negative-cosine prefix/full
     /// sine view as well. Any later replacement must preserve PhantoonWaveRomData's
     /// separate odd-byte composition and final $8B instruction-byte overread;
-    /// these are byte-addressing behavior, not additional sine samples.</remarks>
+    /// these are byte-addressing behavior, not additional sine samples.
+    /// Individual investigation: #625 / #910.</remarks>
     public static short SignedSine(byte angle)
     {
         int halfWaveIndex = angle & 127;
@@ -52,6 +53,11 @@ public static class EnemyTrigonometryTables
     /// <summary>$A0:B3C3-$B642, SineCosineTables_NegativeCosine_SignExtended
     /// followed by the full signed sine wave. The 320-word range admits byte angle
     /// plus a 64-word offset; do not truncate the supplied index before validation.</summary>
+    /// <remarks>
+    /// Physical view of the same signed 8.8 cycle as <see cref="SignedSine"/>:
+    /// word index 0..319 maps to byte angle <c>(index - 64) &amp; 255</c>.
+    /// All 320 words match pinned ROM and assembly. Investigation: #625 / #910.
+    /// </remarks>
     public static short SignedNegativeCosineWord(int index)
     {
         if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));

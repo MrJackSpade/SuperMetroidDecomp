@@ -88,6 +88,15 @@ internal static class CeresDestructionActorDefinitions
     /// IntroDiscoverySprite.Draw applies those bits to OAM. Retain the
     /// authored attribute category for each visual role; this case rule
     /// does not define attributes for indices outside the six spawns.
+    ///
+    /// Issues #625 and #1020: pinned NTSC J/U v1.0 ROM and bank_8B.asm
+    /// put unsigned 8.8 slide-timer increments $0040 at $8B:C862 for
+    /// planet index 0, and $0020 at $C90D/$C8BE for star indices 1..4.
+    /// Title index 5 has no slide callback or increment. The exact bounded
+    /// selector is therefore i==0 ? $0040 : i&lt;5 ? $0020 : 0 for
+    /// i=0..5. StepZebesActors adds it to the 16-bit timer with wrap,
+    /// then subtracts the resulting 8.8 velocity from Y. The last star
+    /// owns scene completion but shares the same acceleration magnitude.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

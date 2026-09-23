@@ -906,6 +906,10 @@ public static class DoorDefinitions
     /// i=0 resolves to $8FFA; no stride follows from one word.
     /// Index 1 reaches next room header $011E at $8F:A201. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1116, Green Brinstar Save $8F:A228: sole valid
+    /// normalized BTS i=0 resolves to $9006; no stride follows from
+    /// one word. Index 1 reaches next room header $011F at $8F:A22A.
+    /// The ROM oracle checks the entry, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

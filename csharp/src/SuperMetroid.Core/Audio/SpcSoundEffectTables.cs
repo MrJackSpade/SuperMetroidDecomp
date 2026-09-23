@@ -68,6 +68,18 @@ internal static class SpcSoundEffectTables
         ],
     ];
 
+    /// <summary>Authored sound-command selectors for voice allocation and priority.</summary>
+    /// <remarks>
+    /// Issues #625 and #928: library 1 has 66 byte selectors for commands
+    /// 1..66. Every byte matches kSfx1Conf in pinned upstream-sm/src/spc_player.c.
+    /// The native switch maps selectors 0..5 to voice count and priority;
+    /// selectors 4 and 5 intentionally share the same four-voice outcome.
+    /// The complete selector sequence does not occur contiguously in the
+    /// pinned ROM, so no ROM address is claimed. Retain this authored per-sound
+    /// policy mapping; deriving it from command number or stream pointer
+    /// would discard sound-specific allocation choices. The managed caller
+    /// checks the command domain before indexing.
+    /// </remarks>
     internal static readonly byte[][] Configurations =
     [
         [

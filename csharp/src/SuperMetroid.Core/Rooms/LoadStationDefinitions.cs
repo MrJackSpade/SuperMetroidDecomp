@@ -145,6 +145,17 @@ public static class LoadStationDefinitions
     ];
 
     /// <summary>$80:C917-$80:CA2E, all twenty Maridia records.</summary>
+    /// <remarks>
+    /// Issue #1050: in the pinned NTSC J/U v1.0 ROM, indexes 4..7 and
+    /// 9..15 are the inert placeholder; 0..3, 8, and 16..19 are nine
+    /// authored room, door, camera, and Samus placements. The sparse
+    /// placeholder classification is exact, but the nine destinations
+    /// are scene identities rather than a useful numeric sequence, so
+    /// retain their records. Get accepts only station bytes 0..19;
+    /// index 20 starts the adjacent Tourian list at $80:CA2F.
+    /// Direct ROM inspection and the independent 134-record load-station
+    /// verifier agree on all twenty rows and the invalid boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] maridia =
     [
         new(0xced2, 0xa354, 0x0000, 0x0000, 0x0000, 0x0098, 0x0000),

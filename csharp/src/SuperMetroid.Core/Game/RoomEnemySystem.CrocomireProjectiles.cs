@@ -26,6 +26,16 @@ public sealed partial class RoomEnemySystem
         0x0cc0, 0x0aa0, 0x0880, 0x0660, 0x0440, 0x0220,
     ];
 
+    /// <summary>
+    /// $86:91E7-$920A, eighteen unsigned X-acceleration caps indexed by
+    /// physical projectile slot 0..17. Every pinned NTSC J/U v1.0 ROM word
+    /// exactly equals the corresponding $86:91C3 acceleration increment
+    /// shifted left four bits; even the largest $0FF0 becomes only $FF00.
+    /// This proves the bounded cap algorithm for all 18 slots, including
+    /// the ordinary spike-wall spawns in slots 17..10. The live path still
+    /// applies an unsigned cap after adding the increment. $920B begins
+    /// the separate maximum-velocity table.
+    /// </summary>
     private static readonly ushort[] CrocomireSpikeMaximumAcceleration =
     [
         0x0000, 0x0000, 0xff00, 0xee00, 0xcc00, 0xaa00,

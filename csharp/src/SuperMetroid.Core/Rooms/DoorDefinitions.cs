@@ -691,6 +691,11 @@ public static class DoorDefinitions
     /// $8A72, exactly $8A66 + 12*i for normalized BTS i=0..1. Index 2
     /// reaches scroll word $0000 at $8F:9528. The independent ROM list
     /// oracle checks both entries, high-bit aliases, and the boundary.
+    /// Issue #1064, Forgotten Highway Kagos $8F:9579: two door words
+    /// are $8A7E and $8A8A, exactly $8A7E + 12*i for normalized BTS
+    /// i=0..1. Index 2 reaches the next room header word $000B at
+    /// $8F:957D. The independent ROM list oracle checks both entries,
+    /// high-bit aliases, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

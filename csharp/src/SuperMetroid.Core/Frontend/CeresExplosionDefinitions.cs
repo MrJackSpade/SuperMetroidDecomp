@@ -69,6 +69,17 @@ internal static class CeresExplosionDefinitions
     /// <summary>
     /// Returns one of the five timer/X/Y rows at <c>$8B:C46B/$C475/$C47F</c>.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #992: the five instruction-delay words at
+    /// $8B:C46B+2*i match pinned NTSC J/U v1.0 ROM and bank_8B.asm:
+    /// 1, 16, 32, 48, 64. For bounded blast index i=0..4 this is exactly
+    /// i=0 ? 1 : 16*i. $8B:C404 spawns those five indices, and initializer
+    /// $8B:C434 copies the selected word into the instruction timer before
+    /// the generic sprite handler runs. The first value is one, not zero:
+    /// it schedules the first blast on its first eligible handler call.
+    /// The selector rejects other indices rather than reading the adjacent
+    /// X-offset table.
+    /// </remarks>
     public static CeresExplosionPlacement InitialExplosion(int index) => index switch
     {
         0 => new(16, -16, 1),

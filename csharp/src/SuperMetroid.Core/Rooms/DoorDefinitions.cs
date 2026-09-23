@@ -858,6 +858,10 @@ public static class DoorDefinitions
     /// $8F0A, exactly $8EFE + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches next room header $0112 at $8F:9FE5. The ROM
     /// oracle checks both entries, aliases, and boundary.
+    /// Issue #1104, Green Brinstar Beetoms $8F:A00C: two words are
+    /// $8F16 and $8F22, exactly $8F16 + 12*i for normalized BTS
+    /// i=0..1. Index 2 reads $1301 at $8F:A010: scroll byte $01,
+    /// then next room header byte $13. The ROM oracle checks bounds.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

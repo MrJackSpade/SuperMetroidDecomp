@@ -30,11 +30,23 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// traverses only the three local states $F04D, $F059, and $F061.
     /// </summary>
     internal const ushort UpActive = 0xf061;
-    /// <summary><c>InstList_CeresSteam_Left_0</c> at $A6:F081.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Left_0</c> at $A6:F081, selected by both left
+    /// variants 1 and 4. All 17 mechanics addresses are the upward program's
+    /// addresses plus $34. The pinned ROM preserves 14 operand values exactly
+    /// and relocates only its three local branch targets by $34, with zero
+    /// mismatches. It therefore has the same bounded activation state graph.
+    /// </summary>
     internal const ushort Left = 0xf081;
-    /// <summary><c>InstList_CeresSteam_Left_1</c> at $A6:F08D.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Left_1</c> at $A6:F08D; the relocated $40-tick
+    /// hidden hold returns to the seven-frame active state.
+    /// </summary>
     internal const ushort LeftHiddenHold = 0xf08d;
-    /// <summary><c>InstList_CeresSteam_Left_2</c> at $A6:F095.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Left_2</c> at $A6:F095; seven three-tick frames
+    /// loop to the local hidden hold at $F08D.
+    /// </summary>
     internal const ushort LeftActive = 0xf095;
     /// <summary><c>InstList_CeresSteam_Down_0</c> at $A6:F0B5.</summary>
     internal const ushort Down = 0xf0b5;

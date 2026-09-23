@@ -91,6 +91,17 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Native $8D:F765 Landing Site lightning control at $8D:EB3B.</summary>
+    /// <remarks>
+    /// The bounded program starts with a $F0-frame neutral record at $EB43.
+    /// Timer two repeats seven flash records of lengths 2,1,1,1,1,1,2 twice;
+    /// a second $F0-frame neutral record follows. Timer one runs four final
+    /// records of lengths 1,1,1,2 once, then $EC55 goes to $EB43. Thus one
+    /// complete cycle lasts 240 + 2 * 9 + 240 + 5 = 503 frames. The $EC59
+    /// pre-instruction restarts the neutral record for Samus Y below $0380.
+    /// All 38 word mechanics and two timer bytes match the pinned NTSC J/U
+    /// v1.0 ROM; the thirteen records' eight colors each stay live.
+    /// </remarks>
     private static CrateriaLightningPaletteFxProgramDefinition CreateSurfaceLightning() =>
         Create(
             CrateriaLightningPaletteOwner.SurfaceLightning,

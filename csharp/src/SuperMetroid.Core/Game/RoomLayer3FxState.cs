@@ -20,6 +20,7 @@ public sealed class RoomLayer3FxState
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
     [NonSerialized] private RoomFxAnimatedTileAtlas? animatedTileArtwork;
     [NonSerialized] private RoomFxLayer3TilemapCatalog? layer3Tilemaps;
+    [NonSerialized] private RoomFxPaletteBlendCatalog? paletteBlendColors;
 
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork
@@ -33,6 +34,13 @@ public sealed class RoomLayer3FxState
     {
         get => layer3Tilemaps;
         set => layer3Tilemaps = value;
+    }
+
+    /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
+    public RoomFxPaletteBlendCatalog? PaletteBlendColors
+    {
+        get => paletteBlendColors;
+        set => paletteBlendColors = value;
     }
     private ushort verticalAccumulator;
     private ushort horizontalAccumulator;
@@ -181,20 +189,7 @@ public sealed class RoomLayer3FxState
             bus,
             record,
             RoomFxRomData.Record.PaletteBlendOffset);
-        if (paletteBlend == 0)
-        {
-            // LoadFXHeader clears only target-palette color $1B when no blend is selected.
-            cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
-        }
-        else
-        {
-            int source = RoomFxRomData.Tables.PaletteBlendColors + (paletteBlend >> 1) * 2;
-            cgram.LoadFromBus(
-                bus,
-                source,
-                colorCount: RoomFxRomData.Layer3.PaletteBlendColorCount,
-                destinationIndex: RoomFxRomData.Layer3.PaletteBlendDestinationIndex);
-        }
+        ApplyPaletteBlend(bus, cgram, paletteBlend);
 
         if (Type == RoomFxType.Fireflea)
             FirefleaRoomFx.Initialize(bus);
@@ -435,11 +430,29 @@ public sealed class RoomLayer3FxState
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset), "LoadFxEntry");
         byte blend = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.PaletteBlendOffset);
-        if (blend == 0) cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
-        else cgram.LoadFromBus(bus, RoomFxRomData.Tables.PaletteBlendColors + (blend >> 1) * 2,
-            RoomFxRomData.Layer3.PaletteBlendColorCount, RoomFxRomData.Layer3.PaletteBlendDestinationIndex);
+        ApplyPaletteBlend(bus, cgram, blend);
         return LayerBlendingConfigurations.FromCartridge(
             RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset), "LoadFxEntry");
+    }
+
+    private void ApplyPaletteBlend(ISnesAddressSpace bus, SnesCgram cgram, byte selection)
+    {
+        if (paletteBlendColors is not null)
+        {
+            paletteBlendColors.Apply(cgram, selection);
+        }
+        else if (selection == 0)
+        {
+            // LoadFXHeader clears only target-palette color $1B when no blend is selected.
+            cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
+        }
+        else
+        {
+            int source = RoomFxRomData.Tables.PaletteBlendColors + (selection >> 1) * 2;
+            cgram.LoadFromBus(bus, source,
+                RoomFxRomData.Layer3.PaletteBlendColorCount,
+                RoomFxRomData.Layer3.PaletteBlendDestinationIndex);
+        }
     }
 
     /// <summary>

@@ -19,6 +19,7 @@ public sealed partial class SuperMetroidRuntime
             RoomPaletteFx.BindPresentationColors(value?.RoomPaletteFx);
             RoomLayer3Fx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
             RoomLayer3Fx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
+            RoomLayer3Fx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             Enemies.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             Enemies.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;

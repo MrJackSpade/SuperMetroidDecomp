@@ -99,6 +99,14 @@ internal static partial class Program
         roomFxTilemaps["pages"]!["Lava"]![0]!["tileColumn"] =
             (lavaTileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns;
         File.WriteAllText(roomFxTilemapOverride, roomFxTilemaps.ToJsonString());
+        string roomFxBlendOverride = Path.Combine(installation.MapOverrideDirectory,
+            RoomFxPaletteBlendDefinitions.FileName);
+        var roomFxBlends = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)))!;
+        string lavaBlendKey = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlendDefinitions.Lava);
+        int lavaBlendRed = roomFxBlends["blends"]![lavaBlendKey]![0]!["red"]!.GetValue<int>();
+        roomFxBlends["blends"]![lavaBlendKey]![0]!["red"] = (lavaBlendRed + 1) % 32;
+        File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());
         string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
         var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
         stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
@@ -221,6 +229,9 @@ internal static partial class Program
         AssertTrue(!stock.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span.SequenceEqual(
             edited.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span),
             "full installation consumes room-FX BG3 tilemap override");
+        AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava).SequenceEqual(
+            edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)),
+            "full installation consumes room-FX palette-blend override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -236,6 +247,7 @@ internal static partial class Program
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [roomFxArtworkOverride] = File.ReadAllBytes(roomFxArtworkOverride),
             [roomFxTilemapOverride] = File.ReadAllBytes(roomFxTilemapOverride),
+            [roomFxBlendOverride] = File.ReadAllBytes(roomFxBlendOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),

@@ -260,6 +260,11 @@ public static class MapPresentationExtractor
             file.Write(roomFxLayer3TilemapBytes);
         hashes.Add(RoomFxLayer3TilemapFormat.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxLayer3TilemapBytes)));
+        byte[] roomFxPaletteBlendBytes = RoomFxPaletteBlendExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, RoomFxPaletteBlendDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(roomFxPaletteBlendBytes);
+        hashes.Add(RoomFxPaletteBlendDefinitions.FileName,
+            Convert.ToHexString(SHA256.HashData(roomFxPaletteBlendBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

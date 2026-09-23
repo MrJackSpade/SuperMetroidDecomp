@@ -48,6 +48,16 @@ if (args is ["--room-fx-layer3-tilemaps"])
     VerifyRoomFxLayer3Tilemaps();
     return 0;
 }
+if (args is ["--room-fx-palette-blends"])
+{
+    VerifyRoomFxPaletteBlends();
+    return 0;
+}
+if (args is ["--room-fx-retail-inventory"])
+{
+    VerifyRetailRoomFxInventory();
+    return 0;
+}
 if (args is ["--enemy-projectile-instruction-mechanics"])
 {
     VerifyEnemyProjectileInstructionMechanicsDefinitions();

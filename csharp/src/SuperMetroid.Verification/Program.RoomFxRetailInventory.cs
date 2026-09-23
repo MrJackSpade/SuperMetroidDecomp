@@ -192,6 +192,14 @@ internal static partial class Program
             bus,
             room.State.FxPointer,
             doorPointer);
+        if (expectedRecord != 0)
+        {
+            byte blend = RoomFxRomData.ReadRecordByte(bus, expectedRecord,
+                RoomFxRomData.Record.PaletteBlendOffset);
+            AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains(blend),
+                $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+                $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
+        }
         RoomFxType expectedType = expectedRecord == 0
             ? RoomFxType.None
             : RoomFxTypes.FromCartridge(

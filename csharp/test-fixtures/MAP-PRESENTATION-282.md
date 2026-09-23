@@ -1547,3 +1547,18 @@ forbidden. The shared map-presentation suite checks a changed Lava cell through
 the actual VRAM transfer, strict malformed-resource handling, and stock restore.
 The full installer fixture verifies that an edited tilemap survives upgrade and
 restart alongside the other player overrides.
+
+## Editable room-FX palette blends (#542, #547, #549)
+
+Catalog version 62 adds `room-fx-blend-palettes.json` with eight named retail
+selections, each holding three RGB5 colors. The selectors and their native
+bank-$89 addresses remain compiled; the player edits colors, not FX-record
+selection, liquid mechanics, or palette-write timing. Selection zero retains
+the cartridge's special behavior: clear only CGRAM color 27, preserving 25/26.
+The same installed catalog serves both room entry and later `LoadFxEntry` writes.
+
+`--room-fx-palette-blends` checks all 24 words against the pinned ROM, then
+exercises both production writes for every selection with bank-$89 reads
+forbidden. `--map-presentation` edits one Lava blend component and observes the
+changed CGRAM word and content identity; removal restores stock. The installer
+fixture confirms this override survives upgrade and restart.

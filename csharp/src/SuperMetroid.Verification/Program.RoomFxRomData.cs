@@ -41,6 +41,7 @@ internal static partial class Program
         VerifyRoomFxAnimatedTileMechanicsDefinitions();
         VerifyRoomFxAnimatedTileArtwork();
         VerifyRoomFxLayer3Tilemaps();
+        VerifyRoomFxPaletteBlends();
         VerifyRetailRoomFxInventory();
         NotSupportedException unknown = AssertThrows<NotSupportedException>(
             () => RoomFxTypes.FromCartridge(0x0e, "constructed FX record $9000"),

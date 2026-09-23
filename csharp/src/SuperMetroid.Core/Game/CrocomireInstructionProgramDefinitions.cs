@@ -97,7 +97,16 @@ internal static class CrocomireInstructionProgramDefinitions
     /// at BCD8. The run-length rule is exact only for indices 0..31.
     /// </summary>
     internal const ushort WaitForFirstSecondDamage = 0xbc56;
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_MovingClaws</c> at $A4:BCD8.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_WaitForFirstSecondDamage_MovingClaws</c> at
+    /// $A4:BCD8-$BD29. Its first $50 bytes are identical to the pinned
+    /// ROM's ProjectileAttack prefix at $A4:BB36-$BB85, translated by
+    /// +$01A2. That covers fifteen $0005 durations, their live
+    /// spritemap operands, and the authored dust/SFX callbacks.
+    /// MovingClaws instead ends with Fight AI $86A6 at BD28.
+    /// The prefix identity does not extend into either list's ending;
+    /// retain this distinct control word. Roar starts at BD2A.
+    /// </summary>
     internal const ushort MovingClaws = 0xbcd8;
     /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_Roar</c> at $A4:BD2A.</summary>
     internal const ushort Roar = 0xbd2a;

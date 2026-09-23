@@ -80,6 +80,15 @@ public static class GameOverBabyAnimationDefinitions
     };
 
     /// <summary>Native bank-$82 palette pointer used only for extraction parity.</summary>
+    /// <remarks>
+    /// Issues #625 and #972: for semantic palette phase p=0..3 (Idle,
+    /// ClosedCry, MiddleCry, OpenCry), native source is $82:BD97+$20*p.
+    /// Each contiguous block has 16 little-endian color words; four blocks
+    /// occupy $82:BD97..BE16. A pinned NTSC J/U v1.0 ROM walk of all 60
+    /// positive Baby frame records found phase counts 36, 6, 12, and 6,
+    /// with no pointer outside these four sources. bank_82.asm names the same
+    /// blocks. Unknown semantic phases fail rather than extrapolate.
+    /// </remarks>
     public static ushort NativePalettePointer(GameOverBabyPalette palette) => palette switch
     {
         GameOverBabyPalette.Idle => 0xbd97,

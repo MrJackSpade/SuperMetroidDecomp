@@ -65,6 +65,10 @@ public static class GameOverRomData
         /// documents all 60 native frame records and the three spritemap pointers.</remarks>
         public const ushort InitialSpritemap = 0x65;
         public const int PaletteDestinationIndex = 0xc0;
+        /// <summary>Sixteen colors per game-over Baby palette source.</summary>
+        /// <remarks>Issues #625 and #972: four contiguous 16-word sources at
+        /// $82:BD97+$20*p are selected by GameOverBabyAnimationDefinitions.NativePalettePointer
+        /// for bounded phase p=0..3; all 60 native frame records stay in that domain.</remarks>
         public const int PaletteColorCount = 16;
 
         public static readonly SoundEffectId Cry23 =

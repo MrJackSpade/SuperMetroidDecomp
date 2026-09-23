@@ -61,6 +61,14 @@ internal static class CeresElevatorArrivalDefinitions
     internal const int MaximumCommandsPerStep = 16;
 
     /// <summary>Resolves the complete reachable instruction program for both projectiles.</summary>
+    /// <remarks>
+    /// The moving pad begins at <c>$86:A28D</c>: two one-tick frames at $A28D
+    /// and $A291, then the $81AB goto at $A295 returns to $A28D. Landing
+    /// redirects to the shared $8154 delete at $A28B. All five mechanics
+    /// words match the pinned NTSC J/U v1.0 ROM; the reachable pointer set is
+    /// $A28D, $A291, $A295, and $A28B. Other pointers fail descriptively.
+    /// Spritemap operands at $A28F/$A293 are separate presentation values.
+    /// </remarks>
     internal static CeresElevatorProjectileInstruction ReadInstruction(ushort pointer) =>
         pointer switch
         {

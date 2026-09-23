@@ -125,6 +125,11 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
     /// $8D:E2F3 + 10*f + 2*c. All eighteen pinned-ROM words match;
     /// channel changes are irregular, so the four rows remain live
     /// authored presentation data. Frame six reaches loop control.
+    /// Golden Torizo separately uses rows ($73E0,$4F20,$2A20),
+    /// ($5380,$2E20,$0920), ($3AC0,$1560,$0480),
+    /// ($2200,$00A0,$0020) for the same d=min(f,6-f), at
+    /// $8D:E33B + 10*f + 2*c. All eighteen pinned-ROM words match;
+    /// its different channel steps and floors remain authored and live.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

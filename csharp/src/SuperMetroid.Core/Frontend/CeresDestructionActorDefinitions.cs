@@ -120,6 +120,17 @@ internal static class CeresDestructionActorDefinitions
     /// star uses pre-instruction $C8AA rather than $C8F9 to own scene
     /// completion. Planet and title have separate authored identities;
     /// retain the six bounded triples despite these star-address strides.
+    ///
+    /// Issues #625 and #1023: all sixteen words in the four star-sheet
+    /// lists at $8B:CD83/CD8B/CD93/CD9B match pinned NTSC J/U v1.0 ROM
+    /// and bank_8B.asm. For bounded star index i=1..4, each list starts
+    /// at $CD83+8*(i-1), displays one bank-$8C spritemap for ten handler
+    /// calls, then $94BC jumps to its own start. The four frame pointers
+    /// are $975E, $979C, $97BC, $97D2; bank_8C.asm shows respective
+    /// entry counts 12, 6, 4, 7. Their spacing follows unequal authored
+    /// sprite sizes, not a useful frame-index formula. Retain these four
+    /// visual choices as one bounded quadrant selector, with the shared
+    /// constant-period loop; $CDA3 starts a different actor's list.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

@@ -43,6 +43,14 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     internal const ushort AfterburnFinal = 0x9574;
 
     /// <summary><c>InstList_EnemyProjectile_HorizontalAfterburn_Center</c> at $86:95A0.</summary>
+    /// <remarks>
+    /// The $86:9650 projectile header selects this bounded $95A0..95B9
+    /// stream. It clears the pre-instruction, holds the first pose for five
+    /// ticks, calls $95BA to spawn right and left afterburn children, then
+    /// displays four more five-tick poses before $8154 deletes the center.
+    /// Its eight control words match the pinned NTSC J/U v1.0 ROM. The five
+    /// interleaved spritemap pointers remain live presentation operands.
+    /// </remarks>
     internal const ushort HorizontalCenter = 0x95a0;
 
     /// <summary><c>InstList_EnemyProjectile_VerticalAfterburn_Center</c> at $86:95D3.</summary>

@@ -971,6 +971,10 @@ public static class DoorDefinitions
     /// $919E, exactly $9192 + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches next room header $012E at $8F:A56B. The ROM
     /// oracle checks both entries, aliases, and this boundary.
+    /// Issue #1132, Kraid Eye Door $8F:A592: three words are
+    /// $91AA, $91B6, and $91C2, exactly $91AA + 12*i for normalized
+    /// BTS i=0..2. Index 3 reaches scroll data $0000 at $8F:A598.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

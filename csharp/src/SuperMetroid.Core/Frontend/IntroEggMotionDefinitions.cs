@@ -10,6 +10,17 @@ internal static class IntroEggMotionDefinitions
     public const int InitialPositionReferenceAddress = 0x8ba97c;
 
     /// <summary>Returns one shell fragment's final world-space spawn position.</summary>
+    /// <remarks>
+    /// Issues #625 and #975: $8B:A958 indexes six interleaved 16-bit X/Y
+    /// origin pairs at $8B:A97C..A993 with index*4, then adds $10 and $3B
+    /// respectively with native 16-bit wrap. Pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm give source pairs ($5C,$58), ($63,$58), ($59,$5D),
+    /// ($60,$5B), ($66,$5E), and ($63,$60); all twelve words match this
+    /// selector after the biases. The spawn opcode creates exactly indices
+    /// 0..5, and unknown indices throw. The irregular positions compose the
+    /// shell artwork, so retaining six explicit pairs is clearer than a
+    /// generated sequence or polynomial encoding.
+    /// </remarks>
     public static (ushort X, ushort Y) FragmentInitialPosition(int index) => index switch
     {
         0 => (0x006c, 0x0093),

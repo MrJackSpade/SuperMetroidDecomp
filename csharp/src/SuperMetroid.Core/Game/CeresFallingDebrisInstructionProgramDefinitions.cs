@@ -44,6 +44,11 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
     /// is a one-component authored pose with packed attribute $20EA. A
     /// one-pose pointer has no useful indexed algorithm; retain its identity
     /// and the live cartridge presentation read.
+    /// The dark program's sole operand at $9758 is $8AC6. Its pointer follows
+    /// the light record exactly: <c>$8ABF + 2 + 5 * 1 = $8AC6</c> for one
+    /// packed OBJ component. All seven target bytes match the light record
+    /// except the attribute low byte $EA becomes $EC; geometry is identical.
+    /// Retain the authored dark pose and its live presentation read.
     /// </summary>
     private static readonly ushort[] PresentationWords = [0x9752, 0x9758];
 

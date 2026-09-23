@@ -854,6 +854,10 @@ public static class DoorDefinitions
     /// $8EE6 and $8EF2, exactly $8EE6 + 12*i for normalized BTS
     /// i=0..1. Index 2 reaches scroll data $0000 at $8F:9FAE.
     /// The ROM oracle checks both entries, aliases, and boundary.
+    /// Issue #1103, Noob Bridge $8F:9FE1: two words are $8EFE and
+    /// $8F0A, exactly $8EFE + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $0112 at $8F:9FE5. The ROM
+    /// oracle checks both entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

@@ -943,6 +943,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $90EA; no stride follows from one word.
     /// Index 1 reaches scroll data $0100 at $8F:A3D7. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1125, Skree Boost $8F:A404: two words are $90F6 and
+    /// $9102, exactly $90F6 + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $0128 at $8F:A408. The ROM
+    /// oracle checks both entries, aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

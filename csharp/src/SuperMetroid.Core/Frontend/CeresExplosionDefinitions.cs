@@ -121,6 +121,15 @@ internal static class CeresExplosionDefinitions
     /// eight valid masked entries, including rows 6 and 7. Their irregular
     /// positions are authored blast placement, so retain the explicit
     /// bounded X values rather than fit a formula to the reachable subset.
+    ///
+    /// Issues #625 and #996: the interleaved signed Y word at
+    /// $8B:C4ED+4*i is -8, +12, +12, -14, 0, +14, +4, -16 for i=0..7.
+    /// All eight words match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
+    /// The same masked index selects Y, and $8B:C4B9 adds it after Mode 7
+    /// origin Y minus BG1 Y with 16-bit wrap. Rows 6 and 7 remain part of
+    /// the physical table even if the ordinary repeating window ends
+    /// before selecting them. Their spacing has no shared exact step or
+    /// simple relation to X; retain the authored bounded Y choices.
     /// </remarks>
     public static CeresExplosionPlacement RepeatingExplosion(int index) => index switch
     {

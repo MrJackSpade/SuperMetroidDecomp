@@ -302,6 +302,14 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     public int ColorsPerFrame => Frames[0].ColorCount;
 
     /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
+    /// <remarks>
+    /// Surface-lightning record indices 0..12 have phase sequence
+    /// 0,1,2,3,4,3,2,1,0,4,3,2,1. For phase k=0..3 and color c=0..7,
+    /// the exact word is $2D6C + $18C6 * k - $0421 * c; phase four is
+    /// solid $7FFF for every color. All 104 words match the pinned NTSC
+    /// J/U v1.0 ROM and bank-$8D annotation. Production still reads the
+    /// live authored BGR555 payload; both indices are checked before access.
+    /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)frame >= Frames.Count)

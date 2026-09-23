@@ -8,6 +8,17 @@ public sealed partial class RoomEnemySystem
     // These three tables are indexed by the physical bank-$86 projectile slot. Crocomire
     // deliberately clears the pool and then allocates eight actors from slot 17 downward,
     // so entries 10..17 produce the wall's authored fan rather than eight identical shards.
+    /// <summary>
+    /// $86:91C3-$91E6, eighteen unsigned X-acceleration increments indexed
+    /// by physical projectile slot 0..17. All words match the pinned NTSC
+    /// J/U v1.0 ROM: slots 0..1 are zero, slots 2..9 contain
+    /// $0FF0,$0EE0,$0CC0,$0AA0,$0880,$0660,$0440,$0220, and slots 10..17
+    /// repeat that profile. The death transition clears the pool and spawns
+    /// spike pieces in slots 17..10, so these last eight values are reached.
+    /// Retain the tuned profile: its first step needs an exception in an
+    /// arithmetic generator, and such a generator obscures slot indexing.
+    /// $91E7 starts the distinct acceleration-cap table.
+    /// </summary>
     private static readonly ushort[] CrocomireSpikeAccelerationDelta =
     [
         0x0000, 0x0000, 0x0ff0, 0x0ee0, 0x0cc0, 0x0aa0,

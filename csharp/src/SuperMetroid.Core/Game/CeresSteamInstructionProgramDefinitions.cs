@@ -155,6 +155,10 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// active operands at <c>$F0CB + 4 * frame</c> contain
     /// <c>$F1CE + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
     /// match the bounded seven-record sequence.
+    /// For the rightward program, $F0ED and $F0F9 repeat $F214; the seven
+    /// active operands at <c>$F0FF + 4 * frame</c> contain
+    /// <c>$F214 + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
+    /// match, completing the four directional presentation sequences.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

@@ -840,6 +840,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// $E6A8+$000A*i for i=0..1. They continue the record walk:
     /// count 3 at $E68E yields $E6A8, then count 1 yields $E6B2.
     /// Both distinct one-component poses remain live ROM reads.
+    /// The ten river-skeleton operands at $A4:E1D4-$E1F8 have
+    /// pinned stock pointer $E6BC+$000A*i for indices 0..9,
+    /// ending at $E716. Each target extended map has one component,
+    /// so its two-byte header plus eight-byte component explains
+    /// the stride. The first follows dead-skeleton map $E6B2;
+    /// all ten river operands remain live cartridge reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

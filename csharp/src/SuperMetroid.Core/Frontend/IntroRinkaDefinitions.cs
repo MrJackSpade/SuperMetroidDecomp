@@ -10,6 +10,19 @@ internal static class IntroRinkaDefinitions
     public const ushort SharedNoOp = CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp;
 
     /// <summary><c>$8B:CF21</c>, intro Rinka initialization, no-op pre-instruction, and initial list.</summary>
+    /// <remarks>
+    /// Issues #625 and #990: its $8B:CDEB..CE0C instruction program has
+    /// 17 words, all matched to pinned NTSC J/U v1.0 ROM and bank_8B.asm.
+    /// Three ten-call frames select bank-$8C spritemaps $8C8D, $8CA3,
+    /// $8CB9, followed by start-moving opcode $B8C5. The four-frame loop
+    /// at $CDF9 then selects $8CA3, $8C8D, $8CA3, $8CB9 for ten calls
+    /// each before goto $94BC returns to $CDF9. The generic interpreter
+    /// loads the first frame on relative call 0, the callback and first
+    /// loop frame on call 30, and subsequent loop frames on calls 40,
+    /// 50, and 60. Because pre-instruction runs before list advancement,
+    /// movement begins on the following actor call. The frame order is
+    /// authored animation policy; retain the bounded two-phase stream.
+    /// </remarks>
     public static IntroRinkaActorDefinition RinkaActor =>
         new(0xcf21, 0xb896, SharedNoOp, 0xcdeb);
 

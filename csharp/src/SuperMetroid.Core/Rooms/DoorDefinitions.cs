@@ -850,6 +850,10 @@ public static class DoorDefinitions
     /// $8EC2, $8ECE, and $8EDA, exactly $8EC2 + 12*i for normalized
     /// BTS i=0..2. Index 3 reaches scroll data $0001 at $8F:9F5D.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1102, Blue Brinstar E-Tank $8F:9FAA: two words are
+    /// $8EE6 and $8EF2, exactly $8EE6 + 12*i for normalized BTS
+    /// i=0..1. Index 2 reaches scroll data $0000 at $8F:9FAE.
+    /// The ROM oracle checks both entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

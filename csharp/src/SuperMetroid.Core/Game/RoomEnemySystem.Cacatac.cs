@@ -1,8 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal bank-$A2 function pointers stored at Cacatac's <c>$0FB2,x</c>. The stopped
-/// pointer is the real RTS used while an attack animation owns the actor.
+/// Literal bank-$A2 function pointers stored at Cacatac's <c>$0FB2,x</c>.
+/// Native <c>InitAI_Cacatac</c> reads the three-word table at $A2:9F42 + 2*i
+/// for parameter-one low-byte selector i = 0..2: $9FBA moves left, $9FEC
+/// moves right, and $A01B is the stopped RTS while an attack animation owns
+/// the actor. Other selectors are outside the authored table.
 /// </summary>
 public enum CacatacEnemyFunction : ushort
 {

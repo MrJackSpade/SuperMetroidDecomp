@@ -33,6 +33,17 @@ internal static class CeresFlightActorDefinitions
     /// Returns the five actors spawned in native order by <c>$8B:BE3B-$8B:BE5C</c>.
     /// Their lists remain ROM-backed; constructor metadata and physical motion do not.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #1005: row zero selects the large-asteroid list at
+    /// $8B:CE4B..CE52, reused by the Ceres destruction scene. All four
+    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm: duration $000A,
+    /// bank-$8C spritemap $94F7, goto opcode $94BC, target $CE4B. The exact
+    /// bounded rule is to display that same authored asteroid spritemap for
+    /// ten handler calls, then repeat indefinitely while the owning scene
+    /// keeps the actor alive. IntroDiscoverySprite.Step follows the goto;
+    /// it never falls into the adjacent delete list at $CE53. The frame art
+    /// remains ROM-backed, while this constant-period loop needs no table.
+    /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {
         0 => new(0xcf39, 0xbf22, 0xbf35, 0xbf35, 0xce4b,

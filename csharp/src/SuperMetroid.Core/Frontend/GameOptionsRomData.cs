@@ -210,6 +210,17 @@ public static class GameOptionsRomData
     }
 
     /// <summary>Static and animated options-screen OBJ definitions.</summary>
+    /// <remarks>
+    /// Issues #625 and #966: for options page p=0..2 (Primary, Controller,
+    /// Special), heading-border spritemap ID is $4B+p. The $82:C5FF/C601/C603
+    /// pointer-table words and $82:F47E/F48E/F49E instruction lists select
+    /// $82:D24B/D2F7/D41B, respectively. Setup routines at $82:F34B/F353/F35B
+    /// give X anchors $7C/$84/$80; common setup at $82:F369 gives Y=$10.
+    /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all three tuples.
+    /// The IDs have a bounded consecutive rule, while the X anchors are authored
+    /// page layout. The disassembly's controller symbol says 49, but its table
+    /// position and actual spritemap header identify $4C.
+    /// </remarks>
     public static class Spritemaps
     {
         private static readonly ushort[] MissileFrames = [0x37, 0x36, 0x35, 0x34];

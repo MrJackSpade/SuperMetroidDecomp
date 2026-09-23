@@ -108,6 +108,17 @@ internal static class IntroEggMotionDefinitions
     /// $FFFF all ground at frame 51, inside the table. The method rejects
     /// frame 62 and negative frames instead of reading the adjacent even
     /// table; fractional addition and whole-word carry stay exact.
+    ///
+    /// Issues #625 and #980: the separate even-actor table at
+    /// $8B:AC41..AD54 has 69 high-word-first signed 16.16 records; all
+    /// 138 words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. For
+    /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
+    /// otherwise $E000-$2000*r. For f=21..68 the signed value is
+    /// (f-21)*$2000, ending at 5.E000. The timer's clear low bit selects
+    /// this table for ordinary actor IDs 0 and 2, and its high byte indexes
+    /// the records. The 96-pixel start fixture with fractions 0, 1, $7FFF,
+    /// and $FFFF grounds at frame 62, within the table. Frame 69 and
+    /// negative frames throw instead of reading the adjacent routine.
     /// </remarks>
     public static (ushort Whole, ushort Fraction) SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
 

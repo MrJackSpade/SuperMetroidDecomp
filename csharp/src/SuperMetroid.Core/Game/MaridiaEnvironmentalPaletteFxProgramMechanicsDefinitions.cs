@@ -149,6 +149,17 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     }
 
     /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    /// <remarks>
+    /// For sand pits, frame f=0..3 and color c=0..7 address
+    /// $F4EF + 20*f + 2*c. The base row has two four-color groups:
+    /// ($3ED9,$2E57,$2A35,$25F3) and
+    /// ($25D2,$1DB0,$196E,$112E). Within each group, select
+    /// (c mod 4 + f) mod 4; the group is floor(c/4).
+    /// Sand falls address $F547 + 12*f + 2*c for c=0..3 and use
+    /// the same second group, rotated left by f. All 48 words match
+    /// the pinned NTSC J/U v1.0 ROM. Both callers read these colors
+    /// as live presentation data; f=4 reaches each loop command.
+    /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)

@@ -814,6 +814,10 @@ public static class DoorDefinitions
     /// are $8D7E and $8D8A, exactly $8D7E + 12*i for normalized
     /// BTS i=0..1. Index 2 reaches next room header $0107 at
     /// $8F:9C89. The ROM oracle checks entries, aliases, and boundary.
+    /// Issue #1093, Green Brinstar Missile Refill $8F:9CB0: sole
+    /// valid normalized BTS i=0 resolves to $8D96. Index 1 reads
+    /// $0801 at $8F:9CB2: scroll byte $01, then next room header
+    /// byte $08. The ROM oracle checks the entry, aliases, and bound.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

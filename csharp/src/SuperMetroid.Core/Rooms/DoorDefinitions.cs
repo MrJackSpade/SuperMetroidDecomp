@@ -866,6 +866,10 @@ public static class DoorDefinitions
     /// $8F3A, $8F46, and $8F52, exactly $8F2E + 12*i for normalized
     /// BTS i=0..3. Index 4 reaches scroll data $0101 at $8F:A040.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1106, Etecoon Super $8F:A078: sole valid normalized
+    /// BTS i=0 resolves to $8F5E; no stride follows from one word.
+    /// Index 1 reads $1501 at $8F:A07A: scroll byte $01, then next
+    /// room header byte $15. The ROM oracle checks aliases and bound.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

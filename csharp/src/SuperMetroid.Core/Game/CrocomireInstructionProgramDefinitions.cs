@@ -613,6 +613,10 @@ internal static class CrocomireInstructionProgramDefinitions
     /// The single StepBack operand at $A4:BC32 has pinned stock value
     /// $C5AE, between its two-frame duration and the SteppingBack list.
     /// Retain this authored identity as a live presentation read.
+    /// The next five SteppingBack operands at $A4:BC36, BC3C, BC42,
+    /// BC48, and BC4E have pinned stock values $C1EA - $32*i for
+    /// zero-based indices 0..4, ending at $C122. This bounded descent
+    /// describes the stock spritemaps; the operands remain live reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

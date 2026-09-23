@@ -7,7 +7,8 @@ public static class XrayRevealExtensions
     /// Returns the replacement metatile, or null to retain copied BG1 art. Unlike collision,
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
-    public static ushort? Resolve(RoomLevelData level, int blockIndex)
+    public static ushort? Resolve(RoomLevelData level, int blockIndex,
+        XrayRevealVisualCatalog? visuals = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(blockIndex);
@@ -45,7 +46,11 @@ public static class XrayRevealExtensions
                 continue;
             }
             if (block.CollisionType != RoomCollisionType.SpecialAir) return null;
-            return XrayRevealTable.Find(block.CollisionType, block.Behavior)?.TopLeft;
+            XrayRevealDefinition? native = XrayRevealTable.Find(block.CollisionType, block.Behavior);
+            return native is { } definition
+                ? visuals?.Apply(block.CollisionType, block.Behavior, definition).TopLeft ??
+                    definition.TopLeft
+                : null;
         }
     }
 }

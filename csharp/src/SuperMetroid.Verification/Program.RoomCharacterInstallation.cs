@@ -45,6 +45,7 @@ internal static partial class Program
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
             VerifyRoomVisualLayouts(installed, bus, landing);
+            VerifyXrayRevealVisualInstallation(installed);
             RoomArtStateEntry landingGuide = artIndex.Rooms.Single(room => room.RoomId == "00/00")
                 .States.Single(state => state.Variant == "default");
             AssertEqual("room-characters/" + RoomCharacterAtlasFormat.SourceFileName(

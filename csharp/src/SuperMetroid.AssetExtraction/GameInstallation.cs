@@ -37,6 +37,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
     public RoomVisualLayoutCatalog LoadRoomVisualLayouts() =>
         RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
+    public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
+    public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
+    /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
+    public XrayRevealVisualCatalog LoadXrayRevealVisuals() =>
+        XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
     /// <summary>Read-only logical room ID to editable art-file guide for installed content.</summary>
     public string RoomArtIndexPath => Path.Combine(ContentDirectory, RoomArtIndexFiles.FileName);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
@@ -67,8 +72,9 @@ public static class GameInstallationLayout
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
+    public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 9;
+    public const int FormatVersion = 10;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

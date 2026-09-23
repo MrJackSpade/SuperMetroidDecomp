@@ -5,6 +5,15 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    [NonSerialized] private XrayRevealVisualCatalog? xrayRevealVisuals;
+
+    /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
+    public XrayRevealVisualCatalog? XrayRevealVisuals
+    {
+        get => xrayRevealVisuals;
+        set => xrayRevealVisuals = value;
+    }
+
     /// <summary>
     /// Executes the BG1 capture/reveal-building portion of native setup, before the
     /// setup counter advances. WRAM owns these buffers, so state saves retain the exact
@@ -27,7 +36,8 @@ public sealed partial class SuperMetroidRuntime
                 ushort y = BackgroundScroll.Layer1YPosition;
                 var map = XrayRevealTilemap.Build(level, captured,
                     unchecked((ushort)(x + BackgroundScroll.Bg1XOffset)),
-                    unchecked((ushort)(y + BackgroundScroll.Bg1YOffset)), x, y, (byte)room.AreaIndex);
+                    unchecked((ushort)(y + BackgroundScroll.Bg1YOffset)), x, y,
+                    (byte)room.AreaIndex, xrayRevealVisuals);
                 XrayRevealOverlays.Apply(_addressSpace, level, map, Plms.Collectibles, System,
                     room.State.XrayPointer, x, y);
                 for (int i = 0; i < map.Length; i++) WriteXrayWord(XraySetupMemory.RevealTilemap + i * 2, map[i]);

@@ -84,6 +84,7 @@ public static class GameAssetInstaller
             RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
             RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             RoomVisualLayoutFiles.ValidateStock(installation.RoomVisualLayoutDirectory);
+            XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
         }
@@ -154,6 +155,13 @@ public static class GameAssetInstaller
             RoomVisualLayoutFiles.Extract(new SuperMetroidAddressSpace(rom),
                 roomLayouts, SupportedCartridge.Sha256);
             RoomVisualLayoutFiles.ValidateStock(roomLayouts);
+            progress?.Report("Extracting X-ray reveal visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string xrayReveals = Path.Combine(staging,
+                GameInstallationLayout.XrayRevealVisualDirectoryName);
+            XrayRevealVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                xrayReveals, SupportedCartridge.Sha256);
+            XrayRevealVisualFiles.ValidateStock(xrayReveals);
             progress?.Report("Indexing room artwork by room ID...");
             cancellationToken.ThrowIfCancellationRequested();
             RoomArtIndexFiles.Extract(staging);

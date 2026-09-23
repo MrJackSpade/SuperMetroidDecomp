@@ -9,6 +9,21 @@ internal static partial class Program
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
+        // Change only the installed art for air reveals; the runtime still executes
+        // the cartridge's compiled collision lookup and X-ray setup stages.
+        var visualEntries = new List<(RoomCollisionType Type, byte Bts,
+            XrayRevealVisualWords Visual)>();
+        foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
+        for (int bts = 0; bts <= byte.MaxValue; bts++)
+        {
+            XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
+            if (native is not { } definition ||
+                !XrayRevealVisualCatalog.IsDrawable(definition.Command)) continue;
+            visualEntries.Add((type, unchecked((byte)bts), new XrayRevealVisualWords(
+                type == RoomCollisionType.Air ? (ushort)0x00fe : definition.TopLeft,
+                definition.TopRight, definition.BottomLeft, definition.BottomRight)));
+        }
+        runtime.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -51,10 +66,17 @@ internal static partial class Program
         captured.ExecuteWordTransfer(first.Concat(second).ToArray(), SnesPpuLayout.GameplayBg1TilemapWord, 1);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.ActiveRoom!;
-        var expected = XrayRevealTilemap.Build(runtime.LevelData!, captured,
+        var original = XrayRevealTilemap.Build(runtime.LevelData!, captured,
             unchecked((ushort)(scroll.Layer1XPosition + scroll.Bg1XOffset)),
             unchecked((ushort)(scroll.Layer1YPosition + scroll.Bg1YOffset)),
             scroll.Layer1XPosition, scroll.Layer1YPosition, (byte)room.AreaIndex);
+        var expected = XrayRevealTilemap.Build(runtime.LevelData!, captured,
+            unchecked((ushort)(scroll.Layer1XPosition + scroll.Bg1XOffset)),
+            unchecked((ushort)(scroll.Layer1YPosition + scroll.Bg1YOffset)),
+            scroll.Layer1XPosition, scroll.Layer1YPosition, (byte)room.AreaIndex,
+            runtime.XrayRevealVisuals);
+        AssertTrue(!original.SequenceEqual(expected),
+            "installed X-ray visual selection changes the actual room reveal map");
         XrayRevealOverlays.Apply(bus, runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
             room.State.XrayPointer, scroll.Layer1XPosition, scroll.Layer1YPosition);
         runtime.StepFrame(held);

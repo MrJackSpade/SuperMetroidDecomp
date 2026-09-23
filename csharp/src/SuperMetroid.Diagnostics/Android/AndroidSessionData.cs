@@ -23,6 +23,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Assets.RoomStaticPaletteCatalog? roomPalettes;
     private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog? roomMetatiles;
     private readonly SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog? roomVisualLayouts;
+    private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
     private readonly SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog? roomBackgroundTilemaps;
     private readonly SuperMetroid.Core.Assets.RoomSkyTilemapCatalog? roomSkyTilemaps;
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectiles;
@@ -59,6 +60,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomVisualLayouts = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomVisualLayouts() : null;
         Game.BindRoomVisualLayouts(roomVisualLayouts);
+        xrayRevealVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadXrayRevealVisuals() : null;
+        Game.BindXrayRevealVisuals(xrayRevealVisuals);
         roomBackgroundTilemaps = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomBackgroundTilemaps() : null;
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
@@ -148,6 +152,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPaletteArt(roomPalettes);
         Game.BindRoomMetatileArt(roomMetatiles);
         Game.BindRoomVisualLayouts(roomVisualLayouts);
+        Game.BindXrayRevealVisuals(xrayRevealVisuals);
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
         Game.BindRoomSkyTilemapArt(roomSkyTilemaps);
         Game.BindProjectileCompositions(projectiles?.Catalog);

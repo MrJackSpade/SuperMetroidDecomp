@@ -53,6 +53,7 @@ Within either platform's application-data root:
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
+- `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
 - `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
 - `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
 - `game/installation.json`: extraction format version and ROM identity.
@@ -173,6 +174,19 @@ exported as zero visual references. The renderer receives edited references,
 while collision, BTS, slopes, hazards and subsequent PLM block writes continue
 to use the unmodified native level allocation. Stock files are hash-checked;
 overrides survive stock repair and invalid values fail with the offending path.
+
+X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
+file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,
+`bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names
+the collision type and BTS values that select it, plus its read-only copy
+shape. The installer groups identical cartridge rules to keep the file short;
+changing the rule keys, shape, count, or unused operands is rejected. The
+visual indices may be 0..4095, but each selected metatile must exist in the
+room's combined CRE/area block definitions when X-ray is used. The compiled
+cartridge lookup still determines whether a block is revealed, how many
+blocks are copied, extension traversal, and Brinstar-only behavior. The
+installed JSON changes only the chosen artwork. Stock hashes are checked and
+user overrides survive stock repair.
 
 These visual-layout files do not yet replace the runtime ROM source for the
 native collision/BTS allocation. The room-ID guide makes the files discoverable,

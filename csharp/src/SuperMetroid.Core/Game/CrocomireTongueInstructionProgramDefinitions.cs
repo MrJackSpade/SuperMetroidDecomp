@@ -19,7 +19,14 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// and the unused reverse list beginning at $BE6A is outside this loop.
     /// </summary>
     internal const ushort Fight = 0xbe56;
-    /// <summary><c>InstList_Crocomire_Sleep</c> at $A4:BF62.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_Sleep</c> at $A4:BF62 contains the single
+    /// $812F Sleep opcode in the pinned NTSC J/U v1.0 ROM. Bridge collapse
+    /// selects it for the invisible tongue; Sleep holds this cursor, so
+    /// $BF64 and the following body-melting list are never read as tongue
+    /// instructions. Retain this one-word authored terminal policy: an
+    /// address formula would only restate the named opcode.
+    /// </summary>
     internal const ushort Sleep = 0xbf62;
     /// <summary>
     /// <c>InstList_CrocomireTongue_Melting</c> at $A4:BF98. Its five

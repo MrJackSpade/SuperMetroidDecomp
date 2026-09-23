@@ -19,6 +19,14 @@ internal static class XrayRevealDefinitions
     private const byte SpecialAirRevealBts = 0x46;
 
     /// <summary>BTS $0E is the only spike-block value admitted by the native table.</summary>
+    /// <remarks>
+    /// Issue #1030: pinned NTSC J/U v1.0 ROM $91:D318..D321 contains
+    /// ($000E, $D31E), terminal $FFFF, then copy-one command $CF36 and
+    /// tile $005F. Native $91:CE08 compares zero-extended BTS, making
+    /// equality with $0E the exact bounded rule over 0..255; other BTS
+    /// values return no reveal. Direct ROM words and all 256 spike-block
+    /// cases in the independent X-ray reveal oracle agree.
+    /// </remarks>
     private const byte SpikeRevealBts = 0x0e;
 
     /// <summary>Air reveals one $00FF tile for every BTS byte.</summary>

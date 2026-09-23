@@ -242,7 +242,13 @@ internal static class CrocomireInstructionProgramDefinitions
     /// spritemap data rather than another mechanics instruction.
     /// </summary>
     internal const ushort BridgeCollapsed = 0xbfb0;
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_Falling</c> at $A4:E14A.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireCorpse_Skeleton_Falling</c> at
+    /// $A4:E14A-$E157. Three pinned-ROM $000A durations each
+    /// precede a live spritemap operand; Sleep $812F at E156
+    /// ends this three-pose fall. The falls-apart program starts
+    /// at E158. The constant timing rule is bounded to three entries.
+    /// </summary>
     internal const ushort SkeletonFalling = 0xe14a;
     /// <summary><c>InstList_CrocomireCorpse_Skeleton_FallsApart_0</c> at $A4:E158.</summary>
     internal const ushort SkeletonFallsApart = 0xe158;

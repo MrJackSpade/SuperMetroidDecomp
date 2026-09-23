@@ -828,6 +828,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// three 13s, 12, 10, 6, and 3; M(17)=$E68E. This bounded
     /// record walk explains stock pointers without freezing their
     /// live cartridge presentation reads.
+    /// The stable and dead skeleton operands at $A4:E1C8 and E1CE
+    /// have pinned stock pointers $E6A8 and $E6B2, or
+    /// $E6A8+$000A*i for i=0..1. They continue the record walk:
+    /// count 3 at $E68E yields $E6A8, then count 1 yields $E6B2.
+    /// Both distinct one-component poses remain live ROM reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

@@ -744,6 +744,10 @@ public static class DoorDefinitions
     /// index i=0 resolves to $8BAA; no stride is inferred from one word.
     /// Index 1 reaches room-variable bytes $0A0F at $8F:986B. The ROM
     /// oracle checks the word, both high-bit forms, and this boundary.
+    /// Issue #1076, Flyway $8F:98DE: two words are $8BB6 and $8BC2,
+    /// exactly $8BB6 + 12*i for normalized BTS i=0..1. Index 2
+    /// reaches next room header $0017 at $8F:98E2. The ROM oracle
+    /// checks both entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

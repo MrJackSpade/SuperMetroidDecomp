@@ -26,7 +26,7 @@ public static class SamusSpecialSuperPalette
 
         ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
         ushort palettePointer = (flags & 1) != 0
-            ? ReadWord(bus, SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers + suitOffset)
+            ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(suitOffset)
             : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         cgram.LoadFromBus(
             bus,
@@ -36,7 +36,4 @@ public static class SamusSpecialSuperPalette
         samus.SpecialSuperPaletteFlags = unchecked((ushort)(flags + 1));
         return true;
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

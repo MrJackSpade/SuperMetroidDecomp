@@ -135,6 +135,14 @@ public static class SamusPaletteRomData
         /// authored cartridge data.
         /// </remarks>
         public const int SpeedBoostPointers = 0x91d998;
+        /// <summary>Native $91:D998 Power/Varia/Gravity Speed Booster palette pointer.</summary>
+        public static ushort SpeedBoostPalettePointer(ushort byteOffset) => byteOffset switch
+        {
+            0 => 0x9b80,
+            2 => 0x9d80,
+            4 => 0x9f80,
+            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
+        };
         /// <summary><c>$91:DA4A</c>, suit-indexed Screw Attack palette lists.</summary>
         /// <remarks>
         /// Issue #869 / #625: the pinned NTSC J/U v1.0 ROM stores three

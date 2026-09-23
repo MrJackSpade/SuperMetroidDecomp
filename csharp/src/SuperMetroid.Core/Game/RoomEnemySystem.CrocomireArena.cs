@@ -63,6 +63,10 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>
     /// Ports <c>Crocomire_8EE5</c>: clear all ten bridge blocks and burst dust.
+    /// The ten native PLM operand records at $A4:8EE9 + 8*i exactly use
+    /// block X=$61+i, block Y=$0B, and header $B74F for i=0..9. The
+    /// inclusive production loop preserves their ascending publication
+    /// order; $A4:8F35 starts dust setup, not an eleventh clear record.
     /// The seven dust positions in the pinned NTSC J/U v1.0 ROM follow the
     /// exact bounded rule X=$0600+$0010*i for i=0..6; Y=$00B0 at i=0 or 2
     /// and $00C0 otherwise. Native $A4:8F35-$8FB4 encodes these as ordered

@@ -43,6 +43,16 @@ internal static class CeresFlightActorDefinitions
     /// keeps the actor alive. IntroDiscoverySprite.Step follows the goto;
     /// it never falls into the adjacent delete list at $CE53. The frame art
     /// remains ROM-backed, while this constant-period loop needs no table.
+    ///
+    /// Issues #625 and #1006: native spawn order at $8B:BE3B..BE5C
+    /// selects the five initial X words at $8B:BF23/$BF4D/$BF77/$BFB4/
+    /// $BEA3. They match pinned NTSC J/U v1.0 ROM and bank_8B.asm:
+    /// $0050, $0074, $0080, $00E0, $FFE0 for index 0..4. The fourth and
+    /// fifth initializers take their nonzero-parameter branches. The last
+    /// word is signed -32, stored as wrapped 16-bit X. These unrelated
+    /// asteroid, station, vortex and star placements do not share a useful
+    /// exact stride or geometry rule; retain the five authored positions.
+    /// RearViewActor rejects indices outside this bounded native spawn set.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

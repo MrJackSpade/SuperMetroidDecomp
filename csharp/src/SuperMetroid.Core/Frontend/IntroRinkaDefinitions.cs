@@ -51,6 +51,15 @@ internal static class IntroRinkaDefinitions
     /// Both spawn waves use the same bounded p=0..3 selector. The source
     /// heights and final spacing are irregular scene placement, so retain
     /// four explicit final Y values instead of a fitted progression.
+    ///
+    /// Issues #625 and #988: four signed whole-word X components at
+    /// $8B:B985+2*p are $0000, $FFFF, $0000, $FFFF in pinned NTSC J/U v1.0
+    /// ROM and bank_8B.asm. For bounded p=0..3 this is exactly -(p&amp;1).
+    /// The miss routine indexes the table for p=1..3; the p=0 hit routine
+    /// uses the same zero as an immediate. Both first add fractional
+    /// velocity $8000, then carry into the signed whole-word addition,
+    /// yielding +0.5 px/call for even p and -0.5 for odd p. The shared
+    /// selector represents both native paths without an out-of-range read.
     /// </remarks>
     public static IntroRinkaPhysicalDefinition Rinka(int parameter) => parameter switch
     {

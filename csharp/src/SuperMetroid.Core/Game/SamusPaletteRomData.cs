@@ -191,6 +191,18 @@ public static class SamusPaletteRomData
         /// pointers with byte offsets <c>0,2,4,6</c> and pins phase three;
         /// each target is a complete sixteen-color bank-$9B palette.
         /// The formula describes target addresses, not target colors.
+        ///
+        /// Issue #876 / #625: all 64 Power Suit BGR555 target words at
+        /// <c>$9B:9B20..9B9F</c> match the pinned ROM/native listing.
+        /// Phase zero matches normal Power <c>$9B:9400</c> at fifteen
+        /// colors; color zero is <c>$0000</c> here instead of
+        /// <c>$3800</c>. The complete first row also matches the first
+        /// stored-shine row at <c>$9B:9BA0</c>; across all four rows only
+        /// 17 of 64 words match the corresponding stored-shine positions.
+        /// A per-slot, per-channel clipped first-step rule fits only
+        /// 20 of 48 four-phase component sequences. Retain the four
+        /// authored sixteen-color rows, including the final row that
+        /// remains selected during sustained Speed Booster running.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>

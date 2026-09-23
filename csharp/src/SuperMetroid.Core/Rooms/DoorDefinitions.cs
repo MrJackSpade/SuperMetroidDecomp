@@ -681,6 +681,12 @@ public static class DoorDefinitions
     /// $8A2A, $8A36, $8A42, exactly $8A2A + 12*i for normalized BTS
     /// i=0..2. Index 3 reaches scroll word $0101 at $8F:94B9. The
     /// independent ROM list oracle checks all entries and the boundary.
+    /// Issue #1062, Forgotten Highway Elevator $8F:94F3: normalized BTS
+    /// i=0..1 selects $8A4E + 12*i, while i=2 selects the shared elevator
+    /// pseudo-door $88FC. The native third entry deliberately breaks the
+    /// physical-header progression. Index 3 reaches scroll word $0001
+    /// at $8F:94F9 and fails. The ROM oracle checks this exception and
+    /// both high-bit BTS forms without reading the adjacent scroll byte.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

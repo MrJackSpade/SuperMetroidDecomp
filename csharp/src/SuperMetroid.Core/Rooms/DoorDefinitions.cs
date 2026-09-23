@@ -677,6 +677,10 @@ public static class DoorDefinitions
     /// $8A12, $8A1E, exactly $8A12 + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches non-door word $0007 at $8F:948C. The independent
     /// ROM list oracle checks both entries and the invalid boundary.
+    /// Issue #1061, Crateria Kihunter $8F:94B3: three door words are
+    /// $8A2A, $8A36, $8A42, exactly $8A2A + 12*i for normalized BTS
+    /// i=0..2. Index 3 reaches scroll word $0101 at $8F:94B9. The
+    /// independent ROM list oracle checks all entries and the boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

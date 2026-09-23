@@ -117,6 +117,15 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
     }
 
     /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    /// <remarks>
+    /// Bomb Torizo's valid frames f=0..5 select authored BGR555 row
+    /// d=min(f,6-f): ($6F7F,$51F8,$410E),
+    /// ($56BC,$3935,$284B), ($4639,$28B2,$1828),
+    /// ($2D74,$100D,$0403) for d=0..3. Color c=0..2 is at
+    /// $8D:E2F3 + 10*f + 2*c. All eighteen pinned-ROM words match;
+    /// channel changes are irregular, so the four rows remain live
+    /// authored presentation data. Frame six reaches loop control.
+    /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame)

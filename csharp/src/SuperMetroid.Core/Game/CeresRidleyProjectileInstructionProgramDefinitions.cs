@@ -12,9 +12,23 @@ internal readonly record struct CeresRidleyProjectileInstructionMechanicsWord(
 internal static class CeresRidleyProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_RidleysFireball_0</c> at $86:9552.</summary>
+    /// <remarks>
+    /// The $86:9642 projectile header enters here. The bounded $86:9552..9573
+    /// control stream clears its pre-instruction, holds the first pose for four
+    /// ticks, installs the moving pre-instruction at $940E, then holds that pose
+    /// for four more ticks. Its continuation is <see cref="FireballLoop"/>.
+    /// The eleven control words match the pinned NTSC J/U v1.0 ROM; the six
+    /// interleaved spritemap operands remain live presentation data.
+    /// </remarks>
     internal const ushort Fireball = 0x9552;
 
     /// <summary><c>InstList_EnemyProjectile_RidleysFireball_1</c> at $86:9560.</summary>
+    /// <remarks>
+    /// Four consecutive two-tick frames at $9560, $9564, $9568, and $956C
+    /// end in a $81AB go-to whose operand is this entry address. Thus the
+    /// animation cycles through exactly these four frames until a collision
+    /// changes its instruction pointer; it cannot fall through to $9574.
+    /// </remarks>
     internal const ushort FireballLoop = 0x9560;
 
     /// <summary><c>InstList_EnemyProjectile_Afterburn_Final</c> at $86:9574.</summary>

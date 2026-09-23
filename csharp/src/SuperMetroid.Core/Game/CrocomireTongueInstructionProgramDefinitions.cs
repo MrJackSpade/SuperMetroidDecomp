@@ -11,7 +11,13 @@ internal readonly record struct CrocomireTongueInstructionMechanicsWord(
 /// </summary>
 internal static class CrocomireTongueInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_CrocomireTongue_Fight</c> at $A4:BE56.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireTongue_Fight</c> at $A4:BE56. In the pinned NTSC
+    /// J/U v1.0 ROM, the four mechanics words at $BE56 + 4*i (i=0..3) are
+    /// exactly five-frame durations; $BE66 is goto $80ED and $BE68 targets
+    /// $BE56. The interleaved pointer operands are live presentation data,
+    /// and the unused reverse list beginning at $BE6A is outside this loop.
+    /// </summary>
     internal const ushort Fight = 0xbe56;
     /// <summary><c>InstList_Crocomire_Sleep</c> at $A4:BF62.</summary>
     internal const ushort Sleep = 0xbf62;

@@ -39,7 +39,7 @@ public sealed record LandingSiteEntryState(
     /// <summary>Initial layer-1 Y position encoded by the door's screen-Y byte.</summary>
     public ushort CameraY => (ushort)(ScreenY << 8);
 
-    /// <summary>Parses the intro landing-cutscene door and its matching command-E record.</summary>
+    /// <summary>Selects the intro landing-cutscene door and its compiled command-E record.</summary>
     public static LandingSiteEntryState LoadLandingCutscene(ISnesAddressSpace bus) =>
         Load(bus, LandingSiteRomData.LandingCutsceneDoorPointer);
 
@@ -74,7 +74,8 @@ public sealed record LandingSiteEntryState(
         ushort statePointer = RoomStateSelectionDefinitions.Select(
             RoomHeaderPointers.LandingSite, default);
         CartridgeRoomState state = RoomStateDefinitions.Get(statePointer);
-        SkyTransfer transfer = FindSkyTransfer(bus, doorPointer);
+        LandingSiteSkyTransferDefinition transfer =
+            LandingSiteSkyTransferDefinitions.Get(doorPointer);
         return new LandingSiteEntryState(
             doorPointer,
             Direction: door.Orientation,
@@ -99,53 +100,4 @@ public sealed record LandingSiteEntryState(
             EnemyTilesetPointer: state.EnemyTilesetPointer);
     }
 
-    private static SkyTransfer FindSkyTransfer(ISnesAddressSpace bus, ushort doorPointer)
-    {
-        int cursor = LandingSiteRomData.LibraryBackgroundListAddress;
-        while (true)
-        {
-            ushort command = ReadWord(bus, cursor);
-            if (command == 0)
-                break;
-
-            // Landing Site's list consists solely of command Eh records. $82:E9E7 compares
-            // DoorPointer with the following word; a match falls through to command 2 and
-            // DMAs the subsequent 24-bit source, VRAM word destination, and byte count.
-            if (command != 0x000e)
-            {
-                throw new InvalidDataException(
-                    $"Unexpected library-background command ${command:X4} at ${cursor:X6}.");
-            }
-
-            ushort candidateDoor = ReadWord(bus, cursor + 2);
-            if (candidateDoor == doorPointer)
-            {
-                int source = ReadLong(bus, cursor + 4);
-                ushort destination = ReadWord(bus, cursor + 7);
-                ushort byteCount = ReadWord(bus, cursor + 9);
-                return new SkyTransfer(source, destination, byteCount);
-            }
-
-            // 2-byte command + 2-byte door + 3-byte source + 2-byte destination +
-            // 2-byte size. The native nonmatching command-E path likewise advances nine
-            // parameter bytes after its command word.
-            cursor += 11;
-        }
-
-        throw new InvalidDataException(
-            $"Landing Site library background has no command-E record for door $83:{doorPointer:X4}.");
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8));
-
-    private static int ReadLong(ISnesAddressSpace bus, int address) =>
-        bus.ReadByte(address) |
-        (bus.ReadByte(address + 1) << 8) |
-        (bus.ReadByte(address + 2) << 16);
-
-    private readonly record struct SkyTransfer(
-        int SourceAddress,
-        ushort VramDestination,
-        ushort ByteCount);
 }

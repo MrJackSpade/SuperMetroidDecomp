@@ -37,13 +37,51 @@ internal static partial class Program
         }
         var guard = new SkyPageReadGuard(bus);
         LandingSiteEntryState entry = LandingSiteEntryState.LoadLandingCutscene(bus);
+        LibraryBackgroundSource[] landingSources = LibraryBackgroundSourceInventory.Scan(bus)
+            .Where(source => source.ListPointer ==
+                unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
+            .ToArray();
+        AssertEqual(LandingSiteSkyTransferDefinitions.All.Count, landingSources.Length,
+            "compiled Landing Site transfer count matches the native list");
+        for (int index = 0; index < landingSources.Length; index++)
+        {
+            LibraryBackgroundSource native = landingSources[index];
+            LandingSiteSkyTransferDefinition compiled = LandingSiteSkyTransferDefinitions.All[index];
+            AssertEqual(LibraryBackgroundCommand.TransferForDoor, native.Command,
+                $"Landing Site command {index} is door-selected");
+            AssertEqual(compiled.DoorPointer, native.DoorPointer!.Value,
+                $"Landing Site command {index} door");
+            AssertEqual(compiled.SourceAddress, native.SourceAddress,
+                $"Landing Site command {index} sky source");
+            AssertEqual(compiled.VramDestination, native.VramDestination!.Value,
+                $"Landing Site command {index} VRAM destination");
+            AssertEqual(compiled.ByteCount, native.TransferByteCount!.Value,
+                $"Landing Site command {index} transfer size");
+            LandingSiteEntryState compiledEntry = LandingSiteEntryState.Load(
+                new SkyPageReadGuard(bus, blockLandingList: true), compiled.DoorPointer);
+            AssertEqual(compiled.SourceAddress, compiledEntry.SkySourceAddress,
+                $"Landing Site door {index} uses compiled sky selection without list ROM reads");
+            var expectedVram = new SnesVram();
+            expectedVram.LoadBytes(compiled.VramDestination * 2,
+                RomDataReader.ReadFixedBank(bus, compiled.SourceAddress, compiled.ByteCount));
+            var compiledVram = new SnesVram();
+            LibraryBackgroundExecutionResult result = LibraryBackgroundLoader.Execute(
+                new SkyPageReadGuard(bus, blockLandingList: true), compiledVram,
+                unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
+                compiled.DoorPointer, skyArt: stock);
+            AssertEqual(LandingSiteSkyTransferDefinitions.All.Count + 1,
+                result.ExecutedCommandCount,
+                $"Landing Site door {index} executes every native command and terminator");
+            AssertTrue(expectedVram.Bytes.SequenceEqual(compiledVram.Bytes),
+                $"Landing Site door {index} uploads the exact stock sky page without visual/list ROM reads");
+        }
 
         var nativeDoorVram = new SnesVram();
         var installedDoorVram = new SnesVram();
         LibraryBackgroundLoader.Execute(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             entry.DoorPointer);
-        LibraryBackgroundLoader.Execute(guard, installedDoorVram,
+        LibraryBackgroundLoader.Execute(new SkyPageReadGuard(bus, blockLandingList: true), installedDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             entry.DoorPointer, skyArt: stock);
         AssertTrue(nativeDoorVram.Bytes.SequenceEqual(installedDoorVram.Bytes),
@@ -107,7 +145,8 @@ internal static partial class Program
             "per-frame NMI transfers use installed art, and an edit reaches the queued row.");
     }
 
-    private sealed class SkyPageReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class SkyPageReadGuard(ISnesAddressSpace source,
+        bool blockLandingList = false) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
@@ -116,6 +155,12 @@ internal static partial class Program
                     RoomSkyTilemapFormat.TotalByteCount)
                 throw new InvalidOperationException(
                     $"Scrolling sky reread installed visual source ${address:X6}.");
+            if (blockLandingList &&
+                address >= LandingSiteRomData.LibraryBackgroundListAddress &&
+                address < LandingSiteRomData.LibraryBackgroundListAddress +
+                    LandingSiteSkyTransferDefinitions.NativeListByteCount)
+                throw new InvalidOperationException(
+                    $"Landing Site entry reread compiled transfer list ${address:X6}.");
             return source.ReadByte(address);
         }
 

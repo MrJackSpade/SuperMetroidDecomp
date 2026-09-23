@@ -35,6 +35,23 @@ public static class LibraryBackgroundLoader
                 $"Library-background pointers must address the high half of bank $8F, not ${listPointer:X4}.");
         }
 
+        if (listPointer == unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
+        {
+            // The six command-E records and their terminator are fixed engine
+            // routing, compiled separately from the replaceable sky pages.
+            foreach (LandingSiteSkyTransferDefinition transfer in
+                     LandingSiteSkyTransferDefinitions.All)
+            {
+                if (transfer.DoorPointer == activeDoorPointer)
+                    TransferToVram(bus, vram, transfer.SourceAddress,
+                        transfer.VramDestination, transfer.ByteCount,
+                        skyArt, hudArt, characterArt);
+            }
+
+            return new LibraryBackgroundExecutionResult(
+                LandingSiteSkyTransferDefinitions.All.Count + 1, null);
+        }
+
         ushort cursor = listPointer;
         int executedCommands = 0;
         ushort? bg3CharacterBaseWord = null;
@@ -111,10 +128,20 @@ public static class LibraryBackgroundLoader
         int sourceAddress = ReadLong(bus, cursor);
         ushort destinationWord = ReadWord(bus, unchecked((ushort)(cursor + 3)));
         ushort byteCount = ReadWord(bus, unchecked((ushort)(cursor + 5)));
+        TransferToVram(bus, vram, sourceAddress, destinationWord, byteCount,
+            skyArt, hudArt, characterArt);
+        return unchecked((ushort)(cursor + 7));
+    }
+
+    private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram,
+        int sourceAddress, ushort destinationWord, ushort byteCount,
+        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
+        RoomCharacterAtlasCatalog? characterArt)
+    {
         if (byteCount == 0)
         {
             throw new InvalidDataException(
-                $"Library-background transfer at $8F:{cursor:X4} uses unsupported DMA size zero.");
+                $"Library-background transfer from ${sourceAddress:X6} uses unsupported DMA size zero.");
         }
 
         // Command 2 configures the same $2118/$2119 consecutive-word DMA represented by
@@ -140,7 +167,6 @@ public static class LibraryBackgroundLoader
             vram.ExecuteQueuedAssetWrite(selected.Span, destinationWord);
         else
             vram.ExecuteQueuedWrite(bus, sourceAddress, byteCount, destinationWord);
-        return unchecked((ushort)(cursor + 7));
     }
 
     private static ushort DecompressToWorkRam(ISnesAddressSpace bus, ushort cursor,

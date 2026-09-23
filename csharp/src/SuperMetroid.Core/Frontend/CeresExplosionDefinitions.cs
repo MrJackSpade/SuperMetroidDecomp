@@ -63,6 +63,19 @@ internal static class CeresExplosionDefinitions
         new(0xcf2d, 0xc5a9, 0xc582, 0xce1b);
 
     /// <summary><c>$8B:CF33</c>, invisible actor whose list owns the three-wave schedule.</summary>
+    /// <remarks>
+    /// Issues #625 and #1000: all eleven words at $8B:CE35..CE4A match
+    /// pinned NTSC J/U v1.0 ROM and bank_8B.asm. The list waits $0080
+    /// calls with a null frame, invokes $C404 for five initial blasts,
+    /// waits $0050 with a null frame, sets pre-instruction $C489 through
+    /// opcode $944C, waits $0040 with a null frame, invokes $C50C for four
+    /// final blasts, then deletes through $9438. The translated state
+    /// derives host frames 129 for the first wave, 210 for the first
+    /// repeating callback, and 273 for the final wave from those waits
+    /// and the interpreter's pre-instruction ordering. The different waits
+    /// and callbacks are authored timing policy; retain the bounded stream
+    /// ending before the adjacent $CE4B list.
+    /// </remarks>
     public static CeresExplosionActorDefinition SpawnerActor =>
         new(0xcf33, 0x93d9, 0x93d9, 0xce35);
 

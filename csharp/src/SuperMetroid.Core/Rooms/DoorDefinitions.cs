@@ -687,6 +687,10 @@ public static class DoorDefinitions
     /// physical-header progression. Index 3 reaches scroll word $0001
     /// at $8F:94F9 and fails. The ROM oracle checks this exception and
     /// both high-bit BTS forms without reading the adjacent scroll byte.
+    /// Issue #1063, East Ocean $8F:9524: two door words are $8A66 and
+    /// $8A72, exactly $8A66 + 12*i for normalized BTS i=0..1. Index 2
+    /// reaches scroll word $0000 at $8F:9528. The independent ROM list
+    /// oracle checks both entries, high-bit aliases, and the boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

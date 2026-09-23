@@ -22,6 +22,15 @@ internal static class IntroRinkaDefinitions
     /// 50, and 60. Because pre-instruction runs before list advancement,
     /// movement begins on the following actor call. The frame order is
     /// authored animation policy; retain the bounded two-phase stream.
+    ///
+    /// Issues #625 and #991: the three selected bank-$8C spritemaps at
+    /// $8C8D+$16*f, f=0..2, each have four five-byte entries and tile
+    /// $196+f. All 66 bytes match pinned NTSC J/U v1.0 ROM and bank_8C.asm.
+    /// Entry j=0..3 uses X=0 for even j or $01F8 for odd j, Y=0 for j&lt;2
+    /// or $F8 otherwise, and attributes $3E00 | ($196+f), plus bit $8000
+    /// for j&lt;2 and bit $4000 for even j. This is an exact bounded
+    /// four-quadrant construction; the frame program selects no other
+    /// spritemaps or adjacent visual data.
     /// </remarks>
     public static IntroRinkaActorDefinition RinkaActor =>
         new(0xcf21, 0xb896, SharedNoOp, 0xcdeb);

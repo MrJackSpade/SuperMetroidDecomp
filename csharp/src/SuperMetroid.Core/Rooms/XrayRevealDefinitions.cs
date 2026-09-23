@@ -91,6 +91,18 @@ internal static class XrayRevealDefinitions
         _ => null,
     };
 
+    /// <summary>Finds the authored special-block reveal for one unsigned BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1032: pinned NTSC J/U v1.0 ROM $91:D322..D3CB has 20
+    /// key/pointer pairs (00..0F, 82..85), $FFFF at $D372, and command
+    /// operands through $D3CB. For 00..07, BTS mod 4 selects one, wide,
+    /// tall, or square copies of tile $00BC; 08..0D are one $00BC; 0E..0F
+    /// are one $00B6; 82..85 use the distinct Brinstar-only $00B6 command.
+    /// Every other BTS returns no reveal. The dimension pattern is exact,
+    /// but tile and room-policy choices are authored, so this grouped switch
+    /// is clearer than a general formula. Direct ROM keys/pointers and the
+    /// independent 256-case special-block oracle including operands agree.
+    /// </remarks>
     private static XrayRevealDefinition? FindSpecialBlock(byte bts) => bts switch
     {
         0 or 4 or 8 or 9 or 0x0a or 0x0b or 0x0c or 0x0d => One(0x00bc),

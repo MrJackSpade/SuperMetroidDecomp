@@ -640,6 +640,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// for 7..31, r=(i-7) modulo 12 and T(i)=min(r,12-r).
     /// This includes an extra $C2EC hold at index 7 before the
     /// triangular cycle. The interpreter still reads all operands live.
+    /// The fifteen MovingClaws operands at $A4:BCDC-$BD22 repeat
+    /// $C47A + $32*(i modulo 5) for zero-based indices 0..14.
+    /// They equal ProjectileAttack's first fifteen stock operands
+    /// under instruction-address translation +$01A2. This three-cycle
+    /// identity leaves all presentation words as live cartridge reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

@@ -175,6 +175,18 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     /// ($1959,$20F7), ($153B,$18F9), ($111C,$14FB),
     /// ($0D1F,$0D1F). All 32 ROM words match; the irregular pairs
     /// remain live presentation data.
+    /// Palette-6 has its own five-color rows at $F3E5 + 16*f, with
+    /// color offsets 2,4,6,10,12. For d=min(f,15-f), rows d=0..7 are
+    /// ($09DA,$091A,$087A,$08A8,$0C05),
+    /// ($0DDA,$093A,$089A,$08AA,$0828),
+    /// ($0DFA,$0D5A,$08BA,$08AC,$084A),
+    /// ($11FA,$0D7A,$08FA,$08CF,$086D),
+    /// ($161A,$119A,$0D1A,$08D1,$0890),
+    /// ($1A1A,$11BA,$0D3A,$08F4,$08B3),
+    /// ($1A3A,$15DA,$0D7A,$08F6,$08D5),
+    /// ($225A,$1A1A,$11BA,$091A,$091A).
+    /// All 80 words match the pinned ROM; their irregular channel steps
+    /// remain authored, live presentation data.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

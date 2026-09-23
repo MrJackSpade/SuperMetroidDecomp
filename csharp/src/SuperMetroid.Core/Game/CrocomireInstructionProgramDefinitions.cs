@@ -744,6 +744,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// Loop indices 18..29 use $BFC4+$32*(i-18), ending at $C1EA;
     /// this is the same twelve-pointer run as the closed-mouth loop.
     /// These bounded stock identities leave all 30 operands live.
+    /// The five BackOffFromSpikeWall operands at $A4:BF3E, BF44,
+    /// BF4A, BF50, and BF56 use $C1EA-$32*i for indices 0..4,
+    /// ending at $C122. This matches SteppingBack's stock pointer
+    /// descent, while the native movement callbacks differ. All
+    /// five back-off operands remain live cartridge reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

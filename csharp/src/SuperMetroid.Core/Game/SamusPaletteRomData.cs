@@ -248,6 +248,18 @@ public static class SamusPaletteRomData
         /// suit visits color rows <c>0,1,2,3,2,1</c> before wrapping.
         /// Each target is a complete sixteen-color bank-$9B palette;
         /// the formula does not describe its authored colors.
+        ///
+        /// Issue #881 / #625: the 192 BGR555 words in four distinct
+        /// stored-shine rows per suit at <c>$9B:9BA0..9C1F</c>,
+        /// <c>$9B:9DA0..9E1F</c>, and <c>$9B:9FA0..A01F</c> follow an
+        /// exact reuse rule. For suit <c>s=0..2</c>, row <c>p=0..3</c>,
+        /// and color <c>c=1..15</c>, the word equals the same color in
+        /// the death-sequence/beam-charge row at
+        /// <c>$9B:9820+$0100*s+$0040*p</c>; color zero is always
+        /// <c>$0000</c>. Direct comparison of all 192 pinned ROM words
+        /// has zero mismatches, consistent with the native bank-$9B
+        /// listing. The pointer matrix visits rows <c>0,1,2,3,2,1</c>.
+        /// The source rows remain authored cartridge palettes.
         /// </remarks>
         public const int StoredShineLists = 0x91db10;
         /// <summary><c>$91:DB75</c>, suit-indexed active-shinespark palette lists.</summary>

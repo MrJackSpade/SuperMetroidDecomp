@@ -131,6 +131,14 @@ internal static class CeresDestructionActorDefinitions
     /// sprite sizes, not a useful frame-index formula. Retain these four
     /// visual choices as one bounded quadrant selector, with the shared
     /// constant-period loop; $CDA3 starts a different actor's list.
+    ///
+    /// Issues #625 and #1024: planet index zero uses list $8B:CCAB..CCB2.
+    /// Its four words $000A, $9558, $94BC, $CCAB match pinned NTSC J/U
+    /// v1.0 ROM and bank_8B.asm. The exact rule displays bank-$8C Zebes
+    /// spritemap $9558 for ten handler calls, then jumps back to $CCAB
+    /// while the scene retains the actor. IntroDiscoverySprite.Step cannot
+    /// fall through to the adjacent $CCB3 list. Keep the authored planet
+    /// visual ROM-backed; the constant-period loop needs no data table.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

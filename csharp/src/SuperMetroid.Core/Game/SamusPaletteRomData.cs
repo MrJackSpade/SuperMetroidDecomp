@@ -352,6 +352,23 @@ public static class SamusPaletteRomData
     public static class HyperBeamFx
     {
         /// <summary><c>$8D:E1F0</c>, two-word Hyper Beam palette-FX definition.</summary>
+        /// <remarks>
+        /// Issue #887 / #625: the pinned NTSC J/U v1.0 ROM stores
+        /// <c>$C685,$D900</c> here, selecting the no-op setup and
+        /// bank-$8D program. Its entry at <c>$D900</c> is
+        /// <c>$C655,$01C2</c>. Ten records start at
+        /// <c>$D904+20*i</c>, <c>i=0..9</c>; every duration is two,
+        /// every terminator at record offset eighteen is
+        /// <c>$C595</c>, and the terminal <c>$D9CC</c> command is
+        /// <c>$C61E,$D904</c>. All 26 control words match the pinned
+        /// ROM and native bank-$8D listing. The compiled resolver
+        /// accepts only entry, aligned records, and terminal loop;
+        /// it rejects adjacent or unaligned restored pointers.
+        /// The caller loads eight live color words at record offset
+        /// two into OBJ palette six, color one, displays each record
+        /// for two handler calls, and loops after record nine.
+        /// Color payloads are a separate authored table.
+        /// </remarks>
         public const int ObjectDefinition = 0x8de1f0;
         /// <summary>Expected no-op setup callback in the object definition.</summary>
         public const ushort SetupCallback = PaletteFxSetupCodes.Null;

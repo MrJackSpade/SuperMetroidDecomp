@@ -96,6 +96,15 @@ public static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    /// <remarks>
+    /// For frame f=0..13 and color c=0..7, the live BGR555 word at
+    /// $8D:EEDD + 20*f + 2*c is max(0, base[c] - $0401*min(f, 14-f)),
+    /// where base[0..7] is $4C17, $280F, $2409, $1C07, $1405,
+    /// $0C03, $0802, $0401. This word arithmetic exactly matches all
+    /// 112 colors in the pinned NTSC J/U v1.0 ROM; records 8..13 mirror
+    /// fade depths 6..1, and frame fourteen reaches the loop command.
+    /// Colors remain live presentation data read by the palette-FX caller.
+    /// </remarks>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)

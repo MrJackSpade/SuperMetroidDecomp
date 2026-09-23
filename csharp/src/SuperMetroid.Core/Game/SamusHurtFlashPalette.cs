@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
@@ -24,7 +25,8 @@ public static class SamusHurtFlashPalette
         ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
-        ushort controllerInput)
+        ushort controllerInput,
+        SamusHurtColorCatalog? presentationColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -62,21 +64,15 @@ public static class SamusHurtFlashPalette
         {
             if ((counterBefore & 1) != 0)
             {
-                cgram.LoadFromBus(
-                    bus,
-                    SamusPaletteRomData.HurtFlash.Colors,
-                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+                LoadPresentationOrNative(SamusHurtColorVariant.Hurt,
+                    SamusPaletteRomData.HurtFlash.Colors);
                 action = SamusHurtFlashPaletteAction.HurtFlash;
                 paletteAddress = SamusPaletteRomData.HurtFlash.Colors;
             }
             else if (samus.LiquidPhysics.CinematicFunctionActive)
             {
-                cgram.LoadFromBus(
-                    bus,
-                    SamusPaletteRomData.HurtFlash.IntroColors,
-                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+                LoadPresentationOrNative(SamusHurtColorVariant.Intro,
+                    SamusPaletteRomData.HurtFlash.IntroColors);
                 action = SamusHurtFlashPaletteAction.IntroRestore;
                 paletteAddress = SamusPaletteRomData.HurtFlash.IntroColors;
             }
@@ -118,6 +114,20 @@ public static class SamusHurtFlashPalette
             paletteAddress,
             hurtSoundQueued,
             recovery);
+
+        void LoadPresentationOrNative(SamusHurtColorVariant variant, int nativeAddress)
+        {
+            if (presentationColors is null)
+            {
+                cgram.LoadFromBus(bus, nativeAddress,
+                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+                return;
+            }
+            for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
+                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+                    presentationColors.Resolve(variant, index));
+        }
     }
 
     /// <summary>

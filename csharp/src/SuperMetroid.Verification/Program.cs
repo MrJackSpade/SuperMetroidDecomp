@@ -63,6 +63,11 @@ if (args is ["--samus-visor-colors"])
     VerifySamusVisorColors();
     return 0;
 }
+if (args is ["--samus-hurt-colors"])
+{
+    VerifySamusHurtColors();
+    return 0;
+}
 if (args is ["--spc-sound-library-2-pointers"])
 {
     VerifySpcSoundLibrary2Pointers();
@@ -2403,6 +2408,7 @@ VerifyPowerBombBoundary();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();
+VerifySamusHurtColors();
 VerifySpcSoundLibrary2Pointers();
 VerifyScrollingSkyState();
 VerifyOceanSky();

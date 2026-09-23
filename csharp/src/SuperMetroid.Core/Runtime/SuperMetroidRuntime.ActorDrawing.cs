@@ -143,7 +143,8 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Cgram,
                     Samus,
-                    Controller1.Current);
+                    Controller1.Current,
+                    mapPresentation?.SamusHurtColors);
             }
 
         }

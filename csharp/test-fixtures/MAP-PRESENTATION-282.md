@@ -1591,3 +1591,17 @@ the production room and X-ray color cycles with native color-table reads
 forbidden. The map-presentation suite checks edited colors reaching both CGRAM
 paths, strict invalid-resource handling, and stock restoration. The full
 installation fixture verifies override preservation across upgrade and restart.
+
+## Editable Samus hurt and intro colors (#536, #549)
+
+Catalog version 65 adds `samus-hurt-colors.json` with separate sixteen-color
+RGB5 palettes for the ordinary hurt flash and cinematic restoration. Copy the
+stock file to `overrides/maps` to edit either set. Native hurt-counter timing,
+normal-suit restoration, impact/recovery sounds, and cinematic selection stay
+compiled; this asset changes only the two copied color arrays.
+
+`--samus-hurt-colors` compares all 32 words against the pinned ROM and checks
+ordinary and cinematic production cycles with native hurt/intro color reads
+forbidden. The map-presentation suite checks both edited palettes reaching
+CGRAM, content identity, invalid-resource failure, and stock restoration. The
+full installer fixture verifies the override survives upgrade and restart.

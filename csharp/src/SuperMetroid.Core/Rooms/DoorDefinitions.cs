@@ -781,6 +781,10 @@ public static class DoorDefinitions
     /// $8C82 and $8C8E, exactly $8C82 + 12*i for normalized BTS
     /// i=0..1. Index 2 reaches scroll data $0101 at $8F:9A8E.
     /// The ROM oracle checks both entries, aliases, and this boundary.
+    /// Issue #1085, Final Missile $8F:9AD6: sole valid normalized BTS
+    /// i=0 resolves to $8C9A; no stride follows from one word. Index 1
+    /// reaches scroll data $0001 at $8F:9AD8. The ROM oracle checks
+    /// the entry, both high-bit forms, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

@@ -687,6 +687,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// $C5E8 - $3A*min(floor((i+1)/2),2) for indices 0..5.
     /// This yields one $C5E8, two $C5AE, and three $C574 values;
     /// each address remains a live presentation operand.
+    /// The power-bomb fully-open and partially-open operands at
+    /// $A4:BDB0 and BDB4 have pinned stock pointers $C5AE and
+    /// $C574: $C5AE - $3A*i for indices 0..1. A fully-open entry
+    /// traverses both; a partially-open entry begins at the second.
+    /// Both remain live cartridge presentation reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

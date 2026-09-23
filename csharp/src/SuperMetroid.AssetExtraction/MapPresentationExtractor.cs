@@ -280,6 +280,11 @@ public static class MapPresentationExtractor
             file.Write(samusHurtColorBytes);
         hashes.Add(SamusHurtColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(samusHurtColorBytes)));
+        byte[] samusHyperBeamColorBytes = SamusHyperBeamColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, SamusHyperBeamColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(samusHyperBeamColorBytes);
+        hashes.Add(SamusHyperBeamColorFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(samusHyperBeamColorBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

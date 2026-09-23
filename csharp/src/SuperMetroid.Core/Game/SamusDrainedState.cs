@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -16,6 +17,15 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusDrainedState
 {
+    [NonSerialized] private SamusHyperBeamColorCatalog? presentationColors;
+
+    /// <summary>Host-owned Hyper Beam palette artwork, excluded from debugger-state serialization.</summary>
+    public SamusHyperBeamColorCatalog? PresentationColors
+    {
+        get => presentationColors;
+        set => presentationColors = value;
+    }
+
     // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
     // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
     // preserves that ordering without passing a rendering device into movement commands.
@@ -173,7 +183,9 @@ public sealed class SamusDrainedState
     /// <remarks>
     /// While command `$16`'s `$8000` flag is set, this handler has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
-    /// complete 16-color bank-$9B Hyper Beam palette before touching either timer. The Baby
+    /// complete 16-color Hyper Beam palette before touching either timer. Installed
+    /// artwork supplies those colors without a cartridge read; the native path remains
+    /// available when no presentation catalog is bound. The Baby
     /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
@@ -205,17 +217,25 @@ public sealed class SamusDrainedState
         if (!RainbowPaletteEnabled)
             return false;
 
-        // `$91:D96F` doubles the palette number, reads one of ten bank-$9B pointers, and
-        // copies all $20 bytes to sprite palette four before decrementing the shared timer.
-        ushort pointer = ReadWord(
-            bus,
-            SamusPaletteRomData.FullBodyCycles.HyperBeamPointers +
-                (ChargePaletteIndex % SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount) * 2);
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | pointer,
-            SamusPaletteRomData.Common.ColorsPerObjPalette,
-            SamusPaletteRomData.Common.SamusObjPaletteStart);
+        // `$91:D96F` doubles the palette number, selects one of ten complete palette
+        // frames, and copies all sixteen colors before decrementing the shared timer.
+        int paletteFrame = ChargePaletteIndex %
+            SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
+        if (presentationColors is null)
+        {
+            ushort pointer = ReadWord(bus,
+                SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + paletteFrame * 2);
+            cgram.LoadFromBus(bus,
+                SamusPaletteRomData.Banks.Palette | pointer,
+                SamusPaletteRomData.Common.ColorsPerObjPalette,
+                SamusPaletteRomData.Common.SamusObjPaletteStart);
+        }
+        else
+        {
+            for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
+                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+                    presentationColors.Resolve(paletteFrame, index));
+        }
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
         CommonPaletteTimer = timer.Value;

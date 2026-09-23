@@ -1605,3 +1605,19 @@ ordinary and cinematic production cycles with native hurt/intro color reads
 forbidden. The map-presentation suite checks both edited palettes reaching
 CGRAM, content identity, invalid-resource failure, and stock restoration. The
 full installer fixture verifies the override survives upgrade and restart.
+
+## Editable Samus Hyper Beam colors (#536, #549)
+
+Catalog version 66 adds `samus-hyper-beam-colors.json` with ten full-body
+sixteen-color RGB5 frames. The source pointer list remains a bounded compiled
+selector; `frames[0]` through `frames[9]` follow native playback order, not
+ascending bank-$9B address order. Copy the stock file to `overrides/maps` to
+replace the colors. Rainbow acquisition, phase selection, variable frame delay,
+and suit restoration remain cartridge-owned behavior.
+
+`--samus-hyper-beam-colors` checks every pointer and all 160 stock color words
+against the pinned ROM, then compares 22 production palette calls with native
+pointer and color reads forbidden on the installed path. The map-presentation
+suite checks an edited frame reaching CGRAM through a runtime-bound Samus,
+invalid-resource failure, content identity, and stock restoration. The installer
+fixture verifies that user edits survive upgrade and restart.

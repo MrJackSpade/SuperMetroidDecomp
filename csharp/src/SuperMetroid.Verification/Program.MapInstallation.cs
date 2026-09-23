@@ -128,6 +128,13 @@ internal static partial class Program
         int hurtRed = samusHurtColors["hurt"]![5]!["red"]!.GetValue<int>();
         samusHurtColors["hurt"]![5]!["red"] = (hurtRed + 1) % 32;
         File.WriteAllText(samusHurtColorOverride, samusHurtColors.ToJsonString());
+        string samusHyperBeamColorOverride = Path.Combine(installation.MapOverrideDirectory,
+            SamusHyperBeamColorFormat.FileName);
+        var samusHyperBeamColors = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, SamusHyperBeamColorFormat.FileName)))!;
+        int hyperRed = samusHyperBeamColors["frames"]![4]![7]!["red"]!.GetValue<int>();
+        samusHyperBeamColors["frames"]![4]![7]!["red"] = (hyperRed + 1) % 32;
+        File.WriteAllText(samusHyperBeamColorOverride, samusHyperBeamColors.ToJsonString());
         string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
         var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
         stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
@@ -261,6 +268,9 @@ internal static partial class Program
         AssertTrue(stock.SamusHurtColors.Resolve(SamusHurtColorVariant.Hurt, 5) !=
             edited.SamusHurtColors.Resolve(SamusHurtColorVariant.Hurt, 5),
             "full installation consumes Samus hurt color override");
+        AssertTrue(stock.SamusHyperBeamColors.Resolve(4, 7) !=
+            edited.SamusHyperBeamColors.Resolve(4, 7),
+            "full installation consumes Hyper Beam color override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -280,6 +290,7 @@ internal static partial class Program
             [powerBombColorOverride] = File.ReadAllBytes(powerBombColorOverride),
             [samusVisorColorOverride] = File.ReadAllBytes(samusVisorColorOverride),
             [samusHurtColorOverride] = File.ReadAllBytes(samusHurtColorOverride),
+            [samusHyperBeamColorOverride] = File.ReadAllBytes(samusHyperBeamColorOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),

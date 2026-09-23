@@ -328,8 +328,8 @@ public static class SamusPaletteRomData
         /// sixteen-color bank-$9B palette. Rainbow Samus starts at zero,
         /// reads byte offset <c>2*i</c>, and wraps after index nine; the
         /// managed caller also bounds restored index values with modulo ten.
-        /// The stride describes pointer selection, while target colors stay
-        /// live authored cartridge data.
+        /// The stride describes pointer selection; installed artwork now supplies
+        /// the authored target colors without reading those cartridge bytes at runtime.
         ///
         /// Issue #868 / #625: all 160 BGR555 target words at
         /// <c>$9B:A240..A37F</c> match the native bank-$9B listing. In each
@@ -346,6 +346,15 @@ public static class SamusPaletteRomData
         public const int HyperBeamPointers = 0x91d99e;
         /// <summary>Number of full-body Hyper Beam palettes.</summary>
         public const int HyperBeamPaletteCount = 10;
+        /// <summary>Bank-$9B source of the first sixteen-color Hyper Beam frame, $9B:A360.</summary>
+        public const int HyperBeamFirstPalette = 0x9ba360;
+        /// <summary>Byte distance between descending Hyper Beam frames in the authored table.</summary>
+        public const int HyperBeamPaletteStride = 0x20;
+
+        /// <summary>Resolves the ten bounded authored palette sources selected by $91:D99E.</summary>
+        public static int HyperBeamPaletteSource(int frame) => (uint)frame < HyperBeamPaletteCount
+            ? HyperBeamFirstPalette - frame * HyperBeamPaletteStride
+            : throw new ArgumentOutOfRangeException(nameof(frame));
     }
 
     /// <summary>Bank-$8D palette object spawned with the Hyper Beam.</summary>

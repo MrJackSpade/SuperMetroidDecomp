@@ -11,7 +11,15 @@ internal readonly record struct CrocomireInstructionMechanicsWord(
 /// </summary>
 internal static class CrocomireInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_Crocomire_Initial</c> at $A4:BADE.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_Initial</c> at $A4:BADE. The pinned NTSC J/U
+    /// v1.0 ROM contains one-frame duration $0001 at BADE, a live
+    /// spritemap operand at BAE0, Fight AI $86A6 at BAE2, goto $80ED at
+    /// BAE4, target BADE at BAE6, and trailing Sleep $812F at BAE8.
+    /// Normal goto control skips Sleep; Fight AI may redirect to another
+    /// list. Retain this authored callback/control order rather than an
+    /// address classifier. The next program starts at BAEA.
+    /// </summary>
     internal const ushort Initial = 0xbade;
     /// <summary><c>UNUSED_InstList_Crocomire_ChargeForwardOneStep_A4BAEA</c> at $A4:BAEA.</summary>
     internal const ushort UnusedChargeForwardOneStep = 0xbaea;

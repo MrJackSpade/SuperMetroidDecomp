@@ -11,7 +11,7 @@ internal static class FirefleaFxDefinitions
     /// <c>Fireflea_Flashing_Shades</c> at $88:B058: the twelve packed shade words
     /// selected by the room effect's six-frame phase clock.
     /// </summary>
-    /// <remarks>#625 exact triangular wave: (6-abs(i-6))*256 for i=0..11.
+    /// <remarks>Issues #625 and #943 exact triangular wave: (6-abs(i-6))*256 for i=0..11.
     /// LookupTableResearch verifies all twelve packed words against NTSC J/U v1.0 ROM,
     /// pinned assembly, and this table. This describes the shades, not the caller's six-frame
     /// timer or darkness addition. Runtime replacement remains deferred.</remarks>

@@ -22,6 +22,20 @@ public static class DoorDefinitions
         new(DoorHeaderRomData.ElevatorPseudoDoorPointer, 0x0000, 0xF8, 0x91,
             0x00, 0x03, 0x00, 0x00, 0x0004, 0x8000);
 
+    /// <summary>All physical retail bank-$83 door records, sorted by pointer.</summary>
+    /// <remarks>
+    /// Issue #1053: the pinned NTSC J/U v1.0 ROM has 379 twelve-byte
+    /// headers starting $83:88FE..9AB6 and 218 starting $83:A18C..ABB8.
+    /// Their bounded address rule is block start + 12*i; the intervening
+    /// FX data is not a door table. The separate elevator pseudo-door at
+    /// $83:88FC overlaps the first physical header and is resolved by Get
+    /// before this binary search. The independent ROM oracle compares all
+    /// 597 full records and that pseudo-door, rejects unknown pointers,
+    /// and runs guarded production entry/collision without native reads.
+    /// Destination, geometry, flags, and setup-code values are authored
+    /// connections, so retain their named records rather than encoding
+    /// them in a less clear formula or pointer switch.
+    /// </remarks>
     private static readonly CartridgeDoorHeader[] headers =
     [
         new(0x88FE, 0x91F8, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0x8000, 0x0000),

@@ -17,7 +17,7 @@ internal static class BotwoonHealthPaletteDefinitions
 
     /// <summary>$B3:981B, BotwoonHealthThresholdsForPaletteChange, eight palette-phase thresholds.</summary>
     /// <remarks>
-    /// Issue #625 exact arithmetic: threshold(i)=375*(8-i), i=0..7; the public
+    /// Issues #625 and #933 exact arithmetic: threshold(i)=375*(8-i), i=0..7; the public
     /// phase input is the even byte offset 2*i. Preserve the current sixteen-bit
     /// subtraction followed by SIGNED comparison, not an unsigned health comparison.
     /// LookupTableResearch checks all eight native words and all 8*65,536 phase/health

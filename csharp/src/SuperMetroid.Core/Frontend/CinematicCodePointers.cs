@@ -169,6 +169,18 @@ internal static class CinematicCodePointers
         public const ushort MetroidEggParticle1 = 0xcd39;
         public const ushort MetroidEggParticleStride = 8;
         public const ushort MetroidEggSlimeDrops = 0xcd69;
+        /// <summary><c>InstList_MetroidEggParticle_HitGround</c> at $8B:CD71, the slime impact sequence.</summary>
+        /// <remarks>
+        /// Issues #625 and #984: after a slime drop reaches Y=$00A8,
+        /// IntroEggSlimeDrop redirects the generic sprite interpreter here.
+        /// For frame f=0..3, $8B:CD71+4*f stores duration ten and bank-$8C
+        /// spritemap pointer $8FAF+7*f; $8B:CD81 then stores delete opcode
+        /// $9438. All nine words match pinned NTSC J/U v1.0 ROM and
+        /// bank_8B.asm, and each selected bank-$8C spritemap has one entry.
+        /// The interpreter loads the first frame on redirect, counts ten
+        /// calls per frame, and deletes after the fourth; no fifth frame is
+        /// inferred from the adjacent $8B:CD83 list.
+        /// </remarks>
         public const ushort MetroidEggParticleHitGround = 0xcd71;
         public const ushort CeresStars = 0xcda3;
         public const ushort IntroMotherBrainExplosionBig = 0xcdab;

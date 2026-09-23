@@ -17,7 +17,8 @@ internal static class RoomShakeDefinitions
 {
     /// <summary>Background and projectile displacement pairs for all 36 rendered earthquake types.</summary>
     /// <remarks>
-    /// #625 exact factorization: for type t=0..35, group=t/9, magnitude=(t/3)%3+1,
+    /// Issues #625 and #941 exact factorization: for type t=0..35,
+    /// group=t/9, magnitude=(t/3)%3+1,
     /// direction=t%3; X is zero only for direction 1, Y only for direction 0,
     /// and each nonzero component equals magnitude. Enable this pair for BG1 when
     /// group!=3, BG2 when group!=0, and projectiles when group&gt;=2; otherwise use (0,0).

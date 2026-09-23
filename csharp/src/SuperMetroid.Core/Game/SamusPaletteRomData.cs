@@ -306,6 +306,18 @@ public static class SamusPaletteRomData
         /// Screw Attack; a clipped first-step channel rule fits 25 of
         /// 48 four-phase sequences. Retain the four live authored rows,
         /// which palette handler six repeats while active.
+        ///
+        /// Issue #886 / #625: all 64 Gravity Suit active-shinespark
+        /// BGR555 words at <c>$9B:A020..A09F</c> match the pinned ROM
+        /// and native bank-$9B listing and exactly duplicate the
+        /// earlier block at <c>$9B:95C0..963F</c>, word for word.
+        /// The active pointer matrix still targets <c>$A020..A09F</c>.
+        /// Phase zero differs from normal Gravity <c>$9B:9800</c> at
+        /// colors one and twelve. Only 23 of 64 corresponding words
+        /// equal the Screw Attack rows, while a clipped first-step
+        /// channel rule fits 16 of 48 four-phase sequences. Retain
+        /// these four live authored rows; palette handler six repeats
+        /// them while active.
         /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>

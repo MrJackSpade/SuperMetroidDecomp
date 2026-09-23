@@ -161,6 +161,15 @@ internal static class CeresExplosionDefinitions
     /// Initializer $8B:C533 adds this X after Mode 7 origin X minus BG1 X
     /// with native 16-bit wrap. The bounded sign/magnitude rule exactly
     /// covers the four spawned actors, without reading adjacent Y words.
+    ///
+    /// Issues #625 and #999: the separate signed Y-offset words at
+    /// $8B:C57A+2*i are -4, +8, -10, +12 for i=0..3, matching pinned
+    /// NTSC J/U v1.0 ROM and bank_8B.asm. Initializer $8B:C533 adds Y
+    /// after Mode 7 origin Y minus BG1 Y with native 16-bit wrap.
+    /// Although the signs alternate, the four magnitudes are irregular
+    /// and do not follow the matching X magnitudes. They are authored
+    /// blast placement; retain four explicit bounded Y values rather
+    /// than encode exceptions in a fitted progression.
     /// </remarks>
     public static CeresExplosionPlacement FinalExplosion(int index) => index switch
     {

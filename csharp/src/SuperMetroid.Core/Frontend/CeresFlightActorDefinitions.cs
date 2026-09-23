@@ -94,6 +94,15 @@ internal static class CeresFlightActorDefinitions
     /// and 4 live elsewhere. Row 4 aliases the front-star definition;
     /// initializer parameter one replaces its active BEB5 callback with
     /// BFC6. Retain these five bounded actor identities and that override.
+    ///
+    /// Issues #625 and #1011: row one's list at $8B:CC47..CC4E has four
+    /// words $000A, $9150, $94BC, $CC47 in pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm. Its exact bounded rule is to show bank-$8C under-attack
+    /// spritemap $9150 for ten handler calls, then repeat from $CC47 while
+    /// the scene owns the actor. IntroDiscoverySprite.Step follows the
+    /// goto, so it cannot run into the adjacent small-asteroid list $CC4F.
+    /// Keep the authored visual frame ROM-backed; no table is needed to
+    /// describe this constant-period loop.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

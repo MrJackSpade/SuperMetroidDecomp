@@ -13,7 +13,10 @@ public static class EnemyTrigonometryTables
     /// negated only when a &gt;= 128. All 256 words match the NTSC J/U v1.0 ROM
     /// and pinned bank_A0.asm in csharp/tools/LookupTableResearch. This preserves
     /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
-    /// The research evaluator uses bounded decimal arithmetic, not Math.Sin.</remarks>
+    /// The research evaluator uses bounded decimal arithmetic, not Math.Sin.
+    /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
+    /// input angle before sampling. Individual investigation: #625 / #909.
+    /// </remarks>
     public static short SignedSixteenBitSine(byte angle)
     {
         int magnitude = UnsignedHalfWave[angle & 127] >> 1;

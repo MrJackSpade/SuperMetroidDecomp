@@ -500,6 +500,16 @@ public static class SamusPaletteRomData
         /// through seven. The death setup also directly copies
         /// frame zero to suitless OBJ palette seven. The base row
         /// remains authored presentation data.
+        ///
+        /// Issue #899 / #625: the final shared palette at
+        /// <c>$9B:A220..A23F</c> contains exactly sixteen
+        /// <c>$77BD</c> BGR555 words in the pinned ROM/native listing,
+        /// a uniform grayscale level of 29 on each five-bit channel.
+        /// Palette index nine in all three suited pointer families
+        /// and the suitless list aliases this same physical row.
+        /// Explosion record eight selects index nine with its
+        /// eighty-call duration before the terminal full-screen
+        /// whiteout; no separate final colors are authored by suit.
         /// </remarks>
         public const int SuitlessPointers = 0x9bb80f;
         /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>

@@ -32,6 +32,10 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
 
     /// <summary>
     /// <c>InstList_EnemyProjectile_CrocomireSpikeWallPieces</c> at $86:8FF3.
+    /// The pinned NTSC J/U v1.0 ROM has $7FFF here, a live spritemap operand
+    /// at $8FF5, goto-Y $81AB at $8FF7, and target $8FF3 at $8FF9. Retain
+    /// these three authored control words for the eight spawned fragments;
+    /// the following unused list at $8FFB is outside their one-pose loop.
     /// </summary>
     internal const ushort SpikeWallPiece = 0x8ff3;
 

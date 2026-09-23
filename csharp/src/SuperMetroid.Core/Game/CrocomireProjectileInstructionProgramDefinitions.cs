@@ -11,7 +11,14 @@ internal readonly record struct CrocomireProjectileInstructionMechanicsWord(
 /// </summary>
 internal static class CrocomireProjectileInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_EnemyProjectile_CrocomiresProjectile</c> at $86:8FCF.</summary>
+    /// <summary>
+    /// <c>InstList_EnemyProjectile_CrocomiresProjectile</c> at $86:8FCF.
+    /// In the pinned NTSC J/U v1.0 ROM, each mechanics word at
+    /// $8FCF + 4*i for i=0..5 is exactly a three-frame duration. $8FE7
+    /// holds goto-Y $81AB and $8FE9 targets $8FCF, closing the six-pose
+    /// loop. The interleaved spritemap pointers remain live presentation;
+    /// $8FEB begins the separate bridge-fragment program.
+    /// </summary>
     internal const ushort MouthProjectile = 0x8fcf;
 
     /// <summary>

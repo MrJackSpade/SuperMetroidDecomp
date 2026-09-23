@@ -123,6 +123,10 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// for frames 0..6, contain <c>$F142 + $0A * frame</c>. All nine words
     /// match the pinned NTSC J/U v1.0 ROM. The stride is the size of each
     /// extended-spritemap record; the authored payloads remain cartridge data.
+    /// For the leftward program, $F085 and $F091 repeat $F188; its active
+    /// operands at <c>$F097 + 4 * frame</c> contain
+    /// <c>$F188 + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
+    /// match, and the interpreter reads only these reachable frame operands.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

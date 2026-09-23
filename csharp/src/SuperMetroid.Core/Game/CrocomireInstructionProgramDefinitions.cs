@@ -531,6 +531,13 @@ internal static class CrocomireInstructionProgramDefinitions
         new(0xe1fc, CrocomireInstructionProgramDefinitions.SkeletonFlowingDownRiver),
     ];
 
+    /// <summary>
+    /// Entry 0 identifies the initial body's live spritemap operand at
+    /// $A4:BAE0. Its pinned NTSC J/U v1.0 stock pointer is $C2EC, between
+    /// duration $0001 at BADE and Fight AI $86A6 at BAE2. Retain this one
+    /// authored presentation identity as a live cartridge read; it is not
+    /// a second mechanics word or an indexed numeric progression.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         0xbae0, 0xbaec, 0xbaf4, 0xbafa, 0xbb00, 0xbb06, 0xbb0c, 0xbb12, 0xbb1a, 0xbb20,

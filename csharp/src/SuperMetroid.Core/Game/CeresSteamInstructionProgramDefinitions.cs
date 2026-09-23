@@ -10,11 +10,25 @@ internal readonly record struct CeresSteamInstructionMechanicsWord(
 /// </summary>
 internal static class CeresSteamInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_CeresSteam_Up_0</c> at $A6:F04D.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Up_0</c> at $A6:F04D. Its 17 mechanics words
+    /// through $F07F match the pinned NTSC J/U v1.0 ROM. The bounded program
+    /// hides steam, shows its first frame for one tick, then branches back to
+    /// $F04D while the activation timer remains nonzero or to $F061 when it
+    /// expires. The four directional programs share this control template;
+    /// presentation pointers are separate live cartridge operands.
+    /// </summary>
     internal const ushort Up = 0xf04d;
-    /// <summary><c>InstList_CeresSteam_Up_1</c> at $A6:F059.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Up_1</c> at $A6:F059 hides steam for $40 ticks,
+    /// then makes it tangible and visible before the active frames resume.
+    /// </summary>
     internal const ushort UpHiddenHold = 0xf059;
-    /// <summary><c>InstList_CeresSteam_Up_2</c> at $A6:F061.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Up_2</c> at $A6:F061 runs seven three-tick
+    /// frames and returns to the hidden hold at $F059. The interpreter thus
+    /// traverses only the three local states $F04D, $F059, and $F061.
+    /// </summary>
     internal const ushort UpActive = 0xf061;
     /// <summary><c>InstList_CeresSteam_Left_0</c> at $A6:F081.</summary>
     internal const ushort Left = 0xf081;

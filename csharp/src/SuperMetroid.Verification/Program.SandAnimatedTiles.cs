@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -20,13 +21,9 @@ internal static partial class Program
                 $"sand object {slot} resolves compiled mechanics");
             for (int frame = 0; frame < definition.Frames.Count; frame++)
             {
-                ushort source = (ushort)(0xb000 + slot * 0x200 +
-                    frame * definition.TransferByteCount);
-                WriteTestWord(bus,
-                    RoomFxRomData.Banks.AnimatedTiles |
-                        definition.Frames[frame].SourceOperandPointer,
-                    source);
-                bus.WriteBytes(RoomFxRomData.Banks.AnimatedTiles | source,
+                int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                    definition, definition.Frames[frame].InstructionPointer);
+                bus.WriteBytes(source,
                     Enumerable.Repeat((byte)(1 + slot * 4 + frame),
                         definition.TransferByteCount).ToArray());
             }
@@ -40,6 +37,17 @@ internal static partial class Program
             AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
             AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
                 "sand source changes follow compiled cartridge durations");
+            if (tick % 10 == 0)
+                for (int slot = 0; slot < 2; slot++)
+                {
+                    AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                            definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                        $"sand object {slot} remains catalogued at transfer");
+                    int expectedSource = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                        definition, definition.Frames[tick / 10 % 4].InstructionPointer);
+                    AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
+                        "sand NMI transfer uses the compiled artwork source identity");
+                }
             queue.DrainTo(vram, bus);
             for (int slot = 0; slot < 2; slot++)
             {

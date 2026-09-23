@@ -37,6 +37,11 @@ if (args is ["--area-animated-tile-definitions"])
     VerifyAreaAnimatedTileObjectDefinitions();
     return 0;
 }
+if (args is ["--sand-animated-tiles"])
+{
+    VerifySandAnimatedTiles();
+    return 0;
+}
 if (args is ["--room-fx-animated-tiles"])
 {
     VerifyRoomFxAnimatedTileMechanicsDefinitions();

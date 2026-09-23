@@ -939,6 +939,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $90DE; no stride follows from one word.
     /// Index 1 reaches scroll data $0101 at $8F:A3A5. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1124, Alpha Power Bomb $8F:A3D5: sole valid normalized
+    /// BTS i=0 resolves to $90EA; no stride follows from one word.
+    /// Index 1 reaches scroll data $0100 at $8F:A3D7. The ROM
+    /// oracle checks the entry, both aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

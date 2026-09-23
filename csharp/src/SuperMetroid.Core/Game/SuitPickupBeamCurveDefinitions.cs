@@ -43,6 +43,8 @@ internal static class SuitPickupBeamCurveDefinitions
     /// precision. It establishes that row 31 need not be a manual edit. The opening ramp remains
     /// a separate modeled phase, and the simpler integer-root model remains an exact alternative.
     /// Runtime replacement, lower-half mirroring and performance checks are deferred.
+    /// Individual contour investigation: #625 / #917. The production caller
+    /// mirrors only the bounded 0..127 source index across 256 scanlines.
     /// </remarks>
     private static ReadOnlySpan<byte> Offsets =>
     [

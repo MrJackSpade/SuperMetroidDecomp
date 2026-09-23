@@ -13,6 +13,7 @@ public static class PowerBombShapeDefinitions
     /// Reject i outside 0..31; the table has no quarter-turn endpoint at i=32.
     /// Keep the renderer's later radius multiplication and right shift separate.
     /// The runtime table remains in place pending consumer/performance validation.
+    /// Individual width-table investigation: #625 / #911.
     /// </remarks>
     public static ReadOnlySpan<byte> Widths =>
     [

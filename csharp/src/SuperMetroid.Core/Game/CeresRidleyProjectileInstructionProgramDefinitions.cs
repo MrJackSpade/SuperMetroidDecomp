@@ -100,6 +100,17 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
         new(0x961e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
     ];
 
+    /// <summary>Addresses of live bank-$86 spritemap operands in the compiled programs.</summary>
+    /// <remarks>
+    /// The six fireball operands at $9556, $955E, and $9562..956E read
+    /// $80CA, $80CA, $80CA, $80D1, $80D8, and $80DF in the pinned ROM.
+    /// Their four distinct bank-$8D targets are contiguous seven-byte records:
+    /// a one-component count followed by one five-byte component, so target
+    /// address = $80CA + 7 * frame index for frame indices zero through three.
+    /// The repeated first target supplies the two four-tick setup poses and
+    /// first loop pose. The component tile/attribute words differ by frame;
+    /// retain these authored pointers and payloads as live presentation data.
+    /// </remarks>
     private static readonly ushort[] PresentationWords =
     [
         0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,

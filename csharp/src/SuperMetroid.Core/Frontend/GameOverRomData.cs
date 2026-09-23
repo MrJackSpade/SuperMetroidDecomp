@@ -45,6 +45,17 @@ public static class GameOverRomData
     }
 
     /// <summary>Baby Metroid animation record layout and control words.</summary>
+    /// <remarks>
+    /// Issues #625 and #973: the four 16-word BGR555 Baby palettes at
+    /// $82:BD97..BE16 match all 64 words in pinned NTSC J/U v1.0 ROM and
+    /// bank_82.asm. The 60 reachable frame records select only these four
+    /// blocks, and rendering copies exactly 16 colors to CGRAM $C0..CF.
+    /// Color slot 0 stays $3800, while all other 15 slots change across
+    /// phases. Fourteen channel sequences are nonmonotonic, and the first
+    /// phase change has seven distinct RGB delta vectors across those slots.
+    /// This is authored illustration color rather than a uniform fade or
+    /// common tint rule; retain the 64 source colors as presentation data.
+    /// </remarks>
     public static class BabyAnimation
     {
         public const ushort FirstInstruction = 0xbc27;

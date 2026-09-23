@@ -89,6 +89,17 @@ public static class LoadStationDefinitions
     ];
 
     /// <summary>$80:C6D9-$80:C81A, all twenty-three Norfair records.</summary>
+    /// <remarks>
+    /// Issue #1049: in the pinned NTSC J/U v1.0 ROM, indexes 6..7 and
+    /// 11..15 are the inert placeholder; 0..5, 8..10, and 16..22 are
+    /// sixteen authored placements. Some rows repeat a room pointer but
+    /// use different doors, BTS, or camera offsets, so room identity is
+    /// not a lossless formula for the full record. Retain the authored
+    /// data and the exact sparse placeholder classification. Get accepts
+    /// only station bytes 0..22; index 23 starts the adjacent Wrecked
+    /// Ship list at $80:C81B. Direct ROM inspection and the independent
+    /// 134-record verifier agree on every row and the invalid boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] norfair =
     [
         new(0xaab5, 0x9456, 0x0000, 0x0000, 0x0000, 0x0098, 0x0000),

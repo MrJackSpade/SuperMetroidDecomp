@@ -802,6 +802,10 @@ public static class DoorDefinitions
     /// $8D5A, exactly $8D4E + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches scroll data $0000 at $8F:9BF3. The ROM oracle
     /// checks both entries, high-bit aliases, and this boundary.
+    /// Issue #1090, Brinstar Reserve Tank $8F:9C2E: sole valid
+    /// normalized BTS i=0 resolves to $8D66; no stride follows from
+    /// one word. Index 1 reaches scroll data $0001 at $8F:9C30.
+    /// The ROM oracle checks the entry, both aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

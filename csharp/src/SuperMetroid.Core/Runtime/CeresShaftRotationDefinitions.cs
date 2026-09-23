@@ -25,9 +25,17 @@ public static class CeresShaftRotationDefinitions
     public const int RecordCount = 69;
 
     /// <summary>Native record timers ordered by absolute sine magnitude, zero through 34.</summary>
-    /// <remarks>#625: the trigonometric columns are reproducible as documented on ReferenceAddress;
-    /// that result does not derive these timing choices. Preserve this schedule until a separate
-    /// 100%-matching timing generator is established.</remarks>
+    /// <remarks>
+    /// Issues #625 and #950: all 69 timer words match the pinned NTSC J/U v1.0 ROM and
+    /// RoomMainASM_CeresElevatorShaft assembly. They are symmetric by absolute sine,
+    /// leaving 35 independent values. Magnitudes 0..21 form irregular runs of durations
+    /// 1..7; 22..26 rise by one per magnitude, 27..33 rise by two, and 34 dwells for 60.
+    /// The caller uses wrapping DEC/BMI, so a loaded timer lasts timer+1 room-main calls.
+    /// Simple quadratic, exponential, and reciprocal rounding models miss ROM entries;
+    /// their fitted exceptions would merely disguise this authored schedule. The
+    /// generator remains unresolved for Needs Astra. Retain the exact bounded values
+    /// until an independent, clearer, correction-free rule proves every word.
+    /// </remarks>
     private static ReadOnlySpan<ushort> Timers =>
     [
         1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5,

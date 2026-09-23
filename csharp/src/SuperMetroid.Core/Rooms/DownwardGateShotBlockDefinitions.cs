@@ -51,6 +51,18 @@ internal static class DownwardGateShotBlockDefinitions
     /// <summary>
     /// Native table $84:C72A-$C739, which installs the right-side trigger block when nonzero.
     /// </summary>
+    /// <remarks>
+    /// Issue #1043: for an even room argument 0..14, row i = argument / 2
+    /// yields $C046 + i when i is odd, otherwise zero. The pinned NTSC
+    /// J/U v1.0 ROM words at $84:C72A..C739 are exactly 0, $C047,
+    /// 0, $C049, 0, $C04B, 0, $C04D. Native setup $84:C6FC skips a
+    /// zero entry and otherwise writes the block to the right. Eleven
+    /// retail gate PLMs have in-range offsets; Resolve rejects odd and
+    /// above-14 offsets. The independent verifier compares all eight
+    /// words and exercises every row through production setup. This
+    /// parity-gated progression is exact within the bounded domain;
+    /// retain the separate field to preserve native write ordering.
+    /// </remarks>
     internal const int RightBlockWordTableAddress = 0x84c72a;
 
     private const ushort LastRoomArgument = 14;

@@ -140,6 +140,10 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     /// component, ending just before $8109. Their coordinates and tile words
     /// vary across frames, so these authored presentation records also stay
     /// live rather than becoming compiled control words.
+    /// The horizontal-center operands at $95A4, $95AA, $95AE, $95B2, and
+    /// $95B6 independently read those same five $8D:80E6..8102 records in
+    /// that order. This is shared authored animation data, not five more
+    /// records; retain the live pointer reads and shared target payloads.
     /// </remarks>
     private static readonly ushort[] PresentationWords =
     [

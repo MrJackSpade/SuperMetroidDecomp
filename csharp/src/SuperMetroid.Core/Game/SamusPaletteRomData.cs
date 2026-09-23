@@ -109,6 +109,17 @@ public static class SamusPaletteRomData
     public static class FullBodyCycles
     {
         /// <summary><c>$91:D998</c>, suit-indexed Speed Booster flash palettes.</summary>
+        /// <remarks>
+        /// Issue #866 / #625: the pinned NTSC J/U v1.0 ROM's three
+        /// little-endian pointers at byte offsets <c>2*i</c>, <c>i=0..2</c>,
+        /// are exactly <c>$9B80+$0200*i</c>. They select the Power, Varia,
+        /// and Gravity speed-boost shades that also appear in loading
+        /// palette programs #856–#858. The Metroid-attachment palette
+        /// caller reaches only byte offsets 0, 2, 4, with Gravity priority,
+        /// and copies sixteen target colors into Samus OBJ CGRAM 192..207.
+        /// This is a bounded pointer relationship; the target colors remain
+        /// authored cartridge data.
+        /// </remarks>
         public const int SpeedBoostPointers = 0x91d998;
         /// <summary><c>$91:DA4A</c>, suit-indexed Screw Attack palette lists.</summary>
         public const int ScrewAttackLists = 0x91da4a;

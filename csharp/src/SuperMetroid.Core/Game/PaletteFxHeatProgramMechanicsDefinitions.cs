@@ -155,6 +155,16 @@ public readonly record struct PaletteFxHeatProgramFrameDefinition(
     ushort Duration)
 {
     /// <summary>The first live BGR555 presentation word after the duration.</summary>
+    /// <remarks>
+    /// For Power Suit phases p=0..15, fifteen live colors per record
+    /// start at $8D:E468 + $22*p. Five distinct authored rows first
+    /// occur at phases 0,1,3,5,7; the bounded row selector is
+    /// (0,1,1,2,2,3,3,4,4,3,3,2,2,1,1,1).
+    /// All 240 words match the pinned NTSC J/U v1.0 ROM. Channel-wise
+    /// floor interpolation between the first and fifth authored rows
+    /// misses seven of 75 distinct words, so these rows remain live
+    /// presentation data. Phase sixteen reaches the terminal goto.
+    /// </remarks>
     public ushort FirstColorPointer => unchecked((ushort)(InstructionPointer + sizeof(ushort)));
 
     /// <summary>The terminal wait command after fifteen live BGR555 colors.</summary>

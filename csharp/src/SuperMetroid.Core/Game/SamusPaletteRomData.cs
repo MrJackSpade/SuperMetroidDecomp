@@ -263,6 +263,17 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int StoredShineLists = 0x91db10;
         /// <summary><c>$91:DB75</c>, suit-indexed active-shinespark palette lists.</summary>
+        /// <remarks>
+        /// Issue #882 / #625: the pinned NTSC J/U v1.0 ROM's three
+        /// little-endian words are exactly <c>$DB7B+8*s</c> for suit
+        /// index <c>s=0..2</c>, matching the native bank-$91 listing.
+        /// Palette handler six selects Power, Varia, or Gravity with
+        /// byte offset <c>2*s</c>, then reads four phase pointers at
+        /// offsets <c>0,2,4,6</c> and wraps to zero. Each selected
+        /// bank-$9B target supplies sixteen Samus OBJ colors. This
+        /// formula describes list addresses; nested pointers and
+        /// colors are separate proof targets.
+        /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>
         /// <remarks>

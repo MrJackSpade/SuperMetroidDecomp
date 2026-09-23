@@ -139,6 +139,18 @@ internal static class CeresDestructionActorDefinitions
     /// while the scene retains the actor. IntroDiscoverySprite.Step cannot
     /// fall through to the adjacent $CCB3 list. Keep the authored planet
     /// visual ROM-backed; the constant-period loop needs no data table.
+    ///
+    /// Issues #625 and #1025: all thirteen words in title index five's
+    /// list at $8B:CCBB..CCD4 match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm. It waits $0040 with a null map, calls fade-in $C9A5,
+    /// displays bank-$8C title spritemap $9654 for $0020, calls optional
+    /// Japanese-subtitle spawn $C9AF, displays $9654 for $00C0, calls
+    /// fade-out $C9BD, displays $9654 for $0060, calls start-flight
+    /// $C9C7, then deletes with $9438. The regional source durations here
+    /// are the pinned ROM's values. IntroDiscoverySprite.Step follows this
+    /// bounded stream, ending before adjacent subtitle list $CCD5.
+    /// Four waits have simple fixed durations, but the callback order and
+    /// visible/blank policy are authored; retain the native schedule.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

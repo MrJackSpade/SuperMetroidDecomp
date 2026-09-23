@@ -139,6 +139,18 @@ public static class SamusPaletteRomData
         /// managed caller also bounds restored index values with modulo ten.
         /// The stride describes pointer selection, while target colors stay
         /// live authored cartridge data.
+        ///
+        /// Issue #868 / #625: all 160 BGR555 target words at
+        /// <c>$9B:A240..A37F</c> match the native bank-$9B listing. In each
+        /// 16-color frame, slots 2 and 6, 3 and 15, and 10 and 12 are equal,
+        /// leaving thirteen distinct colors. Color zero follows
+        /// <c>$3800,$7FFF,$0000,$0400</c>, then six <c>$0000</c> words.
+        /// A fixed integer shade offset per nonzero slot from slot 1 misses
+        /// 124 of 450 channel values; exact residuals need context-dependent
+        /// correction classes as well as ten distinct hue bases. Those
+        /// authored hue and shade choices are clearer as the live palette
+        /// cycle. The bounded domain is frame 0..9 and color 0..15; this
+        /// describes stored data, not a native runtime color generator.
         /// </remarks>
         public const int HyperBeamPointers = 0x91d99e;
         /// <summary>Number of full-body Hyper Beam palettes.</summary>

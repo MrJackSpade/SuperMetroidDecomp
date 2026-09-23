@@ -669,6 +669,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// pointer $C574 + $3A*min(i,2) for indices 0..16: two advances,
     /// then $C5E8 through the rest of the list. This bounded saturation
     /// describes stock content; each operand remains a live ROM read.
+    /// The six RoarCloseMouth operands at $A4:BD90, BD96, BD9C,
+    /// BDA0, BDA4, and BDAA use pinned stock pointer
+    /// $C5E8 - $3A*min(floor((i+1)/2),2) for indices 0..5.
+    /// This yields one $C5E8, two $C5AE, and three $C574 values;
+    /// each address remains a live presentation operand.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

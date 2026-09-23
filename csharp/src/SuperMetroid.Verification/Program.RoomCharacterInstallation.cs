@@ -14,28 +14,6 @@ internal static partial class Program
         try
         {
             GameInstallation installed = GameAssetInstaller.Install(sourceRom, root);
-            RoomArtIndex artIndex = RoomArtIndexFiles.Load(installed.ContentDirectory);
-            AssertEqual(RoomHeaderDefinitions.RetailRoomCount, artIndex.Rooms.Length,
-                "room-art guide covers every retail room");
-            AssertEqual(RoomStateDefinitions.RetailStateCount,
-                artIndex.Rooms.Sum(room => room.States.Length),
-                "room-art guide covers every selectable retail state");
-            AssertEqual(artIndex.Rooms.Length,
-                artIndex.Rooms.Select(room => room.RoomId).Distinct().Count(),
-                "room-art guide uses unique logical room IDs");
-            AssertEqual(RoomSkyTilemapFormat.PageCount, artIndex.ScrollingSkyArtwork.Length,
-                "room-art guide exposes every streaming-sky page");
-            foreach (string relativePath in artIndex.ScrollingSkyArtwork)
-                AssertTrue(File.Exists(Path.Combine(installed.ContentDirectory, relativePath)),
-                    $"room-art guide references installed sky page {relativePath}");
-            foreach (RoomArtEntry room in artIndex.Rooms)
-            foreach (RoomArtStateEntry state in room.States)
-            {
-                foreach (string relativePath in new[] { state.Characters, state.Blocks,
-                             state.Palette }.Concat(state.BackgroundArtwork))
-                    AssertTrue(File.Exists(Path.Combine(installed.ContentDirectory, relativePath)),
-                        $"room-art guide entry {room.RoomId}/{state.Variant} references installed {relativePath}");
-            }
             VerifyRoomArtworkRenderParity(installed, sourceRom);
             VerifyLibraryBackgroundInstalledParity(sourceRom, installed);
             AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
@@ -44,17 +22,6 @@ internal static partial class Program
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);
-            RoomArtStateEntry landingGuide = artIndex.Rooms.Single(room => room.RoomId == "00/00")
-                .States.Single(state => state.Variant == "default");
-            AssertEqual("room-characters/" + RoomCharacterAtlasFormat.SourceFileName(
-                    RoomTilesetDefinitions.Get(landing.State.GraphicsSet).CharacterAddress),
-                landingGuide.Characters, "Landing Site room-ID guide selects its real character sheet");
-            string artIndexText = File.ReadAllText(installed.RoomArtIndexPath);
-            File.WriteAllText(installed.RoomArtIndexPath, "damaged index");
-            _ = GameAssetInstaller.EnsureInstalled(root)
-                ?? throw new InvalidOperationException("Room-art index repair lost the installation.");
-            AssertEqual(artIndexText, File.ReadAllText(installed.RoomArtIndexPath),
-                "corrupt room-art guide is repaired from the installed cartridge");
             CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, landing);
             CartridgeRoomAssets installedRoom = CartridgeRoomAssets.Load(bus, landing, stock);
             AssertTrue(installedRoom.CreCharacters.AsSpan().SequenceEqual(native.CreCharacters) &&

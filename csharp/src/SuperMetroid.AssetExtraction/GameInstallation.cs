@@ -31,8 +31,6 @@ public sealed record GameInstallation(string Root)
     public RoomMetatileCatalog LoadRoomMetatiles() =>
         RoomMetatileArtworkFiles.Load(RoomMetatileDirectory, RoomMetatileOverrideDirectory);
     public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
-    /// <summary>Read-only logical room ID to editable art-file guide for installed content.</summary>
-    public string RoomArtIndexPath => Path.Combine(ContentDirectory, RoomArtIndexFiles.FileName);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     public RoomBackgroundTilemapCatalog LoadRoomBackgroundTilemaps() =>
@@ -61,7 +59,7 @@ public static class GameInstallationLayout
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 8;
+    public const int FormatVersion = 7;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

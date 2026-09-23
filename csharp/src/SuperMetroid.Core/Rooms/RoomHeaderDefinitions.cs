@@ -288,6 +288,10 @@ public static class RoomHeaderDefinitions
         new(0xE0B5, 0x05, AreaId.Ceres, 0x14, 0x10, 0x01, 0x01, 0x70, 0xA0, 0x05, 0xE0FB),
     ];
 
+    /// <summary>Every retail room, ordered by its compiled header identity.</summary>
+    public static IReadOnlyList<RoomHeaderDefinition> All { get; } =
+        Array.AsReadOnly(definitions);
+
     /// <summary>Number of non-debug room headers in the pinned retail revision.</summary>
     public const int RetailRoomCount = 262;
 
@@ -344,4 +348,3 @@ public static class RoomHeaderDefinitions
         return -1;
     }
 }
-

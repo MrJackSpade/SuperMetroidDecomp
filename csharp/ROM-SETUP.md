@@ -53,6 +53,7 @@ Within either platform's application-data root:
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
+- `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
@@ -94,6 +95,18 @@ The ghost sheet is `room-characters-87AD64.png`. These are indexed 8x8 tile shee
 screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixed,
 and the neutral PNG palette is only a preview. The room palette and metatile map
 still supply the on-screen colors and arrangement.
+
+To find a room's files, open `game/room-art-index.json` and search for its
+`roomId`, such as `00/00` for Landing Site. Each room lists a `default` state and,
+when applicable, numbered alternate states selected by in-game conditions. The
+entry gives the relative character PNG, visual block JSON, palette JSON, and
+possible background-art files. Background lists include door-dependent
+alternatives, so a listed file is not necessarily visible on every entrance.
+The `sharedCharacters` and `sharedBlocks` fields identify the common CRE art.
+`scrollingSkyArtwork` lists the seven shared sky pages used by the streaming path.
+Files are shared across rooms: an override can affect every room that cites it.
+Use the listed filename in the corresponding `overrides/` subdirectory; do not
+edit the index, which is regenerated when stock content is repaired.
 
 Landing Site's dedicated setup path uses these same installed CRE and area
 sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
@@ -142,9 +155,10 @@ likewise uses the installed room-character sheet instead of the raw ROM source.
 Stock hashes and override repair follow the same rules as the room-character
 sheets.
 
-This room-art slice does not yet expose block arrangement editing. The current
-sheet and palette filenames encode source identities;
-semantic artwork names are still part of the broader room-art migration.
+This room-art slice does not yet expose room-level block arrangement editing.
+The room-ID guide makes files discoverable, but the shared sheet and palette
+filenames still encode source identities; stable semantic asset filenames remain
+part of the broader room-art migration.
 
 ## Projectile composition and beam PNG overrides
 

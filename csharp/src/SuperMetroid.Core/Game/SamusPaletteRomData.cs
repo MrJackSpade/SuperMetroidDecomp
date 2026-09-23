@@ -130,6 +130,14 @@ public static class SamusPaletteRomData
         /// Each target is a separate six-word bank-$91 palette-pointer
         /// list, indexed by byte offsets 0, 2, 4, 6, 8, 10; this proof
         /// covers only the top-level three-word selector.
+        ///
+        /// Issue #870 / #625: all eighteen nested words in
+        /// <c>$91:DA50..DA73</c> match
+        /// <c>$9CA0+$0200*s+$0020*min(p,6-p)</c> for suit <c>s=0..2</c>
+        /// and phase <c>p=0..5</c>. The six phases visit shade offsets
+        /// 0, 1, 2, 3, 2, 1 before wrapping. The selected bank-$9B target
+        /// remains a live authored sixteen-color palette; this formula
+        /// describes only the bounded pointer matrix.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>

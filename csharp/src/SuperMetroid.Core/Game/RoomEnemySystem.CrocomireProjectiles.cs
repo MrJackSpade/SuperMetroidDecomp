@@ -43,6 +43,16 @@ public sealed partial class RoomEnemySystem
         0xcc00, 0xaa00, 0x8800, 0x6600, 0x4400, 0x2200,
     ];
 
+    /// <summary>
+    /// $86:920B-$922E stores eighteen little-endian words indexed by physical
+    /// projectile slot 0..17, but native $86:913F/$9144 reads only each low
+    /// byte in 8-bit A mode; all stock high bytes are zero. The compiled
+    /// bytes match the pinned NTSC J/U v1.0 ROM. Slots 0..1 are zero,
+    /// 2..9 are 4,4,3,3,2,2,1,1, and the reached spike-wall slots 10..17
+    /// are 6,5,4,3,2,2,1,1. Retain the nonuniform active velocity caps as
+    /// authored tuning; a rule for the unused earlier profile does not
+    /// explain the active one. $922F begins a different routine.
+    /// </summary>
     private static readonly byte[] CrocomireSpikeMaximumVelocity =
     [
         0, 0, 4, 4, 3, 3, 2, 2, 1, 1, 6, 5, 4, 3, 2, 2, 1, 1,

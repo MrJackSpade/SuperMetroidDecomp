@@ -7,6 +7,41 @@ public readonly record struct XrayRevealVisualWords(
     ushort BottomLeft,
     ushort BottomRight);
 
+/// <summary>One authored room-specific X-ray overlay tile and its visual position.</summary>
+public readonly record struct XrayRoomOverlayVisual(byte X, byte Y, ushort Word);
+
+/// <summary>Installed item and room-specific X-ray presentation, independent of PLM state.</summary>
+public sealed class XrayOverlayVisualCatalog
+{
+    private readonly ushort[] itemMetatiles;
+    private readonly Dictionary<ushort, XrayRoomOverlayVisual[]> rooms;
+
+    public XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
+        IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms)
+    {
+        ArgumentNullException.ThrowIfNull(itemMetatiles);
+        ArgumentNullException.ThrowIfNull(rooms);
+        this.itemMetatiles = itemMetatiles.ToArray();
+        if (this.itemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
+            this.itemMetatiles.Any(word => word > 0x0fff))
+            throw new InvalidDataException("X-ray item visuals require eight valid metatiles.");
+        this.rooms = new Dictionary<ushort, XrayRoomOverlayVisual[]>();
+        foreach ((ushort pointer, IReadOnlyList<XrayRoomOverlayVisual> tiles) in rooms)
+        {
+            if (pointer < 0x8000 || tiles is null || tiles.Count == 0 ||
+                tiles.Any(tile => tile.Word > 0x0fff) ||
+                !this.rooms.TryAdd(pointer, tiles.ToArray()))
+                throw new InvalidDataException($"Invalid X-ray room overlay ${pointer:X4}.");
+        }
+    }
+
+    public ushort ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
+
+    public IReadOnlyList<XrayRoomOverlayVisual> RoomTiles(ushort pointer) =>
+        rooms.TryGetValue(pointer, out XrayRoomOverlayVisual[]? tiles) ? tiles :
+        throw new InvalidDataException($"Missing installed X-ray room overlay ${pointer:X4}.");
+}
+
 /// <summary>
 /// Installed visual choices for X-ray blocks. The cartridge's collision/BTS lookup,
 /// copy dimensions, extension traversal, and Brinstar-only condition remain compiled.
@@ -17,9 +52,10 @@ public sealed class XrayRevealVisualCatalog
 
     /// <summary>Creates a complete visual replacement for every drawable native rule.</summary>
     public XrayRevealVisualCatalog(IEnumerable<(RoomCollisionType Type, byte Bts,
-        XrayRevealVisualWords Visual)> entries)
+        XrayRevealVisualWords Visual)> entries, XrayOverlayVisualCatalog? overlays = null)
     {
         ArgumentNullException.ThrowIfNull(entries);
+        Overlays = overlays;
         foreach ((RoomCollisionType type, byte bts, XrayRevealVisualWords visual) in entries)
         {
             XrayRevealDefinition? native = XrayRevealTable.Find(type, bts);
@@ -43,6 +79,9 @@ public sealed class XrayRevealVisualCatalog
                     $"X-ray visual catalog does not cover cartridge rule {type}/BTS ${bts:X2}.");
         }
     }
+
+    /// <summary>Installed item and special-room visuals; null only in noninstalled fixtures.</summary>
+    public XrayOverlayVisualCatalog? Overlays { get; }
 
     /// <summary>Substitutes visual operands without altering the compiled native command.</summary>
     public XrayRevealDefinition Apply(RoomCollisionType type, byte bts,

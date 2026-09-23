@@ -15,7 +15,7 @@ public static class XrayRevealVisualFiles
 {
     public const string VisualFileName = "reveals.json";
     public const string ManifestFileName = "manifest.json";
-    private const int FormatVersion = 1;
+    private const int FormatVersion = 2;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -58,8 +58,23 @@ public static class XrayRevealVisualFiles
             .OrderBy(entry => entry.CollisionType)
             .ThenBy(entry => entry.BtsValues[0])
             .ToArray();
+        ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayRomData.DynamicGraphicsSlots * 2)
+            .Select(slot =>
+            {
+                ushort pointer = ReadAbsoluteWord(bus,
+                    XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort));
+                if (pointer < 0x8000 || pointer > ushort.MaxValue - 3)
+                    throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
+                return (ushort)(ReadAbsoluteWord(bus,
+                    XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff);
+            }).ToArray();
+        XrayRoomOverlayEntry[] rooms = RoomStateDefinitions.All
+            .Select(state => state.XrayPointer).Where(pointer => pointer != 0)
+            .Distinct().OrderBy(pointer => pointer)
+            .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new XrayRevealVisualDocument(FormatVersion, entries), JsonOptions);
+            new XrayRevealVisualDocument(FormatVersion, entries, itemMetatiles, rooms),
+            JsonOptions);
         using (var file = new FileStream(Path.Combine(directory, VisualFileName),
                    FileMode.CreateNew, FileAccess.Write))
             file.Write(json);
@@ -98,6 +113,9 @@ public static class XrayRevealVisualFiles
         ValidateStructure(selected, selectedPath);
         if (selected.Entries.Length != stock.Entries.Length)
             throw new InvalidDataException($"X-ray visuals {selectedPath} changed rule count.");
+        if (selected.ItemMetatiles.Length != stock.ItemMetatiles.Length ||
+            selected.Rooms.Length != stock.Rooms.Length)
+            throw new InvalidDataException($"X-ray visuals {selectedPath} changed overlay count.");
 
         var mappings = new List<(RoomCollisionType Type, byte Bts, XrayRevealVisualWords Visual)>();
         for (int index = 0; index < stock.Entries.Length; index++)
@@ -114,15 +132,40 @@ public static class XrayRevealVisualFiles
             foreach (int bts in edited.BtsValues)
                 mappings.Add((edited.CollisionType, unchecked((byte)bts), visual));
         }
-        return new XrayRevealVisualCatalog(mappings);
+        for (int index = 0; index < stock.Rooms.Length; index++)
+        {
+            if (selected.Rooms[index].Pointer != stock.Rooms[index].Pointer ||
+                selected.Rooms[index].Tiles.Length != stock.Rooms[index].Tiles.Length)
+                throw new InvalidDataException(
+                    $"X-ray visuals {selectedPath} changed room-overlay structure at entry {index}.");
+        }
+        var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
+            selected.Rooms.Select(room => (room.Pointer,
+                (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles)));
+        return new XrayRevealVisualCatalog(mappings, overlays);
     }
 
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {
-        if (document.Version != FormatVersion || document.Entries is null)
+        if (document.Version != FormatVersion || document.Entries is null ||
+            document.ItemMetatiles is null || document.Rooms is null ||
+            document.ItemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
+            document.ItemMetatiles.Any(word => word > 0x0fff) ||
+            document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
+        ushort[] nativePointers = RoomStateDefinitions.All.Select(state => state.XrayPointer)
+            .Where(pointer => pointer != 0).Distinct().OrderBy(pointer => pointer).ToArray();
+        if (!document.Rooms.Select(room => room.Pointer).SequenceEqual(nativePointers))
+            throw new InvalidDataException($"X-ray visuals {path} changed room-overlay identities.");
+        foreach (XrayRoomOverlayEntry room in document.Rooms)
+        {
+            if (room.Tiles is null || room.Tiles.Length == 0 ||
+                room.Tiles.Any(tile => tile.Word > 0x0fff))
+                throw new InvalidDataException(
+                    $"X-ray visuals {path} contain an invalid room overlay ${room.Pointer:X4}.");
+        }
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
             if (entry is null || entry.BtsValues is null || entry.BtsValues.Length == 0 ||
@@ -199,6 +242,31 @@ public static class XrayRevealVisualFiles
             bus.ReadByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
     }
 
+    private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
+    {
+        var tiles = new List<XrayRoomOverlayVisual>();
+        for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
+        {
+            ushort coordinate = ReadAbsoluteWord(bus, XrayOverlayRomData.RoomBank | cursor);
+            if (coordinate == 0)
+            {
+                if (tiles.Count == 0)
+                    throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
+                return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
+            }
+            ushort word = ReadAbsoluteWord(bus, XrayOverlayRomData.RoomBank | (cursor + 2));
+            if (word > 0x0fff)
+                throw new InvalidDataException(
+                    $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
+            tiles.Add(new XrayRoomOverlayVisual((byte)coordinate,
+                (byte)(coordinate >> 8), word));
+        }
+        throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
+    }
+
+    private static ushort ReadAbsoluteWord(ISnesAddressSpace bus, int address) =>
+        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+
     private static T ReadJson<T>(string path) where T : class =>
         ReadJson<T>(File.ReadAllBytes(path), path);
 
@@ -217,7 +285,9 @@ public static class XrayRevealVisualFiles
 
     private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
-    private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries);
+    private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
+        ushort[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
     private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BtsValues,
         string Shape, ushort TopLeft, ushort TopRight, ushort BottomLeft, ushort BottomRight);
+    private sealed record XrayRoomOverlayEntry(ushort Pointer, XrayRoomOverlayVisual[] Tiles);
 }

@@ -25,6 +25,34 @@ internal static partial class Program
             drawable++;
         }
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
+        XrayOverlayVisualCatalog overlays = stock.Overlays ??
+            throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
+        var nativeBus = new SuperMetroidAddressSpace(File.ReadAllBytes(installed.RomPath));
+        ushort NativeWord(int address) => unchecked((ushort)(nativeBus.ReadByte(address) |
+            nativeBus.ReadByte(address + 1) << 8));
+        for (int slot = 0; slot < XrayOverlayRomData.DynamicGraphicsSlots * 2; slot++)
+        {
+            ushort pointer = NativeWord(XrayOverlayRomData.ItemDrawPointers + slot * 2);
+            AssertEqual((ushort)(NativeWord(XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff),
+                overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
+        }
+        int specialRecords = 0;
+        foreach (ushort pointer in RoomStateDefinitions.All.Select(state => state.XrayPointer)
+                     .Where(pointer => pointer != 0).Distinct().OrderBy(pointer => pointer))
+        {
+            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomTiles(pointer);
+            for (int index = 0; index < tiles.Count; index++)
+            {
+                ushort coordinates = NativeWord(XrayOverlayRomData.RoomBank | (pointer + index * 4));
+                AssertEqual(new XrayRoomOverlayVisual((byte)coordinates,
+                    (byte)(coordinates >> 8), NativeWord(XrayOverlayRomData.RoomBank |
+                        (pointer + index * 4 + 2))), tiles[index],
+                    $"stock X-ray room overlay ${pointer:X4} record {index}");
+                specialRecords++;
+            }
+            AssertEqual((ushort)0, NativeWord(XrayOverlayRomData.RoomBank |
+                (pointer + tiles.Count * 4)), $"X-ray room overlay ${pointer:X4} terminator");
+        }
 
         string stockPath = Path.Combine(installed.XrayRevealVisualDirectory,
             XrayRevealVisualFiles.VisualFileName);
@@ -38,6 +66,20 @@ internal static partial class Program
             "shot-block BTS 2 uses the native tall copy command");
         ushort originalTop = unchecked((ushort)tall["topLeft"]!.GetValue<int>());
         tall["topLeft"] = originalTop + 1;
+        JsonArray items = document["itemMetatiles"]!.AsArray();
+        ushort originalItem = unchecked((ushort)items[0]!.GetValue<int>());
+        ushort editedItem = (ushort)((originalItem & 0x0c00) |
+            ((originalItem + 1) & 0x03ff));
+        items[0] = editedItem;
+        JsonObject roomOverlay = document["rooms"]!.AsArray()[0]!.AsObject();
+        ushort roomPointer = unchecked((ushort)roomOverlay["pointer"]!.GetValue<int>());
+        JsonObject lastRoomTile = roomOverlay["tiles"]!.AsArray().Last()!.AsObject();
+        ushort originalRoomWord = unchecked((ushort)lastRoomTile["word"]!.GetValue<int>());
+        ushort editedRoomWord = (ushort)((originalRoomWord & 0x0c00) |
+            ((originalRoomWord + 1) & 0x03ff));
+        lastRoomTile["x"] = 1;
+        lastRoomTile["y"] = 1;
+        lastRoomTile["word"] = editedRoomWord;
         Directory.CreateDirectory(installed.XrayRevealVisualOverrideDirectory);
         string overridePath = Path.Combine(installed.XrayRevealVisualOverrideDirectory,
             XrayRevealVisualFiles.VisualFileName);
@@ -69,12 +111,32 @@ internal static partial class Program
         AssertEqual(before, level.GetPlmCollisionBlockByIndex(33),
             "X-ray visual override leaves collision type and BTS untouched");
 
+        var item = new CollectiblePlmSnapshot(RoomPlmHeaders.ExposedEnergyTank, 33, 1,
+            InWorldCollectibleKind.Bombs, CollectiblePresentation.Exposed,
+            CollectiblePhase.Visible, 0);
+        var overlayLevel = new RoomLevelData(32, 32, new ushort[1024], new byte[1024],
+            new ushort[1024], definitions);
+        var noRomVisualData = new TestAddressSpace();
+        ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
+        XrayRevealOverlays.Apply(noRomVisualData, overlayLevel, itemMap, [item],
+            new Bank80SystemState(), 0, 16, 16, edited);
+        AssertEqual(((editedItem & 0x03ff) * 4) + ((editedItem & 0x0800) != 0 ? 2 : 0),
+            itemMap[0], "edited item art renders without a visual ROM read");
+        ushort[] roomMap = new ushort[XrayTilemapLayout.BufferWords];
+        XrayRevealOverlays.Apply(noRomVisualData, overlayLevel, roomMap, [],
+            new Bank80SystemState(), roomPointer, 16, 16, edited);
+        AssertEqual(((editedRoomWord & 0x03ff) * 4) +
+            ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0],
+            "edited room overlay renders at its edited position without a ROM read");
+
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("X-ray repair lost the installation.");
         AssertEqual((ushort)(originalTop + 1), installed.LoadXrayRevealVisuals()
                 .Apply(RoomCollisionType.ShootableBlock, 2,
                     XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2)!.Value).TopLeft,
             "X-ray override survives stock installation validation");
+        AssertEqual(editedItem, installed.LoadXrayRevealVisuals().Overlays!.ItemMetatile(0),
+            "item overlay edit survives stock installation validation");
 
         tall["shape"] = "wide";
         File.WriteAllText(overridePath, document.ToJsonString());
@@ -88,7 +150,21 @@ internal static partial class Program
             AssertTrue(error.Message.Contains(XrayRevealVisualFiles.VisualFileName,
                 StringComparison.Ordinal), "invalid X-ray override identifies its file");
         }
-        Console.WriteLine($"  X-ray visuals: {drawable} cartridge rules match stock JSON; " +
-            "tile edits affect reveal art, not collision/copy shape, survive repair, and reject command edits.");
+        tall["shape"] = "tall";
+        roomOverlay["pointer"] = roomPointer + 1;
+        File.WriteAllText(overridePath, document.ToJsonString());
+        try
+        {
+            _ = installed.LoadXrayRevealVisuals();
+            throw new InvalidOperationException("An X-ray room identity edit was accepted as artwork.");
+        }
+        catch (InvalidDataException error)
+        {
+            AssertTrue(error.Message.Contains("room-overlay", StringComparison.Ordinal),
+                "invalid X-ray room identity identifies its contract");
+        }
+        Console.WriteLine($"  X-ray visuals: {drawable} reveal rules, eight item slots, " +
+            $"and {specialRecords} special-room records match the cartridge; edited visual tiles " +
+            "render without ROM reads, survive repair, and leave collision/copy shape unchanged.");
     }
 }

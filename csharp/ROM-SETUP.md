@@ -185,8 +185,15 @@ visual indices may be 0..4095, but each selected metatile must exist in the
 room's combined CRE/area block definitions when X-ray is used. The compiled
 cartridge lookup still determines whether a block is revealed, how many
 blocks are copied, extension traversal, and Brinstar-only behavior. The
-installed JSON changes only the chosen artwork. Stock hashes are checked and
-user overrides survive stock repair.
+The same file contains eight `itemMetatiles` (the four rotating item graphics
+slots followed by four fixed slots) and `rooms` with special reveal tiles.
+Each room tile's `x`, `y`, and `word` are visual-only: the first two are block
+coordinates, and the word's low ten bits select a metatile while bit 11 selects
+the cartridge's vertical row swap. Keep room pointers and record counts intact;
+they identify which compiled room state owns each list. Installed hosts use
+these entries without reading the item draw table or room overlay records from
+the ROM during X-ray setup. Stock hashes are checked and user overrides survive
+stock repair.
 
 These visual-layout files do not yet replace the runtime ROM source for the
 native collision/BTS allocation. The room-ID guide makes the files discoverable,

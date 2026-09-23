@@ -39,7 +39,7 @@ public sealed partial class SuperMetroidRuntime
                     unchecked((ushort)(y + BackgroundScroll.Bg1YOffset)), x, y,
                     (byte)room.AreaIndex, xrayRevealVisuals);
                 XrayRevealOverlays.Apply(_addressSpace, level, map, Plms.Collectibles, System,
-                    room.State.XrayPointer, x, y);
+                    room.State.XrayPointer, x, y, xrayRevealVisuals);
                 for (int i = 0; i < map.Length; i++) WriteXrayWord(XraySetupMemory.RevealTilemap + i * 2, map[i]);
                 break;
         }

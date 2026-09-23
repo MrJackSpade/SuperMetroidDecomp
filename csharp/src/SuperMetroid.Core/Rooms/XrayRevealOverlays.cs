@@ -9,10 +9,12 @@ public static class XrayRevealOverlays
     /// <summary>Applies $84:831A in descending PLM slot order, then room-authored record order.</summary>
     public static void Apply(ISnesAddressSpace bus, RoomLevelData level, Span<ushort> tilemap,
         IReadOnlyList<CollectiblePlmSnapshot> items, Bank80SystemState system,
-        ushort specialPointer, ushort layer1X, ushort layer1Y)
+        ushort specialPointer, ushort layer1X, ushort layer1Y,
+        XrayRevealVisualCatalog? visuals = null)
     {
         if (tilemap.Length != XrayTilemapLayout.BufferWords)
             throw new ArgumentException("X-ray overlays require both native tilemap screens.", nameof(tilemap));
+        XrayOverlayVisualCatalog? overlays = visuals?.Overlays;
         for (int i = items.Count - 1; i >= 0; i--)
         {
             CollectiblePlmSnapshot item = items[i];
@@ -21,12 +23,24 @@ public static class XrayRevealOverlays
                 ? XrayOverlayRomData.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
             if ((uint)graphics >= XrayOverlayRomData.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item ${item.Header:X4} has invalid X-ray graphics slot {graphics}.");
-            int pointer = ReadWord(bus, XrayOverlayRomData.ItemDrawPointers + graphics * 2);
-            ushort word = (ushort)(ReadWord(bus, XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff);
+            ushort word;
+            if (overlays is not null)
+                word = overlays.ItemMetatile(graphics);
+            else
+            {
+                int pointer = ReadWord(bus, XrayOverlayRomData.ItemDrawPointers + graphics * 2);
+                word = (ushort)(ReadWord(bus, XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff);
+            }
             Write(level, tilemap, word, item.BlockIndex % level.WidthInBlocks,
                 item.BlockIndex / level.WidthInBlocks, layer1X, layer1Y);
         }
         if (specialPointer == 0) return;
+        if (overlays is not null)
+        {
+            foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(specialPointer))
+                Write(level, tilemap, tile.Word, tile.X, tile.Y, layer1X, layer1Y);
+            return;
+        }
         for (int pointer = specialPointer; ; pointer += 4)
         {
             if (pointer < 0x8000 || pointer > ushort.MaxValue - 3)

@@ -61,6 +61,19 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int Colors = 0x9ba380;
         /// <summary><c>$9B:A3A0</c>, the sixteen-color cinematic Samus palette.</summary>
+        /// <remarks>
+        /// Issue #864 / #625: all sixteen BGR555 words match the pinned NTSC
+        /// J/U v1.0 ROM and native bank-$9B listing. Color zero is
+        /// <c>$3800</c>; the remaining positions select seven authored grey
+        /// shades with red = green = <c>4,8,13,18,22,27,31</c>. Blue equals
+        /// red minus two except at the darkest shade, where all channels are
+        /// four. The slot-to-shade choices remain authored data; even a uniform
+        /// seven-step <c>31*k/7</c> ramp misses levels 4 and 6 with floor,
+        /// or level 2 with nearest rounding. The hurt palette (#863) is an exact
+        /// forward blend from these colors, but its integer floor loses source values.
+        /// Production copies indices 0..15 unchanged to Samus OBJ CGRAM
+        /// 192..207 on cinematic hurt-counter calls 2, 4, and 6.
+        /// </remarks>
         public const int IntroColors = 0x9ba3a0;
     }
 

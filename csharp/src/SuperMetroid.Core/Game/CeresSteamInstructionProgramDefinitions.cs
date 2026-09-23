@@ -66,11 +66,23 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// frames loop to the hidden hold at $F0C1.
     /// </summary>
     internal const ushort DownActive = 0xf0c9;
-    /// <summary><c>InstList_CeresSteam_Right_0</c> at $A6:F0E9.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Right_0</c> at $A6:F0E9, selected by variants
+    /// 3 and 5. All 17 mechanics addresses are the upward program's addresses
+    /// plus $9C. Direct pinned-ROM comparison preserves 14 values and moves
+    /// only three local branch targets by $9C, with zero mismatches. The
+    /// bounded activation graph is the same as the other directions.
+    /// </summary>
     internal const ushort Right = 0xf0e9;
-    /// <summary><c>InstList_CeresSteam_Right_1</c> at $A6:F0F5.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Right_1</c> at $A6:F0F5; its $40-tick hidden
+    /// hold returns to the local active state.
+    /// </summary>
     internal const ushort RightHiddenHold = 0xf0f5;
-    /// <summary><c>InstList_CeresSteam_Right_2</c> at $A6:F0FD.</summary>
+    /// <summary>
+    /// <c>InstList_CeresSteam_Right_2</c> at $A6:F0FD; seven three-tick
+    /// frames loop to the hidden hold at $F0F5.
+    /// </summary>
     internal const ushort RightActive = 0xf0fd;
 
     private static readonly CeresSteamInstructionMechanicsWord[] Words =

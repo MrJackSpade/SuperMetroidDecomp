@@ -111,6 +111,16 @@ internal static class CeresFlightActorDefinitions
     /// IntroDiscoverySprite.Step confines the cursor to that loop in both
     /// Ceres scenes; $CC57 is the neighboring vortex list. The exact period
     /// needs no table, while the visual spritemap remains ROM-backed.
+    ///
+    /// Issues #625 and #1013: row three's six-word list at $8B:CC57..CC62
+    /// matches pinned NTSC J/U v1.0 ROM and bank_8B.asm: duration one /
+    /// bank-$8C spritemap $8FE7, duration one / spritemap $93D1, then
+    /// goto $94BC targeting $CC57. For handler call number n beginning
+    /// with the first visible call at zero, the exact frame choice is
+    /// $8FE7 when n is even and $93D1 when n is odd. The destruction scene
+    /// changes this actor's initialization parameter, not its frame list.
+    /// IntroDiscoverySprite.Step keeps the cursor inside the loop, before
+    /// adjacent $CC63. Retain the two authored visual spritemaps.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

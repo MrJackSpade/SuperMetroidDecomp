@@ -21,7 +21,17 @@ internal static class CrocomireInstructionProgramDefinitions
     /// address classifier. The next program starts at BAEA.
     /// </summary>
     internal const ushort Initial = 0xbade;
-    /// <summary><c>UNUSED_InstList_Crocomire_ChargeForwardOneStep_A4BAEA</c> at $A4:BAEA.</summary>
+    /// <summary>
+    /// <c>UNUSED_InstList_Crocomire_ChargeForwardOneStep_A4BAEA</c> at
+    /// $A4:BAEA-$BB35. The pinned NTSC J/U v1.0 ROM has twelve $0008
+    /// duration words interleaved with twelve live spritemap operands.
+    /// Its fourteen mechanics callbacks, in execution order, are $8FC7,
+    /// $8FFA, $8FDF, $8FDF, $8FFA, $8FDF, $8FDF, $8FC7, $8FFA, $8FDF,
+    /// $8FDF, $8FFA, $8FDF, then Fight AI $86A6. The constant duration
+    /// subrule does not determine this authored move, dust, and shake
+    /// schedule. Retain its control order even though no production selector
+    /// chooses this list; $BB36 starts a different program.
+    /// </summary>
     internal const ushort UnusedChargeForwardOneStep = 0xbaea;
     /// <summary><c>InstList_Crocomire_ProjectileAttack_0</c> at $A4:BB36.</summary>
     internal const ushort ProjectileAttack = 0xbb36;

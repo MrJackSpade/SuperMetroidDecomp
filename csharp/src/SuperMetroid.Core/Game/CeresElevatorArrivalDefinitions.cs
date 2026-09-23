@@ -73,6 +73,12 @@ internal static class CeresElevatorArrivalDefinitions
     /// so its exact next-record address is <c>$B1BA + 2 + 5 * 4 = $B1D0</c>.
     /// Both authored four-component spritemaps remain live draw data and are
     /// also referenced by dust-cloud/explosion instruction lists.
+    /// The stationary level-data concealer begins at $A299, holds its one
+    /// frame for one tick, and follows the $81AB goto at $A29D back to $A299.
+    /// Landing redirects it to the same $A28B delete. All four mechanics
+    /// words match the pinned ROM; only $A299, $A29D, and $A28B are reachable
+    /// instruction pointers for this projectile. Its $A29B presentation
+    /// operand is independent of the control flow.
     /// </remarks>
     internal static CeresElevatorProjectileInstruction ReadInstruction(ushort pointer) =>
         pointer switch

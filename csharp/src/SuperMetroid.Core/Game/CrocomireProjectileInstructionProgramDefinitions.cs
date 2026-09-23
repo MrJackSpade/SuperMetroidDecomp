@@ -83,6 +83,9 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
     /// are exactly $802A + $16 * min(i, 6-i) for i=0..5: a four-level pose
     /// sweep that returns through levels two and one before the loop. These
     /// operands remain live cartridge reads so installed presentation works.
+    /// Entry 6 is the bridge-fragment operand at $86:8FED: stock pointer
+    /// $8109, followed by goto-Y at $8FEF. Retain this single authored
+    /// spritemap identity as a live read; no indexed formula clarifies it.
     /// Entries 8..12 identify shot operands at $86:9009 + 4*i. Their stock
     /// pointers are $8D9C at i=0 and $8DA3 + $16*(i-1) for i=1..4; the
     /// first stride is only $0007. $901B starts the drop/delete control.

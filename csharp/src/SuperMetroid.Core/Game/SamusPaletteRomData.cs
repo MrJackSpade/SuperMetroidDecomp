@@ -213,6 +213,18 @@ public static class SamusPaletteRomData
         /// 23 of 48 four-phase component sequences. Retain all four
         /// authored sixteen-color rows, with the final row selected
         /// continuously after the active Speed Booster ramp.
+        ///
+        /// Issue #878 / #625: all 64 Gravity Suit BGR555 target words at
+        /// <c>$9B:9F20..9F9F</c> match the pinned ROM/native listing and
+        /// exactly duplicate the earlier ROM block at
+        /// <c>$9B:9540..95BF</c>, word for word. The active pointer
+        /// matrix still targets <c>$9F20..9F9F</c>. Phase zero differs
+        /// from normal Gravity <c>$9B:9800</c> at colors zero, one,
+        /// and twelve. Only 16 of 64 corresponding words match the
+        /// stored-shine rows, and a per-slot, per-channel clipped
+        /// first-step rule fits 24 of 48 four-phase sequences. Retain
+        /// the four live authored rows; phase three stays selected
+        /// during sustained Speed Booster running.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>

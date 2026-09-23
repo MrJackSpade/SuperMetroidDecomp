@@ -706,6 +706,10 @@ public static class DoorDefinitions
     /// Bank $83 interleaves Crab Maze's door headers. Index 2 reaches
     /// scroll data $0D02 at $8F:95D3. The ROM oracle checks both entries,
     /// high-bit aliases, and this first invalid index.
+    /// Issue #1067, Crateria Tube $8F:95FB: two words are $8AC6 and
+    /// $8AD2, exactly $8AC6 + 12*i for normalized BTS i=0..1. Index 2
+    /// reaches next room header $000E at $8F:95FF. The ROM oracle checks
+    /// both entries, high-bit aliases, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

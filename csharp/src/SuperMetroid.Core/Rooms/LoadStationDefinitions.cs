@@ -172,6 +172,17 @@ public static class LoadStationDefinitions
     ];
 
     /// <summary>$80:CA2F-$80:CB2A, all eighteen Tourian records.</summary>
+    /// <remarks>
+    /// Issue #1051: in the pinned NTSC J/U v1.0 ROM, indexes 2..7 and
+    /// 9..15 are the inert placeholder; 0, 1, 8, 16, and 17 are authored
+    /// placements. Rows 16 and 17 share room pointer $DDF3 but have
+    /// different door and camera data, so room identity cannot derive
+    /// the full record. Retain these five authored records and the exact
+    /// sparse placeholder classification. Get accepts only station
+    /// bytes 0..17; index 18 starts the adjacent Ceres list at $80:CB2B.
+    /// Direct ROM inspection and the independent 134-record load-station
+    /// verifier agree on all eighteen rows and the invalid boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] tourian =
     [
         new(0xde23, 0xaabc, 0x0000, 0x0000, 0x0000, 0x0098, 0xffe0),

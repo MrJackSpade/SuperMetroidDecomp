@@ -571,6 +571,15 @@ public static class SamusPaletteRomData
     /// the following six bubble colors have a separate cursor and timer.
     /// Keep both streams live for ROM-backed presentation. Body-color
     /// investigation: #625 / #902.
+    /// The six bubble colors per row start at <c>$96D4 + $20*r</c>.
+    /// For bubble color <c>c = 0..5</c>, let
+    /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
+    /// The stock BGR555 word is <c>$7FFF - $0420*q</c>, except
+    /// <c>r = 5, c = 0</c> is <c>$7FFF</c> rather than <c>$7BDF</c>.
+    /// All 36 words, including that authored exception, match the pinned
+    /// ROM and native listing. The bubble cursor visits rows 0..5 and wraps
+    /// independently of the body records. Bubble-color investigation:
+    /// #625 / #903.
     /// </remarks>
     public static class CrystalFlash
     {

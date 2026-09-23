@@ -200,21 +200,38 @@ internal static class CrocomireInstructionProgramDefinitions
     /// spritemap progression. Melting programs begin at BF64.
     /// </summary>
     internal const ushort BackOffFromSpikeWall = 0xbf3c;
-    /// <summary><c>InstList_Crocomire_Melting1_TopRow</c> at $A4:BF64.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_Melting1_TopRow</c> at $A4:BF64.
+    /// First melt pass, row index 0 of 0..3: duration $7FFF,
+    /// live spritemap operand at BF66, then goto $80ED at BF68
+    /// targets BF64 at BF6A. Across both passes, every row uses
+    /// $7FFF; only row index 0 loops, while indices 1..3 Sleep.
+    /// </summary>
     internal const ushort MeltingOneTopRow = 0xbf64;
-    /// <summary><c>InstList_Crocomire_Melting1_Top2Rows</c> at $A4:BF6C.</summary>
+    /// <summary><c>InstList_Crocomire_Melting1_Top2Rows</c> at $A4:BF6C:
+    /// $7FFF, live operand BF6E, then Sleep $812F at BF70.</summary>
     internal const ushort MeltingOneTopTwoRows = 0xbf6c;
-    /// <summary><c>InstList_Crocomire_Melting1_Top3Rows</c> at $A4:BF72.</summary>
+    /// <summary><c>InstList_Crocomire_Melting1_Top3Rows</c> at $A4:BF72:
+    /// $7FFF, live operand BF74, then Sleep $812F at BF76.</summary>
     internal const ushort MeltingOneTopThreeRows = 0xbf72;
-    /// <summary><c>InstList_Crocomire_Melting1_Top4Rows</c> at $A4:BF78.</summary>
+    /// <summary><c>InstList_Crocomire_Melting1_Top4Rows</c> at $A4:BF78:
+    /// $7FFF, live operand BF7A, then Sleep $812F at BF7C.</summary>
     internal const ushort MeltingOneTopFourRows = 0xbf78;
-    /// <summary><c>InstList_Crocomire_Melting2_TopRow</c> at $A4:BF7E.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_Melting2_TopRow</c> at $A4:BF7E.
+    /// Second melt pass, row index 0: duration $7FFF, live operand
+    /// BF80, then goto $80ED at BF82 targets BF7E at BF84.
+    /// Its row indices 1..3 use the same duration and Sleep instead.
+    /// </summary>
     internal const ushort MeltingTwoTopRow = 0xbf7e;
-    /// <summary><c>InstList_Crocomire_Melting2_Top2Rows</c> at $A4:BF86.</summary>
+    /// <summary><c>InstList_Crocomire_Melting2_Top2Rows</c> at $A4:BF86:
+    /// $7FFF, live operand BF88, then Sleep $812F at BF8A.</summary>
     internal const ushort MeltingTwoTopTwoRows = 0xbf86;
-    /// <summary><c>InstList_Crocomire_Melting2_Top3Rows</c> at $A4:BF8C.</summary>
+    /// <summary><c>InstList_Crocomire_Melting2_Top3Rows</c> at $A4:BF8C:
+    /// $7FFF, live operand BF8E, then Sleep $812F at BF90.</summary>
     internal const ushort MeltingTwoTopThreeRows = 0xbf8c;
-    /// <summary><c>InstList_Crocomire_Melting2_Top4Rows</c> at $A4:BF92.</summary>
+    /// <summary><c>InstList_Crocomire_Melting2_Top4Rows</c> at $A4:BF92:
+    /// $7FFF, live operand BF94, then Sleep $812F at BF96.</summary>
     internal const ushort MeltingTwoTopFourRows = 0xbf92;
     /// <summary><c>InstList_CrocomireTongue_BridgeCollapsed</c> at $A4:BFB0.</summary>
     internal const ushort BridgeCollapsed = 0xbfb0;

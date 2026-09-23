@@ -281,7 +281,14 @@ internal static class CrocomireInstructionProgramDefinitions
     /// flowing-down-river program at E1D2.
     /// </summary>
     internal const ushort Dead = 0xe1cc;
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_FlowingDownTheRiver</c> at $A4:E1D2.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireCorpse_Skeleton_FlowingDownTheRiver</c>
+    /// at $A4:E1D2-$E1FD. Nine pinned-ROM durations are $0004,
+    /// followed by one $0014 duration; each has a live spritemap
+    /// operand. Goto $80ED at E1FA targets E1D2 at E1FC.
+    /// The exact timing rule is D(i)=4 for i=0..8 and D(9)=20;
+    /// retain the authored loop boundary for the river animation.
+    /// </summary>
     internal const ushort SkeletonFlowingDownRiver = 0xe1d2;
 
     /// <summary>First deliberately excluded unreferenced body program at $A4:BBAE.</summary>

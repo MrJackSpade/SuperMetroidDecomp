@@ -16,6 +16,16 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// </remarks>
     PowerSuit,
     /// <summary>Varia-suit colors.</summary>
+    /// <remarks>
+    /// Issue #857 / #625: all 144 BGR555 words in ROM program <c>$8D:DCC8</c>
+    /// match existing authored Samus palettes in bank <c>$9B</c>. Records
+    /// 0, 2, 4, 6, 8 equal normal Varia Suit <c>$9B:9520</c>; records 1 and 3
+    /// equal speed-boost shade <c>$9B:9D80</c>; records 5 and 7 equal
+    /// <c>$9B:9D60</c> and <c>$9B:9D40</c>. Each comparison covers all sixteen
+    /// colors. The bank-$8D duplicates remain live authored presentation data;
+    /// the shared control program supplies their replay schedule. Production
+    /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
+    /// </remarks>
     VariaSuit,
     /// <summary>Gravity-suit colors.</summary>
     GravitySuit,

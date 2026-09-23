@@ -5,6 +5,14 @@ namespace SuperMetroid.Core.Game;
 /// Definition <c>$F781</c> is used by pre-Tourian hall, Red Brinstar mainstreet, the
 /// Red Brinstar elevator, and early Kraid rooms. Its forty BGR555 words and one sound-ID
 /// byte remain live data; setup, timing, CGRAM skips, audio opcode, and loop flow compile.
+/// $8D:EFF7 selects CGRAM byte $00E2. Ten records last ten frames each:
+/// frames i=0..5 begin at $EFFB + 14*i; frames i=6..9 begin at
+/// $F052 + 14*(i-6), after the $C673 library-two sound opcode at $F04F
+/// consumes the live one-byte ID $18 at $F051. Each record writes three
+/// colors, runs $C5BD to skip nine CGRAM colors, writes one more color,
+/// then waits at $C595. The $C61E goto at $F08A returns to $EFFB;
+/// frame ten reaches that control after a 100-frame cycle. All 35
+/// mechanics words match the pinned NTSC J/U v1.0 ROM.
 /// </remarks>
 public static class BeaconPaletteFxProgramMechanicsDefinitions
 {

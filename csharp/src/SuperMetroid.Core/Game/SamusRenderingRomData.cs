@@ -33,6 +33,16 @@ public static class SamusRenderingRomData
         public const int BottomSpritemapBaseIndices = 0x92945d;
 
         /// <summary><c>$9B:9400</c>, ordinary Power Suit palette.</summary>
+        /// <remarks>
+        /// Issue #860 / #625: sixteen authored BGR555 words in the pinned NTSC
+        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+        /// Power loading palette-FX program (#856) and the duplicate bank-$9B
+        /// palettes at <c>$9C20</c> and <c>$9CA0</c>. Eleven color slots are
+        /// shared with the normal Varia and Gravity palettes; slots
+        /// 0, 2, 10, 11, 12 vary by suit. These deliberately selected colors
+        /// remain a palette table rather than a computed channel sequence.
+        /// </remarks>
         public const int PowerSuitPalette = 0x9b9400;
 
         /// <summary><c>$9B:9520</c>, ordinary Varia Suit palette.</summary>

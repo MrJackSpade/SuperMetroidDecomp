@@ -47,6 +47,19 @@ internal static class CeresExplosionDefinitions
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
+    /// <remarks>
+    /// Issues #625 and #1001: all thirteen words in this actor's list at
+    /// $8B:CCDB..CCF4 match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
+    /// Six four-byte entries give duration 3 and bank-$8C spritemap pointers
+    /// $97F7, $97FE, $9805, $981B, $9831, $9847, in that order; $8B:CCF3
+    /// then invokes delete $9438. The six pointers name the distinct small
+    /// explosion frames in bank_8C.asm. Initializer $C434 seeds each actor's
+    /// separate instruction delay; IntroDiscoverySprite.Step consumes these
+    /// bounded entries in sequence and deletes at the terminator, before the
+    /// adjacent repeating-blast list at $CCF5. Uniform duration and cursor
+    /// stride do not determine the authored visual frame identities or their
+    /// variable-size spritemap addresses. Retain the finite animation stream.
+    /// </remarks>
     public static CeresExplosionActorDefinition InitialActor =>
         new(0xcebb, 0xc434, 0xc582, 0xccdb);
 

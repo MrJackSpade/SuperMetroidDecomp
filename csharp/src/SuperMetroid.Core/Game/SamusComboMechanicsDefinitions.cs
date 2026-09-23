@@ -24,7 +24,7 @@ internal static class SamusComboMechanicsDefinitions
     /// IcePlasmaSBAProjectileOriginAngles at $90:CD08: four evenly spaced
     /// eight-bit angles assigned in projectile-slot order.
     /// </summary>
-    /// <remarks>Issue #625 exact formula: 64*slot for validated slot=0..3.
+    /// <remarks>Issues #625 and #939 exact formula: 64*slot for validated slot=0..3.
     /// LookupTableResearch verifies all four compiled/native words and bounds.
     /// The adjacent unused diagonal-angle words are not further projectile slots;
     /// a future replacement must not extrapolate this progression into them.</remarks>

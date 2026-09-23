@@ -70,7 +70,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// alone cannot reproduce its effects. StepBack begins at BC30.
     /// </summary>
     internal const ushort StepForward = 0xbbce;
-    /// <summary><c>InstList_Crocomire_StepBack</c> at $A4:BC30.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_StepBack</c> at $A4:BC30. The pinned ROM
+    /// has one $0002 duration, a live spritemap operand at BC32, then
+    /// falls into SteppingBack at BC34. Retain this authored two-frame
+    /// entry; there is no indexed mechanics progression to derive.
+    /// </summary>
     internal const ushort StepBack = 0xbc30;
     /// <summary><c>InstList_Crocomire_SteppingBack</c> at $A4:BC34.</summary>
     internal const ushort SteppingBack = 0xbc34;

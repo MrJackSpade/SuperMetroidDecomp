@@ -90,6 +90,18 @@ public static class LoadStationDefinitions
     ];
 
     /// <summary>$80:C81B-$80:C916, all eighteen Wrecked Ship records.</summary>
+    /// <remarks>
+    /// Issue #1046: the pinned NTSC J/U v1.0 ROM uses the inert placeholder
+    /// (0,0,0,$0400,$0400,$00B0,0) at station indexes 1..15. Only 0,
+    /// 16, and 17 contain distinct authored room, door, camera, and Samus
+    /// placement records. That sparse index classification is exact, but
+    /// those three destinations are scene identities with no useful
+    /// deterministic formula; retain the named records and placeholder.
+    /// Get bounds the station byte to 0..17. Index 18 begins the adjacent
+    /// Maridia list at $80:C917 and must not be treated as Wrecked Ship.
+    /// Direct ROM inspection and the independent 134-record load-station
+    /// oracle agree on all eighteen values and the invalid boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] wreckedShip =
     [
         new(0xce8a, 0xa240, 0x0000, 0x0000, 0x0000, 0x0098, 0x0000),

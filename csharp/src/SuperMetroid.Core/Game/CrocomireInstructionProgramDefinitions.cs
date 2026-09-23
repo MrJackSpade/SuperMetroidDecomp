@@ -625,6 +625,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// BC48, and BC4E have pinned stock values $C1EA - $32*i for
     /// zero-based indices 0..4, ending at $C122. This bounded descent
     /// describes the stock spritemaps; the operands remain live reads.
+    /// The 32 wait-for-damage operands at $A4:BC58-$BCD4 have stride
+    /// four in instruction address. Their pinned stock pointer is
+    /// $C2EC + $3A*T(i) for indices 0..31: T(i)=6-i for 0..6;
+    /// for 7..31, r=(i-7) modulo 12 and T(i)=min(r,12-r).
+    /// This includes an extra $C2EC hold at index 7 before the
+    /// triangular cycle. The interpreter still reads all operands live.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

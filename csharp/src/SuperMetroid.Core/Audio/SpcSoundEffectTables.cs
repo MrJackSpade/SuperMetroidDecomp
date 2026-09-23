@@ -21,6 +21,11 @@ internal static class SpcSoundEffectTables
     /// with kSfx2InstrListPtrs and this array. Its authored stream starts and
     /// irregular gaps likewise warrant retaining the bounded mapping for
     /// commands 1..127, with the same command-zero sentinel.
+    /// Issues #625 and #927: library 3 is a separate 47-word pointer map at
+    /// pinned ROM $CF:BA97 (file $27BA97). Every little-endian word agrees
+    /// with kSfx3InstrListPtrs and this array. Retain the authored stream
+    /// addresses for commands 1..47; zero remains a no-sound sentinel and
+    /// commands above 47 are rejected before lookup.
     /// </remarks>
     internal static readonly ushort[][] StreamPointerTables =
     [

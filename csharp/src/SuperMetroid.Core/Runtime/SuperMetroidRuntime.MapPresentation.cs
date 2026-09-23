@@ -21,6 +21,7 @@ public sealed partial class SuperMetroidRuntime
             RoomLayer3Fx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             RoomLayer3Fx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BombProjectiles.PowerBombExplosion.PresentationColors = value?.PowerBombFixedColors;
+            BindSamusVisorPresentation();
             Enemies.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             Enemies.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
@@ -39,6 +40,15 @@ public sealed partial class SuperMetroidRuntime
                     SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
             }
         }
+    }
+
+    /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
+    private void BindSamusVisorPresentation()
+    {
+        if (Samus is null)
+            return;
+        Samus.VisorPalette.PresentationColors = mapPresentation?.SamusVisorColors;
+        Samus.Xray.PresentationColors = mapPresentation?.SamusVisorColors;
     }
 
     private void PublishReboundHudArtwork()

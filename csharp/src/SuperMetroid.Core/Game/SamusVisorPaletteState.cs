@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -15,6 +16,15 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {
+    [NonSerialized] private SamusVisorColorCatalog? presentationColors;
+
+    /// <summary>Host-owned visor artwork, excluded from debugger-state serialization.</summary>
+    public SamusVisorColorCatalog? PresentationColors
+    {
+        get => presentationColors;
+        set => presentationColors = value;
+    }
+
     /// <summary>
     /// Native word at WRAM <c>$0A72</c>: low byte is the countdown and high byte is an
     /// even byte offset into the six-word visor table.
@@ -83,7 +93,12 @@ public sealed class SamusVisorPaletteState
         // admitted state, so it becomes five while the high table offset is retained.
         PackedTimerIndex |= SamusPaletteRomData.Visor.FrameDelay;
         byte sourceOffset = PaletteByteOffset;
-        ushort color = ReadWord(bus, SamusPaletteRomData.Visor.Colors + sourceOffset);
+        // An externally edited packed word can address bytes outside the six authored
+        // colors. Preserve the native address-space read in that exceptional case.
+        ushort color = presentationColors is not null &&
+            presentationColors.TryResolveByteOffset(sourceOffset, out ushort installed)
+                ? installed
+                : ReadWord(bus, SamusPaletteRomData.Visor.Colors + sourceOffset);
         cgram.SetColor(
             SamusPaletteRomData.Common.SamusObjPaletteStart +
                 SamusPaletteRomData.Common.VisorColorOffset,

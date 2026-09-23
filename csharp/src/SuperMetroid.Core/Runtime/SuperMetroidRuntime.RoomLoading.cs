@@ -117,6 +117,7 @@ public sealed partial class SuperMetroidRuntime
             XPosition = station.SamusX,
             YPosition = station.SamusY,
         };
+        BindSamusVisorPresentation();
         slot.ApplyTo(Samus, System);
         // `Samus_Initialize` at `$91:E00D` runs after the SRAM mirror has been restored
         // and explicitly clears both `$09D2` and `$0A04`. The cartridge therefore stores
@@ -1369,6 +1370,7 @@ public sealed partial class SuperMetroidRuntime
             XPosition = ActiveLoadStation.SamusX,
             YPosition = 0,
         };
+        BindSamusVisorPresentation();
         SamusState.LoadPowerSuitPalette(_addressSpace, Cgram);
 
         // Fresh-game loading has one deliberately non-general palette write after copying

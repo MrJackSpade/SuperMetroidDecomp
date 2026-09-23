@@ -58,6 +58,7 @@ public sealed partial class SuperMetroidRuntime
             SuperMissiles = scene.SuperMissiles, MaxSuperMissiles = scene.SuperMissiles,
             PowerBombs = scene.PowerBombs, MaxPowerBombs = scene.PowerBombs,
         };
+        BindSamusVisorPresentation();
         ApplyAttractSamusSetup(scene.SamusSetupPointer);
         InitializeHud(new HudSnapshot(Samus.Health, Samus.MaxHealth,
             Samus.Missiles, Samus.MaxMissiles, Samus.SuperMissiles, Samus.MaxSuperMissiles,

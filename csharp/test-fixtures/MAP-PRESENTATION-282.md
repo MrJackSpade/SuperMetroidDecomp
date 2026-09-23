@@ -1576,3 +1576,18 @@ runs the complete Power Bomb and Crystal Flash state machines with the native
 color-table reads forbidden. The map-presentation suite checks that a changed
 component reaches the actual explosion state and restoring stock clears the
 override. The installer fixture checks upgrade/restart preservation.
+
+## Editable Samus visor colors (#536, #549)
+
+Catalog version 64 adds `samus-visor-colors.json` with the six RGB5 colors in
+the native bank-$9B visor palette table. Copy the stock file to `overrides/maps`
+to change the displayed colors. The room backdrop cycle and X-ray beam share
+this palette source; their cartridge-owned timer, selection order, and beam
+behavior remain compiled. Odd or out-of-range table offsets in diagnostic
+states retain the native address-space path rather than being approximated.
+
+`--samus-visor-colors` compares all six words with the pinned ROM, then runs
+the production room and X-ray color cycles with native color-table reads
+forbidden. The map-presentation suite checks edited colors reaching both CGRAM
+paths, strict invalid-resource handling, and stock restoration. The full
+installation fixture verifies override preservation across upgrade and restart.

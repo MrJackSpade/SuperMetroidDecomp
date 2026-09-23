@@ -1282,6 +1282,7 @@ public sealed partial class SuperMetroidRuntime
             XPosition = xPosition,
             YPosition = yPosition,
         };
+        BindSamusVisorPresentation();
 
         SamusState.LoadPowerSuitPalette(_addressSpace, Cgram);
         Samus.RefreshCollisionRadii(_addressSpace);

@@ -58,6 +58,11 @@ if (args is ["--power-bomb-fixed-colors"])
     VerifyPowerBombFixedColors();
     return 0;
 }
+if (args is ["--samus-visor-colors"])
+{
+    VerifySamusVisorColors();
+    return 0;
+}
 if (args is ["--spc-sound-library-2-pointers"])
 {
     VerifySpcSoundLibrary2Pointers();
@@ -2397,6 +2402,7 @@ VerifyPowerBombFuse();
 VerifyPowerBombBoundary();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
+VerifySamusVisorColors();
 VerifySpcSoundLibrary2Pointers();
 VerifyScrollingSkyState();
 VerifyOceanSky();

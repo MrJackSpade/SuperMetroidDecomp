@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
@@ -18,6 +19,15 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusXrayState
 {
+    [NonSerialized] private SamusVisorColorCatalog? presentationColors;
+
+    /// <summary>Host-owned visor colors, excluded from debugger-state serialization.</summary>
+    public SamusVisorColorCatalog? PresentationColors
+    {
+        get => presentationColors;
+        set => presentationColors = value;
+    }
+
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
 
@@ -564,9 +574,13 @@ public sealed class SamusXrayState
             return false;
 
         CommonPaletteTimer = SamusXrayRomData.Palette.FrameDelay;
-        cgram.SetColor(
-            SamusXrayRomData.Palette.VisorCgramIndex,
-            ReadWord(bus, SamusXrayRomData.Palette.VisorWords + SpecialPaletteFrame));
+        // Keep the cartridge read for non-catalog offsets reachable through externally
+        // edited debugger state; ordinary widening/cycling uses installed artwork.
+        ushort visorColor = presentationColors is not null &&
+            presentationColors.TryResolveByteOffset(SpecialPaletteFrame, out ushort installed)
+                ? installed
+                : ReadWord(bus, SamusXrayRomData.Palette.VisorWords + SpecialPaletteFrame);
+        cgram.SetColor(SamusXrayRomData.Palette.VisorCgramIndex, visorColor);
 
         if (BeamSizeFlag == 0)
         {

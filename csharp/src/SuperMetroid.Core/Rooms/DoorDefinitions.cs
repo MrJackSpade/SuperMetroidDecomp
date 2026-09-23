@@ -668,6 +668,11 @@ public static class DoorDefinitions
     /// the next room header word $0005 at $8F:93FE and fails. The
     /// independent ROM list oracle checks both BTS high-bit forms and
     /// the one-entry boundary.
+    /// Issue #1059, West Ocean $8F:9425: six door words are $89CA
+    /// through $8A06 in twelve-byte steps, exactly $89CA + 12*i for
+    /// normalized BTS i=0..5. Index 6 reaches scroll word $0202 at
+    /// $8F:9431. The independent ROM list oracle checks all six entries,
+    /// both high-bit forms, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

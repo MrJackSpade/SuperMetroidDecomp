@@ -935,6 +935,10 @@ public static class DoorDefinitions
     /// $88FC; i=6 resumes physical headers at $90D2. Index 7
     /// reaches scroll data $0002 at $8F:A357. The ROM oracle checks
     /// all seven entries, high-bit aliases, and this boundary.
+    /// Issue #1123, Beta Power Bomb $8F:A3A3: sole valid normalized
+    /// BTS i=0 resolves to $90DE; no stride follows from one word.
+    /// Index 1 reaches scroll data $0101 at $8F:A3A5. The ROM
+    /// oracle checks the entry, both aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

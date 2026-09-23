@@ -188,6 +188,20 @@ public static class XrayRevealVisualFiles
         }
     }
 
+    /// <summary>Names one native copy command in the installed visual JSON format.</summary>
+    /// <remarks>
+    /// Issue #1040: the pinned NTSC J/U v1.0 ROM command bodies at
+    /// $91:CF36, CF3E, CF4E, CF62, and CF6F copy one, Brinstar-only one,
+    /// wide, tall, and square metatile operands respectively. Those five
+    /// identities map to the authored JSON labels below; the labels are
+    /// an installation format contract, not cartridge bytes. The two
+    /// extension commands have no visual shape and every other ushort
+    /// fails. The independent 16-by-256 native reveal oracle covers all
+    /// reachable command identities; the room installation verifier
+    /// accepts stock shapes and rejects an override changing a shape.
+    /// Retain this finite named mapping because pointer arithmetic cannot
+    /// derive the serialization labels more clearly or losslessly.
+    /// </remarks>
     private static string NameOf(ushort command) => command switch
     {
         XrayRevealCodePointers.CopyOne => "one",

@@ -58,6 +58,11 @@ if (args is ["--power-bomb-fixed-colors"])
     VerifyPowerBombFixedColors();
     return 0;
 }
+if (args is ["--spc-sound-library-2-pointers"])
+{
+    VerifySpcSoundLibrary2Pointers();
+    return 0;
+}
 if (args is ["--room-fx-retail-inventory"])
 {
     VerifyRetailRoomFxInventory();
@@ -2392,6 +2397,7 @@ VerifyPowerBombFuse();
 VerifyPowerBombBoundary();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
+VerifySpcSoundLibrary2Pointers();
 VerifyScrollingSkyState();
 VerifyOceanSky();
 AuditBoostFloor();

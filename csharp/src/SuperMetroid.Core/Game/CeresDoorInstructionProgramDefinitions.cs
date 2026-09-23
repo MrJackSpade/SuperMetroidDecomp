@@ -251,6 +251,11 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// corresponding right-door transition pointer minus $00B4. The
     /// left-door holds are authored separately: initial $FA13 and
     /// open/closed $F95F, outside that offset rule.
+    /// The four single-frame control-actor variants have one live pointer
+    /// each: variant 2 at $F614 stores $F921, variant 4 at $F624 stores
+    /// $F95F, variant 5 at $F62E stores $FACE, and variant 6 at $F638
+    /// stores $FB2F. The $F95F pose is shared with the left-door holds;
+    /// the remaining visual identities are authored per variant.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

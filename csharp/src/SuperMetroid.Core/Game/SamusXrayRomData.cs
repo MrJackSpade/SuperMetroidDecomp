@@ -13,6 +13,8 @@ public static class SamusXrayRomData
     public static class Palette
     {
         /// <summary><c>$9B:A3C0</c>, X-ray visor palette words.</summary>
+        /// <remarks>Alias of <see cref="SamusPaletteRomData.Visor.Colors"/>;
+        /// the six-word proof is issue #865 / #625.</remarks>
         public const int VisorWords = SamusPaletteRomData.Visor.Colors;
         /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
         /// <remarks>Alias of <see cref="SamusPaletteRomData.Common.NormalSuitPointers"/>;

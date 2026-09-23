@@ -81,6 +81,19 @@ public static class SamusPaletteRomData
     public static class Visor
     {
         /// <summary><c>$9B:A3C0</c>, six widening/cycling visor colors.</summary>
+        /// <remarks>
+        /// Issue #865 / #625: all six BGR555 words match the pinned NTSC J/U
+        /// v1.0 ROM. For widening index <c>k=0..2</c>, each five-bit channel
+        /// is <c>floor(((2-k)*q($3BE0) + k*31 + 1)/2)</c>, yielding
+        /// <c>$3BE0,$5FF0,$7FFF</c>. For full-beam index <c>k=0..2</c>,
+        /// each channel is <c>q($43FF)-5*k</c>, yielding
+        /// <c>$43FF,$2F5A,$1AB5</c>. X-ray reads even byte offsets
+        /// 0, 2, 4 while widening and 6, 8, 10 while fully open; room visor
+        /// animation cycles the latter three. Both write OBJ CGRAM color 196.
+        /// An externally edited packed timer/index can cause a raw bus read
+        /// outside these six words; this formula describes only the ordinary
+        /// bounded offsets and does not invent adjacent values.
+        /// </remarks>
         public const int Colors = 0x9ba3c0;
         /// <summary>Packed offset-six/timer-one reset used outside animated rooms.</summary>
         public const ushort NormalRoomReset = 0x0601;

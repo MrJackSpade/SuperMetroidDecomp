@@ -719,6 +719,10 @@ public static class DoorDefinitions
     /// $88FC, so the list is not one linear progression. Index 3 reaches
     /// scroll data $0001 at $8F:9657. The ROM oracle checks all three
     /// entries, high-bit aliases, and this first invalid index.
+    /// Issue #1070, Gauntlet E-Tank $8F:9682: two words are $8B0E and
+    /// $8B1A, exactly $8B0E + 12*i for normalized BTS i=0..1. Index 2
+    /// reaches scroll data $0101 at $8F:9686. The independent ROM oracle
+    /// checks both entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

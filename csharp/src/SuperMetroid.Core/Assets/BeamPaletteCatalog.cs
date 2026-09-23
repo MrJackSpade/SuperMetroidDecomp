@@ -86,6 +86,21 @@ public sealed record BeamPaletteDocument
 }
 
 /// <summary>Presentation geometry for the sixteen colors written by $90:ACCD.</summary>
+/// <remarks>
+/// The stock color source at <c>$90:C3E1..C480</c> is five contiguous
+/// sixteen-word little-endian BGR555 rows: Power, Ice, Wave, Plasma, and
+/// Spazer. Row <c>r = 0..4</c>, color <c>c = 0..15</c> is at
+/// <c>$C3E1 + $20*r + 2*c</c>; the twelve beam combinations select rows
+/// through <see cref="SamusProjectileRomData.Beams.PalettePointers"/>.
+/// All 80 words match the pinned NTSC J/U v1.0 ROM and native listing.
+/// Every row begins <c>$3800,$7FFF</c>; Power, Wave, Plasma, and Spazer
+/// have six zero words at color indices 9..14, while Ice has none. The
+/// remaining colors are authored, nonuniform beam artwork, so retain the
+/// editable presentation rows rather than manufacturing a channel formula.
+/// Native palette loading copies exactly sixteen colors from the selected
+/// pointer; out-of-range beam selections are physical pointer-table reads,
+/// not extra color rows. Investigation: #625 / #901.
+/// </remarks>
 public static class BeamPaletteDefinitions
 {
     public const string FileName = "beam-palettes.json";

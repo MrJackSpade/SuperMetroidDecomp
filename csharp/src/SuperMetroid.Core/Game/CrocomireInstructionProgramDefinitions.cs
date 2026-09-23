@@ -151,9 +151,23 @@ internal static class CrocomireInstructionProgramDefinitions
     /// form an exact bounded constant rule, with distinct entry paths.
     /// </summary>
     internal const ushort PowerBombReactionMouthPartiallyOpen = 0xbdb2;
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_0</c> at $A4:BDB6.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_0</c> at
+    /// $A4:BDB6-$BE05. This pinned-ROM $50-byte prefix equals
+    /// ProjectileAttack's $A4:BB36-$BB85 prefix under +$0280 address
+    /// translation. It contains fifteen $0005 durations, their live
+    /// spritemap operands, and the same authored dust-projectile and
+    /// explosion-SFX callbacks. The identity ends before the loop at BE06.
+    /// </summary>
     internal const ushort PowerBombReactionMouthNotOpen = 0xbdb6;
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_1</c> at $A4:BE06.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_1</c> at
+    /// $A4:BE06-$BE55. Twelve $0004 durations each have a live
+    /// spritemap operand. Authored callbacks shake, move left with
+    /// dust or plainly, then call Fight AI $86A6; goto $80ED at
+    /// BE52 targets BE06 at BE54. Retain their exact order rather
+    /// than deriving side effects from the constant duration rule.
+    /// </summary>
     internal const ushort PowerBombReactionMouthNotOpenLoop = 0xbe06;
     /// <summary><c>InstList_CrocomireTongue_NearSpikeWallCharge_0</c> at $A4:BE7E.</summary>
     internal const ushort NearSpikeWallCharge = 0xbe7e;

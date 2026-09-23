@@ -10,7 +10,7 @@ internal static class GunshipMotionDefinitions
     /// <c>ShipBrakesMovementData</c> at <c>$A2:A622-$A2:A643</c>. The native brake
     /// timer is a word index that advances once per frame through all seventeen deltas.
     /// </summary>
-    /// <remarks>#625 exact run model, i=0..16: +1 for i&lt;6, zero for 6..10, -1 for 11..16.
+    /// <remarks>Issues #625 and #945 exact run model, i=0..16: +1 for i&lt;6, zero for 6..10, -1 for 11..16.
     /// Equivalently clamp(truncate((8-i)/3), -1, +1), truncating toward zero rather than floor.
     /// LookupTableResearch checks all seventeen signed words against ROM, pinned assembly, and this table.
     /// The six/five/six authored phase lengths are retained; no physical deceleration law is inferred.</remarks>

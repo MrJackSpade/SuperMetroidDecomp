@@ -412,6 +412,21 @@ public static class SamusPaletteRomData
     public static class Death
     {
         /// <summary><c>$9B:B7D3</c>, three families of ten suited palette pointers.</summary>
+        /// <remarks>
+        /// Issue #889 / #625: all thirty little-endian words at
+        /// <c>$9B:B7D3..B80E</c> match the pinned NTSC J/U v1.0 ROM
+        /// and native bank-$9B listing. For suit <c>s=0..2</c> and
+        /// palette index <c>k=0..9</c>, index zero points to
+        /// <c>$9820+$0100*s</c>, index one to the shared yellow flash
+        /// at <c>$9420</c>, indices two through eight to
+        /// <c>$9820+$0100*s+$0020*(k-1)</c>, and index nine to the
+        /// shared final palette at <c>$A220</c>. The caller selects
+        /// Power, Varia, or Gravity with native suit offsets
+        /// <c>0,2,4</c> (Gravity priority), indexes zero/one during
+        /// flashing and zero/two through nine during explosion, then
+        /// copies all sixteen target colors. This formula describes
+        /// pointers; the target palettes remain separate data.
+        /// </remarks>
         public const int SuitPointers = 0x9bb7d3;
         /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>
         public const int SuitlessPointers = 0x9bb80f;

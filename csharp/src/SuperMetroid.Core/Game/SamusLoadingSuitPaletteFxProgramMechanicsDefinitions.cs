@@ -13,9 +13,20 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
 
 /// <summary>Immutable mechanics shared by the three Samus-loading palette programs.</summary>
 /// <remarks>
-/// Definitions <c>$E1F4</c>, <c>$E1F8</c>, and <c>$E1FC</c> share four counted
-/// two-record groups and one terminal record. Their 432 BGR555 words remain live
-/// presentation data; this catalog owns palette placement, timing, replay, and deletion.
+/// Issue #855 / #625: pinned NTSC J/U v1.0 ROM definitions <c>$8D:E1F4</c>,
+/// <c>$E1F8</c>, and <c>$E1FC</c> enter at <c>$8D:DB62</c>, <c>$DCC8</c>,
+/// and <c>$DE2E</c>. Each starts with <c>SetColorIndex($0180)</c>, then
+/// four <c>SetTimer(byte)</c> groups at bank-local entry offsets
+/// <c>$0007,$0056,$00A5,$00F4</c>. Timers <c>$24,3,3,2</c> replay each
+/// group's pair of <c>3, colors[16], Wait</c> records via
+/// <c>DecrementTimerAndGoto(group start)</c>. One final
+/// <c>1, colors[16], Wait</c> record starts at offset <c>$0140</c>;
+/// <c>Delete</c> follows at <c>$0164</c>. Thus
+/// <c>(36 + 3 + 3 + 2)*2*3 + 1 = 265</c> frames elapse. All 99
+/// control words and 12 timer bytes match the ROM. The 432 BGR555 words
+/// remain live presentation data supplied by the presentation compiler;
+/// this catalog owns only placement, timing, replay, and deletion. ROM SHA-256:
+/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
 {

@@ -791,16 +791,16 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual(0x0a, minimum.AnimationFrame,
         "Space Jump wall contact uses ordinary frame 10 rewind");
 
-    // Three suit-list entries exist in retail; this fixture exercises Power Suit offset
-    // zero and gives all six Screw frames unique first colors to prove wrapping order.
-    WriteTestWord(bus, 0x91d727, 0x9400);
+    // The compiled Power Suit Screw list visits four distinct shades in the
+    // native 0,1,2,3,2,1 order before wrapping to phase zero.
     WriteTestWord(bus, 0x9b9400, 0x0111);
-    WriteTestWord(bus, 0x91da4a, 0xd000);
-    for (int frame = 0; frame < 6; frame++)
+    for (int shade = 0; shade < 4; shade++)
     {
-        ushort palette = unchecked((ushort)(0xe000 + frame * 0x20));
-        WriteTestWord(bus, 0x91d000 + frame * 2, palette);
-        WriteTestWord(bus, 0x9b0000 | palette, unchecked((ushort)(0x1200 + frame)));
+        AssertTrue(SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
+            0, unchecked((ushort)(shade * 2)), out ushort pointer),
+            $"compiled Power Screw shade {shade} exists");
+        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
+            unchecked((ushort)(0x1200 + shade)));
     }
 
     var palettes = new SamusHorizontalSpeedState();
@@ -814,7 +814,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         AssertTrue(palettes.UpdateSpeedBoosterPalette(
             bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 0x1b, equippedItems: 0x0008),
             $"Screw palette frame {frame} copies");
-        AssertEqual(unchecked((ushort)(0x1200 + frame)), cgram.Colors[192],
+        AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");
     }
     AssertEqual(0, palettes.SpecialPaletteFrame, "six Screw palettes wrap to offset zero");

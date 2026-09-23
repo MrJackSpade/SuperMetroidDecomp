@@ -242,17 +242,14 @@ static void VerifySamusHorizontalSpeed()
         AssertEqual(7, retainedBoost.ExtraRunSpeed, "released boost retains numeric speed");
     }
 
-    // `$91:DAA9` is a pointer to the active suit's four-entry palette-pointer list, not a
-    // direct bank-$9B palette address. Distinct first/second colors prove both levels of
-    // indirection, the one-then-four frame timer, and the pinned frame-six progression.
-    WriteTestWord(bus, 0x91daa9, 0xd100); // Power Suit speed-palette list in bank $91.
-    WriteTestWord(bus, 0x91d100, 0xe000);
-    WriteTestWord(bus, 0x91d102, 0xe020);
-    WriteTestWord(bus, 0x91d104, 0xe040);
-    WriteTestWord(bus, 0x91d106, 0xe060);
-    WriteTestWord(bus, 0x9be000, 0x1234);
-    WriteTestWord(bus, 0x9be020, 0x4567);
-    WriteTestWord(bus, 0x91d727, 0x9400); // Normal Power Suit palette for cancellation.
+    // The active suit/phase pointer lists are compiled. Distinct first/second
+    // colors at their actual targets prove the one-then-four timer progression.
+    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+        0, 0, out ushort powerBoostFirst), "compiled first Power boost phase exists");
+    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+        0, 2, out ushort powerBoostSecond), "compiled second Power boost phase exists");
+    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | powerBoostFirst, 0x1234);
+    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | powerBoostSecond, 0x4567);
     WriteTestWord(bus, 0x9b9400, 0x0321);
 
     var boostCgram = new SnesCgram();
@@ -277,9 +274,9 @@ static void VerifySamusHorizontalSpeed()
     // Attack or active Speed Booster branches. A submerged Power/Varia body returns with
     // carry set: neither CGRAM nor the shared timer/index words may move. Gravity Suit's
     // palette-index bit two bypasses that exact gate and must still follow the ROM pointer.
-    WriteTestWord(bus, 0x91daad, 0xd120); // Gravity Suit speed-palette pointer list.
-    WriteTestWord(bus, 0x91d120, 0xe080);
-    WriteTestWord(bus, 0x9be080, 0x6a5a);
+    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+        4, 0, out ushort gravityBoostFirst), "compiled first Gravity boost phase exists");
+    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
     var submergedBoostCgram = new SnesCgram();
     WriteTestWord(bus, 0x9bf000, 0x7777);
@@ -319,9 +316,9 @@ static void VerifySamusHorizontalSpeed()
 
     // The same early return surrounds Screw Attack. Exercise it independently so a future
     // refactor cannot fix running boost while accidentally leaving the spin palette active.
-    WriteTestWord(bus, 0x91da4e, 0xd140); // Gravity Suit Screw-palette pointer list.
-    WriteTestWord(bus, 0x91d140, 0xe0a0);
-    WriteTestWord(bus, 0x9be0a0, 0x5b4b);
+    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
+        4, 0, out ushort gravityScrewFirst), "compiled first Gravity Screw phase exists");
+    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SnesCgram();
     WriteTestWord(bus, 0x9bf020, 0x2222);

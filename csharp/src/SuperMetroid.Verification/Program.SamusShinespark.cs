@@ -44,15 +44,16 @@ static void VerifySamusStoredShineAndShinespark()
 
     // No sine-table region is installed: echo mechanics use compiled stock samples.
 
-    // Stored-shine table `$91:DB10` -> bank-$91 list -> bank-$9B palette. Distinct
-    // sentinel colors make either missing indirection immediately observable.
-    WriteTestWord(bus, 0x91db10, 0xd200);
+    // Seed the six compiled stored-shine phase targets with distinct sentinel
+    // colors, making an incorrect suit or phase selection immediately observable.
     for (int frame = 0; frame < 6; frame++)
     {
-        WriteTestWord(bus, 0x91d200 + frame * 2, unchecked((ushort)(0xe100 + frame * 0x20)));
-        WriteTestWord(bus, 0x9be100 + frame * 0x20, unchecked((ushort)(0x1100 + frame)));
+        AssertTrue(SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
+            0, unchecked((ushort)(frame * 2)), out ushort pointer),
+            $"compiled Power stored-shine phase {frame} exists");
+        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
+            unchecked((ushort)(0x1100 + frame)));
     }
-    WriteTestWord(bus, 0x91d727, 0x9400);
     WriteTestWord(bus, 0x9b9400, 0x0321);
 
     var shine = new SamusState

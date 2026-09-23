@@ -141,10 +141,14 @@ static void VerifySamusPowerBeamProjectiles()
     // Samus body palette fixtures for `$91:D743`. The normal table uses all three native
     // byte offsets so a Gravity restore can prove selection priority independently of the
     // ten Hyper-shot pointers. Every palette/color word is unique and remains valid BGR555.
-    ushort[] normalSuitPalettePointers = [0xe300, 0xe320, 0xe340];
+    ushort[] normalSuitPalettePointers =
+    [
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(0),
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(2),
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(4),
+    ];
     for (int suit = 0; suit < normalSuitPalettePointers.Length; suit++)
     {
-        WriteTestWord(bus, 0x91d727 + suit * 2, normalSuitPalettePointers[suit]);
         for (int color = 0; color < 16; color++)
         {
             WriteTestWord(

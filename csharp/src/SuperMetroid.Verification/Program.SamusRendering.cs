@@ -679,16 +679,13 @@ static void VerifySamusHurtFlashPalette()
     var bus = new TestAddressSpace();
     var cgram = new SnesCgram();
 
-    // Power/Varia/Gravity table entries are bank-$9B pointers. Use Gravity in the primary
-    // run and seed all sixteen words distinctly so a partial ten-color copy cannot pass.
-    WriteTestWord(bus, 0x91d727, 0x9400);
-    WriteTestWord(bus, 0x91d729, 0x9440);
-    WriteTestWord(bus, 0x91d72b, 0x9480);
+    // Use the compiled Power/Varia/Gravity pointer identities. Seed all sixteen
+    // colors distinctly so a partial ten-color copy cannot pass.
     for (int color = 0; color < 16; color++)
     {
         WriteTestWord(bus, 0x9b9400 + color * 2, unchecked((ushort)(0x0100 + color)));
-        WriteTestWord(bus, 0x9b9440 + color * 2, unchecked((ushort)(0x0200 + color)));
-        WriteTestWord(bus, 0x9b9480 + color * 2, unchecked((ushort)(0x0300 + color)));
+        WriteTestWord(bus, 0x9b9520 + color * 2, unchecked((ushort)(0x0200 + color)));
+        WriteTestWord(bus, 0x9b9800 + color * 2, unchecked((ushort)(0x0300 + color)));
         WriteTestWord(bus, 0x9ba380 + color * 2, unchecked((ushort)(0x4000 + color)));
         WriteTestWord(bus, 0x9ba3a0 + color * 2, unchecked((ushort)(0x5000 + color)));
     }
@@ -726,7 +723,7 @@ static void VerifySamusHurtFlashPalette()
             normalPaletteCalls++;
             AssertEqual(SamusHurtFlashPaletteAction.NormalSuitRestore, step.Action,
                 $"even hurt call {call} restores equipment palette");
-            AssertEqual(0x9b9480, step.PaletteAddress!.Value,
+            AssertEqual(0x9b9800, step.PaletteAddress!.Value,
                 $"hurt call {call} gives Gravity priority over Varia");
             for (int color = 0; color < 16; color++)
             {

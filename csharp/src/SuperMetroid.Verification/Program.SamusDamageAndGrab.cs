@@ -72,8 +72,8 @@ static void VerifySamusDrainedController()
 
     // `$91:D99E` points at ten complete Hyper Beam palettes in reverse-numbered order.
     // Distinct synthetic words expose both the pointer index and all-$20-byte copy. The
-    // Power Suit entry at `$91:D727` independently verifies controller-zero/command-$17
-    // restoration instead of allowing the last rainbow palette to remain accidentally.
+    // The compiled Power Suit entry at `$91:D727` independently verifies
+    // controller-zero/command-$17 restoration rather than retaining rainbow colors.
     for (ushort palette = 0; palette < 10; palette++)
     {
         ushort pointer = unchecked((ushort)(0xa000 + palette * 0x20));
@@ -86,9 +86,10 @@ static void VerifySamusDrainedController()
                 unchecked((ushort)(0x1000 + palette * 0x20 + color)));
         }
     }
-    WriteTestWord(bus, 0x91d727, 0xb800);
     for (ushort color = 0; color < 16; color++)
-        WriteTestWord(bus, 0x9bb800 + color * 2, unchecked((ushort)(0x3000 + color)));
+        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette |
+            (SamusPaletteRomData.Common.NormalSuitPalettePointer(0) + color * 2),
+            unchecked((ushort)(0x3000 + color)));
 
     // `$8D:E1F0` points at the compact Hyper Beam projectile-palette program. Each of its
     // ten records lasts two handler calls and writes CGRAM `$E1-$E8`; synthetic colors make

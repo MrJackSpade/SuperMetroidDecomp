@@ -766,6 +766,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// ending at $C122. This matches SteppingBack's stock pointer
     /// descent, while the native movement callbacks differ. All
     /// five back-off operands remain live cartridge reads.
+    /// The eight melting operands at $A4:BF66, BF6E, BF74, BF7A,
+    /// BF80, BF88, BF8E, and BF94 follow pinned stock pointer
+    /// $CA7E+$000A*i for i=4*pass+row, pass 0..1 and row 0..3.
+    /// The final pointer is $CAC4. The death-phase selector chooses
+    /// one row within a pass; its operand remains a live ROM read.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

@@ -173,6 +173,16 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>
+        /// <remarks>
+        /// Issue #874 / #625: the pinned NTSC J/U v1.0 ROM's three
+        /// little-endian words are exactly <c>$DAAF+8*s</c> for suit
+        /// index <c>s=0..2</c>, matching the native bank-$91 listing.
+        /// The caller selects Power, Varia, or Gravity with byte offset
+        /// <c>2*s</c>, reads four bank-$9B palette pointers from the chosen
+        /// bank-$91 list at phase offsets <c>0,2,4,6</c>, and then pins
+        /// the last phase. This stride describes only the three list
+        /// addresses; the nested pointers and colors are separate data.
+        /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>
         public const int StoredShineLists = 0x91db10;

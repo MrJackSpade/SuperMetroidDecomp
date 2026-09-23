@@ -62,6 +62,16 @@ internal static class CeresFlightActorDefinitions
     /// These are unsigned scene placements, without an exact useful
     /// progression across all five actor types. Retain the bounded Y choices
     /// rather than fit arithmetic to unrelated visual roles.
+    ///
+    /// Issues #625 and #1008: the five initializer attribute words at
+    /// $8B:BF2F/$BF59/$BF83/$BFC0/$BEAF match pinned NTSC J/U v1.0 ROM
+    /// and bank_8B.asm: $0800, $0C00, $0800, $0800, $0800. For bounded
+    /// actor index i=0..4, the exact selector is $0800 OR ($0400 when
+    /// i=1, otherwise zero). Index one is the station-under-attack actor;
+    /// its palette bits differ from the asteroid, vortex and star actors.
+    /// IntroDiscoverySprite.Draw applies the selected attributes to OAM.
+    /// The rule covers only the five native spawn rows, without assigning
+    /// meaning to an invalid index or altering their authored palette.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

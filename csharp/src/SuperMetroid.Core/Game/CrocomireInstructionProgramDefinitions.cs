@@ -119,9 +119,20 @@ internal static class CrocomireInstructionProgramDefinitions
     /// RoarCloseMouth program at BD8E.
     /// </summary>
     internal const ushort Roar = 0xbd2a;
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_0</c> at $A4:BD8E.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_0</c>
+    /// at $A4:BD8E-$BDA1. Pinned-ROM mechanics begin with $0020,
+    /// Fight AI $86A6, $0005, Fight AI, $0008, then $0002.
+    /// Each duration has a live spritemap operand. This authored
+    /// timing/control order continues into the loop entry at BDA2.
+    /// </summary>
     internal const ushort RoarCloseMouth = 0xbd8e;
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_1</c> at $A4:BDA2.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_1</c>
+    /// at $A4:BDA2-$BDAD. Two $0001 durations each have a live
+    /// spritemap operand and Fight AI $86A6 callback. Retain this
+    /// short control sequence; the next program begins at BDAE.
+    /// </summary>
     internal const ushort RoarCloseMouthLoop = 0xbda2;
     /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthFullyOpen</c> at $A4:BDAE.</summary>
     internal const ushort PowerBombReactionMouthFullyOpen = 0xbdae;

@@ -122,6 +122,18 @@ internal static class SpcSoundEffectTables
     /// Original SPC work-RAM addresses retained in allocation state for save-state parity.
     /// The managed implementation accesses typed channel objects directly.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #931 exact layout: for library l=0..2, choose base
+    /// B=( $03A6, $0446, $047E )[l] and channel count C=(4,2,2)[l].
+    /// Field 0 (voice bitset) starts at B; field 1 (channel mask) at B+C;
+    /// field 2 (voice index) at B+2*C+1. Each field's channel j adds j,
+    /// with j=0..C-1. The extra byte precedes the voice-index region in
+    /// every library. All nine stored bases and every per-channel address
+    /// agree with the pinned SpcPlayer memory map in upstream-sm/src/spc_player.c.
+    /// These are SPC RAM structure offsets, not a cartridge lookup region.
+    /// Preserve the original addresses for serialized allocation state;
+    /// no runtime migration is part of this proof.
+    /// </remarks>
     internal static readonly ushort[,] AllocationStateAddresses =
     {
         { 0x03a6, 0x03aa, 0x03af },

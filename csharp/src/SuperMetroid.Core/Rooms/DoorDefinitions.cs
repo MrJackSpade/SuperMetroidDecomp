@@ -673,6 +673,10 @@ public static class DoorDefinitions
     /// normalized BTS i=0..5. Index 6 reaches scroll word $0202 at
     /// $8F:9431. The independent ROM list oracle checks all six entries,
     /// both high-bit forms, and this first invalid index.
+    /// Issue #1060, Bowling Alley Path $8F:9488: two door words are
+    /// $8A12, $8A1E, exactly $8A12 + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches non-door word $0007 at $8F:948C. The independent
+    /// ROM list oracle checks both entries and the invalid boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

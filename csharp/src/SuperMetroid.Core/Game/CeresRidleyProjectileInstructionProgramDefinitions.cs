@@ -144,6 +144,11 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     /// $95B6 independently read those same five $8D:80E6..8102 records in
     /// that order. This is shared authored animation data, not five more
     /// records; retain the live pointer reads and shared target payloads.
+    /// The vertical-center operands at $95D7, $95DD, $95E1, $95E5, and
+    /// $95E9 independently read the identical five target records, again in
+    /// order. Their operand addresses are the horizontal-center addresses
+    /// plus $33; the target pointers themselves do not change. Retain these
+    /// live reads of the shared authored animation.
     /// </remarks>
     private static readonly ushort[] PresentationWords =
     [

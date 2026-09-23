@@ -706,6 +706,13 @@ internal static class CrocomireInstructionProgramDefinitions
     /// $C574: $C5AE - $3A*i for indices 0..1. A fully-open entry
     /// traverses both; a partially-open entry begins at the second.
     /// Both remain live cartridge presentation reads.
+    /// The 27 closed-mouth power-bomb operands have two bounded stock
+    /// rules. Prefix indices 0..14 use $C47A + $32*(i modulo 5),
+    /// the same three cycles as ProjectileAttack's first fifteen
+    /// operands under +$0280 instruction-address translation.
+    /// Loop indices 15..26 use $BFC4 + $32*(i-15), ending at $C1EA;
+    /// this matches the unused charge-forward pointer progression.
+    /// All 27 addresses remain live cartridge presentation reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

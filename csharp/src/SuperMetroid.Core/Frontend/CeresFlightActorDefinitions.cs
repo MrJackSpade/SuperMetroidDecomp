@@ -16,6 +16,17 @@ internal static class CeresFlightActorDefinitions
     /// <c>$8B:CF0F</c> with initializer parameter zero: opening star field and its
     /// signed-8.8 motion accumulator.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #1014: front stars and RearViewActor(4) alias the
+    /// same native $8B:CF0F definition and list $8B:CDA3..CDAA. Its four
+    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm: duration
+    /// $000A, bank-$8C star spritemap $9478, goto $94BC, target $CDA3.
+    /// The initializer parameter changes actor motion, not this list.
+    /// The exact bounded rule displays the same authored star sheet for
+    /// ten handler calls and repeats while its scene owns the actor.
+    /// IntroDiscoverySprite.Step never falls into adjacent list $CDAB.
+    /// Keep one ROM-backed visual asset for both definition aliases.
+    /// </remarks>
     public static CeresFlightActorDefinition FrontStars => new(
         Pointer: 0xcf0f,
         Initialization: 0xbe7e,

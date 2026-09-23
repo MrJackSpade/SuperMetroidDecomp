@@ -15,6 +15,15 @@ public enum MaridiaEnvironmentalPaletteOwner
 /// Definitions <c>$F795</c>, <c>$F799</c>, and <c>$F79D</c> own 112 BGR555 color
 /// words. Those colors remain presentation data; this catalog owns only color-index
 /// setup, durations, waits, and loop control.
+/// Sand pits set CGRAM byte $0048 and enter four ten-frame records at
+/// $F4ED + 20*i, i=0..3, then $C61E goto at $F53D: a 40-frame loop.
+/// Sand falls set $0050 and enter four ten-frame records at
+/// $F545 + 12*i, then goto $F575: another 40-frame loop.
+/// Background waterfalls set $0068 and enter eight two-frame records
+/// at $F57D + 20*i, i=0..7, then goto $F61D: a 16-frame loop.
+/// Each record ends in $C595 wait; each goto targets its first record.
+/// The next index in each program reaches control, not presentation data.
+/// All 44 mechanics words match the pinned NTSC J/U v1.0 ROM.
 /// </remarks>
 public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
 {

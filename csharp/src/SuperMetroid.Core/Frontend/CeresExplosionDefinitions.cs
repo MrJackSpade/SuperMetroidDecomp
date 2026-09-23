@@ -64,6 +64,19 @@ internal static class CeresExplosionDefinitions
         new(0xcebb, 0xc434, 0xc582, 0xccdb);
 
     /// <summary><c>$8B:CEC1</c>, cyclic repeating small-explosion actor.</summary>
+    /// <remarks>
+    /// Issues #625 and #1002: all nineteen words of this actor's list at
+    /// $8B:CCF5..CD1A match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
+    /// Opcode $94D6 seeds the separate loop timer to 6, then six duration-3
+    /// frames use bank-$8C spritemaps $97F7, $97FE, $9805, $981B, $9831,
+    /// $9847. A duration-16 null map follows. Opcode $94C3 decrements the
+    /// loop timer and jumps to $CCF9 while nonzero; otherwise $9438 deletes
+    /// the actor. IntroDiscoverySprite.Step follows those bounded cursors;
+    /// its first-instruction delay does not replace the loop timer. The
+    /// ordered visual frames, blank interval and six-cycle termination are
+    /// authored animation policy. Retain this finite stream rather than
+    /// deriving only its uniform frame durations; $CD1B starts a new list.
+    /// </remarks>
     public static CeresExplosionActorDefinition RepeatingActor =>
         new(0xcec1, 0xc4b9, 0xc582, 0xccf5);
 

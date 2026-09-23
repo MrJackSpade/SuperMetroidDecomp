@@ -31,10 +31,22 @@ public readonly record struct ControllerBindings(
         AimDown: (ushort)SnesButton.L);
 
     /// <summary>
-    /// Physical buttons admitted by <c>OptionsMenuControllerFunc_0</c>, in the same order
-    /// as ROM table <c>$82:F558</c>. Its final Left/Right entries are not examined by that
+    /// Physical buttons admitted by <c>GameOptions_ControllerSettings_SetBinding</c>, in the same order
+    /// as ROM table <c>$82:F575</c>. Its final Left/Right entries are not examined by that
     /// routine; only these first seven can be assigned in an ordinary retail options menu.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #952: pinned NTSC J/U v1.0 ROM and Controller_Input_Bitmasks in
+    /// bank_82.asm agree on all nine little-endian words: X, A, B, Select, Y, L, R,
+    /// Left, Right. The managed seven-word prefix matches exactly; the final two words
+    /// remain adjacent ROM data, not assignable actions. Native set-binding starts at
+    /// byte offset 12 and scans backward to zero; Save_GameOptionsMenu_ControllerBindings
+    /// indexes the same seven choices. The managed menu scans this span backward and
+    /// AssignAndSwap validates membership. These are authored menu choices in irregular
+    /// order, so an enum arithmetic rule would obscure their policy and boundaries.
+    /// Retain the named seven-entry span. The former $82:F558 citation names the save
+    /// routine, not the table.
+    /// </remarks>
     public static ReadOnlySpan<ushort> AssignableButtons =>
     [
         (ushort)SnesButton.X,

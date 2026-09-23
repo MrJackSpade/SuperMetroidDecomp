@@ -547,6 +547,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// duration $0001 at BADE and Fight AI $86A6 at BAE2. Retain this one
     /// authored presentation identity as a live cartridge read; it is not
     /// a second mechanics word or an indexed numeric progression.
+    /// The following twelve entries are the unused charge-forward list's
+    /// live spritemap operands at $A4:BAEC, BAF4, BAFA, BB00, BB06,
+    /// BB0C, BB12, BB1A, BB20, BB26, BB2C, and BB32. Their pinned ROM
+    /// values obey $BFC4 + $32*i exactly for indices 0 through 11,
+    /// ending at $C1EA. This bounded stock progression describes the
+    /// presentation data; the interpreter still reads each operand live.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

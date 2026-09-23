@@ -77,7 +77,15 @@ internal static class CrocomireInstructionProgramDefinitions
     /// entry; there is no indexed mechanics progression to derive.
     /// </summary>
     internal const ushort StepBack = 0xbc30;
-    /// <summary><c>InstList_Crocomire_SteppingBack</c> at $A4:BC34.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_SteppingBack</c> at $A4:BC34-$BC55.
+    /// Five $0008 durations each precede a live spritemap operand.
+    /// Pinned-ROM callbacks then order rightward moves as cloud, plain,
+    /// plain, cloud, shake plus plain, and final Fight AI $86A6.
+    /// Retain this authored movement/effect schedule; the constant
+    /// duration rule does not determine callback placement. The
+    /// wait-for-damage program begins at BC56.
+    /// </summary>
     internal const ushort SteppingBack = 0xbc34;
     /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage</c> at $A4:BC56.</summary>
     internal const ushort WaitForFirstSecondDamage = 0xbc56;

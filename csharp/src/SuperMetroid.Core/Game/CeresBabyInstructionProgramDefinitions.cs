@@ -52,6 +52,9 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// {0, 1, 2, 1} repeated three times. Each palette block contains
     /// fifteen colors ($001E bytes). The final operand at $BFBF points to
     /// $E1F1, the preceding palette block, outside that repeated cycle.
+    /// The expressive spritemap operand for i = 0..11 is at $BF63 + 8*i;
+    /// its pointer is $BFFD + $001B*q using the same four-pose cycle
+    /// q = {0, 1, 2, 1} repeated three times.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

@@ -265,9 +265,21 @@ internal static class CrocomireInstructionProgramDefinitions
     /// sound order; SkeletonStable starts at E1C6.
     /// </summary>
     internal const ushort SkeletonFallsApart = 0xe158;
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_1</c> at $A4:E1C6.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireCorpse_Skeleton_1</c> at $A4:E1C6.
+    /// The stable skeleton holds for pinned-ROM duration $7FFF,
+    /// reads a live spritemap operand at E1C8, then Sleep $812F
+    /// at E1CA. This is the first of two identical hold/Sleep
+    /// mechanics entries with distinct presentation identities.
+    /// </summary>
     internal const ushort SkeletonStable = 0xe1c6;
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_Dead</c> at $A4:E1CC.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireCorpse_Skeleton_Dead</c> at $A4:E1CC.
+    /// The dead skeleton also holds for $7FFF, reads a live
+    /// spritemap operand at E1CE, then Sleep $812F at E1D0.
+    /// The bounded two-entry mechanics rule ends before the
+    /// flowing-down-river program at E1D2.
+    /// </summary>
     internal const ushort Dead = 0xe1cc;
     /// <summary><c>InstList_CrocomireCorpse_Skeleton_FlowingDownTheRiver</c> at $A4:E1D2.</summary>
     internal const ushort SkeletonFlowingDownRiver = 0xe1d2;

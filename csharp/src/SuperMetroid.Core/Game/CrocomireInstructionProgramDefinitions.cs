@@ -592,6 +592,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// spritemap operand with pinned stock value $C6A4, between the
     /// $00B4 duration at BBCA and StepForward opcode $8752 at BBCE.
     /// Retain that one authored presentation identity.
+    /// The next twelve StepForward operands run from $A4:BBD2 to BC28.
+    /// For zero-based indices 0..2, stock pointer = $C574 + $3A*i;
+    /// for 3..11, stock pointer = $C752 + $3A*(i-3), ending at $C922.
+    /// The jump at index 3 is a different spritemap family. All twelve
+    /// operand addresses remain live cartridge presentation reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

@@ -233,7 +233,14 @@ internal static class CrocomireInstructionProgramDefinitions
     /// <summary><c>InstList_Crocomire_Melting2_Top4Rows</c> at $A4:BF92:
     /// $7FFF, live operand BF94, then Sleep $812F at BF96.</summary>
     internal const ushort MeltingTwoTopFourRows = 0xbf92;
-    /// <summary><c>InstList_CrocomireTongue_BridgeCollapsed</c> at $A4:BFB0.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireTongue_BridgeCollapsed</c> at
+    /// $A4:BFB0-$BFC3. Four pinned-ROM durations are all $0005,
+    /// each preceding a live spritemap operand. Cry SFX $8CFB
+    /// at BFB8 lies between the second and third holds; Sleep
+    /// $812F at BFC2 ends the authored sequence. BFC4 begins
+    /// spritemap data rather than another mechanics instruction.
+    /// </summary>
     internal const ushort BridgeCollapsed = 0xbfb0;
     /// <summary><c>InstList_CrocomireCorpse_Skeleton_Falling</c> at $A4:E14A.</summary>
     internal const ushort SkeletonFalling = 0xe14a;

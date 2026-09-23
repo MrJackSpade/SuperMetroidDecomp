@@ -4,6 +4,18 @@ namespace SuperMetroid.Core.Audio;
 internal static class SpcMusicTables
 {
     /// <summary>Argument-byte count for opcodes $E0-$FE.</summary>
+    /// <remarks>
+    /// Issues #625 and #923 retain this 31-entry command-format catalog. The
+    /// pinned NTSC J/U v1.0 ROM at $CF:87A8 (file $2787A8) matches every byte
+    /// of kEffectByteLength in upstream-sm/src/spc_player.c and this array.
+    /// Each entry is the authored operand count for one opcode, not a sampled
+    /// numeric function: adjacent opcodes have unrelated semantics and arities.
+    /// The native decoder reads the first operand when the count is nonzero,
+    /// then individual handlers consume remaining operands; key-off lookahead
+    /// skips the entire count. A replacement must preserve all 31 mappings,
+    /// reject opcodes outside $E0-$FE, and retain those distinct read paths.
+    /// No shorter generator is supported by the command format evidence.
+    /// </remarks>
     internal static readonly byte[] EffectByteLengths =
     [
         1, 1, 2, 3, 0, 1, 2, 1, 2, 1, 1, 3, 0, 1, 2, 3,

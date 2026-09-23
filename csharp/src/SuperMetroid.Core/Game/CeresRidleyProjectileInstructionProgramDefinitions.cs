@@ -158,6 +158,10 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     /// order. Their operand addresses are the horizontal-center addresses
     /// plus $33; the target pointers themselves do not change. Retain these
     /// live reads of the shared authored animation.
+    /// The directional-afterburn operands at $960A, $9610, $9614, $9618,
+    /// and $961C also read $8D:80E6 + 7 * frame index for indices zero
+    /// through four. The four right/left/up/down owners share this same
+    /// five-record animation; retain its live pointers and authored payloads.
     /// </remarks>
     private static readonly ushort[] PresentationWords =
     [

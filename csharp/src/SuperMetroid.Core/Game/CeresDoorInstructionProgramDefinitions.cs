@@ -118,13 +118,30 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// The $80ED goto at $F626 returns to $F622 without repeating setup.
     /// </summary>
     internal const ushort RotatingElevatorInvisibleWallLoop = 0xf622;
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at $A6:F62A.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at
+    /// $A6:F62A-$A6:F633. Variant five makes the wall intangible once;
+    /// its frame loop starts at <see cref="RidleyEscapeMode7LeftWallLoop"/>.
+    /// </summary>
     internal const ushort RidleyEscapeMode7LeftWall = 0xf62a;
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_1</c> at $A6:F62C.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_1</c> at $A6:F62C
+    /// holds duration $0001 and a live spritemap operand. The $80ED
+    /// goto at $F630 returns here, skipping one-time setup.
+    /// </summary>
     internal const ushort RidleyEscapeMode7LeftWallLoop = 0xf62c;
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7RightWall_0</c> at $A6:F634.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RidleyEscapeMode7RightWall_0</c> at
+    /// $A6:F634-$A6:F63D is the variant-six counterpart. Its four
+    /// mechanics word addresses equal the left program's plus $000A;
+    /// its local goto target is relocated by the same amount.
+    /// </summary>
     internal const ushort RidleyEscapeMode7RightWall = 0xf634;
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7RightWall_1</c> at $A6:F636.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RidleyEscapeMode7RightWall_1</c> at $A6:F636
+    /// holds duration $0001 and a live spritemap operand; $80ED at
+    /// $F63A returns here without repeating intangible setup.
+    /// </summary>
     internal const ushort RidleyEscapeMode7RightWallLoop = 0xf636;
 
     private static readonly CeresDoorInstructionMechanicsWord[] Words =

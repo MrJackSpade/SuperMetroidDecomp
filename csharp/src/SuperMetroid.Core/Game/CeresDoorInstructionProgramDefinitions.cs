@@ -211,6 +211,12 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// operands at $F58A + 4*i are {$FAA7, $FA87, $FA67, $FA3D}; its four
     /// open-transition operands at $F5A8 + 4*i are exactly that sequence
     /// reversed, for i = 0..3. Both transitions keep live ROM pointers.
+    /// The left-door close-transition operands at $F5DC + 4*i are
+    /// {$F9F3, $F9D3, $F9B3, $F989}; the open-transition operands at
+    /// $F5FA + 4*i reverse them. Each of these eight pointers is the
+    /// corresponding right-door transition pointer minus $00B4. The
+    /// left-door holds are authored separately: initial $FA13 and
+    /// open/closed $F95F, outside that offset rule.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

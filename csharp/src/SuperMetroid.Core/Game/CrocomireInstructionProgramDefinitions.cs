@@ -789,6 +789,10 @@ internal static class CrocomireInstructionProgramDefinitions
     /// for indices 0..3: $C5AE, $C574, $C5AE, $C5E8.
     /// BFC2 is Sleep and BFC4 begins spritemap data; all four
     /// instruction operands remain live cartridge reads.
+    /// The three skeleton-falling operands at $A4:E14C, E150,
+    /// and E154 use pinned stock pointer $E1FE+$002A*i for
+    /// indices 0..2, ending at $E252. Sleep at E156 ends the
+    /// list; all three pose operands remain live ROM reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

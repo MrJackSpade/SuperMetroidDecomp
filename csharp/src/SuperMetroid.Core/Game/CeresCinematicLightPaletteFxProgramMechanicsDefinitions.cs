@@ -74,6 +74,16 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     public const ushort BackgroundNavigationLightsColorIndex = 0x00da;
 
     /// <summary>The shared Ceres navigation-light loop begins at <c>$8D:C892</c>.</summary>
+    /// <remarks>
+    /// The $8D:E1AC sprite definition sets CGRAM index $01DA at $C88E and
+    /// falls through here; the $E1B8 background definition sets $00DA at
+    /// $C906 and jumps here. For frame 0..13, its record begins at
+    /// $C892 + 8 * frame, lasts four ticks, contains two live BGR555 words,
+    /// and ends in $C595 wait. The $C61E goto at $C902 returns to $C892,
+    /// making a 56-frame cycle. All 36 mechanics words across both entries,
+    /// fourteen records, and terminal branches match the pinned NTSC J/U
+    /// v1.0 ROM. The 28 color words remain presentation-owned.
+    /// </remarks>
     public const ushort NavigationLightsFirstFramePointer = 0xc892;
     /// <summary>The shared Ceres navigation-light terminal <c>goto</c> at <c>$8D:C902</c>.</summary>
     public const ushort NavigationLightsLoopInstructionPointer = 0xc902;

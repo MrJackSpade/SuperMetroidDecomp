@@ -670,6 +670,17 @@ public static class SamusPaletteRomData
     public static class PowerBomb
     {
         /// <summary><c>$88:9079</c>, sixteen RGB triplets for the pre-explosion.</summary>
+        /// <remarks>
+        /// For radius-derived index <c>i = 0..15</c>, stock red and green
+        /// are both 16 at zero, <c>2*i+2</c> at 1..12, and
+        /// <c>50-2*i</c> at 13..15. Blue is 16 at zero, the same as red
+        /// at 1..5, 10 at 6, 8 at 7..11, 10 at 12, and
+        /// <c>34-2*i</c> at 13..15. All 48 five-bit payload bytes match
+        /// the pinned NTSC J/U v1.0 ROM and native listing. The caller
+        /// indexes by <c>(radius &gt;&gt; 11) &amp; $0F</c>, then reads R/G/B
+        /// in order; the following <c>$88:90A9</c> bytes form another table.
+        /// Retain live ROM-backed colors. Investigation: #625 / #904.
+        /// </remarks>
         public const int PreExplosionColors = 0x889079;
         /// <summary><c>$88:8D85</c>, radius-indexed RGB triplets for the explosion.</summary>
         public const int ExplosionColors = 0x888d85;

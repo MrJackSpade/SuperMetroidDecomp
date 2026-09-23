@@ -32,6 +32,14 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     internal const ushort FireballLoop = 0x9560;
 
     /// <summary><c>InstList_EnemyProjectile_Afterburn_Final</c> at $86:9574.</summary>
+    /// <remarks>
+    /// A directional afterburn's collision path resets its instruction pointer
+    /// here. The bounded $86:9574..958B stream clears the pre-instruction,
+    /// displays five successive five-tick poses, then executes the $8154
+    /// delete instruction. Its seven control words match the pinned NTSC
+    /// J/U v1.0 ROM. The five intervening spritemap pointers are presentation
+    /// operands, not control words.
+    /// </remarks>
     internal const ushort AfterburnFinal = 0x9574;
 
     /// <summary><c>InstList_EnemyProjectile_HorizontalAfterburn_Center</c> at $86:95A0.</summary>

@@ -88,6 +88,16 @@ internal static class CeresExplosionDefinitions
     /// adds this signed offset with native 16-bit wrap. The bounded
     /// parity-and-center rule expresses the geometry without extending
     /// into the adjacent Y table.
+    ///
+    /// Issues #625 and #994: the separate signed Y-offset table at
+    /// $8B:C47F+2*i contains -16, +16, +16, -16, 0 for i=0..4; all five
+    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. For the outer
+    /// four, Y is the negative of the matching X offset when i&lt;2, then
+    /// equals X when i=2..3; the fifth is the center at zero. Initializer
+    /// $8B:C434 computes Mode 7 origin Y minus BG1 Y before adding this
+    /// signed value with native 16-bit wrap. Together the bounded X/Y
+    /// selectors describe four corners and a center without extrapolating
+    /// into the following pre-instruction bytes.
     /// </remarks>
     public static CeresExplosionPlacement InitialExplosion(int index) => index switch
     {

@@ -18,7 +18,15 @@ internal static class CacatacInstructionProgramDefinitions
     /// $9E8A, so every idle cycle re-executes the moving-left/right instruction.
     /// </summary>
     internal const ushort UpsideUpIdle = 0x9e8a;
-    /// <summary><c>InstList_Cacatac_UpsideUp_Attacking</c> at $A2:9EB0.</summary>
+    /// <summary>
+    /// <c>InstList_Cacatac_UpsideUp_Attacking</c> at $A2:9EB0-$A2:9ED9.
+    /// Four opening duration words at base + 4*i are $0015, $0005, $0015,
+    /// $0005 for i = 0..3, each followed by a live spritemap operand.
+    /// At base + $10 the $9F2A sound command precedes five $A0A7 spike
+    /// commands at base + $12 + 4*i for i = 0..4. Their authored direction
+    /// selectors are left-facing-up, up-left, up, up-right, right-facing-up.
+    /// The $80ED goto at base + $26 returns to <see cref="UpsideUpIdle"/>.
+    /// </summary>
     internal const ushort UpsideUpAttack = 0x9eb0;
     /// <summary>
     /// <c>InstList_Cacatac_UpsideDown_Idling_0</c> at $A2:9EDA-$A2:9EFF.
@@ -34,7 +42,13 @@ internal static class CacatacInstructionProgramDefinitions
     /// This differs from the upright loop target $9E8A.
     /// </summary>
     internal const ushort UpsideDownIdleLoop = 0x9edc;
-    /// <summary><c>InstList_Cacatac_UpsideDown_Attacking</c> at $A2:9F00.</summary>
+    /// <summary>
+    /// <c>InstList_Cacatac_UpsideDown_Attacking</c> at $A2:9F00-$A2:9F29.
+    /// It has the same four-duration, sound, and five-spike command layout as
+    /// the upright list. Its authored direction selectors are left-facing-down,
+    /// down-left, down, down-right, right-facing-down. The $80ED goto at
+    /// base + $26 returns to <see cref="UpsideDownIdle"/>.
+    /// </summary>
     internal const ushort UpsideDownAttack = 0x9f00;
 
     private static readonly CacatacInstructionMechanicsWord[] Words =

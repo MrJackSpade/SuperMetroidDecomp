@@ -93,9 +93,17 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// for i = 0..3, then returns to <see cref="OpenFacingLeft"/>.
     /// </summary>
     internal const ushort ClosedFacingLeftWait = 0xf5ee;
-    /// <summary><c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_0</c> at $A6:F610.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_0</c>
+    /// at $A6:F610-$A6:F619. Variant two executes $F68B once to make
+    /// the overlay intangible before its one-tick frame loop.
+    /// </summary>
     internal const ushort RotatingElevatorPreExplosionOverlay = 0xf610;
-    /// <summary><c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_1</c> at $A6:F612.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_1</c>
+    /// at $A6:F612 contains duration $0001 and a live spritemap operand.
+    /// The $80ED goto at $F616 targets $F612, skipping the one-time setup.
+    /// </summary>
     internal const ushort RotatingElevatorPreExplosionOverlayLoop = 0xf612;
     /// <summary><c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_0</c> at $A6:F61A.</summary>
     internal const ushort RotatingElevatorInvisibleWall = 0xf61a;

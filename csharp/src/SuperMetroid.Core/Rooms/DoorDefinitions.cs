@@ -918,6 +918,10 @@ public static class DoorDefinitions
     /// through $904E, exactly $901E + 12*i for normalized BTS
     /// i=0..4. Index 5 reaches scroll data $0202 at $8F:A284.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1119, Red Brinstar Firefleas $8F:A2BA: two words
+    /// are $905A and $9066, exactly $905A + 12*i for normalized
+    /// BTS i=0..1. Index 2 reaches scroll data $0202 at $8F:A2BE.
+    /// The ROM oracle checks both entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

@@ -63,6 +63,14 @@ public static class PaletteFxHeatInstructionListDefinitions
     ];
 
     /// <summary>Returns the compiled program selected by one suit and published heat phase.</summary>
+    /// <remarks>
+    /// Valid phase p=0..15 selects base + $22*p: Gravity base $E8BE
+    /// from source $8D:E3E0, Varia base $E692 from $8D:E400, or Power
+    /// base $E466 from $8D:E420. The $22 stride is one duration, fifteen
+    /// live BGR555 colors, and one wait word. All 48 source pointers
+    /// match the pinned NTSC J/U v1.0 ROM. The native pre-instruction
+    /// prioritizes Gravity over Varia; invalid phase or suit fails here.
+    /// </remarks>
     public static ushort Resolve(PaletteFxHeatSuit suit, ushort phase)
     {
         if (phase >= PhaseCount)

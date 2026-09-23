@@ -902,6 +902,10 @@ public static class DoorDefinitions
     /// $8FE2 and $8FEE, exactly $8FE2 + 12*i for normalized BTS
     /// i=0..1. Index 2 reaches next room header $011D at $8F:A1D8.
     /// The ROM oracle checks both entries, aliases, and boundary.
+    /// Issue #1115, Billy Mays $8F:A1FF: sole valid normalized BTS
+    /// i=0 resolves to $8FFA; no stride follows from one word.
+    /// Index 1 reaches next room header $011E at $8F:A201. The ROM
+    /// oracle checks the entry, both aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

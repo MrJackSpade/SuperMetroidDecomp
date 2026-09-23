@@ -78,6 +78,17 @@ internal static class IntroEggMotionDefinitions
     };
 
     /// <summary>$8B:AB35: five authored horizontal slime records; four actors are normally spawned.</summary>
+    /// <remarks>
+    /// Issues #625 and #978: pinned NTSC J/U v1.0 ROM and bank_8B.asm
+    /// match all five high-word-first signed 16.16 pairs at $8B:AB35..AB48:
+    /// FFFF:0000, FFFF:8000, 0001:0000, 0000:8000, FFFF:8000.
+    /// $8B:AAB3 indexes by the actor timer's low byte with a four-byte
+    /// stride; the retail spawn path creates indices 0..3, while index 4 is
+    /// the fifth physical table entry. The first four form opposing full-
+    /// and half-pixel speeds, but the fifth repeats -0.5. Retain the five
+    /// explicit launch choices rather than hide this authored extra entry
+    /// behind a four-item symmetry rule. Unknown indices throw.
+    /// </remarks>
     public static (ushort Whole, ushort Fraction) SlimeX(int index) => Split(index switch
     {
         0 => -0x10000, 1 => -0x8000, 2 => 0x10000, 3 => 0x8000, 4 => -0x8000,

@@ -914,6 +914,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $9012; no stride follows from one word.
     /// Index 1 reaches next room header $0120 at $8F:A253. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1118, Red Tower $8F:A27A: five words run from $901E
+    /// through $904E, exactly $901E + 12*i for normalized BTS
+    /// i=0..4. Index 5 reaches scroll data $0202 at $8F:A284.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

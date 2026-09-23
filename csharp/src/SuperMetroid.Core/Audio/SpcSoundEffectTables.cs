@@ -79,6 +79,11 @@ internal static class SpcSoundEffectTables
     /// policy mapping; deriving it from command number or stream pointer
     /// would discard sound-specific allocation choices. The managed caller
     /// checks the command domain before indexing.
+    /// Issues #625 and #929: library 2 has a separate 127-byte policy map
+    /// for commands 1..127. All selectors match native kSfx2Conf; its switch
+    /// maps 0..3 to one/two voices and low/high priority. The complete byte
+    /// sequence has no contiguous ROM match. Retain the authored per-sound
+    /// choices rather than infer them from pointer spacing or command number.
     /// </remarks>
     internal static readonly byte[][] Configurations =
     [

@@ -20,7 +20,7 @@ internal static class SnesDspTables
     /// hardware rate selector. Selector zero disables the corresponding timer.
     /// </summary>
     /// <remarks>
-    /// Issue #625 exact counter-period formula: validate selector i=0..31;
+    /// Issues #625 and #921 exact counter-period formula: validate selector i=0..31;
     /// return 0 for disabled i=0 and 1 for the every-sample i=31 endpoint.
     /// Otherwise g=(i-1)/3 and r=(i-1)%3, and period=((8-2*r+r/2)*256)&gt;&gt;g.
     /// Integer r/2 produces the repeating 8:6:5 counter ratios, halved each

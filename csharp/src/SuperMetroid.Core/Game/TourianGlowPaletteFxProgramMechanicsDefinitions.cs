@@ -61,6 +61,17 @@ public static class TourianGlowPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Returns one split presentation-color address within a frame.</summary>
+    /// <remarks>
+    /// For frame f=0..10, color c=0..7, and d=min(f,11-f), decode
+    /// base BGR555 words ($5294,$0019,$0012,$5C00,$4000,$1084,
+    /// $197F,$7FFF) into red, green, and blue channels. Subtract
+    /// step[c]*d from each channel independently, clamp each at zero,
+    /// then re-encode BGR555. Steps are (2,3,3,3,3,0,3,3).
+    /// Color 0 is at $F63A + 22*f + 2; colors 1..7 begin at offset 6
+    /// after the inline CGRAM skip. All 88 words match the pinned NTSC
+    /// J/U v1.0 ROM, including clamped channels. Frame eleven reaches
+    /// loop control; both entries read the colors live.
+    /// </remarks>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)

@@ -34,7 +34,7 @@ internal static class SpcMusicTables
 
     /// <summary>Sixteen authored note-volume percentage selections, encoded as byte fractions.</summary>
     /// <remarks>
-    /// Issue #625 exact recipe: for index i=0..15 choose p=10*(i+1) for i&lt;4,
+    /// Issues #625 and #919 exact recipe: for index i=0..15 choose p=10*(i+1) for i&lt;4,
     /// p=5*(i+5) for 4..14, and p=99 for i=15. Then return (255*p-1)/100
     /// using integer division. This lower-side quantization is also reproduced by
     /// truncating 255/100 to Q16 BEFORE multiplying: ((255*65536/100)*p)&gt;&gt;16.

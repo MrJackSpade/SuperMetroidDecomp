@@ -761,6 +761,10 @@ public static class DoorDefinitions
     /// pseudo-door $88FC. Index 3 reaches scroll data $0001 at
     /// $8F:9965. The ROM oracle checks all entries, high-bit aliases,
     /// and this first invalid index.
+    /// Issue #1080, Lower Mushrooms $8F:9990: two words are $8C16
+    /// and $8C22, exactly $8C16 + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $001B at $8F:9994. The ROM
+    /// oracle checks both entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

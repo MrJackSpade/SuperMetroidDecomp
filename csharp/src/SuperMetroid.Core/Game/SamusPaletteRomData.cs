@@ -47,7 +47,18 @@ public static class SamusPaletteRomData
     /// <summary>Ordinary damage-flash and intro-restoration palettes.</summary>
     public static class HurtFlash
     {
-        /// <summary><c>$9B:A380</c>, the sixteen-color yellow hurt palette.</summary>
+        /// <summary><c>$9B:A380</c>, the sixteen-color hurt-flash palette.</summary>
+        /// <remarks>
+        /// Issue #863 / #625: the pinned NTSC J/U v1.0 ROM's sixteen BGR555
+        /// words are copied unchanged to Samus OBJ CGRAM 192..207 on odd
+        /// hurt-counter calls 1, 3, and 5. Color zero is <c>$0000</c>. For
+        /// each color index <c>c=1..15</c> and each five-bit channel <c>q</c>,
+        /// <c>q(hurt[c]) = floor((2*q(intro[c]) + 5*31)/7)</c>, where
+        /// <c>intro</c> is the adjacent palette at <c>$9B:A3A0</c>.
+        /// This bounded 5/7 blend toward white matches all sixteen ROM words
+        /// exactly; it describes the stored relationship, not a native runtime
+        /// calculation. The palette remains live cartridge data.
+        /// </remarks>
         public const int Colors = 0x9ba380;
         /// <summary><c>$9B:A3A0</c>, the sixteen-color cinematic Samus palette.</summary>
         public const int IntroColors = 0x9ba3a0;

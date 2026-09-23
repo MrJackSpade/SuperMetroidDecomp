@@ -790,6 +790,10 @@ public static class DoorDefinitions
     /// pseudo-door $88FC; i=10 resumes physical headers at $8D12
     /// (= $8CA6 + 12*9). Index 11 reaches scroll data $0002 at
     /// $8F:9B16. The ROM oracle checks all eleven entries and aliases.
+    /// Issue #1087, Spore Spawn Super $8F:9B82: two words are $8D1E
+    /// and $8D2A, exactly $8D1E + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches scroll data $0201 at $8F:9B86. The ROM oracle
+    /// checks both entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

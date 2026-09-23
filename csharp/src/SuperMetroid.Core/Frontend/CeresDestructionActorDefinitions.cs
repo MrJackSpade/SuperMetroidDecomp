@@ -79,6 +79,15 @@ internal static class CeresDestructionActorDefinitions
     /// those four sheets occupy the four corners of a bounded two-by-two
     /// layout. Planet index 0 and title index 5 retain authored $006F
     /// and $00BA. No value is extrapolated outside actor indices 0..5.
+    ///
+    /// Issues #625 and #1019: the six OAM attribute immediates at
+    /// $8B:C848/C950/C964/C978/C98C/C99F match pinned NTSC J/U v1.0
+    /// ROM and bank_8B.asm: $0E00, $0800, $0800, $0800, $0800, $0000.
+    /// The exact bounded classification is planet index 0 -> $0E00,
+    /// star-sheet indices 1..4 -> $0800, and title index 5 -> $0000.
+    /// IntroDiscoverySprite.Draw applies those bits to OAM. Retain the
+    /// authored attribute category for each visual role; this case rule
+    /// does not define attributes for indices outside the six spawns.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

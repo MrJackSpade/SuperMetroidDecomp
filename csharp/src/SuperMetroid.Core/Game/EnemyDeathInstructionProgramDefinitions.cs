@@ -138,7 +138,12 @@ internal static class EnemyDeathInstructionProgramDefinitions
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
 
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
-        kind == RoomEnemyProjectileKind.EnemyDeathExplosion && FindWord(address) >= 0;
+        (kind == RoomEnemyProjectileKind.EnemyDeathExplosion ||
+         // A collected/expired pickup jumps to the same native respawn tail; it
+         // must not acquire ownership of the explosion programs that follow it.
+         (kind == RoomEnemyProjectileKind.EnemyDeathPickup &&
+          address >= RespawnTail && address < BigExplosion)) &&
+        FindWord(address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

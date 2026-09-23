@@ -11,6 +11,19 @@ internal static partial class Program
     private static void VerifyEnemyDeathInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        foreach (ushort address in new[]
+                 {
+                     EnemyDeathInstructionProgramDefinitions.RespawnTail,
+                     unchecked((ushort)(EnemyDeathInstructionProgramDefinitions.RespawnTail + 4)),
+                     unchecked((ushort)(EnemyDeathInstructionProgramDefinitions.RespawnTail + 6)),
+                 })
+            AssertTrue(EnemyDeathInstructionProgramDefinitions.Owns(
+                    RoomEnemyProjectileKind.EnemyDeathPickup, address),
+                $"enemy pickup owns native respawn-tail mechanics $86:{address:X4}");
+        AssertTrue(!EnemyDeathInstructionProgramDefinitions.Owns(
+                RoomEnemyProjectileKind.EnemyDeathPickup,
+                EnemyDeathInstructionProgramDefinitions.BigExplosion),
+            "enemy pickup does not own the following death-explosion program");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < EnemyDeathInstructionProgramDefinitions.MechanicsWordCount;

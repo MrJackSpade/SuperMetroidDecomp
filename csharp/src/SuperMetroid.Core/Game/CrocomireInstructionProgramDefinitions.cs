@@ -602,6 +602,9 @@ internal static class CrocomireInstructionProgramDefinitions
     /// for 3..11, stock pointer = $C752 + $3A*(i-3), ending at $C922.
     /// The jump at index 3 is a different spritemap family. All twelve
     /// operand addresses remain live cartridge presentation reads.
+    /// The single StepBack operand at $A4:BC32 has pinned stock value
+    /// $C5AE, between its two-frame duration and the SteppingBack list.
+    /// Retain this authored identity as a live presentation read.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

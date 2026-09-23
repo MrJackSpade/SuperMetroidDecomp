@@ -59,6 +59,17 @@ public static class LoadStationDefinitions
     ];
 
     /// <summary>$80:C5CF-$80:C6D8, all nineteen Brinstar records.</summary>
+    /// <remarks>
+    /// Issue #1048: in the pinned NTSC J/U v1.0 ROM, indexes 5..7 and
+    /// 12..15 are the inert placeholder; 0..4, 8..11, and 16..18 are
+    /// authored placements. Index 16 exactly repeats index 8. This
+    /// sparse classification and alias are exact, but the other room,
+    /// door, camera, and Samus fields are independent scene choices,
+    /// so retain their records. Get accepts only station bytes 0..18;
+    /// index 19 starts the adjacent Norfair list at $80:C6D9.
+    /// Direct ROM inspection and the independent 134-record load-station
+    /// verifier agree on all nineteen rows and the invalid boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] brinstar =
     [
         new(0xa184, 0x8df6, 0x0000, 0x0000, 0x0000, 0x0098, 0xffe0),

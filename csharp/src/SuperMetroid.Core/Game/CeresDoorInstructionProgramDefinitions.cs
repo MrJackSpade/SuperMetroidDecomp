@@ -27,15 +27,39 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// <see cref="ClosedFacingRight"/> at $F598.
     /// </summary>
     internal const ushort RidleyRoomFacingRightWait = 0xf55e;
-    /// <summary><c>InstList_CeresDoor_Normal_FacingRight</c> at $A6:F56C.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Normal_FacingRight</c> at $A6:F56C-$A6:F5BD.
+    /// The intangible/invisible entry holds one $0002 frame; $F63E at
+    /// $F574 branches to <see cref="ClosedFacingRight"/> when Samus is at
+    /// least $0030 pixels away on either axis. Otherwise it enters
+    /// <see cref="OpenFacingRight"/>. This is the variant-zero entry.
+    /// </summary>
     internal const ushort NormalFacingRight = 0xf56c;
-    /// <summary><c>InstList_CeresDoor_Open_FacingRight_0</c> at $A6:F578.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Open_FacingRight_0</c> at $A6:F578.
+    /// Its $0002 frame loops through $80ED while Samus is near; the
+    /// $F63E distance branch targets <see cref="CloseFacingRight"/>.
+    /// </summary>
     internal const ushort OpenFacingRight = 0xf578;
-    /// <summary><c>InstList_CeresDoor_Open_FacingRight_1</c> at $A6:F584.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Open_FacingRight_1</c> at $A6:F584.
+    /// After making the door tangible and visible, duration word
+    /// $F588 + 4*i is exactly $0005 for i = 0..3; the four frames
+    /// fall through to <see cref="ClosedFacingRight"/>.
+    /// </summary>
     internal const ushort CloseFacingRight = 0xf584;
-    /// <summary><c>InstList_CeresDoor_Closed_FacingRight_0</c> at $A6:F598.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Closed_FacingRight_0</c> at $A6:F598 makes
+    /// the door tangible and visible before the closed wait segment.
+    /// </summary>
     internal const ushort ClosedFacingRight = 0xf598;
-    /// <summary><c>InstList_CeresDoor_Closed_FacingRight_1</c> at $A6:F59C.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Closed_FacingRight_1</c> at $A6:F59C.
+    /// The $0002 closed frame repeats while Samus is distant. When near,
+    /// the door queues its opening sound and duration word $F5A6 + 4*i
+    /// is exactly $0005 for i = 0..3. After these four frames it becomes
+    /// intangible/invisible and jumps to <see cref="OpenFacingRight"/>.
+    /// </summary>
     internal const ushort ClosedFacingRightWait = 0xf59c;
     /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_0</c> at $A6:F5BE.</summary>
     internal const ushort NormalFacingLeft = 0xf5be;

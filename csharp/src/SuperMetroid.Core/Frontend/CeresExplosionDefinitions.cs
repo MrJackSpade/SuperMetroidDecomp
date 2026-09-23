@@ -79,6 +79,15 @@ internal static class CeresExplosionDefinitions
     /// it schedules the first blast on its first eligible handler call.
     /// The selector rejects other indices rather than reading the adjacent
     /// X-offset table.
+    ///
+    /// Issues #625 and #993: the separate signed X-offset table at
+    /// $8B:C475+2*i contains +16, -16, +16, -16, 0 for i=0..4; all five
+    /// words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. The outer
+    /// four follow 16*(1-2*(i&amp;1)); the fifth is the center blast at zero.
+    /// Initializer $8B:C434 computes Mode 7 origin X minus BG1 X, then
+    /// adds this signed offset with native 16-bit wrap. The bounded
+    /// parity-and-center rule expresses the geometry without extending
+    /// into the adjacent Y table.
     /// </remarks>
     public static CeresExplosionPlacement InitialExplosion(int index) => index switch
     {

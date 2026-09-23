@@ -723,6 +723,10 @@ public static class DoorDefinitions
     /// $8B1A, exactly $8B0E + 12*i for normalized BTS i=0..1. Index 2
     /// reaches scroll data $0101 at $8F:9686. The independent ROM oracle
     /// checks both entries, high-bit aliases, and this boundary.
+    /// Issue #1071, Pre-Bowling $8F:96B6: two words are $8B26 and
+    /// $8B32, exactly $8B26 + 12*i for normalized BTS i=0..1. Index 2
+    /// reaches next room header $0012 at $8F:96BA. The ROM oracle
+    /// checks both entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

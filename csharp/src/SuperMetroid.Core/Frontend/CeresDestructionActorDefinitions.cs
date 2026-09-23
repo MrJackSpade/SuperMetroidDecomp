@@ -97,6 +97,17 @@ internal static class CeresDestructionActorDefinitions
     /// i=0..5. StepZebesActors adds it to the 16-bit timer with wrap,
     /// then subtracts the resulting 8.8 velocity from Y. The last star
     /// owns scene completion but shares the same acceleration magnitude.
+    ///
+    /// Issues #625 and #1021: native slide-callback immediates at
+    /// $8B:C857/C902/C8B3 match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm: $C85D for planet index 0, $C908 for star indices
+    /// 1..3, and $C8B9 for completion star index 4. Title index 5 has
+    /// no slide callback and must be gone before this phase. All four
+    /// moving stars share the acceleration above, but only $C8B9 writes
+    /// cinematic function $CADF at $8B:C8F2 after Y crosses below -128;
+    /// the other callbacks delete their actors. StepZebesActors identifies
+    /// that completion owner by actor reference as native slots shift.
+    /// Retain this bounded callback/transition classification.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

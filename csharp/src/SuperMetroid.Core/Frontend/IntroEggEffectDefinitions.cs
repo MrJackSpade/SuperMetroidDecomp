@@ -16,6 +16,18 @@ internal static class IntroEggEffectDefinitions
     /// Returns one of the six adjacent shell-fragment definitions. All share initializer
     /// <c>$A958</c> and pre-instruction <c>$A994</c>; each owns a distinct eight-byte list.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #981: for fragment i=0..5, the definition starts at
+    /// $8B:CECD+6*i and contains initializer $A958, pre-instruction $A994,
+    /// and instruction-list pointer $CD39+8*i, in that order. All 18 words
+    /// at $8B:CECD..CEF0 match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
+    /// Each referenced eight-byte list starts with duration one and loops
+    /// to itself. The egg spawn opcode creates exactly indices 0..5; the
+    /// method rejects negative and one-past-end indices. The shared callback
+    /// pair and two strides are an exact smaller representation of these
+    /// six definitions. Actor verification completes all six fragments with
+    /// physical definition reads forbidden.
+    /// </remarks>
     public static IntroEggEffectActorDefinition Particle(int index)
     {
         if ((uint)index >= ParticleCount)

@@ -11,9 +11,18 @@ public enum ZebesExplosionAmbientPaletteFxProgramOwner
 
 /// <summary>Immutable mechanics for the Zebes explosion's afterglow and lava loops.</summary>
 /// <remarks>
-/// Definitions <c>$E1D4</c> and <c>$E1D8</c> retain distinct record counts, widths,
-/// and duration schedules. Their 58 BGR555 words remain live presentation data; this
-/// catalog owns palette placement, timing, waits, and loop control.
+/// Issue #846 / #625: pinned NTSC J/U v1.0 ROM definition <c>$8D:E1D4</c>
+/// enters at <c>$8D:D3CA</c>: <c>SetColorIndex($01C2)</c>, six 20-byte
+/// records of <c>16, colors[8], Wait</c>, then <c>Goto($D3CE)</c> at
+/// <c>$D446</c> (96 frames per loop). All 16 control words match. Its color
+/// rows are exactly <c>A,B,C,D,C,B</c>: all 16 words in rows 4 and 5 repeat
+/// rows 2 and 1. Rows <c>A</c> through <c>D</c> remain authored data;
+/// straight component interpolation from <c>A</c> to <c>D</c> misses 10 of
+/// the 16 middle words with floor rounding and 12 with nearest rounding.
+/// The presentation compiler supplies all 48 live colors while this catalog
+/// supplies only controls to the palette-FX runtime. The separate lava loop
+/// uses its own record count, width, and duration schedule. ROM SHA-256:
+/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 {

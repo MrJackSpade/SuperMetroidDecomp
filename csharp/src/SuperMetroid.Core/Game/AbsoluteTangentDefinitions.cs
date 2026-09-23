@@ -20,6 +20,10 @@ public static class AbsoluteTangentDefinitions
     /// cancel the phase error being reproduced. This is an exact reproduction
     /// recipe, not a claim about the original generator. Runtime migration and
     /// performance measurement remain for a later pass; the table is unchanged.
+    /// The same physical table is named by
+    /// <see cref="SamusXrayRomData.Window.AbsoluteTangentTable"/> and used by
+    /// eye windows, Mother Brain's beam, and X-ray direction rendering.
+    /// Individual investigation: #625 / #906.
     /// </remarks>
     private static ReadOnlySpan<ushort> Quarter =>
     [

@@ -59,6 +59,16 @@ public static class SamusRenderingRomData
         public const int VariaSuitPalette = 0x9b9520;
 
         /// <summary><c>$9B:9800</c>, ordinary Gravity Suit palette.</summary>
+        /// <remarks>
+        /// Issue #862 / #625: sixteen authored BGR555 words in the pinned NTSC
+        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+        /// Gravity loading palette-FX program (#858). The nearby speed-boost
+        /// base <c>$9B:9F20</c> is not an alias: colors 0, 1, and 12 differ.
+        /// Eleven color slots are shared with normal Power and Varia; slots
+        /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
+        /// palette table rather than a computed channel sequence.
+        /// </remarks>
         public const int GravitySuitPalette = 0x9b9800;
 
         /// <summary>Number of colors copied into Samus's OBJ palette.</summary>

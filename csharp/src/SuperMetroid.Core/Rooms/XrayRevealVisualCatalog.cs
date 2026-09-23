@@ -13,6 +13,17 @@ public readonly record struct XrayRoomOverlayVisual(byte X, byte Y, ushort Word)
 /// <summary>Installed item and room-specific X-ray presentation, independent of PLM state.</summary>
 public sealed class XrayOverlayVisualCatalog
 {
+    /// <summary>Eight installed X-ray item metatiles indexed by graphics slot.</summary>
+    /// <remarks>
+    /// Issue #1038: native $84:839D..83AC holds eight little-endian draw
+    /// pointers; the visual word is at pointer + 2, masked by $0FFF.
+    /// The pinned NTSC J/U v1.0 ROM yields slots 0..7 as $08E, $090,
+    /// $092, $094, $04A, $04D, $04F, $050. The overlay caller bounds
+    /// checks each selected slot; the independent installation verifier
+    /// compared all eight stock values with the cartridge. These are
+    /// authored visual choices and reveals.json may replace them, so no
+    /// universal formula can replace this bounded installed array.
+    /// </remarks>
     private readonly ushort[] itemMetatiles;
     private readonly Dictionary<ushort, XrayRoomOverlayVisual[]> rooms;
 

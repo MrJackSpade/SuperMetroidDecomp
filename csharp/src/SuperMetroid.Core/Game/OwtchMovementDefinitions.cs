@@ -20,7 +20,7 @@ internal static class OwtchMovementDefinitions
     ];
 
     /// <summary>$A2:A3ED, OwtchData.undergroundTimers: six burial durations.</summary>
-    /// <remarks>#625 exact NTSC arithmetic progression: duration=32*(i+1), i=0..5.
+    /// <remarks>Issues #625 and #948 exact NTSC arithmetic progression: duration=32*(i+1), i=0..5.
     /// Pinned assembly expresses this directly using !FPS=1; do not apply it unchanged to PAL.
     /// All six ROM/assembly/compiled words are exhaustively checked by LookupTableResearch.
     /// This domain is shorter than the travel-distance domain; preserve its independent bound.</remarks>

@@ -115,6 +115,13 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Returns one presentation-owned gunship-engine BGR555 word.</summary>
+    /// <remarks>
+    /// For the only valid frame indices 0 and 1, the pinned ROM words at
+    /// $8D:C880 + 6 * frame are $7FFF and $0000 respectively: a white/black
+    /// alternation repeated by the control loop. Both values are authored
+    /// BGR555 presentation content, so retain the two live color reads.
+    /// The frame and color bounds reject adjacent program data.
+    /// </remarks>
     public static ushort GunshipEngineColorPointer(int frame, int color)
     {
         if ((uint)color >= GunshipEngineColorsPerFrame)

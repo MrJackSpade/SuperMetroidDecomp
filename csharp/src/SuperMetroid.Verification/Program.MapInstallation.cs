@@ -91,6 +91,14 @@ internal static partial class Program
             using var output = File.Create(roomFxArtworkOverride);
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         }
+        string roomFxTilemapOverride = Path.Combine(installation.MapOverrideDirectory,
+            RoomFxLayer3TilemapFormat.FileName);
+        var roomFxTilemaps = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, RoomFxLayer3TilemapFormat.FileName)))!;
+        int lavaTileColumn = roomFxTilemaps["pages"]!["Lava"]![0]!["tileColumn"]!.GetValue<int>();
+        roomFxTilemaps["pages"]!["Lava"]![0]!["tileColumn"] =
+            (lavaTileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns;
+        File.WriteAllText(roomFxTilemapOverride, roomFxTilemaps.ToJsonString());
         string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
         var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
         stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
@@ -210,6 +218,9 @@ internal static partial class Program
                 out ReadOnlyMemory<byte> editedRoomFx) &&
             !stockRoomFx.Span.SequenceEqual(editedRoomFx.Span),
             "full installation consumes room-FX animation artwork override");
+        AssertTrue(!stock.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span.SequenceEqual(
+            edited.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span),
+            "full installation consumes room-FX BG3 tilemap override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -224,6 +235,7 @@ internal static partial class Program
             [grappleOverride] = File.ReadAllBytes(grappleOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [roomFxArtworkOverride] = File.ReadAllBytes(roomFxArtworkOverride),
+            [roomFxTilemapOverride] = File.ReadAllBytes(roomFxTilemapOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),

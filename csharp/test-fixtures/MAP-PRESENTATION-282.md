@@ -1524,3 +1524,26 @@ synchronous and queued transfers with bank-$87 reads forbidden. The shared
 `--map-presentation` verifier changes one PNG pixel and observes the live VRAM
 transfer, identity change, restored stock content, and strict corrupt-resource
 failure. `--map-installation` verifies upgrade/restart preservation of overrides.
+
+## Editable room-FX BG3 tilemap composition (#542, #547, #549)
+
+Catalog version 61 adds `room-fx-layer3-tilemaps.json` with six named 32x33
+tile-reference pages: Lava, Acid, Water, Spores, Rain, and Fog. Each cell exposes
+its 8x8 character index as a column/row plus palette, priority, and flip flags.
+The extra thirty-third row is part of the native 0x840-byte transfer and must
+not be discarded. Copy the complete stock file to `overrides/maps` to change
+effect composition without editing the ROM. These tile references select
+characters from their existing artwork owners; the JSON does not alter liquid
+physics, damage, scroll, effect activation, or animation cadence. Spores are
+extracted for completeness, but the general visible Spores renderer is still
+outside the translated room-FX set.
+
+The six native source identities are compiled separately from the editable
+tilemap words. Installed room loads no longer read the bank-$83 page-pointer
+table or bank-$8A tilemap payload for the five translated visible effects.
+`--room-fx-layer3-tilemaps` compares every word and pointer against the pinned
+ROM and executes all five production room-FX load paths with those ROM ranges
+forbidden. The shared map-presentation suite checks a changed Lava cell through
+the actual VRAM transfer, strict malformed-resource handling, and stock restore.
+The full installer fixture verifies that an edited tilemap survives upgrade and
+restart alongside the other player overrides.

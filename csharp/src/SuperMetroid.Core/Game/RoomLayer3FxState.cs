@@ -19,12 +19,20 @@ public sealed class RoomLayer3FxState
 {
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
     [NonSerialized] private RoomFxAnimatedTileAtlas? animatedTileArtwork;
+    [NonSerialized] private RoomFxLayer3TilemapCatalog? layer3Tilemaps;
 
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork
     {
         get => animatedTileArtwork;
         set => animatedTileArtwork = value;
+    }
+
+    /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
+    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps
+    {
+        get => layer3Tilemaps;
+        set => layer3Tilemaps = value;
     }
     private ushort verticalAccumulator;
     private ushort horizontalAccumulator;
@@ -193,20 +201,28 @@ public sealed class RoomLayer3FxState
         if (!IsRenderable)
             return;
 
-        int typeIndex = ((byte)Type) >> 1;
-        ushort tilemapPointer = ReadWord(
-            bus,
-            RoomFxRomData.Tables.Layer3TilemapPointers + typeIndex * 2);
-        if (tilemapPointer == 0)
+        if (layer3Tilemaps is not null)
         {
-            throw new InvalidDataException(
-                $"Renderable room FX type ${(byte)Type:X2} has no bank-$8A tilemap pointer.");
+            vram.ExecuteQueuedAssetWrite(layer3Tilemaps.Resolve(Type).Span,
+                RoomFxRomData.Layer3.TilemapDestinationWord);
         }
-        vram.ExecuteHardwareDmaWrite(
-            bus,
-            RoomFxRomData.Banks.Tilemaps | tilemapPointer,
-            RoomFxRomData.Layer3.TilemapByteCount,
-            RoomFxRomData.Layer3.TilemapDestinationWord);
+        else
+        {
+            int typeIndex = ((byte)Type) >> 1;
+            ushort tilemapPointer = ReadWord(
+                bus,
+                RoomFxRomData.Tables.Layer3TilemapPointers + typeIndex * 2);
+            if (tilemapPointer == 0)
+            {
+                throw new InvalidDataException(
+                    $"Renderable room FX type ${(byte)Type:X2} has no bank-$8A tilemap pointer.");
+            }
+            vram.ExecuteHardwareDmaWrite(
+                bus,
+                RoomFxRomData.Banks.Tilemaps | tilemapPointer,
+                RoomFxRomData.Layer3.TilemapByteCount,
+                RoomFxRomData.Layer3.TilemapDestinationWord);
+        }
 
         if (Type == RoomFxType.Water)
         {

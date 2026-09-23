@@ -250,7 +250,20 @@ internal static class CrocomireInstructionProgramDefinitions
     /// at E158. The constant timing rule is bounded to three entries.
     /// </summary>
     internal const ushort SkeletonFalling = 0xe14a;
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_FallsApart_0</c> at $A4:E158.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireCorpse_Skeleton_FallsApart_0</c> at
+    /// $A4:E158-$E1C5. Its twenty pinned-ROM durations, in order,
+    /// are $000A, four $0005, $000A/$0020/$0010/$000A,
+    /// two $0009, two $0008, two $0007, three $0006, and
+    /// two $0005. Each precedes a live spritemap operand.
+    /// The first four dust callbacks have authored offsets
+    /// -32, 0, -16, +16; skeleton-collapse SFX $8D13 follows.
+    /// The later nine dust callbacks at E18E..E1BE use native opcode
+    /// $9AAF+5*j and X offset 8*j for j=0..8. Their durations are
+    /// 8,8,7,7,6,6,6,5,5. Explosion SFX $8D07 precedes the final
+    /// five-frame hold. Retain the authored first callbacks and
+    /// sound order; SkeletonStable starts at E1C6.
+    /// </summary>
     internal const ushort SkeletonFallsApart = 0xe158;
     /// <summary><c>InstList_CrocomireCorpse_Skeleton_1</c> at $A4:E1C6.</summary>
     internal const ushort SkeletonStable = 0xe1c6;

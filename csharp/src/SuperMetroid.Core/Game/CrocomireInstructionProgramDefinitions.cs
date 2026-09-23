@@ -134,9 +134,22 @@ internal static class CrocomireInstructionProgramDefinitions
     /// short control sequence; the next program begins at BDAE.
     /// </summary>
     internal const ushort RoarCloseMouthLoop = 0xbda2;
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthFullyOpen</c> at $A4:BDAE.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_PowerBombReaction_MouthFullyOpen</c> at
+    /// $A4:BDAE. Its pinned-ROM mechanics word is duration $0002,
+    /// followed by a live spritemap operand at BDB0. A fully-open
+    /// reaction falls through the partially-open two-frame entry
+    /// at BDB2 before the closed-mouth program at BDB6.
+    /// </summary>
     internal const ushort PowerBombReactionMouthFullyOpen = 0xbdae;
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthPartiallyOpen</c> at $A4:BDB2.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_PowerBombReaction_MouthPartiallyOpen</c>
+    /// at $A4:BDB2. Its pinned-ROM mechanics word is also duration
+    /// $0002, followed by a live spritemap operand at BDB4. A
+    /// partially-open reaction starts here and falls into the
+    /// closed-mouth program at BDB6. These two entry durations
+    /// form an exact bounded constant rule, with distinct entry paths.
+    /// </summary>
     internal const ushort PowerBombReactionMouthPartiallyOpen = 0xbdb2;
     /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_0</c> at $A4:BDB6.</summary>
     internal const ushort PowerBombReactionMouthNotOpen = 0xbdb6;

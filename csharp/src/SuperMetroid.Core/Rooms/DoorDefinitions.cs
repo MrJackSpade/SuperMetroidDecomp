@@ -701,6 +701,11 @@ public static class DoorDefinitions
     /// interleaves Forgotten Highway Elbow's door headers. Index 2
     /// reaches next room header $000C at $8F:95A8. The independent ROM
     /// oracle checks both entries, high-bit aliases, and this boundary.
+    /// Issue #1066, Forgotten Highway Elbow $8F:95CF: two words are
+    /// $8AA2 and $8ABA, exactly $8AA2 + 24*i for normalized BTS i=0..1.
+    /// Bank $83 interleaves Crab Maze's door headers. Index 2 reaches
+    /// scroll data $0D02 at $8F:95D3. The ROM oracle checks both entries,
+    /// high-bit aliases, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

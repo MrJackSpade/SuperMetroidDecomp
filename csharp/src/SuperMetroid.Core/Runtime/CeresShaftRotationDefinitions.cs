@@ -31,10 +31,15 @@ public static class CeresShaftRotationDefinitions
     /// leaving 35 independent values. Magnitudes 0..21 form irregular runs of durations
     /// 1..7; 22..26 rise by one per magnitude, 27..33 rise by two, and 34 dwells for 60.
     /// The caller uses wrapping DEC/BMI, so a loaded timer lasts timer+1 room-main calls.
-    /// Simple quadratic, exponential, and reciprocal rounding models miss ROM entries;
-    /// their fitted exceptions would merely disguise this authored schedule. The
-    /// generator remains unresolved for Needs Astra. Retain the exact bounded values
-    /// until an independent, clearer, correction-free rule proves every word.
+    /// The cartridge routine at $89:AD1A..AD2C decrements the timer, then reads
+    /// the next record's timer word directly; it has no timer-generation step.
+    /// Stored cosine cannot determine duration either: it remains $0100 through
+    /// magnitudes 0..16 while the timers already span 1..5. Quadratic, single-rate
+    /// exponential, and reciprocal rounding candidates miss entries; correcting
+    /// them or encoding the irregular run boundaries would only restate the data.
+    /// Unlike the independently quantized sine/cosine columns, no source-backed
+    /// timing law explains the short runs, two ramps, and separate timer-60 dwell.
+    /// Retain these 35 authored values instead of inventing an opaque generator.
     /// </remarks>
     private static ReadOnlySpan<ushort> Timers =>
     [

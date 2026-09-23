@@ -73,6 +73,16 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Returns one live BGR555 word, skipping the inline CGRAM-index command.</summary>
+    /// <remarks>
+    /// The valid frame range is 0..9, with four colors each: offsets 2, 4,
+    /// 6, and 10 from FramePointer. Frames 0..5 contain authored BGR555
+    /// rows ($02BF,$017F,$0015,$7FFF), ($023B,$00FB,$0011,$739C),
+    /// ($01D8,$0098,$000E,$5AD6), ($0154,$0055,$000B,$4E73),
+    /// ($00D0,$0010,$0007,$4631), ($00AA,$000B,$0004,$3DEF).
+    /// Frames 6..9 mirror rows 4..1. This schedule matches all 40 words
+    /// in the pinned NTSC J/U v1.0 ROM. The six irregular color rows are
+    /// retained as live presentation data rather than generated at runtime.
+    /// </remarks>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)

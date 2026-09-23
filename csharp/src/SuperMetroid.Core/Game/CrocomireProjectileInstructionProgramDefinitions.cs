@@ -23,6 +23,10 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
 
     /// <summary>
     /// <c>InstList_EnemyProjectile_CrocomireBridgeCrumbling</c> at $86:8FEB.
+    /// The pinned NTSC J/U v1.0 ROM has $7FFF here, a live spritemap operand
+    /// at $8FED, goto-Y $81AB at $8FEF, and target $8FEB at $8FF1. This
+    /// one-pose loop is retained as three authored control words; an address
+    /// classifier would only restate them. $8FF3 starts the spike-wall list.
     /// </summary>
     internal const ushort BridgeFragment = 0x8feb;
 

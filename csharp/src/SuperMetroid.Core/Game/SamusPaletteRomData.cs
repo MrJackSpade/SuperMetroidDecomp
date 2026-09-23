@@ -463,6 +463,15 @@ public static class SamusPaletteRomData
         /// through eight select frames one through seven. The first
         /// four rows also serve beam charging; alternate rows feed
         /// stored shine. The base row remains authored data.
+        ///
+        /// Issue #898 / #625: the shared yellow-flash palette at
+        /// <c>$9B:9420..943F</c> contains exactly sixteen
+        /// <c>$03FF</c> BGR555 words in the pinned ROM/native listing.
+        /// Suited pointer index one selects it for Power, Varia, and
+        /// Gravity while the death flash alternates with index zero.
+        /// The suitless pointer at index one instead repeats its
+        /// ordinary first row at <c>$A120</c>. The uniform yellow
+        /// row needs no per-color authored exceptions.
         /// </remarks>
         public const int SuitPointers = 0x9bb7d3;
         /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>

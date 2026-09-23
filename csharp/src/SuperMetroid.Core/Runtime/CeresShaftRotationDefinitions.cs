@@ -5,7 +5,7 @@ public static class CeresShaftRotationDefinitions
 {
     /// <summary>$89:AD5F, RoomCode_CeresElevatorShaft timer/sine/cosine records.</summary>
     /// <remarks>
-    /// #625: all 138 trigonometric words have an exact, correction-free generation model.
+    /// Issues #625 and #949: all 138 trigonometric words have an exact, correction-free generation model.
     /// For record i=0..68 let n=i-34 and angle=n/256 radians. Independently round
     /// 256*sin(angle) and 256*cos(angle) to nearest integer. Across this bounded domain,
     /// sine simplifies to n and cosine to 256-floor((n*n+255)/512), using integer division.

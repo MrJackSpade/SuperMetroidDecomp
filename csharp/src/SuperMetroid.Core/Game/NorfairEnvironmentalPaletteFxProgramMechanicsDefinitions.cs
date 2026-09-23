@@ -157,6 +157,12 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     /// respectively, plus 16*f + 2 + 2*c.
     /// All 144 words match the pinned NTSC J/U v1.0 ROM. Their irregular
     /// channel steps remain authored, live presentation colors.
+    /// For the heat-phase owner, trailing color 3 at $F092 + 19*f + 13
+    /// equals leading color 0 at offset 5 for every f=0..15. Trailing
+    /// color 4 at offset 15 uses authored values by d=min(f,15-f):
+    /// $4A52,$4214,$39F5,$31D7,$29D9,$21BA,$199C,$0D7F.
+    /// All 32 trailing words match the pinned ROM; the irregular color-4
+    /// gradient remains live rather than generated at runtime.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

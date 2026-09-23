@@ -947,6 +947,10 @@ public static class DoorDefinitions
     /// $9102, exactly $90F6 + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches next room header $0128 at $8F:A408. The ROM
     /// oracle checks both entries, aliases, and this boundary.
+    /// Issue #1126, Below Spazer $8F:A42F: three words are $910E,
+    /// $911A, and $9126, exactly $910E + 12*i for normalized BTS
+    /// i=0..2. Index 3 reaches scroll data $0000 at $8F:A435.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

@@ -22,8 +22,15 @@ public sealed partial class RoomEnemySystem
     private const ushort CeresDoorExplosionAnimation = 0x000c;
     private const ushort CeresDoorEscapedStatus = 0x8000;
 
-    // $A6:F840 stores four interleaved signed X/Y pairs. The actor decrements its index
-    // before reading this table, so a newly started sequence visits 3, 2, 1, 0, then repeats.
+    /// <summary>
+    /// Retains the four authored signed X/Y explosion offsets at <c>$A6:F840-F84F</c>.
+    /// All eight words match the pinned NTSC J/U v1.0 ROM. <c>$A6:F7FE-F820</c>
+    /// decrements a zero-initialized index, wraps it to three when negative, then
+    /// multiplies it by four bytes to read one pair. Thus the bounded sequence is
+    /// 3, 2, 1, 0, repeated: (2, 12), (-2, 22), (0, 4), (-4, -8).
+    /// The independent coordinates encode chosen explosion positions rather than
+    /// samples of a recoverable arithmetic progression, so retain the four pairs.
+    /// </summary>
     private static readonly (short X, short Y)[] CeresDoorRumbleOffsets =
     [
         (-4, -8),

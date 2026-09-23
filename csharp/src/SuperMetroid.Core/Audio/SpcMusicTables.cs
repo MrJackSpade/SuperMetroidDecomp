@@ -52,7 +52,7 @@ internal static class SpcMusicTables
 
     /// <summary>Eight authored gate-length percentage selections, encoded as byte fractions.</summary>
     /// <remarks>
-    /// Issue #625 exact recipe: validate i=0..7; p=20*(i+1) for i&lt;2,
+    /// Issues #625 and #920 exact recipe: validate i=0..7; p=20*(i+1) for i&lt;2,
     /// p=10*(i+3) for 2..6, and p=99 for i=7. Return (255*p-1)/100.
     /// The same Q16-before-multiply model described on NoteVolumes reproduces
     /// all eight values, including the one-unit lower exact-multiple boundaries.

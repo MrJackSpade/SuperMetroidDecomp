@@ -61,6 +61,16 @@ internal static class CeresDestructionActorDefinitions
     }
 
     /// <summary>Returns the planet, four star sheets, and PLANET ZEBES title in spawn order.</summary>
+    /// <remarks>
+    /// Issues #625 and #1017: the six X immediates at $8B:C83C/C944/
+    /// C958/C96C/C980/C993 match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm: $0088, $0030, $00D0, $0030, $00D0, $0080 in native
+    /// spawn order. For bounded star index i=1..4, odd i selects left
+    /// column $0030 and even i selects right column $00D0. Planet i=0
+    /// and title i=5 retain their authored $0088/$0080 centers. This
+    /// parity-and-exception rule exactly covers the six actor types;
+    /// ZebesActor rejects any index outside 0..5.
+    /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {
         0 => new(0xcea3, 0xc83b, 0xc84e, 0xc84e, 0xccab,

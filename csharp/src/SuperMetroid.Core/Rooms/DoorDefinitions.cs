@@ -637,6 +637,18 @@ public static class DoorDefinitions
         new(0xABB8, 0xE06B, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x8000, 0x0000),
     ];
 
+    /// <summary>Room-specific native door pointers in BTS index order.</summary>
+    /// <remarks>
+    /// Issue #1054, Landing Site $8F:927B: four ROM words are $8916,
+    /// $8922, $892E, $893A. For normalized BTS index i=0..3, the exact
+    /// bounded pointer rule is $8916 + 12*i, the physical door-header
+    /// stride. Resolve masks BTS with $7F, so both high-bit forms select
+    /// the same entry; index 4 fails. The next word at $8F:9283 begins
+    /// room scroll data, not a fifth door. Direct pinned-ROM inspection
+    /// and the independent all-room door-list oracle agree on each entry,
+    /// both BTS forms, and the first invalid index. Other room lists
+    /// have independent lengths and require their own proofs.
+    /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [
         new(0x927B, [0x8916, 0x8922, 0x892E, 0x893A]),

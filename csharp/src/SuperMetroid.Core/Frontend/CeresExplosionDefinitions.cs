@@ -110,6 +110,18 @@ internal static class CeresExplosionDefinitions
     };
 
     /// <summary>Returns one of the eight interleaved X/Y rows at <c>$8B:C4EB-$C50A</c>.</summary>
+    /// <remarks>
+    /// Issues #625 and #995: the X word of each four-byte row at
+    /// $8B:C4EB+4*i is +14, +8, -16, -8, 0, +16, -12, -8 for i=0..7.
+    /// All eight signed words match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm. $8B:C489 advances the index with AND #$0007;
+    /// $8B:C4B9 adds the selected X to Mode 7 origin X minus BG1 X with
+    /// 16-bit wrap. The ordinary $40-frame repeating window at a $0C
+    /// cadence can schedule at most six calls, but the physical table has
+    /// eight valid masked entries, including rows 6 and 7. Their irregular
+    /// positions are authored blast placement, so retain the explicit
+    /// bounded X values rather than fit a formula to the reachable subset.
+    /// </remarks>
     public static CeresExplosionPlacement RepeatingExplosion(int index) => index switch
     {
         0 => new(14, -8, 1),

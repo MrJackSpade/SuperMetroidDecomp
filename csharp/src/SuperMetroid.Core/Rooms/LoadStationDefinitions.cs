@@ -9,6 +9,20 @@ namespace SuperMetroid.Core.Rooms;
 public static class LoadStationDefinitions
 {
     /// <summary>The seven native area-list pointers from $80:C4B5, retained as debugger identity.</summary>
+    /// <remarks>
+    /// Issue #1044: in the pinned NTSC J/U v1.0 ROM, the eight physical
+    /// words at $80:C4B5..C4C4 are $C4C5, $C5CF, $C6D9, $C81B,
+    /// $C917, $CA2F, $CB2B, and $CC19. The first seven are the typed
+    /// retail areas; the eighth starts an untyped debug list after Ceres.
+    /// Every station record is 14 bytes, so pointer for area a is $C4C5
+    /// plus 14 times the sum of prior retail list lengths (19, 19, 23,
+    /// 18, 20, 18, 17). This prefix-sum algorithm reproduces all eight
+    /// physical pointers, including the debug boundary after 134 records.
+    /// AreaIds.ToIndex restricts this managed view to 0..6, and Get
+    /// checks each area's station bound. The independent ROM verifier
+    /// matches all 134 retail records and rejects invalid area/station
+    /// inputs. Retain these seven named pointers as debugger identities.
+    /// </remarks>
     private static readonly ushort[] listPointers =
         [0xc4c5, 0xc5cf, 0xc6d9, 0xc81b, 0xc917, 0xca2f, 0xcb2b];
 

@@ -683,6 +683,20 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int PreExplosionColors = 0x889079;
         /// <summary><c>$88:8D85</c>, radius-indexed RGB triplets for the explosion.</summary>
+        /// <remarks>
+        /// The 32 stock R/G/B triplets occupy <c>$88:8D85..8DE4</c> and
+        /// match all 96 bytes in the pinned NTSC J/U v1.0 ROM and native
+        /// listing. For yellow-phase index <c>i = 0..13</c>, red and green
+        /// are <c>min(14+i,26)</c> and blue is <c>max(10-i,0)</c>.
+        /// The white-phase indices 14..31 contain a 26,26,27,27,28,27,26
+        /// grayscale crest followed by authored unequal-channel shades and
+        /// plateaus; keep those live presentation bytes rather than encoding
+        /// the irregular tail as another lookup disguised as arithmetic.
+        /// Ordinary Power Bomb and Crystal Flash explosion callers derive
+        /// <c>i = (radius &gt;&gt; 11) &amp; $1F</c> from a 16-bit radius and
+        /// read the three components in order. The next word at
+        /// <c>$88:8DE5</c> is radius-speed data. Investigation: #625 / #905.
+        /// </remarks>
         public const int ExplosionColors = 0x888d85;
         /// <summary>Each fixed-color record stores red, green, and blue bytes.</summary>
         public const int BytesPerColor = 3;

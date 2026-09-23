@@ -65,6 +65,15 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     internal const ushort VerticalCenter = 0x95d3;
 
     /// <summary><c>InstList_EnemyProjectile_Afterburn</c> at $86:9606.</summary>
+    /// <remarks>
+    /// The $86:966C/$967A/$9688/$9696 right, left, up, and down projectile
+    /// headers all enter this bounded $9606..961F stream. It clears the
+    /// pre-instruction, holds one pose for five ticks, calls $9620 to decrement
+    /// the remaining-afterburn byte and spawn the same directional kind when
+    /// its signed result is nonnegative, then holds four further five-tick
+    /// poses and executes $8154 delete. All eight control words match the
+    /// pinned NTSC J/U v1.0 ROM. Its five spritemap operands stay live.
+    /// </remarks>
     internal const ushort DirectionalAfterburn = 0x9606;
 
     private static readonly CeresRidleyProjectileInstructionMechanicsWord[] Words =

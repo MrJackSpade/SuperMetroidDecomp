@@ -105,9 +105,18 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// The $80ED goto at $F616 targets $F612, skipping the one-time setup.
     /// </summary>
     internal const ushort RotatingElevatorPreExplosionOverlayLoop = 0xf612;
-    /// <summary><c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_0</c> at $A6:F61A.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_0</c>
+    /// at $A6:F61A-$A6:F629. Variant four's $F678 callback branches to
+    /// <see cref="NormalFacingLeft"/> if Ridley has not escaped.
+    /// Otherwise the wall becomes tangible but invisible before its loop.
+    /// </summary>
     internal const ushort RotatingElevatorInvisibleWall = 0xf61a;
-    /// <summary><c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_1</c> at $A6:F622.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_1</c>
+    /// at $A6:F622 holds a $0001 frame with a live spritemap operand.
+    /// The $80ED goto at $F626 returns to $F622 without repeating setup.
+    /// </summary>
     internal const ushort RotatingElevatorInvisibleWallLoop = 0xf622;
     /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at $A6:F62A.</summary>
     internal const ushort RidleyEscapeMode7LeftWall = 0xf62a;

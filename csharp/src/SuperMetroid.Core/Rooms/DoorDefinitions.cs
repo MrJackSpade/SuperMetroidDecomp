@@ -959,6 +959,10 @@ public static class DoorDefinitions
     /// $913E, $914A, and $9156, exactly $913E + 12*i for normalized
     /// BTS i=0..2. Index 3 reaches scroll data $0001 at $8F:A49E.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1129, Warehouse E-Tank $8F:A4D8: sole valid
+    /// normalized BTS i=0 resolves to $9162; no stride follows from
+    /// one word. Index 1 reaches next room header $012C at $8F:A4DA.
+    /// The ROM oracle checks the entry, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

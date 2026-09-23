@@ -21,7 +21,7 @@ internal static class GunshipMotionDefinitions
     /// <c>Function_Ship_Hover.timer/YVelocity</c> at <c>$A2:A7CF-$A2:A7D6</c>.
     /// The four records are byte-packed timer/signed-Y pairs.
     /// </summary>
-    /// <remarks>#625 exact four-phase model: timer=16; Y=1-2*((i XOR (i&gt;&gt;1)) &amp; 1), i=0..3.
+    /// <remarks>Issues #625 and #946 exact four-phase model: timer=16; Y=1-2*((i XOR (i&gt;&gt;1)) &amp; 1), i=0..3.
     /// This Gray-code sign pattern gives +1,-1,-1,+1 without four records. All eight bytes are
     /// checked against ROM, pinned assembly, and compiled data by LookupTableResearch.
     /// Input bounds and the caller's timer expiration behavior remain unchanged.</remarks>

@@ -15,7 +15,15 @@ internal readonly record struct CeresBabyInstructionMechanicsWord(
 /// </remarks>
 internal static class CeresBabyInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_BabyMetroidCutscene_0</c> at $A6:BF31.</summary>
+    /// <summary>
+    /// <c>InstList_BabyMetroidCutscene_0</c> at $A6:BF31-$A6:BF58.
+    /// The $BFF2 conditional at $BF31 and again at $BF45 targets
+    /// <see cref="ExpressiveLoop"/> when Baby's vertical velocity is nonzero.
+    /// Each conditional precedes four frames: the duration word at
+    /// $BF35 + 4*i or $BF49 + 4*i is exactly $000A for i = 0..3.
+    /// Each duration is followed by a live spritemap pointer. If neither
+    /// conditional branches, the eight frames fall through to $BF59.
+    /// </summary>
     internal const ushort Initial = 0xbf31;
 
     /// <summary><c>InstList_BabyMetroidCutscene_1</c> at $A6:BF59.</summary>

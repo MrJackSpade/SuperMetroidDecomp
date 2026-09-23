@@ -113,6 +113,18 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
     }
 
     /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    /// <remarks>
+    /// Both native lists contain identical live colors for frame f=0..13
+    /// and color c=0..2, at FirstFramePointer + 10*f + 2 + 2*c.
+    /// Let d=min(f,14-f) and s=(0,1,2,2,3,3,4,4)[d]. With BGR555 word
+    /// r + 32*g + 1024*b, the (r,g,b) channels are
+    /// c=0: (max(0,2-d), 9-d, 23-d);
+    /// c=1: (max(0,3-s), max(0,3-s), 17-s);
+    /// c=2: (0, max(0,2-s), 6-s).
+    /// These rules match all 84 words in the two pinned NTSC J/U v1.0 ROM
+    /// tables. Frame fourteen reaches loop control, not a color record.
+    /// The palette-FX caller continues to read each color from the ROM.
+    /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame)

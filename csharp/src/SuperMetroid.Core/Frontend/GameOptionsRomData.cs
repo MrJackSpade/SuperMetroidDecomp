@@ -47,6 +47,17 @@ public static class GameOptionsRomData
     }
 
     /// <summary>Fixed row identities and scroll boundaries for each menu page.</summary>
+    /// <remarks>
+    /// Issues #625 and #965: native SpecialSettingRAMAddresses at $82:F0AE maps
+    /// special row 0 to IconCancel $09EA and row 1 to Moonwalk $09E4.
+    /// The three-entry dispatcher at $82:F088 sends rows 0 and 1 to the toggle
+    /// routine and row 2 directly to Exit, so the address table has no row-2
+    /// value. Pinned NTSC J/U v1.0 ROM and bank_82.asm match both addresses and
+    /// all three dispatch pointers. StepSpecial makes the same named two-row
+    /// selection. The two WRAM identities are independent state-policy choices;
+    /// their six-byte difference is not a useful generator. Retain the explicit
+    /// row-to-setting branches and bounds.
+    /// </remarks>
     public static class Rows
     {
         public const int PrimaryStartGame = 0;

@@ -44,7 +44,7 @@ internal static class SnesDspTables
     /// this table reconstruct each fractional BRR sample exactly as the native reference does.
     /// </summary>
     /// <remarks>
-    /// Issue #625 exact generation: validate j=0..511; k=511.5-j and
+    /// Issues #625 and #922 exact generation: validate j=0..511; k=511.5-j and
     /// r(j)=sin(pi*k/800)/k * (0.42+0.50*cos(2*pi*k/1023)+0.08*cos(4*pi*k/1023)).
     /// Let p=j%256 and d=r(p)+r(255-p)+r(256+p)+r(511-p). The stored coefficient
     /// is floor(2048*r(j)/d+0.5). This windowed-sinc model normalizes each four-tap

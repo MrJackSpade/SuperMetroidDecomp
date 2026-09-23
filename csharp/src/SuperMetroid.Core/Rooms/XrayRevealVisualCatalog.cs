@@ -48,6 +48,19 @@ public sealed class XrayOverlayVisualCatalog
 /// </summary>
 public sealed class XrayRevealVisualCatalog
 {
+    /// <summary>Installed visual operands indexed by collision nibble and BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1037: the exact index is (type &lt;&lt; 8) | bts over 16 native
+    /// collision nibbles and 256 unsigned BTS values. Of 4096 possible
+    /// slots, the pinned NTSC J/U v1.0 ROM has 305 drawable pairs; the
+    /// constructor requires exactly those pairs and rejects duplicates.
+    /// Stock operands come from bank-$91 reveal command records and all
+    /// 305 installed values match the independent cartridge oracle.
+    /// The visual operands can also be replaced through reveals.json while
+    /// the native command and copy dimensions remain fixed. Therefore no
+    /// single ROM-derived formula can reproduce every valid installation:
+    /// retain this bounded indexed store for the selected visual data.
+    /// </remarks>
     private readonly XrayRevealVisualWords?[] words = new XrayRevealVisualWords?[16 * 256];
 
     /// <summary>Creates a complete visual replacement for every drawable native rule.</summary>

@@ -778,6 +778,11 @@ internal static class CrocomireInstructionProgramDefinitions
     /// $CA7E+$000A*i for i=4*pass+row, pass 0..1 and row 0..3.
     /// The final pointer is $CAC4. The death-phase selector chooses
     /// one row within a pass; its operand remains a live ROM read.
+    /// The four BridgeCollapsed operands at $A4:BFB2, BFB6, BFBC,
+    /// and BFC0 use pinned stock pointer $C574+$3A*abs(i-1)
+    /// for indices 0..3: $C5AE, $C574, $C5AE, $C5E8.
+    /// BFC2 is Sleep and BFC4 begins spritemap data; all four
+    /// instruction operands remain live cartridge reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

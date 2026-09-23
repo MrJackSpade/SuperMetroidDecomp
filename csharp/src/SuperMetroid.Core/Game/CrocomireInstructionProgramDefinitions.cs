@@ -29,8 +29,8 @@ internal static class CrocomireInstructionProgramDefinitions
     /// $8FFA, $8FDF, $8FDF, $8FFA, $8FDF, $8FDF, $8FC7, $8FFA, $8FDF,
     /// $8FDF, $8FFA, $8FDF, then Fight AI $86A6. The constant duration
     /// subrule does not determine this authored move, dust, and shake
-    /// schedule. Retain its control order even though no production selector
-    /// chooses this list; $BB36 starts a different program.
+    /// schedule. Retain its control order; the unused ChooseAttack fight
+    /// branch can select this list. $BB36 starts a different program.
     /// </summary>
     internal const ushort UnusedChargeForwardOneStep = 0xbaea;
     /// <summary><c>InstList_Crocomire_ProjectileAttack_0</c> at $A4:BB36.</summary>

@@ -159,6 +159,12 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     /// the same second group, rotated left by f. All 48 words match
     /// the pinned NTSC J/U v1.0 ROM. Both callers read these colors
     /// as live presentation data; f=4 reaches each loop command.
+    /// Background waterfalls use base BGR555 row
+    /// ($0400,$0C22,$1864,$2086,$2CC9,$1C65,$1043,$0821).
+    /// For frame f=0..7 and color c=0..7, the word at
+    /// $F57F + 20*f + 2*c is base[(c+f) mod 8]. All 64 words match
+    /// the pinned ROM; f=8 reaches loop control. The caller retains
+    /// live presentation reads throughout the sixteen-frame cycle.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

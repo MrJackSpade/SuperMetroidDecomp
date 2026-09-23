@@ -84,6 +84,13 @@ internal static class SpcSoundEffectTables
     /// maps 0..3 to one/two voices and low/high priority. The complete byte
     /// sequence has no contiguous ROM match. Retain the authored per-sound
     /// choices rather than infer them from pointer spacing or command number.
+    /// Issues #625 and #930: library 3 has a separate 47-byte selector map
+    /// for commands 1..47. Every byte matches native kSfx3Conf; selectors
+    /// 0..5 choose voice count, priority and sometimes a mode flag. The switch
+    /// intentionally leaves some fields at their prior values. The complete
+    /// selector sequence has no contiguous ROM match. Retain this per-sound
+    /// state policy and its bounded command domain rather than fold it into
+    /// the other libraries' simpler selector meanings.
     /// </remarks>
     internal static readonly byte[][] Configurations =
     [

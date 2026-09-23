@@ -8,6 +8,14 @@ namespace SuperMetroid.Core.Rooms;
 internal static class XrayRevealDefinitions
 {
     /// <summary>BTS $46 is the only special-air value admitted by the native table.</summary>
+    /// <remarks>
+    /// Issue #1028: pinned NTSC J/U v1.0 ROM $91:D306..D30F contains
+    /// ($0046, $D30C), terminal $FFFF, then copy-one command $CF36 and
+    /// tile $00FF. Native $91:CE08 compares the zero-extended BTS byte,
+    /// so equality with $46 is the complete bounded algorithm over 0..255;
+    /// every other BTS returns no reveal. Direct ROM words and all 256
+    /// special-air cases in the independent X-ray reveal oracle agree.
+    /// </remarks>
     private const byte SpecialAirRevealBts = 0x46;
 
     /// <summary>BTS $0E is the only spike-block value admitted by the native table.</summary>

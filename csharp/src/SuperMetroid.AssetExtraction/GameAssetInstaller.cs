@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Cryptography;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -71,6 +72,9 @@ public static class GameAssetInstaller
                 File.ReadAllText(Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName)));
             if (receipt is null || receipt.FormatVersion != GameInstallationLayout.FormatVersion ||
                 receipt.RomSha256 != SupportedCartridge.Sha256) return false;
+            if (receipt.RoomArtIndexSha256 != Convert.ToHexString(
+                    SHA256.HashData(File.ReadAllBytes(installation.RoomArtIndexPath)))) return false;
+            _ = RoomArtIndexFiles.Load(installation.ContentDirectory);
             // This verifies hashes and opens every generated stream and waveform, not just the receipt.
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
@@ -142,8 +146,14 @@ public static class GameAssetInstaller
             RoomSkyTilemapArtworkFiles.Extract(new SuperMetroidAddressSpace(rom),
                 roomBackgrounds, SupportedCartridge.Sha256);
             RoomSkyTilemapArtworkFiles.ValidateStock(roomBackgrounds);
+            progress?.Report("Indexing room artwork by room ID...");
+            cancellationToken.ThrowIfCancellationRequested();
+            RoomArtIndexFiles.Extract(new SuperMetroidAddressSpace(rom), staging);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
-                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
+                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion,
+                    SupportedCartridge.Sha256,
+                    Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
+                        Path.Combine(staging, RoomArtIndexFiles.FileName)))))));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // These are fixed app-owned content directories. Player saves, recordings,
@@ -178,5 +188,6 @@ public static class GameAssetInstaller
         catch (IOException error) { throw new IOException("Game setup is already in use. Close the other setup window and retry.", error); }
     }
 
-    private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
+    private sealed record InstallationReceipt(int FormatVersion, string RomSha256,
+        string RoomArtIndexSha256);
 }

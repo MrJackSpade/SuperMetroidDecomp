@@ -103,6 +103,27 @@ public static class RoomStateSelectionDefinitions
         return unchecked((ushort)(roomPointer + RoomHeaderRomData.FixedHeaderByteCount + 2));
     }
 
+    /// <summary>
+    /// Returns a room's default state first, followed by conditional alternatives in
+    /// native selection order. This exposes authoring variants without requiring a
+    /// cartridge address space or duplicating the selector in the asset installer.
+    /// </summary>
+    public static IReadOnlyList<ushort> GetStatePointers(ushort roomPointer)
+    {
+        _ = RoomHeaderDefinitions.Get(roomPointer);
+        foreach (RoomStateProgram program in conditionalPrograms)
+        {
+            if (program.RoomPointer != roomPointer)
+                continue;
+            return Array.AsReadOnly(new[] { program.DefaultStatePointer }
+                .Concat(program.Clauses.Select(clause => clause.StatePointer)).ToArray());
+        }
+        return Array.AsReadOnly(new[]
+        {
+            unchecked((ushort)(roomPointer + RoomHeaderRomData.FixedHeaderByteCount + 2)),
+        });
+    }
+
     private static bool Matches(RoomStateClause clause, RoomStateSelectionContext selection) =>
         clause.Condition switch
         {

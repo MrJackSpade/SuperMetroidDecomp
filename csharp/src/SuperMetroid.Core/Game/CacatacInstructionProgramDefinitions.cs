@@ -104,6 +104,10 @@ internal static class CacatacInstructionProgramDefinitions
     /// upright or $9EDE + 4*i inverted. The pinned cartridge stores
     /// spritemap pointer $A0BB + $20*i or $A223 + $20*i respectively;
     /// corresponding inverted pointers are $0168 above upright pointers.
+    /// In the attack lists, i = 0..3 uses operand address $9EB2 + 4*i
+    /// upright or $9F02 + 4*i inverted. Upright pointers follow the authored
+    /// sequence {$A0BB, $A1BB, $A1EF, $A1BB}; inverted pointers are each
+    /// $0168 higher. The repeated second pose is part of the sequence.
     /// These operands remain live presentation data, not compiled mechanics.
     /// </summary>
     private static readonly ushort[] PresentationWords =

@@ -52,7 +52,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// different, excluded unreferenced list.
     /// </summary>
     internal const ushort ProjectileAttackLoop = 0xbb94;
-    /// <summary><c>InstList_Crocomire_StepForwardAfterDelay</c> at $A4:BBCA.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_StepForwardAfterDelay</c> at $A4:BBCA.
+    /// Its only mechanics word is the pinned ROM's $00B4 (180-frame)
+    /// duration. A live spritemap operand follows at BBCC; execution
+    /// then falls into StepForward at BBCE. Retain this authored delay.
+    /// </summary>
     internal const ushort StepForwardAfterDelay = 0xbbca;
     /// <summary><c>InstList_Crocomire_StepForward</c> at $A4:BBCE.</summary>
     internal const ushort StepForward = 0xbbce;

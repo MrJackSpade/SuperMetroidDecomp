@@ -186,7 +186,7 @@ public sealed partial class RoomEnemySystem
             ushort step = state.GrayFadeIndex++;
             ushort palettePointer = ReadWord(
                 _bus!,
-                0xad0000 | unchecked((ushort)(
+                MotherBrainRoomPaletteProgramDefinitions.GrayFadePaletteBank | unchecked((ushort)(
                     MotherBrainRoomPaletteProgramDefinitions.GrayFadePointerTable + step * 2)));
             if (palettePointer == 0)
             {
@@ -199,7 +199,7 @@ public sealed partial class RoomEnemySystem
                 // `$AD:ED5A` does.
                 _cgram!.LoadFromBus(
                     _bus!,
-                    0xad0000 | palettePointer,
+                    MotherBrainRoomPaletteProgramDefinitions.GrayFadePaletteBank | palettePointer,
                     colorCount: 3,
                     destinationIndex: 0x0122 / 2);
             }

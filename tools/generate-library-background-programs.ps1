@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 try {
     $workspace = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, '..'))
     $target = [IO.Path]::GetFullPath([IO.Path]::Combine($workspace, 'csharp', 'src',
-        'SuperMetroid.Core', 'Rooms', 'LibraryBackgroundProgramDefinitions.Generated.cs'))
+        'SuperMetroid.Core', 'Rooms', 'LibraryBackgroundProgramGeneratedDefinitions.cs'))
     if (-not $target.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar,
         [StringComparison]::OrdinalIgnoreCase)) {
         throw "Generated catalog path escapes the repository: $target"

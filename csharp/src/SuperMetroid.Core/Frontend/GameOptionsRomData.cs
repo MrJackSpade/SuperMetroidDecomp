@@ -121,6 +121,16 @@ public static class GameOptionsRomData
 
         public const int WidthInTiles = 3;
         public const int HeightInTiles = 2;
+        /// <summary>BG1 byte destination for each controller-action label, row 0..6.</summary>
+        /// <remarks>
+        /// Issues #625 and #960: GameOptionsMenu_TilemapOffsets at $82:F639 contains
+        /// seven little-endian words exactly $016E+$00C0*i for action row i=0..6.
+        /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all seven. Native uses
+        /// twice the row index to read the word; managed label drawing and asset
+        /// extraction use the same seven-row domain. The $C0-byte step places each
+        /// 3x2 label box three 32-word tilemap rows below the previous one.
+        /// The adjacent source-pointer region has its own rule.
+        /// </remarks>
         public static ReadOnlySpan<ushort> Destinations => DestinationOffsets;
         public static ReadOnlySpan<ushort> Sources => SourcePointers;
     }

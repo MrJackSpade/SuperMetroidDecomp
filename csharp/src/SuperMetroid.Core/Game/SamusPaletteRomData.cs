@@ -273,6 +273,15 @@ public static class SamusPaletteRomData
         /// bank-$9B target supplies sixteen Samus OBJ colors. This
         /// formula describes list addresses; nested pointers and
         /// colors are separate proof targets.
+        ///
+        /// Issue #883 / #625: the twelve nested words at
+        /// <c>$91:DB7B..DB92</c> are exactly
+        /// <c>$9C20+$0200*s+$0020*p</c> for suit index
+        /// <c>s=0..2</c> and phase <c>p=0..3</c>. Every word matches
+        /// the pinned ROM and native bank-$91 listing. Palette handler
+        /// six cycles byte offsets <c>0,2,4,6</c> and wraps; each
+        /// target supplies sixteen bank-$9B colors. The formula
+        /// describes target addresses, not their authored colors.
         /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>

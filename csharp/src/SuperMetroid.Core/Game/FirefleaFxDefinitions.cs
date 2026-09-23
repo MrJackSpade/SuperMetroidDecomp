@@ -25,8 +25,19 @@ internal static class FirefleaFxDefinitions
     /// <c>Fireflea_Darkness_Shades</c> at $88:B070 plus the cartridge-visible
     /// offset-twelve word at $88:B07C. Retail enemy logic advances the byte offset
     /// through 0, 2, ... 12, so the final state intentionally observes the adjacent
-    /// <c>PHP/SEP #$20</c> opcode bytes as packed shade $C208.
+    /// <c>PHP/REP #$30</c> opcode bytes as packed shade $C208.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #944: for the six authored words at even byte offsets
+    /// 0..10, let i=offset/2 and return min(6*i,25)*256. This capped ramp
+    /// matches all six pinned NTSC J/U v1.0 ROM words at $88:B070 and bank-88
+    /// assembly. Offset 12 is not another formula input: native reads the
+    /// adjacent $88:B07C opcode word $C208, preserved as the seventh value.
+    /// A read-only probe checked all seven physical reads. The enemy death
+    /// counter can reach 12 even though ordinary retail rooms have five
+    /// Firefleas; odd offsets and 14 remain invalid. Preserve the caller's
+    /// 16-bit flashing-plus-darkness addition before extracting its high byte.
+    /// </remarks>
     private static ReadOnlySpan<ushort> DarknessShades =>
     [
         0x0000, 0x0600, 0x0c00, 0x1200, 0x1800, 0x1900, 0xc208,

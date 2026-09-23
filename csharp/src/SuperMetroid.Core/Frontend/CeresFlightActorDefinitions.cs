@@ -83,6 +83,17 @@ internal static class CeresFlightActorDefinitions
     /// +$0800, -$2000, -$2000. The positive rates vary by actor and do
     /// not follow a useful common step; retain these authored motion choices
     /// and their native wrap policy instead of fitting an index formula.
+    ///
+    /// Issues #625 and #1010: all fifteen definition words at
+    /// $8B:CF39/CE85/CE8B/CE91/CF0F match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm. Their (initializer, definition pre-instruction, list)
+    /// triples in spawn order are (BF22,BF35,CE4B), (BF4C,BF5F,CC47),
+    /// (BF76,BF89,CC4F), (BFA0,BFC6,CC57), (BE7E,BEB5,CDA3).
+    /// Definition addresses for rows 1..3 step by six bytes, but their
+    /// callback/list identities do not derive from that stride; rows 0
+    /// and 4 live elsewhere. Row 4 aliases the front-star definition;
+    /// initializer parameter one replaces its active BEB5 callback with
+    /// BFC6. Retain these five bounded actor identities and that override.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

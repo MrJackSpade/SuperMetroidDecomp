@@ -663,6 +663,11 @@ public static class DoorDefinitions
     /// index 1 reaches scroll word $0101 at $8F:93D3 and fails. The
     /// independent ROM list oracle checks both BTS high-bit forms and
     /// the one-entry boundary.
+    /// Issue #1058, Crateria Save $8F:93FC: its sole door word is $89BE.
+    /// Normalized BTS index 0 selects that constant; index 1 reaches
+    /// the next room header word $0005 at $8F:93FE and fails. The
+    /// independent ROM list oracle checks both BTS high-bit forms and
+    /// the one-entry boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

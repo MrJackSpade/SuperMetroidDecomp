@@ -112,6 +112,8 @@ public static class SamusProjectileRomData
         /// <summary>$90:ACCD writes the sixteen beam colors beginning at CGRAM index $E0.</summary>
         public const int BeamDestinationIndex = 0xe0;
         /// <summary>Suit-indexed pointers to ordinary Samus palettes.</summary>
+        /// <remarks>Alias of <see cref="SamusPaletteRomData.Common.NormalSuitPointers"/>;
+        /// the three-word proof is issue #859 / #625.</remarks>
         public const int NormalSuitPointers = 0x91d727;
         /// <summary>Suit-indexed pointers to charged-beam palette instruction lists.</summary>
         public const int BeamChargePointers = 0x91d7d5;

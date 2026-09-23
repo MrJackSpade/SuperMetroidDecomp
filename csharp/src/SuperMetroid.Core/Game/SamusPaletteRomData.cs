@@ -23,6 +23,16 @@ public static class SamusPaletteRomData
     public static class Common
     {
         /// <summary><c>$91:D727</c>, Power/Varia/Gravity normal-palette pointers.</summary>
+        /// <remarks>
+        /// Issue #859 / #625: the pinned NTSC J/U v1.0 ROM has three little-endian
+        /// words <c>$9400,$9520,$9800</c> at byte offsets 0, 2, 4. They select
+        /// the authored normal Power, Varia, and Gravity palettes in bank
+        /// <c>$9B</c>. Every production suit selector reaches only those even
+        /// offsets; Gravity has priority over Varia when both equipment bits
+        /// are set. The X-ray and projectile catalogs alias this same physical
+        /// table. These three distinct palette identities are retained as
+        /// authored selectors; a numeric stride would not reproduce them.
+        /// </remarks>
         public const int NormalSuitPointers = 0x91d727;
         /// <summary>First CGRAM color of Samus OBJ palette four.</summary>
         public const int SamusObjPaletteStart = 192;

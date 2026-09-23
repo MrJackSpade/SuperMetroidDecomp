@@ -15,6 +15,8 @@ public static class SamusXrayRomData
         /// <summary><c>$9B:A3C0</c>, X-ray visor palette words.</summary>
         public const int VisorWords = SamusPaletteRomData.Visor.Colors;
         /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
+        /// <remarks>Alias of <see cref="SamusPaletteRomData.Common.NormalSuitPointers"/>;
+        /// the three-word proof is issue #859 / #625.</remarks>
         public const int NormalSuitPointers = SamusPaletteRomData.Common.NormalSuitPointers;
         /// <summary>Bank expanded around a normal-suit palette pointer.</summary>
         public const int PaletteBank = SamusPaletteRomData.Banks.Palette;

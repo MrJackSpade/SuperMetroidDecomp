@@ -456,6 +456,16 @@ public static class SamusPaletteRomData
         /// only for indices below nine, and terminates without a tenth
         /// explosion frame. Odd-offset palette-selector bytes are a
         /// separate logical table and remain live ROM data.
+        ///
+        /// Issue #892 / #625: the nine odd-offset selector bytes
+        /// match the pinned ROM/native listing and are exactly
+        /// <c>0</c> for explosion index zero and <c>i+1</c> for
+        /// <c>i=1..8</c>, yielding <c>0,2,3,4,5,6,7,8,9</c>.
+        /// The caller installs palette zero directly at explosion
+        /// entry, then reads byte offset <c>2*i+1</c> only for
+        /// <c>i=1..8</c>. Each result indexes both bounded ten-word
+        /// suited and suitless pointer lists. The selector is a byte
+        /// immediately following its timer, not an aligned word read.
         /// </remarks>
         public const int ExplosionTimingAndPaletteIndices = 0x9bb823;
         /// <summary><c>$9B:B835</c>, 22 whiteout shades from black through white.</summary>

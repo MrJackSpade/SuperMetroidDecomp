@@ -870,6 +870,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $8F5E; no stride follows from one word.
     /// Index 1 reads $1501 at $8F:A07A: scroll byte $01, then next
     /// room header byte $15. The ROM oracle checks aliases and bound.
+    /// Issue #1107, Dachora Energy Refill $8F:A0A2: sole valid
+    /// normalized BTS i=0 resolves to $8F6A; no stride follows from
+    /// one word. Index 1 reaches next room header $0116 at $8F:A0A4.
+    /// The ROM oracle checks the entry, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

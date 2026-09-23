@@ -61,15 +61,37 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// intangible/invisible and jumps to <see cref="OpenFacingRight"/>.
     /// </summary>
     internal const ushort ClosedFacingRightWait = 0xf59c;
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_0</c> at $A6:F5BE.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Normal_FacingLeft_0</c> at $A6:F5BE-$A6:F60F.
+    /// Its thirty mechanics word addresses are the right-facing program's
+    /// addresses plus $0052. Non-target values match exactly; all five
+    /// local branch/goto targets are also relocated by $0052. The live
+    /// spritemap operands have distinct facing-left values.
+    /// </summary>
     internal const ushort NormalFacingLeft = 0xf5be;
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_1</c> at $A6:F5CA.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Normal_FacingLeft_1</c> at $A6:F5CA holds a
+    /// $0002 open frame while Samus is near; the distance branch targets
+    /// <see cref="CloseFacingLeft"/>.
+    /// </summary>
     internal const ushort OpenFacingLeft = 0xf5ca;
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_2</c> at $A6:F5D6.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Normal_FacingLeft_2</c> at $A6:F5D6.
+    /// The four closing duration words at $F5DA + 4*i are exactly
+    /// $0005 for i = 0..3, then fall through to the closed state.
+    /// </summary>
     internal const ushort CloseFacingLeft = 0xf5d6;
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_3</c> at $A6:F5EA.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Normal_FacingLeft_3</c> at $A6:F5EA
+    /// makes the door tangible and visible before its closed wait.
+    /// </summary>
     internal const ushort ClosedFacingLeft = 0xf5ea;
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_4</c> at $A6:F5EE.</summary>
+    /// <summary>
+    /// <c>InstList_CeresDoor_Normal_FacingLeft_4</c> at $A6:F5EE
+    /// holds a $0002 closed frame while Samus is distant. On approach it
+    /// queues opening sound, runs four $0005 durations at $F5F8 + 4*i
+    /// for i = 0..3, then returns to <see cref="OpenFacingLeft"/>.
+    /// </summary>
     internal const ushort ClosedFacingLeftWait = 0xf5ee;
     /// <summary><c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_0</c> at $A6:F610.</summary>
     internal const ushort RotatingElevatorPreExplosionOverlay = 0xf610;

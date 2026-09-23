@@ -103,6 +103,14 @@ internal static class CeresFlightActorDefinitions
     /// goto, so it cannot run into the adjacent small-asteroid list $CC4F.
     /// Keep the authored visual frame ROM-backed; no table is needed to
     /// describe this constant-period loop.
+    ///
+    /// Issues #625 and #1012: row two's list at $8B:CC4F..CC56 has four
+    /// words $000A, $90FE, $94BC, $CC4F in pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm. It displays the authored bank-$8C small-asteroid
+    /// spritemap $90FE for ten handler calls and jumps back to $CC4F.
+    /// IntroDiscoverySprite.Step confines the cursor to that loop in both
+    /// Ceres scenes; $CC57 is the neighboring vortex list. The exact period
+    /// needs no table, while the visual spritemap remains ROM-backed.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

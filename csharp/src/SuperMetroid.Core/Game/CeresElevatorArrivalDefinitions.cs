@@ -78,7 +78,11 @@ internal static class CeresElevatorArrivalDefinitions
     /// Landing redirects it to the same $A28B delete. All four mechanics
     /// words match the pinned ROM; only $A299, $A29D, and $A28B are reachable
     /// instruction pointers for this projectile. Its $A29B presentation
-    /// operand is independent of the control flow.
+    /// operand is independent of the control flow. That sole pinned-ROM
+    /// operand is the authored bank-$8D pointer $846D, whose payload remains
+    /// a live cartridge read during drawing. Its four-component record has X offsets
+    /// <c>8 - 8 * i</c> for i=0..3, Y=-4, and attribute $3A20 in each
+    /// component; no indexed pointer algorithm is needed for one pose.
     /// </remarks>
     internal static CeresElevatorProjectileInstruction ReadInstruction(ushort pointer) =>
         pointer switch

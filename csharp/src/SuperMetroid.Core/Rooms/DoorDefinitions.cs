@@ -740,6 +740,10 @@ public static class DoorDefinitions
     /// pseudo-door $88FC. Index 3 reaches scroll data $0001 at
     /// $8F:9800. The ROM oracle checks all entries, high-bit aliases,
     /// and this first invalid index.
+    /// Issue #1075, Bomb Torizo $8F:9869: the sole valid normalized BTS
+    /// index i=0 resolves to $8BAA; no stride is inferred from one word.
+    /// Index 1 reaches room-variable bytes $0A0F at $8F:986B. The ROM
+    /// oracle checks the word, both high-bit forms, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

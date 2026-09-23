@@ -35,6 +35,10 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// unsigned pointer is exactly $C65E + 10*i; $A4:BE66 is the following
     /// goto opcode. Production reads these operands from the live cartridge so
     /// installed spritemap presentation remains effective.
+    /// The last five entries identify the melting-loop operands at
+    /// $A4:BF9A + 4*i for i=0..4. Their stock pointers are exactly
+    /// $CACE + 10*i, followed by the goto opcode at $A4:BFAC. This second
+    /// independently indexed loop also keeps its presentation reads live.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

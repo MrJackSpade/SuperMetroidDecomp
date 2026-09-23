@@ -41,6 +41,21 @@ public readonly record struct GameOverBabyInstruction(
 /// Native pointers remain the serialized/debugger identity; timing, frame selection and
 /// sound dispatch are compiled application mechanics rather than editable visual data.
 /// </summary>
+/// <remarks>
+/// Issues #625 and #974: pinned NTSC J/U v1.0 ROM and bank_82.asm agree with
+/// all 60 records and every control word at $82:BC27..BD96. Build emits 2, 4,
+/// then 3 idle cycles, each with four 10-tick frames (Closed, Middle, Open,
+/// Middle) on the Idle palette. Each group ends with the same eight-frame cry:
+/// durations 6,5,4,3,2,3,4,5; frames Closed,Middle,Open,Middle,Closed,
+/// Middle,Open,Middle; matching cry palettes 1,2,3,2,1,2,3,2. The first cry
+/// frame is followed by a distinct opcode at $82:BC5D, BCEF, or BD69, so its
+/// successor is eight bytes away; all other successors are six bytes away.
+/// The last record starts at $82:BD8F, followed by $FFFF at BD95, which loops
+/// to BC27. An independent ROM walk matched all 180 record words, three cry
+/// words, and the terminator; the extractor also checks compiled records
+/// against cartridge reads. This bounded generator is smaller and clearer
+/// than storing the serialized instruction table. Unknown pointers fail in Get.
+/// </remarks>
 public static class GameOverBabyAnimationDefinitions
 {
     /// <summary>First native instruction at <c>$82:BC27</c>.</summary>

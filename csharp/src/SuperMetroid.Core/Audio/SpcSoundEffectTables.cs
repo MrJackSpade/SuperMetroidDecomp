@@ -6,6 +6,17 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal static class SpcSoundEffectTables
 {
+    /// <summary>Authored instruction-stream starts for the three SPC sound libraries.</summary>
+    /// <remarks>
+    /// Issues #625 and #925: library 1 has 66 little-endian SPC RAM pointers,
+    /// indexed by command 1..66 minus one. All 66 words match pinned NTSC
+    /// J/U v1.0 ROM $CF:96F5 (file $2796F5), kSfx1InstrListPtrs in
+    /// upstream-sm/src/spc_player.c, and this array. These are addresses of
+    /// authored instruction streams; their irregular gaps and shared stream
+    /// layout have no independently evidenced shorter index-to-address rule.
+    /// Retain the mapping. The managed caller rejects commands beyond the
+    /// library length before reading; command zero is a no-sound sentinel.
+    /// </remarks>
     internal static readonly ushort[][] StreamPointerTables =
     [
         [

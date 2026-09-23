@@ -653,6 +653,11 @@ public static class DoorDefinitions
     /// Index 2 reaches non-door word $0002 at $8F:92FD. The independent
     /// ROM list oracle checks both entries, high-bit BTS aliases, and
     /// this first invalid index.
+    /// Issue #1056, Parlor $8F:9362: seven door words are $895E through
+    /// $89A6 in twelve-byte steps, exactly $895E + 12*i for normalized
+    /// BTS i=0..6. Index 7 reaches non-door word $0100 at $8F:9370.
+    /// The independent ROM list oracle checks all seven entries, both
+    /// BTS high-bit forms, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

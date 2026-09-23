@@ -756,6 +756,11 @@ public static class DoorDefinitions
     /// $8BF2, exactly $8BE6 + 12*i for normalized BTS i=0..1. Index 2
     /// reaches next room header $0019 at $8F:9938. The ROM oracle
     /// checks both entries, high-bit aliases, and this boundary.
+    /// Issue #1079, Green Brinstar Elevator $8F:995F: normalized BTS
+    /// i=0..1 uses $8BFE + 12*i; i=2 names the shared elevator
+    /// pseudo-door $88FC. Index 3 reaches scroll data $0001 at
+    /// $8F:9965. The ROM oracle checks all entries, high-bit aliases,
+    /// and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

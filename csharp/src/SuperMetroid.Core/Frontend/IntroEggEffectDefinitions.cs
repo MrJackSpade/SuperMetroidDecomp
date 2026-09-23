@@ -27,6 +27,14 @@ internal static class IntroEggEffectDefinitions
     /// pair and two strides are an exact smaller representation of these
     /// six definitions. Actor verification completes all six fragments with
     /// physical definition reads forbidden.
+    ///
+    /// Issues #625 and #982: the six selected lists are a separate logical
+    /// table at $8B:CD39..CD68. For i=0..5, list $CD39+8*i contains duration
+    /// one, bank-$8C spritemap pointer $8F7E+7*i, Goto opcode $94BC, and its
+    /// own list address. All 24 words match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm; bank_8C.asm and ROM confirm one sprite entry at each
+    /// selected pointer. IntroDiscoverySprite reads the frame, then follows
+    /// the self-loop, so the bounded strides preserve every selected list.
     /// </remarks>
     public static IntroEggEffectActorDefinition Particle(int index)
     {

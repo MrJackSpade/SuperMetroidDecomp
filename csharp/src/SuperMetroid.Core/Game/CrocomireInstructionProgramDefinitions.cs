@@ -59,7 +59,16 @@ internal static class CrocomireInstructionProgramDefinitions
     /// then falls into StepForward at BBCE. Retain this authored delay.
     /// </summary>
     internal const ushort StepForwardAfterDelay = 0xbbca;
-    /// <summary><c>InstList_Crocomire_StepForward</c> at $A4:BBCE.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_StepForward</c> at $A4:BBCE-$BC2F.
+    /// The pinned ROM's twelve durations are three $0005 words, one
+    /// $0010, then eight $0004 words, each followed by a live spritemap
+    /// operand. Its other 25 mechanics words form an authored sequence:
+    /// optional projectile attack, Fight AI callbacks, cry, leftward
+    /// movement and dust, shake, then goto $80ED targeting BBCE at
+    /// BC2C-BC2E. Retain the exact callback order; the duration subrule
+    /// alone cannot reproduce its effects. StepBack begins at BC30.
+    /// </summary>
     internal const ushort StepForward = 0xbbce;
     /// <summary><c>InstList_Crocomire_StepBack</c> at $A4:BC30.</summary>
     internal const ushort StepBack = 0xbc30;

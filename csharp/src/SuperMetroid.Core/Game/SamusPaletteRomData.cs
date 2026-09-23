@@ -282,6 +282,18 @@ public static class SamusPaletteRomData
         /// six cycles byte offsets <c>0,2,4,6</c> and wraps; each
         /// target supplies sixteen bank-$9B colors. The formula
         /// describes target addresses, not their authored colors.
+        ///
+        /// Issue #884 / #625: all 64 Power Suit active-shinespark
+        /// BGR555 words at <c>$9B:9C20..9C9F</c> match the pinned ROM
+        /// and native bank-$9B listing. Phase zero exactly duplicates
+        /// normal Power <c>$9B:9400</c> and Screw Attack shade zero
+        /// <c>$9B:9CA0</c>; the other three rows have no exact
+        /// sixteen-color duplicate among the nearby Samus palettes.
+        /// Only 21 of 64 corresponding words equal the Screw Attack
+        /// rows. A per-slot, per-channel clipped first-step rule fits
+        /// 24 of 48 four-phase component sequences. Retain these four
+        /// live authored rows; palette handler six repeats them in
+        /// order while the shinespark palette is active.
         /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>

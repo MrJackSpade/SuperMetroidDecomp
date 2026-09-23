@@ -19,10 +19,17 @@ public enum TitleScreenAmbientPaletteFxProgramOwner
 /// (0..7), let <c>k = min(f, 8 - f)</c>. Each BGR555 component is
 /// <c>max(0, first-row component - 3*k)</c>, except the green component
 /// of column 0 gains one unit when <c>k = 2</c>. This rule matches all
-/// 32 tube-light ROM colors exactly. Definition <c>$8D:E1A4</c> has a
-/// separate two-record display loop. All 36 colors remain installed
-/// presentation data; diagnostic sessions without an installed presentation
-/// retain the cartridge-backed color path. ROM SHA-256:
+/// 32 tube-light ROM colors exactly.
+/// Issue #854 / #625: definition <c>$8D:E1A4</c> enters at
+/// <c>$8D:C862</c>, sets color index <c>$005C</c>, and alternates two
+/// eight-byte records of <c>1, colors[2], Wait</c> from <c>$C866</c>;
+/// <c>Goto($C866)</c> at <c>$C876</c> repeats the two-frame cycle. All
+/// eight control words match. Even records write <c>[13FF,0BB1]</c> and
+/// odd records write <c>[00AC,0145]</c>; the four distinct cartridge
+/// colors are retained as authored presentation data. All 36 colors in
+/// these two loops remain installed presentation data; diagnostic sessions
+/// without an installed presentation retain the cartridge-backed color path.
+/// ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions

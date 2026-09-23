@@ -17,6 +17,19 @@ public static class GameOverRomData
     public const byte MaximumQueuedSounds = 6;
 
     /// <summary>Localized text streams and their byte destinations in BG1.</summary>
+    /// <remarks>
+    /// Issues #625 and #969: GameOverMenu_1_Init at $81:9206..9230 loads five
+    /// bank-$81 sources and BG1 byte destinations in this order. Pinned NTSC
+    /// J/U v1.0 ROM and bank_81.asm match all ten immediates. The source words
+    /// occupy $92DC..9303, $9304..9333, $9334..934B, $934C..939F, and
+    /// $93A0..93E7; each has one final $FFFF, and streams 0, 3, and 4 contain
+    /// a $FFFE next-line command. Destinations $0156, $038A, $0414, $04CE,
+    /// and $05CE encode screen columns/rows (11,5), (5,14), (10,16),
+    /// (7,19), and (7,23) as 2*x+64*y. The loader and asset extractor both
+    /// walk these five bounded command streams. Their text lengths and placements
+    /// are authored presentation data; retaining explicit source/destination
+    /// records is clearer than hiding lengths in a prefix-sum generator.
+    /// </remarks>
     public static class Text
     {
         private static readonly GameOverTextStream[] Streams =

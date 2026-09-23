@@ -62,6 +62,15 @@ public static class GameOverBabyAnimationDefinitions
                 $"Unknown compiled game-over Baby instruction $82:{pointer:X4}.");
 
     /// <summary>Native menu-spritemap identity used only for extraction parity.</summary>
+    /// <remarks>
+    /// Issues #625 and #971: for semantic frame f=0..2 (Closed, Middle,
+    /// Open), native spritemap ID is $65+f. A pinned NTSC J/U v1.0 ROM walk of
+    /// the complete $82:BC27..BD95 Baby instruction stream found 60 positive
+    /// frame records, using IDs $65/$66/$67 exactly 15/30/15 times, with three
+    /// separate cry words. Menu spritemap pointer-table entries $82:C633,
+    /// C635, and C637 resolve to $82:CFF6, CFFD, and D004 as bank_82.asm says.
+    /// The enum domain is only these three frames; unknown values fail.
+    /// </remarks>
     public static ushort NativeSpritemap(GameOverBabyFrame frame) => frame switch
     {
         GameOverBabyFrame.Closed => 0x65,

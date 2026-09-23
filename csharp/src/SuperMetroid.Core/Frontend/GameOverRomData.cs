@@ -60,6 +60,9 @@ public static class GameOverRomData
         public const ushort CryOpcode23 = 0xbc0c;
         public const ushort CryOpcode26 = 0xbc15;
         public const ushort CryOpcode27 = 0xbc1e;
+        /// <summary>First Baby frame, ID $65 in the bounded $65+frame sequence.</summary>
+        /// <remarks>Issues #625 and #971: GameOverBabyAnimationDefinitions.NativeSpritemap
+        /// documents all 60 native frame records and the three spritemap pointers.</remarks>
         public const ushort InitialSpritemap = 0x65;
         public const int PaletteDestinationIndex = 0xc0;
         public const int PaletteColorCount = 16;

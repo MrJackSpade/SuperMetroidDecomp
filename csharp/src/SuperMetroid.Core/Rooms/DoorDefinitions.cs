@@ -765,6 +765,10 @@ public static class DoorDefinitions
     /// and $8C22, exactly $8C16 + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches next room header $001B at $8F:9994. The ROM
     /// oracle checks both entries, high-bit aliases, and this boundary.
+    /// Issue #1081, Crateria Map $8F:99BB: sole valid normalized BTS
+    /// i=0 resolves to $8C2E; no stride follows from one word. Index 1
+    /// reaches next room header $001C at $8F:99BD. The ROM oracle
+    /// checks the entry, both high-bit forms, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

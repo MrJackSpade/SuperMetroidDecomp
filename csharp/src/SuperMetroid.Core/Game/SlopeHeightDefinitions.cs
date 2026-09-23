@@ -28,6 +28,9 @@ public static class SlopeHeightDefinitions
     /// the NTSC J/U v1.0 ROM and pinned bank_94.asm, and rejects invalid inputs
     /// independently on both axes. No floating-point math or per-pixel exceptions
     /// are required. Runtime migration is deferred; caller BTS mirrors stay separate.
+    /// The same physical bytes are catalogued for enemy, Samus movement,
+    /// projectile, and bomb-spread readers. Individual investigation:
+    /// #625 / #914.
     /// </remarks>
     private static ReadOnlySpan<byte> Heights =>
     [

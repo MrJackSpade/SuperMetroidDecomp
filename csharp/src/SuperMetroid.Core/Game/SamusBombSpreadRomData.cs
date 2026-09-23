@@ -48,6 +48,7 @@ public static class SamusBombSpreadRomData
     public const int YSubspeeds = 0x90d8ed;
 
     /// <summary>Bank-$94 non-square slope-height table at $94:8B2B.</summary>
+    /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
     public const int NonSquareSlopeHeights = 0x948b2b;
 
     /// <summary>Low-five-bit height payload stored by each bank-$94 slope-table byte.</summary>

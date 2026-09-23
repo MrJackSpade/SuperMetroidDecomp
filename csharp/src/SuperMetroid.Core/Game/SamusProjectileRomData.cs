@@ -176,6 +176,7 @@ public static class SamusProjectileRomData
     public static class Collision
     {
         /// <summary>Sixteen height bytes for each non-square slope shape.</summary>
+        /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
         public const int NonSquareSlopeDefinitions = 0x948b2b;
         /// <summary>Four-quadrant solidity bytes for square slope shapes.</summary>
         public const int SquareSlopeDefinitions = 0x948e54;

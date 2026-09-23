@@ -163,6 +163,7 @@ public static class SamusMovementRomData
         public const int HorizontalMultipliers = 0x948586;
 
         /// <summary>Sixteen-pixel height profiles indexed by non-square slope shape.</summary>
+        /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
         public const int AlignmentHeights = 0x948b2b;
     }
 }

@@ -15,7 +15,8 @@ internal static class EnemyRomTablePointers
         /// within the 320-word prefix/full-cycle region. Proof: #625 / #910.
         /// </remarks>
         public const int SignedSineCosineWords = 0xa0b443;
-        /// <summary>Sixteen 32-byte slope-height profiles at $94:8B2B (512 bytes).</summary>
+        /// <summary>Thirty-two 16-byte slope-height profiles at $94:8B2B (512 bytes).</summary>
+        /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
         public const int SlopeHeightBytes = 0x948b2b;
     }
 

@@ -654,6 +654,10 @@ internal static class CrocomireInstructionProgramDefinitions
     /// They equal ProjectileAttack's first fifteen stock operands
     /// under instruction-address translation +$01A2. This three-cycle
     /// identity leaves all presentation words as live cartridge reads.
+    /// The seventeen Roar operands at $A4:BD2C-$BD8A have pinned stock
+    /// pointer $C574 + $3A*min(i,2) for indices 0..16: two advances,
+    /// then $C5E8 through the rest of the list. This bounded saturation
+    /// describes stock content; each operand remains a live ROM read.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

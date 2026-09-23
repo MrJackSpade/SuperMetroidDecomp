@@ -21,7 +21,13 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     internal const ushort Fight = 0xbe56;
     /// <summary><c>InstList_Crocomire_Sleep</c> at $A4:BF62.</summary>
     internal const ushort Sleep = 0xbf62;
-    /// <summary><c>InstList_CrocomireTongue_Melting</c> at $A4:BF98.</summary>
+    /// <summary>
+    /// <c>InstList_CrocomireTongue_Melting</c> at $A4:BF98. Its five
+    /// mechanics words at $BF98 + 4*i (i=0..4) are exactly five-frame
+    /// durations in the pinned NTSC J/U v1.0 ROM. $BFAC is goto $80ED and
+    /// $BFAE targets $BF98; $BFB0 begins a different body program. The
+    /// interleaved spritemap pointers remain live presentation reads.
+    /// </summary>
     internal const ushort Melting = 0xbf98;
 
     private static readonly CrocomireTongueInstructionMechanicsWord[] Words =

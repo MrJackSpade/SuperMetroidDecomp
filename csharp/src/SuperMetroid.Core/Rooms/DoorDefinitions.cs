@@ -930,6 +930,11 @@ public static class DoorDefinitions
     /// $908A, exactly $907E + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches next room header $0124 at $8F:A322. The ROM
     /// oracle checks both entries, aliases, and this boundary.
+    /// Issue #1122, Caterpillar $8F:A349: normalized BTS i=0..4
+    /// uses $9096 + 12*i; i=5 is shared elevator pseudo-door
+    /// $88FC; i=6 resumes physical headers at $90D2. Index 7
+    /// reaches scroll data $0002 at $8F:A357. The ROM oracle checks
+    /// all seven entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

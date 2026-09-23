@@ -130,6 +130,16 @@ public static class SamusPaletteRomData
         /// <summary><c>$91:DB75</c>, suit-indexed active-shinespark palette lists.</summary>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>
+        /// <remarks>
+        /// Issue #867 / #625: the pinned NTSC J/U v1.0 ROM's ten
+        /// little-endian words are exactly <c>$A360-$0020*i</c> for
+        /// <c>i=0..9</c>, ending at <c>$A240</c>. Each points to a distinct
+        /// sixteen-color bank-$9B palette. Rainbow Samus starts at zero,
+        /// reads byte offset <c>2*i</c>, and wraps after index nine; the
+        /// managed caller also bounds restored index values with modulo ten.
+        /// The stride describes pointer selection, while target colors stay
+        /// live authored cartridge data.
+        /// </remarks>
         public const int HyperBeamPointers = 0x91d99e;
         /// <summary>Number of full-body Hyper Beam palettes.</summary>
         public const int HyperBeamPaletteCount = 10;

@@ -138,6 +138,17 @@ public static class SamusPaletteRomData
         /// 0, 1, 2, 3, 2, 1 before wrapping. The selected bank-$9B target
         /// remains a live authored sixteen-color palette; this formula
         /// describes only the bounded pointer matrix.
+        ///
+        /// Issue #871 / #625: all 64 Power Suit BGR555 target words at
+        /// <c>$9B:9CA0..9D1F</c> match the pinned ROM/native listing.
+        /// Shade zero is exactly the normal Power palette at <c>$9B:9400</c>.
+        /// A per-slot, per-channel clipped linear step from shade zero
+        /// reproduces 34 of 48 four-shade component sequences; fourteen
+        /// require authored exceptions, mostly a blue-channel jump in the
+        /// final shade. The four distinct rows remain live authored colors
+        /// for shade 0..3, color 0..15, then the six-phase pointer matrix
+        /// reuses shades 2 and 1. Encoding slopes and exceptions would
+        /// obscure these deliberately chosen colors.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>

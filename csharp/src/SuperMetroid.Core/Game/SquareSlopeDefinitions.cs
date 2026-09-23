@@ -14,7 +14,8 @@ public static class SquareSlopeDefinitions
     /// Encode solid as $80 and air as zero. LookupTableResearch exhaustively
     /// checks all 20 bytes against the NTSC ROM and pinned bank_94.asm, including
     /// input bounds. Shape policy remains explicit; the four repeated quadrant
-    /// samples need not be stored. Runtime behavior has not been changed.</remarks>
+    /// samples need not be stored. Runtime behavior has not been changed.
+    /// Individual Samus-table investigation: #625 / #915.</remarks>
     public static ReadOnlySpan<byte> SamusQuadrants =>
     [
         0x00, 0x00, 0x80, 0x80,

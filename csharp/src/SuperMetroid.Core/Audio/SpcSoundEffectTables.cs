@@ -16,6 +16,11 @@ internal static class SpcSoundEffectTables
     /// layout have no independently evidenced shorter index-to-address rule.
     /// Retain the mapping. The managed caller rejects commands beyond the
     /// library length before reading; command zero is a no-sound sentinel.
+    /// Issues #625 and #926: library 2 is a separate 127-word pointer map
+    /// at pinned ROM $CF:A5BB (file $27A5BB). Every little-endian word agrees
+    /// with kSfx2InstrListPtrs and this array. Its authored stream starts and
+    /// irregular gaps likewise warrant retaining the bounded mapping for
+    /// commands 1..127, with the same command-zero sentinel.
     /// </remarks>
     internal static readonly ushort[][] StreamPointerTables =
     [

@@ -26,7 +26,16 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// </summary>
     internal const ushort Initial = 0xbf31;
 
-    /// <summary><c>InstList_BabyMetroidCutscene_1</c> at $A6:BF59.</summary>
+    /// <summary>
+    /// <c>InstList_BabyMetroidCutscene_1</c> at $A6:BF59-$A6:BFC8.
+    /// The $BFC9 command at $BF59 queues the cry and may branch to
+    /// <see cref="Initial"/> on stationary odd RNG. For frame i = 0..11,
+    /// $BF5D + 8*i is palette callback $BFE1 and the duration at
+    /// $BF61 + 8*i is exactly 2 + abs(i - 4) ticks. Each is followed by a
+    /// live palette or spritemap operand. A final $BFE1 at $BFBD updates
+    /// the palette; $BFF2 at $BFC1 loops to $BF59 while moving, otherwise
+    /// $BFF8 at $BFC5 returns to $BF31.
+    /// </summary>
     internal const ushort ExpressiveLoop = 0xbf59;
 
     private static readonly CeresBabyInstructionMechanicsWord[] Words = CreateWords();

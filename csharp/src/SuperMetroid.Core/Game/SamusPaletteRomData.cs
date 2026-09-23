@@ -294,6 +294,18 @@ public static class SamusPaletteRomData
         /// 24 of 48 four-phase component sequences. Retain these four
         /// live authored rows; palette handler six repeats them in
         /// order while the shinespark palette is active.
+        ///
+        /// Issue #885 / #625: all 64 Varia Suit active-shinespark
+        /// BGR555 words at <c>$9B:9E20..9E9F</c> match the pinned ROM
+        /// and native bank-$9B listing. Phase zero exactly duplicates
+        /// Screw Attack shade zero <c>$9B:9EA0</c> and differs from
+        /// normal Varia <c>$9B:9520</c> only at color zero
+        /// (<c>$3800</c> versus <c>$0000</c>). The remaining three
+        /// rows have no exact sixteen-color duplicate among nearby
+        /// Samus palettes. Only 25 of 64 corresponding words equal
+        /// Screw Attack; a clipped first-step channel rule fits 25 of
+        /// 48 four-phase sequences. Retain the four live authored rows,
+        /// which palette handler six repeats while active.
         /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>

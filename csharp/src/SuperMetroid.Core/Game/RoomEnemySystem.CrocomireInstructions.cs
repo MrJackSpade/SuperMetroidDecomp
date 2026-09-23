@@ -8,6 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// Dispatches the 27 named $A4 Crocomire callback identities in
+    /// <see cref="CrocomireCodePointers"/>. The pinned NTSC J/U v1.0
+    /// body programs produce every key. Distinct movement, wall,
+    /// sound, shake, fight, and dust effects retain their authored
+    /// control order; the bounded dust-offset subrule is documented
+    /// in the opcode catalog. Non-Crocomire slots and unrecognized
+    /// keys return false so the general interpreter can report an
+    /// untranslated Crocomire opcode after its other dispatchers.
+    /// </summary>
     private bool TryProcessCrocomireInstruction(
         RoomEnemySlot slot,
         SamusState? samus,

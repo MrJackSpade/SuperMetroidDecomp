@@ -9,6 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// $9AD7 stub loads $0040 and falls through to the shared spawn
 /// routine. The runtime switch accepts only these named opcodes;
 /// the first four authored offsets make the switch worth retaining.
+/// Across the full Crocomire callback dispatcher, all 27 distinct
+/// native IDs in this catalog have compiled instruction producers and
+/// one dispatch mapping each. Fight AI, random attack selection,
+/// movement and wall handling, sound, shake, and dust have different
+/// stateful effects, so that authored callback policy is retained.
 /// </summary>
 internal static class CrocomireCodePointers
 {

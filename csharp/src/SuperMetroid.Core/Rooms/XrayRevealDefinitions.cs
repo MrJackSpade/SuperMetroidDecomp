@@ -138,6 +138,16 @@ internal static class XrayRevealDefinitions
         _ => null,
     };
 
+    /// <summary>Finds the grapple-block reveal for one unsigned BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1034: pinned NTSC J/U v1.0 ROM $91:D46A..D483 has three
+    /// key/pointer pairs (00, 01, 02), $FFFF at $D476, then copy-one
+    /// commands with tile $009B for 00 and $00B7 for both 01 and 02.
+    /// All other BTS bytes return no reveal. The exact bounded rule is
+    /// the 0 versus 1..2 classification already expressed below; tile
+    /// identities remain authored. Direct ROM keys/pointers and the
+    /// independent 256-case grapple-block oracle including operands agree.
+    /// </remarks>
     private static XrayRevealDefinition? FindGrappleBlock(byte bts) => bts switch
     {
         0 => One(0x009b),

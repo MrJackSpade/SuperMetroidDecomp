@@ -70,6 +70,8 @@ public static class EnemyTrigonometryTables
     /// Reject indices outside 0..127 before reflection; caller angle wrapping
     /// remains a separate operation. Production migration and hot-path cost have
     /// not been evaluated; the table is intentionally retained for a later pass.
+    /// Byte-table investigation: #625 / #907. Signed and 16-bit physical
+    /// sine tables require their own bounded proofs despite sharing phase.
     /// </remarks>
     public static ReadOnlySpan<byte> EightBitHalfWave =>
     [

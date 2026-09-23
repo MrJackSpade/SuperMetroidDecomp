@@ -967,6 +967,10 @@ public static class DoorDefinitions
     /// $916E, $917A, and $9186, exactly $916E + 12*i for normalized
     /// BTS i=0..2. Index 3 reaches scroll data $0102 at $8F:A507.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1131, Mini Kraid $8F:A567: two words are $9192 and
+    /// $919E, exactly $9192 + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $012E at $8F:A56B. The ROM
+    /// oracle checks both entries, aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

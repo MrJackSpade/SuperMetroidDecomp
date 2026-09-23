@@ -81,6 +81,10 @@ public static class GameOverBabyAnimationDefinitions
     };
 
     /// <summary>Native bank-$82 sound callback identity used only for extraction parity.</summary>
+    /// <remarks>Issues #625 and #970: this is the inverse view of
+    /// GameOverRomData.BabyAnimation.ResolveCry for the three native cry
+    /// instructions at $82:BC0C, BC15, and BC1E. Their effect IDs and stream
+    /// references were checked against pinned NTSC J/U v1.0 ROM.</remarks>
     public static ushort NativeSoundOpcode(GameOverBabySound sound) => sound switch
     {
         GameOverBabySound.Cry23 => GameOverRomData.BabyAnimation.CryOpcode23,

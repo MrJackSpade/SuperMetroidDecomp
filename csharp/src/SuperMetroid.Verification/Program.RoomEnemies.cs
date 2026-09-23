@@ -1115,6 +1115,10 @@ static void VerifyCeresRidleyRoomEntry()
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {
+        // The synthetic instruction stream covers phase transitions, not every
+        // hovering-frame art list. Reinstall its authored extended frame for each
+        // isolated shot; the separately stepped enemy AI can otherwise leave zero.
+        ridley.SpritemapPointer = 0x9000;
         // Place Samus relative to the active component, then retain native muzzle offset
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.

@@ -13,6 +13,17 @@ internal static class CeresDestructionActorDefinitions
     public const int ZebesActorCount = 6;
 
     /// <summary>Returns the three persistent actors behind the station explosion.</summary>
+    /// <remarks>
+    /// Issues #625 and #1015: row zero's distinct large-asteroid list at
+    /// $8B:CC3F..CC46 has words $000A, $909D, $94BC, $CC3F in pinned
+    /// NTSC J/U v1.0 ROM and bank_8B.asm. It reuses the flight asteroid's
+    /// native initializer and motion callback, but displays bank-$8C
+    /// under-attack spritemap $909D for ten handler calls before the goto
+    /// repeats from $CC3F. IntroDiscoverySprite.Step confines the cursor
+    /// to this single-frame loop; $CC47 starts another actor's list.
+    /// The constant-period rule needs no table, while the authored visual
+    /// frame remains ROM-backed.
+    /// </remarks>
     public static CeresDestructionActorDefinition InitialActor(int index)
     {
         CeresFlightActorDefinition flight = index switch

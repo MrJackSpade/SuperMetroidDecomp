@@ -115,6 +115,18 @@ internal static class XrayRevealDefinitions
         _ => null,
     };
 
+    /// <summary>Finds the authored shootable-block reveal for one unsigned BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1033: pinned NTSC J/U v1.0 ROM $91:D3CC..D461 has 16
+    /// key/pointer pairs (00..0F), $FFFF at $D40C, and command operands
+    /// through $D461. For 00..07, BTS mod 4 chooses one $0052, wide
+    /// $0096/$0097, tall $0098/$00B8, or square $0099/$009A/$00B9/$00BA.
+    /// BTS 08..09 chooses one $0057; 0A..0F chooses one $009F; all others
+    /// return no reveal. Dimension groups are regular, while tile identities
+    /// are authored, so the bounded grouped switch remains clearest. Direct
+    /// ROM keys/pointers and the independent 256-case shootable-block oracle
+    /// including command operands agree.
+    /// </remarks>
     private static XrayRevealDefinition? FindShootableBlock(byte bts) => bts switch
     {
         0 or 4 => One(0x0052),

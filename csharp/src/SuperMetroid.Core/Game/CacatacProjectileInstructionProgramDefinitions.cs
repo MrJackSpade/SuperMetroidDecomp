@@ -31,6 +31,14 @@ internal static class CacatacProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Down_FacingRight</c> at $86:D964.</summary>
     internal const ushort RightFacingDown = 0xd964;
 
+    /// <summary>
+    /// Ten six-byte programs at $86:D92E-$86:D969. For program index i = 0..9,
+    /// the start address is $D92E + 6*i, its duration word is exactly $0001,
+    /// and its terminal instruction at start + 4 is $8159 (sleep). The
+    /// intervening word at start + 2 is a live spritemap operand.
+    /// Program order follows the named list pointers above; the native
+    /// direction-selector table at $86:D96A uses a different order.
+    /// </summary>
     private static readonly CacatacProjectileInstructionMechanicsWord[] Words =
     [
         new(LeftFacingUp, 1),

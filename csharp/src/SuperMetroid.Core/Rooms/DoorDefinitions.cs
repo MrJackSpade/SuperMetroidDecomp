@@ -773,6 +773,10 @@ public static class DoorDefinitions
     /// $8C46, $8C52, and $8C5E, exactly $8C3A + 12*i for normalized
     /// BTS i=0..3. Index 4 reaches scroll data $0202 at $8F:99EC.
     /// The ROM oracle checks all entries, aliases, and this boundary.
+    /// Issue #1083, Crateria Super $8F:9A20: two words are $8C6A and
+    /// $8C76, exactly $8C6A + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches scroll data $0101 at $8F:9A24. The ROM oracle
+    /// checks both entries, high-bit aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

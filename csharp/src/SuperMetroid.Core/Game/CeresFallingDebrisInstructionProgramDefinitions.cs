@@ -11,7 +11,13 @@ internal readonly record struct CeresFallingDebrisInstructionMechanicsWord(
 /// </summary>
 internal static class CeresFallingDebrisInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_EnemyProjectile_CeresFallingTile_Light</c> at $86:9750.</summary>
+    /// <summary>
+    /// <c>InstList_EnemyProjectile_CeresFallingTile_Light</c> at $86:9750,
+    /// selected by definition $9734. Its pinned-ROM mechanics are one tick
+    /// at $9750, then terminal $8159 sleep at $9754. The production interpreter
+    /// reaches only those two private pointers before a separate shot reaction
+    /// can enter the shared delete program. The $9752 spritemap is presentation.
+    /// </summary>
     internal const ushort Light = 0x9750;
 
     /// <summary><c>InstList_EnemyProjectile_CeresFallingTile_Dark</c> at $86:9756.</summary>

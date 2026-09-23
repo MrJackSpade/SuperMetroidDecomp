@@ -118,6 +118,12 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     /// The repeated first target supplies the two four-tick setup poses and
     /// first loop pose. The component tile/attribute words differ by frame;
     /// retain these authored pointers and payloads as live presentation data.
+    /// The five final-impact operands at $9578, $957C, $9580, $9584, and
+    /// $9588 point to $8D:80E6 + 7 * frame index, for indices zero through
+    /// four. Each target again has a one-component count and five-byte
+    /// component, ending just before $8109. Their coordinates and tile words
+    /// vary across frames, so these authored presentation records also stay
+    /// live rather than becoming compiled control words.
     /// </remarks>
     private static readonly ushort[] PresentationWords =
     [

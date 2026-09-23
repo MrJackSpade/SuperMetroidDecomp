@@ -78,6 +78,15 @@ public static class GameOptionsRomData
         /// <summary>$82:F2E6: selector Y paired with the off-screen X anchor.</summary>
         public const ushort HiddenY = 0x10;
         public const ushort SpecialX = 0x10;
+        /// <summary>Primary options cursor Y for selected row 0..4.</summary>
+        /// <remarks>
+        /// Issues #625 and #957: PreInstruction_MenuSelectionMissile selects five
+        /// interleaved X/Y records at $82:F307, with Y every four bytes from $82:F309.
+        /// For row i=0..4, X=$0018 and Y=$0038+$0020*i-(i&gt;=2 ? 8 : 0).
+        /// The eight-pixel shift after row 1 matches the authored layout gap.
+        /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all five records;
+        /// GameOptionsMenuState wraps PrimaryCount at five before indexing.
+        /// </remarks>
         public static ReadOnlySpan<ushort> PrimaryY => PrimaryRows;
         /// <summary>$82:F31D and subsequent Y words are screen-space anchors; END/RESET already account for page scrolling.</summary>
         public static ReadOnlySpan<ushort> ControllerY => ControllerRows;

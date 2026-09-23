@@ -145,6 +145,15 @@ internal static class CeresExplosionDefinitions
     };
 
     /// <summary>Returns one of the four timer/X/Y rows at <c>$8B:C56A/$C572/$C57A</c>.</summary>
+    /// <remarks>
+    /// Issues #625 and #997: the four final-wave instruction-delay words
+    /// at $8B:C56A+2*i are 1, 4, 8, 16 in pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm. For bounded blast index i=0..3 this is i=0 ? 1 :
+    /// 1&lt;&lt;(i+1). $8B:C50C spawns these four indices, and initializer
+    /// $8B:C533 installs each selected word as the first instruction timer.
+    /// Index zero retains its nonzero first-call delay. Other indices throw
+    /// rather than reading the adjacent X-offset table.
+    /// </remarks>
     public static CeresExplosionPlacement FinalExplosion(int index) => index switch
     {
         0 => new(8, -4, 1),

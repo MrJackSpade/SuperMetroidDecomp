@@ -108,7 +108,16 @@ internal static class CrocomireInstructionProgramDefinitions
     /// retain this distinct control word. Roar starts at BD2A.
     /// </summary>
     internal const ushort MovingClaws = 0xbcd8;
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_Roar</c> at $A4:BD2A.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_WaitForFirstSecondDamage_Roar</c> at
+    /// $A4:BD2A-$BD8D. The pinned ROM begins with duration $0030,
+    /// cry SFX $8CFB, then duration $0005. From BD34, thirteen
+    /// repetitions each hold for $0002 and call Fight AI $86A6.
+    /// Duration $0020 plus Fight AI and then $0001 plus Fight AI
+    /// finish the list. Each of the 17 durations precedes a live
+    /// spritemap operand. This exact repetition ends before the
+    /// RoarCloseMouth program at BD8E.
+    /// </summary>
     internal const ushort Roar = 0xbd2a;
     /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_0</c> at $A4:BD8E.</summary>
     internal const ushort RoarCloseMouth = 0xbd8e;

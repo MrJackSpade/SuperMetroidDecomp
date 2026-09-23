@@ -710,6 +710,10 @@ public static class DoorDefinitions
     /// $8AD2, exactly $8AC6 + 12*i for normalized BTS i=0..1. Index 2
     /// reaches next room header $000E at $8F:95FF. The ROM oracle checks
     /// both entries, high-bit aliases, and this first invalid index.
+    /// Issue #1068, Moat $8F:9626: two words are $8ADE and $8AEA,
+    /// exactly $8ADE + 12*i for normalized BTS i=0..1. Index 2 reaches
+    /// next room header $000F at $8F:962A. The ROM oracle checks both
+    /// entries, high-bit aliases, and this first invalid index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

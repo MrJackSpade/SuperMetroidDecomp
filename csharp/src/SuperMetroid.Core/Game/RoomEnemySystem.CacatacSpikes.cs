@@ -39,7 +39,16 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = speeds.Positive;
     }
 
-    /// <summary>Ports pre-instruction $86:D9DB and all ten movement-table entries.</summary>
+    /// <summary>
+    /// Ports pre-instruction $86:D9DB and the ten callback pointers at
+    /// $86:D97E-$86:D991, selected by even direction bytes $00..$12.
+    /// In selector order the native callbacks are $DA8E, $DA98, $DA93,
+    /// $DA8E, $DA9D, $DA93, $DAA2, $DAB2, $DAAA, $DABA. The two left-facing
+    /// and two right-facing variants share callbacks; diagonals compose one
+    /// horizontal and one vertical signed-speed move. The native
+    /// pre-instruction culls the projectile after its selected movement.
+    /// These authored callback addresses do not form a uniform pointer stride.
+    /// </summary>
     private static void RunCacatacSpikePreInstruction(
         RoomEnemyProjectileSlot projectile,
         ushort cameraX,

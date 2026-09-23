@@ -842,6 +842,10 @@ public static class DoorDefinitions
     /// $8E86, and $8E92, exactly $8E7A + 12*i for normalized BTS
     /// i=0..2. Index 3 reaches scroll data $0202 at $8F:9E7F.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1100, Morph Ball $8F:9EE5: normalized BTS i=0..2
+    /// uses $8E9E + 12*i; i=3 names shared elevator pseudo-door
+    /// $88FC. Index 4 reaches scroll data $0000 at $8F:9EED. The
+    /// ROM oracle checks all entries, aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

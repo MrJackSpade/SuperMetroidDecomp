@@ -54,6 +54,14 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     internal const ushort HorizontalCenter = 0x95a0;
 
     /// <summary><c>InstList_EnemyProjectile_VerticalAfterburn_Center</c> at $86:95D3.</summary>
+    /// <remarks>
+    /// The $86:965E header selects this $95D3..95EC stream. Every control
+    /// address is its <see cref="HorizontalCenter"/> counterpart plus $33;
+    /// every value is identical except the spawn callback $95BA becomes
+    /// $95ED, also plus $33. Thus one five-tick pose precedes spawning up
+    /// and down children, four five-tick poses follow, and $8154 deletes the
+    /// center. All eight words match the pinned NTSC J/U v1.0 ROM.
+    /// </remarks>
     internal const ushort VerticalCenter = 0x95d3;
 
     /// <summary><c>InstList_EnemyProjectile_Afterburn</c> at $86:9606.</summary>

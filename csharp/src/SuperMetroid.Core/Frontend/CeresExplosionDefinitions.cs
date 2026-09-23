@@ -153,6 +153,14 @@ internal static class CeresExplosionDefinitions
     /// $8B:C533 installs each selected word as the first instruction timer.
     /// Index zero retains its nonzero first-call delay. Other indices throw
     /// rather than reading the adjacent X-offset table.
+    ///
+    /// Issues #625 and #998: the separate signed X-offset words at
+    /// $8B:C572+2*i are +8, +12, -8, -12 for i=0..3, matching pinned
+    /// NTSC J/U v1.0 ROM and bank_8B.asm. Their magnitude is
+    /// 8+4*(i&amp;1), positive for i&lt;2 and negative otherwise.
+    /// Initializer $8B:C533 adds this X after Mode 7 origin X minus BG1 X
+    /// with native 16-bit wrap. The bounded sign/magnitude rule exactly
+    /// covers the four spawned actors, without reading adjacent Y words.
     /// </remarks>
     public static CeresExplosionPlacement FinalExplosion(int index) => index switch
     {

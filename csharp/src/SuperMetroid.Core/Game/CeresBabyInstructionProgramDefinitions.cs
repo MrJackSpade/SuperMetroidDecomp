@@ -47,6 +47,11 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// Both groups store the same {$BFFD, $C018, $C033, $C018} pose sequence;
     /// the three distinct pointers advance by $001B. Presentation stays live
     /// cartridge data rather than compiled mechanics.
+    /// In <see cref="ExpressiveLoop"/>, palette operand i = 0..11 is at
+    /// $BF5F + 8*i and points to $E20F + $001E*q, where q follows
+    /// {0, 1, 2, 1} repeated three times. Each palette block contains
+    /// fifteen colors ($001E bytes). The final operand at $BFBF points to
+    /// $E1F1, the preceding palette block, outside that repeated cycle.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

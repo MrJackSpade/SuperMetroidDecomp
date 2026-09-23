@@ -729,6 +729,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// Loop indices 15..26 use $BFC4 + $32*(i-15), ending at $C1EA;
     /// this matches the unused charge-forward pointer progression.
     /// All 27 addresses remain live cartridge presentation reads.
+    /// The 30 near-spike-wall charge operands split at index 18.
+    /// For entry indices 0..17, pinned stock pointer is $C574+$3A*T(i):
+    /// T(0)=T(17)=0, T(1)=T(15)=T(16)=1, and T(2..14)=2.
+    /// Loop indices 18..29 use $BFC4+$32*(i-18), ending at $C1EA;
+    /// this is the same twelve-pointer run as the closed-mouth loop.
+    /// These bounded stock identities leave all 30 operands live.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

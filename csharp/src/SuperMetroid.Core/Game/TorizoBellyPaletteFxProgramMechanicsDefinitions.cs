@@ -12,6 +12,12 @@ public enum TorizoBellyPaletteOwner
 /// Palette-FX definitions <c>$F759</c> and <c>$F75D</c> install matching six-frame
 /// programs with different live BGR555 colors. This catalog owns only color-index setup,
 /// enemy-death pre-instruction setup, durations, waits, and loop control.
+/// Bomb and Golden programs start at $8D:E2E9 and $8D:E331, each selecting
+/// CGRAM byte $0132 and installing enemy-zero-death pre-instruction $E2E0.
+/// Records f=0..5 begin at $E2F1 or $E339 plus 10*f, write three live
+/// colors, and end in $C595 wait. Gotos at $E32D and $E375 return to
+/// the respective first records after a 52-frame cycle; f=6 reaches
+/// control. All 36 mechanics words match the pinned NTSC J/U v1.0 ROM.
 /// </remarks>
 public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
 {
@@ -56,6 +62,11 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Bounded duration shared by both Torizo belly programs.</summary>
+    /// <remarks>
+    /// For f=0..5, duration is 10 when f mod 3 is zero, otherwise 8:
+    /// exactly 10,8,8,10,8,8 in the pinned ROM, totaling 52 frames.
+    /// </remarks>
     internal static ushort Duration(int frame)
     {
         if ((uint)frame >= FrameDurations.Length)

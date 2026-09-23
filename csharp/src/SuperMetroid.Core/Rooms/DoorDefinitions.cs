@@ -838,6 +838,10 @@ public static class DoorDefinitions
     /// are $8E62 and $8E6E, exactly $8E62 + 12*i for normalized
     /// BTS i=0..1. Index 2 reaches scroll data $0101 at $8F:9E3C.
     /// The ROM oracle checks entries, aliases, and boundary.
+    /// Issue #1099, Green Hill Zone $8F:9E79: three words are $8E7A,
+    /// $8E86, and $8E92, exactly $8E7A + 12*i for normalized BTS
+    /// i=0..2. Index 3 reaches scroll data $0202 at $8F:9E7F.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

@@ -426,6 +426,18 @@ public static class SamusPaletteRomData
         /// flashing and zero/two through nine during explosion, then
         /// copies all sixteen target colors. This formula describes
         /// pointers; the target palettes remain separate data.
+        ///
+        /// Issue #894 / #625: all 128 Power Suit BGR555 words in
+        /// eight death/beam-charge rows at <c>$9B:9820..991F</c>
+        /// match the pinned ROM and native bank-$9B listing. For
+        /// frame <c>f=0..7</c> and color <c>c=0..15</c>, take each
+        /// five-bit component <c>b</c> from the authored first row
+        /// at <c>$9820</c>; the corresponding component is exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
+        /// zero mismatches across all 128 words. Pointer index zero
+        /// selects frame zero and indices two through eight select
+        /// frames one through seven. The base row remains authored
+        /// data; this is a bounded proof, not a runtime generator.
         /// </remarks>
         public const int SuitPointers = 0x9bb7d3;
         /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>

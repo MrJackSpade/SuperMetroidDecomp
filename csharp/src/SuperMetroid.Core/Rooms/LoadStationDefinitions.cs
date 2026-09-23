@@ -128,6 +128,18 @@ public static class LoadStationDefinitions
     ];
 
     /// <summary>$80:CB2B-$80:CC18, all seventeen Ceres records.</summary>
+    /// <remarks>
+    /// Issue #1045: all 17 fourteen-byte records in the pinned NTSC J/U
+    /// v1.0 ROM have room $DF45, door $AB58, and zero BTS, camera, and
+    /// Samus-X fields. Samus-Y offset is $0048 at station 0 and $0040
+    /// at stations 1..16. This constant record with an index-zero
+    /// exception is the exact bounded algorithm for Ceres station byte
+    /// 0..16; the repeated placements remain authored scene state.
+    /// Station 17 would start adjacent debug data at $80:CC19, so Get
+    /// rejects it instead of extending the pattern. Direct ROM inspection
+    /// checked all 17 rows; the independent load-station verifier matches
+    /// them and the other 117 retail records and checks the boundary.
+    /// </remarks>
     private static readonly LoadStationDefinition[] ceres =
     [
         new(0xdf45, 0xab58, 0x0000, 0x0000, 0x0000, 0x0048, 0x0000),

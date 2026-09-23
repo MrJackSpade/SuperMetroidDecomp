@@ -579,6 +579,10 @@ internal static class CrocomireInstructionProgramDefinitions
     /// cycle three times. Indices 15..17 use $C574 + $3A*(i-15);
     /// loop indices 18..22 use $C95C + $3A*(i-18), ending at $CA44.
     /// These bounded stock identities do not replace live cartridge reads.
+    /// The later step-forward-after-delay entry at $A4:BBCC is one live
+    /// spritemap operand with pinned stock value $C6A4, between the
+    /// $00B4 duration at BBCA and StepForward opcode $8752 at BBCE.
+    /// Retain that one authored presentation identity.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

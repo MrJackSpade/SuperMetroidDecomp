@@ -19,7 +19,19 @@ public static class GameOptionsRomData
     public const int MenuTilemapHeight = 32;
     public const int MaximumQueuedMenuSounds = 6;
 
-    /// <summary>The five consecutive compressed options pages loaded by $82:EC77.</summary>
+    /// <summary>The five consecutive compressed options pages loaded from $82:EC66 onward.</summary>
+    /// <remarks>
+    /// Issues #625 and #956: pinned NTSC J/U v1.0 ROM source-load instructions at
+    /// $82:EC66, EC77, EC88, EC99, and ECAA select these five bank-$97 streams in
+    /// primary, controller English/Japanese, special English/Japanese order.
+    /// bank_94..99.asm places them at $97:8DF4, 8FCD, 91C4, 938D, and 953A with
+    /// compressed lengths $1D9, $1F7, $1C9, $1AD, and $1BA, respectively; the
+    /// final stream ends at $97:96F4. All five ROM immediate pairs and consecutive
+    /// source spans match. GameOptionsMenuState and extraction select the five
+    /// named resources, each expanding to one $800-byte tilemap. Their offsets are
+    /// authored compression boundaries; a prefix sum would just hide the lengths.
+    /// Retain this explicit page-to-resource mapping.
+    /// </remarks>
     public static class Pages
     {
         public static readonly GameOptionsPageResource Primary =

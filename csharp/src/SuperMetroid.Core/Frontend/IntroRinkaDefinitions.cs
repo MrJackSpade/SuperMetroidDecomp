@@ -14,6 +14,18 @@ internal static class IntroRinkaDefinitions
         new(0xcf21, 0xb896, SharedNoOp, 0xcdeb);
 
     /// <summary><c>$8B:CF27</c>, Rinka-spawner no-op callbacks and initial list.</summary>
+    /// <remarks>
+    /// Issues #625 and #989: its $8B:CE0D..CE1A list contains seven words:
+    /// wait $004A, null spritemap, spawn-0/1 opcode $BA21, wait $0080,
+    /// null spritemap, spawn-2/3 opcode $BA36, then delete $9438.
+    /// All seven match pinned NTSC J/U v1.0 ROM and bank_8B.asm. The generic
+    /// interpreter loads the first wait on zero-based call 0, spawns the
+    /// first pair on call 74, then the second pair and deletes on call 202.
+    /// IntroRinkaSystem follows this native list and verifies both waves.
+    /// The unequal waits and two distinct callbacks are authored timing
+    /// policy; retain the explicit bounded schedule rather than fit a
+    /// recurrence or infer a third wave from adjacent data.
+    /// </remarks>
     public static IntroRinkaActorDefinition SpawnerActor =>
         new(0xcf27, SharedNoOp, SharedNoOp, 0xce0d);
 

@@ -955,6 +955,10 @@ public static class DoorDefinitions
     /// resolves to $9132; no stride follows from one word. Index 1
     /// reads $2A01 at $8F:A470: scroll byte $01, then next room
     /// header byte $2A. The ROM oracle checks aliases and bound.
+    /// Issue #1128, Warehouse Zeela $8F:A498: three words are
+    /// $913E, $914A, and $9156, exactly $913E + 12*i for normalized
+    /// BTS i=0..2. Index 3 reaches scroll data $0001 at $8F:A49E.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

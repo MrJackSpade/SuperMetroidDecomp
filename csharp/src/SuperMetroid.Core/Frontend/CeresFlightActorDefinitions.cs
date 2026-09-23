@@ -72,6 +72,17 @@ internal static class CeresFlightActorDefinitions
     /// IntroDiscoverySprite.Draw applies the selected attributes to OAM.
     /// The rule covers only the five native spawn rows, without assigning
     /// meaning to an invalid index or altering their authored palette.
+    ///
+    /// Issues #625 and #1009: pinned NTSC J/U v1.0 ROM and bank_8B.asm
+    /// give fractional X increments $4000, $1000, $0800 at
+    /// $8B:BF3A/$BF64/$BF8E for rows 0..2. Each native pre-instruction
+    /// then masks whole X with $01FF at $BF46/$BF70/$BF9A. Rows 3 and 4
+    /// share callback $BFC6: its immediate at $BFCB subtracts $2000 from
+    /// the fractional word with borrow into whole X, without that mask.
+    /// Thus bounded row deltas in signed 16.16 are +$4000, +$1000,
+    /// +$0800, -$2000, -$2000. The positive rates vary by actor and do
+    /// not follow a useful common step; retain these authored motion choices
+    /// and their native wrap policy instead of fitting an index formula.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

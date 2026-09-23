@@ -171,6 +171,12 @@ public readonly record struct PaletteFxHeatProgramFrameDefinition(
     /// All 240 Varia words match the pinned ROM. Endpoint floor
     /// interpolation misses five of its 75 distinct row/color words,
     /// so the authored rows remain live presentation data.
+    /// Gravity's fifteen live colors start at $8D:E8C0 + $22*p and use
+    /// Varia's row selector. Gravity authors positions 1,9,10 in every
+    /// row and first-row position 11 ($0274 rather than Power/Varia's
+    /// $0252). All 240 Gravity words match the pinned ROM. Endpoint
+    /// floor interpolation misses eight of its 75 distinct values,
+    /// so its five authored rows also remain live presentation data.
     /// </remarks>
     public ushort FirstColorPointer => unchecked((ushort)(InstructionPointer + sizeof(ushort)));
 

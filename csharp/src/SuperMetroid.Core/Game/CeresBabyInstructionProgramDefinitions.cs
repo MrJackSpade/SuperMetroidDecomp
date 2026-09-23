@@ -31,6 +31,14 @@ internal static class CeresBabyInstructionProgramDefinitions
 
     private static readonly CeresBabyInstructionMechanicsWord[] Words = CreateWords();
 
+    /// <summary>
+    /// Live palette and spritemap operand addresses in the two draw programs.
+    /// In <see cref="Initial"/>, each of the two four-frame groups has
+    /// spritemap operands at $BF37 + 4*i or $BF4B + 4*i for i = 0..3.
+    /// Both groups store the same {$BFFD, $C018, $C033, $C018} pose sequence;
+    /// the three distinct pointers advance by $001B. Presentation stays live
+    /// cartridge data rather than compiled mechanics.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         0xbf37, 0xbf3b, 0xbf3f, 0xbf43, 0xbf4b, 0xbf4f, 0xbf53, 0xbf57,

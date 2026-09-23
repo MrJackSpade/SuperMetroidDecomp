@@ -132,6 +132,16 @@ public static class GameOptionsRomData
         /// The adjacent source-pointer region has its own rule.
         /// </remarks>
         public static ReadOnlySpan<ushort> Destinations => DestinationOffsets;
+        /// <summary>Bank-$82 source pointer for each assignable controller-button label.</summary>
+        /// <remarks>
+        /// Issues #625 and #961: ControllerButton_TilemapPointers at $82:F647
+        /// contains nine words. Selectors i=0..6 point to X, A, B, Select, Y, L,
+        /// and R label records at $F659+$000C*i. Each record is a 3x2 tilemap
+        /// of six words. Adjacent selectors 7 and 8 both point to the distinct
+        /// OFF record at $F6AD; the managed assignable-button view stops at 6.
+        /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all nine pointer words.
+        /// Managed label drawing and extraction use the seven-entry domain.
+        /// </remarks>
         public static ReadOnlySpan<ushort> Sources => SourcePointers;
     }
 

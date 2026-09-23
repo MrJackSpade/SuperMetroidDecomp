@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 internal static class OwtchMovementDefinitions
 {
     /// <summary>$A2:A3DD, OwtchData.XDistanceRanges: eight patrol half-widths.</summary>
-    /// <remarks>#625 exact arithmetic progression: distance=16*(i+1), i=0..7.
+    /// <remarks>Issues #625 and #947 exact arithmetic progression: distance=16*(i+1), i=0..7.
     /// LookupTableResearch checks every word against NTSC J/U v1.0 ROM, pinned assembly,
     /// and this compiled table. Keep the eight-entry bound; runtime replacement is deferred.</remarks>
     private static ReadOnlySpan<ushort> TravelDistances =>

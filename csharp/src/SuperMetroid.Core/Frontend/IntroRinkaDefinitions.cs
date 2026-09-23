@@ -34,6 +34,16 @@ internal static class IntroRinkaDefinitions
     /// subtracts eight from the authored Y position; both movement paths use fraction
     /// <c>$8000</c>, so the signed whole component distinguishes +0.5 from -0.5 px/frame.
     /// </summary>
+    /// <remarks>
+    /// Issues #625 and #986: $8B:B896 indexes four initial X words at
+    /// $8B:B8B5+2*p for parameter p=0..3. Pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm both give $0070, $00C0, $0080, $00E8. The spawn
+    /// instructions create p=0/1, then p=2/3, and the selector rejects
+    /// invalid parameters. The two pairs have different offsets and spans;
+    /// these are authored scene placements, so retain four explicit X
+    /// values instead of encoding them as a fitted sequence. The production
+    /// verifier runs both waves with physical-table reads forbidden.
+    /// </remarks>
     public static IntroRinkaPhysicalDefinition Rinka(int parameter) => parameter switch
     {
         0 => new(0x0070, 0x0048, 0),

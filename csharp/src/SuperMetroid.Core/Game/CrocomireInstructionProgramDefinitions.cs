@@ -568,6 +568,12 @@ internal static class CrocomireInstructionProgramDefinitions
     /// values obey $BFC4 + $32*i exactly for indices 0 through 11,
     /// ending at $C1EA. This bounded stock progression describes the
     /// presentation data; the interpreter still reads each operand live.
+    /// The next 23 entries are projectile-attack spritemap operands at
+    /// $A4:BB3A-$BBA8. For zero-based indices 0..14, the pinned ROM
+    /// value is $C47A + $32*(i modulo 5), repeating one five-pointer
+    /// cycle three times. Indices 15..17 use $C574 + $3A*(i-15);
+    /// loop indices 18..22 use $C95C + $3A*(i-18), ending at $CA44.
+    /// These bounded stock identities do not replace live cartridge reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

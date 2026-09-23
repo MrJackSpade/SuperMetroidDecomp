@@ -834,6 +834,10 @@ public static class DoorDefinitions
     /// and $8E56, exactly $8E4A + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches next room header $010C at $8F:9E11. The ROM
     /// oracle checks both entries, high-bit aliases, and boundary.
+    /// Issue #1098, Pink Brinstar Power Bombs $8F:9E38: two words
+    /// are $8E62 and $8E6E, exactly $8E62 + 12*i for normalized
+    /// BTS i=0..1. Index 2 reaches scroll data $0101 at $8F:9E3C.
+    /// The ROM oracle checks entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

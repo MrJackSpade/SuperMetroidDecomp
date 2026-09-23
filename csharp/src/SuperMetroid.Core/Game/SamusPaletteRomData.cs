@@ -182,6 +182,15 @@ public static class SamusPaletteRomData
         /// bank-$91 list at phase offsets <c>0,2,4,6</c>, and then pins
         /// the last phase. This stride describes only the three list
         /// addresses; the nested pointers and colors are separate data.
+        ///
+        /// Issue #875 / #625: the twelve nested words at
+        /// <c>$91:DAAF..DAC6</c> are exactly
+        /// <c>$9B20+$0200*s+$0020*p</c> for suit index <c>s=0..2</c>
+        /// and phase <c>p=0..3</c>. Every word matches the pinned ROM and
+        /// native bank-$91 listing. The caller indexes the four phase
+        /// pointers with byte offsets <c>0,2,4,6</c> and pins phase three;
+        /// each target is a complete sixteen-color bank-$9B palette.
+        /// The formula describes target addresses, not target colors.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>

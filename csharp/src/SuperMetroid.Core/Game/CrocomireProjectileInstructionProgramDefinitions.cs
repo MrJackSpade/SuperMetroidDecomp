@@ -77,6 +77,13 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
         new(0x901f, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
     ];
 
+    /// <summary>
+    /// Entries 0..5 identify mouth-projectile presentation operands at
+    /// $86:8FD1 + 4*i. In the pinned NTSC J/U v1.0 ROM their stock pointers
+    /// are exactly $802A + $16 * min(i, 6-i) for i=0..5: a four-level pose
+    /// sweep that returns through levels two and one before the loop. These
+    /// operands remain live cartridge reads so installed presentation works.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         0x8fd1, 0x8fd5, 0x8fd9, 0x8fdd, 0x8fe1, 0x8fe5,

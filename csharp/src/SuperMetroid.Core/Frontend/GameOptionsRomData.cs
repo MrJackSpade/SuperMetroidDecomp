@@ -170,6 +170,18 @@ public static class GameOptionsRomData
     ];
 
     /// <summary>Palette boxes for the Icon Cancel and Moonwalk toggles.</summary>
+    /// <remarks>
+    /// Issues #625 and #964: the eight native words at $82:F149..F158 are one
+    /// interleaved block used by Set_SpecialSetting_Highlights. For toggle
+    /// t=0 (Icon Cancel) or 1 (Moonwalk), row r=0..1, and disabled choice
+    /// d=0..1, the byte offset is $01E0+$0180*t+$0040*r+$000E*d.
+    /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all eight offsets.
+    /// Each palette call covers $0C bytes (six tilemap words); when the setting
+    /// is on, the enabled pair uses palette 0 and disabled pair palette 1,
+    /// reversing when off. Native indexes the records by toggle 0..1 before
+    /// choosing the four boxes. The two managed layouts are views of this
+    /// single bounded geometry rule.
+    /// </remarks>
     public static class SpecialToggles
     {
         public static readonly GameOptionsToggleLayout IconCancel =

@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Native BG1 byte offsets, OBJ identifiers, and positions for file select.</summary>
+/// <remarks>Issues #625 and #955: the selection missile's four adjacent native timer
+/// words at $82:BAAA are all 8; FileSelectMenuState uses 8 as its native fallback
+/// reload and permits an editable presentation duration to override it. The separate
+/// four spritemap IDs at $82:BAB2 are documented on MissileSpritemapIds.</remarks>
 internal static class FileSelectLayout
 {
     /// <summary>Screen-space Y coordinates for slots A-C, Copy, Clear, and Exit.</summary>

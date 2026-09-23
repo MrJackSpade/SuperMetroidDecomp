@@ -89,6 +89,11 @@ public static class GameOverRomData
         public const ushort MissileX = 40;
         public const ushort YesMissileY = 160;
         public const ushort NoMissileY = 192;
+        /// <summary>All four $82:BAAA menu missile timer words equal eight calls.</summary>
+        /// <remarks>Issues #625 and #955: pinned NTSC J/U v1.0 ROM and bank_82.asm
+        /// match 4/4. The timer reload is shared with file select and options; the
+        /// adjacent $82:BAB2 spritemap IDs are a separate table. Game-over animation
+        /// may use an editable presentation override.</remarks>
         public const int MissileFrameDuration = 8;
         /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
         /// <remarks>Issues #625 and #954: game-over animation wraps modulo this four-word

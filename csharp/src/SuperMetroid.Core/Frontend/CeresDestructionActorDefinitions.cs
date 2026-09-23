@@ -70,6 +70,15 @@ internal static class CeresDestructionActorDefinitions
     /// and title i=5 retain their authored $0088/$0080 centers. This
     /// parity-and-exception rule exactly covers the six actor types;
     /// ZebesActor rejects any index outside 0..5.
+    ///
+    /// Issues #625 and #1018: the six Y immediates at $8B:C842/C94A/
+    /// C95E/C972/C986/C999 match pinned NTSC J/U v1.0 ROM and
+    /// bank_8B.asm: $006F, $002F, $002F, $00CF, $00CF, $00BA in the same
+    /// spawn order. Star-sheet indices 1..2 use top row $002F; indices
+    /// 3..4 use bottom row $00CF. Combined with their proven X parity,
+    /// those four sheets occupy the four corners of a bounded two-by-two
+    /// layout. Planet index 0 and title index 5 retain authored $006F
+    /// and $00BA. No value is extrapolated outside actor indices 0..5.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

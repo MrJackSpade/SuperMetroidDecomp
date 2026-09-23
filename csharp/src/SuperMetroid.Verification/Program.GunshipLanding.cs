@@ -10,8 +10,8 @@ internal static partial class Program
     /// </summary>
     static void VerifyPostCeresGunshipLanding()
     {
-        const ushort topDefinition = 0xd000;
-        const ushort bottomDefinition = 0xd040;
+        const ushort topDefinition = GunshipEnemyDefinitions.Top;
+        const ushort bottomDefinition = GunshipEnemyDefinitions.BottomEntrance;
         const ushort populationPointer = 0x9200;
         const ushort tilesetPointer = 0x9200;
 

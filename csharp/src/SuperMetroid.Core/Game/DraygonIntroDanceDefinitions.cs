@@ -10,7 +10,7 @@ internal static class DraygonIntroDanceDefinitions
     /// The four reachable words of <c>MovementLatencyForEachEvirSpriteObject</c> at
     /// <c>$A5:A19F-$A5:A1A6</c>, ordered by sprite slots 28 through 31.
     /// </summary>
-    /// <remarks>Issue #625 exact formula: 128*(slot-35) for validated slots
+    /// <remarks>Issues #625 and #936 exact formula: 128*(slot-35) for validated slots
     /// 28..31, equivalently 128*(i-7) for bounded table index i=0..3.
     /// LookupTableResearch checks all four signed words against the NTSC ROM,
     /// pinned bank_A5.asm and MovementLatencyForSlot. Preserve signed latency

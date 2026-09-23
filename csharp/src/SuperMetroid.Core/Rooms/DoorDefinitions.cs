@@ -794,6 +794,10 @@ public static class DoorDefinitions
     /// and $8D2A, exactly $8D1E + 12*i for normalized BTS i=0..1.
     /// Index 2 reaches scroll data $0201 at $8F:9B86. The ROM oracle
     /// checks both entries, high-bit aliases, and this boundary.
+    /// Issue #1088, Brinstar Pre-Map $8F:9BC4: two words are $8D36
+    /// and $8D42, exactly $8D36 + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $0103 at $8F:9BC8. The ROM
+    /// oracle checks both entries, high-bit aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

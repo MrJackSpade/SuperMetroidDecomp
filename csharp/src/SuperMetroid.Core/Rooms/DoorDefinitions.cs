@@ -769,6 +769,10 @@ public static class DoorDefinitions
     /// i=0 resolves to $8C2E; no stride follows from one word. Index 1
     /// reaches next room header $001C at $8F:99BD. The ROM oracle
     /// checks the entry, both high-bit forms, and this boundary.
+    /// Issue #1082, Green Pirates Shaft $8F:99E4: four words are $8C3A,
+    /// $8C46, $8C52, and $8C5E, exactly $8C3A + 12*i for normalized
+    /// BTS i=0..3. Index 4 reaches scroll data $0202 at $8F:99EC.
+    /// The ROM oracle checks all entries, aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

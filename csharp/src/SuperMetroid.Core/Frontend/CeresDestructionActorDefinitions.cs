@@ -23,6 +23,17 @@ internal static class CeresDestructionActorDefinitions
     /// to this single-frame loop; $CC47 starts another actor's list.
     /// The constant-period rule needs no table, while the authored visual
     /// frame remains ROM-backed.
+    ///
+    /// Issues #625 and #1016: $8B:C27C..C295 spawns definition pointers
+    /// $CE7F, $CE8B, $CE91 in that order. Their three-word definitions
+    /// match pinned NTSC J/U v1.0 ROM and bank_8B.asm: (BF22,BF35,CC3F),
+    /// (BF76,BF89,CC4F), (BFA0,BFC6,CC57). For bounded index i=0..2,
+    /// the reused flight row is i==0 ? 0 : i+1. Row zero selects its
+    /// distinct under-attack frame list; row one keeps the flight small
+    /// asteroids. Row two passes initializer parameter zero, which sets
+    /// X=$0070 and replaces active callback $BFC6 with no-op $BFD9;
+    /// therefore its horizontal delta is zero. The pointer mapping is
+    /// exact, but retain the three authored actor identities and overrides.
     /// </remarks>
     public static CeresDestructionActorDefinition InitialActor(int index)
     {

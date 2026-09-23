@@ -108,6 +108,18 @@ internal static class CeresDestructionActorDefinitions
     /// the other callbacks delete their actors. StepZebesActors identifies
     /// that completion owner by actor reference as native slots shift.
     /// Retain this bounded callback/transition classification.
+    ///
+    /// Issues #625 and #1022: all eighteen definition words at
+    /// $8B:CEA3/CEF7/CEFD/CF03/CF09/CEAF match pinned NTSC J/U v1.0
+    /// ROM and bank_8B.asm. Their (initializer, pre-instruction, list)
+    /// triples are (C83B,C84E,CCAB), (C942,C8F9,CD83),
+    /// (C956,C8F9,CD8B), (C96A,C8F9,CD93), (C97E,C8AA,CD9B),
+    /// (C992,93D9,CCBB) in spawn order. For bounded star index i=1..4,
+    /// definition address is $CEF7+6*(i-1), initializer is
+    /// $C942+$14*(i-1), and list is $CD83+8*(i-1). The special fourth
+    /// star uses pre-instruction $C8AA rather than $C8F9 to own scene
+    /// completion. Planet and title have separate authored identities;
+    /// retain the six bounded triples despite these star-address strides.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

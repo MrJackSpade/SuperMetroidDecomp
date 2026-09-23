@@ -375,6 +375,22 @@ public static class SamusPaletteRomData
         /// <summary>Initial instruction list stored by the object definition.</summary>
         public const ushort InitialList = 0xd900;
         /// <summary>First timed color record after the destination-selection command.</summary>
+        /// <remarks>
+        /// Issue #888 / #625: all 80 BGR555 color words in ten records
+        /// at <c>$8D:D904+20*i</c>, <c>i=0..9</c>, match the pinned ROM
+        /// and native bank-$8D listing. Each record's eight colors
+        /// begin at byte offset two. Color zero is always
+        /// <c>$7FFF</c>; the other seventy words are all distinct.
+        /// Only eleven of these eighty words appear anywhere in the
+        /// separate full-body Hyper Beam cycle at
+        /// <c>$9B:A240..A37F</c>. Per-channel midpoint interpolation
+        /// of colors one through three fits only 19 of 30 components
+        /// with nearest rounding; endpoint interpolation of colors
+        /// four through seven fits only 27 of 60 interior components.
+        /// Retain the ten live authored eight-color rows. The caller
+        /// copies each row into OBJ palette six, colors one through
+        /// eight, for two handler calls before advancing.
+        /// </remarks>
         public const ushort FirstFrame = 0xd904;
         /// <summary>Palette-buffer byte index selecting OBJ palette six, color one.</summary>
         public const ushort DestinationByteIndex = 0x01c2;

@@ -444,6 +444,19 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int SuitlessPointers = 0x9bb80f;
         /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>
+        /// <remarks>
+        /// Issue #891 / #625: the nine timer bytes at even offsets
+        /// match the pinned NTSC J/U v1.0 ROM and native bank-$9B
+        /// listing: <c>21,6,3,4,5,5,6,6,80</c> for explosion index
+        /// <c>0..8</c>. The 21- and 80-call endpoint holds and
+        /// irregular interior cadence encode authored timing policy;
+        /// retain the nine-byte bounded compiled sequence rather than
+        /// a formula with per-index exceptions. The caller decrements
+        /// the active timer before advancing, loads the next duration
+        /// only for indices below nine, and terminates without a tenth
+        /// explosion frame. Odd-offset palette-selector bytes are a
+        /// separate logical table and remain live ROM data.
+        /// </remarks>
         public const int ExplosionTimingAndPaletteIndices = 0x9bb823;
         /// <summary><c>$9B:B835</c>, 22 whiteout shades from black through white.</summary>
         public const int WhiteoutShades = 0x9bb835;

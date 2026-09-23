@@ -155,6 +155,17 @@ internal static class XrayRevealDefinitions
         _ => null,
     };
 
+    /// <summary>Finds the bombable-block reveal for one unsigned BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1035: pinned NTSC J/U v1.0 ROM $91:D484..D4D9 has eight
+    /// key/pointer pairs for BTS 00..07, $FFFF at $D4A4, and matching
+    /// copy commands through $D4D9. Within 00..07, the low two BTS bits
+    /// select one, wide, tall, or square dimensions; every copied tile is
+    /// $0058. BTS 08..FF has no reveal. Checked range plus low-two-bit
+    /// classification is the complete bounded rule already represented
+    /// by this switch. Direct ROM keys/pointers and the independent
+    /// 256-case bombable-block oracle including operands agree.
+    /// </remarks>
     private static XrayRevealDefinition? FindBombableBlock(byte bts) => bts switch
     {
         0 or 4 => One(0x0058),

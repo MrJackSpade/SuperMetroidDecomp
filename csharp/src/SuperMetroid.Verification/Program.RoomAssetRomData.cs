@@ -176,13 +176,18 @@ internal static partial class Program
             int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
             sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
         }
+        int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
+        sources[RoomCharacterAtlasFormat.SourceFileName(ghostSource)] = ghostSource;
         AssertEqual(sources.Count, files.Count, "one PNG per distinct retail room-character source");
 
         var compiledBySource = new Dictionary<int, RoomCharacterAtlas>();
         RoomCharacterAtlas? compiledCre = null;
         foreach ((string name, int sourceAddress) in sources)
         {
-            byte[] native = RomDataReader.Decompress(bus, sourceAddress);
+            byte[] native = sourceAddress == ghostSource
+                ? RomDataReader.ReadFixedBank(bus, sourceAddress,
+                    RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount)
+                : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];
             RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);
             if (name == RoomCharacterAtlasFormat.CreFileName) compiledCre = atlas;

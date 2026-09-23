@@ -894,6 +894,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $8FCA; no stride follows from one word.
     /// Index 1 reaches next room header $011B at $8F:A184. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1113, Big Pink Save Room $8F:A1AB: sole valid
+    /// normalized BTS i=0 resolves to $8FD6; no stride follows from
+    /// one word. Index 1 reaches next room header $011C at $8F:A1AD.
+    /// The ROM oracle checks the entry, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

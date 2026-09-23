@@ -73,6 +73,11 @@ if (args is ["--samus-hyper-beam-colors"])
     VerifySamusHyperBeamColors();
     return 0;
 }
+if (args is ["--game-options-language-palettes"])
+{
+    VerifyGameOptionsLanguagePalettes();
+    return 0;
+}
 if (args is ["--spc-sound-library-2-pointers"])
 {
     VerifySpcSoundLibrary2Pointers();

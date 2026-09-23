@@ -176,20 +176,18 @@ public static class GameOptionsRomData
     /// byte count is $18 for i&lt;2 and $32 otherwise. Native AltText=0 selects
     /// palette 0 for the first pair and palette 1 for the second; AltText=1
     /// reverses them. With the consumers' equality test, the native
-    /// HighlightWhenJapanese flags would be false,false,true,true. The stored
-    /// flags below are the inverse, so both ROM-page and editable-presentation
-    /// rendering invert the native highlight. Behavior correction is tracked
-    /// separately by #963; this proof changes XML documentation only.
+    /// HighlightWhenJapanese flags are false,false,true,true. Both ROM-page
+    /// and editable-presentation rendering consume this same polarity.
     /// </remarks>
     public static ReadOnlySpan<GameOptionsLanguagePaletteRegion> LanguagePaletteRegions =>
         LanguagePaletteRegionData;
 
     private static readonly GameOptionsLanguagePaletteRegion[] LanguagePaletteRegionData =
     [
-        new(0x0288, 0x18, HighlightWhenJapanese: true),
-        new(0x02c8, 0x18, HighlightWhenJapanese: true),
-        new(0x0348, 0x32, HighlightWhenJapanese: false),
-        new(0x0388, 0x32, HighlightWhenJapanese: false),
+        new(0x0288, 0x18, HighlightWhenJapanese: false),
+        new(0x02c8, 0x18, HighlightWhenJapanese: false),
+        new(0x0348, 0x32, HighlightWhenJapanese: true),
+        new(0x0388, 0x32, HighlightWhenJapanese: true),
     ];
 
     /// <summary>Palette boxes for the Icon Cancel and Moonwalk toggles.</summary>

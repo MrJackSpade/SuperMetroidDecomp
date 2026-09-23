@@ -99,6 +99,18 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Returns the presentation-owned BGR555 word for one fade frame/color.</summary>
+    /// <remarks>
+    /// For frame f=0..7 and color c=0..7, the live word is at
+    /// $8D:E240 + 20*f + 2*c. Color zero is $0000 at f=0 and $3800
+    /// for f=1..7. For colors 1..7, initial endpoint BGR555 words are
+    /// ($57FF,$2BFF,$1F3C,$0278,$01B0,$010B,$0087), and final
+    /// endpoints are ($7F58,$6ED5,$5A71,$49EE,$356A,$24E7,$1083).
+    /// Decode each red, green, and blue channel. With delta=end-start,
+    /// each channel at f is start + sign(delta)*floor((abs(delta)*f+3)/7);
+    /// re-encode BGR555. This nearest-integer interpolation matches all
+    /// 64 words in the pinned NTSC J/U v1.0 ROM. Frame eight reaches
+    /// delete; all four callers read these presentation colors live.
+    /// </remarks>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)

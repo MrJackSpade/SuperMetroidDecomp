@@ -28,6 +28,16 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     /// <summary>Both complete loops last 98 frames.</summary>
     public const int CycleFrames = 98;
 
+    /// <summary>Shared eleven-record late-Crateria escape duration schedule.</summary>
+    /// <remarks>
+    /// For the only valid frame indices 0..10, duration is 49 at frame zero,
+    /// 17 at frame five, 24 at frame seven, and one otherwise. This sparse
+    /// rule totals 98 frames. Both native streams use it: duration words are
+    /// at $8D:FE05 + 26 * frame for yellow lightning and $8D:FF2B +
+    /// 14 * frame for the CRE pixel. All 22 words match the pinned NTSC
+    /// J/U v1.0 ROM. Their terminal gotos target $FE05 and $FF2B respectively;
+    /// frame eleven would be control, not a twelfth duration.
+    /// </remarks>
     private static readonly ushort[] Durations = [49, 1, 1, 1, 1, 17, 1, 24, 1, 1, 1];
     private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition[] Definitions =
     [

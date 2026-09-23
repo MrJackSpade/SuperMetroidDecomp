@@ -87,7 +87,15 @@ internal static class CrocomireInstructionProgramDefinitions
     /// wait-for-damage program begins at BC56.
     /// </summary>
     internal const ushort SteppingBack = 0xbc34;
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage</c> at $A4:BC56.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_WaitForFirstSecondDamage</c> at
+    /// $A4:BC56-$BCD7. For the 32 pinned-ROM duration words, zero-based
+    /// D(0)=$0022, D(1..6)=$0002, D(7)=$0010,
+    /// D(8..12)=$0001, D(13)=$0010, and D(14..31)=$0001.
+    /// Each precedes a live spritemap operand. Fight AI $86A6 at BCD6
+    /// terminates this authored instruction schedule; MovingClaws starts
+    /// at BCD8. The run-length rule is exact only for indices 0..31.
+    /// </summary>
     internal const ushort WaitForFirstSecondDamage = 0xbc56;
     /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_MovingClaws</c> at $A4:BCD8.</summary>
     internal const ushort MovingClaws = 0xbcd8;

@@ -560,6 +560,18 @@ public static class SamusPaletteRomData
     }
 
     /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
+    /// <remarks>
+    /// The stock bank-$9B body colors are six ten-word subrows at
+    /// <c>$96C0 + $20*r</c>, <c>r = 0..5</c>. Color zero is always
+    /// <c>$3800</c>; colors 1..9 in each subrow are the same grayscale word
+    /// <c>$0421 * (16 + floor(11*min(r,6-r)/3))</c>. This yields channel
+    /// levels 16, 19, 23, 27, 23, 19 and matches all 60 words in the
+    /// pinned NTSC J/U v1.0 ROM. The body pointer program selects rows
+    /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
+    /// the following six bubble colors have a separate cursor and timer.
+    /// Keep both streams live for ROM-backed presentation. Body-color
+    /// investigation: #625 / #902.
+    /// </remarks>
     public static class CrystalFlash
     {
         /// <summary><c>$90:C3C9</c>, twelve beam-loadout palette pointers.</summary>

@@ -822,6 +822,10 @@ public static class DoorDefinitions
     /// $8DAE, and $8DBA, exactly $8DA2 + 12*i for normalized
     /// BTS i=0..2. Index 3 reaches scroll data $0101 at $8F:9CE0.
     /// The ROM oracle checks all entries, aliases, and boundary.
+    /// Issue #1095, Big Pink $8F:9D40: nine words run from $8DC6
+    /// through $8E26, exactly $8DC6 + 12*i for normalized BTS
+    /// i=0..8. Index 9 reaches scroll data $0000 at $8F:9D52.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

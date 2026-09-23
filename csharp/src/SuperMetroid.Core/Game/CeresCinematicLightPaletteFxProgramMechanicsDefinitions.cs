@@ -32,6 +32,15 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
     public const ushort GunshipEngineDefinitionPointer = 0xe1a8;
     /// <summary><c>PalFxInstList_CutsceneGunshipEngine</c> at <c>$8D:C87A</c>.</summary>
+    /// <remarks>
+    /// The $8D:E1A8 definition selects a bounded two-record control loop.
+    /// $C87A sets CGRAM word index $00BE; timed records start at
+    /// $C87E + 6 * frame for frame 0..1. Each record has duration one,
+    /// one live BGR555 color word, and a $C595 wait. The $C61E goto at
+    /// $C88A targets $C87E, yielding a two-frame cycle without entering
+    /// the adjacent $C88E program. All eight mechanics words match the
+    /// pinned NTSC J/U v1.0 ROM; the two colors stay presentation-owned.
+    /// </remarks>
     public const ushort GunshipEngineProgramStart = 0xc87a;
     /// <summary>The first gunship-engine timed record at <c>$8D:C87E</c>.</summary>
     public const ushort GunshipEngineFirstFramePointer = 0xc87e;

@@ -100,6 +100,19 @@ public sealed class XrayRevealVisualCatalog
     }
 
     /// <summary>Whether this compiled command carries authored visual metatile operands.</summary>
+    /// <remarks>
+    /// Issue #1036: the pinned NTSC J/U v1.0 ROM has seven reachable
+    /// revealed-block commands. $91:CF36, CF3E, CF4E, CF62, and CF6F
+    /// copy one, Brinstar-only one, wide, tall, and square operand tiles;
+    /// $91:CE79 and CEBB traverse vertical and horizontal extensions
+    /// instead. The exact bounded classification is membership in those
+    /// five copy identities, with false for every other ushort. The
+    /// independent 16-by-256 native reveal oracle finds all seven commands;
+    /// its drawable BTS groups total 305, matching the installed visual
+    /// catalog's exhaustive coverage assertion. Named membership is
+    /// clearer than a pointer interval, since the two extension routines
+    /// precede the copy commands but are not drawable.
+    /// </remarks>
     public static bool IsDrawable(ushort command) => command is
         XrayRevealCodePointers.CopyOne or XrayRevealCodePointers.CopyWide or
         XrayRevealCodePointers.CopyTall or XrayRevealCodePointers.CopySquare or

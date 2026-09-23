@@ -31,6 +31,15 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     /// <summary><c>PalFxDef_Crateria40</c> at <c>$8D:FFED</c>.</summary>
     public const ushort CreBlockPixelDefinitionPointer = 0xffed;
     /// <summary><c>PalFxInstList_Crateria40</c> at <c>$8D:FF27</c>.</summary>
+    /// <remarks>
+    /// For frame 0..10 and color 0..4, the live BGR555 word at
+    /// $8D:FF2D + 14 * frame + 2 * color exactly equals the yellow-lightning
+    /// word at $8D:FE07 + 26 * frame + 2 * (color + 6). All 55 pairs match
+    /// the pinned NTSC J/U v1.0 ROM and bank-$8D annotation: this program
+    /// repeats the last five colors of each eleven-color lightning row at
+    /// CGRAM byte $00AE. Keep the independently addressed authored stream
+    /// live; frame/color bounds exclude the neighboring control words.
+    /// </remarks>
     public const ushort CreBlockPixelProgramStart = 0xff27;
     /// <summary>Both loops contain eleven timed records.</summary>
     public const int FrameCount = 11;

@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Game;
 /// Each timed record contains fifteen BGR555 colors between its duration and terminal
 /// wait command. Those 720 color words remain live presentation data; this catalog owns
 /// only program setup, timing, waits, and loop control.
+/// Power, Varia, and Gravity enter at $8D:E45E, $E68A, and $E8B6;
+/// each installs heat pre-instruction $E379 and CGRAM byte $0182.
+/// Their sixteen records start at $E466, $E692, or $E8BE plus $22*p,
+/// p=0..15, and each ends in $C595 wait. Gotos at $E686, $E8B2,
+/// and $EADE return to phase zero; p=16 reaches control. All 114
+/// mechanics words match the pinned NTSC J/U v1.0 ROM.
 /// </remarks>
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
@@ -86,6 +92,13 @@ public sealed class PaletteFxHeatProgramDefinition
     public ushort LoopInstructionPointer { get; }
 
     /// <summary>The sixteen timed color records addressed by the shared heat phase.</summary>
+    /// <remarks>
+    /// For p=0..14, let d=min(p,15-p): duration is 16 at p=0,
+    /// otherwise min(8,max(4,d+2)). At p=15 it is 3 for Power and
+    /// 16 for Varia/Gravity. Thus Power loops in 103 frames and the
+    /// protected suits in 116 frames. The two 16-element duration
+    /// schedules match every corresponding pinned-ROM word.
+    /// </remarks>
     public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames => readOnlyFrames;
 
     /// <summary>Reads one control word while excluding every BGR555 presentation word.</summary>

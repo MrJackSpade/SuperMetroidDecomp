@@ -75,6 +75,10 @@ internal static class CeresDoorInitializationDefinitions
     /// $F53A, $F61A, $F62A, or $F634. These authored entries select the
     /// normal right/left, pre-explosion, Ridley-room, invisible-wall, and
     /// two mode-7 wall programs; variant seven is outside the table.
+    /// The separate main-function pointer at $F72B + 2*i is $F76B for
+    /// variants 0, 1, and 4; $F7BD for 2; $F770 for 3; and $F7A5 for 5
+    /// and 6. Those aliases classify authored behavior, rather than a
+    /// numeric progression of code addresses.
     /// </summary>
     private static readonly CeresDoorInitializationDefinition[] Definitions =
     [

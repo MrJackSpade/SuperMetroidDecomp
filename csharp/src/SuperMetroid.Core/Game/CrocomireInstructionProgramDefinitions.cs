@@ -806,6 +806,16 @@ internal static class CrocomireInstructionProgramDefinitions
     /// and E154 use pinned stock pointer $E1FE+$002A*i for
     /// indices 0..2, ending at $E252. Sleep at E156 ends the
     /// list; all three pose operands remain live ROM reads.
+    /// The twenty SkeletonFallsApart operands at $A4:E15A-$E1C4
+    /// select eighteen consecutive extended spritemap records.
+    /// Starting M(0)=$E27C, each M(j+1)=M(j)+2+8*count(M(j))
+    /// for j=0..16, using the live record's two-byte component
+    /// count and eight-byte components. P(i)=M(i-[i&gt;=2]-[i&gt;=4])
+    /// for operand indices 0..19: positions 2 and 4 repeat the
+    /// preceding pose. Pinned header counts are ten 5s, then 9,
+    /// three 13s, 12, 10, 6, and 3; M(17)=$E68E. This bounded
+    /// record walk explains stock pointers without freezing their
+    /// live cartridge presentation reads.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

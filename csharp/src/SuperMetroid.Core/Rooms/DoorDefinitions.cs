@@ -658,6 +658,11 @@ public static class DoorDefinitions
     /// BTS i=0..6. Index 7 reaches non-door word $0100 at $8F:9370.
     /// The independent ROM list oracle checks all seven entries, both
     /// BTS high-bit forms, and this first invalid index.
+    /// Issue #1057, Crateria Power Bomb room $8F:93D1: its sole door
+    /// word is $89B2. Normalized BTS index 0 selects that constant;
+    /// index 1 reaches scroll word $0101 at $8F:93D3 and fails. The
+    /// independent ROM list oracle checks both BTS high-bit forms and
+    /// the one-entry boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

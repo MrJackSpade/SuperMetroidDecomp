@@ -1,6 +1,15 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Named bank-$A4 code pointers consumed by translated Crocomire dispatchers.</summary>
+/// <summary>
+/// Named bank-$A4 code pointers consumed by translated Crocomire dispatchers.
+/// The thirteen dust-projectile callbacks at $9A9B+5*i, i=0..12,
+/// load signed X offsets -32, 0, -16, 16 for i=0..3 and
+/// 8*(i-4) pixels for i=4..12. Pinned NTSC J/U v1.0 ROM uses
+/// LDA-immediate then BRA-to-$9ADA stubs for i=0..11; the final
+/// $9AD7 stub loads $0040 and falls through to the shared spawn
+/// routine. The runtime switch accepts only these named opcodes;
+/// the first four authored offsets make the switch worth retaining.
+/// </summary>
 internal static class CrocomireCodePointers
 {
     /// <summary><c>Instruction_Crocomire_FightAI</c> at $A4:86A6.</summary>
@@ -45,7 +54,9 @@ internal static class CrocomireCodePointers
     /// <summary><c>Instruction_Crocomire_MoveRight4Pixels_SpawnBigDustCloud</c> at $A4:9094.</summary>
     public const ushort Instruction_Crocomire_MoveRight4Pixels_SpawnBigDustCloud = 0x9094;
 
-    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20</c> at $A4:9A9B.</summary>
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20</c>
+    /// at $A4:9A9B. Its native signed immediate is -$20 (-32 pixels),
+    /// the first authored exception in the thirteen-opcode family.</summary>
     public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20 = 0x9a9b;
 
     /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_0</c> at $A4:9AA0.</summary>
@@ -57,7 +68,9 @@ internal static class CrocomireCodePointers
     /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_10</c> at $A4:9AAA.</summary>
     public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_10 = 0x9aaa;
 
-    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup</c> at $A4:9AAF.</summary>
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup</c>
+    /// at $A4:9AAF. This begins the bounded nine-opcode run
+    /// $9AAF+5*j with native X offset 8*j, j=0..8.</summary>
     public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup = 0x9aaf;
 
     /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_8</c> at $A4:9AB4.</summary>
@@ -81,7 +94,9 @@ internal static class CrocomireCodePointers
     /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_38</c> at $A4:9AD2.</summary>
     public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_38 = 0x9ad2;
 
-    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_40</c> at $A4:9AD7.</summary>
+    /// <summary><c>Instruction_Crocomire_SpawnBigDustCloudProjectile_40</c>
+    /// at $A4:9AD7. Native X offset is +$40 (+64 pixels); this
+    /// final stub falls through into shared routine $9ADA.</summary>
     public const ushort Instruction_Crocomire_SpawnBigDustCloudProjectile_40 = 0x9ad7;
 
 }

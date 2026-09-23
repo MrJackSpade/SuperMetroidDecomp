@@ -122,6 +122,15 @@ public static class SamusPaletteRomData
         /// </remarks>
         public const int SpeedBoostPointers = 0x91d998;
         /// <summary><c>$91:DA4A</c>, suit-indexed Screw Attack palette lists.</summary>
+        /// <remarks>
+        /// Issue #869 / #625: the pinned NTSC J/U v1.0 ROM stores three
+        /// little-endian pointers <c>$DA50+$000C*i</c> for Power, Varia,
+        /// and Gravity suit index <c>i=0..2</c>. The production selector
+        /// reaches only byte offsets 0, 2, 4, with Gravity priority.
+        /// Each target is a separate six-word bank-$91 palette-pointer
+        /// list, indexed by byte offsets 0, 2, 4, 6, 8, 10; this proof
+        /// covers only the top-level three-word selector.
+        /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>
         public const int SpeedBoosterLists = 0x91daa9;

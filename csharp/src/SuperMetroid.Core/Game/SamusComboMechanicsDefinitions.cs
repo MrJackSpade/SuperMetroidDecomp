@@ -7,7 +7,7 @@ internal static class SamusComboMechanicsDefinitions
     /// CostOfSBAsInPowerBombs at $90:CC21: one Power Bomb for Wave, Ice,
     /// Spazer, and Plasma alone; zero for the eight non-combo beam indexes.
     /// </summary>
-    /// <remarks>Issue #625 exact bit predicate: after validating b=0..11,
+    /// <remarks>Issues #625 and #938 exact bit predicate: after validating b=0..11,
     /// return 1 iff b!=0 and (b&amp;(b-1))==0, otherwise zero. This recognizes
     /// precisely the four single-beam selections without storing twelve costs.
     /// LookupTableResearch verifies every result against GetPowerBombCost,

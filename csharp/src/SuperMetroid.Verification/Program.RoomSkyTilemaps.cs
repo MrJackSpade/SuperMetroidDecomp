@@ -25,6 +25,16 @@ internal static partial class Program
                 $"scrolling-sky page {page} roundtrips every native BG word");
         }
         var stock = new RoomSkyTilemapCatalog(pages);
+        for (int cameraY = 0; cameraY <= 0x04f0; cameraY++)
+        {
+            var queued = new VramWriteQueue();
+            new ScrollingSkyState(bus).ProcessFrame((ushort)cameraY, false, queued);
+            foreach (VramWriteEntry transfer in queued.Entries)
+                AssertTrue(stock.TryResolve(transfer.SourceAddress, transfer.SizeInBytes,
+                        out _),
+                    $"scrolling-sky camera Y=${cameraY:X4} transfer " +
+                    $"${transfer.SourceAddress:X6}+${transfer.SizeInBytes:X} has installed artwork");
+        }
         var guard = new SkyPageReadGuard(bus);
         LandingSiteEntryState entry = LandingSiteEntryState.LoadLandingCutscene(bus);
 

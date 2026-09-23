@@ -14,6 +14,7 @@ internal static partial class Program
         try
         {
             GameInstallation installed = GameAssetInstaller.Install(sourceRom, root);
+            VerifyRoomArtworkRenderParity(installed, sourceRom);
             AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
                     RoomCharacterArtworkFiles.ManifestFileName)),
                 "room-character stock manifest is installed");

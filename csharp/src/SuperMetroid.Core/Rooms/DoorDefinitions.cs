@@ -926,6 +926,10 @@ public static class DoorDefinitions
     /// i=0 resolves to $9072; no stride follows from one word.
     /// Index 1 reaches next room header $0123 at $8F:A2F7. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1121, Hellway $8F:A31E: two words are $907E and
+    /// $908A, exactly $907E + 12*i for normalized BTS i=0..1.
+    /// Index 2 reaches next room header $0124 at $8F:A322. The ROM
+    /// oracle checks both entries, aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

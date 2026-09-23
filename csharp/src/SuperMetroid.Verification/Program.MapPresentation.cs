@@ -117,6 +117,7 @@ internal static partial class Program
         VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original);
         VerifyRoomFxLayer3TilemapOverride(stock, overrides, original);
         VerifyRoomFxPaletteBlendOverride(stock, overrides, original);
+        VerifyPowerBombFixedColorOverride(stock, overrides, original);
         VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original);
         VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);

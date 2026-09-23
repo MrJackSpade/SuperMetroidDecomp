@@ -107,6 +107,13 @@ internal static partial class Program
         int lavaBlendRed = roomFxBlends["blends"]![lavaBlendKey]![0]!["red"]!.GetValue<int>();
         roomFxBlends["blends"]![lavaBlendKey]![0]!["red"] = (lavaBlendRed + 1) % 32;
         File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());
+        string powerBombColorOverride = Path.Combine(installation.MapOverrideDirectory,
+            PowerBombFixedColorFormat.FileName);
+        var powerBombColors = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, PowerBombFixedColorFormat.FileName)))!;
+        int powerBombRed = powerBombColors["preExplosion"]![0]!["red"]!.GetValue<int>();
+        powerBombColors["preExplosion"]![0]!["red"] = (powerBombRed + 1) % 32;
+        File.WriteAllText(powerBombColorOverride, powerBombColors.ToJsonString());
         string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
         var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
         stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
@@ -232,6 +239,9 @@ internal static partial class Program
         AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava).SequenceEqual(
             edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)),
             "full installation consumes room-FX palette-blend override");
+        AssertTrue(stock.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
+            edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0),
+            "full installation consumes Power Bomb fixed-color override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -248,6 +258,7 @@ internal static partial class Program
             [roomFxArtworkOverride] = File.ReadAllBytes(roomFxArtworkOverride),
             [roomFxTilemapOverride] = File.ReadAllBytes(roomFxTilemapOverride),
             [roomFxBlendOverride] = File.ReadAllBytes(roomFxBlendOverride),
+            [powerBombColorOverride] = File.ReadAllBytes(powerBombColorOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),

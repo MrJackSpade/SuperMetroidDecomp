@@ -265,6 +265,11 @@ public static class MapPresentationExtractor
             file.Write(roomFxPaletteBlendBytes);
         hashes.Add(RoomFxPaletteBlendDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxPaletteBlendBytes)));
+        byte[] powerBombFixedColorBytes = PowerBombFixedColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, PowerBombFixedColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(powerBombFixedColorBytes);
+        hashes.Add(PowerBombFixedColorFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(powerBombFixedColorBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

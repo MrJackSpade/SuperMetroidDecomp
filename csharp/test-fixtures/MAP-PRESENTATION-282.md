@@ -1562,3 +1562,17 @@ exercises both production writes for every selection with bank-$89 reads
 forbidden. `--map-presentation` edits one Lava blend component and observes the
 changed CGRAM word and content identity; removal restores stock. The installer
 fixture confirms this override survives upgrade and restart.
+
+## Editable Power Bomb fixed colors (#542, #549)
+
+Catalog version 63 adds `power-bomb-fixed-colors.json`: sixteen pre-explosion
+and thirty-two explosion RGB5 triplets from the native bank-$88 tables. These
+are display colors shared by Power Bombs, Crystal Flash, and Ceres destruction.
+Copy the stock file to `overrides/maps` to edit the colors. The cartridge-owned
+phase, radius, damage, HDMA shape, and timing logic stays compiled and unchanged.
+
+`--power-bomb-fixed-colors` compares all 48 triplets with the pinned ROM and
+runs the complete Power Bomb and Crystal Flash state machines with the native
+color-table reads forbidden. The map-presentation suite checks that a changed
+component reaches the actual explosion state and restoring stock clears the
+override. The installer fixture checks upgrade/restart preservation.

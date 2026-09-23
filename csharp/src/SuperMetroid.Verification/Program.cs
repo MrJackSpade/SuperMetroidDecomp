@@ -53,6 +53,11 @@ if (args is ["--room-fx-palette-blends"])
     VerifyRoomFxPaletteBlends();
     return 0;
 }
+if (args is ["--power-bomb-fixed-colors"])
+{
+    VerifyPowerBombFixedColors();
+    return 0;
+}
 if (args is ["--room-fx-retail-inventory"])
 {
     VerifyRetailRoomFxInventory();
@@ -2386,6 +2391,7 @@ VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();
 VerifyRoomFxRomData();
+VerifyPowerBombFixedColors();
 VerifyScrollingSkyState();
 VerifyOceanSky();
 AuditBoostFloor();

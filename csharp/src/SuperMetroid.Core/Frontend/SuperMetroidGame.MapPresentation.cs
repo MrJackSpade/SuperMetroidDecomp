@@ -15,6 +15,7 @@ public sealed partial class SuperMetroidGame
     {
         mapPresentation = catalog;
         if (runtime is not null) runtime.MapPresentation = catalog;
+        ceresDestruction?.BindFixedColors(catalog?.PowerBombFixedColors);
         pauseMenu?.BindMapPresentation(catalog);
         fileSelectMap?.BindMapPresentation(catalog);
         gameOver?.BindMapPresentation(catalog);

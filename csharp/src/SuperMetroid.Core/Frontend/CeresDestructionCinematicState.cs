@@ -50,10 +50,12 @@ internal sealed partial class CeresDestructionCinematicState
 
     public CeresDestructionCinematicState(
         ISnesAddressSpace bus,
-        CartridgeAudioState? audio = null)
+        CartridgeAudioState? audio = null,
+        PowerBombFixedColorCatalog? fixedColors = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
+        stationExplosion.PresentationColors = fixedColors;
         // State $25 selects the common cinematic bank and destruction track eight.
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
@@ -67,6 +69,10 @@ internal sealed partial class CeresDestructionCinematicState
             maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
         SetupCeresDestruction();
     }
+
+    /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
+    internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
+        stationExplosion.PresentationColors = colors;
 
     public CeresDestructionPhase Phase { get; private set; }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -5,10 +6,12 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
-    private static void VerifyCeresExplosionTimeline()
+    private static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var scene = new CeresDestructionCinematicState(bus);
+        var guarded = new ForbiddenPowerBombColorBus(bus);
+        var scene = new CeresDestructionCinematicState(colors is null ? bus : guarded,
+            fixedColors: colors);
         var reference = new SamusPowerBombExplosionState();
         var phases = new HashSet<PowerBombExplosionPhase>();
         bool spawned = false, finished = false;
@@ -46,6 +49,9 @@ internal static partial class Program
             finished = spawned && !reference.IsActive;
         }
         AssertTrue(finished, "station blast completes native cleanup");
+        if (colors is not null)
+            AssertEqual(0, guarded.ForbiddenReads,
+                "installed Ceres explosion does not read native Power Bomb colors");
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite,
             PowerBombExplosionPhase.PreExplosionYellow, PowerBombExplosionPhase.ExplosionYellow,
             PowerBombExplosionPhase.ExplosionWhite, PowerBombExplosionPhase.Afterglow })

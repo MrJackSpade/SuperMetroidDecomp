@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -15,6 +16,15 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
+    [NonSerialized] private PowerBombFixedColorCatalog? presentationColors;
+
+    /// <summary>Current host-owned explosion colors; excluded from debugger-state serialization.</summary>
+    public PowerBombFixedColorCatalog? PresentationColors
+    {
+        get => presentationColors;
+        set => presentationColors = value;
+    }
+
     /// <summary>WRAM $0CEE. Negative means an armed/executing power bomb.</summary>
     public ushort Flag { get; private set; }
 
@@ -253,7 +263,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             bus,
-            SamusPaletteRomData.PowerBomb.PreExplosionColors,
+            PowerBombFixedColorSequence.PreExplosion,
             ((PreExplosionRadius >> 8) >> 3) & 0x0f);
 
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
@@ -277,7 +287,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             bus,
-            SamusPaletteRomData.PowerBomb.PreExplosionColors,
+            PowerBombFixedColorSequence.PreExplosion,
             ((PreExplosionRadius >> 8) >> 3) & 0x0f);
 
         // $91A8 builds this frame's two 192-byte window tables before incrementing the
@@ -314,7 +324,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             bus,
-            SamusPaletteRomData.PowerBomb.ExplosionColors,
+            PowerBombFixedColorSequence.Explosion,
             (ExplosionRadius >> 8) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
@@ -337,7 +347,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             bus,
-            SamusPaletteRomData.PowerBomb.ExplosionColors,
+            PowerBombFixedColorSequence.Explosion,
             (ExplosionRadius >> 8) >> 3);
 
         RenderedShapeDefinitionPointer = ShapeDefinitionPointer;
@@ -405,7 +415,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             bus,
-            SamusPaletteRomData.PowerBomb.ExplosionColors,
+            PowerBombFixedColorSequence.Explosion,
             (ExplosionRadius >> 8) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
@@ -469,9 +479,18 @@ public sealed class SamusPowerBombExplosionState
             SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload);
     }
 
-    private void ReadFixedColor(ISnesAddressSpace bus, int tableAddress, int colorIndex)
+    private void ReadFixedColor(ISnesAddressSpace bus,
+        PowerBombFixedColorSequence sequence, int colorIndex)
     {
-        int address = tableAddress + colorIndex * SamusPaletteRomData.PowerBomb.BytesPerColor;
+        if (presentationColors is not null)
+        {
+            (FixedColorRed, FixedColorGreen, FixedColorBlue) =
+                presentationColors.Resolve(sequence, colorIndex);
+            return;
+        }
+
+        int address = PowerBombFixedColorFormat.SourceAddress(sequence) +
+            colorIndex * SamusPaletteRomData.PowerBomb.BytesPerColor;
         FixedColorRed = (byte)(bus.ReadByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask);
         FixedColorGreen = (byte)(bus.ReadByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask);
         FixedColorBlue = (byte)(bus.ReadByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask);

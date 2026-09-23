@@ -858,14 +858,16 @@ public sealed partial class SuperMetroidGame
                     SaveRamChanged?.Invoke();
                     runtime.Enemies.CeresStatus = 0;
                     runtime.EscapeTimer.Clear();
-                    ceresDestruction = new CeresDestructionCinematicState(bus, audio);
+                    ceresDestruction = new CeresDestructionCinematicState(
+                        bus, audio, mapPresentation?.PowerBombFixedColors);
                     GameState = SuperMetroidGameState.CeresGoesBoom;
                     PublishBlack();
                 }
                 break;
 
             case SuperMetroidGameState.CeresGoesBoom:
-                ceresDestruction ??= new CeresDestructionCinematicState(bus, audio);
+                ceresDestruction ??= new CeresDestructionCinematicState(
+                    bus, audio, mapPresentation?.PowerBombFixedColors);
                 ceresDestruction.Step();
                 PublishCeresDestruction(ceresDestruction);
                 if (ceresDestruction.Finished)

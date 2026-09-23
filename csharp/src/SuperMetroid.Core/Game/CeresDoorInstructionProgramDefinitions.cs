@@ -184,6 +184,11 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// $FAA7, $FA87, $FA67, $FA3D, $FA13, and $FA13 in the pinned ROM.
     /// Its repeated endpoints and mixed $20/$2A pose gaps preserve authored
     /// presentation rather than a uniform pointer progression.
+    /// The ordinary right-door program uses $FA13 for its initial and
+    /// closed holds and $FAA7 for its open hold. Its four close-transition
+    /// operands at $F58A + 4*i are {$FAA7, $FA87, $FA67, $FA3D}; its four
+    /// open-transition operands at $F5A8 + 4*i are exactly that sequence
+    /// reversed, for i = 0..3. Both transitions keep live ROM pointers.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

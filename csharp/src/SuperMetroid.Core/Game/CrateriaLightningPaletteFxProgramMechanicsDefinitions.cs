@@ -132,6 +132,17 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
             cycleFrames: 503,
             displayedRecordsPerCycle: 21);
 
+    /// <summary>Unused native $8D:F769 dark-lightning control at $8D:EC6E.</summary>
+    /// <remarks>
+    /// The $EC76 neutral record lasts $F0 frames. Timer two repeats seven
+    /// flash records of lengths 2,1,1,1,1,1,2 twice; two more $F0-frame
+    /// neutral records follow. Timer one runs four final records of lengths
+    /// 1,1,1,2 once, then $ED80 goes to $EC76. One complete cycle is
+    /// 240 + 2 * 9 + 2 * 240 + 5 = 743 frames. The $ED84 pre-instruction
+    /// restarts the neutral record for Samus Y below $0380. All 40 word
+    /// mechanics and two timer bytes match the pinned NTSC J/U v1.0 ROM;
+    /// the fourteen records' seven colors each remain live presentation data.
+    /// </remarks>
     private static CrateriaLightningPaletteFxProgramDefinition CreateDarkLightning() =>
         Create(
             CrateriaLightningPaletteOwner.UnusedDarkLightning,

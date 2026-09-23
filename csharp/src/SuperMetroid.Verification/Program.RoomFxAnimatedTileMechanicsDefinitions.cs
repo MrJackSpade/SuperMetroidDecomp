@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -42,6 +43,12 @@ internal static partial class Program
                         frame.SourceOperandPointer, out _),
                     $"object $87:{definition.ObjectPointer:X4} leaves source operand " +
                     $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
+                int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                    definition, frame.InstructionPointer);
+                AssertEqual((ushort)sourceAddress,
+                    RomDataReader.ReadWordFixedBank(bus,
+                        RoomFxRomData.Banks.AnimatedTiles | frame.SourceOperandPointer),
+                    $"object $87:{definition.ObjectPointer:X4} compiled artwork-source identity");
                 mechanicsWordCount++;
                 frameCount++;
             }
@@ -72,8 +79,8 @@ internal static partial class Program
                 $"object $87:{definition.ObjectPointer:X4} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"object $87:{definition.ObjectPointer:X4} performs no mechanics ROM reads");
-            AssertEqual(observedFrames * 2, guarded.PresentationReadCount,
-                $"object $87:{definition.ObjectPointer:X4} retains live source-pointer reads");
+            AssertEqual(0, guarded.PresentationReadCount,
+                $"object $87:{definition.ObjectPointer:X4} reads no compiled artwork-source operands");
         }
 
         AssertEqual(5, RoomFxAnimatedTileMechanicsDefinitions.All.Count,
@@ -82,7 +89,7 @@ internal static partial class Program
         AssertEqual(48, mechanicsWordCount,
             "simple room-FX animated-tile compiled mechanics word count");
         Console.WriteLine(
-            "  Room-FX animated-tile mechanics: 48 control words across 5 objects are compiled; presentation pointers remain live.");
+            "  Room-FX animated tiles: 48 control words and 23 artwork-source identities across 5 objects are compiled.");
     }
 
     private static void VerifyMechanicsWord(

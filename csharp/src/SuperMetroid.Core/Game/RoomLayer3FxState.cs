@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -17,6 +18,14 @@ namespace SuperMetroid.Core.Game;
 public sealed class RoomLayer3FxState
 {
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
+    [NonSerialized] private RoomFxAnimatedTileAtlas? animatedTileArtwork;
+
+    /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
+    public RoomFxAnimatedTileAtlas? AnimatedTileArtwork
+    {
+        get => animatedTileArtwork;
+        set => animatedTileArtwork = value;
+    }
     private ushort verticalAccumulator;
     private ushort horizontalAccumulator;
     private ushort horizontalVelocity;
@@ -277,7 +286,7 @@ public sealed class RoomLayer3FxState
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
-        animatedTiles.Step(bus, vram);
+        animatedTiles.Step(bus, vram, artwork: animatedTileArtwork);
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {

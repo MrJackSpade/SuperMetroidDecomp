@@ -250,6 +250,11 @@ public static class MapPresentationExtractor
             file.Write(motherBrainRainbowBytes);
         hashes.Add(MotherBrainRainbowPaletteFormat.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRainbowBytes)));
+        byte[] roomFxAnimatedTileBytes = RoomFxAnimatedTileAtlasExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, RoomFxAnimatedTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(roomFxAnimatedTileBytes);
+        hashes.Add(RoomFxAnimatedTileAtlasFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(roomFxAnimatedTileBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

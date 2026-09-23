@@ -80,6 +80,17 @@ internal static partial class Program
         int oldRed = colors["pause"]![0]!["red"]!.GetValue<int>();
         colors["pause"]![0]!["red"] = (oldRed + 1) % 32;
         File.WriteAllText(paletteOverride, colors.ToJsonString());
+        string roomFxArtworkOverride = Path.Combine(installation.MapOverrideDirectory,
+            RoomFxAnimatedTileAtlasFormat.FileName);
+        using (var input = File.OpenRead(Path.Combine(installation.MapDirectory,
+                   RoomFxAnimatedTileAtlasFormat.FileName)))
+        {
+            IndexedPngImage image = IndexedPng.Read(input,
+                RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
+            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
+            using var output = File.Create(roomFxArtworkOverride);
+            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        }
         string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
         var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
         stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
@@ -191,6 +202,14 @@ internal static partial class Program
         AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
             edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span),
             "full installation consumes escape-timer artwork override");
+        AssertTrue(stock.RoomFxAnimatedTiles.TryResolve(
+                RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource, 0x40,
+                out ReadOnlyMemory<byte> stockRoomFx) &&
+            edited.RoomFxAnimatedTiles.TryResolve(
+                RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource, 0x40,
+                out ReadOnlyMemory<byte> editedRoomFx) &&
+            !stockRoomFx.Span.SequenceEqual(editedRoomFx.Span),
+            "full installation consumes room-FX animation artwork override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -204,6 +223,7 @@ internal static partial class Program
             [flareCompositionOverride] = File.ReadAllBytes(flareCompositionOverride),
             [grappleOverride] = File.ReadAllBytes(grappleOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
+            [roomFxArtworkOverride] = File.ReadAllBytes(roomFxArtworkOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),

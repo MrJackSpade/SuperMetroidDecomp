@@ -37,6 +37,12 @@ if (args is ["--area-animated-tile-definitions"])
     VerifyAreaAnimatedTileObjectDefinitions();
     return 0;
 }
+if (args is ["--room-fx-animated-tiles"])
+{
+    VerifyRoomFxAnimatedTileMechanicsDefinitions();
+    VerifyRoomFxAnimatedTileArtwork();
+    return 0;
+}
 if (args is ["--enemy-projectile-instruction-mechanics"])
 {
     VerifyEnemyProjectileInstructionMechanicsDefinitions();

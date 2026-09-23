@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -82,7 +83,8 @@ internal sealed class RoomFxAnimatedTilesState
     /// Supported retail lists contain timed source frames, <c>goto</c>, and no other
     /// commands; encountering anything else fails loudly instead of freezing the texture.
     /// </summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue? writes = null)
+    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue? writes = null,
+        RoomFxAnimatedTileAtlas? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -107,14 +109,19 @@ internal sealed class RoomFxAnimatedTilesState
                         $"frame at $87:{cursor:X4}.");
                 }
 
-                ushort sourcePointer = ReadWord(bus, unchecked((ushort)(cursor + 2)));
+                int sourceAddress = compiledMechanics is null
+                    ? RoomFxRomData.Banks.AnimatedTiles |
+                      ReadWord(bus, unchecked((ushort)(cursor + 2)))
+                    : RoomFxAnimatedTileArtworkDefinitions.SourceAddress(compiledMechanics, cursor);
                 instructionTimer = instructionOrDuration;
                 instructionPointer = unchecked((ushort)(cursor + 4));
-                LastSourceAddress = RoomFxRomData.Banks.AnimatedTiles | sourcePointer;
+                LastSourceAddress = sourceAddress;
                 if (writes is not null)
-                    writes.Enqueue(transferByteCount, LastSourceAddress.Value, encodedVramDestination);
+                    writes.Enqueue(transferByteCount, sourceAddress, encodedVramDestination);
+                else if (artwork is not null)
+                    artwork.LoadFrame(vram, sourceAddress, transferByteCount, encodedVramDestination);
                 else
-                    vram.ExecuteHardwareDmaWrite(bus, LastSourceAddress.Value, transferByteCount, encodedVramDestination);
+                    vram.ExecuteHardwareDmaWrite(bus, sourceAddress, transferByteCount, encodedVramDestination);
                 return;
             }
 

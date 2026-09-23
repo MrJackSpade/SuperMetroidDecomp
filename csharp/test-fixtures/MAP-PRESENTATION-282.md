@@ -1500,3 +1500,27 @@ Verification round-trips all four decompressed streams byte-for-byte, compares
 closure is forbidden, and proves a Mode 7 PNG override changes installed identity
 and rendered title output. Dimensions, palette cardinality, map shape/version,
 tile-index range, malformed files, and missing manifest resources fail loudly.
+
+## Editable room-FX animated characters (#542, #547, #549)
+
+Catalog version 60 adds `room-fx-animated-tiles.png` to the stock manifest and
+`overrides/maps` selection. It is an indexed, four-color strip of 89 two-bit BG
+characters. Left to right, the frames are Maridia ceiling sand (four frames,
+four characters each), falling sand (four frames, two characters each), lava
+(five frames, four characters each), acid (five frames, four characters each),
+and rain (five frames, five characters each). The palette in the PNG is only an
+index preview; room CGRAM still controls the visible colors.
+
+The original object selection, frame durations, loop commands, transfer sizes,
+VRAM destinations, liquid physics, damage, and room-FX activation remain compiled.
+The 23 visual-source identities are compiled separately from the 48 existing
+control words. Installed liquid/rain transfers and queued sand transfers resolve
+their bytes from the currently bound PNG, including after a debugger-state
+restore; a diagnostic runtime without installed content retains cartridge art.
+
+`--room-fx-animated-tiles` compares all 23 source operands and all 1,424 art
+bytes against the pinned ROM, then executes every native frame through both
+synchronous and queued transfers with bank-$87 reads forbidden. The shared
+`--map-presentation` verifier changes one PNG pixel and observes the live VRAM
+transfer, identity change, restored stock content, and strict corrupt-resource
+failure. `--map-installation` verifies upgrade/restart preservation of overrides.

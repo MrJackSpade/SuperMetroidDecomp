@@ -8,6 +8,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
+        if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         if (RoomSkyTilemapArt is not null)
             return RoomSkyTilemapArt.TryResolve(sourceAddress, byteCount, out data);
         data = default;

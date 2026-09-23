@@ -89,6 +89,15 @@ public static class GameOptionsRomData
         /// </remarks>
         public static ReadOnlySpan<ushort> PrimaryY => PrimaryRows;
         /// <summary>$82:F31D and subsequent Y words are screen-space anchors; END/RESET already account for page scrolling.</summary>
+        /// <remarks>
+        /// Issues #625 and #958: PreInstruction_MenuSelectionMissile selects nine
+        /// interleaved X/Y records from $82:F31B; Y is at $82:F31D+4*i for row
+        /// i=0..8. X=$0028 throughout, and Y=$0030+$0018*i-(i&gt;=7 ? $20 : 0).
+        /// The final two rows are Exit and Reset, shifted upward by $20 to account
+        /// for the controller-page scroll. Pinned NTSC J/U v1.0 ROM and bank_82.asm
+        /// match all nine records; GameOptionsMenuState keeps the selected row in
+        /// 0..8 across the controller scroll transitions.
+        /// </remarks>
         public static ReadOnlySpan<ushort> ControllerY => ControllerRows;
         public static ReadOnlySpan<ushort> SpecialY => SpecialRows;
     }

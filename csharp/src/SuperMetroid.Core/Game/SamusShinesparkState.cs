@@ -930,10 +930,8 @@ public sealed class SamusShinesparkState
         SnesCgram cgram,
         ushort equippedItems)
     {
-        ushort palette = ReadWord(
-            bus,
-            SamusPaletteRomData.Common.NormalSuitPointers +
-                equippedItems.GetSuitPaletteTableOffset());
+        ushort palette = SamusPaletteRomData.Common.NormalSuitPalettePointer(
+            equippedItems.GetSuitPaletteTableOffset());
         cgram.LoadFromBus(
             bus,
             SamusPaletteRomData.Banks.Palette | palette,

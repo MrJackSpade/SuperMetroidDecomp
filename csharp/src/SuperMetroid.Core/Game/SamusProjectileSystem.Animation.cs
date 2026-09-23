@@ -218,9 +218,7 @@ public sealed partial class SamusProjectileSystem
         // `SuitPaletteIndex` is a byte offset, not an ordinal: Power=0, Varia=2,
         // Gravity=4. Gravity wins when externally stimulated state contains both bits.
         ushort suitOffset = GetSuitPaletteOffset(equippedItems);
-        ushort pointer = ReadWord(
-            bus,
-            SamusProjectileRomData.Palettes.NormalSuitPointers + suitOffset);
+        ushort pointer = SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         cgram.LoadFromBus(
             bus,
             SamusProjectileRomData.Banks.PaletteAndTrailData | pointer,
@@ -230,10 +228,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static ushort GetSuitPaletteOffset(ushort equippedItems) =>
-        (equippedItems & 0x0020) != 0
-            ? (ushort)4
-            : (equippedItems & 0x0001) != 0
-                ? (ushort)2
-                : (ushort)0;
+        equippedItems.GetSuitPaletteTableOffset();
 
 }

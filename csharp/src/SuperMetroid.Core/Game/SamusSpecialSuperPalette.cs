@@ -25,10 +25,9 @@ public static class SamusSpecialSuperPalette
             return false;
 
         ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
-        int pointerTable = (flags & 1) != 0
-            ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers
-            : SamusPaletteRomData.Common.NormalSuitPointers;
-        ushort palettePointer = ReadWord(bus, pointerTable + suitOffset);
+        ushort palettePointer = (flags & 1) != 0
+            ? ReadWord(bus, SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers + suitOffset)
+            : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         cgram.LoadFromBus(
             bus,
             SamusPaletteRomData.Banks.Palette | palettePointer,

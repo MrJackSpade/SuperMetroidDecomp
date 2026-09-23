@@ -540,11 +540,9 @@ public sealed class SamusXrayState
         {
             // Carry clear from the native handler asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
-            ushort suitOffset = (equippedItems & 0x0020) != 0 ? (ushort)4 :
-                (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
-            ushort palettePointer = ReadWord(
-                bus,
-                SamusXrayRomData.Palette.NormalSuitPointers + suitOffset);
+            ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
+            ushort palettePointer =
+                SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
             cgram.LoadFromBus(
                 bus,
                 SamusXrayRomData.Palette.PaletteBank | palettePointer,

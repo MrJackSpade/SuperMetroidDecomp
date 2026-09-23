@@ -83,6 +83,11 @@ if (args is ["--game-options-cursor-phases"])
     VerifyGameOptionsCursorPhases();
     return 0;
 }
+if (args is ["--normal-suit-palette-pointers"])
+{
+    VerifyNormalSuitPalettePointers();
+    return 0;
+}
 if (args is ["--spc-sound-library-2-pointers"])
 {
     VerifySpcSoundLibrary2Pointers();

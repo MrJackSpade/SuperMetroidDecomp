@@ -200,11 +200,9 @@ public sealed class SamusDrainedState
             // `$90:F3E9` and `$91:E56B` choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
             // palette restoration path in bank `$91`.
-            ushort suitOffset = (equippedItems & 0x0020) != 0 ? (ushort)4 :
-                (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
-            ushort palettePointer = ReadWord(
-                bus,
-                SamusPaletteRomData.Common.NormalSuitPointers + suitOffset);
+            ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
+            ushort palettePointer =
+                SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
             cgram.LoadFromBus(
                 bus,
                 SamusPaletteRomData.Banks.Palette | palettePointer,

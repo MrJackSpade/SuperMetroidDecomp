@@ -455,8 +455,8 @@ public sealed class SamusHorizontalSpeedState
         if (!NormalSuitPaletteRestoreRequested)
             return false;
 
-        ushort normalPalette = ReadWord(bus,
-            SamusPaletteRomData.Common.NormalSuitPointers + equippedItems.GetSuitPaletteTableOffset());
+        ushort normalPalette = SamusPaletteRomData.Common.NormalSuitPalettePointer(
+            equippedItems.GetSuitPaletteTableOffset());
         cgram.LoadFromBus(bus, SamusPaletteRomData.Banks.Palette | normalPalette,
             colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
             destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
@@ -498,9 +498,8 @@ public sealed class SamusHorizontalSpeedState
         SnesCgram cgram,
         ushort suitTableOffset)
     {
-        ushort normalPalette = ReadWord(
-            bus,
-            SamusPaletteRomData.Common.NormalSuitPointers + suitTableOffset);
+        ushort normalPalette = SamusPaletteRomData.Common.NormalSuitPalettePointer(
+            suitTableOffset);
         cgram.LoadFromBus(
             bus,
             SamusPaletteRomData.Banks.Palette | normalPalette,

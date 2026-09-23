@@ -79,8 +79,8 @@ public static class SamusHurtFlashPalette
             else
             {
                 ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
-                ushort palettePointer = ReadWord(
-                    bus, SamusPaletteRomData.Common.NormalSuitPointers + suitOffset);
+                ushort palettePointer =
+                    SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
                 paletteAddress = SamusPaletteRomData.Banks.Palette | palettePointer;
                 cgram.LoadFromBus(
                     bus,

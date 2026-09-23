@@ -34,6 +34,20 @@ public static class SamusPaletteRomData
         /// authored selectors; a numeric stride would not reproduce them.
         /// </remarks>
         public const int NormalSuitPointers = 0x91d727;
+        /// <summary>Native $91:D727 Power/Varia/Gravity pointer selected by a byte offset.</summary>
+        /// <remarks>
+        /// The three pinned cartridge words are $9400, $9520, and $9800. Every
+        /// ordinary suit selector produces byte offset 0, 2, or 4, with Gravity
+        /// taking priority when both suit bits are equipped. The addresses are
+        /// authored palette identities, not a numeric stride.
+        /// </remarks>
+        public static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
+        {
+            0 => 0x9400,
+            2 => 0x9520,
+            4 => 0x9800,
+            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
+        };
         /// <summary>First CGRAM color of Samus OBJ palette four.</summary>
         public const int SamusObjPaletteStart = 192;
         /// <summary>First CGRAM color of suitless Samus OBJ palette seven.</summary>

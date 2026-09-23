@@ -41,6 +41,12 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
 
     /// <summary>
     /// <c>InstList_EnemyProjectile_Shot_CrocomiresProjectile</c> at $86:9007.
+    /// The five mechanics words at $9007 + 4*i (i=0..4) are exactly four-frame
+    /// durations in the pinned NTSC J/U v1.0 ROM. Retain the authored
+    /// side-effect order: $901B calls drop opcode $9270, $901D is goto-Y
+    /// $81AB, and $901F targets shared delete program $84FC. The physical
+    /// $8154 word at $9021 is skipped by that jump, not a sixth frame or
+    /// compiled word. Interleaved explosion spritemaps remain live reads.
     /// </summary>
     internal const ushort MouthProjectileShot = 0x9007;
 

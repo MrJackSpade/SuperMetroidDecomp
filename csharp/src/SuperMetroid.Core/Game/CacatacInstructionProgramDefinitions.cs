@@ -84,6 +84,14 @@ internal static class CacatacInstructionProgramDefinitions
         new(0x9f28, UpsideDownIdle),
     ];
 
+    /// <summary>
+    /// Live spritemap operand addresses in the four $A2 Cacatac lists.
+    /// In the two idle lists, pose i = 0..7 uses address $9E8E + 4*i
+    /// upright or $9EDE + 4*i inverted. The pinned cartridge stores
+    /// spritemap pointer $A0BB + $20*i or $A223 + $20*i respectively;
+    /// corresponding inverted pointers are $0168 above upright pointers.
+    /// These operands remain live presentation data, not compiled mechanics.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         0x9e8e, 0x9e92, 0x9e96, 0x9e9a, 0x9e9e, 0x9ea2, 0x9ea6, 0x9eaa,

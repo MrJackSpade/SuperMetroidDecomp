@@ -155,7 +155,15 @@ public sealed partial class RoomEnemySystem
         projectile.GraphicsIndex = 0x0400;
     }
 
-    /// <summary>Ports the eight descending allocations at $A4:99B6 and initializer $86:90CF.</summary>
+    /// <summary>
+    /// Ports the eight descending allocations at $A4:99B6 and initializer
+    /// $86:90CF. Its Y-position table at $86:9105-$9114 has eight unsigned
+    /// words, all exactly $0038 + $0010*i for i=0..7 in the pinned NTSC
+    /// J/U v1.0 ROM. Native even byte offsets 0..14 correspond to physical
+    /// projectile slots 10..17; the checked managed index is slot minus 10.
+    /// Clearing the pool before this call makes the spawn order Y=$A8 down
+    /// to $38. $86:9115 starts the next routine, not a ninth table word.
+    /// </summary>
     private void SpawnCrocomireSpikeWallPieces()
     {
         CrocomireEnemyState state = _crocomire ??

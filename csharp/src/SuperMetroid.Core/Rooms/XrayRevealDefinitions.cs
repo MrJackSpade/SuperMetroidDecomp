@@ -50,6 +50,15 @@ internal static class XrayRevealDefinitions
     /// </remarks>
     private static readonly XrayRevealDefinition HorizontalExtension =
         new(XrayRevealCodePointers.HorizontalExtension, 0, 0, 0, 0);
+    /// <summary>Vertical extension command for every BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1031: pinned NTSC J/U v1.0 ROM $91:D462..D469 has wildcard
+    /// $FF00 to $D468, terminal $FFFF, then operand-free vertical extension
+    /// command $CE79. Native $91:CE08 checks the wildcard first, making
+    /// this constant definition exact for all unsigned BTS 0..255.
+    /// Direct ROM words and the independent 256-case vertical-extension
+    /// oracle agree; adjacent grapple entries do not belong to this lookup.
+    /// </remarks>
     private static readonly XrayRevealDefinition VerticalExtension =
         new(XrayRevealCodePointers.VerticalExtension, 0, 0, 0, 0);
 

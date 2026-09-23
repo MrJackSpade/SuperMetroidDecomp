@@ -75,6 +75,18 @@ public static class GameOptionsRomData
     }
 
     /// <summary>Cursor positions read by <c>OptionsPreInstr_F2A9</c>.</summary>
+    /// <remarks>
+    /// Issues #625 and #967: the 13-word phase selector at $82:F2ED is indexed
+    /// by twice GameOptionsMenuIndex, for native phases 0..C. Phases 2, 3, and B
+    /// select primary X/Y records at $F307; 7 selects controller $F31B;
+    /// 8 selects special $F33F. Phases 0, 1, 4, 5, 6, 9, A, and C select zero,
+    /// which places the missile offscreen at X=$0180, Y=$0010. A nonzero base
+    /// is then indexed by four times MenuOptionIndex. Pinned NTSC J/U v1.0 ROM
+    /// and bank_82.asm match all 13 pointers. This is authored phase policy,
+    /// not a numerical progression. Managed CursorPosition currently hides
+    /// only scroll phases 9/A, leaving the cursor visible during managed
+    /// dissolve out/in and fade out to intro; #968 tracks that parity defect.
+    /// </remarks>
     public static class Cursors
     {
         private static readonly ushort[] PrimaryRows = [0x38, 0x58, 0x70, 0x90, 0xb0];

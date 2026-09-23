@@ -33,9 +33,24 @@ internal static class CrocomireInstructionProgramDefinitions
     /// branch can select this list. $BB36 starts a different program.
     /// </summary>
     internal const ushort UnusedChargeForwardOneStep = 0xbaea;
-    /// <summary><c>InstList_Crocomire_ProjectileAttack_0</c> at $A4:BB36.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_ProjectileAttack_0</c> at $A4:BB36-$BB93.
+    /// The pinned NTSC J/U v1.0 ROM interleaves eighteen $0005 durations
+    /// and live spritemap operands with callbacks for dust projectiles,
+    /// explosion sound, and a final cry. Projectile offsets occur in
+    /// authored order: +10, 0, -20, -10, 0, +28, -10; explosion sound
+    /// occurs before -20, before the second 0, and before the final -10.
+    /// Retain this event schedule rather than deriving it from the
+    /// constant duration run. $BB94 starts the loop below.
+    /// </summary>
     internal const ushort ProjectileAttack = 0xbb36;
-    /// <summary><c>InstList_Crocomire_ProjectileAttack_1</c> at $A4:BB94.</summary>
+    /// <summary>
+    /// <c>InstList_Crocomire_ProjectileAttack_1</c> at $A4:BB94-$BBAD.
+    /// Fight AI $86A6 precedes durations $0008 and four $0007 words,
+    /// each with a live spritemap operand, then goto $80ED targets $BB94.
+    /// These exact control and timing words are retained; $BBAE begins a
+    /// different, excluded unreferenced list.
+    /// </summary>
     internal const ushort ProjectileAttackLoop = 0xbb94;
     /// <summary><c>InstList_Crocomire_StepForwardAfterDelay</c> at $A4:BBCA.</summary>
     internal const ushort StepForwardAfterDelay = 0xbbca;

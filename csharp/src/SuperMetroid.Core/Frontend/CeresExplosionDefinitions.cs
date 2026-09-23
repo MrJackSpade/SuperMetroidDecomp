@@ -98,6 +98,18 @@ internal static class CeresExplosionDefinitions
         new(0xcec7, 0xc533, 0xc582, 0xcd1b);
 
     /// <summary><c>$8B:CF2D</c>, final station blast actor created by <c>$8B:C345</c>.</summary>
+    /// <remarks>
+    /// Issues #625 and #1004: all thirteen words at $8B:CE1B..CE34 match
+    /// pinned NTSC J/U v1.0 ROM and bank_8B.asm. Six duration-5 entries
+    /// select bank-$8C spritemaps $98EE, $9904, $991A, $9930, $996E and
+    /// $9998, then opcode $9438 deletes the actor. IntroDiscoverySprite.Step
+    /// advances through only those six four-byte entries and the terminal
+    /// opcode; the next list begins at $CE35. The six spritemaps have
+    /// different authored tile arrangements and entry counts 4, 4, 4, 12,
+    /// 8, 12 in bank_8C.asm. Pointer differences follow their byte lengths,
+    /// not a single bounded stride or visual-frame formula. Retain this
+    /// finite ordered animation stream and its terminal deletion.
+    /// </remarks>
     public static CeresExplosionActorDefinition StationBlastActor =>
         new(0xcf2d, 0xc5a9, 0xc582, 0xce1b);
 

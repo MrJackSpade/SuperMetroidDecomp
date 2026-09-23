@@ -31,6 +31,15 @@ internal static class XrayRevealDefinitions
     /// air slice of the X-ray reveal oracle agree; no pointer table is needed.
     /// </remarks>
     private static readonly XrayRevealDefinition Air = One(0x00ff);
+    /// <summary>Horizontal extension command for every BTS byte.</summary>
+    /// <remarks>
+    /// Issue #1029: pinned NTSC J/U v1.0 ROM $91:D310..D317 has wildcard
+    /// $FF00 to $D316, terminal $FFFF, then the operand-free horizontal
+    /// extension command $CEBB. Native $91:CE08 checks the wildcard first,
+    /// making this constant definition exact for all unsigned BTS 0..255.
+    /// Direct ROM words and the independent 256-case horizontal-extension
+    /// oracle agree; the neighboring spike table is not part of this lookup.
+    /// </remarks>
     private static readonly XrayRevealDefinition HorizontalExtension =
         new(XrayRevealCodePointers.HorizontalExtension, 0, 0, 0, 0);
     private static readonly XrayRevealDefinition VerticalExtension =

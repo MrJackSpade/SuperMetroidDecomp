@@ -862,6 +862,10 @@ public static class DoorDefinitions
     /// $8F16 and $8F22, exactly $8F16 + 12*i for normalized BTS
     /// i=0..1. Index 2 reads $1301 at $8F:A010: scroll byte $01,
     /// then next room header byte $13. The ROM oracle checks bounds.
+    /// Issue #1105, Etecoon E-Tank $8F:A038: four words are $8F2E,
+    /// $8F3A, $8F46, and $8F52, exactly $8F2E + 12*i for normalized
+    /// BTS i=0..3. Index 4 reaches scroll data $0101 at $8F:A040.
+    /// The ROM oracle checks all entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

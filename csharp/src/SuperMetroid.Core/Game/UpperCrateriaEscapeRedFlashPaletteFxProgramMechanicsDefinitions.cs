@@ -27,6 +27,15 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     /// <summary>The complete loop lasts 63 frames.</summary>
     public const int CycleFrames = 63;
 
+    /// <summary>Fourteen timed red-flash records in their native order.</summary>
+    /// <remarks>
+    /// For the only valid frame indices 0..13, duration is
+    /// abs(7 - frame) + 1. The unsigned words at $8D:FD01 + 18 * frame
+    /// all match this integer triangle in the pinned NTSC J/U v1.0 ROM.
+    /// Their sum is 63 frames. The $C61E goto at $FDFD returns to $FD01;
+    /// frame fourteen is control rather than another duration. Seven
+    /// interleaved BGR555 colors per frame remain live presentation data.
+    /// </remarks>
     private static readonly ushort[] Durations = [8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7];
 
     /// <summary>Returns one timed-record pointer.</summary>

@@ -18,6 +18,15 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     /// <summary><c>PalFxDef_Crateria4</c> at <c>$8D:FFE9</c>.</summary>
     public const ushort YellowLightningDefinitionPointer = 0xffe9;
     /// <summary><c>PalFxInstList_Crateria4</c> at <c>$8D:FE01</c>.</summary>
+    /// <remarks>
+    /// Its 11 live BGR555 colors per frame occupy $8D:FE07 + 26 * frame
+    /// + 2 * color, with frame and color each bounded to 0..10. The eleven
+    /// frames reuse four distinct authored color rows in order
+    /// A,B,C,D,C,A,C,A,C,D,C. All 121 words match the pinned NTSC J/U
+    /// v1.0 ROM and the bank-$8D annotation. Values within each row vary
+    /// by color slot without a simpler justified lossless numeric rule;
+    /// retain the authored presentation content and its live reads.
+    /// </remarks>
     public const ushort YellowLightningProgramStart = 0xfe01;
     /// <summary><c>PalFxDef_Crateria40</c> at <c>$8D:FFED</c>.</summary>
     public const ushort CreBlockPixelDefinitionPointer = 0xffed;

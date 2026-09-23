@@ -806,6 +806,10 @@ public static class DoorDefinitions
     /// normalized BTS i=0 resolves to $8D66; no stride follows from
     /// one word. Index 1 reaches scroll data $0001 at $8F:9C30.
     /// The ROM oracle checks the entry, both aliases, and boundary.
+    /// Issue #1091, Green Brinstar Map $8F:9C5C: sole valid
+    /// normalized BTS i=0 resolves to $8D72; no stride follows from
+    /// one word. Index 1 reaches next room header $0106 at $8F:9C5E.
+    /// The ROM oracle checks the entry, both aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

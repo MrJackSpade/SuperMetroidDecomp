@@ -99,6 +99,15 @@ public static class GameOptionsRomData
         /// 0..8 across the controller scroll transitions.
         /// </remarks>
         public static ReadOnlySpan<ushort> ControllerY => ControllerRows;
+        /// <summary>Special-settings cursor Y for selected row 0..2.</summary>
+        /// <remarks>
+        /// Issues #625 and #959: PreInstruction_MenuSelectionMissile selects three
+        /// interleaved X/Y records from $82:F33F; Y at $82:F341+4*i is exactly
+        /// $0040+$0030*i for i=0..2, while X stays $0010. Pinned NTSC J/U v1.0
+        /// ROM and bank_82.asm match all three records. GameOptionsMenuState
+        /// wraps SpecialCount at three before indexing, and extraction uses the
+        /// same three anchors.
+        /// </remarks>
         public static ReadOnlySpan<ushort> SpecialY => SpecialRows;
     }
 

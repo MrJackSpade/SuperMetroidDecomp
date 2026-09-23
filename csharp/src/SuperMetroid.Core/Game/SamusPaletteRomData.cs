@@ -468,7 +468,21 @@ public static class SamusPaletteRomData
         /// immediately following its timer, not an aligned word read.
         /// </remarks>
         public const int ExplosionTimingAndPaletteIndices = 0x9bb823;
-        /// <summary><c>$9B:B835</c>, 22 whiteout shades from black through white.</summary>
+        /// <summary><c>$9B:B835</c>, 22 grayscale whiteout shades ending at white.</summary>
+        /// <remarks>
+        /// Issue #893 / #625: all 22 little-endian words at
+        /// <c>$9B:B835..B860</c> match the pinned NTSC J/U v1.0 ROM
+        /// and native bank-$9B listing. Each BGR555 word is
+        /// <c>$0421*level(i)</c> for index <c>i=0..21</c>, where
+        /// <c>level=2*i+1</c> for <c>i=0..6</c>, <c>16</c> at
+        /// <c>i=7</c>, and <c>i+10</c> for <c>i=8..21</c>.
+        /// This yields grayscale levels
+        /// <c>1,3,5,7,9,11,13,16,18..31</c> exactly, including
+        /// the skipped levels. The caller suppresses whiteout for
+        /// explosion index zero, reads shade indices 0..20 during
+        /// later frames, then explicitly reads index 21 to finish
+        /// at <c>$7FFF</c>; it excludes both Samus OBJ palettes.
+        /// </remarks>
         public const int WhiteoutShades = 0x9bb835;
         /// <summary>Number of suited and suitless explosion palette variants.</summary>
         public const int PaletteCount = 10;

@@ -20,7 +20,14 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
     /// </summary>
     internal const ushort Light = 0x9750;
 
-    /// <summary><c>InstList_EnemyProjectile_CeresFallingTile_Dark</c> at $86:9756.</summary>
+    /// <summary>
+    /// <c>InstList_EnemyProjectile_CeresFallingTile_Dark</c> at $86:9756,
+    /// selected by definition $9742. Both pinned-ROM mechanics words are
+    /// the light program's words relocated by six bytes: one tick at $9756,
+    /// then terminal $8159 sleep at $975A. Only those two private pointers
+    /// are reachable before shared shot deletion. The $9758 spritemap is
+    /// independent presentation data.
+    /// </summary>
     internal const ushort Dark = 0x9756;
 
     private static readonly CeresFallingDebrisInstructionMechanicsWord[] Words =

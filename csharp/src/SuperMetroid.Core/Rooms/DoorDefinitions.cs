@@ -874,6 +874,10 @@ public static class DoorDefinitions
     /// normalized BTS i=0 resolves to $8F6A; no stride follows from
     /// one word. Index 1 reaches next room header $0116 at $8F:A0A4.
     /// The ROM oracle checks the entry, aliases, and boundary.
+    /// Issue #1108, Spore Spawn Farming $8F:A0CB: two words are
+    /// $8F76 and $8F82, exactly $8F76 + 12*i for normalized BTS
+    /// i=0..1. Index 2 reaches scroll data $0101 at $8F:A0CF.
+    /// The ROM oracle checks both entries, aliases, and boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

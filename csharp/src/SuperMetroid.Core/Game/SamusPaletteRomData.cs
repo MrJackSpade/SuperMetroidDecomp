@@ -149,6 +149,16 @@ public static class SamusPaletteRomData
         /// for shade 0..3, color 0..15, then the six-phase pointer matrix
         /// reuses shades 2 and 1. Encoding slopes and exceptions would
         /// obscure these deliberately chosen colors.
+        ///
+        /// Issue #872 / #625: all 64 Varia Suit BGR555 target words at
+        /// <c>$9B:9EA0..9F1F</c> match the pinned ROM/native listing.
+        /// Shade zero matches normal Varia <c>$9B:9520</c> at fifteen
+        /// colors; color zero is deliberately <c>$3800</c> here instead of
+        /// <c>$0000</c>. A per-slot, per-channel clipped linear step fits
+        /// 35 of 48 four-shade component sequences, leaving thirteen
+        /// authored exceptions. Retain the four live color rows for shade
+        /// 0..3, color 0..15, with shades 2 and 1 reused by the pointer
+        /// matrix's six-phase cycle.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>

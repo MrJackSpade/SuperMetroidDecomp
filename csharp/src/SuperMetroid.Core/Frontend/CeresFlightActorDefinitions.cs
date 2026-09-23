@@ -53,6 +53,15 @@ internal static class CeresFlightActorDefinitions
     /// asteroid, station, vortex and star placements do not share a useful
     /// exact stride or geometry rule; retain the five authored positions.
     /// RearViewActor rejects indices outside this bounded native spawn set.
+    ///
+    /// Issues #625 and #1007: the five independent Y immediates at
+    /// $8B:BF29/$BF53/$BF7D/$BFBA/$BEA9 match pinned NTSC J/U v1.0 ROM
+    /// and bank_8B.asm: $009F, $00A0, $0060, $0057, $0057 in that same
+    /// native spawn order. The first three actor types occupy distinct
+    /// station/debris heights, while vortex and rear stars share $0057.
+    /// These are unsigned scene placements, without an exact useful
+    /// progression across all five actor types. Retain the bounded Y choices
+    /// rather than fit arithmetic to unrelated visual roles.
     /// </remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

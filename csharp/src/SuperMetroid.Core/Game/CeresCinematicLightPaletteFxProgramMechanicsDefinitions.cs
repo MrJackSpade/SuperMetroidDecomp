@@ -150,6 +150,16 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     }
 
     /// <summary>Returns one presentation-owned shared navigation-light BGR555 word.</summary>
+    /// <remarks>
+    /// The shared sprite/background colors at $8D:C894 + 8 * frame and
+    /// the following word have an exact bounded integer reconstruction for
+    /// frame 0..13: first = (31 * abs(7 - frame) + 3) / 7 using integer
+    /// division, second = 31 - first. These are red-channel BGR555 values;
+    /// all 28 words match the pinned NTSC J/U v1.0 ROM, including the zero
+    /// crossing at frame seven and the mirrored ascent. Both owners still
+    /// consume the live authored words, and frame/color bounds exclude the
+    /// adjacent palette-FX program.
+    /// </remarks>
     public static ushort NavigationLightsColorPointer(int frame, int color)
     {
         if ((uint)color >= NavigationLightsColorsPerFrame)

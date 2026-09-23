@@ -63,6 +63,12 @@ internal static class CacatacProjectileInstructionProgramDefinitions
         new(RightFacingDown + 4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
     ];
 
+    /// <summary>
+    /// Live spritemap operands in native program order. For i = 0..9, the
+    /// address is $86:D930 + 6*i and the pinned cartridge stores pointer
+    /// $A908 + 7*i, ending at $86:D966 / $A947. The selector table at
+    /// $86:D96A maps direction values to this physical program order.
+    /// </summary>
     private static readonly ushort[] PresentationWords =
     [
         LeftFacingUp + 2,

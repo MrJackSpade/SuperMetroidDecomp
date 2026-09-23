@@ -495,14 +495,24 @@ public sealed class SamusShinesparkState
         }
 
         ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
-        int tableAddress = PaletteType == 1
-            ? SamusPaletteRomData.FullBodyCycles.StoredShineLists
-            : SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists;
-        ushort listPointer = ReadWord(bus, tableAddress + suitOffset);
-        ushort palettePointer = ReadWord(
-            bus,
-            SamusPaletteRomData.Banks.Movement |
-                unchecked((ushort)(listPointer + PaletteFrameOffset)));
+        bool catalogued = PaletteType == 1
+            ? SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
+                suitOffset, PaletteFrameOffset, out ushort palettePointer)
+            : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(
+                suitOffset, PaletteFrameOffset, out palettePointer);
+        if (!catalogued)
+        {
+            // Restored non-catalog phase words retain the cartridge's two indirect
+            // reads, rather than being rounded into an ordinary palette cycle.
+            int tableAddress = PaletteType == 1
+                ? SamusPaletteRomData.FullBodyCycles.StoredShineLists
+                : SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists;
+            ushort listPointer = ReadWord(bus, tableAddress + suitOffset);
+            palettePointer = ReadWord(
+                bus,
+                SamusPaletteRomData.Banks.Movement |
+                    unchecked((ushort)(listPointer + PaletteFrameOffset)));
+        }
         cgram.LoadFromBus(
             bus,
             SamusPaletteRomData.Banks.Palette | palettePointer,

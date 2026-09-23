@@ -412,16 +412,18 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = 4;
 
-        // `$91:DAA9` selects a bank-$91 list for the active suit. The list entry selected by
-        // `$0ACE` is in turn a bank-$9B palette pointer. This double indirection is retained
-        // instead of copying the four retail addresses into C# constants.
-        ushort paletteList = ReadWord(
-            bus,
-            SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists + suitTableOffset);
-        ushort palettePointer = ReadWord(
-            bus,
-            SamusPaletteRomData.Banks.Movement |
-                unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        bool catalogued = SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+            suitTableOffset, SpecialPaletteFrame, out ushort palettePointer);
+        if (!catalogued)
+        {
+            // An externally restored non-catalog frame still follows the native two-level
+            // address calculation, including its adjacent-data and 16-bit wrap behavior.
+            ushort paletteList = ReadWord(bus,
+                SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists + suitTableOffset);
+            palettePointer = ReadWord(bus,
+                SamusPaletteRomData.Banks.Movement |
+                    unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        }
         cgram.LoadFromBus(
             bus,
             SamusPaletteRomData.Banks.Palette | palettePointer,
@@ -470,15 +472,17 @@ public sealed class SamusHorizontalSpeedState
         SnesCgram cgram,
         ushort suitTableOffset)
     {
-        // `$91:DA4A` contains one bank-$91 pointer list per suit. Each selected word is a
-        // bank-$9B address for a complete 16-color Samus palette, exactly like Speed Boost.
-        ushort paletteList = ReadWord(
-            bus,
-            SamusPaletteRomData.FullBodyCycles.ScrewAttackLists + suitTableOffset);
-        ushort palettePointer = ReadWord(
-            bus,
-            SamusPaletteRomData.Banks.Movement |
-                unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        bool catalogued = SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
+            suitTableOffset, SpecialPaletteFrame, out ushort palettePointer);
+        if (!catalogued)
+        {
+            // Preserve native adjacent-data reads for a restored non-catalog phase.
+            ushort paletteList = ReadWord(bus,
+                SamusPaletteRomData.FullBodyCycles.ScrewAttackLists + suitTableOffset);
+            palettePointer = ReadWord(bus,
+                SamusPaletteRomData.Banks.Movement |
+                    unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        }
         cgram.LoadFromBus(
             bus,
             SamusPaletteRomData.Banks.Palette | palettePointer,

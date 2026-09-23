@@ -93,6 +93,11 @@ if (args is ["--speed-boost-palette-pointers"])
     VerifySpeedBoostPalettePointers();
     return 0;
 }
+if (args is ["--full-body-palette-pointer-lists"])
+{
+    VerifyFullBodyPalettePointerLists();
+    return 0;
+}
 if (args is ["--spc-sound-library-2-pointers"])
 {
     VerifySpcSoundLibrary2Pointers();

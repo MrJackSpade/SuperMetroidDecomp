@@ -194,6 +194,15 @@ public static class SamusPaletteRomData
         /// reuses shades 2 and 1 in its six-phase cycle.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
+        /// <summary>
+        /// Resolves the bounded $91:DA4A/$91:DA50 Screw Attack suit and phase lists
+        /// to a bank-$9B palette pointer. Returns false for non-catalog indexes so
+        /// corrupted-state callers may retain native adjacent-data reads.
+        /// </summary>
+        public static bool TryScrewAttackPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, 0x9ca0,
+                pingPong: true, out pointer);
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>
         /// <remarks>
         /// Issue #874 / #625: the pinned NTSC J/U v1.0 ROM's three
@@ -249,6 +258,14 @@ public static class SamusPaletteRomData
         /// during sustained Speed Booster running.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
+        /// <summary>
+        /// Resolves the bounded $91:DAA9/$91:DAAF active Speed Booster suit
+        /// and phase lists to a bank-$9B palette pointer.
+        /// </summary>
+        public static bool TryActiveSpeedBoosterPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9b20,
+                pingPong: false, out pointer);
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>
         /// <remarks>
         /// Issue #879 / #625: the pinned NTSC J/U v1.0 ROM's three
@@ -284,6 +301,14 @@ public static class SamusPaletteRomData
         /// The source rows remain authored cartridge palettes.
         /// </remarks>
         public const int StoredShineLists = 0x91db10;
+        /// <summary>
+        /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and
+        /// phase lists to a bank-$9B palette pointer.
+        /// </summary>
+        public static bool TryStoredShinePalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, 0x9ba0,
+                pingPong: true, out pointer);
         /// <summary><c>$91:DB75</c>, suit-indexed active-shinespark palette lists.</summary>
         /// <remarks>
         /// Issue #882 / #625: the pinned NTSC J/U v1.0 ROM's three
@@ -342,6 +367,35 @@ public static class SamusPaletteRomData
         /// them while active.
         /// </remarks>
         public const int ActiveShinesparkLists = 0x91db75;
+        /// <summary>
+        /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit
+        /// and phase lists to a bank-$9B palette pointer.
+        /// </summary>
+        public static bool TryActiveShinesparkPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
+                pingPong: false, out pointer);
+
+        private static bool TryPalettePointer(
+            ushort suitByteOffset,
+            ushort phaseByteOffset,
+            ushort lastPhaseByteOffset,
+            int firstPalette,
+            bool pingPong,
+            out ushort pointer)
+        {
+            if (suitByteOffset > 4 || (suitByteOffset & 1) != 0 ||
+                phaseByteOffset > lastPhaseByteOffset || (phaseByteOffset & 1) != 0)
+            {
+                pointer = 0;
+                return false;
+            }
+
+            int phase = phaseByteOffset / 2;
+            int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
+            pointer = checked((ushort)(firstPalette + suitByteOffset * 0x100 + shade * 0x20));
+            return true;
+        }
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>
         /// <remarks>
         /// Issue #867 / #625: the pinned NTSC J/U v1.0 ROM's ten

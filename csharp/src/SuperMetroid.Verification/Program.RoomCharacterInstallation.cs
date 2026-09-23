@@ -156,6 +156,39 @@ internal static partial class Program
                     RoomBackgroundTilemapArtworkFiles.ManifestFileName)),
                 "room-background stock manifest is installed");
             RoomBackgroundTilemapCatalog stockBackgrounds = installed.LoadRoomBackgroundTilemaps();
+            string backgroundManifestPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
+                RoomBackgroundTilemapArtworkFiles.ManifestFileName);
+            byte[] originalBackgroundManifest = File.ReadAllBytes(backgroundManifestPath);
+            int stockSource = RoomBackgroundTilemapSources.All[0];
+            int substitutedSource = stockSource + 1;
+            AssertTrue(!RoomBackgroundTilemapSources.Contains(substitutedSource),
+                "manifest substitution fixture uses an uncatalogued source");
+            JsonNode alteredManifest = JsonNode.Parse(originalBackgroundManifest)
+                ?? throw new InvalidDataException("Installed background manifest is empty.");
+            JsonObject manifestEntries = alteredManifest["entries"]!.AsObject();
+            string stockName = RoomBackgroundTilemapFormat.SourceFileName(stockSource);
+            string substitutedName = RoomBackgroundTilemapFormat.SourceFileName(substitutedSource);
+            JsonNode alteredEntry = manifestEntries[stockName]!.DeepClone();
+            alteredEntry["sourceAddress"] = substitutedSource;
+            manifestEntries.Remove(stockName);
+            manifestEntries[substitutedName] = alteredEntry;
+            try
+            {
+                File.WriteAllText(backgroundManifestPath, alteredManifest.ToJsonString());
+                try
+                {
+                    _ = installed.LoadRoomBackgroundTilemaps();
+                    throw new InvalidOperationException(
+                        "Substituted background source was accepted by the installation loader.");
+                }
+                catch (InvalidDataException error)
+                {
+                    AssertTrue(error.Message.Contains("invalid source entry",
+                            StringComparison.Ordinal),
+                        "substituted background source fails the compiled identity check");
+                }
+            }
+            finally { File.WriteAllBytes(backgroundManifestPath, originalBackgroundManifest); }
             CartridgeRoomHeader ceres = CartridgeRoomHeader.Load(bus, 0xdf8d);
             int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&

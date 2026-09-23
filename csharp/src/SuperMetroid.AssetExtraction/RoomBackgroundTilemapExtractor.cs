@@ -12,16 +12,11 @@ public static class RoomBackgroundTilemapExtractor
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int[] addresses = LibraryBackgroundSourceInventory.Scan(bus)
-            .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
-            .Select(source => source.SourceAddress)
-            .Distinct()
-            .Order()
-            .ToArray();
-        if (addresses.Length != RoomBackgroundTilemapFormat.RetailCompressedSourceCount)
+        IReadOnlyList<int> addresses = RoomBackgroundTilemapSources.All;
+        if (addresses.Count != RoomBackgroundTilemapFormat.RetailCompressedSourceCount)
             throw new InvalidDataException(
                 $"Expected {RoomBackgroundTilemapFormat.RetailCompressedSourceCount} " +
-                $"retail compressed background sources, found {addresses.Length}.");
+                $"retail compressed background sources, found {addresses.Count}.");
         var files = new Dictionary<string, byte[]>();
         foreach (int source in addresses)
         {

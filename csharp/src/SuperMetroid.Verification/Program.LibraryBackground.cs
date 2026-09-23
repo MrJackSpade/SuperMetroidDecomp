@@ -26,6 +26,11 @@ static void VerifyLibraryBackgroundSourceInventory()
     AssertEqual(66, listCount, "retail source-bearing background list count");
     AssertEqual(RoomBackgroundTilemapFormat.RetailCompressedSourceCount, compressedCount,
         "retail distinct compressed background count");
+    AssertTrue(sources
+            .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+            .Select(source => source.SourceAddress).Distinct().Order()
+            .SequenceEqual(RoomBackgroundTilemapSources.All),
+        "compiled background source identities exactly match retail command operands");
     AssertEqual(18, romTransfers.Length, "retail direct ROM background transfer count");
     AssertEqual(114, workRamTransfers.Length, "retail work-RAM background transfer count");
     foreach (int source in sources

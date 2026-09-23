@@ -20,11 +20,8 @@ public static class RoomBackgroundTilemapArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
         IReadOnlyDictionary<string, byte[]> files = RoomBackgroundTilemapExtractor.Extract(bus);
-        int[] sources = LibraryBackgroundSourceInventory.Scan(bus)
-            .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
-            .Select(source => source.SourceAddress).Distinct().Order().ToArray();
         var entries = new Dictionary<string, RoomBackgroundFileEntry>();
-        foreach (int address in sources)
+        foreach (int address in RoomBackgroundTilemapSources.All)
         {
             string name = RoomBackgroundTilemapFormat.SourceFileName(address);
             byte[] json = files[name];
@@ -68,7 +65,7 @@ public static class RoomBackgroundTilemapArtworkFiles
         foreach ((string name, RoomBackgroundFileEntry entry) in manifest.Entries)
         {
             if (entry is null || name != RoomBackgroundTilemapFormat.SourceFileName(entry.SourceAddress) ||
-                entry.SourceAddress < RoomAssetRomData.LibraryBackground.RomSourceAddressFloor)
+                !RoomBackgroundTilemapSources.Contains(entry.SourceAddress))
                 throw new InvalidDataException($"Room background manifest {manifestPath} has an invalid source entry.");
             RoomBackgroundTilemapFormat.ValidatePageCount(entry.NativeByteCount);
             string stockPath = Path.Combine(stockDirectory, name);

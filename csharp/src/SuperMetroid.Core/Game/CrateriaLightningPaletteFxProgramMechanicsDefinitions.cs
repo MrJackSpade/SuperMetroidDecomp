@@ -309,6 +309,12 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     /// solid $7FFF for every color. All 104 words match the pinned NTSC
     /// J/U v1.0 ROM and bank-$8D annotation. Production still reads the
     /// live authored BGR555 payload; both indices are checked before access.
+    /// The unused dark-lightning owner has fourteen seven-color records.
+    /// Their five distinct authored rows occur in sequence
+    /// A,B,C,D,E,D,C,B,A,A,E,D,C,B, with E all zero. All 98 color words
+    /// match the same pinned ROM and annotation. The nonzero BGR555 rows
+    /// vary irregularly across channels and slots; retain their live
+    /// authored payload rather than assert an unsupported color formula.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

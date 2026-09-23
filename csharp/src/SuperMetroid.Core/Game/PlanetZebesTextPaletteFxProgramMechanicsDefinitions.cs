@@ -11,9 +11,18 @@ public enum PlanetZebesTextPaletteFxProgramOwner
 
 /// <summary>Immutable mechanics for the cinematic PLANET ZEBES text fades.</summary>
 /// <remarks>
-/// Definitions <c>$E1B0</c> and <c>$E1B4</c> each run eight timed records and then
-/// delete themselves. Their 48 BGR555 words remain live presentation data; this catalog
-/// owns palette placement, timing, waits, and termination.
+/// Issue #840 / #625: the pinned NTSC J/U v1.0 ROM encodes both definitions as
+/// <c>SetColorIndex($0102)</c>, eight ten-byte records of
+/// <c>3, colors[3], Wait</c>, then <c>Delete</c>. Fade-in starts at
+/// <c>$8D:C90E</c> (first record <c>$C912</c>, delete <c>$C962</c>);
+/// fade-out starts at <c>$8D:C964</c> (first record <c>$C968</c>, delete
+/// <c>$C9B8</c>). Each one-shot lasts 24 frames. All 38 control words match
+/// the ROM. For frame <c>i</c> and color <c>c</c>, the ROM's fade-out color
+/// equals fade-in color <c>(7 - i, c)</c> at all 24 positions. The eight
+/// authored color rows and their reverse remain 48 live presentation words;
+/// the presentation compiler supplies them while this catalog supplies only
+/// control words to the palette-FX runtime. ROM SHA-256:
+/// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 {

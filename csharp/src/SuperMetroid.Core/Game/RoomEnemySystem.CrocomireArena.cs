@@ -61,7 +61,14 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    /// <summary>Ports <c>Crocomire_8EE5</c>: clear all ten bridge blocks and burst dust.</summary>
+    /// <summary>
+    /// Ports <c>Crocomire_8EE5</c>: clear all ten bridge blocks and burst dust.
+    /// The seven dust positions in the pinned NTSC J/U v1.0 ROM follow the
+    /// exact bounded rule X=$0600+$0010*i for i=0..6; Y=$00B0 at i=0 or 2
+    /// and $00C0 otherwise. Native $A4:8F35-$8FB4 encodes these as ordered
+    /// immediate operands, not a contiguous table. All seven pairs and their
+    /// order match the local span; there is no eighth dust spawn.
+    /// </summary>
     private void PublishCrocomireBridgeCollapsePlms()
     {
         for (byte blockX = 0x61; blockX <= 0x6a; blockX++)

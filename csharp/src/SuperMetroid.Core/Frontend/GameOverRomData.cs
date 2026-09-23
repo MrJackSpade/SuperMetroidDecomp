@@ -90,6 +90,10 @@ public static class GameOverRomData
         public const ushort YesMissileY = 160;
         public const ushort NoMissileY = 192;
         public const int MissileFrameDuration = 8;
+        /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
+        /// <remarks>Issues #625 and #954: game-over animation wraps modulo this four-word
+        /// span; file select and options expose the same native table. All four words match
+        /// pinned NTSC J/U v1.0 ROM and bank_82.asm.</remarks>
         public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
     }
 

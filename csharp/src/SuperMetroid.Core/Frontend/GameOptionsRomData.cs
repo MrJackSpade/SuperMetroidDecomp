@@ -132,6 +132,11 @@ public static class GameOptionsRomData
         /// <summary>$82:F35B, special-heading border setup X position.</summary>
         public const ushort SpecialModeBorderX = 0x80;
         public const int MissileFrameDuration = 8;
+        /// <summary>Shared $82:BAB2 menu missile IDs, exactly $0037-frame for frame 0..3.</summary>
+        /// <remarks>Issues #625 and #954: options animation wraps modulo this four-word
+        /// span, and asset extraction iterates the same bounded domain. File select and
+        /// game over expose the same native table; all four words match pinned NTSC J/U
+        /// v1.0 ROM and bank_82.asm.</remarks>
         public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
     }
 }

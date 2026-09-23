@@ -8,6 +8,13 @@ internal static class FileSelectLayout
     /// <summary>Screen-space Y coordinates of the three save-slot helmet actors.</summary>
     public static readonly ushort[] HelmetY = [47, 87, 127];
     /// <summary>Four-frame menu missile animation, in native playback order.</summary>
+    /// <remarks>
+    /// Issues #625 and #954: this is the $82:BAB2 Draw_Menu_Selection_Missile
+    /// spritemap-ID table, shared with the game-over and options menus. For frame
+    /// 0..3, the exact ROM word is $0037-frame; the native caller wraps with AND #3.
+    /// The adjacent $82:BAAA four-word timer table is separate and contains four 8s.
+    /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all four IDs.
+    /// </remarks>
     public static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
 
     /// <summary>Main file-select border spritemap.</summary>

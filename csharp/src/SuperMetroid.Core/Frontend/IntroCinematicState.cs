@@ -56,6 +56,8 @@ public sealed partial class IntroCinematicState
         {
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
                 value.BackgroundCharacters.Transfer.Span);
+            vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
+                value.BackgroundPages.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
                 value.IntroObjectCharacters.Transfer.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,
@@ -131,7 +133,7 @@ public sealed partial class IntroCinematicState
             bus,
             IntroCinematicRomData.Assets.SamusHeadTilemap,
             maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes);
-        byte[] bg1Pages = RomDataReader.Decompress(
+        byte[] bg1Pages = characterArtwork?.BackgroundPages.ToArray() ?? RomDataReader.Decompress(
             bus,
             IntroCinematicRomData.Assets.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes);

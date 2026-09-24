@@ -106,6 +106,12 @@ compositions, scrolling, and timing are not changed by these PNGs. Stock files a
 survive repair and application updates. Invalid overrides fail with their paths
 instead of silently falling back.
 
+The same directory also contains `intro-background-page-0.json` through
+`intro-background-page-3.json`. Each file describes one ordered 32x32 BG tilemap page
+with tile column/row, palette, priority and flip fields. Copy an individual page
+under `overrides/intro-cinematic/` to edit its placement without changing character
+pixels or scene timing. These pages are reloaded after debugger-state restoration.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

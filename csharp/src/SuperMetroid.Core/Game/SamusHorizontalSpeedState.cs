@@ -335,7 +335,8 @@ public sealed class SamusHorizontalSpeedState
         ushort equippedItems,
         bool suppressActiveSpeedBoosterPalette = false,
         bool bottomBoundarySubmerged = false,
-        SamusSuitColorCatalog? suitColors = null)
+        SamusSuitColorCatalog? suitColors = null,
+        SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -381,7 +382,7 @@ public sealed class SamusHorizontalSpeedState
                 return true;
             }
 
-            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset);
+            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset, cycleColors);
             return true;
         }
 
@@ -398,7 +399,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset);
+            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset, cycleColors);
             return true;
         }
 
@@ -426,11 +427,14 @@ public sealed class SamusHorizontalSpeedState
                 SamusPaletteRomData.Banks.Movement |
                     unchecked((ushort)(paletteList + SpecialPaletteFrame)));
         }
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | palettePointer,
-            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        if (catalogued && cycleColors is not null)
+            cycleColors.Apply(cgram, palettePointer);
+        else
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.Banks.Palette | palettePointer,
+                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         // Native advances offsets 0,2,4,6 and then pins six. No out-of-range lookup occurs
         // in reachable play because initialization and cancellation both reset the word.
@@ -469,7 +473,8 @@ public sealed class SamusHorizontalSpeedState
     private void CopyAndAdvanceScrewAttackPalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        ushort suitTableOffset)
+        ushort suitTableOffset,
+        SamusFullBodyCycleColorCatalog? cycleColors)
     {
         bool catalogued = SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
             suitTableOffset, SpecialPaletteFrame, out ushort palettePointer);
@@ -482,11 +487,14 @@ public sealed class SamusHorizontalSpeedState
                 SamusPaletteRomData.Banks.Movement |
                     unchecked((ushort)(paletteList + SpecialPaletteFrame)));
         }
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | palettePointer,
-            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        if (catalogued && cycleColors is not null)
+            cycleColors.Apply(cgram, palettePointer);
+        else
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.Banks.Palette | palettePointer,
+                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
         // offset, so ten wraps to zero only after its palette has been copied.

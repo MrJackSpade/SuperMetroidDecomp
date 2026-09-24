@@ -470,7 +470,8 @@ public sealed class SamusShinesparkState
     /// when its signed countdown expires.
     /// </summary>
     public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
-        SamusSuitColorCatalog? suitColors = null)
+        SamusSuitColorCatalog? suitColors = null,
+        SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -515,11 +516,14 @@ public sealed class SamusShinesparkState
                 SamusPaletteRomData.Banks.Movement |
                     unchecked((ushort)(listPointer + PaletteFrameOffset)));
         }
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | palettePointer,
-            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        if (catalogued && cycleColors is not null)
+            cycleColors.Apply(cgram, palettePointer);
+        else
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.Banks.Palette | palettePointer,
+                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         ushort exclusiveLimit = PaletteType == 1 ? (ushort)12 : (ushort)8;
         PaletteFrameOffset = unchecked((ushort)(PaletteFrameOffset + 2));

@@ -34,6 +34,14 @@ public sealed partial class SamusState
         set => suitColors = value;
     }
 
+    [NonSerialized] private SamusFullBodyCycleColorCatalog? fullBodyCycleColors;
+    /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
+    public SamusFullBodyCycleColorCatalog? FullBodyCycleColors
+    {
+        get => fullBodyCycleColors;
+        set => fullBodyCycleColors = value;
+    }
+
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.

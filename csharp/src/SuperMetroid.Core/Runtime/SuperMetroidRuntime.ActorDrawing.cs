@@ -101,7 +101,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray,
                     bottomBoundarySubmerged:
                         Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus),
-                    suitColors: mapPresentation?.SamusSuitColors);
+                    suitColors: mapPresentation?.SamusSuitColors,
+                    cycleColors: mapPresentation?.SamusFullBodyCycleColors);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // execute only when charge handling returned carry clear.
@@ -111,7 +112,8 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Cgram,
                     Samus.EquippedItems,
-                    mapPresentation?.SamusSuitColors);
+                    mapPresentation?.SamusSuitColors,
+                    mapPresentation?.SamusFullBodyCycleColors);
             }
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but

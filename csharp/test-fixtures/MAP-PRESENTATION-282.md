@@ -1637,3 +1637,22 @@ checks edits for all three live CGRAM palettes and normal-restoration paths,
 forbids reads of the original suit palette data during those paths, and
 checks malformed colors, content identity, and override removal. The full
 verifier covers the existing stock gameplay palette behavior.
+
+## Editable Samus full-body cycle colors (#536, #541, #549)
+
+Catalog version 68 adds `samus-full-body-cycle-colors.json`. It has named
+`speedBooster`, `screwAttack`, `storedShine`, and `activeShinespark` families;
+each is ordered Power/Varia/Gravity Suit, with four distinct shades per suit
+and sixteen RGB5 colors per shade. Copy the stock JSON to `overrides/maps` to
+edit it. The compiled cartridge selectors still choose suit, phase, timing,
+and pointer. The six-frame Screw Attack and stored-shine cycles revisit shades
+two and one; they are not duplicated in the editable file. Metroid attachment
+uses the fourth Speed Booster shade.
+
+`--map-presentation` checks all 768 stock color words against the pinned ROM,
+then exercises every family, suit, and phase through the real palette handlers
+with those source colors forbidden on the runtime bus. It checks four edited
+shades, attachment flash, live catalog rebind, invalid RGB5 data, content
+identity, and override removal. Non-catalogued restored/debugger phase words
+retain their existing native adjacent-data reads rather than being mapped to
+an unrelated editable shade.

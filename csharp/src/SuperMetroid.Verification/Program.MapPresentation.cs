@@ -123,6 +123,7 @@ internal static partial class Program
         VerifySamusVisorColorOverride(stock, overrides, original, bus);
         VerifySamusHurtColorOverride(stock, overrides, original, bus);
         VerifySamusSuitColorOverride(stock, overrides, original, bus);
+        VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus);
         VerifySamusHyperBeamColorOverride(stock, overrides, original, bus);
         VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original);
         VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original);

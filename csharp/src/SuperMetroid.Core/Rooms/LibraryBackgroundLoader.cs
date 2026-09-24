@@ -35,12 +35,22 @@ public static class LibraryBackgroundLoader
                 $"Library-background pointers must address the high half of bank $8F, not ${listPointer:X4}.");
         }
 
-        return LibraryBackgroundProgramDefinitions.TryGet(listPointer,
-                out LibraryBackgroundProgram program)
-            ? ExecuteCompiled(bus, vram, program, activeDoorPointer,
-                tilemapArt, skyArt, hudArt, characterArt)
-            : ExecuteNative(bus, vram, listPointer, activeDoorPointer,
+        if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
+                out LibraryBackgroundProgram program))
+            return ExecuteCompiled(bus, vram, program, activeDoorPointer,
                 tilemapArt, skyArt, hudArt, characterArt);
+
+        // All retail high-bank lists are compiled. Once the host has bound every
+        // direct-transfer catalog, a missing list is a definition error rather
+        // than permission to interpret unknown cartridge bytes at runtime.
+        // Reference fixtures can still call ExecuteNativeForVerification explicitly.
+        if (tilemapArt is not null && skyArt is not null && hudArt is not null &&
+            characterArt is not null)
+            throw new InvalidDataException(
+                $"Installed library-background program $8F:{listPointer:X4} is not compiled.");
+
+        return ExecuteNative(bus, vram, listPointer, activeDoorPointer,
+            tilemapArt, skyArt, hudArt, characterArt);
     }
 
     private static LibraryBackgroundExecutionResult ExecuteCompiled(

@@ -73,6 +73,21 @@ internal static partial class Program
 
         AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
             "library background parity included door-selected variants");
+        var unknownListBus = new LibraryBackgroundUnknownListReadGuard(inventoryBus);
+        try
+        {
+            LibraryBackgroundLoader.Execute(unknownListBus, new SnesVram(), 0xf000, 0,
+                backgrounds, skies, hud, characters);
+            throw new InvalidOperationException(
+                "Installed library background accepted an uncompiled bank-$8F list.");
+        }
+        catch (InvalidDataException error)
+        {
+            AssertTrue(error.Message.Contains("$8F:F000", StringComparison.Ordinal),
+                "unknown installed background list identifies its pointer");
+        }
+        AssertEqual(0, unknownListBus.ForbiddenReadAttempts,
+            "installed background rejects unknown list before any cartridge read");
         VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters);
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
             "match installed VRAM/WRAM without command-list or visual ROM-source reads.");
@@ -107,7 +122,7 @@ internal static partial class Program
             WriteWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
             try
             {
-                LibraryBackgroundLoader.Execute(bus, new SnesVram(), listPointer, 0,
+                LibraryBackgroundLoader.ExecuteNativeForVerification(bus, new SnesVram(), listPointer, 0,
                     backgrounds, skies, hud, characters);
                 throw new InvalidOperationException(
                     $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
@@ -135,12 +150,31 @@ internal static partial class Program
         WriteWord(stagedBus, commandAddress + 7, 2);
         WriteWord(stagedBus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
         var stagedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(stagedBus, stagedVram, listPointer, 0,
+        LibraryBackgroundLoader.ExecuteNativeForVerification(stagedBus, stagedVram, listPointer, 0,
             backgrounds, skies, hud, characters);
         AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
             "installed-art binding retains WRAM background transfer low byte");
         AssertEqual((byte)0x34, stagedVram.ReadByte(0x9001),
             "installed-art binding retains WRAM background transfer high byte");
+    }
+
+    private sealed class LibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace
+    {
+        public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (address is >= 0x8ff000 and <= 0x8fffff)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Installed background interpreted unknown list at ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private sealed class LibraryBackgroundVisualReadGuard(

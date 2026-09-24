@@ -892,6 +892,11 @@ if (args is ["--door-closing-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--shot-block-plm-programs"])
+{
+    VerifyShotBlockPlmPrograms();
+    return 0;
+}
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(
@@ -2413,6 +2418,7 @@ VerifyControlledRedTowerHeroShot();
 VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();
+VerifyShotBlockPlmPrograms();
 VerifyCompactWalkOffCollision();
 VerifyPauseMomentumReconciliation();
 VerifyBombChargeRejection();

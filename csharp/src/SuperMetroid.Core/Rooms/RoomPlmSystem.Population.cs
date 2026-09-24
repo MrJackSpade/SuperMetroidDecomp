@@ -208,9 +208,10 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.HeaderPointer = record.HeaderPointer;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = ReadBank84Word(
-                bus,
-                unchecked((ushort)(record.HeaderPointer + 2)));
+            slot.InstructionPointer = DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
+                    record.HeaderPointer, out ushort compiledInstruction)
+                ? compiledInstruction
+                : ReadBank84Word(bus, unchecked((ushort)(record.HeaderPointer + 2)));
             slot.InstructionTimer = 1;
             slot.RoomArgument = record.RoomArgument;
             return slot;

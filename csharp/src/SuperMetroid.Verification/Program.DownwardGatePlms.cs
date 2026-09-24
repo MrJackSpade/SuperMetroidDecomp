@@ -45,6 +45,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyDownwardGatePlms()
     {
+        VerifyDownwardGateHeaderDefinitions();
         VerifyDownwardGateProgramDefinitions();
         VerifyDownwardGateDrawDefinitions();
         VerifyDownwardGateVisuals();
@@ -67,6 +68,27 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Downward gates: setup, slot order, actor handoff, and all eight shot filters agree.");
+    }
+
+    private static void VerifyDownwardGateHeaderDefinitions()
+    {
+        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        foreach (ushort header in new ushort[]
+                 { RoomPlmHeaders.DownwardGate, RoomPlmHeaders.DownwardGateShotBlock })
+        {
+            AssertTrue(DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
+                    header, out ushort compiled),
+                $"gate header $84:{header:X4} has a compiled initial list");
+            ushort address = checked((ushort)(header + 2));
+            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8));
+            AssertEqual(native, compiled,
+                $"gate header $84:{header:X4} first instruction matches ROM");
+        }
+        AssertTrue(!DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
+                RoomPlmHeaders.ElevatorPlatform, out _),
+            "gate header catalog does not claim unrelated room objects");
     }
 
     private static void VerifyDownwardGateDrawDefinitions()
@@ -312,8 +334,8 @@ internal static partial class Program
             0x36, 0xc8, gateX, gateY, unchecked((byte)argument), 0x00,
             0x00, 0x00,
         ]);
-        WriteWord(bus, 0x84c82c, RoomPlmInstructionLists.DownwardGateOpening);
-        WriteWord(bus, 0x84c838, RoomPlmInstructionLists.Delete);
+        // Gate header first-list words are intentionally absent; the population
+        // allocator must use the compiled definitions before gate setup/dispatch.
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
         SeedDownwardGateProjectileRom(bus);
 
@@ -332,7 +354,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { DownwardGateVisuals = visuals };
         int parsed = plms.LoadRoomPopulation(
-            bus,
+            new DownwardGateHeaderReadGuard(bus),
             level,
             streamer,
             new SnesVram(),
@@ -343,6 +365,22 @@ internal static partial class Program
             isAreaTorizoDefeated: () => false);
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
+    }
+
+    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if (address is >= DownwardGatePlmHeaderDefinitions.ResidentInitialInstructionAddress and
+                <= DownwardGatePlmHeaderDefinitions.ResidentInitialInstructionAddress + 1 or
+                >= DownwardGatePlmHeaderDefinitions.ShotBlockInitialInstructionAddress and
+                <= DownwardGatePlmHeaderDefinitions.ShotBlockInitialInstructionAddress + 1)
+                throw new InvalidOperationException(
+                    $"Gate population read compiled header word ${address:X6}.");
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private static void StepDownwardGatePlm(

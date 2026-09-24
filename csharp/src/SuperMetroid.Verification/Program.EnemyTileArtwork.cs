@@ -234,6 +234,6 @@ internal static partial class Program
         {
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
-        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
+        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
     }
 }

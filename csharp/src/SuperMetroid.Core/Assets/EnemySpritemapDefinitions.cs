@@ -11,12 +11,15 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 5;
-    internal const int PreviousVersion = 4;
-    internal const int PreviousFrameCount = 47;
+    internal const int Version = 6;
+    internal const int PreviousVersion = 5;
+    internal const int PreviousFrameCount = 69;
+    internal const int LegacyVersion = 4;
+    internal const int LegacyFrameCount = 47;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
+    internal const byte WaverBank = 0xa3;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -94,6 +97,16 @@ internal static class EnemySpritemapDefinitions
         new(SkulteraBank, 0x945e, "skultera_turn_left_5"),
         new(SkulteraBank, 0x9474, "skultera_turn_left_6"),
         new(SkulteraBank, 0x948f, "skultera_turn_left_7"),
+        new(WaverBank, 0x884a, "waver_steady_left"),
+        new(WaverBank, 0x88b3, "waver_steady_right"),
+        new(WaverBank, 0x885b, "waver_spin_left_0"),
+        new(WaverBank, 0x8871, "waver_spin_left_1"),
+        new(WaverBank, 0x881e, "waver_spin_left_2"),
+        new(WaverBank, 0x8834, "waver_spin_left_3"),
+        new(WaverBank, 0x88c4, "waver_spin_right_0"),
+        new(WaverBank, 0x88da, "waver_spin_right_1"),
+        new(WaverBank, 0x8887, "waver_spin_right_2"),
+        new(WaverBank, 0x889d, "waver_spin_right_3"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -118,12 +131,34 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.BoulderDefinition => BoulderFrameAt(operandAddress),
             RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
             RoomEnemySystem.SkulteraDefinition => SkulteraFrameAt(operandAddress),
+            RoomEnemySystem.WaverDefinition => WaverFrameAt(operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.BoulderDefinition or
-            RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition;
+            RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition or
+            RoomEnemySystem.WaverDefinition;
     }
+
+    /// <summary>
+    /// Waver's two steady and eight spinning frames from the interleaved visual
+    /// operands at $A3:86A9-$86D5. Spin completion and delays remain mechanics.
+    /// </summary>
+    internal static ushort WaverFrameAt(ushort operandAddress) => operandAddress switch
+    {
+        0x86a9 => 0x884a,
+        0x86af => 0x88b3,
+        0x86b5 => 0x885b,
+        0x86b9 => 0x8871,
+        0x86bd => 0x881e,
+        0x86c1 => 0x8834,
+        0x86c9 => 0x88c4,
+        0x86cd => 0x88da,
+        0x86d1 => 0x8887,
+        0x86d5 => 0x889d,
+        _ => throw new InvalidDataException(
+            $"Waver visual operand $A3:{operandAddress:X4} is not compiled."),
+    };
 
     /// <summary>
     /// The twenty-two Skultera frame operands are fixed visual identities; control

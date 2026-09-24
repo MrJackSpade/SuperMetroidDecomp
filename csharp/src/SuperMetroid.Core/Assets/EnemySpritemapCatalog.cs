@@ -48,16 +48,23 @@ public sealed class EnemySpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy composition JSON.", error);
         }
-        bool previousOverride = document.Version == EnemySpritemapDefinitions.PreviousVersion &&
-            stockForLegacyOverride is not null;
-        ReadOnlySpan<EnemySpritemapDefinition> expected = previousOverride
-            ? EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreviousFrameCount]
-            : EnemySpritemapDefinitions.Frames;
-        if (document.Version != (previousOverride
-                ? EnemySpritemapDefinitions.PreviousVersion
-                : EnemySpritemapDefinitions.Version) ||
+        int expectedCount = document.Version switch
+        {
+            EnemySpritemapDefinitions.LegacyVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.LegacyFrameCount,
+            EnemySpritemapDefinitions.PreviousVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreviousFrameCount,
+            EnemySpritemapDefinitions.Version => EnemySpritemapDefinitions.Frames.Length,
+            _ => -1,
+        };
+        bool legacyOverride = expectedCount >= 0 &&
+            expectedCount != EnemySpritemapDefinitions.Frames.Length;
+        ReadOnlySpan<EnemySpritemapDefinition> expected = expectedCount >= 0
+            ? EnemySpritemapDefinitions.Frames[..expectedCount]
+            : [];
+        if (expectedCount < 0 ||
             document.Frames is null || document.Frames.Count != expected.Length ||
-            (previousOverride && stockForLegacyOverride!.frames.Count !=
+            (legacyOverride && stockForLegacyOverride!.frames.Count !=
                 EnemySpritemapDefinitions.Frames.Length))
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
@@ -74,7 +81,7 @@ public sealed class EnemySpritemapCatalog
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
         }
-        if (!previousOverride)
+        if (!legacyOverride)
             return new EnemySpritemapCatalog(frames);
         var merged = new Dictionary<int, EnemySpritemapPart[]>(stockForLegacyOverride!.frames);
         foreach ((int identity, EnemySpritemapPart[] parts) in frames)

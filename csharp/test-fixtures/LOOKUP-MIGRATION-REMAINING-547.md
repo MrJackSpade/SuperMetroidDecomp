@@ -1118,14 +1118,16 @@ as restored mechanics cursors, and warmed lookup is allocation-free.
 
 Waver's left/right steady and spinning programs now share a strict
 `WaverInstructionProgramDefinitions` boundary. Sixteen immutable durations,
-spin-completion callbacks, and sleep words are compiled; ten interleaved spritemap
-operands remain live presentation reads. The separately verified selector table now
-names these program entries rather than duplicating their numeric addresses.
+spin-completion callbacks, and sleep words are compiled. The ten interleaved
+visual selectors are compiled and their ordinary OAM frames are installed in
+the editable `enemy-compositions.json` catalog. The separately verified selector
+table names these program entries rather than duplicating their numeric addresses.
 
-Production verification runs every program through its terminal sleep with all compiled
-mechanics bytes forbidden, observes all ten spritemaps, and proves both spinning callbacks
-publish completion. Presentation and adjacent selector-table pointers fail as restored
-mechanics cursors, and warmed lookup is allocation-free.
+Production verification runs every program through its terminal sleep with all
+mechanics and visual-selector source bytes forbidden, checks all ten selected
+values against the pinned ROM, and proves both spinning callbacks publish
+completion. The installed OAM frames match stock output and an edited frame
+changes live drawing without affecting the movement program.
 
 ## Skree and Metaree instruction mechanics
 

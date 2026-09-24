@@ -47,6 +47,8 @@ internal static partial class Program
                             ? RoomEnemySystem.BoulderDefinition
                             : frame.Name.StartsWith("skultera_", StringComparison.Ordinal)
                                 ? RoomEnemySystem.SkulteraDefinition
+                                : frame.Name.StartsWith("waver_", StringComparison.Ordinal)
+                                    ? RoomEnemySystem.WaverDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
@@ -92,6 +94,11 @@ internal static partial class Program
         document.Frames["skultera_swim_left_0"][0] = skulteraPart with
         {
             OffsetY = skulteraPart.OffsetY + 1,
+        };
+        SpriteVisualPart waverPart = document.Frames["waver_steady_left"][0];
+        document.Frames["waver_steady_left"][0] = waverPart with
+        {
+            OffsetY = waverPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -151,11 +158,21 @@ internal static partial class Program
             "authored Skultera Y offset changes live room OAM");
         AssertEqual(stockSkultera.LowTable[0], editedSkultera.LowTable[0],
             "Skultera visual override leaves X unchanged");
+        ushort waverPointer = EnemySpritemapDefinitions.WaverFrameAt(0x86a9);
+        var stockWaver = DrawEnemy(stock, new FrameReadGuard(rom),
+            waverPointer, RoomEnemySystem.WaverDefinition);
+        var editedWaver = DrawEnemy(edited, new FrameReadGuard(rom),
+            waverPointer, RoomEnemySystem.WaverDefinition);
+        AssertEqual(unchecked((byte)(stockWaver.LowTable[1] + 1)),
+            editedWaver.LowTable[1],
+            "authored Waver Y offset changes live room OAM");
+        AssertEqual(stockWaver.LowTable[0], editedWaver.LowTable[0],
+            "Waver visual override leaves X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
         var previousFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("skultera_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("waver_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreviousFrameCount,
             previousFrames.Count, "previous enemy composition schema frame count");
@@ -173,8 +190,33 @@ internal static partial class Program
             skulteraPointer, RoomEnemySystem.SkulteraDefinition);
         AssertEqual(editedOam.LowTable[0], upgradedBoyon.LowTable[0],
             "previous-version override retains edited Boyon composition");
-        AssertTrue(stockSkultera.LowTable.SequenceEqual(upgradedSkultera.LowTable),
-            "previous-version override gains stock Skultera composition");
+        AssertEqual(editedSkultera.LowTable[1], upgradedSkultera.LowTable[1],
+            "previous-version override retains edited Skultera composition");
+        var upgradedWaver = DrawEnemy(upgraded, new FrameReadGuard(rom),
+            waverPointer, RoomEnemySystem.WaverDefinition);
+        AssertTrue(stockWaver.LowTable.SequenceEqual(upgradedWaver.LowTable),
+            "previous-version override gains stock Waver composition");
+        var legacyFrames = previousFrames
+            .Where(pair => !pair.Key.StartsWith("skultera_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.LegacyFrameCount,
+            legacyFrames.Count, "legacy enemy composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.LegacyVersion,
+                Frames = legacyFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog legacyUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        var legacyBoyon = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
+            framePointer, RoomEnemySystem.BoyonDefinition);
+        var legacySkultera = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
+            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+        AssertEqual(editedOam.LowTable[0], legacyBoyon.LowTable[0],
+            "legacy override retains edited Boyon composition");
+        AssertTrue(stockSkultera.LowTable.SequenceEqual(legacySkultera.LowTable),
+            "legacy override gains stock Skultera composition");
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1,\"frames\":{}}");
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
@@ -199,7 +241,8 @@ internal static partial class Program
                     ? EnemySpritemapDefinitions.BoulderBank
                     : definition == RoomEnemySystem.AtomicDefinition
                         ? EnemySpritemapDefinitions.AtomicBank
-                        : definition == RoomEnemySystem.SkulteraDefinition
+                        : definition == RoomEnemySystem.SkulteraDefinition ||
+                          definition == RoomEnemySystem.WaverDefinition
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
@@ -219,6 +262,7 @@ internal static partial class Program
                 >= 0xa2a0bb and < 0xa2a377 or
                 >= 0xa68a59 and < 0xa68b09 or
                 >= 0xa8e489 and < 0xa8e587 or
+                >= 0xa3881e and < 0xa388f0 or
                 >= 0xa3928a and < 0xa394aa)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");

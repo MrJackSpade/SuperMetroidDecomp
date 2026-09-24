@@ -215,16 +215,16 @@ the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
 The same directory contains `enemy-compositions.json` with named Boyon,
-Cacatac, Boulder, Atomic, and Skultera visual frames. Copy it to `overrides/enemy-tiles/` to edit a frame's ordered OAM
+Cacatac, Boulder, Atomic, Skultera, and Waver visual frames. Copy it to
+`overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
 `flipX`, or `flipY`. Frame timing and selection, enemy hitboxes, movement, and
 damage remain engine-owned. The stock JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-An existing version-four override remains valid after the Skultera stock frames
-are added: its older edited frames are retained, and only the new Skultera
-frames are supplied from verified stock content. Save a version-five copy if
-you want to edit Skultera frames as well.
+Existing version-four and version-five overrides remain valid: their edited
+frames are retained, while newly introduced Skultera or Waver frames come from
+verified stock content. Save a current version-six copy to edit Waver frames.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
 `overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains

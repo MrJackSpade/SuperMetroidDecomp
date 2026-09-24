@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -52,18 +53,20 @@ internal static partial class Program
                 state.SpinFinished, $"Waver {selector} spin-completion callback");
         }
 
-        AssertEqual(
-            WaverInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Waver spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Waver production programs never read installed visual selectors");
         for (int index = 0;
              index < WaverInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = WaverInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Waver presentation word $A3:{address:X4}");
+            AssertEqual(ReadWaverInstructionWord(rom, 0xa30000 | address),
+                EnemySpritemapDefinitions.WaverFrameAt(address),
+                $"compiled Waver frame selection $A3:{address:X4}");
         }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.WaverFrameAt(0x86db),
+            "unlisted Waver frame selector fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Waver mechanics byte");
 
@@ -84,8 +87,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Waver instruction mechanics: sixteen compiled words, both steady and both " +
-            "spinning programs, completion callbacks, sleeps, and ten live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "spinning programs, completion callbacks, and sleeps pass with all " +
+            "ten visual-selector and mechanics source words forbidden.");
 
         static RoomEnemySystem CreateWaverProgramSystem(
             WaverInstructionProgramReadGuard guard,
@@ -140,7 +143,7 @@ internal static partial class Program
     private sealed class WaverInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -164,8 +167,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Waver selector ${address:X6}.");
                     }
                 }
             }

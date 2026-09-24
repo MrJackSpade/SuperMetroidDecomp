@@ -270,9 +270,9 @@ public static class EnemyTileArtworkFiles
         EnemySpritemapCatalog spritemaps;
         try
         {
-            // A version-four override contains every old frame but cannot know the
-            // newly introduced Skultera identities. Merge only that validated old
-            // schema onto the verified new stock catalog, leaving user edits intact.
+            // Older overrides cannot know the later Skultera and Waver identities.
+            // Merge only their validated frames onto verified current stock content,
+            // preserving existing user edits through an extraction upgrade.
             string stockCompositionPath = Path.Combine(
                 stockDirectory, EnemySpritemapDefinitions.FileName);
             byte[] stockComposition = File.ReadAllBytes(stockCompositionPath);

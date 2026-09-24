@@ -53,15 +53,32 @@ internal static partial class Program
 
             drawCount++;
         }
-        AssertEqual(12, drawCount, "every station animation draw list is compiled");
+        AssertEqual(20, drawCount, "every station animation and access draw list is compiled");
         AssertTrue(!RoomPlmStationDrawDefinitions.TryGet(0x9a40, out _),
             "adjacent ROM bytes cannot alias a complete station draw list");
 
-        // The population fixture carries no station animation or draw-list bytes.
+        foreach (StationAccessPlmDefinition definition in StationAccessPlmDefinitions.All)
+        {
+            int firstDrawOffset = definition.Behavior is
+                StationAccessBehavior.MapLeft or StationAccessBehavior.MapRight ? 5 : 9;
+            for (int extended = 0; extended < 2; extended++)
+            {
+                ushort nativePointer = ReadStationRomWord(rom,
+                    definition.InstructionListPointer + firstDrawOffset + extended * 4);
+                AssertEqual(nativePointer, definition.DrawPointer(extended != 0),
+                    $"{definition.Behavior} {(extended == 0 ? "retracted" : "extended")} " +
+                    "access draw selection matches ROM");
+                AssertTrue(RoomPlmStationDrawDefinitions.TryGet(nativePointer, out _),
+                    $"{definition.Behavior} selected access draw list is compiled");
+            }
+        }
+
+        // The population fixture carries no station animation, access selection,
+        // or draw-list bytes.
         // Its real map, missile, and save paths can finish only with compiled data.
         VerifySequentialRoomPlmPopulationLoader();
         Console.WriteLine(
-            "Station animations: all 15 frame records and 12 draw lists match ROM; sparse-bus station activation and save animation use compiled data.");
+            "Station animations: all 15 frame records, 20 draw lists, and 12 access selections match ROM; sparse-bus station activation and save animation use compiled data.");
     }
 
     private static ushort ReadStationRomWord(SuperMetroidAddressSpace rom, int address) =>

@@ -5,27 +5,33 @@ internal static class StationAccessPlmDefinitions
 {
     /// <summary><c>$84:B6D7/$AD86</c>, map-station access from its right side.</summary>
     public static readonly StationAccessPlmDefinition MapRight =
-        new(StationAccessBehavior.MapRight, RoomPlmHeaders.MapStationRightAccess, 0xad86);
+        new(StationAccessBehavior.MapRight, RoomPlmHeaders.MapStationRightAccess,
+            0xad86, 0x9f49, 0x9f55);
 
     /// <summary><c>$84:B6DB/$ADA4</c>, map-station access from its left side.</summary>
     public static readonly StationAccessPlmDefinition MapLeft =
-        new(StationAccessBehavior.MapLeft, RoomPlmHeaders.MapStationLeftAccess, 0xada4);
+        new(StationAccessBehavior.MapLeft, RoomPlmHeaders.MapStationLeftAccess,
+            0xada4, 0x9f5b, 0x9f67);
 
     /// <summary><c>$84:B6E3/$ADF1</c>, energy-station access from its right side.</summary>
     public static readonly StationAccessPlmDefinition EnergyRight =
-        new(StationAccessBehavior.EnergyRight, RoomPlmHeaders.EnergyStationRightAccess, 0xadf1);
+        new(StationAccessBehavior.EnergyRight, RoomPlmHeaders.EnergyStationRightAccess,
+            0xadf1, 0x9fb5, 0x9fbb);
 
     /// <summary><c>$84:B6E7/$AE13</c>, energy-station access from its left side.</summary>
     public static readonly StationAccessPlmDefinition EnergyLeft =
-        new(StationAccessBehavior.EnergyLeft, RoomPlmHeaders.EnergyStationLeftAccess, 0xae13);
+        new(StationAccessBehavior.EnergyLeft, RoomPlmHeaders.EnergyStationLeftAccess,
+            0xae13, 0x9fc1, 0x9fc7);
 
     /// <summary><c>$84:B6EF/$AE7B</c>, missile-station access from its right side.</summary>
     public static readonly StationAccessPlmDefinition MissileRight =
-        new(StationAccessBehavior.MissileRight, RoomPlmHeaders.MissileStationRightAccess, 0xae7b);
+        new(StationAccessBehavior.MissileRight, RoomPlmHeaders.MissileStationRightAccess,
+            0xae7b, 0x9fb5, 0x9fbb);
 
     /// <summary><c>$84:B6F3/$AE9D</c>, missile-station access from its left side.</summary>
     public static readonly StationAccessPlmDefinition MissileLeft =
-        new(StationAccessBehavior.MissileLeft, RoomPlmHeaders.MissileStationLeftAccess, 0xae9d);
+        new(StationAccessBehavior.MissileLeft, RoomPlmHeaders.MissileStationLeftAccess,
+            0xae9d, 0x9fc1, 0x9fc7);
 
     private static readonly StationAccessPlmDefinition[] Definitions =
     [
@@ -57,4 +63,10 @@ internal static class StationAccessPlmDefinitions
 internal readonly record struct StationAccessPlmDefinition(
     StationAccessBehavior Behavior,
     ushort HeaderPointer,
-    ushort InstructionListPointer);
+    ushort InstructionListPointer,
+    ushort RetractedDrawPointer,
+    ushort ExtendedDrawPointer)
+{
+    internal ushort DrawPointer(bool extended) =>
+        extended ? ExtendedDrawPointer : RetractedDrawPointer;
+}

@@ -1320,6 +1320,12 @@ internal static partial class Program
         // their shared Samus owner at the native endpoint instead of looping access sound.
         for (int frame = 0; frame < 18; frame++)
             plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertEqual(0x8128, level.GetCollisionBlock(7, 6).LevelWord,
+            "map access retracts to its compiled right-side parent word");
+        AssertEqual(0x8528, level.GetCollisionBlock(4, 6).LevelWord,
+            "map access retracts its linked left-side block");
+        AssertEqual(0xb4c3, level.GetCollisionBlock(13, 6).LevelWord,
+            "missile access retracts to its compiled resource word");
         AssertTrue(!samus.InputLocked,
             "map/resource stations unlock Samus after post-message retraction");
 
@@ -1569,15 +1575,6 @@ internal static partial class Program
         WriteWord(bus, 0x84b6d5, 0xad62);
         WriteWord(bus, 0x84b6ed, 0xae4c);
         WriteWord(bus, 0x84b771, 0xafe8);
-        WriteWord(bus, 0x84ad8b, 0xa200);
-        WriteWord(bus, 0x84ad8f, 0xa206);
-        WriteWord(bus, 0x84adfa, 0xa20c);
-        WriteWord(bus, 0x84adfe, 0xa212);
-        WriteWord(bus, 0x84ae84, 0xa218);
-        WriteWord(bus, 0x84ae88, 0xa21e);
-        for (ushort draw = 0xa200; draw <= 0xa21e; draw += 6)
-            WriteOneBlockDraw(bus, draw, unchecked((ushort)(0xb100 + draw - 0xa200)));
-
         // Elevator's four synthetic frames. Station timing, pointer selection, and
         // draw payloads are compiled, so this sparse bus carries none of those bytes.
         SeedTimedDrawLoop(bus, 0xafb6, 4, 4, 0xa100);

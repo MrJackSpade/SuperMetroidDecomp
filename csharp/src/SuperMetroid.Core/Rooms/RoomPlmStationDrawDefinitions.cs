@@ -18,6 +18,22 @@ internal static class RoomPlmStationDrawDefinitions
     private const ushort SaveActive = 0x9a9f;
     /// <summary>Second active save-pod draw list at $84:9A6F.</summary>
     private const ushort SaveAlternate = 0x9a6f;
+    /// <summary>Retracted right-side map access draw at $84:9F49.</summary>
+    private const ushort MapRightRetracted = 0x9f49;
+    /// <summary>Extended right-side map access draw at $84:9F55.</summary>
+    private const ushort MapRightExtended = 0x9f55;
+    /// <summary>Retracted left-side map access draw at $84:9F5B.</summary>
+    private const ushort MapLeftRetracted = 0x9f5b;
+    /// <summary>Extended left-side map access draw at $84:9F67.</summary>
+    private const ushort MapLeftExtended = 0x9f67;
+    /// <summary>Retracted right-side resource access draw at $84:9FB5.</summary>
+    private const ushort ResourceRightRetracted = 0x9fb5;
+    /// <summary>Extended right-side resource access draw at $84:9FBB.</summary>
+    private const ushort ResourceRightExtended = 0x9fbb;
+    /// <summary>Retracted left-side resource access draw at $84:9FC1.</summary>
+    private const ushort ResourceLeftRetracted = 0x9fc1;
+    /// <summary>Extended left-side resource access draw at $84:9FC7.</summary>
+    private const ushort ResourceLeftExtended = 0x9fc7;
 
     private static readonly IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
@@ -48,6 +64,24 @@ internal static class RoomPlmStationDrawDefinitions
         AddSavePod(lists, SaveIdle, 0xb859, 0x8c59, 0x005b, 0x045b, 0x8059, 0x8459);
         AddSavePod(lists, SaveActive, 0x885a, 0x8c5a, 0x005c, 0x045c, 0x805a, 0x845a);
         AddSavePod(lists, SaveAlternate, 0x8859, 0x8c59, 0x005b, 0x045b, 0x8059, 0x8459);
+        Add(lists, MapRightRetracted,
+            new(1, new ushort[] { 0x8128 }, -3, 0),
+            new(1, new ushort[] { 0x8528 }, 0, 0));
+        Add(lists, MapRightExtended,
+            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x8129 }, 0, 0));
+        Add(lists, MapLeftRetracted,
+            new(1, new ushort[] { 0x8528 }, 3, 0),
+            new(1, new ushort[] { 0x8128 }, 0, 0));
+        Add(lists, MapLeftExtended,
+            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x8529 }, 0, 0));
+        Add(lists, ResourceRightRetracted,
+            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0xb4c3 }, 0, 0));
+        Add(lists, ResourceRightExtended,
+            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x84c1 }, 0, 0));
+        Add(lists, ResourceLeftRetracted,
+            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0xb0c3 }, 0, 0));
+        Add(lists, ResourceLeftExtended,
+            new RoomPlmShotBlockDrawDefinitions.Run(1, new ushort[] { 0x80c1 }, 0, 0));
         return lists;
     }
 

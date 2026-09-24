@@ -719,12 +719,7 @@ public sealed partial class RoomPlmSystem
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
-        ushort instructionList = definition.InstructionListPointer;
-        int firstDrawOffset = station.Kind == StationKind.Map ? 5 : 9;
-        int drawOffset = firstDrawOffset + (extended ? 4 : 0);
-        ushort drawPointer = ReadBank84Word(
-            bus,
-            unchecked((ushort)(instructionList + drawOffset)));
+        ushort drawPointer = definition.DrawPointer(extended);
         DrawRomInstruction(
             bus,
             level,

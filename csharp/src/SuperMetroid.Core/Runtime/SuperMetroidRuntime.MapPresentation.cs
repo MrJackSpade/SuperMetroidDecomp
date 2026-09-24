@@ -50,6 +50,7 @@ public sealed partial class SuperMetroidRuntime
         Samus.VisorPalette.PresentationColors = mapPresentation?.SamusVisorColors;
         Samus.Xray.PresentationColors = mapPresentation?.SamusVisorColors;
         Samus.Drained.PresentationColors = mapPresentation?.SamusHyperBeamColors;
+        Samus.SuitColors = mapPresentation?.SamusSuitColors;
     }
 
     private void PublishReboundHudArtwork()

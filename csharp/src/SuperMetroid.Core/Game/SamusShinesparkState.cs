@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -468,7 +469,8 @@ public sealed class SamusShinesparkState
     /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems)
+    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+        SamusSuitColorCatalog? suitColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -490,7 +492,7 @@ public sealed class SamusShinesparkState
             PaletteFrameOffset = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
-            LoadNormalSuitPalette(bus, cgram, equippedItems);
+            SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
             return true;
         }
 
@@ -934,20 +936,6 @@ public sealed class SamusShinesparkState
     }
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
-
-    private static void LoadNormalSuitPalette(
-        ISnesAddressSpace bus,
-        SnesCgram cgram,
-        ushort equippedItems)
-    {
-        ushort palette = SamusPaletteRomData.Common.NormalSuitPalettePointer(
-            equippedItems.GetSuitPaletteTableOffset());
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | palette,
-            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
-    }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));

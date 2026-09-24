@@ -296,7 +296,7 @@ public sealed partial class SamusProjectileSystem
             ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
             if (ChargedShotGlowTimer == 0)
             {
-                ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus.EquippedItems);
+                ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus);
                 LastBeamChargePaletteStep = new(
                     SamusBeamChargePaletteAction.RestoredNormalSuit,
                     timerBefore,
@@ -342,7 +342,7 @@ public sealed partial class SamusProjectileSystem
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
             ChargedShotGlowTimer = 0;
-            ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus.EquippedItems);
+            ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit,
                 timerBefore,

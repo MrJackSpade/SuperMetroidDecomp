@@ -280,6 +280,11 @@ public static class MapPresentationExtractor
             file.Write(samusHurtColorBytes);
         hashes.Add(SamusHurtColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(samusHurtColorBytes)));
+        byte[] samusSuitColorBytes = SamusSuitColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, SamusSuitColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(samusSuitColorBytes);
+        hashes.Add(SamusSuitColorFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(samusSuitColorBytes)));
         byte[] samusHyperBeamColorBytes = SamusHyperBeamColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusHyperBeamColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusHyperBeamColorBytes);

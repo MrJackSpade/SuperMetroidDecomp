@@ -213,18 +213,11 @@ public sealed partial class SamusProjectileSystem
     private static ushort LoadNormalSuitPalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        ushort equippedItems)
+        SamusState samus)
     {
-        // `SuitPaletteIndex` is a byte offset, not an ordinal: Power=0, Varia=2,
-        // Gravity=4. Gravity wins when externally stimulated state contains both bits.
-        ushort suitOffset = GetSuitPaletteOffset(equippedItems);
-        ushort pointer = SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
-        cgram.LoadFromBus(
-            bus,
-            SamusProjectileRomData.Banks.PaletteAndTrailData | pointer,
-            colorCount: SamusProjectileRomData.Palettes.ColorCount,
-            destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
-        return pointer;
+        // Preserve the native pointer as the diagnostic result while the installed
+        // color source replaces only the sixteen displayed BGR555 words.
+        return SamusNormalSuitPalette.Load(bus, cgram, samus.EquippedItems, samus.SuitColors);
     }
 
     private static ushort GetSuitPaletteOffset(ushort equippedItems) =>

@@ -1621,3 +1621,19 @@ pointer and color reads forbidden on the installed path. The map-presentation
 suite checks an edited frame reaching CGRAM through a runtime-bound Samus,
 invalid-resource failure, content identity, and stock restoration. The installer
 fixture verifies that user edits survive upgrade and restart.
+
+## Editable normal Samus suit colors (#536, #541, #549)
+
+Catalog version 67 adds `samus-suit-colors.json` with sixteen RGB5 colors each
+for Power, Varia, and Gravity Suit. Copy the stock file to `overrides/maps` to
+change the colors; only the displayed OBJ palette is editable. Equipment
+selection, palette priority, animation timing, and gameplay state remain in
+code. The same installed colors are used when normal suit colors are restored
+after hurt flashes, charge effects, Screw Attack frames, X-ray, shinespark,
+and drained sequences.
+
+`--map-presentation` compares all 48 stock colors against the pinned ROM,
+checks edits for all three live CGRAM palettes and normal-restoration paths,
+forbids reads of the original suit palette data during those paths, and
+checks malformed colors, content identity, and override removal. The full
+verifier covers the existing stock gameplay palette behavior.

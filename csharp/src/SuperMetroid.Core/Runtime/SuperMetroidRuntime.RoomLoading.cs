@@ -1371,7 +1371,7 @@ public sealed partial class SuperMetroidRuntime
             YPosition = 0,
         };
         BindSamusPalettePresentation();
-        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram);
+        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, mapPresentation?.SamusSuitColors);
 
         // Fresh-game loading has one deliberately non-general palette write after copying
         // every target color into the live palette: `$82:8190` clears color $DF (CGRAM

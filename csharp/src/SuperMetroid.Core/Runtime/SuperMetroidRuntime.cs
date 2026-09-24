@@ -1284,7 +1284,7 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
 
-        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram);
+        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, mapPresentation?.SamusSuitColors);
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);
         if (LandingSiteEntry is not null)

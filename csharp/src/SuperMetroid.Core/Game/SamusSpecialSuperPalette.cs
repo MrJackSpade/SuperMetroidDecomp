@@ -28,11 +28,14 @@ public static class SamusSpecialSuperPalette
         ushort palettePointer = (flags & 1) != 0
             ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(suitOffset)
             : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | palettePointer,
-            SamusPaletteRomData.Common.ColorsPerObjPalette,
-            SamusPaletteRomData.Common.SamusObjPaletteStart);
+        if ((flags & 1) == 0)
+            SamusNormalSuitPalette.Load(bus, cgram, samus.EquippedItems, samus.SuitColors);
+        else
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.Banks.Palette | palettePointer,
+                SamusPaletteRomData.Common.ColorsPerObjPalette,
+                SamusPaletteRomData.Common.SamusObjPaletteStart);
         samus.SpecialSuperPaletteFlags = unchecked((ushort)(flags + 1));
         return true;
     }

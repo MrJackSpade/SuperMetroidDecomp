@@ -531,7 +531,8 @@ public sealed class SamusXrayState
     public bool UpdatePalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        ushort equippedItems)
+        ushort equippedItems,
+        SamusSuitColorCatalog? suitColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -540,14 +541,7 @@ public sealed class SamusXrayState
         {
             // Carry clear from the native handler asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
-            ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
-            ushort palettePointer =
-                SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
-            cgram.LoadFromBus(
-                bus,
-                SamusXrayRomData.Palette.PaletteBank | palettePointer,
-                colorCount: SamusXrayRomData.Palette.SuitColorCount,
-                destinationIndex: SamusXrayRomData.Palette.SamusCgramIndex);
+            SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
             SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = 0;

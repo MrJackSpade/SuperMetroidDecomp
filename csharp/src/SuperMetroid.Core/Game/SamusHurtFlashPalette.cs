@@ -78,15 +78,9 @@ public static class SamusHurtFlashPalette
             }
             else
             {
-                ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
-                ushort palettePointer =
-                    SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
+                ushort palettePointer = SamusNormalSuitPalette.Load(
+                    bus, cgram, samus.EquippedItems, samus.SuitColors);
                 paletteAddress = SamusPaletteRomData.Banks.Palette | palettePointer;
-                cgram.LoadFromBus(
-                    bus,
-                    paletteAddress.Value,
-                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
                 action = SamusHurtFlashPaletteAction.NormalSuitRestore;
             }
         }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -25,22 +26,27 @@ public sealed partial class SamusState
     /// <summary>The exact pending bank-$92 definitions consumed by accepted NMI.</summary>
     public SamusTileTransferState TileTransfers { get; } = new();
 
+    [NonSerialized] private SamusSuitColorCatalog? suitColors;
+    /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
+    public SamusSuitColorCatalog? SuitColors
+    {
+        get => suitColors;
+        set => suitColors = value;
+    }
+
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
     /// </summary>
-    public static void LoadPowerSuitPalette(ISnesAddressSpace bus, SnesCgram cgram)
+    public static void LoadPowerSuitPalette(ISnesAddressSpace bus, SnesCgram cgram,
+        SamusSuitColorCatalog? suitColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
-        cgram.LoadFromBus(
-            bus,
-            SamusRenderingRomData.Body.PowerSuitPalette,
-            colorCount: SamusRenderingRomData.Body.SuitPaletteColorCount,
-            destinationIndex: SamusRenderingRomData.Body.SuitPaletteCgramIndex);
+        SamusNormalSuitPalette.LoadPower(bus, cgram, suitColors);
     }
 
     /// <summary>
@@ -52,16 +58,7 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        int paletteAddress = EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? SamusRenderingRomData.Body.GravitySuitPalette
-            : EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? SamusRenderingRomData.Body.VariaSuitPalette
-                : SamusRenderingRomData.Body.PowerSuitPalette;
-        cgram.LoadFromBus(
-            bus,
-            paletteAddress,
-            colorCount: SamusRenderingRomData.Body.SuitPaletteColorCount,
-            destinationIndex: SamusRenderingRomData.Body.SuitPaletteCgramIndex);
+        SamusNormalSuitPalette.Load(bus, cgram, EquippedItems, suitColors);
     }
 
     /// <summary>

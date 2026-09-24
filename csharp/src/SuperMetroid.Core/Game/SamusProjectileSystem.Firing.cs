@@ -47,7 +47,7 @@ public sealed partial class SamusProjectileSystem
         FlareCounter = 0;
         samus.ProjectileFlareCounter = 0;
         ClearFlareAnimationState();
-        LoadNormalSuitPalette(bus, cgram, samus.EquippedItems);
+        LoadNormalSuitPalette(bus, cgram, samus);
     }
 
     private void CancelCharge()

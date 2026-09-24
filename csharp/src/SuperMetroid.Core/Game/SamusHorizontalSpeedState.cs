@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
@@ -333,12 +334,13 @@ public sealed class SamusHorizontalSpeedState
         ushort animationFrame,
         ushort equippedItems,
         bool suppressActiveSpeedBoosterPalette = false,
-        bool bottomBoundarySubmerged = false)
+        bool bottomBoundarySubmerged = false,
+        SamusSuitColorCatalog? suitColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, equippedItems);
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, equippedItems, suitColors);
         ushort suitTableOffset = equippedItems.GetSuitPaletteTableOffset();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
@@ -375,7 +377,7 @@ public sealed class SamusHorizontalSpeedState
                 // Returning zero at `$91:D9EC` asks the outer palette dispatcher to copy
                 // the normal suit palette for Screw frames 1..26. Perform that copy here
                 // because CGRAM is the desktop runtime's directly visible palette buffer.
-                LoadNormalSuitPalette(bus, cgram, suitTableOffset);
+                LoadNormalSuitPalette(bus, cgram, equippedItems, suitColors);
                 return true;
             }
 
@@ -450,18 +452,15 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems)
+        ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+        SamusSuitColorCatalog? suitColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         if (!NormalSuitPaletteRestoreRequested)
             return false;
 
-        ushort normalPalette = SamusPaletteRomData.Common.NormalSuitPalettePointer(
-            equippedItems.GetSuitPaletteTableOffset());
-        cgram.LoadFromBus(bus, SamusPaletteRomData.Banks.Palette | normalPalette,
-            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
         NormalSuitPaletteRestoreRequested = false;
         return true;
     }
@@ -500,15 +499,10 @@ public sealed class SamusHorizontalSpeedState
     private static void LoadNormalSuitPalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        ushort suitTableOffset)
+        ushort equippedItems,
+        SamusSuitColorCatalog? suitColors)
     {
-        ushort normalPalette = SamusPaletteRomData.Common.NormalSuitPalettePointer(
-            suitTableOffset);
-        cgram.LoadFromBus(
-            bus,
-            SamusPaletteRomData.Banks.Palette | normalPalette,
-            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
     }
 
     /// <summary>

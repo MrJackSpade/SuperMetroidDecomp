@@ -62,9 +62,10 @@ public sealed partial class SuperMetroidRuntime
             // and drained palettes retain their native same-frame priority.
             if (!deathOwnsSamus)
                 Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                    _addressSpace, Cgram, Samus.EquippedItems);
+                    _addressSpace, Cgram, Samus.EquippedItems, mapPresentation?.SamusSuitColors);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
-                Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
+                Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems,
+                    mapPresentation?.SamusSuitColors);
             LastHurtFlashPaletteStep = default;
             LastVisorPaletteStep = default;
             bool chargeGlowRestoredNormalPalette = false;
@@ -99,7 +100,8 @@ public sealed partial class SuperMetroidRuntime
                             SamusSpecialPaletteType.CrystalFlash ||
                         Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray,
                     bottomBoundarySubmerged:
-                        Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus));
+                        Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus),
+                    suitColors: mapPresentation?.SamusSuitColors);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // execute only when charge handling returned carry clear.
@@ -108,7 +110,8 @@ public sealed partial class SuperMetroidRuntime
                 Samus.Shinespark.UpdatePalette(
                     _addressSpace,
                     Cgram,
-                    Samus.EquippedItems);
+                    Samus.EquippedItems,
+                    mapPresentation?.SamusSuitColors);
             }
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
@@ -128,7 +131,8 @@ public sealed partial class SuperMetroidRuntime
                 Samus.Xray.UpdatePalette(
                     _addressSpace,
                     Cgram,
-                    Samus.EquippedItems);
+                    Samus.EquippedItems,
+                    mapPresentation?.SamusSuitColors);
             }
             // `$91:D8A5` runs after every charge and special-palette family. A Metroid's
             // nonnegative super-special flag takes the alternating boost/normal branch and

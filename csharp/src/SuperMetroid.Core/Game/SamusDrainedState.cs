@@ -190,7 +190,8 @@ public sealed class SamusDrainedState
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems)
+    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+        SamusSuitColorCatalog? suitColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -200,14 +201,7 @@ public sealed class SamusDrainedState
             // `$90:F3E9` and `$91:E56B` choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
             // palette restoration path in bank `$91`.
-            ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
-            ushort palettePointer =
-                SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | palettePointer,
-                SamusPaletteRomData.Common.ColorsPerObjPalette,
-                SamusPaletteRomData.Common.SamusObjPaletteStart);
+            SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
             _suitPaletteRestoreRequested = false;
             return true;
         }

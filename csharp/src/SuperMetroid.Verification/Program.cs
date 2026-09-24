@@ -907,6 +907,11 @@ if (args is ["--bomb-block-programs"])
     VerifyBombBlockPrograms();
     return 0;
 }
+if (args is ["--contact-crumble-programs"])
+{
+    VerifyContactCrumblePrograms();
+    return 0;
+}
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(
@@ -2395,6 +2400,7 @@ VerifyXrayTilemap();
 VerifyXrayOverlays();
 VerifyBreakableGrapplePlms();
 VerifyBombBlockPrograms();
+VerifyContactCrumblePrograms();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();
 VerifySamusPostureMovement();

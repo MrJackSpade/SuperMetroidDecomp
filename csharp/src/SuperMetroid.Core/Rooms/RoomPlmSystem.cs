@@ -1845,6 +1845,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
@@ -1853,6 +1855,8 @@ public sealed partial class RoomPlmSystem
             : RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : bus.ReadByte(Bank84(address));
 

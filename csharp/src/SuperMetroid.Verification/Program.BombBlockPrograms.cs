@@ -124,7 +124,102 @@ internal static partial class Program
                 $"bomb BTS {behavior}/{producer} completes its native timeline");
         }
 
+        VerifyBombBlockVisualSeparation(rom, forbidden);
+
         Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, {restoreCount} restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
+    }
+
+    private static void VerifyBombBlockVisualSeparation(
+        SuperMetroidAddressSpace rom, HashSet<int> forbidden)
+    {
+        RoomPlmShotBlockVisualEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
+            .Select(list => new RoomPlmShotBlockVisualEntry(list.Pointer,
+                list.Runs.Span.ToArray().Select(run =>
+                    run.LevelWords.Span.ToArray().Select(word =>
+                        new RoomLevelWord(word).VisualWord).ToArray()).ToArray()))
+            .ToArray();
+        RoomPlmShotBlockVisualEntry first = entries.Single(entry =>
+            entry.DrawPointer == RoomPlmShotBlockDrawDefinitions.SingleFrame0);
+        first.Runs[0][0] = 0x0054;
+        var edited = new RoomPlmShotBlockVisualCatalog(entries);
+
+        (ushort physical, ushort immediate, ushort streamed) Render(
+            RoomPlmShotBlockVisualCatalog visuals)
+        {
+            const int width = 8;
+            const int blockIndex = 27;
+            var words = new ushort[width * width];
+            words[blockIndex] = 0xf321;
+            var definitions = new byte[0x400 * 8];
+            for (int tile = 0; tile < 4; tile++)
+            {
+                definitions[0x53 * 8 + tile * 2] = 0x17;
+                definitions[0x54 * 8 + tile * 2] = 0x18;
+            }
+
+            var level = new RoomLevelData(width, width, words,
+                new byte[words.Length], new ushort[words.Length], definitions);
+            var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
+            AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
+                "bomb visual test installs the real collision-triggered PLM");
+            plms.Step(new ShotBlockProgramReadGuard(rom, forbidden), level,
+                level.CreateBackgroundStreamer(), 0, 0, 0);
+            AssertEqual(1, plms.TilemapUpdates.Count,
+                "first bomb-break frame publishes one immediate tile upload");
+            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                plms.TilemapUpdates[0].TopRow[0],
+                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
+                    blockIndex, 0).TopRow[0]);
+        }
+
+        var stock = Render(RoomPlmShotBlockVisualCatalog.Stock());
+        var changed = Render(edited);
+        AssertEqual((ushort)0x0053, stock.physical,
+            "native bomb-break frame installs its original air collision word");
+        AssertEqual(stock.physical, changed.physical,
+            "shared breakup-art edit cannot change bomb-block physical collision");
+        AssertEqual((ushort)0x0017, stock.immediate,
+            "stock breakup frame reaches immediate tile upload");
+        AssertEqual((ushort)0x0018, changed.immediate,
+            "edited breakup frame reaches immediate bomb-block tile upload");
+        AssertEqual((ushort)0x0018, changed.streamed,
+            "edited bomb-block breakup frame survives later camera streaming");
+
+        (ushort physical, ushort streamed) RenderRestoredParent(byte tileIndex)
+        {
+            const int width = 8;
+            const int blockIndex = 27;
+            var words = new ushort[width * width];
+            words[blockIndex] = 0xf321;
+            var definitions = new byte[0x400 * 8];
+            for (int tile = 0; tile < 4; tile++)
+                definitions[0x58 * 8 + tile * 2] = tileIndex;
+            var level = new RoomLevelData(width, width, words,
+                new byte[words.Length], new ushort[words.Length], definitions);
+            var plms = new RoomPlmSystem();
+            AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
+                "restored-art test installs linked respawning bomb block");
+            var streamer = level.CreateBackgroundStreamer();
+            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            for (int frame = 0; frame < 420; frame++)
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "linked restoration uses no compiled source draw bytes");
+            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
+                    blockIndex, 0).TopRow[0]);
+        }
+
+        var stockParent = RenderRestoredParent(0x17);
+        var editedParent = RenderRestoredParent(0x18);
+        AssertEqual((ushort)0xf058, stockParent.physical,
+            "linked bomb block restores its native solid parent word");
+        AssertEqual(stockParent.physical, editedParent.physical,
+            "editing block $058 composition leaves restored collision intact");
+        AssertEqual((ushort)0x0017, stockParent.streamed,
+            "stock restored parent uses its room-block composition");
+        AssertEqual((ushort)0x0018, editedParent.streamed,
+            "edited block $058 composition reaches later streaming");
     }
 
     private enum BombBlockProducer { Collision, Bomb, PowerBomb }

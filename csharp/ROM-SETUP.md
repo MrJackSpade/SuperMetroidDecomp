@@ -316,7 +316,12 @@ and immutable. An edited word changes both the immediate PLM redraw and later
 camera streaming, without changing shot-block collision or respawn timing.
 The visual block still needs a valid definition in the active room's combined
 CRE/area block table. Stock content is hash-checked; an override survives stock
-repair and installation updates. This file covers ordinary shot blocks only.
+repair and installation updates. Bomb blocks reuse the same 16 breakup-frame
+`drawPointer` entries, so these edits also change their break/reverse animation.
+Their three linked-block restoration lists retain fixed collision words and use
+visual block `$058`; edit that block's tile composition under `room-blocks/` to
+change its restored appearance. Neither route changes bomb-block collision,
+sounds, or respawn timing.
 
 Breakable Grapple-block appearances are installed separately as
 `game/room-plm-grapple-blocks/grapple-blocks.json`. Copy the file to the matching

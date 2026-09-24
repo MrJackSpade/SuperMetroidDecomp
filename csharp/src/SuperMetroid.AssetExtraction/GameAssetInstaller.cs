@@ -81,6 +81,7 @@ public static class GameAssetInstaller
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
             IntroCinematicArtworkFiles.ValidateStock(installation.IntroCinematicDirectory);
+            EndingMode7ArtworkFiles.ValidateStock(installation.EndingMode7Directory);
             RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
             RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
             RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
@@ -131,6 +132,12 @@ public static class GameAssetInstaller
             IntroCinematicArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), introArtwork,
                 SupportedCartridge.Sha256);
             IntroCinematicArtworkFiles.ValidateStock(introArtwork);
+            progress?.Report("Extracting ending Mode-7 artwork...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string endingArt = Path.Combine(staging, GameInstallationLayout.EndingMode7DirectoryName);
+            EndingMode7ArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), endingArt,
+                SupportedCartridge.Sha256);
+            EndingMode7ArtworkFiles.ValidateStock(endingArt);
             progress?.Report("Extracting room base palettes...");
             cancellationToken.ThrowIfCancellationRequested();
             string roomPalettes = Path.Combine(staging, GameInstallationLayout.RoomPaletteDirectoryName);

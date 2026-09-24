@@ -1004,6 +1004,7 @@ public sealed partial class SuperMetroidGame
                         runtime.JapaneseText);
                     endingCredits.BindEndingText(mapPresentation?.EndingText);
                     endingCredits.BindFlightArtwork(introCinematicArt?.CeresFlight);
+                    endingCredits.BindMode7Artwork(endingMode7Art);
                     endingCredits.BindEndingFont(mapPresentation?.EndingFont);
                     endingCredits.BindStaffCredits(mapPresentation?.StaffCredits);
                     GameState = SuperMetroidGameState.EndingAndCredits;

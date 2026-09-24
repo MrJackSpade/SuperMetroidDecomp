@@ -132,6 +132,16 @@ camera behavior remain compiled cartridge logic.
 The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
 view of the Ceres flight map, with its original sixteen-frame upload cadence.
 
+The ending's two escape views and planet-explosion backdrop are installed separately
+under `game/ending-mode7/`. Each scene has an indexed 128x128 character PNG and a
+128x64 ordered tile-index map JSON (`ending-escape-a-*`, `ending-escape-b-*`, and
+`ending-planet-explosion-*`). Put a same-named file under `overrides/ending-mode7/`
+to replace just that stream. The map describes the native low-byte lane, which is
+repeated across the two Mode-7 map halves; the PNG supplies the high-byte character
+lane. These edits do not change ship/cloud sprites, palettes, explosion timing,
+camera transforms or scene handoffs. A restored debugger state rebinds the current
+files, retaining any flyaway chunks the cartridge has already uploaded.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

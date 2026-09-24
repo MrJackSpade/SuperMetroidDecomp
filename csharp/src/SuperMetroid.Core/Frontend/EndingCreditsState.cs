@@ -55,6 +55,7 @@ internal sealed partial class EndingCreditsState
     [NonSerialized] private EndingFontAtlas? endingFont;
     [NonSerialized] private CreditsPresentation? staffCredits;
     [NonSerialized] private CeresFlightArtworkCatalog? flightArtwork;
+    [NonSerialized] private EndingMode7ArtworkCatalog? mode7Artwork;
 
     public EndingCreditsState(
         ISnesAddressSpace bus,
@@ -414,9 +415,7 @@ internal sealed partial class EndingCreditsState
     private void SetupEscapeSceneA()
     {
         cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.EscapePalette);
-        LoadMode7(
-            EndingCreditsRomData.Assets.EscapeMapA,
-            EndingCreditsRomData.Assets.EscapeCharactersA);
+        LoadMode7(EndingMode7SceneId.EscapeA);
         LoadEscapeCloudCharacters();
         sprites.Clear();
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
@@ -441,9 +440,7 @@ internal sealed partial class EndingCreditsState
     {
         paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GreyClouds, 0);
-        LoadMode7(
-            EndingCreditsRomData.Assets.EscapeMapB,
-            EndingCreditsRomData.Assets.EscapeCharactersB);
+        LoadMode7(EndingMode7SceneId.EscapeB);
         LoadEscapeCloudCharacters();
         sprites.Clear();
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
@@ -460,9 +457,7 @@ internal sealed partial class EndingCreditsState
 
     private void SetupZebesExplosion()
     {
-        LoadMode7(
-            EndingCreditsRomData.Assets.ExplosionMap,
-            EndingCreditsRomData.Assets.ExplosionCharacters);
+        LoadMode7(EndingMode7SceneId.PlanetExplosion);
         LoadEndingObjectCharacters();
         cgram.LoadFromBus(
             bus,
@@ -563,14 +558,58 @@ internal sealed partial class EndingCreditsState
         Phase = EndingCreditsPhase.PostCreditsBlank;
     }
 
-    private void LoadMode7(int mapAddress, int characterAddress)
+    /// <summary>
+    /// Selects current host artwork after a debugger-state restore. The active
+    /// backdrop is refreshed without resetting actors, palette, transform or music.
+    /// During the native flyaway DMA, already-uploaded chunks are reapplied last.
+    /// </summary>
+    internal void BindMode7Artwork(EndingMode7ArtworkCatalog? value)
     {
-        byte[] map = RomDataReader.Decompress(
-            bus, mapAddress, EndingCreditsRomData.Rendering.DecompressionLimit);
-        byte[] characters = RomDataReader.Decompress(
-            bus, characterAddress, EndingCreditsRomData.Rendering.DecompressionLimit);
-        RequireMinimum(map, EndingCreditsRomData.Rendering.Mode7Bytes,
-            "ending Mode-7 map");
+        mode7Artwork = value;
+        if (value is null) return;
+        EndingMode7SceneId? scene = Phase switch
+        {
+            >= EndingCreditsPhase.WaitForEscapeMusic and <= EndingCreditsPhase.FadeOutEscapeSceneA =>
+                EndingMode7SceneId.EscapeA,
+            >= EndingCreditsPhase.FadeInEscapeSceneB and <= EndingCreditsPhase.FadeOutEscapeSceneB =>
+                EndingMode7SceneId.EscapeB,
+            >= EndingCreditsPhase.FadeInZebesExplosion and <= EndingCreditsPhase.ZebesExplosionTileUpload =>
+                EndingMode7SceneId.PlanetExplosion,
+            _ => null,
+        };
+        if (scene is null) return;
+        UploadMode7Artwork(value[scene.Value]);
+        if (Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
+        {
+            int completedChunks = Math.Clamp(16 - phaseTimer, 0, 16);
+            for (int index = 0; index < completedChunks; index++)
+                UploadFlyawayChunk(index);
+        }
+    }
+
+    private void LoadMode7(EndingMode7SceneId scene)
+    {
+        if (mode7Artwork is not null)
+        {
+            vram.Clear();
+            UploadMode7Artwork(mode7Artwork[scene]);
+            return;
+        }
+        (int characterSource, int packedMapSource) = scene switch
+        {
+            EndingMode7SceneId.EscapeA =>
+                (EndingCreditsRomData.Assets.EscapeMapA, EndingCreditsRomData.Assets.EscapeCharactersA),
+            EndingMode7SceneId.EscapeB =>
+                (EndingCreditsRomData.Assets.EscapeMapB, EndingCreditsRomData.Assets.EscapeCharactersB),
+            EndingMode7SceneId.PlanetExplosion =>
+                (EndingCreditsRomData.Assets.ExplosionMap, EndingCreditsRomData.Assets.ExplosionCharacters),
+            _ => throw new ArgumentOutOfRangeException(nameof(scene)),
+        };
+        byte[] map = RomDataReader.Decompress(bus, characterSource,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] characters = RomDataReader.Decompress(bus, packedMapSource,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        RequireMinimum(map, EndingCreditsRomData.Rendering.Mode7Bytes, "ending Mode-7 map");
         RequireMinimum(characters, EndingCreditsRomData.Rendering.Mode7Bytes,
             "ending Mode-7 characters");
         vram.Clear();
@@ -579,6 +618,14 @@ internal sealed partial class EndingCreditsState
         vram.LoadBytes(0, characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
         vram.LoadBytes(EndingCreditsRomData.Rendering.Mode7Bytes, characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
         vram.LoadMode7CharacterBytes(map.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+    }
+
+    private void UploadMode7Artwork(EndingMode7SceneArtwork scene)
+    {
+        vram.LoadMode7MapBytes(scene.Map.Span);
+        vram.LoadMode7MapBytes(scene.Map.Span,
+            destinationWord: EndingMode7ArtworkFormat.MapByteCount);
+        vram.LoadMode7CharacterBytes(scene.Characters.Span);
     }
 
     private void LoadEscapeCloudCharacters()

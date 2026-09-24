@@ -20,6 +20,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly ExtractedAudioAssetCatalog assets;
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
     private readonly SuperMetroid.Core.Assets.IntroCinematicArtworkCatalog? introCinematicArt;
+    private readonly SuperMetroid.Core.Assets.EndingMode7ArtworkCatalog? endingMode7Art;
     private readonly SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog? roomCharacters;
     private readonly SuperMetroid.Core.Assets.RoomStaticPaletteCatalog? roomPalettes;
     private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog? roomMetatiles;
@@ -52,6 +53,9 @@ internal sealed class AndroidSessionData : IDisposable
         introCinematicArt = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadIntroCinematicArt() : null;
         Game.BindIntroCinematicArt(introCinematicArt);
+        endingMode7Art = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEndingMode7Art() : null;
+        Game.BindEndingMode7Art(endingMode7Art);
         roomCharacters = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomCharacters() : null;
         Game.BindRoomCharacterArt(roomCharacters);
@@ -153,6 +157,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
         Game.BindIntroCinematicArt(introCinematicArt);
+        Game.BindEndingMode7Art(endingMode7Art);
         Game.BindRoomCharacterArt(roomCharacters);
         Game.BindRoomPaletteArt(roomPalettes);
         Game.BindRoomMetatileArt(roomMetatiles);

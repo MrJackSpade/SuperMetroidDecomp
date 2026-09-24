@@ -23,6 +23,11 @@ public sealed record GameInstallation(string Root)
     public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
     public IntroCinematicArtworkCatalog LoadIntroCinematicArt() =>
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
+    public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
+    /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
+    public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
+    public EndingMode7ArtworkCatalog LoadEndingMode7Art() =>
+        EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
     public RoomCharacterAtlasCatalog LoadRoomCharacters() =>
@@ -74,13 +79,14 @@ public static class GameInstallationLayout
     public const string ProjectileDirectoryName = "projectiles";
     public const string RoomCharacterDirectoryName = "room-characters";
     public const string IntroCinematicDirectoryName = "intro-cinematic";
+    public const string EndingMode7DirectoryName = "ending-mode7";
     public const string RoomPaletteDirectoryName = "room-palettes";
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 16;
+    public const int FormatVersion = 17;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

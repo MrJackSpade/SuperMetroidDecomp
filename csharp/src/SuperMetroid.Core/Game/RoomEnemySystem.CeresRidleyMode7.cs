@@ -124,8 +124,20 @@ public sealed partial class RoomEnemySystem
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
-        ushort sourcePointer = unchecked((ushort)(((zoom >> 8) * 32) - 0x4ef9));
-        _cgram!.LoadFromBus(_bus!, 0xa60000 | sourcePointer, colorCount: 15, destinationIndex: 0x00a2 / 2);
+        int zoomHighByte = zoom >> 8;
+        if (CeresRidleyMode7Colors is { } installed &&
+            zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
+        {
+            installed.Apply(_cgram!, zoomHighByte);
+            return;
+        }
+        // Non-catalogued restored zoom words retain the native wrapped source read.
+        ushort sourcePointer = unchecked((ushort)(
+            CeresRidleyPaletteRomData.Mode7ZoomColors +
+            zoomHighByte * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride));
+        _cgram!.LoadFromBus(_bus!, CeresRidleyPaletteRomData.Bank | sourcePointer,
+            CeresRidleyPaletteRomData.Mode7ZoomColorCount,
+            CeresRidleyPaletteRomData.Mode7ZoomCgramIndex);
     }
 
     /// <summary>

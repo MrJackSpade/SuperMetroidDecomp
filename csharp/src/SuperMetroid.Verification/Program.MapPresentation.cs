@@ -127,6 +127,7 @@ internal static partial class Program
         VerifyCrystalFlashColorOverride(stock, overrides, original, bus);
         VerifySamusChargeColorOverride(stock, overrides, original, bus);
         VerifyCeresRidleyColorOverride(stock, overrides, original, bus);
+        VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus);
         VerifySamusHyperBeamColorOverride(stock, overrides, original, bus);
         VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original);
         VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original);

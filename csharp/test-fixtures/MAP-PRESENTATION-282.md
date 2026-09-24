@@ -1707,5 +1707,20 @@ and runs initialization, all 64 eye steps, all sixteen body rows and the
 health thresholds through the production enemy handlers with the original
 color source addresses forbidden. It checks the two body CGRAM destinations,
 both copies of the retreat's shared colors, invalid RGB5 values, content
-identity, and override survival after stock re-extraction. Ceres Mode-7 zoom
-palettes and other enemy palette paths remain outside this slice.
+identity, and override survival after stock re-extraction. Other enemy palette
+paths remain outside this slice.
+
+## Editable Ceres Ridley Mode-7 zoom colors (#536, #538, #549)
+
+Catalog version 72 adds `ceres-ridley-mode7-colors.json` with nine fifteen-color
+RGB5 rows indexed by the high byte of the cartridge's zoom word. This is a
+separate resource so existing edits to `ceres-ridley-colors.json` retain their
+version-one format. Mode-7 motion, rotation, frame timing, and source-row
+selection remain compiled gameplay/presentation behavior; the resource changes
+only the displayed colors.
+
+`--map-presentation` compares all 135 stock words to the pinned cartridge,
+then runs all 112 authored getaway zoom frames through the production palette
+selector with source-color ROM reads forbidden. It verifies every row is
+visited, every CGRAM word, live catalog rebinding, malformed RGB5 rejection,
+content identity, and override preservation across stock re-extraction.

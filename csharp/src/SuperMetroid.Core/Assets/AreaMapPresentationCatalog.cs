@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork, MapSpriteCatalog sprites, MapTileAtlas pauseTiles, PauseBackdropPresentation pauseBackdrops, PauseWireframePresentation pauseWireframes, PauseSelectorPresentation pauseSelectors, PauseReserveTankPresentation pauseReserveTanks, PauseReserveUiPresentation pauseReserveUi, PauseEquipmentBasePresentation pauseEquipmentBase, PauseEquipmentLabelPresentation pauseEquipmentLabels, EscapeTimerPresentation escapeTimer, EscapeTimerTileAtlas escapeTimerTiles, GameplayHudPresentation gameplayHud, GameOverPresentation gameOver, GameOptionsPresentation gameOptions, FileSelectPresentation fileSelect, GameplayMessageTitlePresentation gameplayMessageTitles, GameplayMessagePanelPresentation gameplayMessagePanels, GameplayMessageNoticePresentation gameplayMessageNotices, EscapeTypewriterPresentation escapeTypewriter, IntroNarrationPresentation introNarration, IntroFontAtlas introFont, EndingTextPresentation endingText, EndingFontAtlas endingFont, CreditsPresentation staffCredits, TitleGraphicsPresentation titleGraphics, TitlePalettePresentation titlePalette, TitleGradientPresentation titleGradient, RoomPaletteFxPresentation roomPaletteFx, MotherBrainHealthPalettePresentation motherBrainHealthPalette, MotherBrainRainbowPalettePresentation motherBrainRainbowPalette, RoomFxAnimatedTileAtlas roomFxAnimatedTiles, RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps, RoomFxPaletteBlendCatalog roomFxPaletteBlends, PowerBombFixedColorCatalog powerBombFixedColors, SamusVisorColorCatalog samusVisorColors, SamusHurtColorCatalog samusHurtColors, SamusSuitColorCatalog samusSuitColors, SamusFullBodyCycleColorCatalog samusFullBodyCycleColors, CrystalFlashColorCatalog crystalFlashColors, SamusChargeColorCatalog samusChargeColors, CeresRidleyColorCatalog ceresRidleyColors, SamusHyperBeamColorCatalog samusHyperBeamColors)
+private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork, MapSpriteCatalog sprites, MapTileAtlas pauseTiles, PauseBackdropPresentation pauseBackdrops, PauseWireframePresentation pauseWireframes, PauseSelectorPresentation pauseSelectors, PauseReserveTankPresentation pauseReserveTanks, PauseReserveUiPresentation pauseReserveUi, PauseEquipmentBasePresentation pauseEquipmentBase, PauseEquipmentLabelPresentation pauseEquipmentLabels, EscapeTimerPresentation escapeTimer, EscapeTimerTileAtlas escapeTimerTiles, GameplayHudPresentation gameplayHud, GameOverPresentation gameOver, GameOptionsPresentation gameOptions, FileSelectPresentation fileSelect, GameplayMessageTitlePresentation gameplayMessageTitles, GameplayMessagePanelPresentation gameplayMessagePanels, GameplayMessageNoticePresentation gameplayMessageNotices, EscapeTypewriterPresentation escapeTypewriter, IntroNarrationPresentation introNarration, IntroFontAtlas introFont, EndingTextPresentation endingText, EndingFontAtlas endingFont, CreditsPresentation staffCredits, TitleGraphicsPresentation titleGraphics, TitlePalettePresentation titlePalette, TitleGradientPresentation titleGradient, RoomPaletteFxPresentation roomPaletteFx, MotherBrainHealthPalettePresentation motherBrainHealthPalette, MotherBrainRainbowPalettePresentation motherBrainRainbowPalette, RoomFxAnimatedTileAtlas roomFxAnimatedTiles, RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps, RoomFxPaletteBlendCatalog roomFxPaletteBlends, PowerBombFixedColorCatalog powerBombFixedColors, SamusVisorColorCatalog samusVisorColors, SamusHurtColorCatalog samusHurtColors, SamusSuitColorCatalog samusSuitColors, SamusFullBodyCycleColorCatalog samusFullBodyCycleColors, CrystalFlashColorCatalog crystalFlashColors, SamusChargeColorCatalog samusChargeColors, CeresRidleyColorCatalog ceresRidleyColors, CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors, SamusHyperBeamColorCatalog samusHyperBeamColors)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
@@ -66,6 +66,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         CrystalFlashColors = crystalFlashColors;
         SamusChargeColors = samusChargeColors;
         CeresRidleyColors = ceresRidleyColors;
+        CeresRidleyMode7Colors = ceresRidleyMode7Colors;
         SamusHyperBeamColors = samusHyperBeamColors;
     }
 
@@ -122,6 +123,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
     public CrystalFlashColorCatalog CrystalFlashColors { get; }
     public SamusChargeColorCatalog SamusChargeColors { get; }
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
+    public CeresRidleyMode7ColorCatalog CeresRidleyMode7Colors { get; }
     public SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
     {
@@ -358,10 +360,13 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         CeresRidleyColorCatalog ceresRidleyColors;
         try { ceresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(Select(CeresRidleyColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName))))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Ceres Ridley colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
+        CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors;
+        try { ceresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(Select(CeresRidleyMode7ColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyMode7ColorFormat.FileName))))); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Ceres Ridley Mode-7 colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         SamusHyperBeamColorCatalog samusHyperBeamColors;
         try { samusHyperBeamColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(Select(SamusHyperBeamColorFormat.FileName, stock.SamusHyperBeamColors))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus Hyper Beam colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork, sprites, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect, gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices, escapeTypewriter, introNarration, introFont, endingText, endingFont, staffCredits, titleGraphics, titlePalette, titleGradient, roomPaletteFx, motherBrainHealthPalette, motherBrainRainbowPalette, roomFxAnimatedTiles, roomFxLayer3Tilemaps, roomFxPaletteBlends, powerBombFixedColors, samusVisorColors, samusHurtColors, samusSuitColors, samusFullBodyCycleColors, crystalFlashColors, samusChargeColors, ceresRidleyColors, samusHyperBeamColors);
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork, sprites, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect, gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices, escapeTypewriter, introNarration, introFont, endingText, endingFont, staffCredits, titleGraphics, titlePalette, titleGradient, roomPaletteFx, motherBrainHealthPalette, motherBrainRainbowPalette, roomFxAnimatedTiles, roomFxLayer3Tilemaps, roomFxPaletteBlends, powerBombFixedColors, samusVisorColors, samusHurtColors, samusSuitColors, samusFullBodyCycleColors, crystalFlashColors, samusChargeColors, ceresRidleyColors, ceresRidleyMode7Colors, samusHyperBeamColors);
 
         byte[] Select(string name, byte[] baseline)
         {
@@ -529,6 +534,8 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         _ = SamusChargeColorCatalog.Load(new MemoryStream(samusChargeColors));
         byte[] ceresRidleyColors = ReadChecked(CeresRidleyColorFormat.FileName);
         _ = CeresRidleyColorCatalog.Load(new MemoryStream(ceresRidleyColors));
+        byte[] ceresRidleyMode7Colors = ReadChecked(CeresRidleyMode7ColorFormat.FileName);
+        _ = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(ceresRidleyMode7Colors));
         byte[] samusHyperBeamColors = ReadChecked(SamusHyperBeamColorFormat.FileName);
         _ = SamusHyperBeamColorCatalog.Load(new MemoryStream(samusHyperBeamColors));
         return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back, spriteJson, spritePng, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect, gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices, escapeTypewriter, introNarration, introFont, endingText, endingFont, staffCredits, titleMode7Tiles, titleMode7Map, titleObjectTiles, titleBabyTiles, titlePalette, titleGradient, roomPaletteFx, motherBrainHealthPalette, motherBrainRainbowPalette, roomFxAnimatedTiles, roomFxLayer3Tilemaps, roomFxPaletteBlends, powerBombFixedColors, samusVisorColors, samusHurtColors, samusHyperBeamColors);
@@ -555,9 +562,9 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 71;
-    /// <summary>Manifest-bound non-area artwork files, including Ceres Ridley colors.</summary>
-    public const int SharedResourceCount = 59;
+    public const int Version = 72;
+    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
+    public const int SharedResourceCount = 60;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

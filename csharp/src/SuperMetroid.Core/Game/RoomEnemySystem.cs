@@ -60,6 +60,10 @@ public sealed partial class RoomEnemySystem
     [field: NonSerialized]
     public CeresRidleyColorCatalog? CeresRidleyColors { get; set; }
 
+    /// <summary>Host-bound Ceres Mode-7 zoom colors; rebound after state restore.</summary>
+    [field: NonSerialized]
+    public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
+
     [NonSerialized] private EscapeTypewriterPresentation? escapeTypewriterPresentation;
     /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation

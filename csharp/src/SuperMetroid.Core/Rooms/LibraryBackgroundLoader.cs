@@ -224,6 +224,16 @@ public static class LibraryBackgroundLoader
         else if (skyArt is not null && skyArt.TryResolve(sourceAddress, byteCount,
                 out ReadOnlyMemory<byte> selected))
             vram.ExecuteQueuedAssetWrite(selected.Span, destinationWord);
+        else if (sourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
+            skyArt is not null && hudArt is not null && characterArt is not null)
+        {
+            // The installed host binds all three direct-transfer catalogs. A source
+            // or byte count that none of them owns must not silently substitute the
+            // cartridge's stock presentation data for a missing/invalid resource.
+            throw new InvalidDataException(
+                $"Installed library-background art does not own ROM transfer " +
+                $"${sourceAddress:X6} ({byteCount} bytes).");
+        }
         else
             vram.ExecuteQueuedWrite(bus, sourceAddress, byteCount, destinationWord);
     }

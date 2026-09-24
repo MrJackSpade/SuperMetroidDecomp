@@ -73,8 +73,74 @@ internal static partial class Program
 
         AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
             "library background parity included door-selected variants");
+        VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters);
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
             "match installed VRAM/WRAM without command-list or visual ROM-source reads.");
+    }
+
+    /// <summary>
+    /// A fully bound installation must never quietly fall back to stock ROM pixels
+    /// when a direct-transfer source or size is absent from its presentation assets.
+    /// The authored retail lists are covered above; these synthetic command lists
+    /// test the failure boundary that no retail list presently exercises.
+    /// </summary>
+    private static void VerifyInstalledBackgroundTransferFailures(
+        RoomBackgroundTilemapCatalog backgrounds, RoomSkyTilemapCatalog skies,
+        HudTileAtlas hud, RoomCharacterAtlasCatalog characters)
+    {
+        const ushort listPointer = 0xf000;
+        int commandAddress = RoomAssetRomData.LibraryBackground.CommandBank | listPointer;
+
+        foreach ((int sourceAddress, ushort byteCount) in new[]
+        {
+            (RoomSkyTilemapFormat.FirstSourceAddress, (ushort)2),
+            (0x8a8000, (ushort)2),
+        })
+        {
+            var bus = new TestAddressSpace();
+            WriteWord(bus, commandAddress, (ushort)LibraryBackgroundCommand.TransferToVram);
+            bus.WriteByte(commandAddress + 2, (byte)sourceAddress);
+            bus.WriteByte(commandAddress + 3, (byte)(sourceAddress >> 8));
+            bus.WriteByte(commandAddress + 4, (byte)(sourceAddress >> 16));
+            WriteWord(bus, commandAddress + 5, 0x4800);
+            WriteWord(bus, commandAddress + 7, byteCount);
+            WriteWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
+            try
+            {
+                LibraryBackgroundLoader.Execute(bus, new SnesVram(), listPointer, 0,
+                    backgrounds, skies, hud, characters);
+                throw new InvalidOperationException(
+                    $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
+            }
+            catch (InvalidDataException error)
+            {
+                AssertTrue(error.Message.Contains($"${sourceAddress:X6}",
+                        StringComparison.Ordinal),
+                    "invalid installed background transfer identifies its ROM source");
+            }
+        }
+
+        // WRAM staging remains a native streaming operation, not a replacement
+        // artwork lookup: it must still transfer when all art catalogs are bound.
+        var stagedBus = new TestAddressSpace();
+        const int stagedSource = 0x7e2000;
+        stagedBus.WriteByte(stagedSource, 0x12);
+        stagedBus.WriteByte(stagedSource + 1, 0x34);
+        WriteWord(stagedBus, commandAddress,
+            (ushort)LibraryBackgroundCommand.TransferToVram);
+        stagedBus.WriteByte(commandAddress + 2, unchecked((byte)stagedSource));
+        stagedBus.WriteByte(commandAddress + 3, unchecked((byte)(stagedSource >> 8)));
+        stagedBus.WriteByte(commandAddress + 4, (byte)(stagedSource >> 16));
+        WriteWord(stagedBus, commandAddress + 5, 0x4800);
+        WriteWord(stagedBus, commandAddress + 7, 2);
+        WriteWord(stagedBus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
+        var stagedVram = new SnesVram();
+        LibraryBackgroundLoader.Execute(stagedBus, stagedVram, listPointer, 0,
+            backgrounds, skies, hud, characters);
+        AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
+            "installed-art binding retains WRAM background transfer low byte");
+        AssertEqual((byte)0x34, stagedVram.ReadByte(0x9001),
+            "installed-art binding retains WRAM background transfer high byte");
     }
 
     private sealed class LibraryBackgroundVisualReadGuard(

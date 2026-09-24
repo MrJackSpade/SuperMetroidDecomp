@@ -19,7 +19,7 @@ internal static partial class Program
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
-                $"installed Boyon frame {frame.Name} exists");
+                $"installed enemy frame {frame.Name} exists");
             foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
                      new (ushort, ushort, ushort, ushort)[]
                      {
@@ -45,7 +45,9 @@ internal static partial class Program
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
                             ? RoomEnemySystem.BoulderDefinition
-                            : RoomEnemySystem.AtomicDefinition);
+                            : frame.Name.StartsWith("skultera_", StringComparison.Ordinal)
+                                ? RoomEnemySystem.SkulteraDefinition
+                                : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
@@ -85,6 +87,11 @@ internal static partial class Program
         document.Frames["atomic_up_right_0"][0] = atomicPart with
         {
             OffsetY = atomicPart.OffsetY + 1,
+        };
+        SpriteVisualPart skulteraPart = document.Frames["skultera_swim_left_0"][0];
+        document.Frames["skultera_swim_left_0"][0] = skulteraPart with
+        {
+            OffsetY = skulteraPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -134,9 +141,40 @@ internal static partial class Program
             "authored Atomic Y offset changes live room OAM");
         AssertEqual(stockAtomic.LowTable[0], editedAtomic.LowTable[0],
             "Atomic visual override leaves X unchanged");
+        ushort skulteraPointer = EnemySpritemapDefinitions.SkulteraFrameAt(0x902e);
+        var stockSkultera = DrawEnemy(stock, new FrameReadGuard(rom),
+            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+        var editedSkultera = DrawEnemy(edited, new FrameReadGuard(rom),
+            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+        AssertEqual(unchecked((byte)(stockSkultera.LowTable[1] + 1)),
+            editedSkultera.LowTable[1],
+            "authored Skultera Y offset changes live room OAM");
+        AssertEqual(stockSkultera.LowTable[0], editedSkultera.LowTable[0],
+            "Skultera visual override leaves X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var previousFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("skultera_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreviousFrameCount,
+            previousFrames.Count, "previous enemy composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreviousVersion,
+                Frames = previousFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        var upgradedBoyon = DrawEnemy(upgraded, new FrameReadGuard(rom),
+            framePointer, RoomEnemySystem.BoyonDefinition);
+        var upgradedSkultera = DrawEnemy(upgraded, new FrameReadGuard(rom),
+            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+        AssertEqual(editedOam.LowTable[0], upgradedBoyon.LowTable[0],
+            "previous-version override retains edited Boyon composition");
+        AssertTrue(stockSkultera.LowTable.SequenceEqual(upgradedSkultera.LowTable),
+            "previous-version override gains stock Skultera composition");
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1,\"frames\":{}}");
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
@@ -161,6 +199,8 @@ internal static partial class Program
                     ? EnemySpritemapDefinitions.BoulderBank
                     : definition == RoomEnemySystem.AtomicDefinition
                         ? EnemySpritemapDefinitions.AtomicBank
+                        : definition == RoomEnemySystem.SkulteraDefinition
+                            ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
             slot.XPosition = 0x0040;
@@ -178,7 +218,8 @@ internal static partial class Program
             if (address is >= 0xa288da and < 0xa2890b or
                 >= 0xa2a0bb and < 0xa2a377 or
                 >= 0xa68a59 and < 0xa68b09 or
-                >= 0xa8e489 and < 0xa8e587)
+                >= 0xa8e489 and < 0xa8e587 or
+                >= 0xa3928a and < 0xa394aa)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

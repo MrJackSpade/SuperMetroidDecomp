@@ -11,9 +11,12 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 4;
+    internal const int Version = 5;
+    internal const int PreviousVersion = 4;
+    internal const int PreviousFrameCount = 47;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
+    internal const byte SkulteraBank = 0xa3;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -69,6 +72,28 @@ internal static class EnemySpritemapDefinitions
         new(AtomicBank, 0xe54a, "atomic_up_left_3"),
         new(AtomicBank, 0xe560, "atomic_up_left_4"),
         new(AtomicBank, 0xe571, "atomic_up_left_5"),
+        new(SkulteraBank, 0x928a, "skultera_swim_left_0"),
+        new(SkulteraBank, 0x92a5, "skultera_swim_left_1"),
+        new(SkulteraBank, 0x92c0, "skultera_swim_left_2"),
+        new(SkulteraBank, 0x92db, "skultera_turn_right_0"),
+        new(SkulteraBank, 0x92f6, "skultera_turn_right_1"),
+        new(SkulteraBank, 0x9311, "skultera_turn_right_2"),
+        new(SkulteraBank, 0x9327, "skultera_turn_right_3"),
+        new(SkulteraBank, 0x933d, "skultera_turn_right_4"),
+        new(SkulteraBank, 0x934e, "skultera_turn_right_5"),
+        new(SkulteraBank, 0x9364, "skultera_turn_right_6"),
+        new(SkulteraBank, 0x937f, "skultera_turn_right_7"),
+        new(SkulteraBank, 0x939a, "skultera_swim_right_0"),
+        new(SkulteraBank, 0x93b5, "skultera_swim_right_1"),
+        new(SkulteraBank, 0x93d0, "skultera_swim_right_2"),
+        new(SkulteraBank, 0x93eb, "skultera_turn_left_0"),
+        new(SkulteraBank, 0x9406, "skultera_turn_left_1"),
+        new(SkulteraBank, 0x9421, "skultera_turn_left_2"),
+        new(SkulteraBank, 0x9437, "skultera_turn_left_3"),
+        new(SkulteraBank, 0x944d, "skultera_turn_left_4"),
+        new(SkulteraBank, 0x945e, "skultera_turn_left_5"),
+        new(SkulteraBank, 0x9474, "skultera_turn_left_6"),
+        new(SkulteraBank, 0x948f, "skultera_turn_left_7"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -92,11 +117,26 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.BoulderDefinition => BoulderFrameAt(operandAddress),
             RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
+            RoomEnemySystem.SkulteraDefinition => SkulteraFrameAt(operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.BoulderDefinition or
-            RoomEnemySystem.AtomicDefinition;
+            RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition;
+    }
+
+    /// <summary>
+    /// The twenty-two Skultera frame operands are fixed visual identities; control
+    /// durations, turn callbacks, and layer changes remain in the instruction catalog.
+    /// </summary>
+    internal static ushort SkulteraFrameAt(ushort operandAddress)
+    {
+        if (SkulteraInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(SkulteraBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Skultera visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

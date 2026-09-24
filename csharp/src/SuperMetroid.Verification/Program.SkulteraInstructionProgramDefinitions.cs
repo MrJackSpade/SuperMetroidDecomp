@@ -68,21 +68,26 @@ internal static partial class Program
         AssertEqual((ushort)0x9094, right.CurrentInstruction,
             "turning-left program sleeps at its native terminal command");
 
-        AssertEqual(
-            SkulteraInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Skultera spritemap words remain cartridge reads");
+        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
         for (int index = 0;
              index < SkulteraInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 SkulteraInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Skultera presentation word $A3:{address:X4}");
+            RoomEnemySystem enemies = CreateSkulteraProgramSystem(guard,
+                startsLeft: true, out RoomEnemySlot slot);
+            slot.CurrentInstruction = unchecked((ushort)(address - 2));
+            slot.InstructionTimer = 1;
+            process.Invoke(enemies,
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            AssertEqual(ReadSkulteraInstructionWord(rom, 0xa30000 | address),
+                slot.SpritemapPointer,
+                $"production execution selects Skultera frame $A3:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Skultera mechanics byte");
+            "production execution avoids compiled Skultera mechanics and visual bytes");
 
         AssertThrows<InvalidDataException>(
             () => SkulteraInstructionProgramDefinitions.ReadMechanicsWord(0x902e),
@@ -102,7 +107,7 @@ internal static partial class Program
         Console.WriteLine(
             "Skultera instruction mechanics: thirty-two compiled words, both swimming " +
             "loops, both turning programs, layer/completion callbacks, sleeps, and " +
-            "twenty-two live spritemap reads pass with mechanics bytes forbidden.");
+            "twenty-two compiled visual selectors pass with source bytes forbidden.");
 
         static RoomEnemySystem CreateSkulteraProgramSystem(
             SkulteraInstructionProgramReadGuard guard,
@@ -157,7 +162,6 @@ internal static partial class Program
     private sealed class SkulteraInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -181,8 +185,10 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled Skultera visual selector " +
+                            $"${address:X6}.");
                     }
                 }
             }

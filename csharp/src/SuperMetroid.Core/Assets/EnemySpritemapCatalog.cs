@@ -24,8 +24,13 @@ public sealed class EnemySpritemapCatalog
         return false;
     }
 
-    /// <summary>Validates every authored frame and compiles visual-only fields into OAM parts.</summary>
-    public static EnemySpritemapCatalog Load(Stream json)
+    /// <summary>
+    /// Validates authored frames and compiles visual-only fields into OAM parts.
+    /// A complete stock catalog permits a previous-version override to retain its
+    /// existing edits while newly added frame identities come from stock content.
+    /// </summary>
+    public static EnemySpritemapCatalog Load(Stream json,
+        EnemySpritemapCatalog? stockForLegacyOverride = null)
     {
         ArgumentNullException.ThrowIfNull(json);
         EnemySpritemapDocument document;
@@ -43,14 +48,22 @@ public sealed class EnemySpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy composition JSON.", error);
         }
-        if (document.Version != EnemySpritemapDefinitions.Version ||
-            document.Frames is null ||
-            document.Frames.Count != EnemySpritemapDefinitions.Frames.Length)
+        bool previousOverride = document.Version == EnemySpritemapDefinitions.PreviousVersion &&
+            stockForLegacyOverride is not null;
+        ReadOnlySpan<EnemySpritemapDefinition> expected = previousOverride
+            ? EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreviousFrameCount]
+            : EnemySpritemapDefinitions.Frames;
+        if (document.Version != (previousOverride
+                ? EnemySpritemapDefinitions.PreviousVersion
+                : EnemySpritemapDefinitions.Version) ||
+            document.Frames is null || document.Frames.Count != expected.Length ||
+            (previousOverride && stockForLegacyOverride!.frames.Count !=
+                EnemySpritemapDefinitions.Frames.Length))
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
 
         var frames = new Dictionary<int, EnemySpritemapPart[]>();
-        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in expected)
         {
             if (!document.Frames.TryGetValue(frame.Name, out SpriteVisualPart[]? visual) ||
                 visual is null || visual.Length > EnemySpritemapDefinitions.MaximumParts)
@@ -81,7 +94,12 @@ public sealed class EnemySpritemapCatalog
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
         }
-        return new EnemySpritemapCatalog(frames);
+        if (!previousOverride)
+            return new EnemySpritemapCatalog(frames);
+        var merged = new Dictionary<int, EnemySpritemapPart[]>(stockForLegacyOverride!.frames);
+        foreach ((int identity, EnemySpritemapPart[] parts) in frames)
+            merged[identity] = parts;
+        return new EnemySpritemapCatalog(merged);
     }
 
     private static void RejectDuplicateProperties(JsonElement element)

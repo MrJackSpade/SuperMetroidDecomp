@@ -8,8 +8,8 @@ internal readonly record struct SkulteraInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from Skultera's swimming and turning programs.</summary>
 /// <remarks>
 /// Layer callbacks, durations, turn completion, sleeps, and loop control are immutable
-/// simulation data. The twenty-two interleaved spritemap pointers remain live cartridge
-/// presentation data until enemy visual composition is extracted by issue 538.
+/// simulation data. The twenty-two interleaved spritemap pointers are compiled
+/// separately from their editable composition assets.
 /// </remarks>
 internal static class SkulteraInstructionProgramDefinitions
 {
@@ -60,6 +60,9 @@ internal static class SkulteraInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static SkulteraInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     /// <summary>Returns fixed Skultera control or rejects pointers outside all four programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

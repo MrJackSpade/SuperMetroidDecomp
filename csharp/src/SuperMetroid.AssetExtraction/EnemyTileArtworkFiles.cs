@@ -225,8 +225,20 @@ public static class EnemyTileArtworkFiles
         EnemySpritemapCatalog spritemaps;
         try
         {
+            // A version-four override contains every old frame but cannot know the
+            // newly introduced Skultera identities. Merge only that validated old
+            // schema onto the verified new stock catalog, leaving user edits intact.
+            string stockCompositionPath = Path.Combine(
+                stockDirectory, EnemySpritemapDefinitions.FileName);
+            byte[] stockComposition = File.ReadAllBytes(stockCompositionPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockComposition)),
+                    manifest.EnemyCompositionsSha256, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(
+                    $"Stock enemy compositions {stockCompositionPath} failed its manifest hash.");
+            EnemySpritemapCatalog stockSpritemaps = EnemySpritemapCatalog.Load(
+                new MemoryStream(stockComposition, writable: false));
             spritemaps = EnemySpritemapCatalog.Load(
-                new MemoryStream(compositionJson, writable: false));
+                new MemoryStream(compositionJson, writable: false), stockSpritemaps);
         }
         catch (InvalidDataException error)
         {

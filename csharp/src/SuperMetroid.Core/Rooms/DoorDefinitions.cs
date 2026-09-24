@@ -1007,6 +1007,30 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $925E; no stride follows from one word.
     /// Index 1 reaches next room header $0137 at $8F:A734. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1142, Ice Beam Acid $8F:A784: normalized BTS i=0..1
+    /// selects $9276 + 12*i. Index 2 reaches next room header $0201
+    /// at $8F:A788. The ROM oracle checks entries, aliases, and bound.
+    /// Issue #1143, Cathedral $8F:A7AF: normalized BTS i=0..1
+    /// selects $928E + 12*i. Index 2 reaches next room header $0202
+    /// at $8F:A7B3. The ROM oracle checks entries, aliases, and bound.
+    /// Issue #1144, Cathedral Entrance $8F:A7DA: normalized BTS
+    /// i=0..1 selects $92A6 + 12*i. Index 2 reaches next room header
+    /// $0203 at $8F:A7DE. The ROM oracle checks entries and aliases.
+    /// Issue #1145, Business Center $8F:A805: normalized BTS i=0..4
+    /// selects $92BE + 12*i; i=5 selects shared elevator pseudo-door
+    /// $88FC; i=6..7 selects $92BE + 12*(i-1). Index 8 reaches next
+    /// room header $0204 at $8F:A815. The ROM oracle checks all eight
+    /// entries, high-bit aliases, and the first rejected index.
+    /// Issue #1146, Ice Beam Gate $8F:A83C: normalized BTS i=0..3
+    /// selects $9312 + 12*i. Index 4 reaches scroll data $0000 at
+    /// $8F:A844. The ROM oracle checks entries, aliases, and bound.
+    /// Issue #1147, Ice Beam Tutorial $8F:A88C: normalized BTS i=0..1
+    /// selects $9342 + 12*i. Index 2 reaches next room header $0206
+    /// at $8F:A890. The ROM oracle checks entries, aliases, and bound.
+    /// Issue #1148, Ice Beam $8F:A8B7: sole valid normalized BTS i=0
+    /// selects $935A; no stride follows from one word. Index 1 reaches
+    /// next room header $0207 at $8F:A8B9. The ROM oracle checks the
+    /// entry, high-bit alias, and first rejected index.
     /// Issue #1149, Ice Beam Snake $8F:A8E0: normalized BTS i=0..2
     /// selects $9366 + 12*i. Index 3 reaches scroll data $0002 at
     /// $8F:A8E6. The ROM oracle checks all entries, high-bit aliases,

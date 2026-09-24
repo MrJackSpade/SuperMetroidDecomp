@@ -132,7 +132,7 @@ public sealed partial class RoomEnemySystem
         for (int color = 0; color < 16; color++)
             _cgram!.SetColor(
                 112 + color,
-                ReadWord(_bus!, EnemyRomTablePointers.Kraid.DeathArmPaletteWords + color * 2));
+                ReadKraidColor(KraidPaletteSource.DeathArm, color));
         _slots[1].CurrentInstruction = KraidArmRetractedInstruction;
         _slots[1].InstructionTimer = 1;
         body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;

@@ -139,6 +139,8 @@ public static class EnemyTileArtworkFiles
         byte[] kraidRoomBackground = ExtractKraidRoomBackground(bus);
         File.WriteAllBytes(Path.Combine(directory,
             KraidBackgroundArtworkFormat.RoomBackgroundFileName), kraidRoomBackground);
+        byte[] kraidColors = ExtractKraidColors(bus);
+        File.WriteAllBytes(Path.Combine(directory, KraidColorFormat.FileName), kraidColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -150,7 +152,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(upperKraid)),
             Convert.ToHexString(SHA256.HashData(lowerKraid)),
             kraidHeadHashes,
-            Convert.ToHexString(SHA256.HashData(kraidRoomBackground)));
+            Convert.ToHexString(SHA256.HashData(kraidRoomBackground)),
+            Convert.ToHexString(SHA256.HashData(kraidColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -184,7 +187,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
             manifest.KraidHeadsSha256 is null ||
-            string.IsNullOrWhiteSpace(manifest.KraidRoomBackgroundSha256))
+            string.IsNullOrWhiteSpace(manifest.KraidRoomBackgroundSha256) ||
+            string.IsNullOrWhiteSpace(manifest.KraidColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -350,9 +354,21 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 $"Invalid Kraid room-background PNG {roomBackgroundName}: {error.Message}", error);
         }
+        KraidColorCatalog kraidColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(KraidColorFormat.FileName,
+                manifest.KraidColorsSha256);
+            kraidColors = KraidColorCatalog.Load(new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Kraid color file {KraidColorFormat.FileName}: {error.Message}", error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
-                kraidHeads, roomBackground));
+                kraidHeads, roomBackground), kraidColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -453,6 +469,40 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
+        KraidColorCatalog.Write(new KraidColorDocument
+        {
+            Version = KraidColorFormat.Version,
+            RoomBackdrop = ReadKraidColors(bus, KraidPaletteSource.RoomBackdrop),
+            InitialTarget = ReadKraidColors(bus, KraidPaletteSource.InitialTarget),
+            Health = ReadKraidColors(bus, KraidPaletteSource.Health),
+            Secondary = ReadKraidColors(bus, KraidPaletteSource.Secondary),
+            DeathArm = ReadKraidColors(bus, KraidPaletteSource.DeathArm),
+        });
+
+    private static PaletteRgb5[] ReadKraidColors(ISnesAddressSpace bus,
+        KraidPaletteSource source)
+    {
+        int count = KraidPaletteRomData.ColorCount(source);
+        byte[] native = RomDataReader.ReadFixedBank(bus,
+            KraidPaletteRomData.SourceAddress(source), count * sizeof(ushort));
+        var colors = new PaletteRgb5[count];
+        for (int index = 0; index < count; index++)
+        {
+            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
+            if ((word & 0x8000) != 0)
+                throw new InvalidDataException(
+                    $"Kraid {source} color {index} has an unrepresentable high bit.");
+            colors[index] = new PaletteRgb5
+            {
+                Red = word & 31,
+                Green = word >> 5 & 31,
+                Blue = word >> 10 & 31,
+            };
+        }
+        return colors;
+    }
+
     private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
         int sourceAddress)
     {
@@ -494,7 +544,8 @@ public static class EnemyTileArtworkFiles
         string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256,
         string KraidUpperSha256, string KraidLowerSha256,
         Dictionary<ushort, string> KraidHeadsSha256,
-        string KraidRoomBackgroundSha256);
+        string KraidRoomBackgroundSha256,
+        string KraidColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

@@ -16,7 +16,8 @@ public sealed class EnemyTileArtworkCatalog
         CrocomireMeltingArtwork? crocomireMelting = null,
         EnemySpritemapCatalog? spritemaps = null,
         EnemyExtendedFrameCatalog? extendedFrames = null,
-        KraidBackgroundArtwork? kraidBackground = null)
+        KraidBackgroundArtwork? kraidBackground = null,
+        KraidColorCatalog? kraidColors = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -28,6 +29,7 @@ public sealed class EnemyTileArtworkCatalog
         Spritemaps = spritemaps;
         ExtendedFrames = extendedFrames;
         KraidBackground = kraidBackground;
+        KraidColors = kraidColors;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -41,6 +43,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Kraid's ordered BG2 tile references; null only for constructed fixtures.</summary>
     public KraidBackgroundArtwork? KraidBackground { get; }
+
+    /// <summary>Installed Kraid RGB5 artwork; null only for constructed fixtures.</summary>
+    public KraidColorCatalog? KraidColors { get; }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
     public void LoadTo(ushort definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
@@ -66,7 +71,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 13;
+    public const int Version = 14;
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
     /// <summary>

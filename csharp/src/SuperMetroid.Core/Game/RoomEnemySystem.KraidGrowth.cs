@@ -121,8 +121,7 @@ public sealed partial class RoomEnemySystem
                 ushort current = _cgram!.Colors[96 + color];
                 ushort target = fadeToBlack
                     ? (ushort)0
-                    : ReadWord(
-                        _bus!, EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords + color * 2);
+                    : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
                 _cgram.SetColor(96 + color, TransitionKraidColor(step, current, target));
             }
             state.RoomBackgroundFadeStep = unchecked((ushort)(step + 1));

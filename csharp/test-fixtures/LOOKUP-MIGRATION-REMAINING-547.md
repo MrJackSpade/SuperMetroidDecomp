@@ -87,9 +87,9 @@ and cartridge-backed presentation payloads. All 28 command records retain 21 tim
 three sound callbacks, four terminators, tilemap identities, and both mouth-hitbox
 selectors; the real interpreter and growth-resume consumer run with all 91 stream
 words forbidden. Mutable bank-$A7 low-half aliases remain live, while unrelated
-upper-ROM cursors fail explicitly. The selected 704-byte tilemaps remain cartridge
-presentation assets and the already-compiled hitbox pointers still resolve through
-the collision catalog.
+upper-ROM cursors fail explicitly. The four selected 704-byte tilemaps are now
+installed editable head maps; only low-half aliases still read live memory.
+The already-compiled hitbox pointers still resolve through the collision catalog.
 
 Kraid's C5E7 sinking Y/callback schedule is compiled. All 28 rows, including
 empty RTS callbacks, are covered through actual rock/PLM dispatch. The middle

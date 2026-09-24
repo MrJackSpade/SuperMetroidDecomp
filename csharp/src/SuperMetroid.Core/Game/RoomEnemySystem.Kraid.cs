@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
-            _cgram!.LoadFromBus(_bus!, 0xa786c7, colorCount: 16, destinationIndex: 96);
+            LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, 96);
             state.BackgroundTilemapWords.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
             state.BackgroundTilemapsPrepared = true;
             UploadKraidRoomBackgroundTiles();
@@ -82,7 +82,7 @@ public sealed partial class RoomEnemySystem
 
         // Background palette three's target colors are written at CGRAM palette eleven in
         // native target-palette storage. The software renderer exposes that buffer directly.
-        _cgram!.LoadFromBus(_bus!, 0xa7aaa6, colorCount: 16, destinationIndex: 176);
+        LoadKraidColorBand(KraidPaletteSource.InitialTarget, 176);
         EarthquakeType = 5;
     }
 
@@ -249,16 +249,10 @@ public sealed partial class RoomEnemySystem
         {
             _cgram!.SetColor(
                 112 + color,
-                ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.Kraid.HealthPaletteWords +
-                        (sourceColor + color) * 2));
+                ReadKraidColor(KraidPaletteSource.Health, sourceColor + color));
             _cgram.SetColor(
                 240 + color,
-                ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.Kraid.SecondaryPaletteWords +
-                        (sourceColor + color) * 2));
+                ReadKraidColor(KraidPaletteSource.Secondary, sourceColor + color));
         }
     }
 }

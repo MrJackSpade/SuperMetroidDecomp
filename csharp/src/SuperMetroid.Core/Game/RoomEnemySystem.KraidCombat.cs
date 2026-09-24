@@ -285,9 +285,7 @@ public sealed partial class RoomEnemySystem
         {
             int colorIndex = 113 + eye;
             ushort current = _cgram!.Colors[colorIndex];
-            ushort target = ReadWord(
-                _bus!,
-                EnemyRomTablePointers.Kraid.HealthPaletteWords + (sourceColor + eye) * 2);
+            ushort target = ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
             int red = current & 0x001f;
             int green = current & 0x03e0;
             if (red != (target & 0x001f))

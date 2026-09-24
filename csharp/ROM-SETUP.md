@@ -52,7 +52,8 @@ Within either platform's application-data root:
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
   Crocomire's two melting images and two BG2 layouts, Kraid's body and head BG2
-  tile-reference maps and room-backdrop character PNG, and their manifest.
+  tile-reference maps, room-backdrop character PNG and RGB5 palette file, and
+  their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
@@ -262,6 +263,14 @@ indices, not the PNG's preview colors, become 4-bpp VRAM characters. Copy it
 to `overrides/enemy-tiles/` to replace those pixels. Other Kraid character
 uploads remain outside this set. Stock files are manifest-hash checked;
 invalid overrides fail during load.
+Kraid's `kraid-colors.json` in `game/enemy-tiles/` contains five RGB5 source
+groups: `roomBackdrop`, `initialTarget`, `health`, `secondary`, and `deathArm`.
+The health and secondary groups each contain nine consecutive sixteen-color
+bands (144 colors), including the hurt-flash band; the others contain sixteen
+colors. Copy the file to `overrides/enemy-tiles/` to edit it. Changes affect
+the corresponding live CGRAM writes, while damage thresholds, eye-fade steps,
+and death timing stay in engine code. Stock hashes and RGB5/shape validation
+apply on load.
 Base room colors are separately extracted into `game/room-palettes/*.json`.
 Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
 `version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to

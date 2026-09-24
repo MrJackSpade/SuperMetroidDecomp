@@ -23,6 +23,7 @@ internal static partial class Program
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
             VerifyInstalledKraidBackground(bus, directory, stock);
+            VerifyInstalledKraidColors(bus, directory, stock);
             VerifyInstalledEnemySpritemaps(bus, directory, stock);
             VerifyInstalledEnemyExtendedFrames(bus, directory, stock);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
@@ -233,6 +234,6 @@ internal static partial class Program
         {
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
-        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
+        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
     }
 }

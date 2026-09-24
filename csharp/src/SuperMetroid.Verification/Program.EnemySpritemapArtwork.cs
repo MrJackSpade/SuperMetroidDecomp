@@ -71,6 +71,10 @@ internal static partial class Program
                                                                             ? RoomEnemySystem.OwtchDefinition
                                                                             : frame.Name.StartsWith("stoke_", StringComparison.Ordinal)
                                                                                 ? RoomEnemySystem.StokeDefinition
+                                                                                : frame.Name.StartsWith("ripper_shared_", StringComparison.Ordinal)
+                                                                                    ? RoomEnemySystem.GRipperDefinition
+                                                                                    : frame.Name.StartsWith("ripper_", StringComparison.Ordinal)
+                                                                                        ? RoomEnemySystem.RipperDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
@@ -140,6 +144,13 @@ internal static partial class Program
         foreach (string frameName in new[]
                  { "fake_kraid_walk_left_0", "kraid_nail_0",
                    "owtch_left_0", "stoke_walk_left_0" })
+        {
+            SpriteVisualPart part = document.Frames[frameName][0];
+            document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
+        }
+        foreach (string frameName in new[]
+                 { "ripper_shared_left_0", "ripper_shared_frozen_left",
+                   "ripper_right_0" })
         {
             SpriteVisualPart part = document.Frames[frameName][0];
             document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
@@ -290,10 +301,61 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
+        foreach ((ushort definition, ushort operand, string name) in new[]
+                 {
+                     (RoomEnemySystem.GRipperDefinition, (ushort)0xe19d, "GRipper"),
+                     (RoomEnemySystem.Ripper2Definition, (ushort)0xe2e2, "Ripper II"),
+                     (RoomEnemySystem.RipperDefinition, (ushort)0xe479, "Ripper"),
+                 })
+        {
+            ushort pointer = RipperVisualDefinitions.FrameAt(definition, operand);
+            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+                pointer, definition);
+            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+                pointer, definition);
+            AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
+                editedFrame.LowTable[1],
+                $"authored {name} Y offset changes live room OAM");
+            AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
+                $"{name} visual override leaves X unchanged");
+        }
+        OamBuffer stockFrozen = DrawEnemy(stock, new FrameReadGuard(rom),
+            RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
+            RoomEnemySystem.GRipperDefinition);
+        OamBuffer editedFrozen = DrawEnemy(edited, new FrameReadGuard(rom),
+            RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
+            RoomEnemySystem.GRipperDefinition);
+        AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
+            editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preOwtchStokeFrames = document.Frames
+        var preRipperFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("ripper_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreRipperFrameCount,
+            preRipperFrames.Count, "pre-Ripper composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreRipperVersion,
+                Frames = preRipperFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preRipperUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer upgradedRipper = DrawEnemy(preRipperUpgraded, new FrameReadGuard(rom),
+            0xe54b, RoomEnemySystem.RipperDefinition);
+        OamBuffer stockRipper = DrawEnemy(stock, new FrameReadGuard(rom),
+            0xe54b, RoomEnemySystem.RipperDefinition);
+        AssertTrue(stockRipper.LowTable.SequenceEqual(upgradedRipper.LowTable),
+            "version-ten override gains stock Ripper composition");
+        OamBuffer retainedStoke = DrawEnemy(preRipperUpgraded,
+            new FrameReadGuard(rom), 0x8aca, RoomEnemySystem.StokeDefinition);
+        OamBuffer editedStoke = DrawEnemy(edited, new FrameReadGuard(rom),
+            0x8aca, RoomEnemySystem.StokeDefinition);
+        AssertEqual(editedStoke.LowTable[1], retainedStoke.LowTable[1],
+            "version-ten override retains edited Stoke composition");
+        var preOwtchStokeFrames = preRipperFrames
             .Where(pair => !pair.Key.StartsWith("owtch_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("stoke_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -515,7 +577,9 @@ internal static partial class Program
                 >= 0xa69c64 and < 0xa6a0e0 or
                 >= 0xa7a617 and < 0xa7a69f or
                 >= 0xa2a589 and < 0xa2a59e or
-                >= 0xa28aca and < 0xa28b60)
+                >= 0xa28aca and < 0xa28b60 or
+                >= 0xa2e3c5 and < 0xa2e457 or
+                >= 0xa2e527 and < 0xa2e56f)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

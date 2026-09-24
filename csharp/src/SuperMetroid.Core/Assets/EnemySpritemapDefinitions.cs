@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 10;
+    internal const int Version = 11;
+    internal const int PreRipperVersion = 10;
+    internal const int PreRipperFrameCount = 180;
     internal const int PreOwtchStokeVersion = 9;
     internal const int PreOwtchStokeFrameCount = 167;
     internal const int PreviousVersion = 8;
@@ -34,6 +36,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte FakeKraidBank = 0xa6;
     internal const byte KraidNailBank = 0xa7;
     internal const byte OwtchStokeBank = 0xa2;
+    internal const byte RipperBank = 0xa2;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -222,6 +225,20 @@ internal static class EnemySpritemapDefinitions
         new(OwtchStokeBank, 0x8b32, "stoke_walk_right_2"),
         new(OwtchStokeBank, 0x8b3e, "stoke_walk_right_3"),
         new(OwtchStokeBank, 0x8b4a, "stoke_attack_right"),
+        new(RipperBank, 0xe3c5, "ripper_shared_left_0"),
+        new(RipperBank, 0xe3db, "ripper_shared_left_1"),
+        new(RipperBank, 0xe3ec, "ripper_shared_left_2"),
+        new(RipperBank, 0xe402, "ripper_shared_right_0"),
+        new(RipperBank, 0xe418, "ripper_shared_right_1"),
+        new(RipperBank, 0xe429, "ripper_shared_right_2"),
+        new(RipperBank, 0xe43f, "ripper_shared_frozen_left"),
+        new(RipperBank, 0xe44b, "ripper_shared_frozen_right"),
+        new(RipperBank, 0xe527, "ripper_left_0"),
+        new(RipperBank, 0xe533, "ripper_left_1"),
+        new(RipperBank, 0xe53f, "ripper_left_2"),
+        new(RipperBank, 0xe54b, "ripper_right_0"),
+        new(RipperBank, 0xe557, "ripper_right_1"),
+        new(RipperBank, 0xe563, "ripper_right_2"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -261,6 +278,9 @@ internal static class EnemySpritemapDefinitions
                 KraidVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition =>
                 OwtchStokeVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition or
+                RoomEnemySystem.RipperDefinition =>
+                RipperVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
@@ -275,7 +295,9 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.FakeKraidDefinition or
             RoomEnemySystem.KraidGoodNailDefinition or
             RoomEnemySystem.KraidBadNailDefinition or
-            RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition;
+            RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition or
+            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition or
+            RoomEnemySystem.RipperDefinition;
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## GRipper, Ripper II, and Ripper visuals (2026-09-24)
+
+The three bank-$A2 Ripper variants select twelve distinct moving frames through
+twenty-four fixed visual operands. The GRipper/Ripper II frozen facings add two
+directly selected OAM frames. All fourteen are editable in
+`enemy-compositions.json`; `RipperVisualDefinitions` compiles the instruction
+selections. Direction reversal, motion, freezing, and the 8/7/8/7 instruction
+schedule remain engine-owned. Tests run all six real loops with the selector and
+mechanics bytes forbidden, compare all stock OAM with the pinned cartridge, and
+check visible edits, frozen art, and older-override migration. Other families
+remain pending.
+
 ## Owtch and Stoke visual selectors (2026-09-24)
 
 Owtch's two directional loops select three ordinary OAM frames through six fixed

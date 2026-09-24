@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -27,7 +28,42 @@ internal static partial class Program
                 $"Ripper-family instruction mechanics word $A2:{definition.Address:X4}");
         }
 
+        for (int index = 0;
+             index < RipperInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address = RipperInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort definition = address >= RipperInstructionProgramDefinitions.RipperMovingRight
+                ? RoomEnemySystem.RipperDefinition
+                : address >= RipperInstructionProgramDefinitions.Ripper2MovingRight
+                    ? RoomEnemySystem.Ripper2Definition
+                    : RoomEnemySystem.GRipperDefinition;
+            AssertEqual(ReadRipperInstructionWord(rom, 0xa20000 | address),
+                RipperVisualDefinitions.FrameAt(definition, address),
+                $"compiled Ripper-family frame selector $A2:{address:X4}");
+        }
+        foreach ((int record, ushort definition) in new[]
+                 {
+                     (EnemyRomTablePointers.Ripper.GRipperPopulationRecord,
+                         RoomEnemySystem.GRipperDefinition),
+                     (EnemyRomTablePointers.Ripper.Ripper2PopulationRecord,
+                         RoomEnemySystem.Ripper2Definition),
+                     (EnemyRomTablePointers.Ripper.RipperPopulationRecord,
+                         RoomEnemySystem.RipperDefinition),
+                 })
+        {
+            AssertEqual(definition, ReadRipperInstructionWord(rom, record),
+                $"retail Ripper population ${record:X6} definition");
+            ushort extra = ReadRipperInstructionWord(rom, record + 10);
+            AssertTrue(!extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
+                $"retail Ripper population ${record:X6} uses ordinary OAM");
+        }
+        AssertThrows<InvalidDataException>(
+            () => RipperVisualDefinitions.FrameAt(RoomEnemySystem.RipperDefinition, 0xe477),
+            "Ripper timing word is not a visual selector");
+
         var guard = new RipperInstructionProgramReadGuard(rom);
+        HashSet<ushort> observedFrames = [];
         VerifyGRipper(1,
             RipperInstructionProgramDefinitions.GRipperMovingRight,
             "GRipper right");
@@ -45,21 +81,16 @@ internal static partial class Program
             RipperInstructionProgramDefinitions.RipperMovingLeft,
             "Ripper left");
 
-        AssertEqual(RipperInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Ripper-family spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < RipperInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                RipperInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Ripper-family presentation $A2:{address:X4}");
-        }
+        AssertEqual(12, observedFrames.Count,
+            "all Ripper-family walking frames execute across six native loops");
+        foreach (ushort frame in new ushort[]
+                 { 0xe3c5, 0xe3db, 0xe3ec, 0xe402, 0xe418, 0xe429,
+                   0xe527, 0xe533, 0xe53f, 0xe54b, 0xe557, 0xe563 })
+            AssertTrue(observedFrames.Contains(frame),
+                $"Ripper-family live frame ${frame:X4}");
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Ripper-family mechanics byte");
+            "production execution avoids compiled Ripper mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => RipperInstructionProgramDefinitions.ReadMechanicsWord(0xe19d),
             "interleaved GRipper spritemap pointer is rejected as mechanics");
@@ -79,8 +110,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ripper-family instruction mechanics: thirty-six compiled words, all six " +
-            "production-installed animation loops, and twenty-four live spritemap reads " +
-            "pass with mechanics bytes forbidden.");
+            "production-installed animation loops, and twenty-four compiled visual selectors " +
+            "pass with source bytes forbidden.");
 
         void VerifyGRipper(ushort packedSelector, ushort expectedProgram, string context)
         {
@@ -159,7 +190,7 @@ internal static partial class Program
             return enemies;
         }
 
-        static void VerifyInstalledLoop(
+        void VerifyInstalledLoop(
             RoomEnemySystem enemies,
             RoomEnemySlot slot,
             ushort expectedProgram,
@@ -174,7 +205,11 @@ internal static partial class Program
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             for (int frame = 0; frame < 31; frame++)
+            {
                 process.Invoke(enemies, arguments);
+                if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
+                    observedFrames.Add(slot.SpritemapPointer);
+            }
             AssertEqual(unchecked((ushort)(expectedProgram + 4)), slot.CurrentInstruction,
                 $"{context} completes 8/7/8/7 loop and native goto");
         }
@@ -198,37 +233,36 @@ internal static partial class Program
     private sealed class RipperInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (RipperInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (RipperInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Ripper-family mechanics byte ${address:X6}.");
+                    $"Production read compiled Ripper-family instruction byte ${address:X6}.");
             }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < RipperInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        RipperInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
             return source.ReadByte(address);
+        }
+
+        private static bool IsPresentationByte(int address)
+        {
+            if ((address & 0xff0000) != 0xa20000)
+                return false;
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0;
+                 index < RipperInstructionProgramDefinitions.PresentationWordCount;
+                 index++)
+            {
+                ushort presentation =
+                    RipperInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation ||
+                    bankAddress == unchecked((ushort)(presentation + 1)))
+                    return true;
+            }
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

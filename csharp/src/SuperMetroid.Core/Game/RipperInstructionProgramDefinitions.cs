@@ -6,7 +6,7 @@ internal readonly record struct RipperInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the GRipper, Ripper II, and Ripper animation loops.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
 internal static class RipperInstructionProgramDefinitions
 {

@@ -337,6 +337,21 @@ streaming without changing collision or respawn timing. The chosen visual block
 must exist in the active room's block-definition table. Other doors, gates,
 items, and PLM families remain outside these two resources.
 
+Station PLM appearances are installed as
+`game/room-plm-stations/stations.json`. Copy it to
+`overrides/room-plm-stations/stations.json` and edit only `runs` visual words
+(0..4095), then restart. Every entry has a semantic `id`, such as
+`map-frame-0`, `save-active-a`, or `resource-right-extended`; keep all 20
+IDs and each nested run/word count. The values select visual blocks from the
+active room's combined CRE/area definitions, whose tile compositions can be
+edited under `room-blocks/`. Do not put collision bits in a visual word.
+Station timing, access selection, full physical level words, map
+rewards, refills, and save behavior stay compiled. Edited station art affects
+the immediate redraw and later camera streaming without changing those rules.
+The stock file is hash-checked; the override lives outside replaceable stock
+content and survives installation repair or updates. Other room-object
+families still need separate presentation resources.
+
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,
 `bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names

@@ -77,6 +77,7 @@ internal static partial class Program
         // or draw-list bytes.
         // Its real map, missile, and save paths can finish only with compiled data.
         VerifySequentialRoomPlmPopulationLoader();
+        VerifyStationVisuals(rom);
         Console.WriteLine(
             "Station animations: all 15 frame records, 20 draw lists, and 12 access selections match ROM; sparse-bus station activation and save animation use compiled data.");
     }

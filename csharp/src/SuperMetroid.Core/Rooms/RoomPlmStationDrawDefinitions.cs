@@ -37,12 +37,57 @@ internal static class RoomPlmStationDrawDefinitions
 
     private static readonly IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    private static readonly IReadOnlyDictionary<ushort, string> VisualIds = BuildVisualIds();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
+
+    internal static string VisualId(ushort pointer) =>
+        VisualIds.TryGetValue(pointer, out string? id)
+            ? id
+            : throw new InvalidDataException($"Station draw list ${pointer:X4} has no visual ID.");
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach ((ushort pointer, string candidate) in VisualIds)
+        {
+            if (string.Equals(id, candidate, StringComparison.Ordinal))
+                return Lists.TryGetValue(pointer, out list);
+        }
+
+        list = default;
+        return false;
+    }
+
+    private static IReadOnlyDictionary<ushort, string> BuildVisualIds()
+    {
+        var ids = new Dictionary<ushort, string>();
+        for (int frame = 0; frame < 3; frame++)
+        {
+            ids.Add(checked((ushort)(MapFirst + frame * 12)), $"map-frame-{frame}");
+            ids.Add(checked((ushort)(EnergyFirst + frame * 12)), $"energy-frame-{frame}");
+            ids.Add(checked((ushort)(MissileFirst + frame * 12)), $"missile-frame-{frame}");
+        }
+
+        ids.Add(SaveIdle, "save-idle");
+        ids.Add(SaveActive, "save-active-a");
+        ids.Add(SaveAlternate, "save-active-b");
+        ids.Add(MapRightRetracted, "map-right-retracted");
+        ids.Add(MapRightExtended, "map-right-extended");
+        ids.Add(MapLeftRetracted, "map-left-retracted");
+        ids.Add(MapLeftExtended, "map-left-extended");
+        ids.Add(ResourceRightRetracted, "resource-right-retracted");
+        ids.Add(ResourceRightExtended, "resource-right-extended");
+        ids.Add(ResourceLeftRetracted, "resource-left-retracted");
+        ids.Add(ResourceLeftExtended, "resource-left-extended");
+        if (ids.Count != Lists.Count)
+            throw new InvalidDataException("Station visual IDs do not cover all draw lists.");
+        return ids;
+    }
 
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()

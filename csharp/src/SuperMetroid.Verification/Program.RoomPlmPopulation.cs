@@ -1250,7 +1250,8 @@ internal static partial class Program
             "odd Metroids-cleared room argument fails loudly");
     }
 
-    private static void VerifyOtherStationFamilies(TestAddressSpace bus)
+    private static void VerifyOtherStationFamilies(TestAddressSpace bus,
+        RoomPlmStationVisualCatalog? visuals = null)
     {
         const ushort population = 0x9200;
         bus.WriteBytes(0x8f0000 | population, [
@@ -1269,7 +1270,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var system = new Bank80SystemState();
         var samus = new SamusState { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
-        var plms = new RoomPlmSystem();
+        var plms = new RoomPlmSystem { StationVisuals = visuals };
         plms.LoadRoomPopulation(
             bus,
             level,

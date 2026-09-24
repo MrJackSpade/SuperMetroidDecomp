@@ -62,6 +62,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable Grapple-block appearances; timing, placement, and collision remain compiled.</summary>
     public RoomPlmGrappleBlockVisualCatalog LoadRoomPlmGrappleBlockVisuals() =>
         RoomPlmGrappleBlockVisualFiles.Load(RoomPlmGrappleBlockVisualDirectory, RoomPlmGrappleBlockVisualOverrideDirectory);
+    public string RoomPlmStationVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmStationVisualDirectoryName);
+    public string RoomPlmStationVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmStationVisualDirectoryName);
+    /// <summary>Editable station appearances; activation, rewards, and collision remain compiled.</summary>
+    public RoomPlmStationVisualCatalog LoadRoomPlmStationVisuals() =>
+        RoomPlmStationVisualFiles.Load(RoomPlmStationVisualDirectory, RoomPlmStationVisualOverrideDirectory);
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
     public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
@@ -108,9 +113,10 @@ public static class GameInstallationLayout
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
     public const string RoomPlmShotBlockVisualDirectoryName = "room-plm-shot-blocks";
     public const string RoomPlmGrappleBlockVisualDirectoryName = "room-plm-grapple-blocks";
+    public const string RoomPlmStationVisualDirectoryName = "room-plm-stations";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 37;
+    public const int FormatVersion = 38;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

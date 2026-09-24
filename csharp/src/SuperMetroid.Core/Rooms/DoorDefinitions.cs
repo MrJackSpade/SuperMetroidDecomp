@@ -1003,6 +1003,10 @@ public static class DoorDefinitions
     /// i=0 resolves to $9252; no stride follows from one word.
     /// Index 1 reaches next room header $0136 at $8F:A70B. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1140, Warehouse Save $8F:A732: sole valid normalized
+    /// BTS i=0 resolves to $925E; no stride follows from one word.
+    /// Index 1 reaches next room header $0137 at $8F:A734. The ROM
+    /// oracle checks the entry, both aliases, and this boundary.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

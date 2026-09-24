@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Permanent-collectible PLM draw lists (2026-09-24)
+
+All 24 one-block draw lists used by permanent items, Chozo orbs, and shot-block
+reveals now have compiled physical level words and editable visual block choices
+in `room-plm-collectibles/collectibles.json`. The eight bank-$84 dynamic-slot
+frame selections at `$E05F/$E077` are compiled as bounded slot/frame selection.
+The extractor compares every native list and selector with the pinned cartridge;
+production tests run all 21 item kinds plus orb and reveal drawing with source
+reads forbidden, and show an edited energy-tank visual changing both immediate
+and later streamed tiles while the physical level word stays fixed. Other PLM
+families and presentation payloads remain pending.
+
 ## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 
 The three bank-$A2 Ripper variants select twelve distinct moving frames through

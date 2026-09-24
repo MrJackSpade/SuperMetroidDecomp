@@ -37,6 +37,11 @@ if (args is ["--area-animated-tile-definitions"])
     VerifyAreaAnimatedTileObjectDefinitions();
     return 0;
 }
+if (args is ["--collectible-visuals"])
+{
+    VerifyCollectibleVisuals();
+    return 0;
+}
 if (args is ["--sand-animated-tiles"])
 {
     VerifySandAnimatedTiles();
@@ -2408,6 +2413,7 @@ VerifyBombBlockPrograms();
 VerifyContactCrumblePrograms();
 VerifyStationAnimationProgramDefinitions();
 VerifyPermanentCollectibles();
+VerifyCollectibleVisuals();
 VerifyEnemyDrops();
 VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();

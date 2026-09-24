@@ -367,8 +367,8 @@ path under `overrides/` and edit a `visualWord` (0..4095). Keep all five
 native level words, including Grapple/air collision, and both instruction
 timelines remain fixed. Edited art appears in immediate redraws and later camera
 streaming without changing collision or respawn timing. The chosen visual block
-must exist in the active room's block-definition table. Other doors, gates,
-items, and PLM families remain outside these two resources.
+must exist in the active room's block-definition table. Other PLM families use
+their own resources or remain ROM-backed.
 
 Station PLM appearances are installed as
 `game/room-plm-stations/stations.json`. Copy it to
@@ -396,6 +396,20 @@ physical level words, collision, shot filters, and animation timing do not
 change. The visible moving gate actor uses separate bank-$86 sprite art and is
 not replaced by this resource. Invalid stock or override data fails loudly;
 the override survives stock installation repair or updates.
+
+Permanent collectible PLM appearances are installed as
+`game/room-plm-collectibles/collectibles.json`. Copy it to
+`overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`
+(0..4095), then restart. Keep all 24 semantic IDs: the empty block, Chozo orb
+and burst, the four two-frame tank kinds, four two-frame dynamic graphics slots,
+and the three shot-block reveal frames. The words select visual blocks from the
+active room's combined CRE/area definitions. The dynamic graphics slot still
+loads its native character tiles; those tile pixels are a separate resource.
+Item acquisition, collision, room-item and Chozo persistence, sound, frame
+timing, and physical level words remain compiled. An edited word changes the
+immediate redraw and later camera streaming without changing the item reward.
+Invalid stock or override data fails loudly; the override survives stock
+installation repair or updates.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,

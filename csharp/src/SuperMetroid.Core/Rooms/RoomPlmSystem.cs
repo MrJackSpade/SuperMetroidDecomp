@@ -35,6 +35,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? grappleBlockVisuals;
     [NonSerialized] private RoomPlmStationVisualCatalog? stationVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
+    [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
     public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals
@@ -62,6 +63,13 @@ public sealed partial class RoomPlmSystem
     {
         get => downwardGateVisuals;
         set => downwardGateVisuals = value;
+    }
+
+    /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
+    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals
+    {
+        get => collectibleVisuals;
+        set => collectibleVisuals = value;
     }
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
@@ -1705,6 +1713,13 @@ public sealed partial class RoomPlmSystem
                 level, streamer, gate, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
                 useShotBlockVisuals: false, gateVisuals: downwardGateVisuals);
+            return;
+        }
+        if (RoomPlmCollectibleDrawDefinitions.TryGet(drawPointer, out var collectible))
+        {
+            DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
+                collectible.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                collectibleVisuals?.GetWord(drawPointer));
             return;
         }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))

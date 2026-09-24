@@ -31,4 +31,11 @@ public sealed partial class SuperMetroidRuntime
         get => Plms.DownwardGateVisuals;
         set => Plms.DownwardGateVisuals = value;
     }
+
+    /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
+    public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
+    {
+        get => Plms.CollectibleVisuals;
+        set => Plms.CollectibleVisuals = value;
+    }
 }

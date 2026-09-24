@@ -290,25 +290,11 @@ internal static partial class Program
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ]);
 
-        // Both dynamic animation tables select one-block draw records for slot zero.
-        bus.WriteBytes(0x84e05f, [0x00, 0xe5]);
-        bus.WriteBytes(0x84e077, [0x06, 0xe5]);
-        WriteOneBlockDraw(bus, 0xe500, 0xb08e);
-        WriteOneBlockDraw(bus, 0xe506, 0xb08f);
-
-        WriteOneBlockDraw(bus, 0xa2b5, 0x00ff);
-        WriteOneBlockDraw(bus, 0xa2c7, 0xc090);
-        WriteOneBlockDraw(bus, 0xa2cd, 0xc091);
-        WriteOneBlockDraw(bus, 0xa2d3, 0xc092);
-        WriteOneBlockDraw(bus, 0xa2d9, 0x0093);
-        for (int kind = 0; kind < 4; kind++)
-        {
-            WriteOneBlockDraw(bus, 0xa2df + kind * 12, unchecked((ushort)(0xb080 + kind * 2)));
-            WriteOneBlockDraw(bus, 0xa2e5 + kind * 12, unchecked((ushort)(0xb081 + kind * 2)));
-        }
+        // Permanent-item draw words and dynamic-slot selections are now compiled.
+        // Do not seed their old ROM ranges: the ordinary pickup suite should fail if
+        // production ever accidentally returns to those presentation reads.
         for (int frame = 0; frame < 3; frame++)
         {
-            WriteOneBlockDraw(bus, 0xa3dd + frame * 6, unchecked((ushort)(0xc0a0 + frame)));
             WriteOneBlockDraw(bus, 0xa345 + frame * 6, unchecked((ushort)(0xc0b0 + frame)));
         }
     }

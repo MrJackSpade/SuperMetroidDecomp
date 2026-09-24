@@ -30,6 +30,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog? roomPlmGrappleBlockVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog? roomPlmStationVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
     private readonly SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog? roomBackgroundTilemaps;
     private readonly SuperMetroid.Core.Assets.RoomSkyTilemapCatalog? roomSkyTilemaps;
@@ -89,6 +90,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmDownwardGateVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDownwardGateVisuals() : null;
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
+        roomPlmCollectibleVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCollectibleVisuals() : null;
+        Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         xrayRevealVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadXrayRevealVisuals() : null;
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
@@ -191,6 +195,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
         Game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
+        Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
         Game.BindRoomSkyTilemapArt(roomSkyTilemaps);

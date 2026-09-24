@@ -1715,6 +1715,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, blueDoorVisuals: blueDoorVisuals);
             return;
         }
+        if (ColoredDoorPlmDrawDefinitions.TryGet(drawPointer, out var coloredDoor))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, coloredDoor, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
         {
             DrawCompiledBlockInstruction(

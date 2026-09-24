@@ -903,6 +903,12 @@ if (args is ["--blue-door-plm-draws"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--colored-door-plm-draws"])
+{
+    VerifyColoredDoorPlmDrawDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--shot-block-plm-programs"])
 {
     VerifyShotBlockPlmPrograms();

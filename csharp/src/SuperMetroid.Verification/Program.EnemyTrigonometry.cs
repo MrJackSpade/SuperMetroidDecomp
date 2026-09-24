@@ -214,6 +214,7 @@ internal static partial class Program
         VerifySpeedBoosterEscapeStageDefinitions(rom);
         VerifyDoorClosingPlmDefinitions(rom);
         VerifyBlueDoorPlmDrawDefinitions(rom);
+        VerifyColoredDoorPlmDrawDefinitions(rom);
         VerifySamusArmCannonDefinitions(rom);
         VerifyEnemyDeathExplosionDefinitions(rom);
         VerifyEnemyProjectileDefinitions(rom);

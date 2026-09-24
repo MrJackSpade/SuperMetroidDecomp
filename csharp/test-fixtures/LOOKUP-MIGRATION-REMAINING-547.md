@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Colored-door PLM draw lists (2026-09-24)
+
+All forty-eight ordinary yellow, green, and red door-cap draw lists now have
+compiled physical level words. Each of the twelve resident headers selects four
+four-block frames. Verification compares every direction word, block word, and
+terminator with the pinned cartridge; all twelve actual resident first-draw
+paths run with the full draw-list payload corpus forbidden. The bank-$84
+instruction programs still own hit filters, timers, sounds, persistence, and
+blue-cap conversion. Colored-door visuals are not separately editable yet;
+that presentation binding and the special Bomb Torizo grey door are separate
+room-object work.
+
 ## Blue-door PLM draw lists (2026-09-24)
 
 All sixteen four-block draw lists used by the four orientation-specific blue-door

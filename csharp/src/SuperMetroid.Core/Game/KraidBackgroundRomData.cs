@@ -10,6 +10,9 @@ public static class KraidBackgroundRomData
     /// <summary>Bank-$A7 base used by Kraid's private instruction-list pointers.</summary>
     public const int NativeBank = 0xa70000;
 
+    /// <summary>First bank-$A7 ROM pointer; lower pointers alias mutable SNES memory.</summary>
+    public const ushort HeadRomWindowStart = 0x8000;
+
     /// <summary>Compressed upper-body tilemap consumed by <c>$A7:AAC6</c>.</summary>
     public const int UpperTilemap = 0xb9fa38;
 

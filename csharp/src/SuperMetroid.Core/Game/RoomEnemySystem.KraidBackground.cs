@@ -90,9 +90,20 @@ public sealed partial class RoomEnemySystem
     private void TransferKraidHeadTilemap(KraidEnemyState state, ushort sourcePointer)
     {
         Span<ushort> working = state.BackgroundTilemapWords;
-        int sourceAddress = KraidBackgroundRomData.NativeBank | sourcePointer;
-        for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
-            working[word] = ReadWord(_bus!, sourceAddress + word * 2);
+        if (TileArtwork is not null && sourcePointer >= KraidBackgroundRomData.HeadRomWindowStart)
+        {
+            KraidBackgroundArtwork art = TileArtwork.KraidBackground
+                ?? throw new InvalidDataException("Installed enemy artwork has no Kraid BG2 tilemaps.");
+            art.HeadWords(sourcePointer).CopyTo(working);
+        }
+        else
+        {
+            // Native low-half pointers alias live WRAM/register state, not immutable
+            // head art. Preserve that exceptional cartridge behavior exactly.
+            int sourceAddress = KraidBackgroundRomData.NativeBank | sourcePointer;
+            for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
+                working[word] = ReadWord(_bus!, sourceAddress + word * 2);
+        }
         _vram!.ExecuteWordTransfer(
             working[..KraidBackgroundRomData.HeadTilemapWords],
             KraidBackgroundRomData.LiveBg2TilemapWord,

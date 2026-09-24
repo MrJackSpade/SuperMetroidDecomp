@@ -77,6 +77,100 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed Kraid BG2 override fails at load");
+        VerifyInstalledKraidHeadFrames(rom, directory, stock);
+    }
+
+    private static void VerifyInstalledKraidHeadFrames(
+        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+    {
+        ushort[] pointers = KraidHeadInstructionDefinitions.All.ToArray()
+            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
+            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        AssertEqual(4, pointers.Length, "four distinct Kraid head art frames");
+        foreach (ushort pointer in pointers)
+        {
+            byte[] native = RomDataReader.ReadFixedBank(rom,
+                KraidBackgroundRomData.NativeBank | pointer,
+                KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
+            ReadOnlySpan<ushort> installed = stock.KraidBackground!.HeadWords(pointer);
+            for (int word = 0; word < installed.Length; word++)
+                AssertEqual((ushort)(native[word * 2] | native[word * 2 + 1] << 8),
+                    installed[word], $"Kraid head ${pointer:X4} word {word}");
+
+            (KraidEnemyState baseline, SnesVram nativeVram) = RunKraidHeadFrame(rom, null,
+                pointer);
+            var guard = new KraidCompressedSourceGuard(rom);
+            (KraidEnemyState selected, SnesVram installedVram) = RunKraidHeadFrame(
+                guard, stock, pointer);
+            AssertEqual(0, guard.ForbiddenReadAttempts,
+                $"Kraid head ${pointer:X4} production transfer avoids ROM artwork");
+            AssertTrue(selected.BackgroundTilemapWords.SequenceEqual(
+                    baseline.BackgroundTilemapWords),
+                $"Kraid head ${pointer:X4} preserves the live working map");
+            AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+                $"Kraid head ${pointer:X4} preserves the actual VRAM transfer");
+            AssertEqual(baseline.HeadTilemapUploadCount, selected.HeadTilemapUploadCount,
+                $"Kraid head ${pointer:X4} preserves upload count");
+        }
+
+        ushort editedPointer = pointers[0];
+        string fileName = KraidBackgroundArtworkFormat.HeadFileName(editedPointer);
+        string stockPath = Path.Combine(directory, fileName);
+        byte[] original = File.ReadAllBytes(stockPath);
+        string overrides = Path.Combine(directory, "kraid-head-override");
+        Directory.CreateDirectory(overrides);
+        KraidHeadTilemapDocument document =
+            JsonSerializer.Deserialize<KraidHeadTilemapDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        RoomBackgroundTilemapCell[] cells = (RoomBackgroundTilemapCell[])document.Cells.Clone();
+        cells[0] = cells[0] with { TileColumn = cells[0].TileColumn ^ 1 };
+        string overridePath = Path.Combine(overrides, fileName);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document with { Cells = cells }, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            }));
+        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        var editedGuard = new KraidCompressedSourceGuard(rom);
+        (_, SnesVram changedVram) = RunKraidHeadFrame(editedGuard, edited, editedPointer);
+        AssertEqual(0, editedGuard.ForbiddenReadAttempts,
+            "edited Kraid head frame avoids cartridge art reads");
+        (_, SnesVram stockVram) = RunKraidHeadFrame(rom, null, editedPointer);
+        int address = KraidBackgroundRomData.LiveBg2TilemapWord * 2;
+        AssertEqual((byte)(stockVram.ReadByte(address) ^ 1), changedVram.ReadByte(address),
+            "edited Kraid head tile changes the first live VRAM reference");
+        AssertTrue(stockVram.Bytes[(address + 1)..]
+                .SequenceEqual(changedVram.Bytes[(address + 1)..]),
+            "Kraid head edit leaves all later VRAM bytes unchanged");
+        (_, SnesVram reloadedVram) = RunKraidHeadFrame(
+            new KraidCompressedSourceGuard(rom),
+            EnemyTileArtworkFiles.Load(directory, overrides), editedPointer);
+        AssertTrue(reloadedVram.Bytes.SequenceEqual(changedVram.Bytes),
+            "Kraid head tilemap edit survives a catalog reload");
+
+        File.WriteAllBytes(stockPath, [0]);
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+            "tampered Kraid head stock map fails manifest hash");
+        File.WriteAllBytes(stockPath, original);
+        File.WriteAllBytes(overridePath, [0]);
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
+            "malformed Kraid head override fails at load");
+    }
+
+    private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
+        ISnesAddressSpace bus, EnemyTileArtworkCatalog? artwork, ushort pointer)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        var transfer = typeof(RoomEnemySystem).GetMethod("TransferKraidHeadTilemap", flags)!
+            .CreateDelegate<Action<KraidEnemyState, ushort>>(enemies);
+        var state = new KraidEnemyState();
+        transfer(state, pointer);
+        return (state, vram);
     }
 
     private static KraidEnemyState BuildKraidWorkingMap(
@@ -112,12 +206,20 @@ internal static partial class Program
 
     private sealed class KraidCompressedSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
+        private static readonly ushort[] HeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
+            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
+            .Select(frame => frame.Tilemap).Distinct().ToArray();
+
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
             if (address == KraidBackgroundRomData.UpperTilemap ||
-                address == KraidBackgroundRomData.LowerTilemap)
+                address == KraidBackgroundRomData.LowerTilemap ||
+                HeadPointers.Any(pointer =>
+                        address >= (KraidBackgroundRomData.NativeBank | pointer) &&
+                        address < (KraidBackgroundRomData.NativeBank | pointer) +
+                            KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort)))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

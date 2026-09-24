@@ -122,6 +122,20 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
+        ushort[] headPointers = KraidHeadInstructionDefinitions.All.ToArray()
+            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
+            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        var kraidHeadHashes = new Dictionary<ushort, string>();
+        foreach (ushort pointer in headPointers)
+        {
+            byte[] native = RomDataReader.ReadFixedBank(bus,
+                KraidBackgroundRomData.NativeBank | pointer,
+                KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
+            byte[] json = KraidHeadTilemapAtlas.Encode(native);
+            File.WriteAllBytes(Path.Combine(directory,
+                KraidBackgroundArtworkFormat.HeadFileName(pointer)), json);
+            kraidHeadHashes.Add(pointer, Convert.ToHexString(SHA256.HashData(json)));
+        }
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -131,7 +145,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(spritemapJson)),
             Convert.ToHexString(SHA256.HashData(extendedJson)),
             Convert.ToHexString(SHA256.HashData(upperKraid)),
-            Convert.ToHexString(SHA256.HashData(lowerKraid)));
+            Convert.ToHexString(SHA256.HashData(lowerKraid)),
+            kraidHeadHashes);
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -163,9 +178,15 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
-            string.IsNullOrWhiteSpace(manifest.KraidLowerSha256))
+            string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
+            manifest.KraidHeadsSha256 is null)
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
+        ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
+            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
+            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(expectedHeadPointers))
+            throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
 
         var sheets = new Dictionary<ushort, RoomCharacterAtlas>();
         var palettes = new Dictionary<ushort, EnemyPaletteSheet>();
@@ -293,8 +314,25 @@ public static class EnemyTileArtworkFiles
             KraidBackgroundArtworkFormat.UpperFileName, manifest.KraidUpperSha256);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
             KraidBackgroundArtworkFormat.LowerFileName, manifest.KraidLowerSha256);
+        var kraidHeads = new Dictionary<ushort, KraidHeadTilemapAtlas>();
+        foreach ((ushort pointer, string sha256) in manifest.KraidHeadsSha256)
+        {
+            string fileName = KraidBackgroundArtworkFormat.HeadFileName(pointer);
+            byte[] selected = ReadStockOrOverride(fileName, sha256);
+            try
+            {
+                kraidHeads.Add(pointer, KraidHeadTilemapAtlas.Load(
+                    new MemoryStream(selected, writable: false)));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid Kraid head tilemap {fileName}: {error.Message}", error);
+            }
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
-            spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid));
+            spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
+                kraidHeads));
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -414,7 +452,8 @@ public static class EnemyTileArtworkFiles
         string CrocomireFirstSha256, string CrocomireSecondSha256,
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
         string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256,
-        string KraidUpperSha256, string KraidLowerSha256);
+        string KraidUpperSha256, string KraidLowerSha256,
+        Dictionary<ushort, string> KraidHeadsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

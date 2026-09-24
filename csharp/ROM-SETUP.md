@@ -51,7 +51,7 @@ Within either platform's application-data root:
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
-  Crocomire's two melting images and two BG2 layouts, Kraid's upper/lower BG2
+  Crocomire's two melting images and two BG2 layouts, Kraid's body and head BG2
   tile-reference maps, and their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
@@ -249,13 +249,15 @@ Pixels beyond each native image's written byte range are reserved and must
 remain zero. Stock melt sheets are hash-checked and repaired with the other
 enemy art, while valid overrides survive repair and application updates.
 Kraid's private BG2 body sources are `kraid-upper-bg2.json` and
-`kraid-lower-bg2.json` in `game/enemy-tiles/`. Copy either file to
-`overrides/enemy-tiles/` with the same name to edit its two ordered 32×32
-pages. Each cell names `tileColumn`, `tileRow`, `palette`, `priority`, `flipX`,
-and `flipY`. Kraid's engine still composes the working map and owns head
-animation, growth, collision, and VRAM transfer timing. These two source
-maps do not yet replace the animated head maps or Kraid's character sheets.
-The stock maps are manifest-hash checked; invalid overrides fail during load.
+`kraid-lower-bg2.json` in `game/enemy-tiles/`. Each has two ordered 32×32 pages.
+The four animated head layouts are `kraid-head-97C8.json`,
+`kraid-head-9AC8.json`, `kraid-head-9DC8.json`, and `kraid-head-A0C8.json`,
+each with 32×11 ordered cells. Copy a file to `overrides/enemy-tiles/` with
+the same name to edit its tile references. Each cell names `tileColumn`,
+`tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Kraid's engine still
+owns frame selection and duration, growth, collision, and VRAM transfer timing.
+These maps do not yet replace Kraid's character sheets. Stock maps are
+manifest-hash checked; invalid overrides fail during load.
 Base room colors are separately extracted into `game/room-palettes/*.json`.
 Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
 `version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to

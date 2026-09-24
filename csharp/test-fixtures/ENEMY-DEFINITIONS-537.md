@@ -16,10 +16,26 @@ rooms opt into their own authored headers through the explicit
 parser remains available to extraction/debug tools, not production room loading.
 
 This is a partial #537 migration. Fixed drop and vulnerability tables are
-already compiled separately; final presentation bindings still need separation. The catalog's
-artwork addresses and palette/spritemap IDs are stable native references at
+already compiled separately; final presentation bindings still need separation.
+The catalog's artwork addresses and palette/spritemap IDs are stable native references at
 this stage, not editable gameplay data. No claim of ROM-free general room
 loading or completed enemy visual modding is made.
+
+## Runtime-created actor headers
+
+Deaths and scripted projectile spawns previously called the public ROM-header
+parser after the initial room load. `RoomEnemyAuxiliaryDefinitionCatalog` now
+compiles the five additional fixed headers used by those paths: the respawn
+placeholder, Mother Brain's Baby Metroid and falling tube, and the two Torizo
+orb-drop identities. All ten production callers
+use the fixture-aware resolver, so ordinary room headers and auxiliary headers
+share one runtime path while synthetic test buses retain their authored bytes.
+The public parser remains for debugger/extraction use only.
+
+`--enemy-definitions` compares every field of those five additional headers
+against the ROM, confirms they do not duplicate room-selected headers, and
+forbids their source bytes during the guarded Ceres room load. This is not a
+claim that every later battle phase is exercised by that single guarded room.
 
 ## Ordered room populations and graphics sets
 

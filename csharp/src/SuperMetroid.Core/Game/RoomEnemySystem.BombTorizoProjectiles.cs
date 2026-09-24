@@ -609,7 +609,7 @@ public sealed partial class RoomEnemySystem
                 $"${expectedHeader:X4} for golden={golden}.");
         }
 
-        RoomEnemyDefinition definition = ReadDefinition(_bus!, header);
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, header);
         _torizoOrbDropRequests.Add(new TorizoOrbDropRequest(
             projectile.XPosition,
             projectile.YPosition,

@@ -3962,10 +3962,14 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Uses compiled retail definitions unless a constructed test bus explicitly supplies fixtures.</summary>
     private static RoomEnemyDefinition ResolveRoomEnemyDefinition(
-        ISnesAddressSpace bus, ushort pointer) =>
-        bus is IRoomEnemyFixtureSource fixture
-            ? fixture.ReadEnemyDefinition(pointer)
+        ISnesAddressSpace bus, ushort pointer)
+    {
+        if (bus is IRoomEnemyFixtureSource fixture)
+            return fixture.ReadEnemyDefinition(pointer);
+        return RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition auxiliary)
+            ? auxiliary
             : RoomEnemyDefinitionCatalog.Get(pointer);
+    }
 
     private static RoomEnemyPopulationDefinition ResolveRoomEnemyPopulation(
         ISnesAddressSpace bus, ushort pointer) =>

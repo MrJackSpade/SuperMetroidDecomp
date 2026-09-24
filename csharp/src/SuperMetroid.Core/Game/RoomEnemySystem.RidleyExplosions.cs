@@ -15,7 +15,7 @@ public sealed partial class RoomEnemySystem
             return;
         state.DeathBreakupSpawned = true;
 
-        RoomEnemyDefinition definition = ReadDefinition(
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(
             _bus!,
             RidleyExplosionDefinitions.EnemyDefinition);
         foreach (ushort parameter in RidleyExplosionDefinitions.SpawnOrder)

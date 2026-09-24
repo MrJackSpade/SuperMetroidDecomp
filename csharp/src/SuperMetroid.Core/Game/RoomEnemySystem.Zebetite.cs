@@ -249,7 +249,7 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot spawned = _slots[slotIndex];
-        RoomEnemyDefinition definition = ReadDefinition(_bus!, population.DefinitionPointer);
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, population.DefinitionPointer);
         InitializeSlotFromDefinition(spawned, population, definition);
         RunInitializationAi(spawned);
         EnemyCount = unchecked((ushort)Math.Max(EnemyCount, slotIndex + 1));

@@ -581,7 +581,7 @@ public sealed partial class RoomEnemySystem
         if (slotIndex < 0)
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
-        RoomEnemyDefinition definition = ReadDefinition(_bus!, CeresDoorDefinition);
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, CeresDoorDefinition);
         RoomEnemyPopulationRecord population = new(
             CeresDoorDefinition,
             xPosition,

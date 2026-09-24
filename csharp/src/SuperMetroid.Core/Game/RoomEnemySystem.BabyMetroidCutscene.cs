@@ -39,7 +39,7 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot babySlot = _slots[slotIndex];
-        RoomEnemyDefinition definition = ReadDefinition(_bus!, population.DefinitionPointer);
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, population.DefinitionPointer);
         InitializeSlotFromDefinition(babySlot, population, definition);
         RunInitializationAi(babySlot);
 

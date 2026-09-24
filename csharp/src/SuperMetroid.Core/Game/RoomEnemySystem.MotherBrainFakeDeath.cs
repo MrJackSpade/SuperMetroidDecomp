@@ -509,7 +509,7 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot tube = _slots[slotIndex];
-        RoomEnemyDefinition definition = ReadDefinition(_bus!, population.DefinitionPointer);
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, population.DefinitionPointer);
         InitializeSlotFromDefinition(tube, population, definition);
         RunInitializationAi(tube);
         tube.SpritemapPointer = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)

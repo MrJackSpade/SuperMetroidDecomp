@@ -108,7 +108,7 @@ public sealed partial class RoomEnemySystem
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
         enemy.EnemyDefinitionPointer = EnemyLifecycleDefinitions.RespawnPlaceholder;
-        enemy.Definition = ReadDefinition(_bus!, enemy.EnemyDefinitionPointer);
+        enemy.Definition = ResolveRoomEnemyDefinition(_bus!, enemy.EnemyDefinitionPointer);
         enemy.AiBank = enemy.Definition.Bank;
     }
 
@@ -403,7 +403,7 @@ public sealed partial class RoomEnemySystem
             return projectile.ItemDropChancesPointerOverride;
         if (projectile.EnemyHeaderPointer == 0)
             return 0;
-        return ReadDefinition(_bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        return ResolveRoomEnemyDefinition(_bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 
     private void RunEnemyPickupPreInstruction(

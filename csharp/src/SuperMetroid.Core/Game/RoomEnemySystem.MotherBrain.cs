@@ -13,7 +13,8 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort MotherBrainBodyDefinition = 0xec7f;
     private const ushort MotherBrainHeadDefinition = 0xec3f;
-    private const ushort MotherBrainFallingTubeDefinition = 0xecff;
+    private const ushort MotherBrainFallingTubeDefinition =
+        EnemyDefinitionPointers.MotherBrainFallingTube;
     private const ushort MotherBrainBlankBg2Tile = 0x0338;
     private const ushort MotherBrainBg2VramBase = 0x4800;
     private const int MotherBrainBg2WordCount = 0x0800;

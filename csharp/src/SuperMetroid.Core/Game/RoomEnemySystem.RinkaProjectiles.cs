@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
                 $"Enemy slot ${nativeIndex:X4} has no surviving population snapshot to respawn.");
         }
 
-        RoomEnemyDefinition definition = ReadDefinition(
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(
             _bus!,
             spawn.Population.DefinitionPointer);
         InitializeSlotFromDefinition(slot, spawn.Population, definition);

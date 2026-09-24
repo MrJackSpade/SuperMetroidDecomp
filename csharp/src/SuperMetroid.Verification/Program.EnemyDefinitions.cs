@@ -43,6 +43,27 @@ internal static partial class Program
                 RoomEnemyDefinitionCatalog.Get(pointer),
                 $"compiled enemy header $A0:{pointer:X4} retains all 33 native fields");
         }
+        ushort[] auxiliaryPointers =
+            RoomEnemyAuxiliaryDefinitionCatalog.Pointers.Order().ToArray();
+        AssertTrue(auxiliaryPointers.SequenceEqual(new ushort[]
+            {
+                EnemyLifecycleDefinitions.RespawnPlaceholder,
+                MotherBrainBabyMetroidDefinitions.EnemyDefinition,
+                EnemyDefinitionPointers.MotherBrainFallingTube,
+                TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader,
+                TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader,
+            }),
+            "all runtime-created enemy headers outside retail room lists are catalogued");
+        AssertTrue(auxiliaryPointers.All(pointer => !referencedPointers.Contains(pointer)),
+            "auxiliary headers do not duplicate a room-selected definition");
+        foreach (ushort pointer in auxiliaryPointers)
+        {
+            AssertTrue(RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer,
+                    out RoomEnemyDefinition compiled),
+                $"auxiliary enemy header $A0:{pointer:X4} resolves");
+            AssertEqual(ReadNativeEnemyDefinition(bus, pointer), compiled,
+                $"auxiliary enemy header $A0:{pointer:X4} retains all 33 native fields");
+        }
         var namePointers = referencedPointers
             .Select(pointer => RoomEnemyDefinitionCatalog.Get(pointer).NamePointer)
             .Where(pointer => pointer != 0)
@@ -65,6 +86,8 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomEnemyDefinitionCatalog.Get(0),
             "compiled enemy headers reject an unrecognized pointer");
+        AssertTrue(!RoomEnemyAuxiliaryDefinitionCatalog.TryGet(0, out _),
+            "auxiliary enemy headers reject an unrecognized pointer");
         AssertThrows<InvalidDataException>(
             () => RoomEnemySpawnNameDefinitions.Get(0),
             "compiled enemy names reject an unrecognized pointer");
@@ -78,7 +101,8 @@ internal static partial class Program
             "Ceres production room entry loads enemies without reading native headers");
 
         Console.WriteLine(
-            $"Enemy definitions: {referencedPointers.Count} retail headers and " +
+            $"Enemy definitions: {referencedPointers.Count} retail + " +
+            $"{auxiliaryPointers.Length} auxiliary headers and " +
             $"{namePointers.Count} spawn-name records match all retained fields; " +
             "production room entry rejects native header and name reads.");
     }
@@ -102,6 +126,7 @@ internal static partial class Program
     {
         private static readonly HashSet<int> DefinitionBytes =
             RoomEnemyDefinitionCatalog.Pointers
+                .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers)
                 .SelectMany(pointer => Enumerable.Range(
                     RoomEnemyRomLayout.DefinitionBank | pointer, 64))
                 .Concat(RoomEnemySpawnNameDefinitions.Pointers

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>ROM-table loading, per-column erasure, and BG2 distortion for both melts.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int CrocomireMeltingTable = 0xa49bc5;
-
     private void InitializeCrocomireMeltingTilemap(
         CrocomireEnemyState state,
         int tilemapAddress,
@@ -61,25 +59,19 @@ public sealed partial class RoomEnemySystem
         death.DistortionStep = 0x0100;
         death.MeltingColumnCursor = 0;
 
-        int headerOffset = death.MeltingTableOffset;
-        death.MaximumAdjustedDestinationY = ReadWord(
-            _bus!,
-            CrocomireMeltingTable + headerOffset);
+        CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(
+            death.MeltingTableOffset);
+        death.MaximumAdjustedDestinationY = pass.MaximumAdjustedDestinationY;
         death.AdjustedDestinationY = death.MaximumAdjustedDestinationY;
-        death.DistortionEndY = ReadWord(
-            _bus!,
-            CrocomireMeltingTable + headerOffset + 2);
-        int wordsToCopy = ReadWord(
-            _bus!,
-            CrocomireMeltingTable + headerOffset + 4);
-        byte sourceBank = _bus!.ReadByte(CrocomireMeltingTable + headerOffset + 6);
+        death.DistortionEndY = pass.DistortionEndY;
+        int wordsToCopy = pass.WordsToCopy;
+        byte sourceBank = pass.SourceBank;
 
-        int cursor = headerOffset + 8;
         Span<byte> graphics = death.MutableMeltingGraphics;
-        while (ReadWord(_bus!, CrocomireMeltingTable + cursor) != 0xffff)
+        foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
         {
-            ushort source = ReadWord(_bus!, CrocomireMeltingTable + cursor);
-            ushort destination = ReadWord(_bus!, CrocomireMeltingTable + cursor + 2);
+            ushort source = copy.SourceWord;
+            ushort destination = copy.DestinationWord;
             int destinationOffset = unchecked((ushort)(destination - 0x4000));
 
             // The assembly seeds the counter with $0200 and loops through zero, copying
@@ -93,14 +85,13 @@ public sealed partial class RoomEnemySystem
             }
             for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
             {
-                graphics[destinationOffset + byteIndex] = _bus.ReadByte(
+                graphics[destinationOffset + byteIndex] = _bus!.ReadByte(
                     (sourceBank << 16) | unchecked((ushort)(source + byteIndex)));
             }
-            cursor += 4;
         }
 
-        // The terminator is followed by the first eight-byte VRAM transfer record.
-        death.MeltingTableOffset = unchecked((ushort)(cursor + 2));
+        // Keep the native cursor so serialized mid-melt states resume at the same record.
+        death.MeltingTableOffset = pass.TransferStartOffset;
         death.MeltingTransferOffset = 0;
         death.MutableMeltingColumnHeights.Clear();
     }
@@ -109,25 +100,25 @@ public sealed partial class RoomEnemySystem
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
-        if (ReadWord(_bus!, CrocomireMeltingTable + recordOffset) == 0xffff)
+        if (!CrocomireMeltingTransferDefinitions.TryUpload(
+            recordOffset, out CrocomireMeltingUpload upload))
         {
             state.DeathSequenceIndex += 2;
             death.MeltingTransferOffset = 0;
             return;
         }
 
-        UploadCrocomireMeltingRecord(recordOffset);
+        UploadCrocomireMeltingRecord(upload);
         death.MeltingTransferOffset += 8;
     }
 
-    private void UploadCrocomireMeltingRecord(int recordOffset)
+    private void UploadCrocomireMeltingRecord(CrocomireMeltingUpload upload)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        int address = CrocomireMeltingTable + recordOffset;
-        int byteCount = ReadWord(_bus!, address);
-        ushort destinationWord = ReadWord(_bus!, address + 2);
-        byte sourceBank = _bus!.ReadByte(address + 4);
-        ushort source = ReadWord(_bus!, address + 6);
+        int byteCount = upload.ByteCount;
+        ushort destinationWord = upload.DestinationWord;
+        byte sourceBank = upload.SourceBank;
+        ushort source = upload.SourceWord;
         if (sourceBank != 0x7e)
         {
             throw new InvalidDataException(
@@ -234,12 +225,15 @@ public sealed partial class RoomEnemySystem
         } while (--remaining != 0);
 
         int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
-        if (ReadWord(_bus!, CrocomireMeltingTable + recordOffset) == 0xffff)
+        if (!CrocomireMeltingTransferDefinitions.TryUpload(
+            recordOffset, out CrocomireMeltingUpload upload))
         {
             death.MeltingTransferOffset = 0;
             recordOffset = death.MeltingTableOffset;
+            if (!CrocomireMeltingTransferDefinitions.TryUpload(recordOffset, out upload))
+                throw new InvalidDataException("Crocomire melt pass has no first transfer.");
         }
-        UploadCrocomireMeltingRecord(recordOffset);
+        UploadCrocomireMeltingRecord(upload);
         death.MeltingTransferOffset += 8;
         return true;
     }
@@ -275,10 +269,8 @@ public sealed partial class RoomEnemySystem
         death.MeltingHdmaActive = false;
         state.DeathSequenceIndex += 2;
 
-        int offset = death.MeltingTableOffset;
-        while (ReadWord(_bus!, CrocomireMeltingTable + offset) != 0xffff)
-            offset += 8;
-        death.MeltingTableOffset = unchecked((ushort)(offset + 2));
+        death.MeltingTableOffset = CrocomireMeltingTransferDefinitions.Transfers(
+            death.MeltingTableOffset).NextHeaderOffset;
         death.MeltingTransferOffset = 0;
     }
 

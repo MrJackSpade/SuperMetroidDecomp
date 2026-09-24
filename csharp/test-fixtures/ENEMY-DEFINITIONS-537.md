@@ -12,14 +12,14 @@ the ROM's bank-$A1 and bank-$B4 records, compares every field of every compiled
 header against the original 64 bytes, rejects unknown IDs, and loads the Ceres
 entry room with reads from all 148 source headers forbidden. Constructed verifier
 rooms opt into their own authored headers through the explicit
-`IRoomEnemyDefinitionFixtureSource` interface. The public `ReadDefinition` ROM
+`IRoomEnemyFixtureSource` interface. The public `ReadDefinition` ROM
 parser remains available to extraction/debug tools, not production room loading.
 
 This is a partial #537 migration. Drop and vulnerability tables, enemy-name
 words, and final presentation bindings still need separation. The catalog's
 artwork addresses and palette/spritemap IDs are stable native references at
-this stage, not editable gameplay data. No claim of
-ROM-free general room loading or completed enemy visual modding is made.
+this stage, not editable gameplay data. No claim of ROM-free general room
+loading or completed enemy visual modding is made.
 
 ## Ordered room populations and graphics sets
 

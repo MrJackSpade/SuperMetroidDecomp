@@ -334,7 +334,7 @@ internal sealed partial class EndingCreditsState
                 rewardJump!.Step();
                 if (rewardJump.ShotRequested)
                 {
-                    postShot = new EndingPostShot(bus, cgram, ResolveEndingFont());
+                    postShot = new EndingPostShot(bus, cgram, ResolveEndingFont(), objectArtwork);
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
                     Phase = EndingCreditsPhase.PostCreditsShot;
                 }
@@ -598,7 +598,10 @@ internal sealed partial class EndingCreditsState
     internal void BindObjectArtwork(EndingObjectArtworkCatalog? value)
     {
         objectArtwork = value;
+        postShot?.BindArtwork(value, vram);
         if (value is null) return;
+        if (Phase >= EndingCreditsPhase.PostCreditsWhiteFlash)
+            EndingPostShot.RebindCompletedLogoArtwork(vram, value);
         if (Phase is >= EndingCreditsPhase.WaitForEscapeMusic and
             <= EndingCreditsPhase.FadeOutEscapeSceneB)
             LoadEscapeCloudCharacters();

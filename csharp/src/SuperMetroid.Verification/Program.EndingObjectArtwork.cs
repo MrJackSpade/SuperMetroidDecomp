@@ -50,6 +50,15 @@ internal static partial class Program
             EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
             "post-credits fragment B");
+        AssertSheet(stock.PostShotLogoTiles, EndingPostShotDefinitions.LogoTiles,
+            EndingObjectArtworkFormat.PostShotLogoTileByteCount,
+            "post-shot logo tiles");
+        byte[] nativeLogoMap = RomDataReader.Decompress(bus,
+            EndingPostShotDefinitions.LogoMap,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        AssertTrue(stock.PostShotLogoMap.Transfer.Span.SequenceEqual(
+                nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
+            "installed post-shot logo map preserves all native BG2 tile words");
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -204,7 +213,7 @@ internal static partial class Program
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
         File.Delete(invalidPath);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending/credits art: eleven native sheets, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -233,7 +242,9 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.WaitingForCreditsTilemap or
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentA or
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentB or
-                EndingCreditsRomData.Assets.PostCreditsMode7Characters)
+                EndingCreditsRomData.Assets.PostCreditsMode7Characters or
+                EndingPostShotDefinitions.LogoTiles or
+                EndingPostShotDefinitions.LogoMap)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException($"Ending OBJ reread cartridge source ${address:X6}.");

@@ -9,8 +9,8 @@ internal sealed class EndingPostShot
 {
     private readonly ISnesAddressSpace bus;
     private readonly ushort[] sourcePalette;
-    private readonly byte[] tiles;
-    private readonly byte[] map;
+    private byte[] tiles = [];
+    private byte[] map = [];
     private readonly byte[] font;
     private int calls;
     private int hold;
@@ -20,14 +20,54 @@ internal sealed class EndingPostShot
     public bool RotationFinished { get; private set; }
     public bool ReadyForWhiteFlash { get; private set; }
 
-    public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas)
+    public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas,
+        EndingObjectArtworkCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(fontAtlas);
         this.bus = bus;
         sourcePalette = cgram.Colors.ToArray();
-        tiles = Decode(EndingPostShotDefinitions.LogoTiles);
-        map = Decode(EndingPostShotDefinitions.LogoMap);
+        BindArtwork(artwork);
         font = fontAtlas.Transfer.ToArray();
+    }
+
+    /// <summary>
+    /// Rebinds presentation after installation changes or a debugger-state restore,
+    /// without restarting the rotation, fade, hold, or six-step upload cursor.
+    /// </summary>
+    internal void BindArtwork(EndingObjectArtworkCatalog? artwork, SnesVram? vram = null)
+    {
+        tiles = artwork?.PostShotLogoTiles.Transfer.ToArray() ??
+            Decode(EndingPostShotDefinitions.LogoTiles);
+        map = artwork?.PostShotLogoMap.Transfer.ToArray() ??
+            Decode(EndingPostShotDefinitions.LogoMap);
+        if (vram is not null)
+        {
+            for (int index = 0; index < Uploads; index++)
+                Upload(vram, index);
+        }
+    }
+
+    /// <summary>
+    /// Reinstalls all five logo-art transfers after the post-shot owner has
+    /// handed off to the white flash or assembling-logo actors. The subtitle
+    /// font transfer is unchanged and is intentionally excluded.
+    /// </summary>
+    internal static void RebindCompletedLogoArtwork(SnesVram vram,
+        EndingObjectArtworkCatalog artwork)
+    {
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(artwork);
+        ReadOnlySpan<byte> tiles = artwork.PostShotLogoTiles.Transfer.Span;
+        ReadOnlySpan<byte> map = artwork.PostShotLogoMap.Transfer.Span;
+        for (int index = 1; index < EndingPostShotUploadDefinitions.Count; index++)
+        {
+            EndingPostShotUploadDefinition transfer = EndingPostShotUploadDefinitions.Get(index);
+            ReadOnlySpan<byte> source = transfer.SourceAddress == EndingPostShotDefinitions.LogoMapSource
+                ? map[..transfer.Length]
+                : tiles.Slice(transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource,
+                    transfer.Length);
+            vram.LoadBytes(transfer.DestinationWord * sizeof(ushort), source);
+        }
     }
 
     public void Step(SnesVram vram, SnesCgram cgram)

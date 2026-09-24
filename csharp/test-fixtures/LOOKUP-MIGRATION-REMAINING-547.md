@@ -2126,5 +2126,10 @@ are compiled in `EndingPostShotUploadDefinitions`. The actual 216-frame post-sho
 sequence now uses those definitions instead of rereading the ROM table. Each
 length, source, and VRAM destination matches the pinned cartridge, and a guarded
 production run rejects any table read while checking all six resulting transfers.
-The two compressed logo-art streams remain separate presentation dependencies
-for #543/#549; compiling their DMA schedule does not remove those artwork reads.
+The two compressed logo-art streams were then moved into the installed
+`ending-objects` catalog as an indexed PNG and ordered BG2 tilemap JSON. The
+full native post-shot and assembling-logo sequence now runs with both cartridge
+source reads forbidden. Independent edits become visible at the correct later
+reveal phase, and rebinding an active or completed sequence replaces already
+uploaded art without restarting the cinematic. Other ending/cinematic art and
+the larger #543/#549 integration gates remain open.

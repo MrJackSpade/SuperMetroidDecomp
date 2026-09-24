@@ -59,8 +59,27 @@ internal static partial class Program
                     checkedPhases.Contains(EndingCreditsPhase.PostCreditsReward) &&
                     checkedPhases.Contains(EndingCreditsPhase.PostCreditsJump),
                 $"{hours}h reward exercised waiting, selected reward, and jump sheets");
+            // The newly installed logo is not transferred until the Samus fade
+            // admits six successive post-shot DMA calls. Compare the actual
+            // native and installed VRAM/pixels across that handoff, not merely
+            // the phase entry before the logo has appeared.
+            for (int frame = 0; frame < 56; frame++)
+            {
+                native.Step();
+                installed.Step();
+                nativeAudio.AdvanceFrame(nativeBus, default);
+                installedAudio.AdvanceFrame(guardedBus, default);
+                if (frame < 47) continue;
+                LayeredRenderSnapshot expected = native.CaptureRenderSnapshot();
+                LayeredRenderSnapshot actual = installed.CaptureRenderSnapshot();
+                AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
+                        actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                            SoftwareLayeredSnapshotRenderer.Render(expected)),
+                    $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
+            }
             AssertEqual(0, guardedBus.ForbiddenReadAttempts,
-                $"installed {hours}h reward never rereads the three character-art sources");
+                $"installed {hours}h reward never rereads post-credit art sources");
         }
         foreach ((string fileName, ushort hours, EndingCreditsPhase target) in new[]
         {
@@ -76,18 +95,28 @@ internal static partial class Program
                 EndingCreditsPhase.PostCreditsReward),
             (EndingObjectArtworkFormat.PostCreditsFragmentBFileName, (ushort)3,
                 EndingCreditsPhase.PostCreditsReward),
+            (EndingObjectArtworkFormat.PostShotLogoTileFileName, (ushort)3,
+                EndingCreditsPhase.PostCreditsShot),
+            (EndingObjectArtworkFormat.PostShotLogoMapFileName, (ushort)3,
+                EndingCreditsPhase.PostCreditsShot),
         })
         {
             bool fragment = fileName is EndingObjectArtworkFormat.PostCreditsFragmentAFileName or
                 EndingObjectArtworkFormat.PostCreditsFragmentBFileName;
+            bool postShotLogo = fileName is EndingObjectArtworkFormat.PostShotLogoTileFileName or
+                EndingObjectArtworkFormat.PostShotLogoMapFileName;
             string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory,
                 fileName);
             try
             {
-                if (fileName == EndingObjectArtworkFormat.WaitingTilemapFileName)
+                if (fileName is EndingObjectArtworkFormat.WaitingTilemapFileName or
+                    EndingObjectArtworkFormat.PostShotLogoMapFileName)
                 {
+                    int mapBytes = fileName == EndingObjectArtworkFormat.PostShotLogoMapFileName
+                        ? EndingObjectArtworkFormat.PostShotLogoMapByteCount
+                        : EndingObjectArtworkFormat.WaitingTilemapByteCount;
                     File.WriteAllBytes(overridePath, RoomBackgroundTilemapExtractor.Encode(
-                        new byte[EndingObjectArtworkFormat.WaitingTilemapByteCount]));
+                        new byte[mapBytes]));
                 }
                 else
                 {
@@ -97,6 +126,8 @@ internal static partial class Program
                             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
                         EndingObjectArtworkFormat.PostCreditsFragmentBFileName =>
                             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
+                        EndingObjectArtworkFormat.PostShotLogoTileFileName =>
+                            EndingObjectArtworkFormat.PostShotLogoTileByteCount,
                         _ => EndingObjectArtworkFormat.RewardByteCount,
                     };
                     int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
@@ -138,34 +169,40 @@ internal static partial class Program
                 AssertEqual(target, editedState.Phase,
                     $"edited {fileName} retains reward scene timing");
                 bool visible = false;
-                for (int frame = 0; frame < 120 && !visible; frame++)
+                // The logo map is BG2 only after the 216-frame post-shot hold,
+                // 32-frame white flash, and the assembling S actors' crossfade.
+                for (int frame = 0; frame < (postShotLogo ? 450 : 120) && !visible; frame++)
                 {
                     if (frame % 8 == 0)
                     {
                         LayeredRenderSnapshot original = stockState.CaptureRenderSnapshot();
                         LayeredRenderSnapshot changed = editedState.CaptureRenderSnapshot();
-                        AssertTrue(!original.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
-                                original.Memory.Cgram.SequenceEqual(changed.Memory.Cgram),
-                            $"edited {fileName} changes only art, not palette state");
-                        if (fragment)
+                        bool changedVram = !original.Memory.Vram.SequenceEqual(changed.Memory.Vram);
+                        if (!postShotLogo || changedVram)
                         {
-                            int destination = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
-                                ? EndingCreditsRomData.Rendering.PostCreditsFragmentADestination
-                                : EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination;
-                            int count = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
-                                ? EndingObjectArtworkFormat.PostCreditsFragmentAByteCount
-                                : EndingObjectArtworkFormat.PostCreditsFragmentBByteCount;
-                            AssertTrue(original.Memory.Vram[..destination].SequenceEqual(
-                                    changed.Memory.Vram[..destination]) &&
-                                    !original.Memory.Vram[destination..(destination + count)]
-                                        .SequenceEqual(changed.Memory.Vram[destination..(destination + count)]) &&
-                                    original.Memory.Vram[(destination + count)..].SequenceEqual(
-                                        changed.Memory.Vram[(destination + count)..]),
-                                $"edited {fileName} changes only its native fragment transfer range");
+                            AssertTrue(changedVram &&
+                                    original.Memory.Cgram.SequenceEqual(changed.Memory.Cgram),
+                                $"edited {fileName} changes only art, not palette state");
+                            if (fragment)
+                            {
+                                int destination = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
+                                    ? EndingCreditsRomData.Rendering.PostCreditsFragmentADestination
+                                    : EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination;
+                                int count = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
+                                    ? EndingObjectArtworkFormat.PostCreditsFragmentAByteCount
+                                    : EndingObjectArtworkFormat.PostCreditsFragmentBByteCount;
+                                AssertTrue(original.Memory.Vram[..destination].SequenceEqual(
+                                        changed.Memory.Vram[..destination]) &&
+                                        !original.Memory.Vram[destination..(destination + count)]
+                                            .SequenceEqual(changed.Memory.Vram[destination..(destination + count)]) &&
+                                        original.Memory.Vram[(destination + count)..].SequenceEqual(
+                                            changed.Memory.Vram[(destination + count)..]),
+                                    $"edited {fileName} changes only its native fragment transfer range");
+                            }
+                            visible = !SoftwareLayeredSnapshotRenderer.Render(original)
+                                .AsSpan().SequenceEqual(
+                                    SoftwareLayeredSnapshotRenderer.Render(changed));
                         }
-                        visible = !SoftwareLayeredSnapshotRenderer.Render(original)
-                            .AsSpan().SequenceEqual(
-                                SoftwareLayeredSnapshotRenderer.Render(changed));
                     }
                     stockState.Step();
                     editedState.Step();
@@ -175,6 +212,19 @@ internal static partial class Program
                 if (!fragment)
                     AssertTrue(visible,
                         $"edited {fileName} changes visible post-credits pixels");
+                if (postShotLogo)
+                {
+                    EndingCreditsPhase phaseBeforeRebind = stockState.Phase;
+                    stockState.BindObjectArtwork(edited);
+                    AssertEqual(phaseBeforeRebind, stockState.Phase,
+                        $"rebind {fileName} preserves the live ending phase");
+                    LayeredRenderSnapshot rebound = stockState.CaptureRenderSnapshot();
+                    LayeredRenderSnapshot expectedRebind = editedState.CaptureRenderSnapshot();
+                    AssertTrue(rebound.Memory.Vram.SequenceEqual(expectedRebind.Memory.Vram) &&
+                            SoftwareLayeredSnapshotRenderer.Render(rebound).AsSpan().SequenceEqual(
+                                SoftwareLayeredSnapshotRenderer.Render(expectedRebind)),
+                        $"rebind {fileName} immediately replaces already-uploaded logo art");
+                }
                 AssertEqual(0, stockBus.ForbiddenReadAttempts,
                     $"stock {fileName} never rereads source ROM art");
                 AssertEqual(0, editedBus.ForbiddenReadAttempts,
@@ -197,6 +247,25 @@ internal static partial class Program
         {
             File.Delete(invalidMap);
         }
-        Console.WriteLine("Post-credits art: three reward variants, waiting BG2 map and two tile fragments retain native phase, VRAM, palette and pixels without source reads; four independent edits are visible and both fragment edits isolate their native VRAM ranges.");
+        foreach (string invalidName in new[]
+        {
+            EndingObjectArtworkFormat.PostShotLogoTileFileName,
+            EndingObjectArtworkFormat.PostShotLogoMapFileName,
+        })
+        {
+            string invalidPath = Path.Combine(installation.EndingObjectOverrideDirectory,
+                invalidName);
+            File.WriteAllBytes(invalidPath, [0]);
+            try
+            {
+                AssertThrows<InvalidDataException>(() => installation.LoadEndingObjectArt(),
+                    $"malformed post-shot logo override {invalidName} fails loudly");
+            }
+            finally
+            {
+                File.Delete(invalidPath);
+            }
+        }
+        Console.WriteLine("Post-credits art: three reward variants, waiting BG2 map, two tile fragments, and both logo streams retain native phase, VRAM, palette and pixels without source reads; independent edits remain visible.");
     }
 }

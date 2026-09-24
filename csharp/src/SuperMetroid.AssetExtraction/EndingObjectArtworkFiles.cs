@@ -43,30 +43,21 @@ public static class EndingObjectArtworkFiles
         Export(EndingObjectArtworkFormat.SuitlessSamusFileName,
             EndingCreditsRomData.Assets.SuitlessSamusCharacters,
             EndingObjectArtworkFormat.RewardByteCount);
-        byte[] waitingMap = RomDataReader.Decompress(bus,
+        ExportMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
             EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
-            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
-        if (waitingMap.Length < EndingObjectArtworkFormat.WaitingTilemapByteCount)
-            throw new InvalidDataException("Waiting-Samus map does not fill its native 32x32 BG2 page.");
-        byte[] nativeMap = waitingMap.AsSpan(0,
-            EndingObjectArtworkFormat.WaitingTilemapByteCount).ToArray();
-        byte[] mapJson = RoomBackgroundTilemapExtractor.Encode(nativeMap);
-        RoomBackgroundTilemapAtlas compiledMap = RoomBackgroundTilemapAtlas.Load(
-            new MemoryStream(mapJson, writable: false), nativeMap.Length);
-        if (!compiledMap.Transfer.Span.SequenceEqual(nativeMap))
-            throw new InvalidDataException("Waiting-Samus map JSON changed native BG2 words.");
-        using (var output = new FileStream(Path.Combine(directory,
-                   EndingObjectArtworkFormat.WaitingTilemapFileName),
-                   FileMode.CreateNew, FileAccess.Write))
-            output.Write(mapJson);
-        hashes.Add(EndingObjectArtworkFormat.WaitingTilemapFileName,
-            Convert.ToHexString(SHA256.HashData(mapJson)));
+            EndingObjectArtworkFormat.WaitingTilemapByteCount);
         Export(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
             EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
             EndingObjectArtworkFormat.PostCreditsFragmentAByteCount);
         Export(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
             EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount);
+        Export(EndingObjectArtworkFormat.PostShotLogoTileFileName,
+            EndingPostShotDefinitions.LogoTiles,
+            EndingObjectArtworkFormat.PostShotLogoTileByteCount);
+        ExportMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
+            EndingPostShotDefinitions.LogoMap,
+            EndingObjectArtworkFormat.PostShotLogoMapByteCount);
 
         using var manifest = new FileStream(Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -95,6 +86,24 @@ public static class EndingObjectArtworkFiles
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+        }
+
+        void ExportMap(string name, int source, int count)
+        {
+            byte[] decoded = RomDataReader.Decompress(bus, source,
+                EndingCreditsRomData.Rendering.DecompressionLimit);
+            if (decoded.Length < count)
+                throw new InvalidDataException($"Ending map source ${source:X6} is shorter than {name}'s native DMA.");
+            byte[] native = decoded.AsSpan(0, count).ToArray();
+            byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
+            RoomBackgroundTilemapAtlas compiled = RoomBackgroundTilemapAtlas.Load(
+                new MemoryStream(json, writable: false), count);
+            if (!compiled.Transfer.Span.SequenceEqual(native))
+                throw new InvalidDataException($"Ending map JSON {name} changed native BG2 words.");
+            using (var output = new FileStream(Path.Combine(directory, name),
+                       FileMode.CreateNew, FileAccess.Write))
+                output.Write(json);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(json)));
         }
     }
 
@@ -126,6 +135,8 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.WaitingTilemapFileName,
             EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
             EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+            EndingObjectArtworkFormat.PostShotLogoTileFileName,
+            EndingObjectArtworkFormat.PostShotLogoMapFileName,
         ];
         if (manifest.Version != EndingObjectArtworkFormat.ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -149,11 +160,16 @@ public static class EndingObjectArtworkFiles
                 EndingObjectArtworkFormat.RewardByteCount),
             LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
                 EndingObjectArtworkFormat.RewardByteCount),
-            LoadMap(),
+            LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
+                EndingObjectArtworkFormat.WaitingTilemapByteCount),
             LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
                 EndingObjectArtworkFormat.PostCreditsFragmentAByteCount),
             LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount));
+                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount),
+            LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName,
+                EndingObjectArtworkFormat.PostShotLogoTileByteCount),
+            LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
+                EndingObjectArtworkFormat.PostShotLogoMapByteCount));
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
         {
@@ -178,9 +194,8 @@ public static class EndingObjectArtworkFiles
             }
         }
 
-        RoomBackgroundTilemapAtlas LoadMap()
+        RoomBackgroundTilemapAtlas LoadMap(string name, int expectedBytes)
         {
-            string name = EndingObjectArtworkFormat.WaitingTilemapFileName;
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
@@ -194,7 +209,7 @@ public static class EndingObjectArtworkFiles
             {
                 return RoomBackgroundTilemapAtlas.Load(new MemoryStream(
                     selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
-                    writable: false), EndingObjectArtworkFormat.WaitingTilemapByteCount);
+                    writable: false), expectedBytes);
             }
             catch (InvalidDataException error)
             {

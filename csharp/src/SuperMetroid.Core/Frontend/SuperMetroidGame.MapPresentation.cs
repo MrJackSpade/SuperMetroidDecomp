@@ -22,6 +22,7 @@ public sealed partial class SuperMetroidGame
         options?.BindMapPresentation(catalog);
         fileSelect?.BindMapPresentation(catalog);
         title?.BindTitleGradient(catalog?.TitleGradient);
+        title?.BindTitleGraphics(catalog?.TitleGraphics);
         title?.BindTitlePalette(catalog?.TitlePalette);
         if (intro is not null) intro.NarrationPresentation = catalog?.IntroNarration;
         intro?.BindIntroFont(catalog?.IntroFont);

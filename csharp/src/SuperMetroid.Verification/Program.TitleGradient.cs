@@ -58,6 +58,9 @@ internal static partial class Program
             TitleSequenceRomData.Vram.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
+        // The ROM text-list words remain the native animation clock. Only the bank-$8C
+        // OBJ composition bytes are replaced by installed JSON when one is selected.
+        cartridgeReads.RemoveWhere(address => (address >> 16) == 0x8b);
         var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         var stock = new TitleSequenceState(bus);
         var installed = new TitleSequenceState(guardedBus, titleGraphicsPresentation: presentation);
@@ -68,8 +71,81 @@ internal static partial class Program
             if (!stock.Render().AsSpan().SequenceEqual(installed.Render()))
                 throw new InvalidDataException($"Installed title graphics differ from stock at frame {frame}.");
         }
+        bool reachedTitle = false;
+        for (int frame = 140; frame < 1800; frame++)
+        {
+            stock.Step(0);
+            installed.Step(0);
+            Mode7ObjRenderSnapshot native = stock.CaptureRenderSnapshot();
+            Mode7ObjRenderSnapshot extracted = installed.CaptureRenderSnapshot();
+            if (stock.Phase != installed.Phase ||
+                !native.Memory.Oam.SequenceEqual(extracted.Memory.Oam))
+                throw new InvalidDataException($"Installed title sprite composition differs at frame {frame} ({stock.Phase}).");
+            if (stock.Phase == TitleSequencePhase.TitleScreen)
+            {
+                reachedTitle = true;
+                break;
+            }
+        }
+        if (!reachedTitle)
+            throw new InvalidDataException("Title sprite parity test never reached the logo/copyright scene.");
         if (guardedBus.ForbiddenReadAttempts != 0)
-            throw new InvalidDataException("Production title reread a compressed graphics source.");
+            throw new InvalidDataException("Production title reread compressed graphics or native spritemaps.");
+
+        TitleMode7MapDocument spriteDocument = JsonSerializer.Deserialize<TitleMode7MapDocument>(
+            files[TitleGraphicsFormat.Mode7MapFile], MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted title map document is null.");
+        AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
+            "title extraction covers all cartridge-selected OBJ frames");
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
+            TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+        TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
+        SpriteVisualPart originalPart = year.Parts[0];
+        year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
+        byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, MapPresentationFormat.JsonOptions);
+        TitleGraphicsPresentation editedPresentation = TitleGraphicsPresentation.Load(
+            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
+            new MemoryStream(editedMap),
+            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
+        var originalTitle = new TitleSequenceState(bus, titleGraphicsPresentation: presentation);
+        var editedTitle = new TitleSequenceState(bus, titleGraphicsPresentation: editedPresentation);
+        bool editVisible = false;
+        bool pixelChanged = false;
+        for (int frame = 0; frame < 100; frame++)
+        {
+            originalTitle.Step(0);
+            editedTitle.Step(0);
+            if (originalTitle.Phase != editedTitle.Phase)
+                throw new InvalidDataException("Title sprite edit altered the native title timing.");
+            if (!originalTitle.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
+                    editedTitle.CaptureRenderSnapshot().Memory.Oam))
+            {
+                editVisible = true;
+                pixelChanged |= !originalTitle.Render().AsSpan().SequenceEqual(editedTitle.Render());
+            }
+        }
+        if (!editVisible)
+            throw new InvalidDataException("Editing the Year composition did not alter production OAM.");
+        if (!pixelChanged)
+            throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
+        var reboundTitle = new TitleSequenceState(bus, titleGraphicsPresentation: presentation);
+        for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
+        byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
+        reboundTitle.BindTitleGraphics(editedPresentation);
+        if (beforeRebind.AsSpan().SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
+            throw new InvalidDataException("Rebinding a live title failed to apply current sprite composition.");
+        reboundTitle.BindTitleGraphics(presentation);
+        if (!beforeRebind.AsSpan().SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
+            throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
+        year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
+        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, MapPresentationFormat.JsonOptions);
+        AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
+            new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
+            new MemoryStream(malformedMap),
+            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
+            "title graphics reject an out-of-range OBJ region");
 
         IndexedPngImage mode7 = IndexedPng.Read(
             new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
@@ -85,8 +161,8 @@ internal static partial class Program
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
             "title graphics reject wrong Mode 7 PNG dimensions");
         Console.WriteLine(
-            $"  Title graphics presentation: four editable assets match native VRAM input; " +
-            $"140 production frames avoided {cartridgeReads.Count} compressed-source bytes.");
+            $"  Title graphics presentation: four editable assets and all title OBJ frames match native OAM; " +
+            $"production avoided {cartridgeReads.Count} cartridge-art bytes.");
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
         {

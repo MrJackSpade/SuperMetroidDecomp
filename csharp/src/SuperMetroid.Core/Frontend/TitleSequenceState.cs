@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <remarks>
 /// This ports the visible state chain at <c>$8B:9A22-$8B:A35A</c>. Installed sessions
-/// supply extracted graphics, palette, and gradient presentation; title-card and logo
-/// spritemap composition still uses the cartridge diagnostic path.
+/// supply extracted graphics, palette, and gradient presentation. The cartridge
+/// spritemap reader remains available only for bare diagnostic construction.
 /// </remarks>
 public sealed class TitleSequenceState
 {
@@ -28,6 +28,7 @@ public sealed class TitleSequenceState
     private readonly byte[] babyMetroidCharacters;
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
+    [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
 
     private TitleSequencePhase phase;
     private int phaseTimer;
@@ -72,6 +73,7 @@ public sealed class TitleSequenceState
         this.audio = audio;
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;
+        this.titleGraphicsPresentation = titleGraphicsPresentation;
         if (queueOpeningMusic)
         {
             audio?.QueueMusicDelayed8(
@@ -177,6 +179,10 @@ public sealed class TitleSequenceState
     /// <summary>Rebinds the host-selected presentation after debugger-state restoration.</summary>
     internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
         titleGradientPresentation = presentation;
+
+    /// <summary>Rebinds installed sprite compositions after debugger-state restoration.</summary>
+    internal void BindTitleGraphics(TitleGraphicsPresentation? presentation) =>
+        titleGraphicsPresentation = presentation;
 
     /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>
     internal void BindTitlePalette(TitlePalettePresentation? presentation)
@@ -433,24 +439,33 @@ public sealed class TitleSequenceState
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            oam.AddOnScreenSpritemap(
-                bus,
-                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, activeSpritemap),
-                activeOriginX,
-                activeOriginY,
-                activeCharacterOffset);
+            if (titleGraphicsPresentation is null)
+                oam.AddOnScreenSpritemap(
+                    bus,
+                    (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, activeSpritemap),
+                    activeOriginX,
+                    activeOriginY,
+                    activeCharacterOffset);
+            else
+                titleGraphicsPresentation.DrawSprite(activeSpritemap, oam,
+                    activeOriginX, activeOriginY, activeCharacterOffset);
         }
 
         if (phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
-            oam.AddOnScreenSpritemap(
-                bus,
-                (int)new SnesAddress(
-                    TitleSequenceRomData.Sprites.Bank,
-                    TitleSequenceRomData.Sprites.NintendoCopyright),
-                TitleSequenceRomData.Sprites.CopyrightX,
-                TitleSequenceRomData.Sprites.CopyrightY,
-                TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
+            if (titleGraphicsPresentation is null)
+                oam.AddOnScreenSpritemap(
+                    bus,
+                    (int)new SnesAddress(
+                        TitleSequenceRomData.Sprites.Bank,
+                        TitleSequenceRomData.Sprites.NintendoCopyright),
+                    TitleSequenceRomData.Sprites.CopyrightX,
+                    TitleSequenceRomData.Sprites.CopyrightY,
+                    TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
+            else
+                titleGraphicsPresentation.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
+                    TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
+                    TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 
         oam.FinalizeFrame();

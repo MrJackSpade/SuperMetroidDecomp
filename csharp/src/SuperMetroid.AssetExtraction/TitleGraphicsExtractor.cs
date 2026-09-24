@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Expands the four compressed title graphics streams into indexed PNG/JSON assets.</summary>
+/// <summary>Expands title graphics and OBJ compositions into indexed PNG/JSON assets.</summary>
 internal static class TitleGraphicsExtractor
 {
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
@@ -49,6 +49,7 @@ internal static class TitleGraphicsExtractor
             Width = TitleGraphicsFormat.MapWidth,
             Height = TitleGraphicsFormat.MapHeight,
             Tiles = map.Select(value => (int)value).ToArray(),
+            Sprites = TitleSpriteExtractor.Extract(bus),
         });
         files.Add(TitleGraphicsFormat.Mode7MapFile, mapJson.ToArray());
         return files;

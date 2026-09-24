@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -111,6 +112,7 @@ internal static partial class Program
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
         VerifyTitleGraphicsOverride(bus, stock, overrides, original);
+        VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original);
         VerifyTitlePaletteOverride(bus, stock, overrides, original);
         VerifyTitleGradientOverride(bus, stock, overrides, original);
         VerifyRoomPaletteFxOverride(bus, stock, overrides, original);
@@ -969,6 +971,48 @@ internal static partial class Program
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title graphics override restores installed-content identity");
         Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
+    }
+
+    private static void VerifyTitleSpriteCompositionOverride(
+        ISnesAddressSpace bus,
+        string stock,
+        string overrides,
+        AreaMapPresentationCatalog original)
+    {
+        string name = TitleGraphicsFormat.Mode7MapFile;
+        TitleMode7MapDocument document = JsonSerializer.Deserialize<TitleMode7MapDocument>(
+            File.ReadAllBytes(Path.Combine(stock, name)), MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Extracted title layout is null.");
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
+            TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+        TitleSpriteFrame year = document.Sprites.Single(frame => frame.Pointer == yearPointer);
+        year.Parts[0] = year.Parts[0] with { OffsetX = year.Parts[0].OffsetX + 8 };
+        string replacement = Path.Combine(overrides, name);
+        using (var output = File.Create(replacement))
+            TitleGraphicsPresentation.WriteMap(output, document);
+
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "title sprite override changes installed-content identity");
+        var stockTitle = new TitleSequenceState(bus, titleGraphicsPresentation: original.TitleGraphics);
+        var editedTitle = new TitleSequenceState(bus, titleGraphicsPresentation: edited.TitleGraphics);
+        bool changedOam = false;
+        for (int frame = 0; frame < 100; frame++)
+        {
+            stockTitle.Step(0);
+            editedTitle.Step(0);
+            AssertEqual(stockTitle.Phase, editedTitle.Phase,
+                "title sprite override preserves the native sequence phase");
+            changedOam |= !stockTitle.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
+                editedTitle.CaptureRenderSnapshot().Memory.Oam);
+        }
+        AssertTrue(changedOam, "title sprite override changes live title OAM");
+
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing title sprite override restores installed-content identity");
+        Console.WriteLine("Title sprite override: installed JSON changes live OAM without changing timing, then restores exactly.");
     }
 
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,

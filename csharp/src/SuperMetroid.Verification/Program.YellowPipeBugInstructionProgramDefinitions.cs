@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -42,18 +43,23 @@ internal static partial class Program
                 $"Yellow Pipe Bug program $B3:{program:X4} loops");
         }
 
-        AssertEqual(YellowPipeBugInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Yellow Pipe Bug spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Yellow Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
              index < YellowPipeBugInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Yellow Pipe Bug presentation $B3:{address:X4}");
+            AssertEqual(ReadYellowPipeBugInstructionWord(rom, 0xb30000 | address),
+                PipeBugVisualDefinitions.FrameAt(
+                    PipeBugDefinitions.YellowEnemyDefinition, address),
+                $"compiled Yellow Pipe Bug frame $B3:{address:X4}");
         }
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                PipeBugDefinitions.YellowEnemyDefinition, 0x8f4c),
+            "unlisted Yellow Pipe Bug visual operand fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Yellow Pipe Bug mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -72,8 +78,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Yellow Pipe Bug instruction mechanics: twenty-four compiled words, four " +
-            "complete loops, and sixteen live spritemap reads pass with mechanics bytes " +
-            "forbidden.");
+            "complete loops pass with sixteen visual selectors and mechanics source " +
+            "words forbidden.");
 
         RoomEnemySystem CreateSystem(ushort program, out RoomEnemySlot slot)
         {
@@ -120,7 +126,7 @@ internal static partial class Program
     private sealed class YellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
         public byte ReadByte(int address)
         {
@@ -142,8 +148,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Yellow Pipe Bug selector ${address:X6}.");
                     }
                 }
             }

@@ -271,7 +271,7 @@ public static class EnemyTileArtworkFiles
         try
         {
             // Older overrides cannot know the later Skultera, Waver, and
-            // Skree/Metaree/Zoa identities.
+            // Skree/Metaree/Zoa and Pipe Bug identities.
             // Merge only their validated frames onto verified current stock content,
             // preserving existing user edits through an extraction upgrade.
             string stockCompositionPath = Path.Combine(

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -46,18 +47,33 @@ internal static partial class Program
                 program.StrongFrames);
         }
 
-        AssertEqual(BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Brinstar Pipe Bug spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Brinstar Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
              index < BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 BrinstarPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Pipe Bug presentation word $B3:{address:X4}");
+            ushort definition = address < 0x8a00
+                ? PipeBugDefinitions.BrinstarEnemyDefinition
+                : PipeBugDefinitions.StrongBrinstarEnemyDefinition;
+            AssertEqual(ReadBrinstarPipeBugInstructionWord(rom, 0xb30000 | address),
+                PipeBugVisualDefinitions.FrameAt(definition, address),
+                $"compiled Brinstar Pipe Bug frame $B3:{address:X4}");
         }
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                PipeBugDefinitions.BrinstarEnemyDefinition, 0x882b),
+            "unlisted Brinstar Pipe Bug visual operand fails loudly");
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                PipeBugDefinitions.BrinstarEnemyDefinition, 0x8a1f),
+            "normal Brinstar Pipe Bug rejects a strong visual operand");
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                PipeBugDefinitions.StrongBrinstarEnemyDefinition, 0x87ad),
+            "strong Brinstar Pipe Bug rejects a normal visual operand");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Brinstar Pipe Bug mechanics byte");
 
@@ -77,8 +93,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Brinstar Pipe Bug instruction mechanics: sixty compiled words, all eight " +
-            "normal/strong programs, complete loops, and forty-four live spritemap reads " +
-            "pass with mechanics bytes forbidden.");
+            "normal/strong programs and complete loops pass with forty-four visual " +
+            "selectors and mechanics source words forbidden.");
 
         void VerifyProgram(
             bool strong,
@@ -151,7 +167,7 @@ internal static partial class Program
     private sealed class BrinstarPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -174,8 +190,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Brinstar Pipe Bug selector ${address:X6}.");
                     }
                 }
             }

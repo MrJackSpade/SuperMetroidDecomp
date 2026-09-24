@@ -1287,39 +1287,42 @@ mechanics, and warmed lookup is allocation-free.
 Norfair Pipe Bugs now resolve all thirty-six fixed durations, gotos, and loop targets
 across the formation's four left/right rising and flight programs through
 `NorfairPipeBugInstructionProgramDefinitions`. Their twenty-eight interleaved spritemap
-pointers remain live cartridge presentation data, and the state-machine handoffs name the
-same catalog entries instead of retaining raw addresses.
+pointers are compiled into `PipeBugVisualDefinitions`; ten distinct ordinary OAM frames
+are installed in the editable enemy-composition catalog. The state-machine handoffs name
+the same program entries instead of retaining raw addresses.
 
 Verification compares every mechanics word with the pinned cartridge and executes all
-four production loops beyond their terminal gotos while every mechanics byte is forbidden.
-All presentation operands remain observable, invalid mechanics pointers fail loudly, and
-warmed lookup is allocation-free.
+four production loops beyond their terminal gotos with mechanics and visual-selector
+source bytes forbidden. All selected frames match the pinned ROM; an edited OAM frame
+changes drawing without changing the loop timing.
 
 ## Yellow Pipe Bug instruction mechanics
 
 Yellow Brinstar Pipe Bugs now resolve all twenty-four fixed durations, gotos, and loop
 targets across the left/right straight and arcing programs through
 `YellowPipeBugInstructionProgramDefinitions`. Their sixteen interleaved spritemap pointers
-remain live cartridge presentation data, and every state-machine handoff names the same
-catalog entries instead of retaining raw addresses.
+are compiled into `PipeBugVisualDefinitions`; twelve distinct ordinary OAM frames are
+installed in the editable enemy-composition catalog. State-machine handoffs continue to
+name the compiled program entries.
 
 Verification compares every mechanics word with the pinned cartridge and executes all
-four production loops beyond their terminal gotos while every mechanics byte is forbidden.
-All presentation operands remain observable, invalid mechanics pointers fail loudly, and
-warmed lookup is allocation-free.
+four production loops beyond their terminal gotos with mechanics and visual-selector
+source bytes forbidden. The selected frames and installed OAM match the pinned ROM,
+while an edited frame changes drawing without changing loop timing.
 
 ## Brinstar Pipe Bug instruction mechanics
 
 Normal and strong Brinstar Pipe Bugs now resolve all sixty fixed durations, gotos, and
 loop targets across their eight rising and shooting programs through
 `BrinstarPipeBugInstructionProgramDefinitions`. Their forty-four interleaved spritemap
-pointers remain live cartridge-backed presentation data, and the two four-way selector
-tables name the same catalog entries instead of duplicating raw addresses.
+pointers are compiled into `PipeBugVisualDefinitions`; twenty-two distinct ordinary OAM
+frames are installed in the editable enemy-composition catalog. The two four-way program
+selector tables still name the same entries instead of duplicating raw addresses.
 
 Verification compares every mechanics word with the pinned cartridge and executes all
-eight production loops beyond their terminal gotos while every mechanics byte is
-forbidden. All forty-four presentation operands remain observable, presentation and
-adjacent selector-table pointers fail as mechanics, and warmed lookup is allocation-free.
+eight production loops beyond their terminal gotos with mechanics and visual-selector
+source bytes forbidden. All forty-four selections and installed OAM match the pinned ROM;
+normal and strong visual edits change drawing without changing loop timing.
 
 ## Shaktool attack-circle projectile instruction mechanics
 

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -42,18 +43,23 @@ internal static partial class Program
                 $"Norfair Pipe Bug program $B3:{program:X4} loops");
         }
 
-        AssertEqual(NorfairPipeBugInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Norfair Pipe Bug spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Norfair Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
              index < NorfairPipeBugInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 NorfairPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Norfair Pipe Bug presentation $B3:{address:X4}");
+            AssertEqual(ReadNorfairPipeBugInstructionWord(rom, 0xb30000 | address),
+                PipeBugVisualDefinitions.FrameAt(
+                    PipeBugDefinitions.NorfairEnemyDefinition, address),
+                $"compiled Norfair Pipe Bug frame $B3:{address:X4}");
         }
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                PipeBugDefinitions.NorfairEnemyDefinition, 0x8b61),
+            "unlisted Norfair Pipe Bug visual operand fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Norfair Pipe Bug mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -72,8 +78,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Norfair Pipe Bug instruction mechanics: thirty-six compiled words, four " +
-            "complete loops, and twenty-eight live spritemap reads pass with mechanics " +
-            "bytes forbidden.");
+            "complete loops pass with twenty-eight visual selectors and mechanics " +
+            "source words forbidden.");
 
         RoomEnemySystem CreateSystem(ushort program, out RoomEnemySlot slot)
         {
@@ -120,7 +126,7 @@ internal static partial class Program
     private sealed class NorfairPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
         public byte ReadByte(int address)
         {
@@ -142,8 +148,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Norfair Pipe Bug selector ${address:X6}.");
                     }
                 }
             }

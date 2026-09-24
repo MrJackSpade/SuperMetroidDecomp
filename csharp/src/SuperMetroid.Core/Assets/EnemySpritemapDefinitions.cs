@@ -11,9 +11,11 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 7;
-    internal const int PreviousVersion = 6;
-    internal const int PreviousFrameCount = 79;
+    internal const int Version = 8;
+    internal const int PreviousVersion = 7;
+    internal const int PreviousFrameCount = 101;
+    internal const int PriorVersion = 6;
+    internal const int PriorFrameCount = 79;
     internal const int IntermediateVersion = 5;
     internal const int IntermediateFrameCount = 69;
     internal const int LegacyVersion = 4;
@@ -24,6 +26,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
     internal const byte SkreeMetareeBank = 0xa3;
+    internal const byte PipeBugBank = 0xb3;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -133,6 +136,50 @@ internal static class EnemySpritemapDefinitions
         new(ZoaBank, 0xb5a5, "zoa_rise_right_0"),
         new(ZoaBank, 0xb59e, "zoa_rise_right_1"),
         new(ZoaBank, 0xb5ac, "zoa_rise_right_2"),
+        new(PipeBugBank, 0x89b7, "pipe_brinstar_normal_left_0"),
+        new(PipeBugBank, 0x89be, "pipe_brinstar_normal_left_1"),
+        new(PipeBugBank, 0x89c5, "pipe_brinstar_normal_left_2"),
+        new(PipeBugBank, 0x89cc, "pipe_brinstar_normal_left_3"),
+        new(PipeBugBank, 0x89d3, "pipe_brinstar_normal_left_4"),
+        new(PipeBugBank, 0x89da, "pipe_brinstar_normal_right_0"),
+        new(PipeBugBank, 0x89e1, "pipe_brinstar_normal_right_1"),
+        new(PipeBugBank, 0x89e8, "pipe_brinstar_normal_right_2"),
+        new(PipeBugBank, 0x89ef, "pipe_brinstar_normal_right_3"),
+        new(PipeBugBank, 0x89f6, "pipe_brinstar_normal_right_4"),
+        new(PipeBugBank, 0x8a6d, "pipe_brinstar_strong_shoot_left_0"),
+        new(PipeBugBank, 0x8a74, "pipe_brinstar_strong_shoot_left_1"),
+        new(PipeBugBank, 0x8a7b, "pipe_brinstar_strong_shoot_left_2"),
+        new(PipeBugBank, 0x8a82, "pipe_brinstar_strong_rise_left_0"),
+        new(PipeBugBank, 0x8a89, "pipe_brinstar_strong_rise_left_1"),
+        new(PipeBugBank, 0x8a90, "pipe_brinstar_strong_rise_left_2"),
+        new(PipeBugBank, 0x8a97, "pipe_brinstar_strong_shoot_right_0"),
+        new(PipeBugBank, 0x8a9e, "pipe_brinstar_strong_shoot_right_1"),
+        new(PipeBugBank, 0x8aa5, "pipe_brinstar_strong_shoot_right_2"),
+        new(PipeBugBank, 0x8aac, "pipe_brinstar_strong_rise_right_0"),
+        new(PipeBugBank, 0x8ab3, "pipe_brinstar_strong_rise_right_1"),
+        new(PipeBugBank, 0x8aba, "pipe_brinstar_strong_rise_right_2"),
+        new(PipeBugBank, 0x8e96, "pipe_norfair_left_0"),
+        new(PipeBugBank, 0x8e9d, "pipe_norfair_left_1"),
+        new(PipeBugBank, 0x8ea4, "pipe_norfair_left_2"),
+        new(PipeBugBank, 0x8eab, "pipe_norfair_left_3"),
+        new(PipeBugBank, 0x8eb2, "pipe_norfair_left_4"),
+        new(PipeBugBank, 0x8eb9, "pipe_norfair_right_0"),
+        new(PipeBugBank, 0x8ec0, "pipe_norfair_right_1"),
+        new(PipeBugBank, 0x8ec7, "pipe_norfair_right_2"),
+        new(PipeBugBank, 0x8ece, "pipe_norfair_right_3"),
+        new(PipeBugBank, 0x8ed5, "pipe_norfair_right_4"),
+        new(PipeBugBank, 0x92ad, "pipe_yellow_fly_left_0"),
+        new(PipeBugBank, 0x92b4, "pipe_yellow_fly_left_1"),
+        new(PipeBugBank, 0x92bb, "pipe_yellow_fly_left_2"),
+        new(PipeBugBank, 0x92c2, "pipe_yellow_arc_left_0"),
+        new(PipeBugBank, 0x92c9, "pipe_yellow_arc_left_1"),
+        new(PipeBugBank, 0x92d0, "pipe_yellow_arc_left_2"),
+        new(PipeBugBank, 0x92d7, "pipe_yellow_fly_right_0"),
+        new(PipeBugBank, 0x92de, "pipe_yellow_fly_right_1"),
+        new(PipeBugBank, 0x92e5, "pipe_yellow_fly_right_2"),
+        new(PipeBugBank, 0x92ec, "pipe_yellow_arc_right_0"),
+        new(PipeBugBank, 0x92f3, "pipe_yellow_arc_right_1"),
+        new(PipeBugBank, 0x92fa, "pipe_yellow_arc_right_2"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -161,13 +208,22 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.ZoaDefinition => ZoaFrameAt(operandAddress),
             RoomEnemySystem.MetareeDefinition => SkreeMetareeFrameAt(true, operandAddress),
             RoomEnemySystem.SkreeDefinition => SkreeMetareeFrameAt(false, operandAddress),
+            PipeBugDefinitions.BrinstarEnemyDefinition or
+                PipeBugDefinitions.StrongBrinstarEnemyDefinition or
+                PipeBugDefinitions.NorfairEnemyDefinition or
+                PipeBugDefinitions.YellowEnemyDefinition =>
+                PipeBugVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.BoulderDefinition or
             RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition or
             RoomEnemySystem.WaverDefinition or RoomEnemySystem.ZoaDefinition or
-            RoomEnemySystem.MetareeDefinition or RoomEnemySystem.SkreeDefinition;
+            RoomEnemySystem.MetareeDefinition or RoomEnemySystem.SkreeDefinition or
+            PipeBugDefinitions.BrinstarEnemyDefinition or
+            PipeBugDefinitions.StrongBrinstarEnemyDefinition or
+            PipeBugDefinitions.NorfairEnemyDefinition or
+            PipeBugDefinitions.YellowEnemyDefinition;
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

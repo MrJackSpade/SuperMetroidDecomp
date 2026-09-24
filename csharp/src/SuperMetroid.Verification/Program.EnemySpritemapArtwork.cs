@@ -55,6 +55,14 @@ internal static partial class Program
                                             ? RoomEnemySystem.MetareeDefinition
                                             : frame.Name.StartsWith("skree_", StringComparison.Ordinal)
                                                 ? RoomEnemySystem.SkreeDefinition
+                                                : frame.Name.StartsWith("pipe_brinstar_strong_", StringComparison.Ordinal)
+                                                    ? PipeBugDefinitions.StrongBrinstarEnemyDefinition
+                                                    : frame.Name.StartsWith("pipe_brinstar_", StringComparison.Ordinal)
+                                                        ? PipeBugDefinitions.BrinstarEnemyDefinition
+                                                        : frame.Name.StartsWith("pipe_norfair_", StringComparison.Ordinal)
+                                                            ? PipeBugDefinitions.NorfairEnemyDefinition
+                                                            : frame.Name.StartsWith("pipe_yellow_", StringComparison.Ordinal)
+                                                                ? PipeBugDefinitions.YellowEnemyDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
@@ -108,6 +116,15 @@ internal static partial class Program
         };
         foreach (string frameName in new[]
                  { "zoa_shoot_left_0", "metaree_idle_0", "skree_idle_0" })
+        {
+            SpriteVisualPart part = document.Frames[frameName][0];
+            document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
+        }
+        foreach (string frameName in new[]
+                 {
+                     "pipe_brinstar_normal_left_0", "pipe_brinstar_strong_rise_left_0",
+                     "pipe_norfair_left_0", "pipe_yellow_fly_left_0",
+                 })
         {
             SpriteVisualPart part = document.Frames[frameName][0];
             document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
@@ -200,13 +217,34 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
+        foreach ((ushort definition, ushort operand, string name) in new[]
+                 {
+                     (PipeBugDefinitions.BrinstarEnemyDefinition, (ushort)0x87ad,
+                         "Brinstar Pipe Bug"),
+                     (PipeBugDefinitions.StrongBrinstarEnemyDefinition, (ushort)0x8a1f,
+                         "strong Brinstar Pipe Bug"),
+                     (PipeBugDefinitions.NorfairEnemyDefinition, (ushort)0x8ae3,
+                         "Norfair Pipe Bug"),
+                     (PipeBugDefinitions.YellowEnemyDefinition, (ushort)0x8efe,
+                         "yellow Pipe Bug"),
+                 })
+        {
+            ushort pointer = PipeBugVisualDefinitions.FrameAt(definition, operand);
+            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+                pointer, definition);
+            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+                pointer, definition);
+            AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
+                editedFrame.LowTable[1],
+                $"authored {name} Y offset changes live room OAM");
+            AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
+                $"{name} visual override leaves X unchanged");
+        }
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
         var previousFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("zoa_", StringComparison.Ordinal) &&
-                           !pair.Key.StartsWith("metaree_", StringComparison.Ordinal) &&
-                           !pair.Key.StartsWith("skree_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("pipe_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreviousFrameCount,
             previousFrames.Count, "previous enemy composition schema frame count");
@@ -218,26 +256,53 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgraded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        var upgradedBoyon = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        ushort pipePointer = PipeBugVisualDefinitions.FrameAt(
+            PipeBugDefinitions.NorfairEnemyDefinition, 0x8ae3);
+        OamBuffer stockPipe = DrawEnemy(stock, new FrameReadGuard(rom),
+            pipePointer, PipeBugDefinitions.NorfairEnemyDefinition);
+        OamBuffer upgradedPipe = DrawEnemy(upgraded, new FrameReadGuard(rom),
+            pipePointer, PipeBugDefinitions.NorfairEnemyDefinition);
+        AssertTrue(stockPipe.LowTable.SequenceEqual(upgradedPipe.LowTable),
+            "previous-version override gains stock Pipe Bug composition");
+        OamBuffer retainedWaver = DrawEnemy(upgraded, new FrameReadGuard(rom),
+            waverPointer, RoomEnemySystem.WaverDefinition);
+        AssertEqual(editedWaver.LowTable[1], retainedWaver.LowTable[1],
+            "previous-version override retains edited Waver composition");
+        var priorFrames = previousFrames
+            .Where(pair => !pair.Key.StartsWith("zoa_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("metaree_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("skree_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PriorFrameCount,
+            priorFrames.Count, "prior enemy composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PriorVersion,
+                Frames = priorFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog priorUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        var upgradedBoyon = DrawEnemy(priorUpgraded, new FrameReadGuard(rom),
             framePointer, RoomEnemySystem.BoyonDefinition);
-        var upgradedSkultera = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        var upgradedSkultera = DrawEnemy(priorUpgraded, new FrameReadGuard(rom),
             skulteraPointer, RoomEnemySystem.SkulteraDefinition);
         AssertEqual(editedOam.LowTable[0], upgradedBoyon.LowTable[0],
             "previous-version override retains edited Boyon composition");
         AssertEqual(editedSkultera.LowTable[1], upgradedSkultera.LowTable[1],
             "previous-version override retains edited Skultera composition");
-        var upgradedWaver = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        var upgradedWaver = DrawEnemy(priorUpgraded, new FrameReadGuard(rom),
             waverPointer, RoomEnemySystem.WaverDefinition);
         AssertEqual(editedWaver.LowTable[1], upgradedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
         ushort zoaPointer = EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5);
         var stockZoa = DrawEnemy(stock, new FrameReadGuard(rom),
             zoaPointer, RoomEnemySystem.ZoaDefinition);
-        var upgradedZoa = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        var upgradedZoa = DrawEnemy(priorUpgraded, new FrameReadGuard(rom),
             zoaPointer, RoomEnemySystem.ZoaDefinition);
         AssertTrue(stockZoa.LowTable.SequenceEqual(upgradedZoa.LowTable),
             "previous-version override gains stock Zoa composition");
-        var intermediateFrames = previousFrames
+        var intermediateFrames = priorFrames
             .Where(pair => !pair.Key.StartsWith("waver_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.IntermediateFrameCount,
@@ -299,7 +364,12 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with
-                { Bank = definition == RoomEnemySystem.BoulderDefinition
+                { Bank = definition is PipeBugDefinitions.BrinstarEnemyDefinition or
+                    PipeBugDefinitions.StrongBrinstarEnemyDefinition or
+                    PipeBugDefinitions.NorfairEnemyDefinition or
+                    PipeBugDefinitions.YellowEnemyDefinition
+                    ? EnemySpritemapDefinitions.PipeBugBank
+                    : definition == RoomEnemySystem.BoulderDefinition
                     ? EnemySpritemapDefinitions.BoulderBank
                     : definition == RoomEnemySystem.AtomicDefinition
                         ? EnemySpritemapDefinitions.AtomicBank
@@ -331,7 +401,11 @@ internal static partial class Program
                 >= 0xa38b65 and < 0xa38c0f or
                 >= 0xa3b55f and < 0xa3b5b3 or
                 >= 0xa3c842 and < 0xa3c8a6 or
-                >= 0xa3928a and < 0xa394aa)
+                >= 0xa3928a and < 0xa394aa or
+                >= 0xb389b7 and < 0xb389fd or
+                >= 0xb38a6d and < 0xb38ac1 or
+                >= 0xb38e96 and < 0xb38edc or
+                >= 0xb392ad and < 0xb39301)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

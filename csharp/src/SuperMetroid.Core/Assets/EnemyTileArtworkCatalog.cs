@@ -12,7 +12,8 @@ public sealed class EnemyTileArtworkCatalog
     private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
 
     public EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes)
+        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
+        CrocomireMeltingArtwork? crocomireMelting = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -20,7 +21,11 @@ public sealed class EnemyTileArtworkCatalog
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
         this.sheets = new Dictionary<ushort, RoomCharacterAtlas>(sheets);
         this.palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
+        CrocomireMelting = crocomireMelting;
     }
+
+    /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
+    public CrocomireMeltingArtwork? CrocomireMelting { get; }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
     public void LoadTo(ushort definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
@@ -46,7 +51,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 2;
+    public const int Version = 3;
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
     /// <summary>

@@ -68,25 +68,31 @@ public sealed partial class RoomEnemySystem
         byte sourceBank = pass.SourceBank;
 
         Span<byte> graphics = death.MutableMeltingGraphics;
-        foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+        if (TileArtwork?.CrocomireMelting is { } artwork)
         {
-            ushort source = copy.SourceWord;
-            ushort destination = copy.DestinationWord;
-            int destinationOffset = unchecked((ushort)(destination - 0x4000));
+            artwork.CopyPassTo(pass.HeaderOffset, graphics);
+        }
+        else
+        {
+            foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+            {
+                ushort source = copy.SourceWord;
+                ushort destination = copy.DestinationWord;
+                int destinationOffset = unchecked((ushort)(destination - 0x4000));
 
-            // The assembly seeds the counter with $0200 and loops through zero, copying
-            // $0201 words. Preserve that overlap; it is visible in the scratch image and is
-            // explicitly documented beside the retail routine.
-            int byteCount = checked((wordsToCopy + 1) * 2);
-            if (destinationOffset < 0 || destinationOffset + byteCount > graphics.Length)
-            {
-                throw new InvalidDataException(
-                    $"Crocomire melting copy ${sourceBank:X2}:{source:X4} exceeds its scratch image.");
-            }
-            for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
-            {
-                graphics[destinationOffset + byteIndex] = _bus!.ReadByte(
-                    (sourceBank << 16) | unchecked((ushort)(source + byteIndex)));
+                // The assembly seeds the counter with $0200 and loops through zero, copying
+                // $0201 words. Preserve that overlap in non-installed diagnostic fixtures.
+                int byteCount = checked((wordsToCopy + 1) * 2);
+                if (destinationOffset < 0 || destinationOffset + byteCount > graphics.Length)
+                {
+                    throw new InvalidDataException(
+                        $"Crocomire melting copy ${sourceBank:X2}:{source:X4} exceeds its scratch image.");
+                }
+                for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
+                {
+                    graphics[destinationOffset + byteIndex] = _bus!.ReadByte(
+                        (sourceBank << 16) | unchecked((ushort)(source + byteIndex)));
+                }
             }
         }
 

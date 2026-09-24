@@ -94,8 +94,18 @@ public static class EnemyTileArtworkFiles
         if (entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount)
             throw new InvalidDataException($"Expected {EnemyTileArtworkFormat.RetailDefinitionCount} retail enemy sheets; found {entries.Count}.");
         ValidateDefinitionIds(entries.Keys);
+        byte[] firstMelt = ExtractCrocomireMelt(bus,
+            CrocomireMeltingTransferDefinitions.Passes[0],
+            CrocomireMeltingArtworkFormat.FirstByteCount);
+        byte[] secondMelt = ExtractCrocomireMelt(bus,
+            CrocomireMeltingTransferDefinitions.Passes[1],
+            CrocomireMeltingArtworkFormat.SecondByteCount);
+        File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
+        File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
-            sourceCartridgeSha256, entries);
+            sourceCartridgeSha256, entries,
+            Convert.ToHexString(SHA256.HashData(firstMelt)),
+            Convert.ToHexString(SHA256.HashData(secondMelt)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -119,7 +129,9 @@ public static class EnemyTileArtworkFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
             manifest.Entries is null ||
-            manifest.Entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount)
+            manifest.Entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount ||
+            string.IsNullOrWhiteSpace(manifest.CrocomireFirstSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
 
@@ -167,7 +179,36 @@ public static class EnemyTileArtworkFiles
                 throw new InvalidDataException($"Invalid enemy palette {selectedPalettePath}: {error.Message}", error);
             }
         }
-        return new EnemyTileArtworkCatalog(sheets, palettes);
+        byte[] first = ReadCrocomireMelt(CrocomireMeltingArtworkFormat.FirstFileName,
+            manifest.CrocomireFirstSha256);
+        byte[] second = ReadCrocomireMelt(CrocomireMeltingArtworkFormat.SecondFileName,
+            manifest.CrocomireSecondSha256);
+        CrocomireMeltingArtwork crocomire;
+        try
+        {
+            crocomire = CrocomireMeltingArtwork.Load(
+                new MemoryStream(first, writable: false),
+                new MemoryStream(second, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Crocomire melt PNG in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
+        }
+        return new EnemyTileArtworkCatalog(sheets, palettes, crocomire);
+
+        byte[] ReadCrocomireMelt(string fileName, string expectedSha256)
+        {
+            string stockPath = Path.Combine(stockDirectory, fileName);
+            byte[] stock = File.ReadAllBytes(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), expectedSha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Stock Crocomire melt PNG {stockPath} failed its manifest hash.");
+            string? overridePath = overrideDirectory is null ? null :
+                Path.Combine(overrideDirectory, fileName);
+            return overridePath is not null && File.Exists(overridePath)
+                ? File.ReadAllBytes(overridePath) : stock;
+        }
     }
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
@@ -181,8 +222,37 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
+    private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
+        CrocomireMeltingPass pass, int encodedByteCount)
+    {
+        var planar = new byte[encodedByteCount];
+        foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+        {
+            int destination = copy.DestinationWord - 0x4000;
+            for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
+            {
+                planar[destination + index] = bus.ReadByte(
+                    (pass.SourceBank << 16) | unchecked((ushort)(copy.SourceWord + index)));
+            }
+        }
+        int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(encodedByteCount);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
+            Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount),
+            out int width, out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] encoded = png.ToArray();
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+            new MemoryStream(encoded, writable: false), encodedByteCount);
+        if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+            throw new InvalidDataException(
+                $"Crocomire melt pass ${pass.HeaderOffset:X4} PNG changed native graphics bytes.");
+        return encoded;
+    }
+
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
-        Dictionary<ushort, EnemyTileFileEntry> Entries);
+        Dictionary<ushort, EnemyTileFileEntry> Entries,
+        string CrocomireFirstSha256, string CrocomireSecondSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

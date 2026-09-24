@@ -25,6 +25,23 @@ internal static partial class Program
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");
+            var stockMeltImages = new List<byte[]>();
+            foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+            {
+                byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
+                var expected = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
+                foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+                {
+                    int destination = copy.DestinationWord - 0x4000;
+                    for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
+                        expected[destination + index] = bus.ReadByte(
+                            (pass.SourceBank << 16) |
+                            unchecked((ushort)(copy.SourceWord + index)));
+                }
+                AssertTrue(actual.SequenceEqual(expected),
+                    $"installed Crocomire melt pass ${pass.HeaderOffset:X4} preserves native scratch bytes");
+                stockMeltImages.Add(actual);
+            }
             foreach (string file in files)
             {
                 ushort pointer = Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16);
@@ -60,6 +77,34 @@ internal static partial class Program
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
             EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            string meltFile = Path.Combine(directory,
+                CrocomireMeltingArtworkFormat.FirstFileName);
+            using (var meltInput = new MemoryStream(File.ReadAllBytes(meltFile), writable: false))
+            {
+                IndexedPngImage meltImage = IndexedPng.Read(meltInput, 256, 32);
+                meltImage.Pixels[0] ^= 1;
+                using var meltOutput = File.Create(Path.Combine(overrideDirectory,
+                    CrocomireMeltingArtworkFormat.FirstFileName));
+                IndexedPng.Write(meltOutput, meltImage.Width, meltImage.Height,
+                    meltImage.Pixels, meltImage.Palette);
+            }
+            EnemyTileArtworkCatalog editedMelt = EnemyTileArtworkFiles.Load(
+                directory, overrideDirectory);
+            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+                CrocomireMeltingTransferDefinitions.Passes[0]);
+            AssertEqual((byte)(stockMeltImages[0][0] ^ 0x80), changedMelt[0],
+                "Crocomire melt PNG edit changes the live first planar pixel");
+            AssertTrue(changedMelt.AsSpan(1).SequenceEqual(stockMeltImages[0].AsSpan(1)),
+                "Crocomire melt PNG edit leaves all other scratch bytes unchanged");
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+                    CrocomireMeltingTransferDefinitions.Passes[1])
+                .SequenceEqual(stockMeltImages[1]),
+                "first-melt PNG edit does not change the second pass");
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus,
+                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                    CrocomireMeltingTransferDefinitions.Passes[0])
+                .SequenceEqual(changedMelt),
+                "Crocomire melt override survives catalog reload");
             var stockVram = new SnesVram();
             var editedVram = new SnesVram();
             stock.LoadTo(editedPointer, editedByteCount, stockVram, 0);
@@ -111,6 +156,13 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                 "malformed enemy override fails loudly");
             File.WriteAllBytes(overridePath, File.ReadAllBytes(editedFile));
+            string meltOverride = Path.Combine(overrideDirectory,
+                CrocomireMeltingArtworkFormat.FirstFileName);
+            File.WriteAllBytes(meltOverride, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(
+                    directory, overrideDirectory),
+                "malformed Crocomire melt override fails loudly");
+            File.WriteAllBytes(meltOverride, File.ReadAllBytes(meltFile));
             File.WriteAllBytes(paletteOverridePath, new byte[] { 0 });
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                 "malformed enemy palette override fails loudly");
@@ -126,6 +178,6 @@ internal static partial class Program
         {
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
-        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, exact bytes, pixel/RGB5 overrides, persistence, and invalid resources pass.");
+        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets and both Crocomire melt images, exact bytes, live indexed edits, persistence, and invalid resources pass.");
     }
 }

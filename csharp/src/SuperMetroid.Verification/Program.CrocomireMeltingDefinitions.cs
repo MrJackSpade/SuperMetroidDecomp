@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -230,18 +231,73 @@ internal static partial class Program
             "Crocomire melt post-table cursor");
     }
 
-    private sealed class CrocomireMeltingDefinitionReadGuard(ISnesAddressSpace source) :
+    private static byte[] VerifyInstalledCrocomireMeltingPass(SuperMetroidAddressSpace rom,
+        EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var state = new CrocomireEnemyState(enemies.Slots[0]);
+        var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+            enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        var initialize = typeof(RoomEnemySystem).GetMethod(
+            "InitializeCrocomireMeltingGraphics", flags)!
+            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
+        var upload = typeof(RoomEnemySystem).GetMethod(
+            "UploadNextCrocomireMeltingGraphicsSlice", flags)!
+            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
+
+        initialize(state);
+        AssertEqual(pass.TransferStartOffset, death.MeltingTableOffset,
+            $"installed Crocomire melt pass ${pass.HeaderOffset:X4} transfer start");
+        AssertEqual((ushort)2, state.DeathSequenceIndex,
+            $"installed Crocomire melt pass ${pass.HeaderOffset:X4} phase timing");
+        byte[] scratch = death.MeltingGraphics.ToArray();
+        foreach (CrocomireMeltingUpload record in pass.Uploads.Span)
+        {
+            upload(state);
+            int source = record.SourceWord - 0x4000;
+            for (int index = 0; index < record.ByteCount; index++)
+                AssertEqual(scratch[source + index],
+                    vram.ReadByte(record.DestinationWord * 2 + index),
+                    $"installed Crocomire melt pass ${pass.HeaderOffset:X4} VRAM {index}");
+        }
+        upload(state);
+        AssertEqual((ushort)4, state.DeathSequenceIndex,
+            $"installed Crocomire melt pass ${pass.HeaderOffset:X4} terminal timing");
+        return scratch;
+    }
+
+    private sealed class CrocomireMeltingDefinitionReadGuard(
+        ISnesAddressSpace source, bool blockGraphics = false) :
         ISnesAddressSpace
     {
-        public byte ReadByte(int address) => address is
-            >= 0xa49697 and < 0xa496c8 or
-            >= 0xa49bbd and < 0xa49bc5 or
-            >= CrocomireMeltingTransferDefinitions.NativeSourceAddress and
-                < CrocomireMeltingTransferDefinitions.NativeSourceAddress +
-                    CrocomireMeltingTransferDefinitions.NativeByteCount
-                ? throw new InvalidOperationException(
-                    $"Crocomire melting attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
+        public byte ReadByte(int address)
+        {
+            if (address is
+                >= 0xa49697 and < 0xa496c8 or
+                >= 0xa49bbd and < 0xa49bc5 or
+                >= CrocomireMeltingTransferDefinitions.NativeSourceAddress and
+                    < CrocomireMeltingTransferDefinitions.NativeSourceAddress +
+                        CrocomireMeltingTransferDefinitions.NativeByteCount)
+                throw new InvalidOperationException(
+                    $"Crocomire melting attempted migrated definition read ${address:X6}.");
+            if (blockGraphics)
+            {
+                foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+                foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
+                {
+                    int start = (pass.SourceBank << 16) | copy.SourceWord;
+                    if (address >= start && address < start + (pass.WordsToCopy + 1) * 2)
+                        throw new InvalidOperationException(
+                            $"Crocomire melting attempted installed artwork read ${address:X6}.");
+                }
+            }
+            return source.ReadByte(address);
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

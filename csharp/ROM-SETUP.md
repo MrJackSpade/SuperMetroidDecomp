@@ -50,7 +50,8 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
-- `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes, and their manifest.
+- `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
+  Crocomire's two melting images, and their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
@@ -208,6 +209,14 @@ spritemaps, hitboxes, health, and AI are unchanged by visual edits. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
+Crocomire's first and second melting images are the separate indexed files
+`crocomire-melt-first.png` and `crocomire-melt-second.png` in the same directory.
+Copy either to `overrides/enemy-tiles/` and edit its indexed pixels. These sheets
+replace the image copied into the boss's melting scratch buffer; the native
+erase order, distortion timing, transfer destinations, and collision stay fixed.
+Pixels beyond each native image's written byte range are reserved and must
+remain zero. Stock melt sheets are hash-checked and repaired with the other
+enemy art, while valid overrides survive repair and application updates.
 Base room colors are separately extracted into `game/room-palettes/*.json`.
 Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
 `version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to

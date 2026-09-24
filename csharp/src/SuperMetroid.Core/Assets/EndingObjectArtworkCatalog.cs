@@ -10,7 +10,7 @@ public enum EndingObjectFragmentId
 }
 
 /// <summary>
-/// Editable OBJ character sheets for the ending clouds and planet explosion.
+/// Editable character sheets for the ending, credits, and post-credits reward.
 /// Actor instructions, OAM composition, palette selection and timing remain code.
 /// </summary>
 public sealed class EndingObjectArtworkCatalog
@@ -18,13 +18,21 @@ public sealed class EndingObjectArtworkCatalog
     private readonly RoomCharacterAtlas[] fragments;
 
     public EndingObjectArtworkCatalog(RoomCharacterAtlas clouds,
-        RoomCharacterAtlas explosion, IReadOnlyList<RoomCharacterAtlas> fragments)
+        RoomCharacterAtlas explosion, IReadOnlyList<RoomCharacterAtlas> fragments,
+        RoomCharacterAtlas waitingSamus, RoomCharacterAtlas shootingScreen,
+        RoomCharacterAtlas suitlessSamus)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
+        WaitingSamus = waitingSamus ?? throw new ArgumentNullException(nameof(waitingSamus));
+        ShootingScreen = shootingScreen ?? throw new ArgumentNullException(nameof(shootingScreen));
+        SuitlessSamus = suitlessSamus ?? throw new ArgumentNullException(nameof(suitlessSamus));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
+            WaitingSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
+            ShootingScreen.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
+            SuitlessSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
             fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             fragments.Any(fragment => fragment is null ||
                 fragment.Transfer.Length != EndingObjectArtworkFormat.FragmentByteCount))
@@ -34,6 +42,12 @@ public sealed class EndingObjectArtworkCatalog
 
     public RoomCharacterAtlas Clouds { get; }
     public RoomCharacterAtlas Explosion { get; }
+    /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
+    public RoomCharacterAtlas WaitingSamus { get; }
+    /// <summary>Post-credits shooting scene OBJ sheet.</summary>
+    public RoomCharacterAtlas ShootingScreen { get; }
+    /// <summary>Under-three-hour suitless reward sheet.</summary>
+    public RoomCharacterAtlas SuitlessSamus { get; }
 
     /// <summary>Four ordered $0800-byte OBJ fragments uploaded at VRAM $E000..$FFFF.</summary>
     public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
@@ -44,12 +58,16 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native OBJ transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 1;
+    public const int ManifestVersion = 2;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";
+    public const string WaitingSamusFileName = "credits-waiting-samus.png";
+    public const string ShootingScreenFileName = "post-credits-shooting.png";
+    public const string SuitlessSamusFileName = "post-credits-suitless-samus.png";
     public const int CloudByteCount = 0x4000;
     public const int ExplosionByteCount = 0x6000;
+    public const int RewardByteCount = 0x4000;
     public const int FragmentByteCount = 0x0800;
     public const int FragmentCount = 4;
     public static string FragmentFileName(int index) => index switch

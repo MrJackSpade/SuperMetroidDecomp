@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Extracts and validates the ending's six independent OBJ character PNGs.</summary>
+/// <summary>Extracts ending and reward character art into editable indexed PNGs.</summary>
 public static class EndingObjectArtworkFiles
 {
     public static void Extract(ISnesAddressSpace bus, string directory,
@@ -34,6 +34,15 @@ public static class EndingObjectArtworkFiles
         for (int index = 0; index < fragmentSources.Length; index++)
             Export(EndingObjectArtworkFormat.FragmentFileName(index),
                 fragmentSources[index], EndingObjectArtworkFormat.FragmentByteCount);
+        Export(EndingObjectArtworkFormat.WaitingSamusFileName,
+            EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
+            EndingObjectArtworkFormat.RewardByteCount);
+        Export(EndingObjectArtworkFormat.ShootingScreenFileName,
+            EndingCreditsRomData.Assets.ShootingScreenCharacters,
+            EndingObjectArtworkFormat.RewardByteCount);
+        Export(EndingObjectArtworkFormat.SuitlessSamusFileName,
+            EndingCreditsRomData.Assets.SuitlessSamusCharacters,
+            EndingObjectArtworkFormat.RewardByteCount);
 
         using var manifest = new FileStream(Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -87,6 +96,9 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.ExplosionFileName,
             .. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
                 .Select(EndingObjectArtworkFormat.FragmentFileName),
+            EndingObjectArtworkFormat.WaitingSamusFileName,
+            EndingObjectArtworkFormat.ShootingScreenFileName,
+            EndingObjectArtworkFormat.SuitlessSamusFileName,
         ];
         if (manifest.Version != EndingObjectArtworkFormat.ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -103,7 +115,13 @@ public static class EndingObjectArtworkFiles
             Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
                 .Select(index => LoadSheet(EndingObjectArtworkFormat.FragmentFileName(index),
                     EndingObjectArtworkFormat.FragmentByteCount))
-                .ToArray());
+                .ToArray(),
+            LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName,
+                EndingObjectArtworkFormat.RewardByteCount),
+            LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName,
+                EndingObjectArtworkFormat.RewardByteCount),
+            LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
+                EndingObjectArtworkFormat.RewardByteCount));
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
         {

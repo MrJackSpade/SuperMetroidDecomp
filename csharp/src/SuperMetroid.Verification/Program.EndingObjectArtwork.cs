@@ -27,6 +27,15 @@ internal static partial class Program
             AssertSheet(stock.Fragment((EndingObjectFragmentId)index),
                 fragmentSources[index], EndingObjectArtworkFormat.FragmentByteCount,
                 $"explosion fragment {index}");
+        AssertSheet(stock.WaitingSamus,
+            EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
+            EndingObjectArtworkFormat.RewardByteCount, "waiting Samus");
+        AssertSheet(stock.ShootingScreen,
+            EndingCreditsRomData.Assets.ShootingScreenCharacters,
+            EndingObjectArtworkFormat.RewardByteCount, "shooting screen");
+        AssertSheet(stock.SuitlessSamus,
+            EndingCreditsRomData.Assets.SuitlessSamusCharacters,
+            EndingObjectArtworkFormat.RewardByteCount, "suitless Samus");
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -180,7 +189,8 @@ internal static partial class Program
                     stock.Explosion.Transfer.Span),
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
         File.Delete(invalidPath);
-        Console.WriteLine("Ending OBJ art: six native sheets, visible independent edits, guarded runtime and stock repair pass.");
+        VerifyPostCreditsCharacterArtwork(repaired);
+        Console.WriteLine("Ending OBJ art: nine native sheets, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -202,7 +212,10 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.EndingObjectCharacters70 or
                 EndingCreditsRomData.Assets.EndingObjectCharacters74 or
                 EndingCreditsRomData.Assets.EndingObjectCharacters78 or
-                EndingCreditsRomData.Assets.EndingObjectCharacters7C)
+                EndingCreditsRomData.Assets.EndingObjectCharacters7C or
+                EndingCreditsRomData.Assets.WaitingForCreditsCharacters or
+                EndingCreditsRomData.Assets.ShootingScreenCharacters or
+                EndingCreditsRomData.Assets.SuitlessSamusCharacters)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException($"Ending OBJ reread cartridge source ${address:X6}.");

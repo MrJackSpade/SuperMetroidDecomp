@@ -46,6 +46,7 @@ internal static partial class Program
     private static void VerifyDownwardGatePlms()
     {
         VerifyDownwardGateProgramDefinitions();
+        VerifyDownwardGateDrawDefinitions();
         VerifyDownwardGateSetupAndProjectile();
 
         var cases = new (DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted)[]
@@ -65,6 +66,45 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Downward gates: setup, slot order, actor handoff, and all eight shot filters agree.");
+    }
+
+    private static void VerifyDownwardGateDrawDefinitions()
+    {
+        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        int count = 0;
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 DownwardGatePlmDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                ushort directionAndCount = unchecked((ushort)(
+                    rom.ReadByte(0x840000 | cursor) |
+                    rom.ReadByte(0x840000 | (cursor + 1)) << 8));
+                AssertEqual(run.DirectionAndCount, directionAndCount,
+                    $"gate draw ${list.Pointer:X4} direction/count matches ROM");
+                cursor += 2;
+                foreach (ushort word in run.LevelWords.Span)
+                {
+                    ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                        rom.ReadByte(0x840000 | (cursor + 1)) << 8));
+                    AssertEqual(word, native,
+                        $"gate draw ${list.Pointer:X4} physical level word matches ROM");
+                    cursor += 2;
+                }
+
+                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor++),
+                    $"gate draw ${list.Pointer:X4} next X matches ROM");
+                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor++),
+                    $"gate draw ${list.Pointer:X4} next Y matches ROM");
+            }
+
+            count++;
+        }
+        AssertEqual(14, count, "all six resident and eight shot-trigger gate draws are compiled");
+        AssertTrue(!DownwardGatePlmDrawDefinitions.TryGet(0xa518, out _),
+            "adjacent payload bytes cannot alias a complete gate draw list");
     }
 
     private static void VerifyDownwardGateProgramDefinitions()
@@ -163,6 +203,9 @@ internal static partial class Program
         // must wake its blue-left gate exactly as it does in room $8F:9E52.
         StepDownwardGatePlm(plms, bus, level, streamer);
         StepDownwardGatePlm(plms, bus, level, streamer);
+        AssertEqual((ushort)0xc0ff,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.WidthInBlocks).LevelWord,
+            "compiled initial gate draw installs the second solid column word");
         AssertTrue(plms.TrySpawnDownwardGateTrigger(
                 level,
                 gateBlockIndex - 1,
@@ -189,6 +232,9 @@ internal static partial class Program
         }
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
+        AssertEqual((ushort)0x00ff,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.WidthInBlocks).LevelWord,
+            "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
         AssertEqual(DownwardGatePreInstructionCodes.WakeIfTriggered,
@@ -237,6 +283,13 @@ internal static partial class Program
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGatePlm(plms, bus, level, streamer);
         StepDownwardGatePlm(plms, bus, level, streamer);
+        int color = ((byte)trigger - (byte)DownwardGateTriggerBehavior.BlueLeft) / 2;
+        ushort expectedTriggerWord = ((byte)trigger & 1) == 0
+            ? checked((ushort)(0xc0db - color))
+            : checked((ushort)(0xc4db - color));
+        AssertEqual(expectedTriggerWord,
+            level.GetCollisionBlockByIndex(triggerBlockIndex).LevelWord,
+            $"{trigger} compiled shot-trigger draw installs its physical block word");
         AssertTrue(plms.PopulationSlots.All(slot =>
                 slot.HeaderPointer != RoomPlmHeaders.DownwardGateShotBlock),
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
@@ -260,7 +313,6 @@ internal static partial class Program
         WriteWord(bus, 0x84c82c, RoomPlmInstructionLists.DownwardGateOpening);
         WriteWord(bus, 0x84c838, RoomPlmInstructionLists.Delete);
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
-        SeedDownwardGateDrawLists(bus);
         SeedDownwardGateProjectileRom(bus);
 
         RoomLevelData level = CreateRoom(
@@ -301,25 +353,6 @@ internal static partial class Program
             enemyDeaths: 0,
             enemyDeathQuota: 0,
             controllerNewInput: 0);
-
-    private static void SeedDownwardGateDrawLists(TestAddressSpace bus)
-    {
-        // No bank-$84 gate instruction bytes are seeded here. The production gate
-        // handler must use the compiled control stream while these draw payloads
-        // remain an independent, still-ROM-backed presentation/physical domain.
-        foreach (ushort drawPointer in new ushort[]
-                 { 0xa517, 0xa525, 0xa533, 0xa541, 0xa54f, 0xa55d })
-        {
-            WriteOneBlockDraw(bus, drawPointer, 0x8000);
-        }
-
-        ushort[] triggerDraws =
-            [0xa5d7, 0xa5e3, 0xa5eb, 0xa5f7, 0xa5ff, 0xa60b, 0xa613, 0xa61f];
-        foreach (ushort drawPointer in triggerDraws)
-        {
-            WriteOneBlockDraw(bus, drawPointer, 0x8000);
-        }
-    }
 
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)
     {

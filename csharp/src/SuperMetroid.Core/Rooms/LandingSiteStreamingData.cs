@@ -115,9 +115,15 @@ public static class LandingSiteStreamingData
         // $82:E9E7's door-dependent library-background command has already been resolved
         // by LandingSiteEntryState. Copy its literal ROM slice to its literal VRAM word;
         // unlike the CRE/area inputs above, scrolling-sky tilemaps are not compressed.
-        if (skyArt is not null && skyArt.TryResolve(entry.SkySourceAddress,
-                entry.SkyByteCount, out ReadOnlyMemory<byte> selected))
+        if (skyArt is not null)
+        {
+            if (!skyArt.TryResolve(entry.SkySourceAddress, entry.SkyByteCount,
+                    out ReadOnlyMemory<byte> selected))
+                throw new InvalidDataException(
+                    $"Installed scrolling sky does not own transfer " +
+                    $"${entry.SkySourceAddress:X6} ({entry.SkyByteCount} bytes).");
             vram.LoadBytes(entry.SkyVramDestination * 2, selected.Span);
+        }
         else
         {
             var skyTilemap = new byte[entry.SkyByteCount];

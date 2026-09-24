@@ -50,6 +50,23 @@ internal static partial class Program
         AssertTrue(nativeVram.ReadByte(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset) !=
             editedVram.ReadByte(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset),
             "Landing Site area-character edit reaches its native VRAM destination");
+
+        // A bound sky catalog is authoritative. An entry that points outside its
+        // extracted pages must fail, not fall back to a plausible cartridge slice.
+        LandingSiteEntryState unknownSky = entry with { SkySourceAddress = 0x8a8000 };
+        try
+        {
+            LandingSiteStreamingData.LoadCharacterGraphics(bus, new SnesVram(), unknownSky,
+                stockSky, stockCharacters);
+            throw new InvalidOperationException(
+                "Landing Site silently accepted sky art outside its installed pages.");
+        }
+        catch (InvalidDataException error)
+        {
+            AssertTrue(error.Message.Contains("Installed scrolling sky does not own transfer",
+                    StringComparison.Ordinal),
+                "unknown installed Landing Site sky source fails without ROM fallback");
+        }
         Console.WriteLine("  Landing Site: dedicated block and character loaders use installed art " +
             "without rereading visual ROM sources; stock VRAM and level data match.");
     }

@@ -10,7 +10,7 @@ public enum EndingObjectFragmentId
 }
 
 /// <summary>
-/// Editable character sheets for the ending, credits, and post-credits reward.
+/// Editable character sheets and the waiting-scene BG2 map for the ending and credits.
 /// Actor instructions, OAM composition, palette selection and timing remain code.
 /// </summary>
 public sealed class EndingObjectArtworkCatalog
@@ -20,19 +20,21 @@ public sealed class EndingObjectArtworkCatalog
     public EndingObjectArtworkCatalog(RoomCharacterAtlas clouds,
         RoomCharacterAtlas explosion, IReadOnlyList<RoomCharacterAtlas> fragments,
         RoomCharacterAtlas waitingSamus, RoomCharacterAtlas shootingScreen,
-        RoomCharacterAtlas suitlessSamus)
+        RoomCharacterAtlas suitlessSamus, RoomBackgroundTilemapAtlas waitingTilemap)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
         WaitingSamus = waitingSamus ?? throw new ArgumentNullException(nameof(waitingSamus));
         ShootingScreen = shootingScreen ?? throw new ArgumentNullException(nameof(shootingScreen));
         SuitlessSamus = suitlessSamus ?? throw new ArgumentNullException(nameof(suitlessSamus));
+        WaitingTilemap = waitingTilemap ?? throw new ArgumentNullException(nameof(waitingTilemap));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
             WaitingSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
             ShootingScreen.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
             SuitlessSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
+            WaitingTilemap.Transfer.Length != EndingObjectArtworkFormat.WaitingTilemapByteCount ||
             fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             fragments.Any(fragment => fragment is null ||
                 fragment.Transfer.Length != EndingObjectArtworkFormat.FragmentByteCount))
@@ -48,6 +50,8 @@ public sealed class EndingObjectArtworkCatalog
     public RoomCharacterAtlas ShootingScreen { get; }
     /// <summary>Under-three-hour suitless reward sheet.</summary>
     public RoomCharacterAtlas SuitlessSamus { get; }
+    /// <summary>BG2 waiting scene's ordered 32x32 tile and palette references.</summary>
+    public RoomBackgroundTilemapAtlas WaitingTilemap { get; }
 
     /// <summary>Four ordered $0800-byte OBJ fragments uploaded at VRAM $E000..$FFFF.</summary>
     public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
@@ -55,19 +59,21 @@ public sealed class EndingObjectArtworkCatalog
             throw new ArgumentOutOfRangeException(nameof(id));
 }
 
-/// <summary>File identities and exact native OBJ transfer dimensions.</summary>
+/// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 2;
+    public const int ManifestVersion = 3;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";
     public const string WaitingSamusFileName = "credits-waiting-samus.png";
     public const string ShootingScreenFileName = "post-credits-shooting.png";
     public const string SuitlessSamusFileName = "post-credits-suitless-samus.png";
+    public const string WaitingTilemapFileName = "credits-waiting-tilemap.json";
     public const int CloudByteCount = 0x4000;
     public const int ExplosionByteCount = 0x6000;
     public const int RewardByteCount = 0x4000;
+    public const int WaitingTilemapByteCount = 0x0800;
     public const int FragmentByteCount = 0x0800;
     public const int FragmentCount = 4;
     public static string FragmentFileName(int index) => index switch

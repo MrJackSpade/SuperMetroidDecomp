@@ -717,10 +717,6 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Rendering.PaletteHalfBytes,
             0);
         ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
-        byte[] waitingMap = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
-            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
         byte[] mode7 = RomDataReader.Decompress(
             bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
@@ -735,8 +731,6 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Rendering.ObjectFragmentLimit);
         RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
-        RequireMinimum(waitingMap, EndingCreditsRomData.Rendering.WaitingTilemapBytes,
-            "waiting-Samus tilemap");
         RequireMinimum(mode7, EndingCreditsRomData.Rendering.Mode7Bytes,
             "post-credits Mode-7 characters");
         RequireMinimum(fragmentA, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes,
@@ -749,9 +743,6 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Rendering.ObjectCharactersDestination,
             font.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
         LoadCreditsCharacterArt();
-        vram.LoadBytes(
-            EndingCreditsRomData.Rendering.WaitingTilemapDestination,
-            waitingMap.AsSpan(0, EndingCreditsRomData.Rendering.WaitingTilemapBytes));
         vram.LoadBytes(
             EndingCreditsRomData.Rendering.PostCreditsFragmentADestination,
             fragmentA.AsSpan(0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes));
@@ -774,6 +765,11 @@ internal sealed partial class EndingCreditsState
                 EndingCreditsRomData.Assets.ShootingScreenCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : objectArtwork.ShootingScreen.Transfer.ToArray();
+        byte[] waitingMap = objectArtwork is null
+            ? RomDataReader.Decompress(bus,
+                EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
+                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
+            : objectArtwork.WaitingTilemap.Transfer.ToArray();
         byte[] result = EndingReward == EndingReward.Suitless
             ? objectArtwork is null
                 ? RomDataReader.Decompress(bus,
@@ -785,12 +781,16 @@ internal sealed partial class EndingCreditsState
             "waiting-Samus characters");
         RequireMinimum(shooting, EndingCreditsRomData.Rendering.ShootingCharacterBytes,
             "post-credits OBJ characters");
+        RequireMinimum(waitingMap, EndingCreditsRomData.Rendering.WaitingTilemapBytes,
+            "waiting-Samus tilemap");
         RequireMinimum(result, EndingCreditsRomData.Rendering.Mode7Bytes,
             "post-credits reward characters");
         vram.LoadBytes(EndingCreditsRomData.Rendering.FontCharactersDestination,
             waiting.AsSpan(0, EndingCreditsRomData.Rendering.WaitingCharacterBytes));
         vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
             shooting.AsSpan(0, EndingCreditsRomData.Rendering.ShootingCharacterBytes));
+        vram.LoadBytes(EndingCreditsRomData.Rendering.WaitingTilemapDestination,
+            waitingMap.AsSpan(0, EndingCreditsRomData.Rendering.WaitingTilemapBytes));
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
         // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.
         vram.LoadBytes(0, result.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));

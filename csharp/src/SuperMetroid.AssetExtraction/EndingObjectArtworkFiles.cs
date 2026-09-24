@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Extracts ending and reward character art into editable indexed PNGs.</summary>
+/// <summary>Extracts ending/reward character PNGs and the waiting-scene BG2 tilemap.</summary>
 public static class EndingObjectArtworkFiles
 {
     public static void Extract(ISnesAddressSpace bus, string directory,
@@ -43,6 +43,24 @@ public static class EndingObjectArtworkFiles
         Export(EndingObjectArtworkFormat.SuitlessSamusFileName,
             EndingCreditsRomData.Assets.SuitlessSamusCharacters,
             EndingObjectArtworkFormat.RewardByteCount);
+        byte[] waitingMap = RomDataReader.Decompress(bus,
+            EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
+            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        if (waitingMap.Length < EndingObjectArtworkFormat.WaitingTilemapByteCount)
+            throw new InvalidDataException("Waiting-Samus map does not fill its native 32x32 BG2 page.");
+        byte[] nativeMap = waitingMap.AsSpan(0,
+            EndingObjectArtworkFormat.WaitingTilemapByteCount).ToArray();
+        byte[] mapJson = RoomBackgroundTilemapExtractor.Encode(nativeMap);
+        RoomBackgroundTilemapAtlas compiledMap = RoomBackgroundTilemapAtlas.Load(
+            new MemoryStream(mapJson, writable: false), nativeMap.Length);
+        if (!compiledMap.Transfer.Span.SequenceEqual(nativeMap))
+            throw new InvalidDataException("Waiting-Samus map JSON changed native BG2 words.");
+        using (var output = new FileStream(Path.Combine(directory,
+                   EndingObjectArtworkFormat.WaitingTilemapFileName),
+                   FileMode.CreateNew, FileAccess.Write))
+            output.Write(mapJson);
+        hashes.Add(EndingObjectArtworkFormat.WaitingTilemapFileName,
+            Convert.ToHexString(SHA256.HashData(mapJson)));
 
         using var manifest = new FileStream(Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -99,6 +117,7 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingObjectArtworkFormat.ShootingScreenFileName,
             EndingObjectArtworkFormat.SuitlessSamusFileName,
+            EndingObjectArtworkFormat.WaitingTilemapFileName,
         ];
         if (manifest.Version != EndingObjectArtworkFormat.ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -121,7 +140,8 @@ public static class EndingObjectArtworkFiles
             LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName,
                 EndingObjectArtworkFormat.RewardByteCount),
             LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
-                EndingObjectArtworkFormat.RewardByteCount));
+                EndingObjectArtworkFormat.RewardByteCount),
+            LoadMap());
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
         {
@@ -143,6 +163,30 @@ public static class EndingObjectArtworkFiles
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException($"Invalid ending OBJ PNG {selectedPath}: {error.Message}", error);
+            }
+        }
+
+        RoomBackgroundTilemapAtlas LoadMap()
+        {
+            string name = EndingObjectArtworkFormat.WaitingTilemapFileName;
+            string stockPath = Path.Combine(stockDirectory, name);
+            byte[] stock = File.ReadAllBytes(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
+                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Stock ending map {stockPath} failed its manifest hash.");
+            string? overridePath = overrideDirectory is null ? null :
+                Path.Combine(overrideDirectory, name);
+            string selectedPath = overridePath is not null && File.Exists(overridePath)
+                ? overridePath : stockPath;
+            try
+            {
+                return RoomBackgroundTilemapAtlas.Load(new MemoryStream(
+                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    writable: false), EndingObjectArtworkFormat.WaitingTilemapByteCount);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid ending map {selectedPath}: {error.Message}", error);
             }
         }
     }

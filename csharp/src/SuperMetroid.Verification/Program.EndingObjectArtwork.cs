@@ -36,6 +36,12 @@ internal static partial class Program
         AssertSheet(stock.SuitlessSamus,
             EndingCreditsRomData.Assets.SuitlessSamusCharacters,
             EndingObjectArtworkFormat.RewardByteCount, "suitless Samus");
+        byte[] nativeWaitingMap = RomDataReader.Decompress(bus,
+            EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
+            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        AssertTrue(stock.WaitingTilemap.Transfer.Span.SequenceEqual(
+                nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
+            "installed waiting-Samus map preserves all native BG2 tile words");
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -215,7 +221,8 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.EndingObjectCharacters7C or
                 EndingCreditsRomData.Assets.WaitingForCreditsCharacters or
                 EndingCreditsRomData.Assets.ShootingScreenCharacters or
-                EndingCreditsRomData.Assets.SuitlessSamusCharacters)
+                EndingCreditsRomData.Assets.SuitlessSamusCharacters or
+                EndingCreditsRomData.Assets.WaitingForCreditsTilemap)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException($"Ending OBJ reread cartridge source ${address:X6}.");

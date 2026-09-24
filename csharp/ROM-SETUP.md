@@ -146,8 +146,10 @@ Nine ending/credits character streams are installed under `game/ending-objects/`
 `ending-cloud-characters.png`, `ending-explosion-objects.png`, and four
 `ending-explosion-fragment-*.png` sheets, plus `credits-waiting-samus.png`,
 `post-credits-shooting.png`, and `post-credits-suitless-samus.png`. The waiting
-sheet also supplies the two suited reward variants. Copy any indexed PNG to
-`overrides/ending-objects/` with the same filename to replace its 4-bpp tile pixels.
+sheet also supplies the two suited reward variants. The waiting scene's ordered
+BG2 tile references are `credits-waiting-tilemap.json` in the same directory.
+Copy any indexed PNG or that JSON file to `overrides/ending-objects/` with the
+same filename to replace it without changing scene mechanics.
 The planet-explosion upload still overlays the four fragments after its main sheet,
 then restores the already-installed ending font over the overlapping font region.
 Sprite placement, animation scripts, palettes and scene timing remain compiled code.

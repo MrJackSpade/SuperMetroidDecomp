@@ -68,20 +68,30 @@ internal static partial class Program
                 EndingCreditsPhase.PostCreditsShot),
             (EndingObjectArtworkFormat.SuitlessSamusFileName, (ushort)2,
                 EndingCreditsPhase.PostCreditsReward),
+            (EndingObjectArtworkFormat.WaitingTilemapFileName, (ushort)3,
+                EndingCreditsPhase.PostCreditsWaitingBackdrop),
         })
         {
             string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory,
                 fileName);
-            IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory,
-                       fileName)))
-                image = IndexedPng.Read(input, 256, 128);
-            Array.Fill(image.Pixels, (byte)0);
             try
             {
-                using (var output = File.Create(overridePath))
+                if (fileName == EndingObjectArtworkFormat.WaitingTilemapFileName)
+                {
+                    File.WriteAllBytes(overridePath, RoomBackgroundTilemapExtractor.Encode(
+                        new byte[EndingObjectArtworkFormat.WaitingTilemapByteCount]));
+                }
+                else
+                {
+                    IndexedPngImage image;
+                    using (var input = File.OpenRead(Path.Combine(
+                               installation.EndingObjectDirectory, fileName)))
+                        image = IndexedPng.Read(input, 256, 128);
+                    Array.Fill(image.Pixels, (byte)0);
+                    using var output = File.Create(overridePath);
                     IndexedPng.Write(output, image.Width, image.Height, image.Pixels,
                         image.Palette);
+                }
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
                 var stockBus = new EndingObjectSourceReadGuard(new SuperMetroidAddressSpace(rom));
                 var editedBus = new EndingObjectSourceReadGuard(new SuperMetroidAddressSpace(rom));
@@ -137,6 +147,18 @@ internal static partial class Program
                 File.Delete(overridePath);
             }
         }
-        Console.WriteLine("Post-credits character art: three reward variants retain native phase, VRAM, palette and pixels without source reads.");
+        string invalidMap = Path.Combine(installation.EndingObjectOverrideDirectory,
+            EndingObjectArtworkFormat.WaitingTilemapFileName);
+        File.WriteAllBytes(invalidMap, [0]);
+        try
+        {
+            AssertThrows<InvalidDataException>(() => installation.LoadEndingObjectArt(),
+                "malformed waiting-Samus map override fails loudly");
+        }
+        finally
+        {
+            File.Delete(invalidMap);
+        }
+        Console.WriteLine("Post-credits art: three reward variants and the waiting BG2 map retain native phase, VRAM, palette and pixels without source reads; four independent edits are visible.");
     }
 }

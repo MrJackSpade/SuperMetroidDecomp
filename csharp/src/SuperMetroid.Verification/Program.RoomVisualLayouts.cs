@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -60,6 +61,63 @@ internal static partial class Program
                     $"room ${source:X6} BG2 visual word {index}");
             }
         }
+
+        // Exercise the real room loader for every selectable state, not merely
+        // representative addresses. Each state's compressed level source is
+        // forbidden, so an accidental ROM fallback fails at its first read.
+        RoomCharacterAtlasCatalog characters = installed.LoadRoomCharacters();
+        RoomMetatileCatalog metatiles = installed.LoadRoomMetatiles();
+        RoomStaticPaletteCatalog palettes = installed.LoadRoomPalettes();
+        int stateCount = 0;
+        int slopeBlocks = 0;
+        int spikeBlocks = 0;
+        foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
+        {
+            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(
+                bus, header.Pointer);
+            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(
+                header.Pointer))
+            {
+                room = room with { State = RoomStateDefinitions.Get(statePointer) };
+                int source = room.State.CompressedLevelDataAddress;
+                byte[] native = RomDataReader.Decompress(bus, source);
+                int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
+                int blockCount = layerBytes / 2;
+                int bg2Offset = 2 + layerBytes + blockCount;
+                int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
+                RoomLevelData loaded = CartridgeRoomAssets.Load(
+                    new RoomLevelCorpusReadGuard(bus, source), room,
+                    characterArt: characters, paletteArt: palettes,
+                    metatileArt: metatiles, visualLayouts: stock).LevelData;
+                AssertEqual(blockCount, loaded.WidthInBlocks * loaded.HeightInBlocks,
+                    $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");
+                for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
+                {
+                    RoomCollisionBlock block = loaded.GetCollisionBlockByIndex(blockIndex);
+                    ushort nativeWord = BinaryPrimitives.ReadUInt16LittleEndian(
+                        native.AsSpan(2 + blockIndex * 2));
+                    byte nativeBts = native[2 + layerBytes + blockIndex];
+                    ushort nativeBg2Word = blockIndex * 2 < availableBg2
+                        ? BinaryPrimitives.ReadUInt16LittleEndian(
+                            native.AsSpan(bg2Offset + blockIndex * 2))
+                        : RoomLevelMemoryLayout.PrefilledLevelWord;
+                    AssertEqual(nativeWord, block.LevelWord,
+                        $"room ${header.Pointer:X4} state ${statePointer:X4} collision word {blockIndex}");
+                    AssertEqual(nativeBts, block.Behavior,
+                        $"room ${header.Pointer:X4} state ${statePointer:X4} BTS {blockIndex}");
+                    AssertEqual(nativeBg2Word, loaded.BackgroundEntries.Span[blockIndex],
+                        $"room ${header.Pointer:X4} state ${statePointer:X4} BG2 word {blockIndex}");
+                    if (block.CollisionType == RoomCollisionType.Slope) slopeBlocks++;
+                    if (block.CollisionType is RoomCollisionType.SpikeAir or
+                        RoomCollisionType.SpikeBlock) spikeBlocks++;
+                }
+                stateCount++;
+            }
+        }
+        AssertEqual(RoomStateDefinitions.RetailStateCount, stateCount,
+            "all retail room-state loads use the guarded compiled level corpus");
+        AssertTrue(slopeBlocks > 0 && spikeBlocks > 0,
+            "guarded corpus audit includes physical slope and spike-hazard blocks");
 
         int landingSource = landing.State.CompressedLevelDataAddress;
         string name = RoomVisualLayoutFiles.SourceFileName(landingSource);
@@ -158,8 +216,8 @@ internal static partial class Program
         }
         foregroundWords[0] = editedForegroundWord;
         File.WriteAllText(overridePath, document.ToJsonString());
-        Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailSources.Count} native sources match stock JSON; " +
-            "compiled level bytes and guarded room loads retain collision/BTS while BG1/BG2 edits " +
+        Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailSources.Count} native sources and " +
+            $"{stateCount} guarded state loads retain collision/BTS (including slopes and spikes) while BG1/BG2 edits " +
             "affect only rendering, survive repair, and reject collision bits.");
     }
 

@@ -45,6 +45,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyDownwardGatePlms()
     {
+        VerifyDownwardGateProgramDefinitions();
         VerifyDownwardGateSetupAndProjectile();
 
         var cases = new (DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted)[]
@@ -64,6 +65,36 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Downward gates: setup, slot order, actor handoff, and all eight shot filters agree.");
+    }
+
+    private static void VerifyDownwardGateProgramDefinitions()
+    {
+        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        int wordCount = 0;
+        foreach ((ushort address, ushort compiled) in
+                 DownwardGatePlmProgramDefinitions.MechanicsWords)
+        {
+            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8));
+            AssertEqual(native, compiled,
+                $"downward-gate program word $84:{address:X4} matches ROM");
+            wordCount++;
+        }
+        AssertEqual(62, wordCount,
+            "resident and eight trigger gate streams have all compiled words");
+
+        int byteCount = 0;
+        foreach ((ushort address, byte compiled) in
+                 DownwardGatePlmProgramDefinitions.MechanicsBytes)
+        {
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"downward-gate sound byte $84:{address:X4} matches ROM");
+            byteCount++;
+        }
+        AssertEqual(2, byteCount, "both resident gate sound operands are compiled");
+        AssertTrue(!DownwardGatePlmProgramDefinitions.TryReadMechanicsWord(0xbc61, out _),
+            "adjacent non-gate list bytes are not claimed");
     }
 
     private static void VerifyDownwardGateSetupAndProjectile()
@@ -191,7 +222,8 @@ internal static partial class Program
         ushort projectile,
         bool accepted)
     {
-        (_, RoomLevelData level, _, RoomPlmSystem plms, int gateBlockIndex) =
+        (TestAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer,
+            RoomPlmSystem plms, int gateBlockIndex) =
             CreateDownwardGateFixture(trigger);
         int triggerBlockIndex = ((byte)trigger & 1) == 0
             ? gateBlockIndex - 1
@@ -203,6 +235,11 @@ internal static partial class Program
             slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
         AssertEqual(accepted ? 1 : 0, gate.LoopTimer,
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
+        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, bus, level, streamer);
+        AssertTrue(plms.PopulationSlots.All(slot =>
+                slot.HeaderPointer != RoomPlmHeaders.DownwardGateShotBlock),
+            $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
     private static (TestAddressSpace Bus, RoomLevelData Level,
@@ -223,7 +260,7 @@ internal static partial class Program
         WriteWord(bus, 0x84c82c, RoomPlmInstructionLists.DownwardGateOpening);
         WriteWord(bus, 0x84c838, RoomPlmInstructionLists.Delete);
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
-        SeedDownwardGateInstructionLists(bus);
+        SeedDownwardGateDrawLists(bus);
         SeedDownwardGateProjectileRom(bus);
 
         RoomLevelData level = CreateRoom(
@@ -265,47 +302,22 @@ internal static partial class Program
             enemyDeathQuota: 0,
             controllerNewInput: 0);
 
-    private static void SeedDownwardGateInstructionLists(TestAddressSpace bus)
+    private static void SeedDownwardGateDrawLists(TestAddressSpace bus)
     {
-        // Exact retail bytes from $84:BC13-$BC60. The odd byte after each $8C19 sound
-        // opcode is intentional and proves the following duration remains aligned.
-        bus.WriteBytes(0x84bc13, [
-            0x01, 0x00, 0x17, 0xa5, 0xdd, 0xbb, 0xc1, 0x86,
-            0x52, 0xbb, 0xb4, 0x86, 0x10, 0x00, 0x17, 0xa5,
-            0xe1, 0xbb, 0x4b, 0xe6, 0x19, 0x8c, 0x0e, 0x10,
-            0x00, 0x25, 0xa5, 0x10, 0x00, 0x33, 0xa5, 0x10,
-            0x00, 0x41, 0xa5, 0x18, 0x00, 0x4f, 0xa5, 0x01,
-            0x00, 0x5d, 0xa5, 0xdd, 0xbb, 0xc1, 0x86, 0x6b,
-            0xbb, 0xb4, 0x86, 0xf0, 0xbb, 0x66, 0xe5, 0x19,
-            0x8c, 0x0e, 0x10, 0x00, 0x4f, 0xa5, 0x10, 0x00,
-            0x41, 0xa5, 0x10, 0x00, 0x33, 0xa5, 0x18, 0x00,
-            0x25, 0xa5, 0x24, 0x87, 0x13, 0xbc,
-        ]);
+        // No bank-$84 gate instruction bytes are seeded here. The production gate
+        // handler must use the compiled control stream while these draw payloads
+        // remain an independent, still-ROM-backed presentation/physical domain.
         foreach (ushort drawPointer in new ushort[]
                  { 0xa517, 0xa525, 0xa533, 0xa541, 0xa54f, 0xa55d })
         {
             WriteOneBlockDraw(bus, drawPointer, 0x8000);
         }
 
-        ushort[] triggerLists =
-        [
-            RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockBlueRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockYellowLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockYellowRight,
-        ];
         ushort[] triggerDraws =
             [0xa5d7, 0xa5e3, 0xa5eb, 0xa5f7, 0xa5ff, 0xa60b, 0xa613, 0xa61f];
-        for (int index = 0; index < triggerLists.Length; index++)
+        foreach (ushort drawPointer in triggerDraws)
         {
-            WriteWord(bus, 0x840000 | triggerLists[index], 1);
-            WriteWord(bus, 0x840000 | triggerLists[index] + 2, triggerDraws[index]);
-            WriteWord(bus, 0x840000 | triggerLists[index] + 4, RoomPlmInstructionCodes.Delete);
-            WriteOneBlockDraw(bus, triggerDraws[index], 0x8000);
+            WriteOneBlockDraw(bus, drawPointer, 0x8000);
         }
     }
 

@@ -4,6 +4,26 @@ Initially inspected at `73343942`; expanded at `a86728da`. This is a verified li
 exhaustive completion certificate**. Multiline reads and intermediate-address
 variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
+## Enemy visual-selector survey (2026-09-24)
+
+Run `dotnet run --project csharp/src/SuperMetroid.Verification -- --enemy-visual-selector-inventory`
+with the pinned private ROM. The probe discovers
+138 instruction catalogs that expose presentation operands. It resolves a single
+source bank for 132 catalogs and reads 4,162 operand occurrences at 4,161 distinct
+addresses; one address is shared by two catalogs without a value conflict. A
+shallow count/range check marks 3,296 occurrences as **plausible** ordinary OAM
+records and 866 as nonstandard. This is not a rendering classification: extended
+boss spritemaps and BG2 command data can accidentally satisfy the shallow count
+test. Never bulk-install those candidates without a family-specific production
+consumer and exact OAM/visual parity proof.
+
+Six catalogs require a nonstandard inventory route: CrocomireTongue and
+MotherBrainBaby lack the common mechanics-word/bank probe; DeadTourianCorpse,
+SkreeMetaree, WorkRobot, and Yard lack a simple presentation-word count. The
+largest candidate families include RoomSpriteObject, Draygon, Crocomire,
+NinjaSpacePirate, and KraidFoot, but their draw formats must be verified before
+extraction. This probe is development-only and does not move any runtime ROM read.
+
 ## Confirmed remaining runtime mechanics reads
 
 The previously enumerated Ridley claw-offset consumers are now compiled as well.

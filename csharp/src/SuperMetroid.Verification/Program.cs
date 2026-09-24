@@ -1519,6 +1519,11 @@ if (args is ["--enemy-tile-artwork"])
     VerifyRoomEnemyLoading();
     return 0;
 }
+if (args is ["--enemy-visual-selector-inventory"])
+{
+    InspectEnemyVisualSelectors();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(

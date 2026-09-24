@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Blue-door PLM draw lists (2026-09-24)
+
+All sixteen four-block draw lists used by the four orientation-specific blue-door
+opening programs now have compiled physical level words. Each list's direction,
+four words, and terminator are checked against the pinned cartridge. The actual
+opening actor for every orientation runs with all sixteen native draw payloads
+forbidden, while the instruction program still owns sound and timing. Door-cap
+art is not editable yet: this is the physical data prerequisite for #539, not
+completion of the door-object presentation family or runtime ROM removal.
+
 ## Permanent-collectible PLM draw lists (2026-09-24)
 
 All 24 one-block draw lists used by permanent items, Chozo orbs, and shot-block

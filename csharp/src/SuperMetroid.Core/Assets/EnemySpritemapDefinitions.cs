@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 9;
+    internal const int Version = 10;
+    internal const int PreOwtchStokeVersion = 9;
+    internal const int PreOwtchStokeFrameCount = 167;
     internal const int PreviousVersion = 8;
     internal const int PreviousFrameCount = 145;
     internal const int PriorVersion = 7;
@@ -31,6 +33,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte PipeBugBank = 0xb3;
     internal const byte FakeKraidBank = 0xa6;
     internal const byte KraidNailBank = 0xa7;
+    internal const byte OwtchStokeBank = 0xa2;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -206,6 +209,19 @@ internal static class EnemySpritemapDefinitions
         new(KraidNailBank, 0xa667, "kraid_nail_5"),
         new(KraidNailBank, 0xa67d, "kraid_nail_6"),
         new(KraidNailBank, 0xa689, "kraid_nail_7"),
+        new(OwtchStokeBank, 0xa589, "owtch_left_0"),
+        new(OwtchStokeBank, 0xa590, "owtch_left_1"),
+        new(OwtchStokeBank, 0xa597, "owtch_left_2"),
+        new(OwtchStokeBank, 0x8aca, "stoke_walk_left_0"),
+        new(OwtchStokeBank, 0x8ad6, "stoke_walk_left_1"),
+        new(OwtchStokeBank, 0x8ae7, "stoke_walk_left_2"),
+        new(OwtchStokeBank, 0x8af3, "stoke_walk_left_3"),
+        new(OwtchStokeBank, 0x8aff, "stoke_attack_left"),
+        new(OwtchStokeBank, 0x8b15, "stoke_walk_right_0"),
+        new(OwtchStokeBank, 0x8b21, "stoke_walk_right_1"),
+        new(OwtchStokeBank, 0x8b32, "stoke_walk_right_2"),
+        new(OwtchStokeBank, 0x8b3e, "stoke_walk_right_3"),
+        new(OwtchStokeBank, 0x8b4a, "stoke_attack_right"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -243,6 +259,8 @@ internal static class EnemySpritemapDefinitions
                 RoomEnemySystem.KraidGoodNailDefinition or
                 RoomEnemySystem.KraidBadNailDefinition =>
                 KraidVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+            RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition =>
+                OwtchStokeVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
@@ -256,7 +274,8 @@ internal static class EnemySpritemapDefinitions
             PipeBugDefinitions.YellowEnemyDefinition or
             RoomEnemySystem.FakeKraidDefinition or
             RoomEnemySystem.KraidGoodNailDefinition or
-            RoomEnemySystem.KraidBadNailDefinition;
+            RoomEnemySystem.KraidBadNailDefinition or
+            RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition;
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

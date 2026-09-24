@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Owtch and Stoke visual selectors (2026-09-24)
+
+Owtch's two directional loops select three ordinary OAM frames through six fixed
+operands. Stoke's two walking loops and two attacks select ten ordinary frames
+through twelve fixed operands. All eighteen selectors are compiled in
+`OwtchStokeVisualDefinitions`, and the thirteen distinct frames are editable
+in `enemy-compositions.json`. Real instruction programs retain their callbacks,
+projectile spawns, and native timing. Production tests visit every frame with
+both the control and visual source bytes forbidden, compare all selectors and
+stock OAM against the pinned cartridge, check live edited output, and preserve
+older artwork overrides. Other enemy families remain pending.
+
 ## Fake Kraid and Kraid fingernail visual selectors (2026-09-24)
 
 Fake Kraid's 24 interleaved visual operands select fourteen ordinary OAM frames;

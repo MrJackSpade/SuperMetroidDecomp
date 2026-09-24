@@ -65,8 +65,12 @@ internal static partial class Program
                                                                 ? PipeBugDefinitions.YellowEnemyDefinition
                                                                 : frame.Name.StartsWith("fake_kraid_", StringComparison.Ordinal)
                                                                     ? RoomEnemySystem.FakeKraidDefinition
-                                                                    : frame.Name.StartsWith("kraid_nail_", StringComparison.Ordinal)
+                                                                : frame.Name.StartsWith("kraid_nail_", StringComparison.Ordinal)
                                                                         ? RoomEnemySystem.KraidGoodNailDefinition
+                                                                        : frame.Name.StartsWith("owtch_", StringComparison.Ordinal)
+                                                                            ? RoomEnemySystem.OwtchDefinition
+                                                                            : frame.Name.StartsWith("stoke_", StringComparison.Ordinal)
+                                                                                ? RoomEnemySystem.StokeDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
@@ -134,7 +138,8 @@ internal static partial class Program
             document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
         }
         foreach (string frameName in new[]
-                 { "fake_kraid_walk_left_0", "kraid_nail_0" })
+                 { "fake_kraid_walk_left_0", "kraid_nail_0",
+                   "owtch_left_0", "stoke_walk_left_0" })
         {
             SpriteVisualPart part = document.Frames[frameName][0];
             document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
@@ -268,10 +273,49 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
+        foreach ((ushort definition, ushort operand, string name) in new[]
+                 {
+                     (RoomEnemySystem.OwtchDefinition, (ushort)0xa3af, "Owtch"),
+                     (RoomEnemySystem.StokeDefinition, (ushort)0x8936, "Stoke"),
+                 })
+        {
+            ushort pointer = OwtchStokeVisualDefinitions.FrameAt(definition, operand);
+            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+                pointer, definition);
+            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+                pointer, definition);
+            AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
+                editedFrame.LowTable[1],
+                $"authored {name} Y offset changes live room OAM");
+            AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
+                $"{name} visual override leaves X unchanged");
+        }
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var previousFrames = document.Frames
+        var preOwtchStokeFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("owtch_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("stoke_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreOwtchStokeFrameCount,
+            preOwtchStokeFrames.Count, "pre-Owtch/Stoke composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreOwtchStokeVersion,
+                Frames = preOwtchStokeFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preOwtchStokeUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        ushort owtchPointer = OwtchStokeVisualDefinitions.FrameAt(
+            RoomEnemySystem.OwtchDefinition, 0xa3af);
+        OamBuffer stockOwtch = DrawEnemy(stock, new FrameReadGuard(rom),
+            owtchPointer, RoomEnemySystem.OwtchDefinition);
+        OamBuffer upgradedOwtch = DrawEnemy(preOwtchStokeUpgraded,
+            new FrameReadGuard(rom), owtchPointer, RoomEnemySystem.OwtchDefinition);
+        AssertTrue(stockOwtch.LowTable.SequenceEqual(upgradedOwtch.LowTable),
+            "version-nine override gains stock Owtch composition");
+        var previousFrames = preOwtchStokeFrames
             .Where(pair => !pair.Key.StartsWith("fake_kraid_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("kraid_nail_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -469,7 +513,9 @@ internal static partial class Program
                 >= 0xb38e96 and < 0xb38edc or
                 >= 0xb392ad and < 0xb39301 or
                 >= 0xa69c64 and < 0xa6a0e0 or
-                >= 0xa7a617 and < 0xa7a69f)
+                >= 0xa7a617 and < 0xa7a69f or
+                >= 0xa2a589 and < 0xa2a59e or
+                >= 0xa28aca and < 0xa28b60)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

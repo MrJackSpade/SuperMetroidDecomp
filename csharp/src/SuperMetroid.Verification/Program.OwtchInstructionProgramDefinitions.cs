@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -26,7 +27,21 @@ internal static partial class Program
                 $"Owtch instruction mechanics word $A2:{definition.Address:X4}");
         }
 
+        for (int index = 0;
+             index < OwtchInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address = OwtchInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertEqual(ReadOwtchInstructionWord(rom, 0xa20000 | address),
+                OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, address),
+                $"compiled Owtch frame selector $A2:{address:X4}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, 0xa3ad),
+            "Owtch timing word is not a visual selector");
+
         var guard = new OwtchInstructionProgramReadGuard(rom);
+        HashSet<ushort> observedFrames = [];
         VerifyProgram(
             initialState: OwtchBehaviorState.MovingRight,
             program: OwtchInstructionProgramDefinitions.MovingLeft,
@@ -40,21 +55,12 @@ internal static partial class Program
             expectedLoopCursor: 0xa3c3,
             direction: "right");
 
-        AssertEqual(OwtchInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Owtch spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < OwtchInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                OwtchInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Owtch presentation word $A2:{address:X4}");
-        }
+        AssertEqual(3, observedFrames.Count, "both Owtch loops visit all three frames");
+        foreach (ushort frame in new ushort[] { 0xa589, 0xa590, 0xa597 })
+            AssertTrue(observedFrames.Contains(frame), $"Owtch live frame ${frame:X4}");
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Owtch mechanics byte");
+            "production execution avoids compiled Owtch mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => OwtchInstructionProgramDefinitions.ReadMechanicsWord(0xa3af),
             "interleaved Owtch spritemap pointer is rejected as mechanics");
@@ -71,8 +77,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Owtch instruction mechanics: twelve compiled words, both directional " +
-            "callbacks and complete animation loops, and six live spritemap reads " +
-            "pass with mechanics bytes forbidden.");
+            "callbacks, complete animation loops, and six compiled visual selectors " +
+            "pass with source bytes forbidden.");
 
         void VerifyProgram(
             OwtchBehaviorState initialState,
@@ -104,7 +110,7 @@ internal static partial class Program
                 $"Owtch {direction} program returns through its native goto");
         }
 
-        static void RunOwtchProgram(
+        void RunOwtchProgram(
             RoomEnemySystem enemies,
             RoomEnemySlot slot,
             int frames)
@@ -114,7 +120,11 @@ internal static partial class Program
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             for (int frame = 0; frame < frames; frame++)
+            {
                 process.Invoke(enemies, arguments);
+                if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
+                    observedFrames.Add(slot.SpritemapPointer);
+            }
         }
     }
 
@@ -136,37 +146,36 @@ internal static partial class Program
     private sealed class OwtchInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (OwtchInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (OwtchInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Owtch mechanics byte ${address:X6}.");
+                    $"Production read compiled Owtch instruction byte ${address:X6}.");
             }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < OwtchInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        OwtchInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
             return source.ReadByte(address);
+        }
+
+        private static bool IsPresentationByte(int address)
+        {
+            if ((address & 0xff0000) != 0xa20000)
+                return false;
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0;
+                 index < OwtchInstructionProgramDefinitions.PresentationWordCount;
+                 index++)
+            {
+                ushort presentation =
+                    OwtchInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation ||
+                    bankAddress == unchecked((ushort)(presentation + 1)))
+                    return true;
+            }
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

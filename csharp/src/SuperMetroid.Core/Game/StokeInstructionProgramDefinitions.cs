@@ -6,7 +6,7 @@ internal readonly record struct StokeInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Stoke's walking and attack programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
 internal static class StokeInstructionProgramDefinitions
 {

@@ -6,7 +6,7 @@ internal readonly record struct OwtchInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Owtch's left/right animation programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
 internal static class OwtchInstructionProgramDefinitions
 {

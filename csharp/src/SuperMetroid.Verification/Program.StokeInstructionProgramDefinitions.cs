@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -26,7 +27,21 @@ internal static partial class Program
                 $"Stoke instruction mechanics word $A2:{definition.Address:X4}");
         }
 
+        for (int index = 0;
+             index < StokeInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address = StokeInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertEqual(ReadStokeInstructionWord(rom, 0xa20000 | address),
+                OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, address),
+                $"compiled Stoke frame selector $A2:{address:X4}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, 0x8934),
+            "Stoke timing word is not a visual selector");
+
         var guard = new StokeInstructionProgramReadGuard(rom);
+        HashSet<ushort> observedFrames = [];
         VerifyWalking(
             StokeInstructionProgramDefinitions.MovingLeft,
             StokeDirection.Left,
@@ -54,20 +69,14 @@ internal static partial class Program
             expectedProjectileDirection: 1,
             direction: "right");
 
-        AssertEqual(StokeInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Stoke spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < StokeInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address = StokeInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Stoke presentation word $A2:{address:X4}");
-        }
+        AssertEqual(10, observedFrames.Count, "all Stoke walking/attack frames execute");
+        foreach (ushort frame in new ushort[]
+                 { 0x8aca, 0x8ad6, 0x8ae7, 0x8af3, 0x8aff,
+                   0x8b15, 0x8b21, 0x8b32, 0x8b3e, 0x8b4a })
+            AssertTrue(observedFrames.Contains(frame), $"Stoke live frame ${frame:X4}");
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Stoke mechanics byte");
+            "production execution avoids compiled Stoke mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => StokeInstructionProgramDefinitions.ReadMechanicsWord(0x8936),
             "interleaved Stoke spritemap pointer is rejected as mechanics");
@@ -85,7 +94,7 @@ internal static partial class Program
         Console.WriteLine(
             "Stoke instruction mechanics: twenty-six compiled words, both walking " +
             "loops, both attacks and real directional projectile spawns, and twelve " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "compiled visual selectors pass with source bytes forbidden.");
 
         void VerifyWalking(
             ushort program,
@@ -156,7 +165,7 @@ internal static partial class Program
             slot.Timer = 0;
         }
 
-        static void RunStokeProgram(
+        void RunStokeProgram(
             RoomEnemySystem enemies,
             RoomEnemySlot slot,
             int frames)
@@ -166,7 +175,11 @@ internal static partial class Program
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             for (int frame = 0; frame < frames; frame++)
+            {
                 process.Invoke(enemies, arguments);
+                if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
+                    observedFrames.Add(slot.SpritemapPointer);
+            }
         }
     }
 
@@ -188,37 +201,36 @@ internal static partial class Program
     private sealed class StokeInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (StokeInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (StokeInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Stoke mechanics byte ${address:X6}.");
+                    $"Production read compiled Stoke instruction byte ${address:X6}.");
             }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < StokeInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        StokeInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
             return source.ReadByte(address);
+        }
+
+        private static bool IsPresentationByte(int address)
+        {
+            if ((address & 0xff0000) != 0xa20000)
+                return false;
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0;
+                 index < StokeInstructionProgramDefinitions.PresentationWordCount;
+                 index++)
+            {
+                ushort presentation =
+                    StokeInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation ||
+                    bankAddress == unchecked((ushort)(presentation + 1)))
+                    return true;
+            }
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

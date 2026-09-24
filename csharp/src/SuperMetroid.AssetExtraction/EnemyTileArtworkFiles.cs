@@ -113,13 +113,17 @@ public static class EnemyTileArtworkFiles
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
             spritemapJson);
+        byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
+            extendedJson);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
             Convert.ToHexString(SHA256.HashData(secondMelt)),
             Convert.ToHexString(SHA256.HashData(firstMeltTilemap)),
             Convert.ToHexString(SHA256.HashData(secondMeltTilemap)),
-            Convert.ToHexString(SHA256.HashData(spritemapJson)));
+            Convert.ToHexString(SHA256.HashData(spritemapJson)),
+            Convert.ToHexString(SHA256.HashData(extendedJson)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -148,7 +152,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256) ||
-            string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256))
+            string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
 
@@ -246,7 +251,23 @@ public static class EnemyTileArtworkFiles
                 $"Invalid enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
-        return new EnemyTileArtworkCatalog(sheets, palettes, crocomire, spritemaps);
+        byte[] extendedJson = ReadStockOrOverride(
+            EnemyExtendedFrameDefinitions.FileName,
+            manifest.EnemyExtendedCompositionsSha256);
+        EnemyExtendedFrameCatalog extendedFrames;
+        try
+        {
+            extendedFrames = EnemyExtendedFrameCatalog.Load(
+                new MemoryStream(extendedJson, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid extended enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
+        return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
+            spritemaps, extendedFrames);
 
         byte[] ReadCrocomireAsset(string fileName, string expectedSha256)
             => ReadStockOrOverride(fileName, expectedSha256);
@@ -342,7 +363,7 @@ public static class EnemyTileArtworkFiles
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
-        string EnemyCompositionsSha256);
+        string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

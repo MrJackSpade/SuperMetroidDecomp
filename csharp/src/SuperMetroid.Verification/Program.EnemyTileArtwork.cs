@@ -23,6 +23,7 @@ internal static partial class Program
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
             VerifyInstalledEnemySpritemaps(bus, directory, stock);
+            VerifyInstalledEnemyExtendedFrames(bus, directory, stock);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");

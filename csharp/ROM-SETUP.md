@@ -220,6 +220,15 @@ An existing version-four override remains valid after the Skultera stock frames
 are added: its older edited frames are retained, and only the new Skultera
 frames are supplied from verified stock content. Save a version-five copy if
 you want to edit Skultera frames as well.
+Walking Space Pirates use the separate
+`game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
+`overrides/enemy-tiles/` to edit the named extended frames. Each frame contains
+ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
+OAM fields listed above. Component offsets move only the drawing; the native
+hitbox geometry and touch/shot callbacks remain engine-owned. The stock file
+is manifest-hash checked, and missing or malformed override frames fail loudly.
+Other extended enemy families still use cartridge visual records until their
+compositions are extracted separately.
 Crocomire's first and second melting images are the separate indexed files
 `crocomire-melt-first.png` and `crocomire-melt-second.png` in the same directory.
 Their matching 16×16 BG2 layouts are `crocomire-melt-first-tiles.json` and

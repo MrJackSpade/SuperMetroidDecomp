@@ -98,7 +98,7 @@ public static class GameInstallationLayout
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 34;
+    public const int FormatVersion = 35;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

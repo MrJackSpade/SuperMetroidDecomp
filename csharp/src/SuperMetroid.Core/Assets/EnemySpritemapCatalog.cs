@@ -69,27 +69,7 @@ public sealed class EnemySpritemapCatalog
                 visual is null || visual.Length > EnemySpritemapDefinitions.MaximumParts)
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
-            var parts = new EnemySpritemapPart[visual.Length];
-            for (int index = 0; index < parts.Length; index++)
-            {
-                SpriteVisualPart? part = visual[index];
-                if (part is null || part.OffsetX is < -256 or > 255 ||
-                    part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
-                    part.Priority is < 0 or > 3 || part.Palette is null or < 0 or > 7 ||
-                    part.TileColumn is < 0 or >= EnemySpritemapDefinitions.TileColumns ||
-                    part.TileRow is < 0 or >= EnemySpritemapDefinitions.TileRows)
-                    throw new InvalidDataException(
-                        $"Enemy composition {frame.Name} part {index} has invalid visual fields.");
-                SnesTileFlipFlags flips =
-                    (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                    (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
-                parts[index] = new EnemySpritemapPart(
-                    SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
-                    unchecked((byte)(sbyte)part.OffsetY),
-                    SnesObjAttributeWord.Create(
-                        part.TileRow * EnemySpritemapDefinitions.TileColumns + part.TileColumn,
-                        part.Palette.Value, part.Priority, flips));
-            }
+            EnemySpritemapPart[] parts = CompileParts(visual, frame.Name);
             if (!frames.TryAdd((frame.Bank << 16) | frame.Pointer, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
@@ -102,7 +82,38 @@ public sealed class EnemySpritemapCatalog
         return new EnemySpritemapCatalog(merged);
     }
 
-    private static void RejectDuplicateProperties(JsonElement element)
+    /// <summary>Compiles ordinary OAM pieces shared by plain and extended enemy frames.</summary>
+    internal static EnemySpritemapPart[] CompileParts(
+        SpriteVisualPart[] visual, string frameName)
+    {
+        if (visual.Length > EnemySpritemapDefinitions.MaximumParts)
+            throw new InvalidDataException(
+                $"Enemy composition {frameName} exceeds OAM part capacity.");
+        var parts = new EnemySpritemapPart[visual.Length];
+        for (int index = 0; index < parts.Length; index++)
+        {
+            SpriteVisualPart? part = visual[index];
+            if (part is null || part.OffsetX is < -256 or > 255 ||
+                part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
+                part.Priority is < 0 or > 3 || part.Palette is null or < 0 or > 7 ||
+                part.TileColumn is < 0 or >= EnemySpritemapDefinitions.TileColumns ||
+                part.TileRow is < 0 or >= EnemySpritemapDefinitions.TileRows)
+                throw new InvalidDataException(
+                    $"Enemy composition {frameName} part {index} has invalid visual fields.");
+            SnesTileFlipFlags flips =
+                (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
+                (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            parts[index] = new EnemySpritemapPart(
+                SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
+                unchecked((byte)(sbyte)part.OffsetY),
+                SnesObjAttributeWord.Create(
+                    part.TileRow * EnemySpritemapDefinitions.TileColumns + part.TileColumn,
+                    part.Palette.Value, part.Priority, flips));
+        }
+        return parts;
+    }
+
+    internal static void RejectDuplicateProperties(JsonElement element)
     {
         if (element.ValueKind == JsonValueKind.Object)
         {

@@ -14,7 +14,8 @@ public sealed class EnemyTileArtworkCatalog
     public EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
         IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
         CrocomireMeltingArtwork? crocomireMelting = null,
-        EnemySpritemapCatalog? spritemaps = null)
+        EnemySpritemapCatalog? spritemaps = null,
+        EnemyExtendedFrameCatalog? extendedFrames = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -24,6 +25,7 @@ public sealed class EnemyTileArtworkCatalog
         this.palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
         CrocomireMelting = crocomireMelting;
         Spritemaps = spritemaps;
+        ExtendedFrames = extendedFrames;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -31,6 +33,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
     public EnemySpritemapCatalog? Spritemaps { get; }
+
+    /// <summary>Installed extended visual frames; hitbox and AI data stay engine-owned.</summary>
+    public EnemyExtendedFrameCatalog? ExtendedFrames { get; }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
     public void LoadTo(ushort definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
@@ -56,7 +61,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 9;
+    public const int Version = 10;
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
     /// <summary>

@@ -914,6 +914,28 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
+                if (TileArtwork?.ExtendedFrames?.TryGet(slot.Definition.Bank,
+                        slot.SpritemapPointer,
+                        out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
+                {
+                    // This installed frame owns only the composite's visual offsets
+                    // and OAM parts. Collision still uses the original engine-owned
+                    // extended hitbox records, never the editable JSON geometry.
+                    foreach (EnemyExtendedDrawComponent component in installed.Span)
+                    {
+                        ushort componentX = unchecked((ushort)(originX + component.OffsetX));
+                        ushort componentY = unchecked((ushort)(originY + component.OffsetY));
+                        if (((componentX + 128) & 0xfe00) != 0 ||
+                            ((componentY + 128) & 0xfe00) != 0)
+                            continue;
+                        oam.AddEnemySpritemap(component.Parts.Span, componentX,
+                            componentY, drawPaletteIndex, slot.VramTilesIndex,
+                            clipVerticalWrap: true,
+                            originYIsOnScreen: (componentY >> 8) == 0);
+                    }
+                    continue;
+                }
+
                 // Extended spritemaps begin with a low-byte component count followed by
                 // eight-byte {X,Y,spritemap,hitbox} records. Steam uses one component, but
                 // retaining the native list format is necessary for bosses and composite

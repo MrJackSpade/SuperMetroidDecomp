@@ -1343,6 +1343,7 @@ public sealed partial class SuperMetroidGame
         runtime.RoomMetatileArt = roomMetatileArt;
         runtime.RoomVisualLayouts = roomVisualLayouts;
         runtime.RoomPlmShotBlockVisuals = roomPlmShotBlockVisuals;
+        runtime.RoomPlmGrappleBlockVisuals = roomPlmGrappleBlockVisuals;
         runtime.XrayRevealVisuals = xrayRevealVisuals;
         runtime.RoomBackgroundTilemapArt = roomBackgroundTilemapArt;
         runtime.RoomSkyTilemapArt = roomSkyTilemapArt;

@@ -316,8 +316,17 @@ and immutable. An edited word changes both the immediate PLM redraw and later
 camera streaming, without changing shot-block collision or respawn timing.
 The visual block still needs a valid definition in the active room's combined
 CRE/area block table. Stock content is hash-checked; an override survives stock
-repair and installation updates. This covers ordinary shot blocks only, not
-every door, gate, item, or other PLM family.
+repair and installation updates. This file covers ordinary shot blocks only.
+
+Breakable Grapple-block appearances are installed separately as
+`game/room-plm-grapple-blocks/grapple-blocks.json`. Copy the file to the matching
+path under `overrides/` and edit a `visualWord` (0..4095). Keep all five
+`drawPointer` entries: they select compiled Grapple and breakup frames. The full
+native level words, including Grapple/air collision, and both instruction
+timelines remain fixed. Edited art appears in immediate redraws and later camera
+streaming without changing collision or respawn timing. The chosen visual block
+must exist in the active room's block-definition table. Other doors, gates,
+items, and PLM families remain outside these two resources.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,

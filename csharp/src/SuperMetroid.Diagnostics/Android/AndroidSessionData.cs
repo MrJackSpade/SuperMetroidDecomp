@@ -27,6 +27,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog? roomMetatiles;
     private readonly SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog? roomVisualLayouts;
     private readonly SuperMetroid.Core.Rooms.RoomPlmShotBlockVisualCatalog? roomPlmShotBlockVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog? roomPlmGrappleBlockVisuals;
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
     private readonly SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog? roomBackgroundTilemaps;
     private readonly SuperMetroid.Core.Assets.RoomSkyTilemapCatalog? roomSkyTilemaps;
@@ -77,6 +78,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmShotBlockVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmShotBlockVisuals() : null;
         Game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
+        roomPlmGrappleBlockVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmGrappleBlockVisuals() : null;
+        Game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
         xrayRevealVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadXrayRevealVisuals() : null;
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
@@ -176,6 +180,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomMetatileArt(roomMetatiles);
         Game.BindRoomVisualLayouts(roomVisualLayouts);
         Game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
+        Game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
         Game.BindRoomSkyTilemapArt(roomSkyTilemaps);

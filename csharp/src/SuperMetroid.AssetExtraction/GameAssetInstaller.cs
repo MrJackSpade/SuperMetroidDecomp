@@ -89,6 +89,7 @@ public static class GameAssetInstaller
             RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             RoomVisualLayoutFiles.ValidateStock(installation.RoomVisualLayoutDirectory);
             RoomPlmShotBlockVisualFiles.ValidateStock(installation.RoomPlmShotBlockVisualDirectory);
+            RoomPlmGrappleBlockVisualFiles.ValidateStock(installation.RoomPlmGrappleBlockVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
@@ -191,6 +192,13 @@ public static class GameAssetInstaller
             RoomPlmShotBlockVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 shotBlockVisuals, SupportedCartridge.Sha256);
             RoomPlmShotBlockVisualFiles.ValidateStock(shotBlockVisuals);
+            progress?.Report("Extracting Grapple-block PLM visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string grappleBlockVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName);
+            RoomPlmGrappleBlockVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                grappleBlockVisuals, SupportedCartridge.Sha256);
+            RoomPlmGrappleBlockVisualFiles.ValidateStock(grappleBlockVisuals);
             progress?.Report("Extracting X-ray reveal visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string xrayReveals = Path.Combine(staging,

@@ -32,12 +32,20 @@ public sealed partial class RoomPlmSystem
     private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
     private AreaId _activeAreaIndex = AreaId.Crateria;
     [NonSerialized] private RoomPlmShotBlockVisualCatalog? shotBlockVisuals;
+    [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? grappleBlockVisuals;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
     public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals
     {
         get => shotBlockVisuals;
         set => shotBlockVisuals = value;
+    }
+
+    /// <summary>Nonserialized Grapple-block art; the compiled full level words own collision.</summary>
+    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals
+    {
+        get => grappleBlockVisuals;
+        set => grappleBlockVisuals = value;
     }
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
@@ -1655,7 +1663,8 @@ public sealed partial class RoomPlmSystem
             // All five cartridge lists are a single word at the PLM origin. The
             // complete native word retains Grapple/air collision independently of art.
             DrawPlmWordAt(level, streamer, grapple.Pointer, originX, originY,
-                grapple.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset);
+                grapple.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset,
+                grappleBlockVisuals?.GetWord(grapple.Pointer));
             return;
         }
 

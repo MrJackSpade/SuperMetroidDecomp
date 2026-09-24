@@ -10,4 +10,11 @@ public sealed partial class SuperMetroidRuntime
         get => Plms.ShotBlockVisuals;
         set => Plms.ShotBlockVisuals = value;
     }
+
+    /// <summary>Visual-only Grapple-block resources; reattached after debugger-state restoration.</summary>
+    public RoomPlmGrappleBlockVisualCatalog? RoomPlmGrappleBlockVisuals
+    {
+        get => Plms.GrappleBlockVisuals;
+        set => Plms.GrappleBlockVisuals = value;
+    }
 }

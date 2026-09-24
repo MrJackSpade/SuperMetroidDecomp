@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -318,7 +319,7 @@ public sealed partial class RoomEnemySystem
             case MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots:
                 if (_enemyProjectiles.Count(projectile => !projectile.IsActive) < 4)
                     return;
-                SpawnMotherBrainFallingTube(0x8ae5);
+                SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomLeft);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomLeftTube;
                 return;
 
@@ -350,7 +351,7 @@ public sealed partial class RoomEnemySystem
                     MotherBrainTubeCollapseFunction.SpawnBottomRightTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnBottomRightTube:
-                SpawnMotherBrainFallingTube(0x8af5);
+                SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomRight);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomRightTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomRightTube:
@@ -359,7 +360,7 @@ public sealed partial class RoomEnemySystem
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube:
-                SpawnMotherBrainFallingTube(0x8b05);
+                SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomMiddleLeft);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube:
@@ -390,7 +391,7 @@ public sealed partial class RoomEnemySystem
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube:
-                SpawnMotherBrainFallingTube(0x8b15);
+                SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomMiddleRight);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube:
@@ -401,7 +402,7 @@ public sealed partial class RoomEnemySystem
             case MotherBrainTubeCollapseFunction.SpawnMainTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainFallingTube(0x8b25);
+                SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.Main);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes:
@@ -491,16 +492,11 @@ public sealed partial class RoomEnemySystem
         if (slotIndex < 0)
             return; // SpawnEnemy silently fails when all 32 native records are occupied.
 
-        int record = 0xa90000 | populationPointer;
-        RoomEnemyPopulationRecord population = new(
-            ReadWord(_bus!, record),
-            ReadWord(_bus!, record + 2),
-            ReadWord(_bus!, record + 4),
-            ReadWord(_bus!, record + 6),
-            ReadWord(_bus!, record + 8),
-            ReadWord(_bus!, record + 10),
-            ReadWord(_bus!, record + 12),
-            ReadWord(_bus!, record + 14));
+        // Authored verifier buses may supply constructed records. A retail runtime
+        // instead resolves the fixed cutscene placement without touching bank $A9.
+        RoomEnemyPopulationRecord population = _bus is IRoomEnemyFixtureSource
+            ? ReadFallingTubeFixturePopulation(_bus, populationPointer)
+            : MotherBrainFallingTubePopulationDefinitions.Get(populationPointer);
         if (population.DefinitionPointer != MotherBrainFallingTubeDefinition)
         {
             throw new InvalidDataException(
@@ -519,6 +515,21 @@ public sealed partial class RoomEnemySystem
         FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
         if (_motherBrain is not null)
             _motherBrain.SpawnedFallingTubeCount++;
+    }
+
+    private static RoomEnemyPopulationRecord ReadFallingTubeFixturePopulation(
+        ISnesAddressSpace bus, ushort pointer)
+    {
+        int record = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
+        return new RoomEnemyPopulationRecord(
+            ReadWord(bus, record),
+            ReadWord(bus, record + 2),
+            ReadWord(bus, record + 4),
+            ReadWord(bus, record + 6),
+            ReadWord(bus, record + 8),
+            ReadWord(bus, record + 10),
+            ReadWord(bus, record + 12),
+            ReadWord(bus, record + 14));
     }
 
     /// <summary>Ports falling-tube initialization $A9:8B35.</summary>

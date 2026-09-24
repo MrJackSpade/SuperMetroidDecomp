@@ -1,3 +1,4 @@
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -100,11 +101,79 @@ internal static partial class Program
         AssertTrue(guardedRuntime.Enemies.IsLoaded,
             "Ceres production room entry loads enemies without reading native headers");
 
+        VerifyMotherBrainFallingTubePopulationDefinitions(bus);
+
         Console.WriteLine(
             $"Enemy definitions: {referencedPointers.Count} retail + " +
             $"{auxiliaryPointers.Length} auxiliary headers and " +
             $"{namePointers.Count} spawn-name records match all retained fields; " +
             "production room entry rejects native header and name reads.");
+    }
+
+    private static void VerifyMotherBrainFallingTubePopulationDefinitions(
+        ISnesAddressSpace rom)
+    {
+        ushort[] pointers = MotherBrainFallingTubePopulationDefinitions.Pointers.ToArray();
+        AssertEqual(5, pointers.Length, "all five Mother Brain falling-tube placements are compiled");
+        var enemies = new RoomEnemySystem();
+        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainFallingTube",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        busField.SetValue(enemies, new EnemyHeaderReadGuard(rom));
+
+        for (int index = 0; index < pointers.Length; index++)
+        {
+            ushort pointer = pointers[index];
+            int address = 0xa90000 | pointer;
+            ushort[] words = Enumerable.Range(0, 8)
+                .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
+                .ToArray();
+            var native = new RoomEnemyPopulationRecord(
+                words[0], words[1], words[2], words[3],
+                words[4], words[5], words[6], words[7]);
+            AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(pointer),
+                $"Mother Brain falling-tube record $A9:{pointer:X4} matches all eight native words");
+
+            spawn.Invoke(enemies, [pointer]);
+            RoomEnemySlot tube = enemies.Slots[index];
+            AssertEqual(native, tube.Spawn.Population,
+                $"production tube spawn {index} retains its authored placement and parameters");
+            AssertEqual(native.XPosition, tube.XPosition,
+                $"production tube spawn {index} uses its compiled X coordinate");
+            AssertEqual(native.YPosition, tube.YPosition,
+                $"production tube spawn {index} uses its compiled Y coordinate");
+        }
+        AssertEqual(5, enemies.EnemyCount,
+            "all five compiled falling-tube placements allocated physical enemy slots");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => MotherBrainFallingTubePopulationDefinitions.Get(0),
+            "an unknown falling-tube placement fails explicitly");
+
+        // A constructed bus must continue to supply its own placement rather than
+        // silently borrowing the retail coordinates from the compiled catalog.
+        var fixture = new TestAddressSpace();
+        byte[] header = Enumerable.Range(0, 64)
+            .Select(offset => rom.ReadByte(0xa00000 |
+                (EnemyDefinitionPointers.MotherBrainFallingTube + offset)))
+            .ToArray();
+        fixture.WriteBytes(0xa00000 | EnemyDefinitionPointers.MotherBrainFallingTube, header);
+        int fixtureAddress = 0xa90000 | MotherBrainFallingTubePopulationDefinitions.BottomLeft;
+        byte[] authoredRecord = Enumerable.Range(0, 16)
+            .Select(offset => rom.ReadByte(fixtureAddress + offset))
+            .ToArray();
+        authoredRecord[2] = 0x34;
+        authoredRecord[3] = 0x12;
+        fixture.WriteBytes(fixtureAddress, authoredRecord);
+        var fixtureEnemies = new RoomEnemySystem();
+        busField.SetValue(fixtureEnemies, fixture);
+        spawn.Invoke(fixtureEnemies, [MotherBrainFallingTubePopulationDefinitions.BottomLeft]);
+        AssertEqual(0x1234, fixtureEnemies.Slots[0].XPosition,
+            "constructed room fixture retains its authored falling-tube X position");
+
+        Console.WriteLine(
+            "Mother Brain falling tubes: five complete ROM records, five guarded production " +
+            "spawns and one independent constructed placement pass.");
     }
 
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
@@ -132,6 +201,8 @@ internal static partial class Program
                 .Concat(RoomEnemySpawnNameDefinitions.Pointers
                     .SelectMany(pointer => Enumerable.Range(
                         RoomEnemyRomLayout.TilesetBank | pointer, 14)))
+                .Concat(MotherBrainFallingTubePopulationDefinitions.Pointers.ToArray()
+                    .SelectMany(pointer => Enumerable.Range(0xa90000 | pointer, 16)))
                 .ToHashSet();
 
         public byte ReadByte(int address)

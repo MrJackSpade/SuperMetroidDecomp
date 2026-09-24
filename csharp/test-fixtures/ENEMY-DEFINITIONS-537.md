@@ -69,3 +69,16 @@ fixtures retain their authored bank-$B4 bytes through `IRoomEnemyFixtureSource`.
 the pinned ROM and loads Ceres with source-header and source-name reads forbidden.
 The catalog does not attempt to reproduce the omitted word or convert these
 native snapshot words into editable presentation text.
+
+## Scripted Mother Brain tube placements
+
+The tube-collapse cutscene spawns five enemy records from bank $A9 after normal
+room loading. `MotherBrainFallingTubePopulationDefinitions` compiles those
+complete 16-byte records and names each cutscene selection; production spawns
+no longer reread their cartridge addresses. The fixture-aware path still reads
+an explicitly authored constructed record.
+
+`--enemy-definitions` independently compares all forty words, invokes the real
+spawn method five times with every source record and enemy header blocked, and
+asserts physical slot order, snapshot contents, coordinates and the high-water
+count. An altered constructed record separately proves fixture selection.

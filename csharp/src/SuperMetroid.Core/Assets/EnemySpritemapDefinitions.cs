@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One named visual frame selected by an otherwise compiled enemy program.</summary>
@@ -9,10 +11,11 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 3;
+    internal const int Version = 4;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
     internal const byte BoulderBank = 0xa6;
+    internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
     internal const int TileColumns = 16;
     internal const int TileRows = 32;
@@ -54,9 +57,47 @@ internal static class EnemySpritemapDefinitions
         new(BoulderBank, 0x8ac7, "boulder_roll_5"),
         new(BoulderBank, 0x8add, "boulder_roll_6"),
         new(BoulderBank, 0x8af3, "boulder_roll_7"),
+        new(AtomicBank, 0xe489, "atomic_up_right_0"),
+        new(AtomicBank, 0xe49f, "atomic_up_right_1"),
+        new(AtomicBank, 0xe4b5, "atomic_up_right_2"),
+        new(AtomicBank, 0xe4cb, "atomic_up_right_3"),
+        new(AtomicBank, 0xe4e1, "atomic_up_right_4"),
+        new(AtomicBank, 0xe4f2, "atomic_up_right_5"),
+        new(AtomicBank, 0xe508, "atomic_up_left_0"),
+        new(AtomicBank, 0xe51e, "atomic_up_left_1"),
+        new(AtomicBank, 0xe534, "atomic_up_left_2"),
+        new(AtomicBank, 0xe54a, "atomic_up_left_3"),
+        new(AtomicBank, 0xe560, "atomic_up_left_4"),
+        new(AtomicBank, 0xe571, "atomic_up_left_5"),
     ];
 
+    private static readonly ushort[] AtomicUpRightFrames =
+        [0xe489, 0xe49f, 0xe4b5, 0xe4cb, 0xe4e1, 0xe4f2];
+    private static readonly ushort[] AtomicUpLeftFrames =
+        [0xe508, 0xe51e, 0xe534, 0xe54a, 0xe560, 0xe571];
+
     internal static ReadOnlySpan<EnemySpritemapDefinition> Frames => FrameDefinitions;
+
+    /// <summary>
+    /// Selects only families whose fixed instruction visual operands are compiled.
+    /// Unknown families retain the existing cartridge route until separately migrated.
+    /// Known families reject an unlisted operand rather than reading adjacent data.
+    /// </summary>
+    internal static bool TryFrameAt(ushort enemyDefinition, ushort operandAddress,
+        out ushort frame)
+    {
+        frame = enemyDefinition switch
+        {
+            RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
+            RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
+            RoomEnemySystem.BoulderDefinition => BoulderFrameAt(operandAddress),
+            RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
+            _ => 0,
+        };
+        return enemyDefinition is RoomEnemySystem.BoyonDefinition or
+            RoomEnemySystem.CacatacDefinition or RoomEnemySystem.BoulderDefinition or
+            RoomEnemySystem.AtomicDefinition;
+    }
 
     /// <summary>
     /// The ten fixed pointer operands interleaved with Boyon's compiled idle and bounce
@@ -122,5 +163,27 @@ internal static class EnemySpritemapDefinitions
         }
         throw new InvalidDataException(
             $"Boulder visual operand $A6:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Atomic has two authored six-frame spirals; the down-left/down-right programs
+    /// replay the matching up spiral in reverse. Directional movement remains compiled.
+    /// </summary>
+    internal static ushort AtomicFrameAt(ushort operandAddress)
+    {
+        if (operandAddress >= 0xe312 && operandAddress <= 0xe326 &&
+            (operandAddress - 0xe312) % 4 == 0)
+            return AtomicUpRightFrames[(operandAddress - 0xe312) / 4];
+        if (operandAddress >= 0xe32e && operandAddress <= 0xe342 &&
+            (operandAddress - 0xe32e) % 4 == 0)
+            return AtomicUpLeftFrames[(operandAddress - 0xe32e) / 4];
+        if (operandAddress >= 0xe34a && operandAddress <= 0xe35e &&
+            (operandAddress - 0xe34a) % 4 == 0)
+            return AtomicUpRightFrames[5 - (operandAddress - 0xe34a) / 4];
+        if (operandAddress >= 0xe366 && operandAddress <= 0xe37a &&
+            (operandAddress - 0xe366) % 4 == 0)
+            return AtomicUpLeftFrames[5 - (operandAddress - 0xe366) / 4];
+        throw new InvalidDataException(
+            $"Atomic visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 }

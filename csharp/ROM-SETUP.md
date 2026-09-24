@@ -210,7 +210,7 @@ the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
 The same directory contains `enemy-compositions.json` with named Boyon,
-Cacatac, and Boulder visual frames. Copy it to `overrides/enemy-tiles/` to edit a frame's ordered OAM
+Cacatac, Boulder, and Atomic visual frames. Copy it to `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
 `flipX`, or `flipY`. Frame timing and selection, enemy hitboxes, movement, and
 damage remain engine-owned. The stock JSON is hash-checked; malformed overrides

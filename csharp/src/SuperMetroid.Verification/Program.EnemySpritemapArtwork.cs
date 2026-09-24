@@ -14,6 +14,8 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(stock.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
+        AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
+            "unknown enemy family keeps the existing cartridge selector path");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -41,7 +43,9 @@ internal static partial class Program
                     ? RoomEnemySystem.BoyonDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
-                        : RoomEnemySystem.BoulderDefinition);
+                        : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
+                            ? RoomEnemySystem.BoulderDefinition
+                            : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
@@ -76,6 +80,11 @@ internal static partial class Program
         document.Frames["boulder_roll_0"][0] = boulderPart with
         {
             OffsetY = boulderPart.OffsetY + 1,
+        };
+        SpriteVisualPart atomicPart = document.Frames["atomic_up_right_0"][0];
+        document.Frames["atomic_up_right_0"][0] = atomicPart with
+        {
+            OffsetY = atomicPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -115,6 +124,16 @@ internal static partial class Program
             "authored Boulder Y offset changes live room OAM");
         AssertEqual(stockBoulder.LowTable[0], editedBoulder.LowTable[0],
             "Boulder visual override leaves X unchanged");
+        ushort atomicPointer = EnemySpritemapDefinitions.AtomicFrameAt(0xe312);
+        var stockAtomic = DrawEnemy(stock, new FrameReadGuard(rom),
+            atomicPointer, RoomEnemySystem.AtomicDefinition);
+        var editedAtomic = DrawEnemy(edited, new FrameReadGuard(rom),
+            atomicPointer, RoomEnemySystem.AtomicDefinition);
+        AssertEqual(unchecked((byte)(stockAtomic.LowTable[1] + 1)),
+            editedAtomic.LowTable[1],
+            "authored Atomic Y offset changes live room OAM");
+        AssertEqual(stockAtomic.LowTable[0], editedAtomic.LowTable[0],
+            "Atomic visual override leaves X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
@@ -140,7 +159,9 @@ internal static partial class Program
             slot.Definition = default(RoomEnemyDefinition) with
                 { Bank = definition == RoomEnemySystem.BoulderDefinition
                     ? EnemySpritemapDefinitions.BoulderBank
-                    : EnemySpritemapDefinitions.BoyonBank };
+                    : definition == RoomEnemySystem.AtomicDefinition
+                        ? EnemySpritemapDefinitions.AtomicBank
+                        : EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
             slot.XPosition = 0x0040;
             slot.YPosition = 0x0080;
@@ -156,7 +177,8 @@ internal static partial class Program
         {
             if (address is >= 0xa288da and < 0xa2890b or
                 >= 0xa2a0bb and < 0xa2a377 or
-                >= 0xa68a59 and < 0xa68b09)
+                >= 0xa68a59 and < 0xa68b09 or
+                >= 0xa8e489 and < 0xa8e587)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

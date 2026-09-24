@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
@@ -94,21 +95,18 @@ internal static partial class Program
                 process.Invoke(programSystem, arguments);
         }
 
-        AssertEqual(
-            AtomicInstructionProgramDefinitions.PresentationWordCount,
-            programGuard.ObservedPresentationWords.Count,
-            "all live Atomic spritemap words remain cartridge reads");
         for (int index = 0;
              index < AtomicInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 AtomicInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(programGuard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Atomic presentation word $A8:{address:X4}");
+            AssertEqual(ReadAtomicProgramWord(rom, address),
+                EnemySpritemapDefinitions.AtomicFrameAt(address),
+                $"compiled Atomic visual selector $A8:{address:X4} matches cartridge");
         }
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Atomic mechanics byte");
+            "production execution avoids compiled Atomic mechanics and visual bytes");
 
         AssertThrows<InvalidDataException>(
             () => AtomicInstructionProgramDefinitions.ReadMechanicsWord(0xe312),
@@ -116,6 +114,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => AtomicInstructionProgramDefinitions.ReadMechanicsWord(0xffff),
             "restored pointer outside all Atomic programs fails loudly");
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.AtomicFrameAt(0xe380),
+            "uncompiled Atomic visual selector fails loudly");
 
         _ = AtomicInstructionProgramDefinitions.ReadMechanicsWord(
             AtomicInstructionProgramDefinitions.UpRight);
@@ -134,7 +135,7 @@ internal static partial class Program
         Console.WriteLine(
             "Atomic movement definitions: four native selectors and production initializers, " +
             "32 compiled instruction words, and four complete loops pass with mechanics " +
-            "reads forbidden; 24 spritemap words remain live.");
+            "and 24 visual-selector source reads forbidden.");
     }
 
     private static ushort ReadAtomicProgramWord(
@@ -156,18 +157,23 @@ internal static partial class Program
 
     private sealed class AtomicProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Atomic mechanics byte ${address:X6}.");
+                    $"Production read compiled Atomic instruction byte ${address:X6}.");
             }
 
+            return source.ReadByte(address);
+        }
+
+        private static bool IsCompiledPresentationByte(int address)
+        {
             if ((address & 0xff0000) == 0xa80000)
             {
                 ushort bankAddress = unchecked((ushort)address);
@@ -180,13 +186,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        return true;
                     }
                 }
             }
 
-            return source.ReadByte(address);
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

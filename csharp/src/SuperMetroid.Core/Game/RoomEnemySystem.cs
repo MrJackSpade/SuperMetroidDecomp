@@ -2566,12 +2566,9 @@ public sealed partial class RoomEnemySystem
 
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
-        if (slot.EnemyDefinitionPointer == BoyonDefinition)
-            return EnemySpritemapDefinitions.BoyonFrameAt(operandAddress);
-        if (slot.EnemyDefinitionPointer == CacatacDefinition)
-            return EnemySpritemapDefinitions.CacatacFrameAt(operandAddress);
-        if (slot.EnemyDefinitionPointer == BoulderDefinition)
-            return EnemySpritemapDefinitions.BoulderFrameAt(operandAddress);
+        if (EnemySpritemapDefinitions.TryFrameAt(
+                slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
+            return frame;
         return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
     }
 

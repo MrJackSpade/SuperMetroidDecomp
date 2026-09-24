@@ -6,7 +6,8 @@ internal readonly record struct AtomicInstructionMechanicsWord(ushort Address, u
 /// <summary>Compiled mechanics words from Atomic's four directional animation loops.</summary>
 /// <remarks>
 /// The six durations and terminal goto in each list are immutable simulation control. The
-/// interleaved spritemap pointers remain live cartridge presentation data.
+/// interleaved visual selectors are compiled in
+/// <see cref="Assets.EnemySpritemapDefinitions"/>.
 /// </remarks>
 internal static class AtomicInstructionProgramDefinitions
 {

@@ -2098,22 +2098,24 @@ The complete twenty-nine-entry `$8F:E7A7` room graphics-set table is now compile
 in `RoomTilesetDefinitions`. Every pointer and the three source addresses in each
 nine-byte record are compared with the pinned cartridge. Both Landing Site and
 Ceres room loads forbid reads across the full table/record interval and retain
-identical decompressed art, VRAM, and CGRAM output. Room tile and background
-payloads remain cartridge-backed until the indexed-PNG/JSON assets in #533 are
-installed; this change compiles source selection, not presentation bytes.
+identical decompressed art, VRAM, and CGRAM output. This table-compilation slice
+changed source selection, not presentation bytes; subsequent #533 slices installed
+separate room-character, block, layout, and background resources.
 
 The CRE character stream and all twenty-nine graphics-set references now have a
 lossless indexed-PNG extractor. Its seventeen distinct output sheets encode the
 native four-bit palette indexes, not RGB guesses. Every sheet is decoded back to
 planar tiles and compared byte-for-byte with the decompressed cartridge source;
 the verifier also checks VRAM upload, an edited pixel, and rejection of edited
-unused cells in a partial final row. Extraction/round-trip is ready, but room
-loading and installation still use the cartridge character streams until the
-room-art catalog and override handoff are implemented under #533.
+unused cells in a partial final row. This was an extraction-only milestone; the
+later room-art catalog and override handoff are described immediately below.
 
-`CartridgeRoomAssets.Load` now accepts a complete compiled character catalog. With
-that catalog bound, it does not read either CRE or graphics-set character sources
-from the ROM. Landing Site and Ceres produce byte-identical room characters and
-VRAM/CGRAM under source-read guards, preserving Ceres' overwrite ordering. A
-painted room PNG changes the real room loader's character output. Production hosts
-have not yet installed/bound this catalog, so their visible art is unchanged.
+`CartridgeRoomAssets.Load` accepts the installed room-character catalog and no longer
+reads either CRE or graphics-set character sources from the ROM when it is bound.
+Landing Site and Ceres produce byte-identical room characters and VRAM/CGRAM under
+source-read guards, preserving Ceres' overwrite ordering. A painted room PNG changes
+the real room loader's character output. Desktop `PlayableGameControl` and Android
+`AndroidSessionData` now load and bind the catalog at startup and after debugger-state
+restoration; both the general room loader and dedicated Landing Site loader consume it.
+This is room-character integration only, not completion of other visual sources or the
+whole ROM-free runtime contract.

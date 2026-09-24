@@ -255,6 +255,7 @@ public sealed partial class PlayableGameControl : UserControl
         projectilePresentation = installation?.LoadProjectiles();
         enemyTileArtwork = installation?.LoadEnemyTiles();
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
+        game.BindProjectileFrameBindings(projectilePresentation?.FrameBindings);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
         game.BindEnemyTileArtwork(enemyTileArtwork);
         game.BindTrailArtwork(projectilePresentation?.Trails);
@@ -363,6 +364,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
+        game.BindProjectileFrameBindings(projectilePresentation?.FrameBindings);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
         game.BindEnemyTileArtwork(enemyTileArtwork);
         game.BindTrailArtwork(projectilePresentation?.Trails);

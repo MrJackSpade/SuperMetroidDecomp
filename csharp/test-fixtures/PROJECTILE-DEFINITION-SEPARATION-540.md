@@ -1,5 +1,26 @@
 # Remaining projectile definition ownership (#540 / #547)
 
+## Implemented timed-frame visual-binding slice
+
+The 805 authored timed bank-$93 projectile records now export their spritemap
+operands to `projectile-frame-bindings.json`. The key set is derived from the
+already-compiled physical radius records, while each stock sprite identity is
+read from the pinned cartridge at extraction. Both Samus projectile pools use
+the installed visual binding; duration, trail index, radii, damage, and
+Delete/Goto control remain compiled mechanics. User overrides may select only
+one of the 417 extracted sprite compositions and are included in the installed
+projectile content identity. This is a bounded visual selector, not an
+interpreter or a gameplay-definition editor.
+
+`VerifyProjectileFrameBindings` compares all 805 selected sprites to the ROM,
+runs both production instruction handlers with visual operand reads forbidden,
+checks unchanged timers/radii/next pointers, and proves an edited binding
+changes emitted OAM. It also checks missing/invalid resources, selected-content
+identity, and restart persistence. Android host binding, full Verification,
+and Windows Release build pass. This removes the authored timed-frame sprite
+operand reads only; other projectile visual/mechanical ROM dependencies below
+remain open.
+
 Audited against production at 1035f8c3 and pinned `upstream-disassembly/src/bank_93.asm`.
 This is an implementation inventory, not a completed migration or gameplay fix.
 

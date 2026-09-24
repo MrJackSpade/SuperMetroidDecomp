@@ -17,6 +17,11 @@ internal static class SamusProjectileRadiusDefinitions
     /// </summary>
     private static readonly FrozenDictionary<int, ushort> Radii = Create();
 
+    /// <summary>The 805 timed instruction owners, derived from physical radius-record keys.</summary>
+    internal static IReadOnlyList<ushort> TimedRecordPointers { get; } =
+        Radii.Keys.Select(address => unchecked((ushort)(address - 0x930004)))
+            .Order().ToArray();
+
     private static FrozenDictionary<int, ushort> Create()
     {
         ReadOnlySpan<(int Address, ushort XY)> records =

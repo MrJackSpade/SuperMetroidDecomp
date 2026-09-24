@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusBombProjectileSystem
 {
+    /// <summary>Shared installed timed-frame sprite choices for the bomb half of the projectile pool.</summary>
+    [field: NonSerialized]
+    public Assets.ProjectileFrameBindingCatalog? FrameBindings { get; set; }
     /// <summary>Number of physical bomb slots at projectile byte indices $0A-$12.</summary>
     public const int SlotCount = SamusBombSpreadRomData.SlotCount;
 
@@ -1067,7 +1070,7 @@ public sealed class SamusBombProjectileSystem
                     throw new InvalidDataException($"Projectile instruction at $93:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = ReadWord(
+                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ?? ReadWord(
                     bus,
                     SamusProjectileRomData.Banks.Projectile |
                         unchecked((ushort)(pointer + 2)));

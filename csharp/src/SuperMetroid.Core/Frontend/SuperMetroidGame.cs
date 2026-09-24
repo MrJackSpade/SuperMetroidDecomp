@@ -1346,6 +1346,7 @@ public sealed partial class SuperMetroidGame
         runtime.RoomBackgroundTilemapArt = roomBackgroundTilemapArt;
         runtime.RoomSkyTilemapArt = roomSkyTilemapArt;
         runtime.ProjectileCompositions = projectileCompositions;
+        runtime.ProjectileFrameBindings = projectileFrameBindings;
         runtime.TrailArtwork = trailArtwork;
         runtime.ChargeFlarePlacement = chargeFlarePlacement;
         runtime.ChargeFlareCompositions = chargeFlareCompositions;

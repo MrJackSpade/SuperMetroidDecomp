@@ -85,6 +85,7 @@ internal sealed class AndroidSessionData : IDisposable
         projectiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadProjectiles() : null;
         enemyTiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEnemyTiles() : null;
         Game.BindProjectileCompositions(projectiles?.Catalog);
+        Game.BindProjectileFrameBindings(projectiles?.FrameBindings);
         Game.BindBeamArtwork(projectiles?.BeamTiles);
         Game.BindEnemyTileArtwork(enemyTiles);
         Game.BindTrailArtwork(projectiles?.Trails);
@@ -174,6 +175,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
         Game.BindRoomSkyTilemapArt(roomSkyTilemaps);
         Game.BindProjectileCompositions(projectiles?.Catalog);
+        Game.BindProjectileFrameBindings(projectiles?.FrameBindings);
         Game.BindBeamArtwork(projectiles?.BeamTiles);
         Game.BindEnemyTileArtwork(enemyTiles);
         Game.BindTrailArtwork(projectiles?.Trails);

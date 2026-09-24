@@ -20,6 +20,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>Installed timed-frame sprite choices; null retains the cartridge diagnostic path.</summary>
+    [field: NonSerialized]
+    public Assets.ProjectileFrameBindingCatalog? FrameBindings { get; set; }
     /// <summary>Native ordinary-projectile capacity; bombs occupy the other five slots.</summary>
     public const int SlotCount = 5;
 

@@ -1519,6 +1519,12 @@ if (args is ["--enemy-tile-artwork"])
     VerifyRoomEnemyLoading();
     return 0;
 }
+if (args is ["--projectile-frame-bindings"])
+{
+    VerifyProjectileFrameBindings(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
 {
     VerifyIntroCinematicArtwork(introBackgroundRom);

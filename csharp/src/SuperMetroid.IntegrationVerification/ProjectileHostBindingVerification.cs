@@ -13,6 +13,7 @@ internal static class ProjectileHostBindingVerification
         string root = Path.GetFullPath(Path.Combine("csharp/test-temp", "projectile-host-" + Guid.NewGuid().ToString("N")));
         var installation = GameAssetInstaller.Install(romPath, root);
         var field = typeof(SuperMetroidGame).GetField("projectileCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var frameField = typeof(SuperMetroidGame).GetField("projectileFrameBindings", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var trailField = typeof(SuperMetroidGame).GetField("trailArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var flareField = typeof(SuperMetroidGame).GetField("chargeFlarePlacement", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -23,10 +24,12 @@ internal static class ProjectileHostBindingVerification
             var content = field.GetValue(session.Game);
             if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed Android session did not bind projectile content.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
+            CheckFrameBindings(frameField.GetValue(session.Game), installation.LoadProjectiles().FrameBindings);
             session.SaveSlot(0);
             CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
+            CheckFrameBindings(frameField.GetValue(session.Game), installation.LoadProjectiles().FrameBindings);
             CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
@@ -104,6 +107,13 @@ internal static class ProjectileHostBindingVerification
         catch (InvalidDataException) { }
         Console.WriteLine("PASS installed Android projectile binding: startup, state load, restart with override, old-state rebind and invalid override rejection.");
         return 0;
+    }
+
+    private static void CheckFrameBindings(object? actual, ProjectileFrameBindingCatalog expected)
+    {
+        if (actual is not ProjectileFrameBindingCatalog catalog ||
+            catalog.Resolve(0x86db) != expected.Resolve(0x86db))
+            throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
     private static void CheckCatalog(ProjectileSpriteCatalog actual, ProjectileSpriteCatalog expected)

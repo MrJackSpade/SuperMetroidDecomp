@@ -5,6 +5,14 @@ namespace SuperMetroid.Core.Frontend;
 public sealed partial class SuperMetroidGame
 {
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
+    [NonSerialized] private ProjectileFrameBindingCatalog? projectileFrameBindings;
+
+    /// <summary>Supplies current visual frame bindings to live, restored and future runtimes.</summary>
+    public void BindProjectileFrameBindings(ProjectileFrameBindingCatalog? catalog)
+    {
+        projectileFrameBindings = catalog;
+        if (runtime is not null) runtime.ProjectileFrameBindings = catalog;
+    }
     [NonSerialized] private BeamTileCatalog? beamArtwork;
     [NonSerialized] private EnemyTileArtworkCatalog? enemyTileArtwork;
 

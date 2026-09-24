@@ -300,6 +300,14 @@ of graphics. Damage, collision radii and
 timing are not editable here. Trails, charge flares and Grapple visuals are not
 covered by this composition file.
 
+`projectile-frame-bindings.json` in the same directory selects which existing
+`sprite_XXXX` composition each of the 805 timed beam, missile, Super Missile and
+bomb instruction frames draws. Copy it to `overrides/projectiles/` to change a
+visual frame choice. Keep all `frame_XXXX` entries and select only sprite IDs
+present in `projectile-compositions.json`; duration, trail cadence, collision
+radii, damage and instruction flow remain compiled gameplay data. The stock
+file is hash-checked, and edits are included in recorded content identity.
+
 Trail appearance uses `projectile-trails.json` in the same stock/override
 directories. Copy the complete file before editing tile row/column, palette,
 priority or flips. Timing and trail movement are intentionally not editable.

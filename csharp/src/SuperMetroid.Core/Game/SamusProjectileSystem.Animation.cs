@@ -25,7 +25,7 @@ public sealed partial class SamusProjectileSystem
             if ((instructionOrTimer & 0x8000) == 0)
             {
                 slot.InstructionTimer = instructionOrTimer;
-                slot.SpritemapPointer = ReadWord(
+                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ?? ReadWord(
                     bus,
                     SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
                 slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(

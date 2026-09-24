@@ -1,0 +1,107 @@
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+
+internal static partial class Program
+{
+    private static void VerifyBombBlockPrograms()
+    {
+        SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        var forbidden = new HashSet<int>();
+        int wordCount = 0;
+        foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses())
+        {
+            AssertTrue(RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort compiled), $"bomb-block control ${address:X4} exists");
+            ushort native = unchecked((ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8));
+            AssertEqual(native, compiled, $"bomb-block control ${address:X4} matches ROM");
+            forbidden.Add(0x840000 | address);
+            forbidden.Add(0x840000 | (address + 1));
+            wordCount++;
+        }
+
+        int byteCount = 0;
+        foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsByteAddresses())
+        {
+            AssertTrue(RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(
+                address, out byte compiled), $"bomb-block sound ${address:X4} exists");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"bomb-block sound ${address:X4} matches ROM");
+            forbidden.Add(0x840000 | address);
+            byteCount++;
+        }
+
+        AssertEqual(88, wordCount, "sixteen bomb-block entries and eight tails have complete control words");
+        AssertEqual(16, byteCount, "both sounds for each bomb-block variant are compiled");
+        AssertTrue(!RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(
+                RoomPlmInstructionLists.ReactionBombBlock1x1Respawning + 5, out _),
+            "interleaved draw pointer is not misclassified as control");
+
+        foreach (byte behavior in Enumerable.Range(0, 8).Select(value => (byte)value))
+        foreach (BombBlockProducer producer in Enum.GetValues<BombBlockProducer>())
+        {
+            BombBlockFixture native = NewBombBlockFixture(behavior, producer);
+            BombBlockFixture compiled = NewBombBlockFixture(behavior, producer);
+            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            for (int frame = 0; frame < 420; frame++)
+            {
+                native.Plms.Step(rom, native.Level, native.Streamer, 0, 0, 0);
+                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, 0, 0, 0);
+                AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
+                    $"bomb BTS {behavior}/{producer} active count, frame {frame}");
+                AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
+                    $"bomb BTS {behavior}/{producer} sound count, frame {frame}");
+                for (int block = 0; block < 64; block++)
+                {
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).LevelWord,
+                        compiled.Level.GetCollisionBlockByIndex(block).LevelWord,
+                        $"bomb BTS {behavior}/{producer} block {block}, frame {frame}");
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Behavior,
+                        compiled.Level.GetCollisionBlockByIndex(block).Behavior,
+                        $"bomb BTS {behavior}/{producer} BTS {block}, frame {frame}");
+                }
+            }
+
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"bomb BTS {behavior}/{producer} never rereads compiled control bytes");
+            AssertEqual(0, compiled.Plms.ActiveCount,
+                $"bomb BTS {behavior}/{producer} completes its native timeline");
+        }
+
+        Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, and all 24 collision/bomb/power-bomb timelines match ROM with control reads forbidden.");
+    }
+
+    private enum BombBlockProducer { Collision, Bomb, PowerBomb }
+
+    private sealed record BombBlockFixture(
+        RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
+
+    private static BombBlockFixture NewBombBlockFixture(byte behavior, BombBlockProducer producer)
+    {
+        const int width = 8;
+        const int blockIndex = 27;
+        var words = new ushort[width * width];
+        words[blockIndex] = 0xf321;
+        var bts = new byte[words.Length];
+        bts[blockIndex] = behavior;
+        var level = new RoomLevelData(width, width, words, bts,
+            new ushort[words.Length], new byte[0x400 * 8]);
+        var plms = new RoomPlmSystem();
+        bool spawned = producer switch
+        {
+            BombBlockProducer.Collision =>
+                plms.TrySpawnCollisionBombBlock(level, blockIndex, behavior),
+            BombBlockProducer.Bomb =>
+                plms.TrySpawnBombReactionBlock(level, blockIndex, behavior,
+                    (ushort)SamusProjectileFamily.Bomb),
+            BombBlockProducer.PowerBomb =>
+                plms.TrySpawnBombReactionBlock(level, blockIndex, behavior,
+                    (ushort)SamusProjectileFamily.PowerBomb),
+            _ => throw new ArgumentOutOfRangeException(nameof(producer)),
+        };
+        AssertTrue(spawned, $"bomb BTS {behavior}/{producer} installs its native program");
+        return new BombBlockFixture(level, level.CreateBackgroundStreamer(), plms);
+    }
+}

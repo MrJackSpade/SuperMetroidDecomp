@@ -902,6 +902,11 @@ if (args is ["--grapple-block-programs"])
     VerifyGrappleBlockPrograms();
     return 0;
 }
+if (args is ["--bomb-block-programs"])
+{
+    VerifyBombBlockPrograms();
+    return 0;
+}
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(
@@ -2389,6 +2394,7 @@ VerifyXrayExtensions();
 VerifyXrayTilemap();
 VerifyXrayOverlays();
 VerifyBreakableGrapplePlms();
+VerifyBombBlockPrograms();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();
 VerifySamusPostureMovement();

@@ -385,6 +385,18 @@ The stock file is hash-checked; the override lives outside replaceable stock
 content and survives installation repair or updates. Other room-object
 families still need separate presentation resources.
 
+Blue-door cap appearances are installed as
+`game/room-plm-blue-doors/blue-doors.json`. Copy it to
+`overrides/room-plm-blue-doors/blue-doors.json`, edit only `blocks` visual
+words (0..4095), and restart. Keep all 16 IDs: four animation frames for
+each of `left`, `right`, `up`, and `down`. Each frame contains four visual
+blocks from the active room's combined CRE/area definitions. The full
+physical level words, door collision, animation cadence, and sound stay
+cartridge-defined. Edited cap tiles appear in immediate redraws and later
+camera streaming. Stock content is hash-checked, invalid overrides fail
+loudly, and overrides survive stock repair. Colored, grey, and eye-door
+artwork is not covered by this blue-cap resource.
+
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to
 `overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`

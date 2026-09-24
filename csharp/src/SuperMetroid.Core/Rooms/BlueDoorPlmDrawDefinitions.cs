@@ -26,6 +26,37 @@ internal static class BlueDoorPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
+    internal static string VisualId(ushort pointer)
+    {
+        foreach ((ushort first, string direction) in new[]
+                 {
+                     (LeftFrame0, "left"), (RightFrame0, "right"),
+                     (UpFrame0, "up"), (DownFrame0, "down"),
+                 })
+        {
+            int offset = pointer - first;
+            if (offset >= 0 && offset < 4 * DrawListBytes &&
+                offset % DrawListBytes == 0)
+                return $"{direction}-frame-{offset / DrawListBytes}";
+        }
+        throw new InvalidDataException($"Blue-door draw ${pointer:X4} has no visual ID.");
+    }
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
+    }
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

@@ -25,6 +25,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.StationVisuals = value;
     }
 
+    /// <summary>Visual-only blue-door cap resources; reattached after debugger-state restoration.</summary>
+    public RoomPlmBlueDoorVisualCatalog? RoomPlmBlueDoorVisuals
+    {
+        get => Plms.BlueDoorVisuals;
+        set => Plms.BlueDoorVisuals = value;
+    }
+
     /// <summary>Visual-only gate-block resources; reattached after debugger-state restoration.</summary>
     public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals
     {

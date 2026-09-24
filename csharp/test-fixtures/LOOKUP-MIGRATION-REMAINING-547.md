@@ -7,8 +7,11 @@ opening programs now have compiled physical level words. Each list's direction,
 four words, and terminator are checked against the pinned cartridge. The actual
 opening actor for every orientation runs with all sixteen native draw payloads
 forbidden, while the instruction program still owns sound and timing. Door-cap
-art is not editable yet: this is the physical data prerequisite for #539, not
-completion of the door-object presentation family or runtime ROM removal.
+art is now separately editable in `room-plm-blue-doors/blue-doors.json`; an
+edited frame reaches both the immediate redraw and later camera streaming
+without changing the physical level word. The stock file is checked against
+the compiled native data, and the override survives stock replacement. This
+does not complete colored/grey/eye-door presentation or runtime ROM removal.
 
 ## Permanent-collectible PLM draw lists (2026-09-24)
 

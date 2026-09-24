@@ -9,7 +9,7 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 1;
+    internal const int Version = 2;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
     internal const int MaximumParts = 128;
@@ -25,6 +25,26 @@ internal static class EnemySpritemapDefinitions
         new(BoyonBank, 0x88f6, "boyon_bounce_1"),
         new(BoyonBank, 0x88fd, "boyon_bounce_2"),
         new(BoyonBank, 0x8904, "boyon_bounce_3"),
+        new(BoyonBank, 0xa0bb, "cacatac_upright_idle_0"),
+        new(BoyonBank, 0xa0db, "cacatac_upright_idle_1"),
+        new(BoyonBank, 0xa0fb, "cacatac_upright_idle_2"),
+        new(BoyonBank, 0xa11b, "cacatac_upright_idle_3"),
+        new(BoyonBank, 0xa13b, "cacatac_upright_idle_4"),
+        new(BoyonBank, 0xa15b, "cacatac_upright_idle_5"),
+        new(BoyonBank, 0xa17b, "cacatac_upright_idle_6"),
+        new(BoyonBank, 0xa19b, "cacatac_upright_idle_7"),
+        new(BoyonBank, 0xa1bb, "cacatac_upright_attack_1"),
+        new(BoyonBank, 0xa1ef, "cacatac_upright_attack_2"),
+        new(BoyonBank, 0xa223, "cacatac_inverted_idle_0"),
+        new(BoyonBank, 0xa243, "cacatac_inverted_idle_1"),
+        new(BoyonBank, 0xa263, "cacatac_inverted_idle_2"),
+        new(BoyonBank, 0xa283, "cacatac_inverted_idle_3"),
+        new(BoyonBank, 0xa2a3, "cacatac_inverted_idle_4"),
+        new(BoyonBank, 0xa2c3, "cacatac_inverted_idle_5"),
+        new(BoyonBank, 0xa2e3, "cacatac_inverted_idle_6"),
+        new(BoyonBank, 0xa303, "cacatac_inverted_idle_7"),
+        new(BoyonBank, 0xa323, "cacatac_inverted_attack_1"),
+        new(BoyonBank, 0xa357, "cacatac_inverted_attack_2"),
     ];
 
     internal static ReadOnlySpan<EnemySpritemapDefinition> Frames => FrameDefinitions;
@@ -48,4 +68,30 @@ internal static class EnemySpritemapDefinitions
         _ => throw new InvalidDataException(
             $"Boyon visual operand $A2:{operandAddress:X4} is not compiled."),
     };
+
+    /// <summary>
+    /// Four native Cacatac programs: eight idle frames and four attack selectors
+    /// per orientation. Attack poses zero and three reuse idle zero and attack one.
+    /// The lookup cannot alter attack timings or spike-spawn callbacks.
+    /// </summary>
+    internal static ushort CacatacFrameAt(ushort operandAddress)
+    {
+        if (operandAddress >= 0x9e8e && operandAddress <= 0x9eaa &&
+            (operandAddress - 0x9e8e) % 4 == 0)
+            return unchecked((ushort)(0xa0bb + (operandAddress - 0x9e8e) * 8));
+        if (operandAddress >= 0x9ede && operandAddress <= 0x9efa &&
+            (operandAddress - 0x9ede) % 4 == 0)
+            return unchecked((ushort)(0xa223 + (operandAddress - 0x9ede) * 8));
+        return operandAddress switch
+        {
+            0x9eb2 => 0xa0bb,
+            0x9eb6 or 0x9ebe => 0xa1bb,
+            0x9eba => 0xa1ef,
+            0x9f02 => 0xa223,
+            0x9f06 or 0x9f0e => 0xa323,
+            0x9f0a => 0xa357,
+            _ => throw new InvalidDataException(
+                $"Cacatac visual operand $A2:{operandAddress:X4} is not compiled."),
+        };
+    }
 }

@@ -47,7 +47,7 @@ public sealed class EnemySpritemapCatalog
             document.Frames is null ||
             document.Frames.Count != EnemySpritemapDefinitions.Frames.Length)
             throw new InvalidDataException(
-                "Enemy compositions require version one and every named frame.");
+                "Enemy compositions require the current version and every named frame.");
 
         var frames = new Dictionary<int, EnemySpritemapPart[]>();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)

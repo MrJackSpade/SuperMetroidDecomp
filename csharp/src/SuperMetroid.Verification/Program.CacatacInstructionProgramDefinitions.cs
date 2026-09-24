@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
@@ -50,26 +51,27 @@ internal static partial class Program
                 CacatacSpikeDirection.RightFacingDown,
             ]);
 
-        AssertEqual(CacatacInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Cacatac spritemap words remain cartridge reads");
         for (int index = 0;
              index < CacatacInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = CacatacInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Cacatac presentation $A2:{address:X4}");
+            AssertEqual(ReadCacatacInstructionWord(rom, 0xa20000 | address),
+                EnemySpritemapDefinitions.CacatacFrameAt(address),
+                $"compiled Cacatac visual selector $A2:{address:X4} matches cartridge");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled Cacatac mechanics bytes");
+            "production execution avoids compiled Cacatac mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => CacatacInstructionProgramDefinitions.ReadMechanicsWord(0x9e8e),
             "Cacatac spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => CacatacInstructionProgramDefinitions.ReadMechanicsWord(0x9f2a),
             "adjacent Cacatac callback code is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.CacatacFrameAt(0x9f30),
+            "uncompiled Cacatac visual selector is rejected loudly");
 
         _ = ProbeCacatacInstructionMechanicsAllocation();
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -80,8 +82,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Cacatac instruction mechanics: fifty-six compiled words, four complete " +
-            "idle/attack programs, ten real spike spawns, and twenty-four live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "idle/attack programs, ten real spike spawns, and twenty-four compiled visual " +
+            "selectors pass with source bytes forbidden.");
 
         void VerifyIdle(bool upsideUp, ushort program)
         {
@@ -175,18 +177,23 @@ internal static partial class Program
     private sealed class CacatacInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (CacatacInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (CacatacInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Cacatac mechanics ${address:X6}.");
+                    $"Production read compiled Cacatac instruction ${address:X6}.");
             }
 
+            return source.ReadByte(address);
+        }
+
+        private static bool IsCompiledPresentationByte(int address)
+        {
             if ((address & 0xff0000) == 0xa20000)
             {
                 ushort bankAddress = unchecked((ushort)address);
@@ -199,13 +206,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        return true;
                     }
                 }
             }
 
-            return source.ReadByte(address);
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

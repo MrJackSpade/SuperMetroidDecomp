@@ -209,8 +209,8 @@ health, and AI are unchanged by these tile/color edits. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
-The same directory contains `enemy-compositions.json` with named Boyon idle and
-bounce frames. Copy it to `overrides/enemy-tiles/` to edit a frame's ordered OAM
+The same directory contains `enemy-compositions.json` with named Boyon and
+Cacatac idle/attack frames. Copy it to `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
 `flipX`, or `flipY`. Frame timing and selection, enemy hitboxes, movement, and
 damage remain engine-owned. The stock JSON is hash-checked; malformed overrides

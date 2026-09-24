@@ -2564,6 +2564,15 @@ public sealed partial class RoomEnemySystem
             paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
 
+    private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
+    {
+        if (slot.EnemyDefinitionPointer == BoyonDefinition)
+            return EnemySpritemapDefinitions.BoyonFrameAt(operandAddress);
+        if (slot.EnemyDefinitionPointer == CacatacDefinition)
+            return EnemySpritemapDefinitions.CacatacFrameAt(operandAddress);
+        return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
+    }
+
     private void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -2588,12 +2597,8 @@ public sealed partial class RoomEnemySystem
             if ((word & 0x8000) == 0)
             {
                 slot.InstructionTimer = word;
-                slot.SpritemapPointer =
-                    slot.EnemyDefinitionPointer == BoyonDefinition
-                        ? EnemySpritemapDefinitions.BoyonFrameAt(
-                            unchecked((ushort)(cursor + 2)))
-                        : ReadWord(_bus!, (slot.Definition.Bank << 16) |
-                            unchecked((ushort)(cursor + 2)));
+                slot.SpritemapPointer = ReadEnemyVisualSelector(slot,
+                    unchecked((ushort)(cursor + 2)));
                 slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

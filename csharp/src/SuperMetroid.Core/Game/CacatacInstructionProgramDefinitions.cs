@@ -6,7 +6,8 @@ internal readonly record struct CacatacInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Cacatac's upright and inverted idle/attack programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved visual selectors are compiled separately in
+/// <see cref="Assets.EnemySpritemapDefinitions"/>.
 /// </summary>
 internal static class CacatacInstructionProgramDefinitions
 {
@@ -14,14 +15,14 @@ internal static class CacatacInstructionProgramDefinitions
     /// <c>InstList_Cacatac_UpsideUp_Idling</c> at $A2:9E8A-$A2:9EAF.
     /// Its $A095 moving-left/right instruction precedes eight animation durations:
     /// the word at $9E8C + 4*i is exactly $0008 for i = 0..7. Each duration is
-    /// followed by a live spritemap operand. The $80ED goto at $9EAC targets
+    /// followed by a fixed visual selector. The $80ED goto at $9EAC targets
     /// $9E8A, so every idle cycle re-executes the moving-left/right instruction.
     /// </summary>
     internal const ushort UpsideUpIdle = 0x9e8a;
     /// <summary>
     /// <c>InstList_Cacatac_UpsideUp_Attacking</c> at $A2:9EB0-$A2:9ED9.
     /// Four opening duration words at base + 4*i are $0015, $0005, $0015,
-    /// $0005 for i = 0..3, each followed by a live spritemap operand.
+    /// $0005 for i = 0..3, each followed by a fixed visual selector.
     /// At base + $10 the $9F2A sound command precedes five $A0A7 spike
     /// commands at base + $12 + 4*i for i = 0..4. Their authored direction
     /// selectors are left-facing-up, up-left, up, up-right, right-facing-up.
@@ -32,7 +33,7 @@ internal static class CacatacInstructionProgramDefinitions
     /// <c>InstList_Cacatac_UpsideDown_Idling_0</c> at $A2:9EDA-$A2:9EFF.
     /// Its initial $A095 moving-left/right instruction is executed once before
     /// the eight-pose loop. The duration word at $9EDC + 4*i is exactly $0008
-    /// for i = 0..7, with a live spritemap operand after each duration.
+    /// for i = 0..7, with a fixed visual selector after each duration.
     /// The $80ED goto at $9EFC targets <see cref="UpsideDownIdleLoop"/>.
     /// </summary>
     internal const ushort UpsideDownIdle = 0x9eda;
@@ -99,7 +100,7 @@ internal static class CacatacInstructionProgramDefinitions
     ];
 
     /// <summary>
-    /// Live spritemap operand addresses in the four $A2 Cacatac lists.
+    /// Compiled visual-selector operand addresses in the four $A2 Cacatac lists.
     /// In the two idle lists, pose i = 0..7 uses address $9E8E + 4*i
     /// upright or $9EDE + 4*i inverted. The pinned cartridge stores
     /// spritemap pointer $A0BB + $20*i or $A223 + $20*i respectively;
@@ -108,7 +109,8 @@ internal static class CacatacInstructionProgramDefinitions
     /// upright or $9F02 + 4*i inverted. Upright pointers follow the authored
     /// sequence {$A0BB, $A1BB, $A1EF, $A1BB}; inverted pointers are each
     /// $0168 higher. The repeated second pose is part of the sequence.
-    /// These operands remain live presentation data, not compiled mechanics.
+    /// The address sequence is compiled in EnemySpritemapDefinitions rather than
+    /// exposed as editable instruction control.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [

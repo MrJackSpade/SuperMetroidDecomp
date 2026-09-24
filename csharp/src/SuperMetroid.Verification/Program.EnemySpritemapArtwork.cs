@@ -7,7 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyInstalledBoyonSpritemaps(
+    private static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {
@@ -36,6 +36,16 @@ internal static partial class Program
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed {frame.Name} OAM matches native at {x:X4},{y:X4}");
             }
+            var room = DrawEnemy(stock, new FrameReadGuard(rom), frame.Pointer,
+                frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
+                    ? RoomEnemySystem.BoyonDefinition
+                    : RoomEnemySystem.CacatacDefinition);
+            var nativeRoom = new OamBuffer();
+            nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
+                0x0040, 0x0080, 0, 0);
+            AssertTrue(room.LowTable.SequenceEqual(nativeRoom.LowTable) &&
+                       room.HighTable.SequenceEqual(nativeRoom.HighTable),
+                $"production room draws installed {frame.Name} without visual ROM reads");
         }
 
         string fileName = EnemySpritemapDefinitions.FileName;
@@ -55,6 +65,11 @@ internal static partial class Program
             OffsetX = originalPart.OffsetX + 1,
             TileColumn = originalPart.TileColumn + 1,
         };
+        SpriteVisualPart cacatacPart = document.Frames["cacatac_upright_idle_0"][0];
+        document.Frames["cacatac_upright_idle_0"][0] = cacatacPart with
+        {
+            OffsetY = cacatacPart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -63,14 +78,26 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         ushort framePointer = EnemySpritemapDefinitions.BoyonFrameAt(0x86ad);
-        var stockOam = DrawBoyon(stock, new FrameReadGuard(rom), framePointer);
-        var editedOam = DrawBoyon(edited, new FrameReadGuard(rom), framePointer);
+        var stockOam = DrawEnemy(stock, new FrameReadGuard(rom), framePointer,
+            RoomEnemySystem.BoyonDefinition);
+        var editedOam = DrawEnemy(edited, new FrameReadGuard(rom), framePointer,
+            RoomEnemySystem.BoyonDefinition);
         AssertEqual(unchecked((byte)(stockOam.LowTable[0] + 1)),
             editedOam.LowTable[0], "authored Boyon X offset changes live room OAM");
         AssertEqual(unchecked((byte)(stockOam.LowTable[2] + 1)),
             editedOam.LowTable[2], "authored Boyon tile changes live room OAM");
         AssertEqual(stockOam.LowTable[1], editedOam.LowTable[1],
             "visual override leaves Boyon Y unchanged");
+        ushort cacatacPointer = EnemySpritemapDefinitions.CacatacFrameAt(0x9e8e);
+        var stockCacatac = DrawEnemy(stock, new FrameReadGuard(rom),
+            cacatacPointer, RoomEnemySystem.CacatacDefinition);
+        var editedCacatac = DrawEnemy(edited, new FrameReadGuard(rom),
+            cacatacPointer, RoomEnemySystem.CacatacDefinition);
+        AssertEqual(unchecked((byte)(stockCacatac.LowTable[1] + 1)),
+            editedCacatac.LowTable[1],
+            "authored Cacatac Y offset changes live room OAM");
+        AssertEqual(stockCacatac.LowTable[0], editedCacatac.LowTable[0],
+            "Cacatac visual override leaves X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
@@ -83,8 +110,8 @@ internal static partial class Program
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "malformed enemy composition override fails loudly");
 
-        static OamBuffer DrawBoyon(EnemyTileArtworkCatalog art,
-            ISnesAddressSpace guard, ushort pointer)
+        static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,
+            ISnesAddressSpace guard, ushort pointer, ushort definition)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -92,7 +119,7 @@ internal static partial class Program
                 .GetField("_drawQueues", flags)!.GetValue(enemies)!;
             queues[0].Add(0);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.BoyonDefinition;
+            slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with
                 { Bank = EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
@@ -108,9 +135,10 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
-            if (address is >= 0xa288da and < 0xa2890b)
+            if (address is >= 0xa288da and < 0xa2890b or
+                >= 0xa2a0bb and < 0xa2a377)
                 throw new InvalidOperationException(
-                    $"Installed Boyon draw read native visual byte ${address:X6}.");
+                    $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);
         }
 

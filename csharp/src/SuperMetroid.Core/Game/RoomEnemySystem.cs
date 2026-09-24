@@ -1033,11 +1033,14 @@ public sealed partial class RoomEnemySystem
             // adding the native eight-row OBJ bias. Retail records use values zero through
             // seven, but retaining the wider mask makes corrupt data fail visibly.
             int destinationColor = ((vramDestination & 0x00ff) + 8) * 16;
-            cgram.LoadFromBus(
-                bus,
-                (definition.Bank << 16) | definition.PalettePointer,
-                colorCount: 16,
-                destinationIndex: destinationColor);
+            if (TileArtwork is { } installedColors)
+                installedColors.LoadPaletteTo(definitionPointer, cgram, destinationColor);
+            else
+                cgram.LoadFromBus(
+                    bus,
+                    (definition.Bank << 16) | definition.PalettePointer,
+                    colorCount: 16,
+                    destinationIndex: destinationColor);
 
             int byteCount = definition.TileDataSize & 0x7fff;
             int stagingOffset = (definition.TileDataSize & 0x8000) != 0

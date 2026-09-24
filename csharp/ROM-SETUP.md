@@ -50,7 +50,7 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
-- `game/enemy-tiles/`: 122 stock indexed ordinary enemy tile sheets and their manifest.
+- `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes, and their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
@@ -196,13 +196,15 @@ files or `room-characters.json`: stock hashes are validated and repaired from th
 installed ROM, while overrides survive repair and updates. Invalid override PNGs
 produce a path-specific load error rather than silently falling back to stock.
 
-Ordinary room-enemy tile uploads have their own sheets in `game/enemy-tiles/`.
-Each `enemy-XXXX-tiles.png` is identified by the enemy definition's stable
-four-digit cartridge ID. Copy a sheet to `overrides/enemy-tiles/` with the same
-name and edit its indexed pixels (0..15); the diagnostic PNG palette is only a
-preview. Stock files and `enemy-tiles.json` are regenerated and hash-checked;
-the override survives repair and updates. Enemy VRAM placement, colors,
-spritemaps, hitboxes, health, and AI are unchanged by a tile edit. This covers
+Ordinary room-enemy tile uploads and OBJ colors have their own files in
+`game/enemy-tiles/`. Each `enemy-XXXX-tiles.png` and matching
+`enemy-XXXX-colors.json` pair is identified by the enemy definition's stable
+four-digit cartridge ID. Copy either file to `overrides/enemy-tiles/` with the
+same name. PNG pixels must remain indexed 0..15; its diagnostic PNG palette is
+only a preview. The JSON contains exactly sixteen RGB5 colors, each channel
+0..31. Stock files and `enemy-tiles.json` are regenerated and hash-checked;
+overrides survive repair and updates. Enemy VRAM/CGRAM destinations,
+spritemaps, hitboxes, health, and AI are unchanged by visual edits. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.

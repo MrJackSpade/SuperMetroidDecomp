@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using System.Text.Json;
 
 internal static partial class Program
 {
@@ -34,6 +35,13 @@ internal static partial class Program
                 stock.LoadTo(pointer, byteCount, vram, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${pointer:X4} PNG preserves every native tile byte");
+                var nativeCgram = new SnesCgram();
+                var installedCgram = new SnesCgram();
+                nativeCgram.LoadFromBus(bus, (definition.Bank << 16) | definition.PalettePointer,
+                    EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
+                stock.LoadPaletteTo(pointer, installedCgram, 8 * 16);
+                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                    $"enemy ${pointer:X4} RGB5 JSON preserves all native palette slots");
             }
 
             string editedFile = files[0];
@@ -66,6 +74,34 @@ internal static partial class Program
             AssertTrue(reloadedVram.Bytes.SequenceEqual(editedVram.Bytes),
                 "enemy override survives content reload without modifying stock PNG");
 
+            string stockPalettePath = Path.Combine(directory,
+                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+            EnemyPaletteSheetDocument paletteDocument = JsonSerializer.Deserialize<EnemyPaletteSheetDocument>(
+                File.ReadAllBytes(stockPalettePath),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            PaletteRgb5[] editedColors = (PaletteRgb5[])paletteDocument.Colors.Clone();
+            editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
+            string paletteOverridePath = Path.Combine(overrideDirectory,
+                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+            File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheet.Write(
+                new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
+            EnemyTileArtworkCatalog editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            var originalColors = new SnesCgram();
+            var changedColors = new SnesCgram();
+            stock.LoadPaletteTo(editedPointer, originalColors, 8 * 16);
+            editedPalette.LoadPaletteTo(editedPointer, changedColors, 8 * 16);
+            AssertEqual((ushort)(originalColors.Colors[128] ^ 1), changedColors.Colors[128],
+                "RGB5 override changes its selected enemy palette channel");
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                if (color != 128)
+                    AssertEqual(originalColors.Colors[color], changedColors.Colors[color],
+                        "enemy palette edit leaves all other CGRAM slots unchanged");
+            var reloadedColors = new SnesCgram();
+            EnemyTileArtworkFiles.Load(directory, overrideDirectory)
+                .LoadPaletteTo(editedPointer, reloadedColors, 8 * 16);
+            AssertTrue(reloadedColors.Colors.SequenceEqual(changedColors.Colors),
+                "enemy palette override survives catalog reload");
+
             byte[] original = File.ReadAllBytes(editedFile);
             File.WriteAllBytes(editedFile, new byte[] { 0 });
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
@@ -74,11 +110,22 @@ internal static partial class Program
             File.WriteAllBytes(overridePath, new byte[] { 0 });
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                 "malformed enemy override fails loudly");
+            File.WriteAllBytes(overridePath, File.ReadAllBytes(editedFile));
+            File.WriteAllBytes(paletteOverridePath, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                "malformed enemy palette override fails loudly");
+            File.WriteAllText(paletteOverridePath, "{\"version\":1,\"version\":1,\"colors\":[]}");
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                "duplicate enemy palette keys fail loudly");
+            editedColors[0] = editedColors[0] with { Red = 32 };
+            AssertThrows<InvalidDataException>(() => EnemyPaletteSheet.Write(
+                    new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }),
+                "RGB5 palette channel outside native five-bit precision is rejected");
         }
         finally
         {
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
-        Console.WriteLine("  Enemy tile artwork: 122 retail sheets, exact bytes, pixel override, persistence, and invalid resources pass.");
+        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, exact bytes, pixel/RGB5 overrides, persistence, and invalid resources pass.");
     }
 }

@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -55,8 +56,39 @@ public static class EnemyTileArtworkFiles
                     throw new InvalidDataException($"Enemy ${definitionPointer:X4} tile PNG changed native pixels.");
 
                 File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
+                byte[] nativeColors = RomDataReader.ReadFixedBank(bus,
+                    (definition.Bank << 16) | definition.PalettePointer,
+                    EnemyPaletteSheet.ColorCount * sizeof(ushort));
+                var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+                for (int color = 0; color < colors.Length; color++)
+                {
+                    ushort word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
+                    if ((word & 0x8000) != 0)
+                        throw new InvalidDataException($"Enemy ${definitionPointer:X4} palette has an unrepresentable high bit.");
+                    colors[color] = new PaletteRgb5
+                    {
+                        Red = word & 31,
+                        Green = word >> 5 & 31,
+                        Blue = word >> 10 & 31,
+                    };
+                }
+                byte[] paletteJson = EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                {
+                    Version = 1,
+                    Colors = colors,
+                });
+                var nativeCgram = new SnesCgram();
+                var compiledCgram = new SnesCgram();
+                nativeCgram.LoadBytes(nativeColors);
+                EnemyPaletteSheet.Load(new MemoryStream(paletteJson, writable: false))
+                    .LoadTo(compiledCgram, 0);
+                if (!nativeCgram.Colors.SequenceEqual(compiledCgram.Colors))
+                    throw new InvalidDataException($"Enemy ${definitionPointer:X4} palette JSON changed native colors.");
+                File.WriteAllBytes(Path.Combine(directory,
+                    EnemyTileArtworkFormat.PaletteFileName(definitionPointer)), paletteJson);
                 entries.Add(definitionPointer, new EnemyTileFileEntry(
-                    byteCount, Convert.ToHexString(SHA256.HashData(encoded))));
+                    byteCount, Convert.ToHexString(SHA256.HashData(encoded)),
+                    Convert.ToHexString(SHA256.HashData(paletteJson))));
             }
         }
         if (entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount)
@@ -92,6 +124,7 @@ public static class EnemyTileArtworkFiles
         ValidateDefinitionIds(manifest.Entries.Keys);
 
         var sheets = new Dictionary<ushort, RoomCharacterAtlas>();
+        var palettes = new Dictionary<ushort, EnemyPaletteSheet>();
         foreach ((ushort definitionPointer, EnemyTileFileEntry entry) in manifest.Entries)
         {
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
@@ -113,8 +146,28 @@ public static class EnemyTileArtworkFiles
             {
                 throw new InvalidDataException($"Invalid enemy tile PNG {selectedPath}: {error.Message}", error);
             }
+            string paletteName = EnemyTileArtworkFormat.PaletteFileName(definitionPointer);
+            string stockPalettePath = Path.Combine(stockDirectory, paletteName);
+            byte[] stockPalette = File.ReadAllBytes(stockPalettePath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockPalette)), entry.PaletteSha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Stock enemy palette {stockPalettePath} failed its manifest hash.");
+            string? paletteOverridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, paletteName);
+            string selectedPalettePath = paletteOverridePath is not null && File.Exists(paletteOverridePath)
+                ? paletteOverridePath : stockPalettePath;
+            try
+            {
+                byte[] selected = selectedPalettePath == stockPalettePath
+                    ? stockPalette : File.ReadAllBytes(selectedPalettePath);
+                palettes.Add(definitionPointer, EnemyPaletteSheet.Load(
+                    new MemoryStream(selected, writable: false)));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid enemy palette {selectedPalettePath}: {error.Message}", error);
+            }
         }
-        return new EnemyTileArtworkCatalog(sheets);
+        return new EnemyTileArtworkCatalog(sheets, palettes);
     }
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
@@ -131,5 +184,5 @@ public static class EnemyTileArtworkFiles
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<ushort, EnemyTileFileEntry> Entries);
 
-    private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256);
+    private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

@@ -9,11 +9,17 @@ namespace SuperMetroid.Core.Assets;
 public sealed class EnemyTileArtworkCatalog
 {
     private readonly Dictionary<ushort, RoomCharacterAtlas> sheets;
+    private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
 
-    public EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets)
+    public EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
+        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes)
     {
         ArgumentNullException.ThrowIfNull(sheets);
+        ArgumentNullException.ThrowIfNull(palettes);
+        if (sheets.Count != palettes.Count || sheets.Keys.Any(pointer => !palettes.ContainsKey(pointer)))
+            throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
         this.sheets = new Dictionary<ushort, RoomCharacterAtlas>(sheets);
+        this.palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
     }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
@@ -26,13 +32,21 @@ public sealed class EnemyTileArtworkCatalog
                 $"Enemy ${definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Transfer.Length}.");
         atlas.LoadTo(vram, destinationByteAddress);
     }
+
+    /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
+    public void LoadPaletteTo(ushort definitionPointer, SnesCgram cgram, int destinationColor)
+    {
+        if (!palettes.TryGetValue(definitionPointer, out EnemyPaletteSheet? palette))
+            throw new InvalidDataException($"Enemy ${definitionPointer:X4} has no installed palette.");
+        palette.LoadTo(cgram, destinationColor);
+    }
 }
 
 /// <summary>Host-file geometry for native four-bit enemy tile DMA sheets.</summary>
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
     /// <summary>
@@ -44,4 +58,5 @@ public static class EnemyTileArtworkFormat
         "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
 
     public static string FileName(ushort definitionPointer) => $"enemy-{definitionPointer:X4}-tiles.png";
+    public static string PaletteFileName(ushort definitionPointer) => $"enemy-{definitionPointer:X4}-colors.json";
 }

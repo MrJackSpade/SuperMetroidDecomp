@@ -47,6 +47,9 @@ internal static partial class Program
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
                 Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-tiles.png").Length,
                 "full installer publishes all retail enemy sheets");
+            AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
+                Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-colors.json").Length,
+                "full installer publishes all retail enemy palettes");
             _ = installed.LoadEnemyTiles();
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);

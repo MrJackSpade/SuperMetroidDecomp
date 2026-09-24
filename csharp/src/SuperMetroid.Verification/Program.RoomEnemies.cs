@@ -146,10 +146,11 @@ static void VerifyRoomEnemyLoading()
     // cartridge tile sources are forbidden. The second definition exercises the native
     // high-bit staging branch, so a single hard-coded destination cannot pass.
     var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
-    foreach ((ushort pointer, int source, int byteCount) in new[]
+    var stockColors = new Dictionary<ushort, EnemyPaletteSheet>();
+    foreach ((ushort pointer, int source, int byteCount, int paletteSource) in new[]
              {
-                 (primaryDefinitionPointer, 0xa29100, 0x40),
-                 (specialDefinitionPointer, 0xa39320, 0x20),
+                 (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
+                 (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
              })
     {
         byte[] planar = Enumerable.Range(0, byteCount)
@@ -160,10 +161,24 @@ static void VerifyRoomEnemyLoading()
         using var png = new MemoryStream();
         IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
+        var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+        for (int color = 0; color < palette.Length; color++)
+        {
+            ushort word = (ushort)(bus.ReadByte(paletteSource + color * 2) |
+                bus.ReadByte(paletteSource + color * 2 + 1) << 8);
+            palette[color] = new PaletteRgb5
+            {
+                Red = word & 31,
+                Green = word >> 5 & 31,
+                Blue = word >> 10 & 31,
+            };
+        }
+        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
+            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
     var installedEnemies = new RoomEnemySystem
     {
-        TileArtwork = new EnemyTileArtworkCatalog(stockSheets),
+        TileArtwork = new EnemyTileArtworkCatalog(stockSheets, stockColors),
     };
     var installedVram = new SnesVram();
     var installedCgram = new SnesCgram();
@@ -180,7 +195,8 @@ static void VerifyRoomEnemyLoading()
     AssertEqual(slot.Definition.XRadius, installedEnemies.Slots[0].Definition.XRadius,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
-        new EnemyTileArtworkCatalog(new Dictionary<ushort, RoomCharacterAtlas>())
+        new EnemyTileArtworkCatalog(new Dictionary<ushort, RoomCharacterAtlas>(),
+            new Dictionary<ushort, EnemyPaletteSheet>())
             .LoadTo(primaryDefinitionPointer, 0x40, new SnesVram(), 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
@@ -216,7 +232,8 @@ private sealed class EnemyTileSourceReadGuard(ISnesAddressSpace source) : ISnesA
 {
     public byte ReadByte(int address)
     {
-        if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340)
+        if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or
+            >= 0xa29000 and < 0xa29020 or >= 0xa39300 and < 0xa39320)
             throw new InvalidDataException($"Installed enemy tile upload read ROM ${address:X6}.");
         return source.ReadByte(address);
     }

@@ -47,7 +47,10 @@ public static class LandingSiteStreamingData
         creDefinitions.CopyTo(combinedDefinitions, 0);
         areaDefinitions.CopyTo(combinedDefinitions, creDefinitions.Length);
 
-        byte[] levelStream = DecompressExact(bus, RoomAssetRomData.LandingSite.LevelData);
+        byte[] levelStream = visualLayouts is null
+            ? DecompressExact(bus, RoomAssetRomData.LandingSite.LevelData)
+            : RoomLevelStreamDefinitions.Get(RoomAssetRomData.LandingSite.LevelData.Address)
+                .ToArray();
         if (levelStream.Length < 2)
             throw new InvalidDataException("Landing Site level stream has no layer-size word.");
         int declaredLayerBytes = BinaryPrimitives.ReadUInt16LittleEndian(levelStream);

@@ -4,5 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Frontend/SuperMetroid.defaults.ini" LogicalName="SuperMetroid.defaults.ini" />
+    <EmbeddedResource Include="Rooms/RoomLevelStreams.bin" LogicalName="SuperMetroid.RoomLevelStreams.bin" />
   </ItemGroup>
 </Project>

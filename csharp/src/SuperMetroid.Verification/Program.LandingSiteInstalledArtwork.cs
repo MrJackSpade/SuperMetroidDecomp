@@ -20,8 +20,10 @@ internal static partial class Program
         RoomSkyTilemapCatalog stockSky)
     {
         var guard = new LandingVisualSourceReadGuard(bus);
+        RoomVisualLayoutCatalog stockLayouts = installation.LoadRoomVisualLayouts();
         RoomLevelData nativeLevel = LandingSiteStreamingData.LoadLevel(bus);
-        RoomLevelData installedLevel = LandingSiteStreamingData.LoadLevel(guard, stockBlocks);
+        RoomLevelData installedLevel = LandingSiteStreamingData.LoadLevel(guard, stockBlocks,
+            stockLayouts);
         AssertTrue(nativeLevel.ForegroundEntries.Span.SequenceEqual(installedLevel.ForegroundEntries.Span) &&
             nativeLevel.BehaviorBytes.Span.SequenceEqual(installedLevel.BehaviorBytes.Span) &&
             nativeLevel.BackgroundEntries.Span.SequenceEqual(installedLevel.BackgroundEntries.Span) &&
@@ -29,7 +31,7 @@ internal static partial class Program
             "Landing Site installed blocks preserve every native level and visual word");
 
         RoomLevelData editedLevel = LandingSiteStreamingData.LoadLevel(
-            guard, installation.LoadRoomMetatiles());
+            guard, installation.LoadRoomMetatiles(), stockLayouts);
         AssertTrue(!nativeLevel.BlockDefinitions.Span.SequenceEqual(
                 editedLevel.BlockDefinitions.Span) &&
             nativeLevel.ForegroundEntries.Span.SequenceEqual(editedLevel.ForegroundEntries.Span) &&
@@ -79,6 +81,7 @@ internal static partial class Program
                 InRange(address, RoomAssetRomData.LandingSite.AreaBlockDefinitions) ||
                 InRange(address, RoomAssetRomData.LandingSite.CreCharacters) ||
                 InRange(address, RoomAssetRomData.LandingSite.AreaCharacters) ||
+                address == RoomAssetRomData.LandingSite.LevelData.Address ||
                 address >= RoomSkyTilemapFormat.FirstSourceAddress &&
                     address < RoomSkyTilemapFormat.FirstSourceAddress +
                         RoomSkyTilemapFormat.TotalByteCount)

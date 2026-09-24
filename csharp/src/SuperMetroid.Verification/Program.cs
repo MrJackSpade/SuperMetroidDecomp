@@ -1539,6 +1539,11 @@ if (args is ["--generate-space-pirate-collision"])
     GenerateSpacePirateCollisionDefinitions();
     return 0;
 }
+if (args is ["--generate-room-level-stream-corpus"])
+{
+    GenerateRoomLevelStreamCorpus();
+    return 0;
+}
 if (args is ["--verify-space-pirate-collision"])
 {
     VerifySpacePirateCollisionDefinitions();

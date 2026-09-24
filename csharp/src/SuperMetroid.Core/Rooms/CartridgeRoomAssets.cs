@@ -78,7 +78,12 @@ public sealed class CartridgeRoomAssets
                 "bytes of block definitions; native blocks are eight bytes each.");
         }
 
-        byte[] levelStream = RomDataReader.Decompress(bus, header.State.CompressedLevelDataAddress);
+        // Installed visual layouts imply a retail room source. Its collision/BTS and
+        // native overread allocation are immutable application data; only the low
+        // visual tile bits come from the separately replaceable layout catalog.
+        byte[] levelStream = visualLayouts is null
+            ? RomDataReader.Decompress(bus, header.State.CompressedLevelDataAddress)
+            : RoomLevelStreamDefinitions.Get(header.State.CompressedLevelDataAddress).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
             visualLayouts?.Get(header.State.CompressedLevelDataAddress));
         RoomScrollGrid scrolls = LoadScrolls(bus, header);

@@ -296,6 +296,12 @@ exported as zero visual references. The renderer receives edited references,
 while collision, BTS, slopes, hazards and subsequent PLM block writes continue
 to use the unmodified native level allocation. Stock files are hash-checked;
 overrides survive stock repair and invalid values fail with the offending path.
+For all 246 retail level sources, that collision/BTS and streaming baseline is
+bundled as immutable application data. Installed desktop and Android room loads
+do not decompress these level streams from the ROM. The separate JSON override
+changes only rendered visual words; it cannot modify the bundled physical
+allocation or the native overread tail. Development verifiers can still read the
+pinned ROM to compare every bundled byte with its original source.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,
@@ -306,7 +312,7 @@ changing the rule keys, shape, count, or unused operands is rejected. The
 visual indices may be 0..4095, but each selected metatile must exist in the
 room's combined CRE/area block definitions when X-ray is used. The compiled
 cartridge lookup still determines whether a block is revealed, how many
-blocks are copied, extension traversal, and Brinstar-only behavior. The
+blocks are copied, extension traversal, and Brinstar-only behavior.
 The same file contains eight `itemMetatiles` (the four rotating item graphics
 slots followed by four fixed slots) and `rooms` with special reveal tiles.
 Each room tile's `x`, `y`, and `word` are visual-only: the first two are block

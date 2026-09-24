@@ -18,10 +18,27 @@ internal static partial class Program
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailSources.Count,
             "distinct pinned room-level visual sources");
+        AssertEqual(RoomVisualLayoutFiles.RetailSources.Count, RoomLevelStreamDefinitions.Count,
+            "compiled room-level source count");
+        AssertTrue(RoomLevelStreamDefinitions.SourceSha256.Span.SequenceEqual(
+                SupportedCartridge.CreateSha256Digest()),
+            "compiled room-level corpus records the pinned cartridge provenance");
+        try
+        {
+            _ = RoomLevelStreamDefinitions.Get(0);
+            throw new InvalidOperationException("Unknown compiled room-level source was accepted.");
+        }
+        catch (InvalidDataException error)
+        {
+            AssertTrue(error.Message.Contains("lacks source", StringComparison.Ordinal),
+                "unknown compiled room-level source fails without ROM fallback");
+        }
         foreach ((int source, int width) in RoomVisualLayoutFiles.RetailSources)
         {
             RoomVisualLayout layout = stock.Get(source);
             byte[] native = RomDataReader.Decompress(bus, source);
+            AssertTrue(native.AsSpan().SequenceEqual(RoomLevelStreamDefinitions.Get(source).Span),
+                $"compiled room-level source ${source:X6} matches every native allocation byte");
             int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
@@ -58,9 +75,11 @@ internal static partial class Program
         File.WriteAllText(overridePath, document.ToJsonString());
 
         CartridgeRoomAssets nativeRoom = CartridgeRoomAssets.Load(bus, landing);
-        CartridgeRoomAssets stockRoom = CartridgeRoomAssets.Load(bus, landing,
+        CartridgeRoomAssets stockRoom = CartridgeRoomAssets.Load(
+            new RoomLevelCorpusReadGuard(bus, landingSource), landing,
             visualLayouts: stock);
-        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(bus, landing,
+        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(
+            new RoomLevelCorpusReadGuard(bus, landingSource), landing,
             visualLayouts: installed.LoadRoomVisualLayouts());
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
@@ -97,6 +116,25 @@ internal static partial class Program
         AssertTrue(!nativeBg2.FirstHalves.AsSpan().SequenceEqual(editedBg2.FirstHalves),
             "edited BG2 layout changes the live renderer's first row");
 
+        // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes
+        // an extra physical row beyond its camera. Both must survive the corpus path.
+        foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
+        {
+            CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, pointer);
+            CartridgeRoomAssets nativeOther = CartridgeRoomAssets.Load(bus, room);
+            CartridgeRoomAssets compiledOther = CartridgeRoomAssets.Load(
+                new RoomLevelCorpusReadGuard(bus, room.State.CompressedLevelDataAddress), room,
+                visualLayouts: stock);
+            AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
+                    compiledOther.LevelData.ForegroundEntries.Span) &&
+                nativeOther.LevelData.BehaviorBytes.Span.SequenceEqual(
+                    compiledOther.LevelData.BehaviorBytes.Span) &&
+                nativeOther.LevelData.BackgroundEntries.Span.SequenceEqual(
+                    compiledOther.LevelData.BackgroundEntries.Span) &&
+                nativeOther.LevelData.HeightInBlocks == compiledOther.LevelData.HeightInBlocks,
+                $"compiled room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
+        }
+
         // Existing user content is outside the replaceable stock installation. Reimport
         // must retain the selected visual word while native collision remains unchanged.
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
@@ -105,6 +143,7 @@ internal static partial class Program
             installed.LoadRoomVisualLayouts().Get(landingSource).ForegroundVisualWords.Span[0],
             "room-layout override survives stock installation validation");
 
+        int editedForegroundWord = foregroundWords[0]!.GetValue<int>();
         foregroundWords[0] = 0x8000;
         File.WriteAllText(overridePath, document.ToJsonString());
         try
@@ -117,7 +156,21 @@ internal static partial class Program
             AssertTrue(error.Message.Contains(name, StringComparison.Ordinal),
                 "invalid visual-layout override identifies its file");
         }
+        foregroundWords[0] = editedForegroundWord;
+        File.WriteAllText(overridePath, document.ToJsonString());
         Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailSources.Count} native sources match stock JSON; " +
-            "BG1/BG2 edits affect rendering but not collision/BTS, survive repair, and reject collision bits.");
+            "compiled level bytes and guarded room loads retain collision/BTS while BG1/BG2 edits " +
+            "affect only rendering, survive repair, and reject collision bits.");
+    }
+
+    private sealed class RoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource)
+        : ISnesAddressSpace
+    {
+        public byte ReadByte(int address) => address == levelSource
+            ? throw new InvalidOperationException(
+                $"Installed room reread native level source ${address:X6}.")
+            : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

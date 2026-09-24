@@ -1807,17 +1807,21 @@ public sealed partial class RoomPlmSystem
             bus.ReadByte(Bank84(address)) |
             (bus.ReadByte(Bank84(unchecked((ushort)(address + 1)))) << 8)));
 
-    // Instruction control is compiled independently of PLM draw-list payloads. The
-    // latter still use ReadBank84Word in DrawRomInstruction until their visual and
-    // collision effects are separated for editable room-object resources.
+    // Instruction control is compiled independently of PLM draw-list payloads. A
+    // compiled family claims only its own exact control addresses; all other bank-$84
+    // programs continue through the cartridge interpreter.
     private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
             ? value
+            : RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte(address, out byte value)
             ? value
+            : RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
             : bus.ReadByte(Bank84(address));
 
     /// <summary>Explicit CPU-bus boundary for native bank-$84 PLM pointers.</summary>

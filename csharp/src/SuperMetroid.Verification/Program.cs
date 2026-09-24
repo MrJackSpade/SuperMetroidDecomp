@@ -897,6 +897,11 @@ if (args is ["--shot-block-plm-programs"])
     VerifyShotBlockPlmPrograms();
     return 0;
 }
+if (args is ["--grapple-block-programs"])
+{
+    VerifyGrappleBlockPrograms();
+    return 0;
+}
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(

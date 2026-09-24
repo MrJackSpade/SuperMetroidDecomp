@@ -293,8 +293,9 @@ static void VerifyBreakableGrapplePlms()
     // branches to Sleep; with Bombs it consumes the target and reaches Delete inline.
     // Exercising both results proves the shared interpreter reads CollectedItems rather
     // than treating this as a room-specific or equipped-item condition.
-    bus.WriteBytes(0x84cd6a, [
-        0x6f, 0xba, 0x72, 0xcd,
+    const ushort instructionProbe = 0xf200;
+    bus.WriteBytes(0x840000 | instructionProbe, [
+        0x6f, 0xba, 0x08, 0xf2,
         0xbc, 0x86,
         0x00, 0x00,
         0xb4, 0x86,
@@ -304,6 +305,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(noBombsBranchPlms.TrySpawnBreakableGrappleBlock(
         noBombsBranchLevel, blockIndex, 1),
         "no-Bombs branch fixture occupies a PLM slot");
+    noBombsBranchPlms.SetSoleInstructionPointerForVerification(instructionProbe);
     noBombsBranchPlms.Step(
         bus,
         noBombsBranchLevel,
@@ -324,6 +326,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(bombsBranchPlms.TrySpawnBreakableGrappleBlock(
         bombsBranchLevel, blockIndex, 1),
         "Bombs branch fixture occupies a PLM slot");
+    bombsBranchPlms.SetSoleInstructionPointerForVerification(instructionProbe);
     bombsBranchPlms.Step(
         bus,
         bombsBranchLevel,
@@ -341,12 +344,13 @@ static void VerifyBreakableGrapplePlms()
 
     // Any high-bit word is dispatched as native code. An unknown routine must stop at the
     // interpreter boundary instead of being skipped or misread as a timer/draw record.
-    bus.WriteBytes(0x84cd6a, [0x00, 0x90]);
+    bus.WriteBytes(0x840000 | instructionProbe, [0x00, 0x90]);
     RoomLevelData unknownOpcodeLevel = CreateLevel(1, definitions);
     var unknownOpcodePlms = new RoomPlmSystem();
     AssertTrue(unknownOpcodePlms.TrySpawnBreakableGrappleBlock(
         unknownOpcodeLevel, blockIndex, 1),
         "uncatalogued-opcode fixture occupies a PLM slot");
+    unknownOpcodePlms.SetSoleInstructionPointerForVerification(instructionProbe);
     AssertThrows<InvalidDataException>(
         () => unknownOpcodePlms.Step(
             bus,

@@ -141,6 +141,11 @@ repeated across the two Mode-7 map halves; the PNG supplies the high-byte charac
 lane. These edits do not change ship/cloud sprites, palettes, explosion timing,
 camera transforms or scene handoffs. A restored debugger state rebinds the current
 files, retaining any flyaway chunks the cartridge has already uploaded.
+The reward-jump icon has its own `post-credits-icon-map.json` (128x128 tile
+references) and `post-credits-icon-characters.png` (128x128 indexed pixels)
+under `game/ending-mode7/`. The runtime interleaves these files for the original
+sixteen queued uploads; same-named files under `overrides/ending-mode7/` replace
+either half without changing the jump or shooting sequence.
 
 Eleven ending/credits character streams are installed under `game/ending-objects/`:
 `ending-cloud-characters.png`, `ending-explosion-objects.png`, and four

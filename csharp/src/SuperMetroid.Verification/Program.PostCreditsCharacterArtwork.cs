@@ -11,6 +11,7 @@ internal static partial class Program
     private static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
+        EndingMode7ArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroidAddressSpace(rom);
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
@@ -26,6 +27,7 @@ internal static partial class Program
             native.BindStaffCredits(credits);
             installed.BindStaffCredits(credits);
             installed.BindObjectArtwork(stock);
+            installed.BindMode7Artwork(stockMode7);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
             for (int frame = 0; frame < 60_000 &&
                 native.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
@@ -120,6 +122,8 @@ internal static partial class Program
                 editedState.BindStaffCredits(credits);
                 stockState.BindObjectArtwork(stock);
                 editedState.BindObjectArtwork(edited);
+                stockState.BindMode7Artwork(stockMode7);
+                editedState.BindMode7Artwork(stockMode7);
                 for (int frame = 0; frame < 60_000 && stockState.Phase != target; frame++)
                 {
                     AssertEqual(stockState.Phase, editedState.Phase,

@@ -216,7 +216,8 @@ internal static partial class Program
                 .Map.Span.SequenceEqual(selectedMap),
             "stock ending art repair preserves the external map override");
         File.Delete(invalidMapPath);
-        Console.WriteLine("Ending Mode-7 art: three native scenes, six visual files, guarded runtime and independent edits pass.");
+        VerifyEndingRewardIconArtwork(installation);
+        Console.WriteLine("Ending Mode-7 art: three native scenes plus the reward icon, guarded runtime and independent edits pass.");
     }
 
     private static (int Characters, int PackedMap) Sources(EndingMode7SceneId id) => id switch
@@ -241,7 +242,8 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.EscapeMapB or
                 EndingCreditsRomData.Assets.EscapeCharactersB or
                 EndingCreditsRomData.Assets.ExplosionMap or
-                EndingCreditsRomData.Assets.ExplosionCharacters)
+                EndingCreditsRomData.Assets.ExplosionCharacters or
+                EndingCreditsRomData.Assets.PostCreditsMode7Characters)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

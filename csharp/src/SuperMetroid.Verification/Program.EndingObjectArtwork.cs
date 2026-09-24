@@ -232,7 +232,8 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.SuitlessSamusCharacters or
                 EndingCreditsRomData.Assets.WaitingForCreditsTilemap or
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentA or
-                EndingCreditsRomData.Assets.PostCreditsTileFragmentB)
+                EndingCreditsRomData.Assets.PostCreditsTileFragmentB or
+                EndingCreditsRomData.Assets.PostCreditsMode7Characters)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException($"Ending OBJ reread cartridge source ${address:X6}.");

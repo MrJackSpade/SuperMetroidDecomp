@@ -49,6 +49,7 @@ internal sealed partial class EndingCreditsState
     private bool rewardCopyrightShown;
     private EndingRewardGesture? rewardGesture;
     private EndingRewardJump? rewardJump;
+    private EndingRewardGraphicsUpload? rewardGraphics;
     private EndingPostShot? postShot;
     private RoomPaletteFxSystem paletteFx = new();
     [NonSerialized] private EndingTextPresentation? endingText;
@@ -323,8 +324,8 @@ internal sealed partial class EndingCreditsState
                 if (rewardGesture.JumpRequested)
                 {
                     rewardGesture = null;
-                    var graphics = new EndingRewardGraphicsUpload(bus);
-                    rewardJump = new EndingRewardJump(bus, EndingReward, index => graphics.Upload(vram, index));
+                    rewardGraphics = new EndingRewardGraphicsUpload(bus, mode7Artwork?.RewardIcon);
+                    rewardJump = new EndingRewardJump(bus, EndingReward, UploadRewardGraphic);
                     Phase = EndingCreditsPhase.PostCreditsJump;
                 }
                 break;
@@ -568,6 +569,11 @@ internal sealed partial class EndingCreditsState
     {
         mode7Artwork = value;
         if (value is null) return;
+        if (Phase == EndingCreditsPhase.PostCreditsJump && rewardGraphics is not null)
+        {
+            rewardGraphics.BindArtwork(value.RewardIcon, vram);
+            return;
+        }
         EndingMode7SceneId? scene = Phase switch
         {
             >= EndingCreditsPhase.WaitForEscapeMusic and <= EndingCreditsPhase.FadeOutEscapeSceneA =>
@@ -717,14 +723,8 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Rendering.PaletteHalfBytes,
             0);
         ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
-        byte[] mode7 = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
         RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
-        RequireMinimum(mode7, EndingCreditsRomData.Rendering.Mode7Bytes,
-            "post-credits Mode-7 characters");
 
         vram.Clear();
         vram.LoadBytes(
@@ -734,6 +734,10 @@ internal sealed partial class EndingCreditsState
 
         creditsAssetsLoaded = true;
     }
+
+    private void UploadRewardGraphic(int index) =>
+        (rewardGraphics ?? throw new InvalidOperationException(
+            "Reward landing has no active graphics upload owner.")).Upload(vram, index);
 
     private void LoadCreditsCharacterArt()
     {

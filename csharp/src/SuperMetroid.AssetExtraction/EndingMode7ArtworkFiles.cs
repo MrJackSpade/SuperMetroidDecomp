@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs independently editable ending Mode-7 maps and character PNGs.</summary>
 public static class EndingMode7ArtworkFiles
 {
-    private const int ManifestVersion = 1;
+    private const int ManifestVersion = 2;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
@@ -66,6 +66,41 @@ public static class EndingMode7ArtworkFiles
             Write(EndingMode7ArtworkFormat.MapFileName(id), mapFile);
             Write(EndingMode7ArtworkFormat.CharacterFileName(id), pngFile);
         }
+        byte[] reward = RomDataReader.Decompress(bus,
+            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        if (reward.Length < EndingRewardIconArtworkFormat.TransferBytes)
+            throw new InvalidDataException("Reward icon source is shorter than its sixteen native DMAs.");
+        var rewardMap = new int[EndingRewardIconArtworkFormat.MapBytes];
+        var rewardCharacters = new byte[EndingRewardIconArtworkFormat.MapBytes];
+        for (int index = 0; index < rewardMap.Length; index++)
+        {
+            rewardMap[index] = reward[index * 2];
+            rewardCharacters[index] = reward[index * 2 + 1];
+        }
+        using var rewardJson = new MemoryStream();
+        EndingRewardIconArtwork.WriteMap(rewardJson, new EndingMode7MapDocument
+        {
+            Version = EndingMode7ArtworkFormat.Version,
+            Width = EndingRewardIconArtworkFormat.MapWidth,
+            Height = EndingRewardIconArtworkFormat.MapHeight,
+            Tiles = rewardMap,
+        });
+        byte[] rewardPixels = SnesGraphics.DecodeMode7Tiles(rewardCharacters, 16,
+            out int rewardWidth, out int rewardHeight);
+        using var rewardPng = new MemoryStream();
+        IndexedPng.Write(rewardPng, rewardWidth, rewardHeight, rewardPixels,
+            SnesGraphics.DiagnosticPalette(256));
+        byte[] rewardMapFile = rewardJson.ToArray();
+        byte[] rewardCharacterFile = rewardPng.ToArray();
+        EndingRewardIconArtwork compiledReward = EndingRewardIconArtwork.Load(
+            new MemoryStream(rewardMapFile, writable: false),
+            new MemoryStream(rewardCharacterFile, writable: false));
+        if (!compiledReward.Transfer.Span.SequenceEqual(reward.AsSpan(0,
+                EndingRewardIconArtworkFormat.TransferBytes)))
+            throw new InvalidDataException("Reward icon PNG/JSON changed native interleaved DMA bytes.");
+        Write(EndingRewardIconArtworkFormat.MapFileName, rewardMapFile);
+        Write(EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
         using var manifest = new FileStream(Path.Combine(directory,
             EndingMode7ArtworkFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
@@ -96,12 +131,17 @@ public static class EndingMode7ArtworkFiles
         {
             throw new InvalidDataException($"Invalid ending art manifest {manifestPath}.", error);
         }
-        string[] names = Enum.GetValues<EndingMode7SceneId>()
+        string[] names =
+        [
+            .. Enum.GetValues<EndingMode7SceneId>()
             .SelectMany(id => new[]
             {
                 EndingMode7ArtworkFormat.MapFileName(id),
                 EndingMode7ArtworkFormat.CharacterFileName(id),
-            }).ToArray();
+            }),
+            EndingRewardIconArtworkFormat.MapFileName,
+            EndingRewardIconArtworkFormat.CharacterFileName,
+        ];
         if (manifest.Version != ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
@@ -112,7 +152,25 @@ public static class EndingMode7ArtworkFiles
         return new EndingMode7ArtworkCatalog(
             LoadScene(EndingMode7SceneId.EscapeA),
             LoadScene(EndingMode7SceneId.EscapeB),
-            LoadScene(EndingMode7SceneId.PlanetExplosion));
+            LoadScene(EndingMode7SceneId.PlanetExplosion),
+            LoadRewardIcon());
+
+        EndingRewardIconArtwork LoadRewardIcon()
+        {
+            (string mapPath, byte[] map) = ReadSelected(EndingRewardIconArtworkFormat.MapFileName);
+            (string pngPath, byte[] png) = ReadSelected(EndingRewardIconArtworkFormat.CharacterFileName);
+            try
+            {
+                return EndingRewardIconArtwork.Load(
+                    new MemoryStream(map, writable: false),
+                    new MemoryStream(png, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid reward icon art ({mapPath}, {pngPath}): {error.Message}", error);
+            }
+        }
 
         EndingMode7SceneArtwork LoadScene(EndingMode7SceneId id)
         {

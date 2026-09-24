@@ -84,7 +84,8 @@ public sealed class EndingMode7ArtworkCatalog
     private readonly EndingMode7SceneArtwork[] scenes;
 
     public EndingMode7ArtworkCatalog(EndingMode7SceneArtwork escapeA,
-        EndingMode7SceneArtwork escapeB, EndingMode7SceneArtwork planetExplosion)
+        EndingMode7SceneArtwork escapeB, EndingMode7SceneArtwork planetExplosion,
+        EndingRewardIconArtwork rewardIcon)
     {
         scenes =
         [
@@ -92,11 +93,88 @@ public sealed class EndingMode7ArtworkCatalog
             escapeB ?? throw new ArgumentNullException(nameof(escapeB)),
             planetExplosion ?? throw new ArgumentNullException(nameof(planetExplosion)),
         ];
+        RewardIcon = rewardIcon ?? throw new ArgumentNullException(nameof(rewardIcon));
     }
+
+    /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
+    public EndingRewardIconArtwork RewardIcon { get; }
 
     public EndingMode7SceneArtwork this[EndingMode7SceneId id] =>
         (uint)id < scenes.Length ? scenes[(int)id] :
             throw new ArgumentOutOfRangeException(nameof(id));
+}
+
+/// <summary>
+/// The native $8000-byte reward-jump stream has one tilemap byte followed by one
+/// Mode-7 character byte per word. Keep its full 128x128 map, unlike the repeated
+/// half-map used by the earlier atmospheric scenes.
+/// </summary>
+public sealed class EndingRewardIconArtwork
+{
+    private EndingRewardIconArtwork(byte[] transfer) => Transfer = transfer;
+
+    public ReadOnlyMemory<byte> Transfer { get; }
+
+    public static EndingRewardIconArtwork Load(Stream mapJson, Stream charactersPng)
+    {
+        ArgumentNullException.ThrowIfNull(mapJson);
+        ArgumentNullException.ThrowIfNull(charactersPng);
+        EndingMode7MapDocument map;
+        try
+        {
+            map = JsonSerializer.Deserialize<EndingMode7MapDocument>(mapJson,
+                MapPresentationFormat.JsonOptions)
+                ?? throw new InvalidDataException("Reward icon map JSON is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid reward icon map JSON.", error);
+        }
+        ValidateMap(map);
+        IndexedPngImage image = IndexedPng.Read(charactersPng,
+            EndingMode7ArtworkFormat.CharacterWidth,
+            EndingMode7ArtworkFormat.CharacterHeight);
+        if (image.Palette.Length != 256)
+            throw new InvalidDataException("Reward icon characters require a 256-color indexed PNG.");
+        byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
+            image.Width, image.Height);
+        var transfer = new byte[EndingRewardIconArtworkFormat.TransferBytes];
+        for (int index = 0; index < EndingRewardIconArtworkFormat.MapBytes; index++)
+        {
+            transfer[index * 2] = checked((byte)map.Tiles[index]);
+            transfer[index * 2 + 1] = characters[index];
+        }
+        return new EndingRewardIconArtwork(transfer);
+    }
+
+    public static void WriteMap(Stream json, EndingMode7MapDocument map)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        ValidateMap(map);
+        JsonSerializer.Serialize(json, map, MapPresentationFormat.JsonOptions);
+    }
+
+    private static void ValidateMap(EndingMode7MapDocument map)
+    {
+        if (map.Version != EndingMode7ArtworkFormat.Version ||
+            map.Width != EndingRewardIconArtworkFormat.MapWidth ||
+            map.Height != EndingRewardIconArtworkFormat.MapHeight ||
+            map.Tiles is not { Length: EndingRewardIconArtworkFormat.MapBytes } ||
+            map.Tiles.Any(tile => (uint)tile > byte.MaxValue))
+            throw new InvalidDataException(
+                "Reward icon map requires 128x128 ordered eight-bit tile indexes.");
+    }
+}
+
+/// <summary>File identities and native dimensions of the reward-jump icon DMA.</summary>
+public static class EndingRewardIconArtworkFormat
+{
+    public const string MapFileName = "post-credits-icon-map.json";
+    public const string CharacterFileName = "post-credits-icon-characters.png";
+    public const int MapWidth = 128;
+    public const int MapHeight = 128;
+    public const int MapBytes = MapWidth * MapHeight;
+    public const int TransferBytes = MapBytes * 2;
 }
 
 public sealed record EndingMode7MapDocument

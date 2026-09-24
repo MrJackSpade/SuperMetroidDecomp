@@ -129,6 +129,8 @@ Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.j
 under `overrides/intro-cinematic/`; restored debugger states rebind these visuals
 without restarting the destruction or descent timeline. Explosion, actor and
 camera behavior remain compiled cartridge logic.
+The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
+view of the Ceres flight map, with its original sixteen-frame upload cadence.
 
 ## Room-character PNG overrides
 

@@ -70,6 +70,7 @@ internal static partial class Program
             }
             VerifyCeresFlightArtwork(installation, bus);
             VerifyCeresDestructionArtwork(installation, bus);
+            VerifyEndingFlyawayArtwork(installation);
 
             string[] names =
             [

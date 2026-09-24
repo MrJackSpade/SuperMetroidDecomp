@@ -54,6 +54,7 @@ internal sealed partial class EndingCreditsState
     [NonSerialized] private EndingTextPresentation? endingText;
     [NonSerialized] private EndingFontAtlas? endingFont;
     [NonSerialized] private CreditsPresentation? staffCredits;
+    [NonSerialized] private CeresFlightArtworkCatalog? flightArtwork;
 
     public EndingCreditsState(
         ISnesAddressSpace bus,

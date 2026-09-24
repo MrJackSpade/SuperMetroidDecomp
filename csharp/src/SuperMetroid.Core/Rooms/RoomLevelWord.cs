@@ -38,6 +38,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
 {
     private const ushort VisualBlockIndexMask = 0x03ff;
     private const ushort VisualFlipMask = 0x0c00;
+    private const ushort VisualBitsMask = VisualBlockIndexMask | VisualFlipMask;
     private const ushort CollisionTypeMask = 0xf000;
     private const ushort SolidProbeMask = 0x8000;
     private const int CollisionTypeShift = 12;
@@ -48,6 +49,13 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// <summary>Independent parent-block horizontal and vertical flip bits.</summary>
     public LevelBlockFlipFlags VisualFlipFlags =>
         (LevelBlockFlipFlags)(Raw & VisualFlipMask);
+
+    /// <summary>Combined presentation-only block index and parent flips, without collision bits.</summary>
+    public ushort VisualWord => (ushort)(Raw & VisualBitsMask);
+
+    /// <summary>Whether a standalone visual reference contains only the twelve presentation bits.</summary>
+    public static bool IsValidVisualWord(ushort visualWord) =>
+        (visualWord & ~VisualBitsMask) == 0;
 
     /// <summary>
     /// Exact native dispatcher nibble. Use this when handling an unnamed value; unlike the
@@ -95,6 +103,15 @@ public readonly record struct RoomLevelWord(ushort Raw)
         ValidateVisualFlipFlags(visualFlipFlags);
         return new RoomLevelWord(unchecked((ushort)(
             (Raw & ~VisualFlipMask) | (ushort)visualFlipFlags)));
+    }
+
+    /// <summary>Replaces both presentation fields while preserving the physical collision nibble.</summary>
+    public RoomLevelWord WithVisualWord(ushort visualWord)
+    {
+        if (!IsValidVisualWord(visualWord))
+            throw new ArgumentOutOfRangeException(nameof(visualWord));
+        return new RoomLevelWord(unchecked((ushort)(
+            (Raw & CollisionTypeMask) | visualWord)));
     }
 
     /// <summary>Replaces only the four-bit collision dispatcher value.</summary>

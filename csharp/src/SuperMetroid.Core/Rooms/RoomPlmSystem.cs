@@ -31,6 +31,14 @@ public sealed partial class RoomPlmSystem
     private readonly List<PlmSoundRequest> _soundRequests = new();
     private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
     private AreaId _activeAreaIndex = AreaId.Crateria;
+    [NonSerialized] private RoomPlmShotBlockVisualCatalog? shotBlockVisuals;
+
+    /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
+    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals
+    {
+        get => shotBlockVisuals;
+        set => shotBlockVisuals = value;
+    }
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
     public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;
@@ -1698,8 +1706,10 @@ public sealed partial class RoomPlmSystem
     {
         int entryX = originX;
         int entryY = originY;
-        foreach (RoomPlmShotBlockDrawDefinitions.Run run in definition.Runs.Span)
+        ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = definition.Runs.Span;
+        for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
+            RoomPlmShotBlockDrawDefinitions.Run run = runs[runIndex];
             bool vertical = (run.DirectionAndCount & 0x8000) != 0;
             int count = run.DirectionAndCount & 0x7fff;
             if (count != run.LevelWords.Length)
@@ -1709,8 +1719,11 @@ public sealed partial class RoomPlmSystem
             {
                 int x = entryX + (vertical ? 0 : offset);
                 int y = entryY + (vertical ? offset : 0);
+                ushort physicalWord = run.LevelWords.Span[offset];
+                ushort visualWord = shotBlockVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
-                    run.LevelWords.Span[offset], layer1XPosition, layer1YPosition, bg1XOffset);
+                    physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);
             }
 
             entryX = originX + run.NextX;
@@ -1727,7 +1740,8 @@ public sealed partial class RoomPlmSystem
         ushort levelWord,
         ushort layer1XPosition,
         ushort layer1YPosition,
-        ushort bg1XOffset)
+        ushort bg1XOffset,
+        ushort? visualWord = null)
     {
         int blockIndex;
         try
@@ -1742,7 +1756,7 @@ public sealed partial class RoomPlmSystem
         }
 
         DrawLevelWord(level, streamer, blockIndex, levelWord,
-            layer1XPosition, layer1YPosition, bg1XOffset);
+            layer1XPosition, layer1YPosition, bg1XOffset, visualWord);
     }
 
     private void DrawLevelWord(
@@ -1752,13 +1766,16 @@ public sealed partial class RoomPlmSystem
         ushort levelWord,
         ushort layer1XPosition,
         ushort layer1YPosition,
-        ushort bg1XOffset)
+        ushort bg1XOffset,
+        ushort? visualWord = null)
     {
-        level.SetPlmForegroundEntry(blockIndex, levelWord);
+        ushort renderedWord = visualWord ?? new RoomLevelWord(levelWord).VisualWord;
+        level.SetPlmForegroundEntry(blockIndex, levelWord, renderedWord);
         if (!level.IsLogicalBlockIndex(blockIndex))
             return;
 
-        streamer.SetLevelEntry(blockIndex, levelWord);
+        streamer.SetLevelEntry(blockIndex,
+            new RoomLevelWord(levelWord).WithVisualWord(renderedWord).Raw);
 
         int blockX = blockIndex % level.WidthInBlocks;
         int blockY = blockIndex / level.WidthInBlocks;

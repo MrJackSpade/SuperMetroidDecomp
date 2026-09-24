@@ -227,9 +227,19 @@ public sealed class RoomLevelData
     /// isolated just as their cartridge addresses remain outside the authored room.
     /// </summary>
     internal void SetPlmForegroundEntry(int blockIndex, ushort levelWord)
+        => SetPlmForegroundEntry(blockIndex, levelWord,
+            new RoomLevelWord(levelWord).VisualWord);
+
+    /// <summary>
+    /// Applies a native PLM word to collision while selecting an independent visual
+    /// block reference for BG1. The visual operand may not set a collision bit.
+    /// </summary>
+    internal void SetPlmForegroundEntry(int blockIndex, ushort levelWord, ushort visualWord)
     {
         if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
+        if (!RoomLevelWord.IsValidVisualWord(visualWord))
+            throw new ArgumentOutOfRangeException(nameof(visualWord));
 
         _plmForegroundAllocation[blockIndex] = levelWord;
         if (!IsLogicalBlockIndex(blockIndex))
@@ -239,7 +249,8 @@ public sealed class RoomLevelData
         if (blockIndex < _streamingForegroundAllocation.Length)
             _streamingForegroundAllocation[blockIndex] = levelWord;
         if (blockIndex < _visualStreamingForegroundAllocation.Length)
-            _visualStreamingForegroundAllocation[blockIndex] = levelWord;
+            _visualStreamingForegroundAllocation[blockIndex] =
+                new RoomLevelWord(levelWord).WithVisualWord(visualWord).Raw;
     }
 
     /// <summary>Applies a bank-$84 BTS write through the bounded native PLM allocation.</summary>

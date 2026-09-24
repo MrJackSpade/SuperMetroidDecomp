@@ -1,4 +1,7 @@
+using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
@@ -106,7 +109,148 @@ internal static partial class Program
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 
+        VerifyShotBlockVisualSeparation(rom, forbidden);
+        VerifyShotBlockVisualInstallation(rom);
+
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
+    }
+
+    private static void VerifyShotBlockVisualSeparation(
+        ISnesAddressSpace rom, HashSet<int> forbidden)
+    {
+        RoomPlmShotBlockVisualCatalog stock = RoomPlmShotBlockVisualCatalog.Stock();
+        RoomPlmShotBlockVisualEntry[] editedEntries = RoomPlmShotBlockDrawDefinitions.All
+            .Select(list => new RoomPlmShotBlockVisualEntry(list.Pointer,
+                list.Runs.Span.ToArray()
+                    .Select(run => run.LevelWords.Span.ToArray()
+                        .Select(word => unchecked((ushort)(word & 0x0fff))).ToArray())
+                    .ToArray()))
+            .ToArray();
+        RoomPlmShotBlockVisualEntry first = editedEntries.Single(entry =>
+            entry.DrawPointer == RoomPlmShotBlockDrawDefinitions.SingleFrame0);
+        first.Runs[0][0] = 0x0054;
+        var edited = new RoomPlmShotBlockVisualCatalog(editedEntries);
+        first.Runs[0][0] = 0x0055;
+        AssertEqual((ushort)0x0054,
+            edited.GetWord(RoomPlmShotBlockDrawDefinitions.SingleFrame0, 0, 0),
+            "visual catalog defensively copies author data");
+        AssertEqual((ushort)0x0053,
+            stock.GetWord(RoomPlmShotBlockDrawDefinitions.SingleFrame0, 0, 0),
+            "stock visual catalog retains the native first break frame");
+
+        const int width = 8;
+        const int block = 3 + 3 * width;
+        var words = new ushort[width * width];
+        words[block] = 0xc321;
+        byte[] definitions = new byte[0x400 * 8];
+        foreach (int visualIndex in new[] { 0x53, 0x54 })
+        for (int tile = 0; tile < 4; tile++)
+            definitions[visualIndex * 8 + tile * 2] = unchecked((byte)visualIndex);
+
+        (ushort physical, ushort immediate, ushort streamed) Render(
+            RoomPlmShotBlockVisualCatalog visuals)
+        {
+            var level = new RoomLevelData(width, width, words,
+                new byte[words.Length], new ushort[words.Length], definitions);
+            var streamer = level.CreateBackgroundStreamer();
+            var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
+            AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
+                "visual-only test allocates the production shot-block PLM");
+            plms.Step(new ShotBlockProgramReadGuard(rom, forbidden), level, streamer, 0, 0, 0);
+            AssertEqual(1, plms.TilemapUpdates.Count,
+                "visual-only edit publishes one immediate PLM tilemap update");
+            return (level.GetCollisionBlockByIndex(block).LevelWord,
+                plms.TilemapUpdates[0].TopRow[0],
+                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(block, 0).TopRow[0]);
+        }
+
+        var native = Render(stock);
+        var changed = Render(edited);
+        AssertEqual((ushort)0x0053, native.physical,
+            "stock first break frame has its native physical level word");
+        AssertEqual(native.physical, changed.physical,
+            "visual edit cannot change first-frame collision or level data");
+        AssertEqual((ushort)0x0053, native.immediate,
+            "stock draw reaches the immediate tilemap upload");
+        AssertEqual((ushort)0x0054, changed.immediate,
+            "edited draw reaches the immediate tilemap upload");
+        AssertEqual((ushort)0x0054, changed.streamed,
+            "edited draw persists in later camera streaming");
+
+        AssertThrows<InvalidDataException>(
+            () => new RoomPlmShotBlockVisualCatalog(editedEntries.Skip(1)),
+            "visual catalog rejects missing compiled draw lists");
+        first.Runs[0][0] = 0xf054;
+        AssertThrows<InvalidDataException>(
+            () => new RoomPlmShotBlockVisualCatalog(editedEntries),
+            "visual catalog rejects collision bits in editable data");
+    }
+
+    private static void VerifyShotBlockVisualInstallation(ISnesAddressSpace rom)
+    {
+        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+            "shot-block-visual-" + Guid.NewGuid().ToString("N")));
+        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
+            Path.DirectorySeparatorChar;
+        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Shot-block visual test root escaped test-temp.");
+        try
+        {
+            var installation = new GameInstallation(testRoot);
+            RoomPlmShotBlockVisualFiles.Extract(rom,
+                installation.RoomPlmShotBlockVisualDirectory, SupportedCartridge.Sha256);
+            RoomPlmShotBlockVisualFiles.ValidateStock(
+                installation.RoomPlmShotBlockVisualDirectory);
+            AssertEqual((ushort)0x0053,
+                installation.LoadRoomPlmShotBlockVisuals().GetWord(
+                    RoomPlmShotBlockDrawDefinitions.SingleFrame0, 0, 0),
+                "installed stock shot-block frame matches native visual block");
+
+            string stockPath = Path.Combine(installation.RoomPlmShotBlockVisualDirectory,
+                RoomPlmShotBlockVisualFiles.VisualFileName);
+            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
+                ?? throw new InvalidDataException("Extracted shot-block JSON is empty.");
+            JsonNode first = document["entries"]!.AsArray().Single(entry =>
+                entry!["drawPointer"]!.GetValue<int>() ==
+                RoomPlmShotBlockDrawDefinitions.SingleFrame0)!;
+            first["runs"]![0]![0] = 0x0054;
+            Directory.CreateDirectory(installation.RoomPlmShotBlockVisualOverrideDirectory);
+            string overridePath = Path.Combine(
+                installation.RoomPlmShotBlockVisualOverrideDirectory,
+                RoomPlmShotBlockVisualFiles.VisualFileName);
+            File.WriteAllText(overridePath, document.ToJsonString());
+            AssertEqual((ushort)0x0054,
+                installation.LoadRoomPlmShotBlockVisuals().GetWord(
+                    RoomPlmShotBlockDrawDefinitions.SingleFrame0, 0, 0),
+                "installed shot-block override replaces only the selected visual word");
+
+            // Stock repair/upgrade replaces files under game/, not overrides/. Extract
+            // into a new stock directory and prove the same user edit remains selected.
+            string refreshed = Path.Combine(testRoot, "refreshed-stock");
+            RoomPlmShotBlockVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
+            AssertEqual((ushort)0x0054,
+                RoomPlmShotBlockVisualFiles.Load(refreshed,
+                    installation.RoomPlmShotBlockVisualOverrideDirectory).GetWord(
+                    RoomPlmShotBlockDrawDefinitions.SingleFrame0, 0, 0),
+                "shot-block override survives replacement of stock content");
+
+            first["runs"]![0]![0] = 0xf054;
+            File.WriteAllText(overridePath, document.ToJsonString());
+            AssertThrows<InvalidDataException>(
+                () => installation.LoadRoomPlmShotBlockVisuals(),
+                "shot-block visual override rejects collision/type bits");
+            first["runs"]![0]![0] = 0x0054;
+            File.WriteAllText(overridePath, document.ToJsonString());
+            File.WriteAllText(stockPath, "corrupt stock");
+            AssertThrows<InvalidDataException>(
+                () => installation.LoadRoomPlmShotBlockVisuals(),
+                "shot-block stock manifest hash rejects corrupted content");
+        }
+        finally
+        {
+            if (Directory.Exists(testRoot))
+                Directory.Delete(testRoot, recursive: true);
+        }
     }
 
     private sealed record ShotBlockFixture(

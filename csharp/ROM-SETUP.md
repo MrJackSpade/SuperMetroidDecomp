@@ -293,8 +293,9 @@ combined CRE/area block table, bit 10 for horizontal flip, and bit 11 for
 vertical flip. Only values 0..4095 are valid; collision bits cannot be placed
 in this presentation file. BG2 entries that the ROM leaves uninitialized are
 exported as zero visual references. The renderer receives edited references,
-while collision, BTS, slopes, hazards and subsequent PLM block writes continue
-to use the unmodified native level allocation. Stock files are hash-checked;
+while collision, BTS, slopes and hazards use the unmodified native level
+allocation. Subsequent PLM draws apply their own visual bindings where installed.
+Stock files are hash-checked;
 overrides survive stock repair and invalid values fail with the offending path.
 For all 246 retail level sources, that collision/BTS and streaming baseline is
 bundled as immutable application data. Installed desktop and Android room loads
@@ -302,6 +303,21 @@ do not decompress these level streams from the ROM. The separate JSON override
 changes only rendered visual words; it cannot modify the bundled physical
 allocation or the native overread tail. Development verifiers can still read the
 pinned ROM to compare every bundled byte with its original source.
+
+Ordinary shot-block PLM appearances are installed as
+`game/room-plm-shot-blocks/shot-blocks.json`. Copy that file to the matching
+path under `overrides/`, edit a `runs` visual word, and restart. Each decimal
+`drawPointer` identifies one of 19 compiled animation/restoration draw lists;
+each nested run retains its native block count and direction. A visual word may
+be 0..4095 (block index and two flip bits). Do not change the pointers, run
+counts, or word counts, and do not add collision bits. The native instruction
+timers, sounds, draw geometry and complete physical level words remain compiled
+and immutable. An edited word changes both the immediate PLM redraw and later
+camera streaming, without changing shot-block collision or respawn timing.
+The visual block still needs a valid definition in the active room's combined
+CRE/area block table. Stock content is hash-checked; an override survives stock
+repair and installation updates. This covers ordinary shot blocks only, not
+every door, gate, item, or other PLM family.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,
@@ -323,10 +339,9 @@ these entries without reading the item draw table or room overlay records from
 the ROM during X-ray setup. Stock hashes are checked and user overrides survive
 stock repair.
 
-These visual-layout files do not yet replace the runtime ROM source for the
-native collision/BTS allocation. The room-ID guide makes the files discoverable,
-but shared sheet and palette filenames still encode source identities; stable
-semantic filenames and ROM-free mechanics remain broader migration work.
+The room-ID guide makes visual-layout files discoverable, but shared sheet and
+palette filenames still encode source identities. Other PLM families and
+remaining runtime ROM dependencies are broader migration work.
 
 ## Projectile composition and beam PNG overrides
 

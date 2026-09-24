@@ -52,6 +52,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
     public RoomVisualLayoutCatalog LoadRoomVisualLayouts() =>
         RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
+    public string RoomPlmShotBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName);
+    public string RoomPlmShotBlockVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName);
+    /// <summary>Editable shot-block appearances; PLM timing, placement, and collision remain compiled.</summary>
+    public RoomPlmShotBlockVisualCatalog LoadRoomPlmShotBlockVisuals() =>
+        RoomPlmShotBlockVisualFiles.Load(RoomPlmShotBlockVisualDirectory, RoomPlmShotBlockVisualOverrideDirectory);
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
     public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
@@ -96,9 +101,10 @@ public static class GameInstallationLayout
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
+    public const string RoomPlmShotBlockVisualDirectoryName = "room-plm-shot-blocks";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 35;
+    public const int FormatVersion = 36;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

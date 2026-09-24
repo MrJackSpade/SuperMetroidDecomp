@@ -42,6 +42,8 @@ forbidden, while comparing every selected pointer to the pinned cartridge.
 Wall Space Pirates now use the same compiled lookup for their 42 frame
 selectors. All eight longer programs and every authored frame run with those
 source bytes forbidden and the selected values checked against the cartridge.
+Ninja Space Pirates likewise use 140 compiled selectors; all twenty programs,
+callbacks and each frame-selector address pass with source bytes forbidden.
 The spritemap payloads selected by those pointers remain presentation assets
 and are still ROM-backed until separately extracted and visually verified.
 

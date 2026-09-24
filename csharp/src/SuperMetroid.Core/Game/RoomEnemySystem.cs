@@ -2569,11 +2569,12 @@ public sealed partial class RoomEnemySystem
         if (EnemySpritemapDefinitions.TryFrameAt(
                 slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
             return frame;
-        // Walking and wall Pirate frame operands are fixed definitions. Keep
+        // Space Pirate frame operands are fixed definitions. Keep
         // the selected spritemap payload on the ordinary artwork path below;
         // only this instruction-stream pointer read has been compiled.
         if (IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer) ||
-            IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer))
+            IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer) ||
+            IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer))
         {
             if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
                     operandAddress, out ushort selected))

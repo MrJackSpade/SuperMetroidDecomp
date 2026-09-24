@@ -71,11 +71,25 @@ internal static partial class Program
             NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive,
             NinjaSpacePirateFunction.DivekickRightDive);
 
-        AssertEqual(NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all ninja Pirate spritemap words remain live cartridge reads");
+        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
+        for (int index = 0;
+             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
+            var (enemies, slot, samus) = CreateSystem();
+            slot.CurrentInstruction = unchecked((ushort)(address - 2));
+            slot.InstructionTimer = 1;
+            process.Invoke(enemies,
+                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            AssertEqual(ReadNinjaPirateWord(rom, 0xb20000 | address),
+                slot.SpritemapPointer,
+                $"production execution selects ninja Pirate frame $B2:{address:X4}");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled ninja Pirate mechanics bytes");
+            "production execution avoids compiled ninja Pirate mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xf162),
             "ninja Pirate spritemap pointer is rejected as mechanics");
@@ -92,8 +106,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ninja Space Pirate instruction mechanics: 308 compiled words, all twenty " +
-            "production programs, claw/palette/sound/function callbacks, and 140 live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "production programs, claw/palette/sound/function callbacks, and 140 " +
+            "compiled frame selectors pass with source bytes forbidden.");
 
         void VerifyClawAttack(ushort program, int expectedFirstXOffset)
         {
@@ -176,7 +190,6 @@ internal static partial class Program
     private sealed class NinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -199,8 +212,10 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled ninja Pirate frame selector " +
+                            $"${address:X6}.");
                     }
                 }
             }

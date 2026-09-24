@@ -1653,9 +1653,18 @@ public sealed partial class RoomPlmSystem
         int originY = blockIndex / level.WidthInBlocks;
         if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
         {
-            DrawCompiledShotBlockInstruction(
+            DrawCompiledBlockInstruction(
                 level, streamer, compiled, originX, originY,
-                layer1XPosition, layer1YPosition, bg1XOffset);
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: true);
+            return;
+        }
+        if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, bombRestore, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
             return;
         }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
@@ -1711,7 +1720,7 @@ public sealed partial class RoomPlmSystem
             $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
     }
 
-    private void DrawCompiledShotBlockInstruction(
+    private void DrawCompiledBlockInstruction(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         RoomPlmShotBlockDrawDefinitions.DrawList definition,
@@ -1719,7 +1728,8 @@ public sealed partial class RoomPlmSystem
         int originY,
         ushort layer1XPosition,
         ushort layer1YPosition,
-        ushort bg1XOffset)
+        ushort bg1XOffset,
+        bool useShotBlockVisuals)
     {
         int entryX = originX;
         int entryY = originY;
@@ -1737,7 +1747,8 @@ public sealed partial class RoomPlmSystem
                 int x = entryX + (vertical ? 0 : offset);
                 int y = entryY + (vertical ? offset : 0);
                 ushort physicalWord = run.LevelWords.Span[offset];
-                ushort visualWord = shotBlockVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                ushort visualWord = (useShotBlockVisuals ? shotBlockVisuals : null)
+                    ?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

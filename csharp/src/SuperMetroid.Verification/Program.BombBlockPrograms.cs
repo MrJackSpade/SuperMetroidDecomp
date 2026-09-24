@@ -39,6 +39,60 @@ internal static partial class Program
                 RoomPlmInstructionLists.ReactionBombBlock1x1Respawning + 5, out _),
             "interleaved draw pointer is not misclassified as control");
 
+        int restoreCount = 0;
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 RoomPlmBombBlockRestoreDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                AssertEqual(run.DirectionAndCount,
+                    unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                        rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
+                    $"bomb restoration ${list.Pointer:X4} direction/count");
+                forbidden.Add(0x840000 | cursor++);
+                forbidden.Add(0x840000 | cursor++);
+                foreach (ushort word in run.LevelWords.Span)
+                {
+                    AssertEqual(word,
+                        unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                            rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
+                        $"bomb restoration ${list.Pointer:X4} level word");
+                    forbidden.Add(0x840000 | cursor++);
+                    forbidden.Add(0x840000 | cursor++);
+                }
+
+                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor),
+                    $"bomb restoration ${list.Pointer:X4} next X");
+                forbidden.Add(0x840000 | cursor++);
+                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
+                    $"bomb restoration ${list.Pointer:X4} next Y");
+                forbidden.Add(0x840000 | cursor++);
+            }
+
+            restoreCount++;
+        }
+
+        AssertEqual(3, restoreCount, "all linked bomb-block restoration lists are compiled");
+        AssertTrue(!RoomPlmBombBlockRestoreDrawDefinitions.TryGet(0xa4c6, out _),
+            "an unknown nearby bomb restoration pointer does not alias a compiled list");
+
+        // All sixteen breakup frames are shared with the already compiled shot-block
+        // family. Forbid their source bytes as well, so this production check covers
+        // the complete bomb-block draw path rather than only its three unique restores.
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 RoomPlmShotBlockDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                int byteCountForRun = 2 + 2 * run.LevelWords.Length + 2;
+                for (int offset = 0; offset < byteCountForRun; offset++)
+                    forbidden.Add(0x840000 | (cursor + offset));
+                cursor += byteCountForRun;
+            }
+        }
+
         foreach (byte behavior in Enumerable.Range(0, 8).Select(value => (byte)value))
         foreach (BombBlockProducer producer in Enum.GetValues<BombBlockProducer>())
         {
@@ -70,7 +124,7 @@ internal static partial class Program
                 $"bomb BTS {behavior}/{producer} completes its native timeline");
         }
 
-        Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, and all 24 collision/bomb/power-bomb timelines match ROM with control reads forbidden.");
+        Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, {restoreCount} restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }
 
     private enum BombBlockProducer { Collision, Bomb, PowerBomb }

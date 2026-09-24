@@ -336,7 +336,8 @@ public sealed class SamusCrystalFlashState
         ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
-        Assets.BeamPaletteCatalog? palettes = null)
+        Assets.BeamPaletteCatalog? palettes = null,
+        Assets.CrystalFlashColorCatalog? colors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -382,14 +383,21 @@ public sealed class SamusCrystalFlashState
         if (specialPaletteTimer.IsZeroOrNegative)
         {
             SpecialPaletteTimer = 5;
-            ushort bubblePalette = ReadWord(
-                bus,
-                SamusPaletteRomData.CrystalFlash.BubblePointers + SpecialPaletteFrame);
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | bubblePalette,
-                colorCount: SamusPaletteRomData.CrystalFlash.BubbleColorCount,
-                destinationIndex: SamusPaletteRomData.CrystalFlash.BubbleCgramStart);
+            if (colors is not null && (SpecialPaletteFrame & 1) == 0 &&
+                SpecialPaletteFrame < SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort))
+                colors.ApplyBubble(cgram, SpecialPaletteFrame / sizeof(ushort));
+            else
+            {
+                // Restored non-catalog phase words retain the native adjacent-data read.
+                ushort bubblePalette = ReadWord(
+                    bus,
+                    SamusPaletteRomData.CrystalFlash.BubblePointers + SpecialPaletteFrame);
+                cgram.LoadFromBus(
+                    bus,
+                    SamusPaletteRomData.Banks.Palette | bubblePalette,
+                    colorCount: SamusPaletteRomData.CrystalFlash.BubbleColorCount,
+                    destinationIndex: SamusPaletteRomData.CrystalFlash.BubbleCgramStart);
+            }
 
             ushort nextBubbleFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
             SpecialPaletteFrame = nextBubbleFrame <
@@ -403,17 +411,24 @@ public sealed class SamusCrystalFlashState
         CrystalPaletteTimer = crystalPaletteTimer.Value;
         if (crystalPaletteTimer.IsZeroOrNegative)
         {
-            int recordAddress = SamusPaletteRomData.CrystalFlash.BodyRecords +
-                CommonPaletteTimer;
-            ushort bodyPalette = ReadWord(bus, recordAddress);
+            bool cataloguedBody = colors is not null &&
+                CommonPaletteTimer % SamusPaletteRomData.CrystalFlash.BodyRecordByteCount == 0 &&
+                CommonPaletteTimer < SamusPaletteRomData.CrystalFlash.BodyRecordCount *
+                    SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
+            ushort bodyPalette = cataloguedBody ? (ushort)0 : ReadWord(bus,
+                SamusPaletteRomData.CrystalFlash.BodyRecords + CommonPaletteTimer);
             CrystalPaletteTimer =
                 CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
                     CommonPaletteTimer);
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | bodyPalette,
-                colorCount: SamusPaletteRomData.CrystalFlash.BodyColorCount,
-                destinationIndex: SamusPaletteRomData.CrystalFlash.BodyCgramStart);
+            if (cataloguedBody && colors is { } installedColors)
+                installedColors.ApplyBody(cgram,
+                    CommonPaletteTimer / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
+            else
+                cgram.LoadFromBus(
+                    bus,
+                    SamusPaletteRomData.Banks.Palette | bodyPalette,
+                    colorCount: SamusPaletteRomData.CrystalFlash.BodyColorCount,
+                    destinationIndex: SamusPaletteRomData.CrystalFlash.BodyCgramStart);
 
             ushort nextRecord = unchecked((ushort)(
                 CommonPaletteTimer + SamusPaletteRomData.CrystalFlash.BodyRecordByteCount));

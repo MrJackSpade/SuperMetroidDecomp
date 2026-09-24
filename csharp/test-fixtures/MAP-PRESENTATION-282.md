@@ -1656,3 +1656,19 @@ shades, attachment flash, live catalog rebind, invalid RGB5 data, content
 identity, and override removal. Non-catalogued restored/debugger phase words
 retain their existing native adjacent-data reads rather than being mapped to
 an unrelated editable shade.
+
+## Editable Crystal Flash colors (#536, #541, #549)
+
+Catalog version 69 adds `crystal-flash-colors.json` with ten ordered body
+frames of ten RGB5 colors and six ordered bubble frames of six colors. Copy the
+stock file to `overrides/maps` to edit it. The body record durations, five-call
+bubble cadence, independent cursors, beam-palette restoration, and gameplay
+state remain compiled. Repeated native body pointers are represented as
+separate playback records so a cosmetic edit may distinguish those frames.
+
+`--map-presentation` compares all 136 stock words against the pinned ROM and
+runs a 100-call Crystal Flash with the native pointer and source-color reads
+forbidden. It asserts each body/bubble CGRAM color, checks both timers and
+cursors against an unedited native run, rejects invalid RGB5 data, and verifies
+that stock re-extraction preserves the user override. Non-catalogued debugger
+cursor values retain the native read path.

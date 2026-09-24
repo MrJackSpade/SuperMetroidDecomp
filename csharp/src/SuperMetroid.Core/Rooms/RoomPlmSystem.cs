@@ -1650,6 +1650,14 @@ public sealed partial class RoomPlmSystem
                 layer1XPosition, layer1YPosition, bg1XOffset);
             return;
         }
+        if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
+        {
+            // All five cartridge lists are a single word at the PLM origin. The
+            // complete native word retains Grapple/air collision independently of art.
+            DrawPlmWordAt(level, streamer, grapple.Pointer, originX, originY,
+                grapple.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset);
+            return;
+        }
 
         int entryX = originX;
         int entryY = originY;

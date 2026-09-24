@@ -8,7 +8,8 @@ internal readonly record struct BoulderInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from Boulder's mirrored rolling programs.</summary>
 /// <remarks>
 /// Frame durations and loop control are immutable simulation data. The sixteen
-/// interleaved spritemap pointers remain live cartridge presentation data.
+/// interleaved visual selectors are compiled in
+/// <see cref="Assets.EnemySpritemapDefinitions"/>.
 /// </remarks>
 internal static class BoulderInstructionProgramDefinitions
 {

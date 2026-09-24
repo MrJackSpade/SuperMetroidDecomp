@@ -39,7 +39,9 @@ internal static partial class Program
             var room = DrawEnemy(stock, new FrameReadGuard(rom), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
-                    : RoomEnemySystem.CacatacDefinition);
+                    : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.CacatacDefinition
+                        : RoomEnemySystem.BoulderDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
@@ -70,6 +72,11 @@ internal static partial class Program
         {
             OffsetY = cacatacPart.OffsetY + 1,
         };
+        SpriteVisualPart boulderPart = document.Frames["boulder_roll_0"][0];
+        document.Frames["boulder_roll_0"][0] = boulderPart with
+        {
+            OffsetY = boulderPart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -98,6 +105,16 @@ internal static partial class Program
             "authored Cacatac Y offset changes live room OAM");
         AssertEqual(stockCacatac.LowTable[0], editedCacatac.LowTable[0],
             "Cacatac visual override leaves X unchanged");
+        ushort boulderPointer = EnemySpritemapDefinitions.BoulderFrameAt(0x86a9);
+        var stockBoulder = DrawEnemy(stock, new FrameReadGuard(rom),
+            boulderPointer, RoomEnemySystem.BoulderDefinition);
+        var editedBoulder = DrawEnemy(edited, new FrameReadGuard(rom),
+            boulderPointer, RoomEnemySystem.BoulderDefinition);
+        AssertEqual(unchecked((byte)(stockBoulder.LowTable[1] + 1)),
+            editedBoulder.LowTable[1],
+            "authored Boulder Y offset changes live room OAM");
+        AssertEqual(stockBoulder.LowTable[0], editedBoulder.LowTable[0],
+            "Boulder visual override leaves X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
@@ -121,7 +138,9 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with
-                { Bank = EnemySpritemapDefinitions.BoyonBank };
+                { Bank = definition == RoomEnemySystem.BoulderDefinition
+                    ? EnemySpritemapDefinitions.BoulderBank
+                    : EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
             slot.XPosition = 0x0040;
             slot.YPosition = 0x0080;
@@ -136,7 +155,8 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             if (address is >= 0xa288da and < 0xa2890b or
-                >= 0xa2a0bb and < 0xa2a377)
+                >= 0xa2a0bb and < 0xa2a377 or
+                >= 0xa68a59 and < 0xa68b09)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

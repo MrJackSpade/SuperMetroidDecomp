@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
@@ -38,20 +39,17 @@ internal static partial class Program
             BoulderInstructionProgramDefinitions.Right,
             "right");
 
-        AssertEqual(
-            BoulderInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Boulder spritemap words remain cartridge reads");
         for (int index = 0;
              index < BoulderInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = BoulderInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Boulder presentation word $A6:{address:X4}");
+            AssertEqual(ReadBoulderInstructionWord(rom, 0xa60000 | address),
+                EnemySpritemapDefinitions.BoulderFrameAt(address),
+                $"compiled Boulder visual selector $A6:{address:X4} matches cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Boulder mechanics byte");
+            "production execution avoids compiled Boulder mechanics and visual bytes");
 
         AssertThrows<InvalidDataException>(
             () => BoulderInstructionProgramDefinitions.ReadMechanicsWord(0x86a9),
@@ -59,6 +57,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => BoulderInstructionProgramDefinitions.ReadMechanicsWord(0x86ef),
             "adjacent Boulder data is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.BoulderFrameAt(0x86ef),
+            "uncompiled Boulder visual selector is rejected loudly");
 
         _ = ProbeBoulderInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
@@ -70,7 +71,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Boulder instruction mechanics: twenty compiled words, both mirrored " +
-            "production loops, and sixteen live spritemap reads pass with mechanics " +
+            "production loops, and sixteen compiled visual selectors pass with source " +
             "bytes forbidden.");
 
         static void VerifyBoulderInstructionProgram(
@@ -127,18 +128,23 @@ internal static partial class Program
     private sealed class BoulderInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Boulder mechanics byte ${address:X6}.");
+                    $"Production read compiled Boulder instruction byte ${address:X6}.");
             }
 
+            return source.ReadByte(address);
+        }
+
+        private static bool IsCompiledPresentationByte(int address)
+        {
             if ((address & 0xff0000) == 0xa60000)
             {
                 ushort bankAddress = unchecked((ushort)address);
@@ -151,13 +157,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        return true;
                     }
                 }
             }
 
-            return source.ReadByte(address);
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

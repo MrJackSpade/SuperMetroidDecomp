@@ -2570,6 +2570,8 @@ public sealed partial class RoomEnemySystem
             return EnemySpritemapDefinitions.BoyonFrameAt(operandAddress);
         if (slot.EnemyDefinitionPointer == CacatacDefinition)
             return EnemySpritemapDefinitions.CacatacFrameAt(operandAddress);
+        if (slot.EnemyDefinitionPointer == BoulderDefinition)
+            return EnemySpritemapDefinitions.BoulderFrameAt(operandAddress);
         return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
     }
 

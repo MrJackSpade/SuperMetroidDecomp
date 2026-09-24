@@ -9,9 +9,10 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 2;
+    internal const int Version = 3;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
+    internal const byte BoulderBank = 0xa6;
     internal const int MaximumParts = 128;
     internal const int TileColumns = 16;
     internal const int TileRows = 32;
@@ -45,6 +46,14 @@ internal static class EnemySpritemapDefinitions
         new(BoyonBank, 0xa303, "cacatac_inverted_idle_7"),
         new(BoyonBank, 0xa323, "cacatac_inverted_attack_1"),
         new(BoyonBank, 0xa357, "cacatac_inverted_attack_2"),
+        new(BoulderBank, 0x8a59, "boulder_roll_0"),
+        new(BoulderBank, 0x8a6f, "boulder_roll_1"),
+        new(BoulderBank, 0x8a85, "boulder_roll_2"),
+        new(BoulderBank, 0x8a9b, "boulder_roll_3"),
+        new(BoulderBank, 0x8ab1, "boulder_roll_4"),
+        new(BoulderBank, 0x8ac7, "boulder_roll_5"),
+        new(BoulderBank, 0x8add, "boulder_roll_6"),
+        new(BoulderBank, 0x8af3, "boulder_roll_7"),
     ];
 
     internal static ReadOnlySpan<EnemySpritemapDefinition> Frames => FrameDefinitions;
@@ -93,5 +102,25 @@ internal static class EnemySpritemapDefinitions
             _ => throw new InvalidDataException(
                 $"Cacatac visual operand $A2:{operandAddress:X4} is not compiled."),
         };
+    }
+
+    /// <summary>
+    /// Boulder rolls through eight four-part frames. Its right-moving list plays the
+    /// same eight frames in reverse after the first frame; direction and duration
+    /// remain gameplay-owned.
+    /// </summary>
+    internal static ushort BoulderFrameAt(ushort operandAddress)
+    {
+        if (operandAddress >= 0x86a9 && operandAddress <= 0x86c5 &&
+            (operandAddress - 0x86a9) % 4 == 0)
+            return unchecked((ushort)(0x8a59 + (operandAddress - 0x86a9) / 4 * 0x16));
+        if (operandAddress >= 0x86cd && operandAddress <= 0x86e9 &&
+            (operandAddress - 0x86cd) % 4 == 0)
+        {
+            int index = (operandAddress - 0x86cd) / 4;
+            return unchecked((ushort)(0x8a59 + (index == 0 ? 0 : 8 - index) * 0x16));
+        }
+        throw new InvalidDataException(
+            $"Boulder visual operand $A6:{operandAddress:X4} is not compiled.");
     }
 }

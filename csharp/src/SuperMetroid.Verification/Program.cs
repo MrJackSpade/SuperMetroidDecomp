@@ -1524,6 +1524,16 @@ if (args is ["--enemy-visual-selector-inventory"])
     InspectEnemyVisualSelectors();
     return 0;
 }
+if (args is ["--generate-enemy-visual-selectors"])
+{
+    InspectEnemyVisualSelectors(generateCatalog: true);
+    return 0;
+}
+if (args is ["--verify-enemy-visual-selectors"])
+{
+    VerifyCompiledEnemyVisualSelectors();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
@@ -2495,6 +2505,7 @@ VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyEnemyTileArtwork();
+VerifyCompiledEnemyVisualSelectors();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

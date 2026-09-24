@@ -17,12 +17,22 @@ boss spritemaps and BG2 command data can accidentally satisfy the shallow count
 test. Never bulk-install those candidates without a family-specific production
 consumer and exact OAM/visual parity proof.
 
+The 4,161 fixed selector operand/target pairs are now compiled into sparse,
+bank-scoped definition files. `--generate-enemy-visual-selectors` regenerates
+them from the pinned cartridge, and `--verify-enemy-visual-selectors` checks
+every value, sorted lookup, and unknown-key rejection. This compiles only the
+fixed pointer *selection* data; it does not install selected OAM artwork or
+change runtime consumers yet. The six nonstandard catalogs remain outside this
+table. A target is not assumed to be an ordinary spritemap merely because its
+first word resembles a part count.
+
 Six catalogs require a nonstandard inventory route: CrocomireTongue and
 MotherBrainBaby lack the common mechanics-word/bank probe; DeadTourianCorpse,
 SkreeMetaree, WorkRobot, and Yard lack a simple presentation-word count. The
 largest candidate families include RoomSpriteObject, Draygon, Crocomire,
 NinjaSpacePirate, and KraidFoot, but their draw formats must be verified before
-extraction. This probe is development-only and does not move any runtime ROM read.
+extraction. The probe and generator are development-only; the checked-in
+definition table does not itself move any runtime ROM read.
 
 ## Confirmed remaining runtime mechanics reads
 

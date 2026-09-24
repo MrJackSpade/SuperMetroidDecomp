@@ -1772,7 +1772,7 @@ public sealed partial class RoomPlmSystem
                 int x = entryX + (vertical ? 0 : offset);
                 int y = entryY + (vertical ? offset : 0);
                 ushort physicalWord = run.LevelWords.Span[offset];
-            ushort visualWord = (useShotBlockVisuals ? shotBlockVisuals : null)
+                ushort visualWord = (useShotBlockVisuals ? shotBlockVisuals : null)
                     ?.GetWord(definition.Pointer, runIndex, offset)
                     ?? customVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;

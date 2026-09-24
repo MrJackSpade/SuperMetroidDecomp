@@ -228,8 +228,12 @@ static void VerifyRoomEnemyLoading()
         "boss state, placeholders, and empty-room behavior agree.");
 }
 
-private sealed class EnemyTileSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
+    ISnesAddressSpace, IRoomEnemyDefinitionFixtureSource
 {
+    public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+        source.ReadEnemyDefinition(pointer);
+
     public byte ReadByte(int address)
     {
         if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or

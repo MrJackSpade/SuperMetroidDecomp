@@ -1026,7 +1026,10 @@ public sealed partial class RoomEnemySystem
             }
 
             ushort vramDestination = ReadWord(bus, AddWithinBank(cursor, 2));
-            RoomEnemyDefinition definition = ReadDefinition(bus, definitionPointer);
+            // Retail enemy headers are immutable gameplay definitions. Graphics uploads
+            // still use the selected extracted artwork (or diagnostic ROM fallback), but
+            // the header itself must not be re-read from the cartridge on room entry.
+            RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(bus, definitionPointer);
 
             // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
             // enemy's selected code/data bank. Its assembly masks the entire low byte before
@@ -1123,7 +1126,7 @@ public sealed partial class RoomEnemySystem
                 ReadWord(bus, AddWithinBank(cursor, 10)),
                 ReadWord(bus, AddWithinBank(cursor, 12)),
                 ReadWord(bus, AddWithinBank(cursor, 14)));
-            RoomEnemyDefinition definition = ReadDefinition(bus, definitionPointer);
+            RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(bus, definitionPointer);
             RoomEnemySlot slot = _slots[slotIndex];
             InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
@@ -3970,6 +3973,13 @@ public sealed partial class RoomEnemySystem
         if (_bus is null)
             throw new InvalidOperationException("A room enemy population must be loaded first.");
     }
+
+    /// <summary>Uses compiled retail definitions unless a constructed test bus explicitly supplies fixtures.</summary>
+    private static RoomEnemyDefinition ResolveRoomEnemyDefinition(
+        ISnesAddressSpace bus, ushort pointer) =>
+        bus is IRoomEnemyDefinitionFixtureSource fixture
+            ? fixture.ReadEnemyDefinition(pointer)
+            : RoomEnemyDefinitionCatalog.Get(pointer);
 
     /// <summary>
     /// Parses one complete 64-byte enemy header from the fixed bank-$A0 definition table.

@@ -1576,6 +1576,11 @@ if (args is ["--door-definitions"])
     VerifyCompiledDoorDefinitions();
     return 0;
 }
+if (args is ["--enemy-definitions"])
+{
+    VerifyCompiledEnemyDefinitions();
+    return 0;
+}
 if (args is ["--room-scroll-definitions"])
 {
     VerifyCompiledRoomScrollDefinitions();
@@ -2416,6 +2421,7 @@ VerifyCompiledRoomStateDefinitions();
 VerifyCompiledRoomStateSelectionDefinitions();
 VerifyCompiledLoadStationDefinitions();
 VerifyCompiledDoorDefinitions();
+VerifyCompiledEnemyDefinitions();
 VerifyCompiledRoomScrollDefinitions();
 VerifyCompiledRoomCallbackDefinitions();
 VerifyCompiledRoomDefinitionIntegration();

@@ -31,7 +31,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
-sealed class TestAddressSpace : ISnesAddressSpace
+sealed class TestAddressSpace : ISnesAddressSpace, IRoomEnemyDefinitionFixtureSource
 {
     private readonly Dictionary<int, byte> _bytes = [];
 
@@ -56,6 +56,9 @@ sealed class TestAddressSpace : ISnesAddressSpace
         for (int index = 0; index < values.Length; index++)
             WriteByte(startAddress + index, values[index]);
     }
+
+    public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+        RoomEnemySystem.ReadDefinition(this, pointer);
 }
 
 /// <summary>

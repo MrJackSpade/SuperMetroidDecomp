@@ -34,6 +34,14 @@ NinjaSpacePirate, and KraidFoot, but their draw formats must be verified before
 extraction. The probe and generator are development-only; the checked-in
 definition table does not itself move any runtime ROM read.
 
+Walking Space Pirates are the first consumer of that table. Their 50 fixed
+frame-selector operands now resolve from compiled definitions during the real
+instruction dispatcher. The production-path verifier executes all 50 frames
+and the eight longer instruction programs with the original selector bytes
+forbidden, while comparing every selected pointer to the pinned cartridge.
+The spritemap payloads selected by those pointers remain presentation assets
+and are still ROM-backed until separately extracted and visually verified.
+
 ## Confirmed remaining runtime mechanics reads
 
 The previously enumerated Ridley claw-offset consumers are now compiled as well.

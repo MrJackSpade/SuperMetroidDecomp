@@ -2569,6 +2569,18 @@ public sealed partial class RoomEnemySystem
         if (EnemySpritemapDefinitions.TryFrameAt(
                 slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
             return frame;
+        // Walking Pirate frame operands are fixed cartridge definitions. Keep
+        // the selected spritemap payload on the ordinary artwork path below;
+        // only this instruction-stream pointer read has been compiled.
+        if (IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer))
+        {
+            if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
+                    operandAddress, out ushort selected))
+                return selected;
+            throw new InvalidDataException(
+                $"Walking Space Pirate has no compiled visual selector " +
+                $"${slot.Definition.Bank:X2}:{operandAddress:X4}.");
+        }
         return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
     }
 

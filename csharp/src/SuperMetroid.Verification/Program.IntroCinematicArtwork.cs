@@ -69,6 +69,7 @@ internal static partial class Program
                 }
             }
             VerifyCeresFlightArtwork(installation, bus);
+            VerifyCeresDestructionArtwork(installation, bus);
 
             string[] names =
             [
@@ -337,7 +338,10 @@ internal static partial class Program
                 IntroCinematicRomData.Assets.ObjectCharacters or
                 CeresFlightRomData.Assets.Mode7Characters or
                 CeresFlightRomData.Assets.Mode7Maps or
-                CeresFlightRomData.Assets.ObjectCharacters)
+                CeresFlightRomData.Assets.ObjectCharacters or
+                CeresDestructionRomData.Assets.ZebesTilemap or
+                CeresDestructionRomData.Assets.ZebesCharacters or
+                CeresDestructionRomData.Assets.SharedObjectCharacters)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

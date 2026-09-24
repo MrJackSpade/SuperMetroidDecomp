@@ -11,7 +11,8 @@ public sealed class IntroCinematicArtworkCatalog
         IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages,
         RoomBackgroundTilemapAtlas portraitTilemap,
         RoomBackgroundTilemapAtlas initialNarrationTilemap,
-        CeresFlightArtworkCatalog ceresFlight)
+        CeresFlightArtworkCatalog ceresFlight,
+        CeresDestructionArtworkCatalog ceresDestruction)
     {
         BackgroundCharacters = backgroundCharacters ?? throw new ArgumentNullException(nameof(backgroundCharacters));
         IntroObjectCharacters = introObjectCharacters ?? throw new ArgumentNullException(nameof(introObjectCharacters));
@@ -33,6 +34,7 @@ public sealed class IntroCinematicArtworkCatalog
         PortraitTilemap = RequirePage(portraitTilemap, "portrait");
         InitialNarrationTilemap = RequirePage(initialNarrationTilemap, "initial narration");
         CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
+        CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
 
         static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {
@@ -56,6 +58,8 @@ public sealed class IntroCinematicArtworkCatalog
     public ReadOnlyMemory<byte> InitialNarrationTilemap { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
     public CeresFlightArtworkCatalog CeresFlight { get; }
+    /// <summary>Destruction maps and subsequent Zebes reveal art.</summary>
+    public CeresDestructionArtworkCatalog CeresDestruction { get; }
 }
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>

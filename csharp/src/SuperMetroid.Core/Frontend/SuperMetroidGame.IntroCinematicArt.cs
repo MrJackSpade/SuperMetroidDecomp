@@ -14,5 +14,6 @@ public sealed partial class SuperMetroidGame
     {
         introCinematicArt = artwork;
         intro?.BindCharacterArtwork(artwork);
+        ceresDestruction?.BindArtwork(artwork);
     }
 }

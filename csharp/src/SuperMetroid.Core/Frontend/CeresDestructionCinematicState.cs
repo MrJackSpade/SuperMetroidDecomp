@@ -23,7 +23,8 @@ internal sealed partial class CeresDestructionCinematicState
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
-    private readonly byte[] ceresTilemaps;
+    private byte[] ceresTilemaps;
+    [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
     private readonly List<IntroDiscoverySprite> actors = [];
     private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
     private readonly SamusPowerBombExplosionState stationExplosion = new();
@@ -51,10 +52,12 @@ internal sealed partial class CeresDestructionCinematicState
     public CeresDestructionCinematicState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
-        PowerBombFixedColorCatalog? fixedColors = null)
+        PowerBombFixedColorCatalog? fixedColors = null,
+        IntroCinematicArtworkCatalog? artwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
+        this.artwork = artwork;
         stationExplosion.PresentationColors = fixedColors;
         // State $25 selects the common cinematic bank and destruction track eight.
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
@@ -63,16 +66,65 @@ internal sealed partial class CeresDestructionCinematicState
         audio?.QueueMusicDelayed(
             MusicCommand.SelectTrack(CeresDestructionRomData.Music.CeresTrack),
             MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
-        ceresTilemaps = RomDataReader.Decompress(
-            bus,
-            CeresDestructionRomData.Assets.CeresTilemaps,
-            maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
+        ceresTilemaps = LoadCeresTilemaps();
         SetupCeresDestruction();
     }
 
     /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
     internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
         stationExplosion.PresentationColors = colors;
+
+    /// <summary>
+    /// Rebinds host-owned artwork after restoring a debugger state. Only the native
+    /// graphics transfers already reached by the current phase are refreshed; counters,
+    /// actors, audio, palettes and gameplay timeline remain untouched.
+    /// </summary>
+    internal void BindArtwork(IntroCinematicArtworkCatalog? value)
+    {
+        artwork = value;
+        if (value is null) return;
+        ceresTilemaps = LoadCeresTilemaps();
+        if (Phase <= CeresDestructionPhase.FadeOutCeres)
+        {
+            vram.LoadMode7CharacterBytes(value.CeresFlight.Mode7Characters.Span);
+            vram.LoadBytes(CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+                value.CeresFlight.ObjectCharacters.Span);
+            vram.LoadBytes(CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+                value.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
+            int offset = Phase < CeresDestructionPhase.FlyingAwayFromExplosion
+                ? CeresDestructionRomData.Vram.CeresSceneTilemapOffset : 0;
+            vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(offset,
+                CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
+            if (Phase >= CeresDestructionPhase.FlyingAwayFromExplosion)
+                vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+                    CeresDestructionRomData.Vram.ClearMapSourceOffset,
+                    CeresDestructionRomData.Vram.MapHalfBytes),
+                    CeresDestructionRomData.Vram.ClearMapDestinationWord);
+        }
+        else
+        {
+            vram.LoadMode7CharacterBytes(value.CeresFlight.Mode7Characters.Span);
+            vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+                CeresDestructionRomData.Vram.MapHalfBytes,
+                CeresDestructionRomData.Vram.MapHalfBytes));
+            vram.LoadBytes(CeresDestructionRomData.Vram.ZebesTilemapDestinationByte,
+                value.CeresDestruction.ZebesMap.Transfer.Span);
+            vram.LoadBytes(CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+                value.CeresDestruction.ZebesCharacters.Transfer.Span);
+        }
+    }
+
+    private byte[] LoadCeresTilemaps()
+    {
+        if (artwork is null)
+            return RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.CeresTilemaps,
+                maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
+        var maps = new byte[CeresDestructionRomData.Vram.CeresMinimumTilemapBytes];
+        artwork.CeresFlight.Mode7Maps.Span.CopyTo(maps);
+        artwork.CeresDestruction.CeresMaps.Span.CopyTo(
+            maps.AsSpan(artwork.CeresFlight.Mode7Maps.Length));
+        return maps;
+    }
 
     public CeresDestructionPhase Phase { get; private set; }
 
@@ -270,14 +322,14 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SetupCeresDestruction()
     {
-        byte[] characters = RomDataReader.Decompress(
-            bus,
-            CeresDestructionRomData.Assets.Mode7Characters,
-            maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes);
-        byte[] objectCharacters = RomDataReader.Decompress(
-            bus,
-            CeresDestructionRomData.Assets.CeresObjectCharacters,
-            maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes);
+        byte[] characters = artwork is null
+            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.Mode7Characters,
+                maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
+            : artwork.CeresFlight.Mode7Characters.ToArray();
+        byte[] objectCharacters = artwork is null
+            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.CeresObjectCharacters,
+                maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
+            : artwork.CeresFlight.ObjectCharacters.ToArray();
         RequireMinimum(characters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
             "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
@@ -308,9 +360,11 @@ internal sealed partial class CeresDestructionCinematicState
         // decompressed source's stale characters for explosion spritemaps.
         vram.LoadBytes(
             CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
-            ReadBusBytes(
-                CeresDestructionRomData.Assets.SharedObjectCharacters,
-                CeresDestructionRomData.Vram.SharedObjectCharacterBytes));
+            artwork is null
+                ? ReadBusBytes(CeresDestructionRomData.Assets.SharedObjectCharacters,
+                    CeresDestructionRomData.Vram.SharedObjectCharacterBytes)
+                : artwork.IntroObjectCharacters.Transfer.Span
+                    [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
         cgram.LoadFromBus(bus, CeresDestructionRomData.Assets.Palette);
 
         actors.Clear();
@@ -325,14 +379,14 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SetupZebesReveal()
     {
-        byte[] zebesTilemap = RomDataReader.Decompress(
-            bus,
-            CeresDestructionRomData.Assets.ZebesTilemap,
-            maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
-        byte[] zebesCharacters = RomDataReader.Decompress(
-            bus,
-            CeresDestructionRomData.Assets.ZebesCharacters,
-            maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes);
+        byte[] zebesTilemap = artwork is null
+            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.ZebesTilemap,
+                maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit)
+            : artwork.CeresDestruction.ZebesMap.Transfer.ToArray();
+        byte[] zebesCharacters = artwork is null
+            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.ZebesCharacters,
+                maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
+            : artwork.CeresDestruction.ZebesCharacters.Transfer.ToArray();
         RequireMinimum(zebesTilemap, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
             "Zebes reveal tilemap");
         RequireMinimum(zebesCharacters, CeresDestructionRomData.Vram.Mode7CharacterBytes,

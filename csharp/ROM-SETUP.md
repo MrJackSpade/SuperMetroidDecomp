@@ -121,6 +121,15 @@ The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 in
 same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
 sheet; the game's camera, scale, rotation, actor movement and letter timing remain code.
 
+Ceres destruction reuses those character sheets and the approach's front/rear maps.
+Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`
+(three ordered 32x24 views). The following planet reveal uses
+`zebes-reveal-tilemap.json` (one 32x32 BG page) and
+`zebes-reveal-characters.png` (256x128 indexed). Each can be overridden separately
+under `overrides/intro-cinematic/`; restored debugger states rebind these visuals
+without restarting the destruction or descent timeline. Explosion, actor and
+camera behavior remain compiled cartridge logic.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

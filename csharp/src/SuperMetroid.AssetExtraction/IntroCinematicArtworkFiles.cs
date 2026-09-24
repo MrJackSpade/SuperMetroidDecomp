@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 5;
+    private const int FormatVersion = 6;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -50,6 +50,12 @@ public static class IntroCinematicArtworkFiles
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
+        {
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(file);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+        }
+        foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
@@ -125,7 +131,8 @@ public static class IntroCinematicArtworkFiles
                 .ToArray(),
             LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
             LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName),
-            LoadCeresFlight());
+            LoadCeresFlight(),
+            LoadCeresDestruction());
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {
@@ -173,6 +180,26 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        CeresDestructionArtworkCatalog LoadCeresDestruction()
+        {
+            (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
+            (string zebesMapPath, byte[] zebesMap) = ReadSelected(CeresDestructionArtworkFormat.ZebesMapFileName);
+            (string zebesPngPath, byte[] zebesPng) = ReadSelected(CeresDestructionArtworkFormat.ZebesCharacterFileName);
+            try
+            {
+                return CeresDestructionArtworkCatalog.Load(
+                    new MemoryStream(ceres, writable: false),
+                    new MemoryStream(zebesMap, writable: false),
+                    new MemoryStream(zebesPng, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}): {error.Message}",
+                    error);
+            }
+        }
+
         (string Path, byte[] Bytes) ReadSelected(string name)
         {
             string stockPath = Path.Combine(stockDirectory, name);
@@ -199,6 +226,9 @@ public static class IntroCinematicArtworkFiles
         CeresFlightArtworkFormat.Mode7FileName,
         CeresFlightArtworkFormat.MapFileName,
         CeresFlightArtworkFormat.ObjectFileName,
+        CeresDestructionArtworkFormat.CeresMapFileName,
+        CeresDestructionArtworkFormat.ZebesMapFileName,
+        CeresDestructionArtworkFormat.ZebesCharacterFileName,
     ];
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);

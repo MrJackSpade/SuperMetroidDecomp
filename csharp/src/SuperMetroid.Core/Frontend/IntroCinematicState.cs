@@ -49,6 +49,13 @@ public sealed partial class IntroCinematicState
         if (value is not null)
             ApplyIntroFont(value.Transfer.Span);
     }
+    /// <summary>Rebinds installed background pixels after restoring emulated state.</summary>
+    public void BindBackgroundArtwork(IntroBackgroundAtlas? value)
+    {
+        if (value is not null)
+            vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
+                value.Transfer.Span);
+    }
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
 
@@ -91,7 +98,8 @@ public sealed partial class IntroCinematicState
     public IntroCinematicState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
-        IntroFontAtlas? introFont = null)
+        IntroFontAtlas? introFont = null,
+        IntroBackgroundAtlas? backgroundArtwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
@@ -103,7 +111,7 @@ public sealed partial class IntroCinematicState
         cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
         cgram.Colors.CopyTo(introPalette);
 
-        byte[] bgCharacters = RomDataReader.Decompress(
+        byte[] bgCharacters = backgroundArtwork?.Transfer.ToArray() ?? RomDataReader.Decompress(
             bus,
             IntroCinematicRomData.Assets.BackgroundCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundCharacterBytes);

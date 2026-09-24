@@ -1513,6 +1513,11 @@ if (args is ["--room-character-atlases"])
     VerifyRoomCharacterAtlases();
     return 0;
 }
+if (args is ["--intro-background-artwork", var introBackgroundRom])
+{
+    VerifyIntroBackgroundArtwork(introBackgroundRom);
+    return 0;
+}
 if (args is ["--room-character-installation", var roomCharacterRom])
 {
     VerifyRoomArtworkInstallation(roomCharacterRom);
@@ -2422,6 +2427,7 @@ VerifyFileSelectFreshSaveTilemap();
 VerifyFileSelectMapWindow();
 VerifySavedGameLoadAppearance();
 VerifyIntroCinematicRomData();
+VerifyIntroBackgroundArtwork(Path.GetFullPath("Super Metroid.smc"));
 VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyIntroMotherBrainDefinitions();
 VerifyIntroRinkaDefinitions();

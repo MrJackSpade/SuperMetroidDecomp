@@ -80,6 +80,7 @@ public static class GameAssetInstaller
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
+            IntroBackgroundArtworkFiles.ValidateStock(installation.IntroBackgroundDirectory);
             RoomStaticPaletteArtworkFiles.ValidateStock(installation.RoomPaletteDirectory);
             RoomMetatileArtworkFiles.ValidateStock(installation.RoomMetatileDirectory);
             RoomBackgroundTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
@@ -124,6 +125,12 @@ public static class GameAssetInstaller
             RoomCharacterArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomCharacters,
                 SupportedCartridge.Sha256);
             RoomCharacterArtworkFiles.ValidateStock(roomCharacters);
+            progress?.Report("Extracting opening-cinematic background artwork...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string introBackground = Path.Combine(staging, GameInstallationLayout.IntroBackgroundDirectoryName);
+            IntroBackgroundArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), introBackground,
+                SupportedCartridge.Sha256);
+            IntroBackgroundArtworkFiles.ValidateStock(introBackground);
             progress?.Report("Extracting room base palettes...");
             cancellationToken.ThrowIfCancellationRequested();
             string roomPalettes = Path.Combine(staging, GameInstallationLayout.RoomPaletteDirectoryName);

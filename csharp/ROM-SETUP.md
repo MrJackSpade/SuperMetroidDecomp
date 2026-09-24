@@ -2,7 +2,7 @@
 
 Desktop and Android use the same `SuperMetroid.AssetExtraction` library. Application
 packages contain no ROM or extracted audio. Most graphics and room data are still read
-from the installed ROM; setup extracts room-character PNGs, base room palettes, other selected presentation
+from the installed ROM; setup extracts room-character and opening-cinematic PNGs, base room palettes, other selected presentation
 assets, and the audio catalog/112 PCM WAVs. No upstream disassembly checkout is needed.
 
 Supported image: Super Metroid Japan/USA NTSC v1.0, 3 MiB, SHA-256
@@ -50,6 +50,7 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
+- `game/intro-cinematic/`: stock indexed opening-background PNG and its manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
@@ -80,6 +81,8 @@ dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release 
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
 # Check room-character, palette and visual-block stock import, edits, repair and invalid overrides.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
+# Check the opening background PNG, live VRAM replacement, and stock repair.
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-background-artwork "C:\ROMs\Super Metroid.smc"
 ```
 
 The integration verifier accepts an optional second argument containing reference audio
@@ -88,6 +91,17 @@ header normalization, invalid input, cancellation, asset repair, interrupted pub
 save preservation, and booting the production Android session from the installed layout.
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
+
+## Opening-cinematic background PNG override
+
+The opening cinematic's 32 KiB background-character sheet is separately installed as
+`game/intro-cinematic/intro-background-characters.png`. Copy it to the same filename under
+`overrides/intro-cinematic/` and edit its 256x256 indexed pixels (indexes 0 through 15).
+Restart to select the edit; loading a debugger state rebinds the current sheet. Palette
+colors, scene tilemaps, object sprites, scrolling, and timing are not changed by this PNG.
+The stock file and `intro-background.json` are validated and repaired from the installed
+ROM; the override survives repair and application updates. Invalid overrides fail with
+their file path instead of silently falling back.
 
 ## Room-character PNG overrides
 

@@ -19,6 +19,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly bool installedSession;
     private readonly ExtractedAudioAssetCatalog assets;
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
+    private readonly SuperMetroid.Core.Assets.IntroBackgroundAtlas? introBackgroundArt;
     private readonly SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog? roomCharacters;
     private readonly SuperMetroid.Core.Assets.RoomStaticPaletteCatalog? roomPalettes;
     private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog? roomMetatiles;
@@ -48,6 +49,9 @@ internal sealed class AndroidSessionData : IDisposable
         // ordinary installed Android sessions require the installed map catalog.
         maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
+        introBackgroundArt = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadIntroBackground() : null;
+        Game.BindIntroBackgroundArt(introBackgroundArt);
         roomCharacters = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomCharacters() : null;
         Game.BindRoomCharacterArt(roomCharacters);
@@ -148,6 +152,7 @@ internal sealed class AndroidSessionData : IDisposable
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
+        Game.BindIntroBackgroundArt(introBackgroundArt);
         Game.BindRoomCharacterArt(roomCharacters);
         Game.BindRoomPaletteArt(roomPalettes);
         Game.BindRoomMetatileArt(roomMetatiles);

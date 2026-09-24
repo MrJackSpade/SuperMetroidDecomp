@@ -181,6 +181,10 @@ internal static partial class Program
         expected.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
         if (!presentation.Colors.SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
+        AssertEqual(TitleSequenceRomData.Palette.CopyrightWhite,
+            presentation.SkipCopyrightWhite, "extracted title skip copyright white");
+        AssertEqual(TitleSequenceRomData.Palette.CopyrightRed,
+            presentation.SkipCopyrightRed, "extracted title skip copyright red");
 
         VerifyExtractedTitleAmbientPalette(bus, presentation);
 
@@ -196,8 +200,24 @@ internal static partial class Program
             throw new InvalidDataException(
                 "Production title initialization did not use the installed palette exclusively.");
         }
+        var nativeSkip = new TitleSequenceState(bus);
+        var installedSkip = new TitleSequenceState(bus, titlePalettePresentation: presentation);
+        nativeSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        installedSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        for (int frame = 0; frame < 18; frame++)
+        {
+            nativeSkip.Step(0);
+            installedSkip.Step(0);
+        }
+        AssertEqual(nativeSkip.Phase, installedSkip.Phase, "title skip phase unaffected by installed colors");
+        AssertEqual(nativeSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            installedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            "installed title skip white matches native");
+        AssertEqual(nativeSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+            installedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+            "installed title skip red matches native");
         Console.WriteLine(
-            $"  Title palette presentation: {SnesCgram.ColorCount} initial and 36 ambient " +
+            $"  Title palette presentation: {SnesCgram.ColorCount} initial, 36 ambient, and two skip " +
             $"editable colors match ROM; production avoided {paletteAddresses.Count} " +
             "initial cartridge source bytes.");
     }
@@ -303,8 +323,17 @@ internal static partial class Program
         Reject("title palette rejects non-RGB5 ambient color");
         tube[0][0] = firstAmbient;
 
+        PaletteRgb5 skipWhite = document.SkipCopyrightWhite;
+        document = document with { SkipCopyrightWhite = skipWhite with { Red = 32 } };
+        Reject("title palette rejects out-of-range skip copyright white");
+        document = document with { SkipCopyrightWhite = skipWhite };
+        PaletteRgb5 skipRed = document.SkipCopyrightRed;
+        document = document with { SkipCopyrightRed = skipRed with { Blue = 32 } };
+        Reject("title palette rejects out-of-range skip copyright red");
+        document = document with { SkipCopyrightRed = skipRed };
+
         string unknownField = System.Text.Encoding.UTF8.GetString(extracted)
-            .Replace("\"version\": 2", "\"version\": 2,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
+            .Replace("\"version\": 3", "\"version\": 3,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => TitlePalettePresentation.Load(new MemoryStream(
                 System.Text.Encoding.UTF8.GetBytes(unknownField), writable: false)),

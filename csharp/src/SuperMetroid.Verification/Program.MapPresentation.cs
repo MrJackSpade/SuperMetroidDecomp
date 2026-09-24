@@ -900,6 +900,11 @@ internal static partial class Program
         {
             Blue = ambient.Blue == 31 ? 30 : ambient.Blue + 1,
         };
+        document = document with
+        {
+            SkipCopyrightWhite = document.SkipCopyrightWhite with { Red = 0, Green = 31, Blue = 0 },
+            SkipCopyrightRed = document.SkipCopyrightRed with { Red = 0, Green = 0, Blue = 31 },
+        };
 
         string replacement = Path.Combine(overrides, TitlePaletteFormat.FileName);
         using (var stream = File.Create(replacement))
@@ -922,6 +927,37 @@ internal static partial class Program
             "production title consumes selected ambient palette override");
         AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
+
+        var stockSkip = new TitleSequenceState(bus, titlePalettePresentation: original.TitlePalette);
+        var editedSkip = new TitleSequenceState(bus, titlePalettePresentation: edited.TitlePalette);
+        stockSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        editedSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        for (int frame = 0; frame < 18; frame++)
+        {
+            stockSkip.Step(0);
+            editedSkip.Step(0);
+        }
+        AssertEqual(stockSkip.Phase, editedSkip.Phase,
+            "skip copyright palette override preserves title phase");
+        AssertEqual(edited.TitlePalette.SkipCopyrightWhite,
+            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            "skip route uses edited copyright white");
+        AssertEqual(edited.TitlePalette.SkipCopyrightRed,
+            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+            "skip route uses edited copyright red");
+        AssertTrue(!stockSkip.Render().AsSpan().SequenceEqual(editedSkip.Render()),
+            "skip copyright palette override changes rendered title output");
+        editedSkip.BindTitlePalette(original.TitlePalette);
+        AssertEqual(original.TitlePalette.SkipCopyrightWhite,
+            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            "restored title uses current stock skip white");
+        AssertEqual(original.TitlePalette.SkipCopyrightRed,
+            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
+            "restored title uses current stock skip red");
+        editedSkip.BindTitlePalette(edited.TitlePalette);
+        AssertEqual(edited.TitlePalette.SkipCopyrightWhite,
+            editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightWhiteIndex],
+            "live title rebind applies edited skip white");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);

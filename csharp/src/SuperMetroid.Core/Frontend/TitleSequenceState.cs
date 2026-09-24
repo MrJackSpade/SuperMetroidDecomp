@@ -189,6 +189,17 @@ public sealed class TitleSequenceState
     {
         titlePalettePresentation = presentation;
         consolePaletteFx.BindPresentationColors(presentation);
+        // EnterImmediateTitleObjects already overlaid these two cells before a saved
+        // title-screen state was captured. Reapply the currently installed colors so
+        // loading that state cannot pin the previous installation's glyph colors.
+        if (phase is TitleSequencePhase.TitleScreenFadeIn or
+            TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
+        {
+            cgram.SetColor(TitleSequenceRomData.Palette.CopyrightWhiteIndex,
+                presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite);
+            cgram.SetColor(TitleSequenceRomData.Palette.CopyrightRedIndex,
+                presentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
+        }
     }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
@@ -559,10 +570,10 @@ public sealed class TitleSequenceState
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
         cgram.SetColor(
             TitleSequenceRomData.Palette.CopyrightWhiteIndex,
-            TitleSequenceRomData.Palette.CopyrightWhite);
+            titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite);
         cgram.SetColor(
             TitleSequenceRomData.Palette.CopyrightRedIndex,
-            TitleSequenceRomData.Palette.CopyrightRed);
+            titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
         activeOriginX = TitleSequenceRomData.Sprites.LogoX;
         activeOriginY = TitleSequenceRomData.Sprites.LogoY;

@@ -29,6 +29,8 @@ internal static class TitlePaletteExtractor
                 TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight),
             FlickeringDisplays = ExtractAmbient(
                 TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays),
+            SkipCopyrightWhite = ToRgb5(TitleSequenceRomData.Palette.CopyrightWhite),
+            SkipCopyrightRed = ToRgb5(TitleSequenceRomData.Palette.CopyrightRed),
         });
         return json.ToArray();
 
@@ -59,5 +61,12 @@ internal static class TitlePaletteExtractor
             }
             return frames;
         }
+
+        static PaletteRgb5 ToRgb5(ushort color) => new()
+        {
+            Red = color & 31,
+            Green = color >> 5 & 31,
+            Blue = color >> 10 & 31,
+        };
     }
 }

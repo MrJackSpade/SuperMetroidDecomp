@@ -15,13 +15,21 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
     private TitlePalettePresentation(
         ushort[] colors,
-        Dictionary<ushort, ushort> animatedColors)
+        Dictionary<ushort, ushort> animatedColors,
+        ushort skipCopyrightWhite,
+        ushort skipCopyrightRed)
     {
         this.colors = colors;
         this.animatedColors = animatedColors;
+        SkipCopyrightWhite = skipCopyrightWhite;
+        SkipCopyrightRed = skipCopyrightRed;
     }
 
     public ReadOnlySpan<ushort> Colors => colors;
+
+    /// <summary>The two copyright glyph colors restored by the title's fast-skip route.</summary>
+    public ushort SkipCopyrightWhite { get; }
+    public ushort SkipCopyrightRed { get; }
 
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
@@ -122,7 +130,17 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             }
         }
 
-        return new TitlePalettePresentation(colors, animatedColors);
+        return new TitlePalettePresentation(colors, animatedColors,
+            PackColor(document.SkipCopyrightWhite, "skip copyright white"),
+            PackColor(document.SkipCopyrightRed, "skip copyright red"));
+    }
+
+    private static ushort PackColor(PaletteRgb5? color, string name)
+    {
+        if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
+            (uint)color.Blue > 31)
+            throw new InvalidDataException($"Title {name} requires RGB components from 0 to 31.");
+        return (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
     }
 
     public static void Write(Stream json, TitlePaletteDocument document)
@@ -139,10 +157,12 @@ public sealed record TitlePaletteDocument
     public required PaletteRgb5[] Colors { get; init; }
     public required PaletteRgb5[][] BabyMetroidTubeLight { get; init; }
     public required PaletteRgb5[][] FlickeringDisplays { get; init; }
+    public required PaletteRgb5 SkipCopyrightWhite { get; init; }
+    public required PaletteRgb5 SkipCopyrightRed { get; init; }
 }
 
 public static class TitlePaletteFormat
 {
     public const string FileName = "title-palette.json";
-    public const int Version = 2;
+    public const int Version = 3;
 }

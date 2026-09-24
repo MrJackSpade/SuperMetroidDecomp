@@ -235,6 +235,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindIntroCinematicArt(introCinematicArt);
         endingMode7Art = installation?.LoadEndingMode7Art();
         game.BindEndingMode7Art(endingMode7Art);
+        endingObjectArt = installation?.LoadEndingObjectArt();
+        game.BindEndingObjectArt(endingObjectArt);
         roomCharacterArt = installation?.LoadRoomCharacters();
         game.BindRoomCharacterArt(roomCharacterArt);
         roomPaletteArt = installation?.LoadRoomPalettes();
@@ -349,6 +351,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindMapPresentation(mapPresentation);
         game.BindIntroCinematicArt(introCinematicArt);
         game.BindEndingMode7Art(endingMode7Art);
+        game.BindEndingObjectArt(endingObjectArt);
         game.BindRoomCharacterArt(roomCharacterArt);
         game.BindRoomPaletteArt(roomPaletteArt);
         game.BindRoomMetatileArt(roomMetatileArt);

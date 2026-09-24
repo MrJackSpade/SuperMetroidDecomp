@@ -56,6 +56,7 @@ internal sealed partial class EndingCreditsState
     [NonSerialized] private CreditsPresentation? staffCredits;
     [NonSerialized] private CeresFlightArtworkCatalog? flightArtwork;
     [NonSerialized] private EndingMode7ArtworkCatalog? mode7Artwork;
+    [NonSerialized] private EndingObjectArtworkCatalog? objectArtwork;
 
     public EndingCreditsState(
         ISnesAddressSpace bus,
@@ -587,6 +588,19 @@ internal sealed partial class EndingCreditsState
         }
     }
 
+    /// <summary>Reapplies the current ending OBJ uploads after a state restore.</summary>
+    internal void BindObjectArtwork(EndingObjectArtworkCatalog? value)
+    {
+        objectArtwork = value;
+        if (value is null) return;
+        if (Phase is >= EndingCreditsPhase.WaitForEscapeMusic and
+            <= EndingCreditsPhase.FadeOutEscapeSceneB)
+            LoadEscapeCloudCharacters();
+        else if (Phase is >= EndingCreditsPhase.FadeInZebesExplosion and
+            < EndingCreditsPhase.Credits)
+            LoadEndingObjectCharacters();
+    }
+
     private void LoadMode7(EndingMode7SceneId scene)
     {
         if (mode7Artwork is not null)
@@ -630,8 +644,10 @@ internal sealed partial class EndingCreditsState
 
     private void LoadEscapeCloudCharacters()
     {
-        byte[] clouds = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.EscapeCloudCharacters,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] clouds = objectArtwork is null
+            ? RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.EscapeCloudCharacters,
+                EndingCreditsRomData.Rendering.DecompressionLimit)
+            : objectArtwork.Clouds.Transfer.ToArray();
         RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
         vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
             clouds.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
@@ -639,10 +655,10 @@ internal sealed partial class EndingCreditsState
 
     private void LoadEndingObjectCharacters()
     {
-        byte[] main = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.EndingObjectCharacters,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] main = objectArtwork is null
+            ? RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.EndingObjectCharacters,
+                EndingCreditsRomData.Rendering.DecompressionLimit)
+            : objectArtwork.Explosion.Transfer.ToArray();
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
         RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
             "ending OBJ characters");
@@ -651,16 +667,20 @@ internal sealed partial class EndingCreditsState
             main.AsSpan(0, EndingCreditsRomData.Rendering.ExplosionObjectBytes));
         LoadObjectFragment(
             EndingCreditsRomData.Assets.EndingObjectCharacters70,
-            EndingCreditsRomData.Rendering.Fragment70Destination);
+            EndingCreditsRomData.Rendering.Fragment70Destination,
+            EndingObjectFragmentId.Segment70);
         LoadObjectFragment(
             EndingCreditsRomData.Assets.EndingObjectCharacters74,
-            EndingCreditsRomData.Rendering.Fragment74Destination);
+            EndingCreditsRomData.Rendering.Fragment74Destination,
+            EndingObjectFragmentId.Segment74);
         LoadObjectFragment(
             EndingCreditsRomData.Assets.EndingObjectCharacters78,
-            EndingCreditsRomData.Rendering.Fragment78Destination);
+            EndingCreditsRomData.Rendering.Fragment78Destination,
+            EndingObjectFragmentId.Segment78);
         LoadObjectFragment(
             EndingCreditsRomData.Assets.EndingObjectCharacters7C,
-            EndingCreditsRomData.Rendering.Fragment7CDestination);
+            EndingCreditsRomData.Rendering.Fragment7CDestination,
+            EndingObjectFragmentId.Segment7C);
         ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
         RequireMinimum(font, EndingCreditsRomData.Rendering.ObjectFragmentLimit,
             "ending font characters");
@@ -669,10 +689,13 @@ internal sealed partial class EndingCreditsState
             font.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
     }
 
-    private void LoadObjectFragment(int sourceAddress, int destinationByte)
+    private void LoadObjectFragment(int sourceAddress, int destinationByte,
+        EndingObjectFragmentId fragmentId)
     {
-        byte[] fragment = RomDataReader.Decompress(
-            bus, sourceAddress, EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        byte[] fragment = objectArtwork is null
+            ? RomDataReader.Decompress(bus, sourceAddress,
+                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
+            : objectArtwork.Fragment(fragmentId).Transfer.ToArray();
         RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
             "ending OBJ fragment");
         vram.LoadBytes(

@@ -21,6 +21,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
     private readonly SuperMetroid.Core.Assets.IntroCinematicArtworkCatalog? introCinematicArt;
     private readonly SuperMetroid.Core.Assets.EndingMode7ArtworkCatalog? endingMode7Art;
+    private readonly SuperMetroid.Core.Assets.EndingObjectArtworkCatalog? endingObjectArt;
     private readonly SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog? roomCharacters;
     private readonly SuperMetroid.Core.Assets.RoomStaticPaletteCatalog? roomPalettes;
     private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog? roomMetatiles;
@@ -56,6 +57,9 @@ internal sealed class AndroidSessionData : IDisposable
         endingMode7Art = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEndingMode7Art() : null;
         Game.BindEndingMode7Art(endingMode7Art);
+        endingObjectArt = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadEndingObjectArt() : null;
+        Game.BindEndingObjectArt(endingObjectArt);
         roomCharacters = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomCharacters() : null;
         Game.BindRoomCharacterArt(roomCharacters);
@@ -158,6 +162,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindMapPresentation(maps);
         Game.BindIntroCinematicArt(introCinematicArt);
         Game.BindEndingMode7Art(endingMode7Art);
+        Game.BindEndingObjectArt(endingObjectArt);
         Game.BindRoomCharacterArt(roomCharacters);
         Game.BindRoomPaletteArt(roomPalettes);
         Game.BindRoomMetatileArt(roomMetatiles);

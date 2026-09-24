@@ -47,6 +47,7 @@ internal static partial class Program
     {
         VerifyDownwardGateProgramDefinitions();
         VerifyDownwardGateDrawDefinitions();
+        VerifyDownwardGateVisuals();
         VerifyDownwardGateSetupAndProjectile();
 
         var cases = new (DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted)[]
@@ -297,7 +298,8 @@ internal static partial class Program
 
     private static (TestAddressSpace Bus, RoomLevelData Level,
         BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms, int GateBlockIndex)
-        CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger)
+        CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
+            RoomPlmDownwardGateVisualCatalog? visuals = null)
     {
         var bus = new TestAddressSpace();
         const ushort populationPointer = 0x9400;
@@ -315,14 +317,20 @@ internal static partial class Program
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
         SeedDownwardGateProjectileRom(bus);
 
+        var blockDefinitions = new byte[0x400 * 8];
+        for (int tile = 0; tile < 4; tile++)
+        {
+            blockDefinitions[0x0ff * 8 + tile * 2] = 0x0f;
+            blockDefinitions[0x053 * 8 + tile * 2] = 0x53;
+        }
         RoomLevelData level = CreateRoom(
             roomWidth,
             16,
             new ushort[roomWidth * 16],
             new byte[roomWidth * 16],
-            blockDefinitions: new byte[0x400 * 8]);
+            blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        var plms = new RoomPlmSystem();
+        var plms = new RoomPlmSystem { DownwardGateVisuals = visuals };
         int parsed = plms.LoadRoomPopulation(
             bus,
             level,

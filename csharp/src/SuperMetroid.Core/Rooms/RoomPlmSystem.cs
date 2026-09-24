@@ -34,6 +34,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmShotBlockVisualCatalog? shotBlockVisuals;
     [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? grappleBlockVisuals;
     [NonSerialized] private RoomPlmStationVisualCatalog? stationVisuals;
+    [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
     public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals
@@ -54,6 +55,13 @@ public sealed partial class RoomPlmSystem
     {
         get => stationVisuals;
         set => stationVisuals = value;
+    }
+
+    /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
+    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals
+    {
+        get => downwardGateVisuals;
+        set => downwardGateVisuals = value;
     }
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
@@ -1696,7 +1704,7 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, gate, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false, gateVisuals: downwardGateVisuals);
             return;
         }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
@@ -1762,7 +1770,8 @@ public sealed partial class RoomPlmSystem
         ushort layer1YPosition,
         ushort bg1XOffset,
         bool useShotBlockVisuals,
-        RoomPlmStationVisualCatalog? customVisuals = null)
+        RoomPlmStationVisualCatalog? customVisuals = null,
+        RoomPlmDownwardGateVisualCatalog? gateVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -1783,6 +1792,7 @@ public sealed partial class RoomPlmSystem
                 ushort visualWord = (useShotBlockVisuals ? shotBlockVisuals : null)
                     ?.GetWord(definition.Pointer, runIndex, offset)
                     ?? customVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? gateVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

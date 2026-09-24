@@ -252,6 +252,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
         roomPlmStationVisuals = installation?.LoadRoomPlmStationVisuals();
         game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
+        roomPlmDownwardGateVisuals = installation?.LoadRoomPlmDownwardGateVisuals();
+        game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
         xrayRevealVisuals = installation?.LoadXrayRevealVisuals();
         game.BindXrayRevealVisuals(xrayRevealVisuals);
         roomBackgroundTilemapArt = installation?.LoadRoomBackgroundTilemaps();
@@ -369,6 +371,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
         game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
         game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
+        game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
         game.BindXrayRevealVisuals(xrayRevealVisuals);
         game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);

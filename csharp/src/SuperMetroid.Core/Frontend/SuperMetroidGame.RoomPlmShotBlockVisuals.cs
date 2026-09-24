@@ -7,6 +7,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmShotBlockVisualCatalog? roomPlmShotBlockVisuals;
     [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? roomPlmGrappleBlockVisuals;
     [NonSerialized] private RoomPlmStationVisualCatalog? roomPlmStationVisuals;
+    [NonSerialized] private RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
 
     /// <summary>Binds installed shot-block visuals at startup and after state restoration.</summary>
     public void BindRoomPlmShotBlockVisuals(RoomPlmShotBlockVisualCatalog? catalog)
@@ -27,5 +28,12 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmStationVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmStationVisuals = catalog;
+    }
+
+    /// <summary>Binds installed downward-gate block art at startup and after state restoration.</summary>
+    public void BindRoomPlmDownwardGateVisuals(RoomPlmDownwardGateVisualCatalog? catalog)
+    {
+        roomPlmDownwardGateVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmDownwardGateVisuals = catalog;
     }
 }

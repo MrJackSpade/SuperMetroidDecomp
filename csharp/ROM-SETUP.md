@@ -352,6 +352,18 @@ The stock file is hash-checked; the override lives outside replaceable stock
 content and survives installation repair or updates. Other room-object
 families still need separate presentation resources.
 
+Downward-gate PLM block appearances are installed as
+`game/room-plm-downward-gates/downward-gates.json`. Copy that file to
+`overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`
+visual words (0..4095), then restart. Keep all 14 semantic IDs and each
+run/word count: six `column-frame-*` entries and left/right trigger entries
+for blue, green, red, and yellow gates. These words select visual blocks from
+the active room's combined CRE/area definitions. The compiled draw geometry,
+physical level words, collision, shot filters, and animation timing do not
+change. The visible moving gate actor uses separate bank-$86 sprite art and is
+not replaced by this resource. Invalid stock or override data fails loudly;
+the override survives stock installation repair or updates.
+
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,
 `bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names

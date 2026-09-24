@@ -13,12 +13,45 @@ internal static class DownwardGatePlmDrawDefinitions
 
     private static readonly IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
+    private static readonly IReadOnlyDictionary<ushort, string> VisualIds = BuildVisualIds();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
 
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
+
+    internal static string VisualId(ushort pointer) =>
+        VisualIds.TryGetValue(pointer, out string? id)
+            ? id
+            : throw new InvalidDataException($"Downward gate draw list ${pointer:X4} has no visual ID.");
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach ((ushort pointer, string candidate) in VisualIds)
+            if (string.Equals(id, candidate, StringComparison.Ordinal))
+                return Lists.TryGetValue(pointer, out list);
+        list = default;
+        return false;
+    }
+
+    private static IReadOnlyDictionary<ushort, string> BuildVisualIds()
+    {
+        var ids = new Dictionary<ushort, string>();
+        for (int frame = 0; frame < 6; frame++)
+            ids.Add(checked((ushort)(ResidentFirst + frame * 14)), $"column-frame-{frame}");
+        string[] colors = ["blue", "green", "red", "yellow"];
+        for (int color = 0; color < colors.Length; color++)
+        {
+            ushort left = checked((ushort)(TriggerLeftFirst + color * 20));
+            ids.Add(left, $"{colors[color]}-left-trigger");
+            ids.Add(checked((ushort)(left + 12)), $"{colors[color]}-right-trigger");
+        }
+        if (ids.Count != Lists.Count)
+            throw new InvalidDataException("Downward gate visual IDs do not cover all draw lists.");
+        return ids;
+    }
 
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()

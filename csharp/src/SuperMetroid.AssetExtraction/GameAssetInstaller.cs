@@ -91,6 +91,7 @@ public static class GameAssetInstaller
             RoomPlmShotBlockVisualFiles.ValidateStock(installation.RoomPlmShotBlockVisualDirectory);
             RoomPlmGrappleBlockVisualFiles.ValidateStock(installation.RoomPlmGrappleBlockVisualDirectory);
             RoomPlmStationVisualFiles.ValidateStock(installation.RoomPlmStationVisualDirectory);
+            RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
@@ -207,6 +208,13 @@ public static class GameAssetInstaller
             RoomPlmStationVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 stationVisuals, SupportedCartridge.Sha256);
             RoomPlmStationVisualFiles.ValidateStock(stationVisuals);
+            progress?.Report("Extracting downward-gate PLM visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string gateVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
+            RoomPlmDownwardGateVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                gateVisuals, SupportedCartridge.Sha256);
+            RoomPlmDownwardGateVisualFiles.ValidateStock(gateVisuals);
             progress?.Report("Extracting X-ray reveal visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string xrayReveals = Path.Combine(staging,

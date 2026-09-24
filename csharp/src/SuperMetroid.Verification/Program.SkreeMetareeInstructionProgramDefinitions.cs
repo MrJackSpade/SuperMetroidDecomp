@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -32,8 +33,8 @@ internal static partial class Program
         VerifySpecies(metaree: true);
         VerifySpecies(metaree: false);
 
-        AssertEqual(22, guard.ObservedPresentationWords.Count,
-            "all live Skree/Metaree spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Skree/Metaree programs never read installed visual selectors");
         for (int species = 0; species < 2; species++)
         {
             bool metaree = species == 0;
@@ -44,10 +45,17 @@ internal static partial class Program
                 ushort address =
                     SkreeMetareeInstructionProgramDefinitions.PresentationWordAddress(
                         metaree, index);
-                AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                    $"production reads {(metaree ? "Metaree" : "Skree")} presentation $A3:{address:X4}");
+                AssertEqual(ReadSkreeMetareeInstructionWord(rom, 0xa30000 | address),
+                    EnemySpritemapDefinitions.SkreeMetareeFrameAt(metaree, address),
+                    $"compiled {(metaree ? "Metaree" : "Skree")} frame $A3:{address:X4}");
             }
         }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.SkreeMetareeFrameAt(true, 0xc660),
+            "Metaree rejects a Skree visual operand");
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.SkreeMetareeFrameAt(false, 0x8912),
+            "Skree rejects a Metaree visual operand");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Skree/Metaree mechanics byte");
 
@@ -70,8 +78,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Skree/Metaree instruction mechanics: forty compiled words, all eight " +
-            "programs, property/completion callbacks, and twenty-two live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "programs and property/completion callbacks pass with all twenty-two " +
+            "visual-selector and mechanics source words forbidden.");
 
         void VerifySpecies(bool metaree)
         {
@@ -180,7 +188,7 @@ internal static partial class Program
     private sealed class SkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -207,7 +215,9 @@ internal static partial class Program
                         if (bankAddress == presentation ||
                             bankAddress == unchecked((ushort)(presentation + 1)))
                         {
-                            ObservedPresentationWords.Add(presentation);
+                            ForbiddenPresentationReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"Production read installed Skree/Metaree selector ${address:X6}.");
                         }
                     }
                 }

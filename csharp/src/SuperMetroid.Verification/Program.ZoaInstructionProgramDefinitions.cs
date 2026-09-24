@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -61,17 +62,20 @@ internal static partial class Program
                 $"Zoa {selector} loop restarts at speed row four");
         }
 
-        AssertEqual(ZoaInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Zoa spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Zoa production programs never read installed visual selectors");
         for (int index = 0;
              index < ZoaInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = ZoaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Zoa presentation word $A3:{address:X4}");
+            AssertEqual(ReadZoaInstructionWord(rom, 0xa30000 | address),
+                EnemySpritemapDefinitions.ZoaFrameAt(address),
+                $"compiled Zoa frame selection $A3:{address:X4}");
         }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.ZoaFrameAt(0xb40d),
+            "unlisted Zoa frame selector fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Zoa mechanics byte");
 
@@ -91,8 +95,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Zoa instruction mechanics: twenty-six compiled words, all four programs, " +
-            "three speed callbacks per shooting direction, and twelve live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "three speed callbacks per shooting direction pass with all twelve " +
+            "visual-selector and mechanics source words forbidden.");
 
         static RoomEnemySystem CreateZoaProgramSystem(
             ZoaInstructionProgramReadGuard guard,
@@ -143,7 +147,7 @@ internal static partial class Program
     private sealed class ZoaInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -166,7 +170,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Zoa selector ${address:X6}.");
                     }
                 }
             }

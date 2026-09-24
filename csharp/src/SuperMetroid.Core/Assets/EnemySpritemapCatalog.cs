@@ -52,6 +52,8 @@ public sealed class EnemySpritemapCatalog
         {
             EnemySpritemapDefinitions.LegacyVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.LegacyFrameCount,
+            EnemySpritemapDefinitions.IntermediateVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.IntermediateFrameCount,
             EnemySpritemapDefinitions.PreviousVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreviousFrameCount,
             EnemySpritemapDefinitions.Version => EnemySpritemapDefinitions.Frames.Length,

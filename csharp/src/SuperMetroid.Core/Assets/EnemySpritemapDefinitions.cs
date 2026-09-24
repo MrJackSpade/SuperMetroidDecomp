@@ -11,15 +11,19 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 6;
-    internal const int PreviousVersion = 5;
-    internal const int PreviousFrameCount = 69;
+    internal const int Version = 7;
+    internal const int PreviousVersion = 6;
+    internal const int PreviousFrameCount = 79;
+    internal const int IntermediateVersion = 5;
+    internal const int IntermediateFrameCount = 69;
     internal const int LegacyVersion = 4;
     internal const int LegacyFrameCount = 47;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
+    internal const byte ZoaBank = 0xa3;
+    internal const byte SkreeMetareeBank = 0xa3;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -107,6 +111,28 @@ internal static class EnemySpritemapDefinitions
         new(WaverBank, 0x88da, "waver_spin_right_1"),
         new(WaverBank, 0x8887, "waver_spin_right_2"),
         new(WaverBank, 0x889d, "waver_spin_right_3"),
+        new(SkreeMetareeBank, 0x8b65, "metaree_idle_0"),
+        new(SkreeMetareeBank, 0x8bb9, "metaree_idle_1"),
+        new(SkreeMetareeBank, 0x8bde, "metaree_idle_2"),
+        new(SkreeMetareeBank, 0x8bea, "metaree_idle_3"),
+        new(SkreeMetareeBank, 0x8b94, "metaree_prepare_1"),
+        new(SkreeMetareeBank, 0xc842, "skree_idle_0"),
+        new(SkreeMetareeBank, 0xc878, "skree_idle_1"),
+        new(SkreeMetareeBank, 0xc884, "skree_idle_2"),
+        new(SkreeMetareeBank, 0xc89a, "skree_idle_3"),
+        new(SkreeMetareeBank, 0xc862, "skree_prepare_1"),
+        new(ZoaBank, 0xb55f, "zoa_shoot_left_0"),
+        new(ZoaBank, 0xb566, "zoa_shoot_left_1"),
+        new(ZoaBank, 0xb56d, "zoa_shoot_left_2"),
+        new(ZoaBank, 0xb57b, "zoa_rise_left_0"),
+        new(ZoaBank, 0xb574, "zoa_rise_left_1"),
+        new(ZoaBank, 0xb582, "zoa_rise_left_2"),
+        new(ZoaBank, 0xb589, "zoa_shoot_right_0"),
+        new(ZoaBank, 0xb590, "zoa_shoot_right_1"),
+        new(ZoaBank, 0xb597, "zoa_shoot_right_2"),
+        new(ZoaBank, 0xb5a5, "zoa_rise_right_0"),
+        new(ZoaBank, 0xb59e, "zoa_rise_right_1"),
+        new(ZoaBank, 0xb5ac, "zoa_rise_right_2"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -132,13 +158,58 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
             RoomEnemySystem.SkulteraDefinition => SkulteraFrameAt(operandAddress),
             RoomEnemySystem.WaverDefinition => WaverFrameAt(operandAddress),
+            RoomEnemySystem.ZoaDefinition => ZoaFrameAt(operandAddress),
+            RoomEnemySystem.MetareeDefinition => SkreeMetareeFrameAt(true, operandAddress),
+            RoomEnemySystem.SkreeDefinition => SkreeMetareeFrameAt(false, operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.BoulderDefinition or
             RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition or
-            RoomEnemySystem.WaverDefinition;
+            RoomEnemySystem.WaverDefinition or RoomEnemySystem.ZoaDefinition or
+            RoomEnemySystem.MetareeDefinition or RoomEnemySystem.SkreeDefinition;
     }
+
+    /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>
+    internal static ushort ZoaFrameAt(ushort operandAddress) => operandAddress switch
+    {
+        0xb3c5 => 0xb55f,
+        0xb3cb => 0xb566,
+        0xb3d1 => 0xb56d,
+        0xb3d9 => 0xb57b,
+        0xb3dd => 0xb574,
+        0xb3e1 => 0xb582,
+        0xb3eb => 0xb589,
+        0xb3f1 => 0xb590,
+        0xb3f7 => 0xb597,
+        0xb3ff => 0xb5a5,
+        0xb403 => 0xb59e,
+        0xb407 => 0xb5ac,
+        _ => throw new InvalidDataException(
+            $"Zoa visual operand $A3:{operandAddress:X4} is not compiled."),
+    };
+
+    /// <summary>Compiled Skree and Metaree visual operands; attack phases remain code.</summary>
+    internal static ushort SkreeMetareeFrameAt(bool metaree, ushort operandAddress) =>
+        (ushort)(metaree ? operandAddress switch
+        {
+            0x8912 or 0x8926 or 0x8940 or 0x894a => 0x8b65,
+            0x8916 or 0x8934 => 0x8bb9,
+            0x891a or 0x8938 => 0x8bde,
+            0x891e or 0x893c => 0x8bea,
+            0x892a => 0x8b94,
+            _ => throw new InvalidDataException(
+                $"Metaree visual operand $A3:{operandAddress:X4} is not compiled."),
+        } : operandAddress switch
+        {
+            0xc660 or 0xc674 or 0xc68e or 0xc698 => 0xc842,
+            0xc664 or 0xc682 => 0xc878,
+            0xc668 or 0xc686 => 0xc884,
+            0xc66c or 0xc68a => 0xc89a,
+            0xc678 => 0xc862,
+            _ => throw new InvalidDataException(
+                $"Skree visual operand $A3:{operandAddress:X4} is not compiled."),
+        });
 
     /// <summary>
     /// Waver's two steady and eight spinning frames from the interleaved visual

@@ -1134,26 +1134,27 @@ changes live drawing without affecting the movement program.
 Skree and Metaree's parallel idle, preparation, diving, and authored stop programs now
 share a strict `SkreeMetareeInstructionProgramDefinitions` boundary. Forty immutable
 durations, property commands, ready callbacks, gotos, targets, and sleeps are compiled;
-twenty-two interleaved spritemap operands remain live presentation reads. The separately
-verified phase selectors now name these eight catalog entries.
+twenty-two interleaved visual selectors are compiled and their ten distinct ordinary
+OAM frames are installed in the editable enemy-composition catalog. The separately
+verified phase selectors name these eight program entries.
 
 Production verification runs every program through its loop or sleep boundary with all
-compiled mechanics bytes forbidden, observes every spritemap, and proves both ready flags
-plus both off-screen-property transitions. Each species rejects the other's program domain,
-presentation pointers fail as restored mechanics cursors, and warmed lookup is allocation-free.
+mechanics and visual-selector source bytes forbidden, checks every selection against
+the pinned ROM, and proves both ready flags plus both off-screen-property transitions.
+Installed OAM matches stock and visual edits do not move the attack callbacks.
 
 ## Zoa instruction mechanics
 
 Zoa's left/right shooting and rising programs now share a strict
 `ZoaInstructionProgramDefinitions` boundary. Twenty-six immutable speed callbacks,
-durations, gotos, and loop targets are compiled; twelve interleaved spritemap operands
-remain live presentation reads. The separately verified facing/phase selector uses these
-same four named entries.
+durations, gotos, and loop targets are compiled; twelve interleaved visual selectors
+and their ordinary OAM frames are installed in the editable enemy-composition catalog.
+The separately verified facing/phase selector uses these same four named entries.
 
-Production verification runs every program beyond its loop boundary with all compiled
-mechanics bytes forbidden, observes every spritemap, and proves the complete three-stage
-speed callback schedule in both directions. Presentation and adjacent selector-table
-pointers fail as restored mechanics cursors, and warmed lookup is allocation-free.
+Production verification runs every program beyond its loop boundary with mechanics
+and visual-selector source bytes forbidden, checks all twelve pointers against the
+pinned ROM, and proves the three-stage speed schedule in both directions. Installed
+OAM matches stock while a visual edit changes drawing without changing speed timing.
 
 ## Norfair heat palette program selection
 

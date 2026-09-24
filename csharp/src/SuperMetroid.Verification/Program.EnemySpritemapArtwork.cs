@@ -49,6 +49,12 @@ internal static partial class Program
                                 ? RoomEnemySystem.SkulteraDefinition
                                 : frame.Name.StartsWith("waver_", StringComparison.Ordinal)
                                     ? RoomEnemySystem.WaverDefinition
+                                    : frame.Name.StartsWith("zoa_", StringComparison.Ordinal)
+                                        ? RoomEnemySystem.ZoaDefinition
+                                        : frame.Name.StartsWith("metaree_", StringComparison.Ordinal)
+                                            ? RoomEnemySystem.MetareeDefinition
+                                            : frame.Name.StartsWith("skree_", StringComparison.Ordinal)
+                                                ? RoomEnemySystem.SkreeDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
@@ -100,6 +106,12 @@ internal static partial class Program
         {
             OffsetY = waverPart.OffsetY + 1,
         };
+        foreach (string frameName in new[]
+                 { "zoa_shoot_left_0", "metaree_idle_0", "skree_idle_0" })
+        {
+            SpriteVisualPart part = document.Frames[frameName][0];
+            document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
+        }
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -168,11 +180,33 @@ internal static partial class Program
             "authored Waver Y offset changes live room OAM");
         AssertEqual(stockWaver.LowTable[0], editedWaver.LowTable[0],
             "Waver visual override leaves X unchanged");
+        foreach ((ushort pointer, ushort definition, string name) in new[]
+                 {
+                     (EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5),
+                         RoomEnemySystem.ZoaDefinition, "Zoa"),
+                     (EnemySpritemapDefinitions.SkreeMetareeFrameAt(true, 0x8912),
+                         RoomEnemySystem.MetareeDefinition, "Metaree"),
+                     (EnemySpritemapDefinitions.SkreeMetareeFrameAt(false, 0xc660),
+                         RoomEnemySystem.SkreeDefinition, "Skree"),
+                 })
+        {
+            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+                pointer, definition);
+            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+                pointer, definition);
+            AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
+                editedFrame.LowTable[1],
+                $"authored {name} Y offset changes live room OAM");
+            AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
+                $"{name} visual override leaves X unchanged");
+        }
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
         var previousFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("waver_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("zoa_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("metaree_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("skree_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreviousFrameCount,
             previousFrames.Count, "previous enemy composition schema frame count");
@@ -194,9 +228,37 @@ internal static partial class Program
             "previous-version override retains edited Skultera composition");
         var upgradedWaver = DrawEnemy(upgraded, new FrameReadGuard(rom),
             waverPointer, RoomEnemySystem.WaverDefinition);
-        AssertTrue(stockWaver.LowTable.SequenceEqual(upgradedWaver.LowTable),
-            "previous-version override gains stock Waver composition");
-        var legacyFrames = previousFrames
+        AssertEqual(editedWaver.LowTable[1], upgradedWaver.LowTable[1],
+            "previous-version override retains edited Waver composition");
+        ushort zoaPointer = EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5);
+        var stockZoa = DrawEnemy(stock, new FrameReadGuard(rom),
+            zoaPointer, RoomEnemySystem.ZoaDefinition);
+        var upgradedZoa = DrawEnemy(upgraded, new FrameReadGuard(rom),
+            zoaPointer, RoomEnemySystem.ZoaDefinition);
+        AssertTrue(stockZoa.LowTable.SequenceEqual(upgradedZoa.LowTable),
+            "previous-version override gains stock Zoa composition");
+        var intermediateFrames = previousFrames
+            .Where(pair => !pair.Key.StartsWith("waver_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.IntermediateFrameCount,
+            intermediateFrames.Count, "intermediate enemy composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.IntermediateVersion,
+                Frames = intermediateFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog intermediateUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        var intermediateBoyon = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
+            framePointer, RoomEnemySystem.BoyonDefinition);
+        var intermediateWaver = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
+            waverPointer, RoomEnemySystem.WaverDefinition);
+        AssertEqual(editedOam.LowTable[0], intermediateBoyon.LowTable[0],
+            "intermediate override retains edited Boyon composition");
+        AssertTrue(stockWaver.LowTable.SequenceEqual(intermediateWaver.LowTable),
+            "intermediate override gains stock Waver composition");
+        var legacyFrames = intermediateFrames
             .Where(pair => !pair.Key.StartsWith("skultera_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.LegacyFrameCount,
@@ -242,7 +304,10 @@ internal static partial class Program
                     : definition == RoomEnemySystem.AtomicDefinition
                         ? EnemySpritemapDefinitions.AtomicBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
-                          definition == RoomEnemySystem.WaverDefinition
+                          definition == RoomEnemySystem.WaverDefinition ||
+                          definition == RoomEnemySystem.ZoaDefinition ||
+                          definition == RoomEnemySystem.MetareeDefinition ||
+                          definition == RoomEnemySystem.SkreeDefinition
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
@@ -263,6 +328,9 @@ internal static partial class Program
                 >= 0xa68a59 and < 0xa68b09 or
                 >= 0xa8e489 and < 0xa8e587 or
                 >= 0xa3881e and < 0xa388f0 or
+                >= 0xa38b65 and < 0xa38c0f or
+                >= 0xa3b55f and < 0xa3b5b3 or
+                >= 0xa3c842 and < 0xa3c8a6 or
                 >= 0xa3928a and < 0xa394aa)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");

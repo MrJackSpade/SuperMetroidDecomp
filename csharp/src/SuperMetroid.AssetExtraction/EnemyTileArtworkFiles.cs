@@ -270,7 +270,8 @@ public static class EnemyTileArtworkFiles
         EnemySpritemapCatalog spritemaps;
         try
         {
-            // Older overrides cannot know the later Skultera and Waver identities.
+            // Older overrides cannot know the later Skultera, Waver, and
+            // Skree/Metaree/Zoa identities.
             // Merge only their validated frames onto verified current stock content,
             // preserving existing user edits through an extraction upgrade.
             string stockCompositionPath = Path.Combine(

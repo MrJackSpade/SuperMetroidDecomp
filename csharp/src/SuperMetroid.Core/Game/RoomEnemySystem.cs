@@ -4032,6 +4032,11 @@ public sealed partial class RoomEnemySystem
         if (definition.NamePointer == 0)
             return default;
 
+        // Constructed verifier buses deliberately retain their own name-record bytes.
+        // Retail loads use the compiled engine definition and never read bank-$B4 here.
+        if (_bus is not IRoomEnemyFixtureSource)
+            return RoomEnemySpawnNameDefinitions.Get(definition.NamePointer);
+
         int address = RoomEnemyRomLayout.TilesetBank | definition.NamePointer;
         return new RoomEnemySpawnNameWords(
             ReadWord(_bus!, address),

@@ -15,8 +15,8 @@ rooms opt into their own authored headers through the explicit
 `IRoomEnemyFixtureSource` interface. The public `ReadDefinition` ROM
 parser remains available to extraction/debug tools, not production room loading.
 
-This is a partial #537 migration. Drop and vulnerability tables, enemy-name
-words, and final presentation bindings still need separation. The catalog's
+This is a partial #537 migration. Fixed drop and vulnerability tables are
+already compiled separately; final presentation bindings still need separation. The catalog's
 artwork addresses and palette/spritemap IDs are stable native references at
 this stage, not editable gameplay data. No claim of ROM-free general room
 loading or completed enemy visual modding is made.
@@ -38,6 +38,18 @@ bytes forbidden. Synthetic fixtures use `IRoomEnemyFixtureSource`; the Crystal
 Flash contact and post-Ceres gunship wrappers forward their authored records.
 The full verification suite also exercises those interactions.
 
-This remains partial #537 work: drop/vulnerability probabilities and tables,
-enemy-name words, presentation bindings, and a broader ROM-free runtime audit
-are not finished by compiling room lists.
+This remains partial #537 work: presentation bindings and a broader ROM-free
+runtime audit are not finished by compiling room lists.
+
+## Enemy spawn-name snapshot words
+
+The 148 retail headers reference 90 nonzero bank-$B4 name records.
+`RoomEnemySpawnNameDefinitions` compiles the six words copied into each spawn
+snapshot, retaining the cartridge routine's deliberate omission of source word
+five. Production room loading no longer reads these records. Constructed room
+fixtures retain their authored bank-$B4 bytes through `IRoomEnemyFixtureSource`.
+
+`--enemy-definitions` independently compares all 90 compiled records against
+the pinned ROM and loads Ceres with source-header and source-name reads forbidden.
+The catalog does not attempt to reproduce the omitted word or convert these
+native snapshot words into editable presentation text.

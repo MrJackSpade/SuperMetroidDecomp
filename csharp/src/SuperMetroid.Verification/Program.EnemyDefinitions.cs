@@ -43,9 +43,31 @@ internal static partial class Program
                 RoomEnemyDefinitionCatalog.Get(pointer),
                 $"compiled enemy header $A0:{pointer:X4} retains all 33 native fields");
         }
+        var namePointers = referencedPointers
+            .Select(pointer => RoomEnemyDefinitionCatalog.Get(pointer).NamePointer)
+            .Where(pointer => pointer != 0)
+            .ToHashSet();
+        AssertTrue(namePointers.SetEquals(RoomEnemySpawnNameDefinitions.Pointers),
+            "compiled enemy spawn-name identities exactly match all retail headers");
+        foreach (ushort pointer in namePointers)
+        {
+            int address = RoomEnemyRomLayout.TilesetBank | pointer;
+            var native = new RoomEnemySpawnNameWords(
+                ReadVerificationWord(bus, address),
+                ReadVerificationWord(bus, address + 2),
+                ReadVerificationWord(bus, address + 4),
+                ReadVerificationWord(bus, address + 6),
+                ReadVerificationWord(bus, address + 8),
+                ReadVerificationWord(bus, address + 12));
+            AssertEqual(native, RoomEnemySpawnNameDefinitions.Get(pointer),
+                $"compiled enemy name $B4:{pointer:X4} retains exactly the six copied words");
+        }
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomEnemyDefinitionCatalog.Get(0),
             "compiled enemy headers reject an unrecognized pointer");
+        AssertThrows<InvalidDataException>(
+            () => RoomEnemySpawnNameDefinitions.Get(0),
+            "compiled enemy names reject an unrecognized pointer");
 
         // This is the actual room-entry path, not merely a catalog lookup. The guard
         // rejects every byte of every retail header while leaving immutable artwork
@@ -56,8 +78,9 @@ internal static partial class Program
             "Ceres production room entry loads enemies without reading native headers");
 
         Console.WriteLine(
-            $"Enemy definitions: {referencedPointers.Count} retail headers match all fields; " +
-            "production room entry rejects bank-$A0 header reads.");
+            $"Enemy definitions: {referencedPointers.Count} retail headers and " +
+            $"{namePointers.Count} spawn-name records match all retained fields; " +
+            "production room entry rejects native header and name reads.");
     }
 
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
@@ -77,17 +100,20 @@ internal static partial class Program
 
     private sealed class EnemyHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        private static readonly HashSet<int> HeaderBytes =
+        private static readonly HashSet<int> DefinitionBytes =
             RoomEnemyDefinitionCatalog.Pointers
                 .SelectMany(pointer => Enumerable.Range(
                     RoomEnemyRomLayout.DefinitionBank | pointer, 64))
+                .Concat(RoomEnemySpawnNameDefinitions.Pointers
+                    .SelectMany(pointer => Enumerable.Range(
+                        RoomEnemyRomLayout.TilesetBank | pointer, 14)))
                 .ToHashSet();
 
         public byte ReadByte(int address)
         {
-            if (HeaderBytes.Contains(address))
+            if (DefinitionBytes.Contains(address))
                 throw new InvalidOperationException(
-                    $"Production room entry read enemy header ${address:X6}.");
+                    $"Production room entry read enemy header/name definition ${address:X6}.");
             return source.ReadByte(address);
         }
 

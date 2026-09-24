@@ -2076,8 +2076,9 @@ The shared Crateria/Brinstar beacon loop now sources all forty BGR555 color word
 from one editable installed array. Verification blocks its eighty color-source
 bytes, compares two complete native cycles of CGRAM and sound-request output,
 and confirms a live override. Its inline CGRAM skip, sound-command placement,
-timing, and loop target remain compiled mechanics; the sound-ID byte is still
-live audio data, not an editable palette color.
+timing, loop target, and fixed library-two sound selection are compiled mechanics;
+the sound ID is not an editable palette color. The production run blocks the
+sound-operand ROM read and matches its value to the pinned cartridge.
 
 Mother Brain's four health-selected body/brain and rear-leg palette pairs are now
 installed as editable RGB5 colors in `mother-brain-health-palette.json`. The

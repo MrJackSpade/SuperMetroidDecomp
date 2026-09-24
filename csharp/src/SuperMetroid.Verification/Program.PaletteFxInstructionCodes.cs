@@ -92,7 +92,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
-            "plus 1717 control words and 32 byte operands are compiled; all four audio opcodes " +
+            "plus 1717 control words and 33 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
     }
 
@@ -1816,10 +1816,16 @@ internal static partial class Program
             mechanicsWords++;
         }
         AssertEqual(35, mechanicsWords, "compiled beacon mechanics words");
-        AssertTrue(!RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+        AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                 BeaconPaletteFxProgramMechanicsDefinitions.SoundOperandPointer,
-                out _),
-            "beacon sound ID remains live audio data");
+                out byte soundId),
+            "beacon sound ID is compiled");
+        AssertEqual(BeaconPaletteFxProgramMechanicsDefinitions.SoundId, soundId,
+            "beacon compiled sound ID");
+        AssertEqual(bus.ReadByte(RoomFxRomData.Banks.PaletteFx |
+                BeaconPaletteFxProgramMechanicsDefinitions.SoundOperandPointer),
+            soundId,
+            "beacon sound ID matches cartridge");
 
         for (int frame = 0;
              frame < BeaconPaletteFxProgramMechanicsDefinitions.FrameCount;
@@ -1858,9 +1864,9 @@ internal static partial class Program
             AssertEqual(SoundEffectLibrary.Library2,
                 paletteFx.SoundRequests[0].SoundEffect.Library,
                 "beacon selects sound library two");
-            AssertEqual((byte)0x18,
+            AssertEqual(BeaconPaletteFxProgramMechanicsDefinitions.SoundId,
                 paletteFx.SoundRequests[0].SoundEffect.Value,
-                "beacon retains its live sound ID");
+                "beacon retains its compiled sound ID");
             soundCount++;
         }
 
@@ -3556,8 +3562,7 @@ internal static partial class Program
                     }
                 }
 
-                bool livePayloadRead = PresentationReadCount != presentationReadsBefore ||
-                    source.Offset == BeaconPaletteFxProgramMechanicsDefinitions.SoundOperandPointer;
+                bool livePayloadRead = PresentationReadCount != presentationReadsBefore;
                 if (!livePayloadRead)
                 {
                     ForbiddenReadAttempts++;

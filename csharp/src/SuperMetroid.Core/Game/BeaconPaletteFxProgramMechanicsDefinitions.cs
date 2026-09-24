@@ -3,12 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Immutable mechanics for the shared Crateria/Brinstar beacon-flashing loop.</summary>
 /// <remarks>
 /// Definition <c>$F781</c> is used by pre-Tourian hall, Red Brinstar mainstreet, the
-/// Red Brinstar elevator, and early Kraid rooms. Its forty BGR555 words and one sound-ID
-/// byte remain live data; setup, timing, CGRAM skips, audio opcode, and loop flow compile.
+/// Red Brinstar elevator, and early Kraid rooms. Its sound-ID byte is a fixed
+/// library-two selection; setup, timing, CGRAM skips, audio command, and loop
+/// flow compile. The forty BGR555 colors remain presentation data.
 /// $8D:EFF7 selects CGRAM byte $00E2. Ten records last ten frames each:
 /// frames i=0..5 begin at $EFFB + 14*i; frames i=6..9 begin at
 /// $F052 + 14*(i-6), after the $C673 library-two sound opcode at $F04F
-/// consumes the live one-byte ID $18 at $F051. Each record writes three
+/// consumes the compiled one-byte ID $18 at $F051. Each record writes three
 /// colors, runs $C5BD to skip nine CGRAM colors, writes one more color,
 /// then waits at $C595. The $C61E goto at $F08A returns to $EFFB;
 /// frame ten reaches that control after a 100-frame cycle. All 35
@@ -28,8 +29,11 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
     /// <summary>Library-two sound opcode at <c>$8D:F04F</c>.</summary>
     public const ushort SoundInstructionPointer = 0xf04f;
 
-    /// <summary>Live sound-ID byte at <c>$8D:F051</c>.</summary>
+    /// <summary>Sound-ID byte at <c>$8D:F051</c>.</summary>
     public const ushort SoundOperandPointer = 0xf051;
+
+    /// <summary>Library-two sound ID <c>$18</c> selected at <c>$8D:F051</c>.</summary>
+    public const byte SoundId = 0x18;
 
     /// <summary>First timed record after the byte-sized sound command.</summary>
     public const ushort PostSoundFramePointer = 0xf052;
@@ -123,5 +127,12 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
         }
 
         return false;
+    }
+
+    /// <summary>Resolves the fixed sound operand without reading bank <c>$8D</c>.</summary>
+    public static bool TryReadMechanicsByte(ushort pointer, out byte value)
+    {
+        value = pointer == SoundOperandPointer ? SoundId : (byte)0;
+        return pointer == SoundOperandPointer;
     }
 }

@@ -216,6 +216,12 @@ public static class RoomPaletteFxProgramMechanicsDefinitions
     /// <summary>Resolves one compiled bank-$8D byte operand across translated owners.</summary>
     public static bool TryReadMechanicsByte(ushort pointer, out byte value)
     {
+        if (BeaconPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                pointer,
+                out value))
+        {
+            return true;
+        }
         if (SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                 pointer,
                 out value))

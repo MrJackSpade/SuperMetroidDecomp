@@ -61,6 +61,12 @@ public static class EndingObjectArtworkFiles
             output.Write(mapJson);
         hashes.Add(EndingObjectArtworkFormat.WaitingTilemapFileName,
             Convert.ToHexString(SHA256.HashData(mapJson)));
+        Export(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
+            EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
+            EndingObjectArtworkFormat.PostCreditsFragmentAByteCount);
+        Export(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+            EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
+            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount);
 
         using var manifest = new FileStream(Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -118,6 +124,8 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.ShootingScreenFileName,
             EndingObjectArtworkFormat.SuitlessSamusFileName,
             EndingObjectArtworkFormat.WaitingTilemapFileName,
+            EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
+            EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
         ];
         if (manifest.Version != EndingObjectArtworkFormat.ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -141,7 +149,11 @@ public static class EndingObjectArtworkFiles
                 EndingObjectArtworkFormat.RewardByteCount),
             LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
                 EndingObjectArtworkFormat.RewardByteCount),
-            LoadMap());
+            LoadMap(),
+            LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
+                EndingObjectArtworkFormat.PostCreditsFragmentAByteCount),
+            LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount));
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
         {

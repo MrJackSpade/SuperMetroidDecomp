@@ -70,8 +70,14 @@ internal static partial class Program
                 EndingCreditsPhase.PostCreditsReward),
             (EndingObjectArtworkFormat.WaitingTilemapFileName, (ushort)3,
                 EndingCreditsPhase.PostCreditsWaitingBackdrop),
+            (EndingObjectArtworkFormat.PostCreditsFragmentAFileName, (ushort)3,
+                EndingCreditsPhase.PostCreditsReward),
+            (EndingObjectArtworkFormat.PostCreditsFragmentBFileName, (ushort)3,
+                EndingCreditsPhase.PostCreditsReward),
         })
         {
+            bool fragment = fileName is EndingObjectArtworkFormat.PostCreditsFragmentAFileName or
+                EndingObjectArtworkFormat.PostCreditsFragmentBFileName;
             string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory,
                 fileName);
             try
@@ -83,10 +89,21 @@ internal static partial class Program
                 }
                 else
                 {
+                    int byteCount = fileName switch
+                    {
+                        EndingObjectArtworkFormat.PostCreditsFragmentAFileName =>
+                            EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
+                        EndingObjectArtworkFormat.PostCreditsFragmentBFileName =>
+                            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
+                        _ => EndingObjectArtworkFormat.RewardByteCount,
+                    };
+                    int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
+                    int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
+                    int rows = (tiles + columns - 1) / columns;
                     IndexedPngImage image;
                     using (var input = File.OpenRead(Path.Combine(
                                installation.EndingObjectDirectory, fileName)))
-                        image = IndexedPng.Read(input, 256, 128);
+                        image = IndexedPng.Read(input, columns * 8, rows * 8);
                     Array.Fill(image.Pixels, (byte)0);
                     using var output = File.Create(overridePath);
                     IndexedPng.Write(output, image.Width, image.Height, image.Pixels,
@@ -126,6 +143,22 @@ internal static partial class Program
                         AssertTrue(!original.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
                                 original.Memory.Cgram.SequenceEqual(changed.Memory.Cgram),
                             $"edited {fileName} changes only art, not palette state");
+                        if (fragment)
+                        {
+                            int destination = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
+                                ? EndingCreditsRomData.Rendering.PostCreditsFragmentADestination
+                                : EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination;
+                            int count = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
+                                ? EndingObjectArtworkFormat.PostCreditsFragmentAByteCount
+                                : EndingObjectArtworkFormat.PostCreditsFragmentBByteCount;
+                            AssertTrue(original.Memory.Vram[..destination].SequenceEqual(
+                                    changed.Memory.Vram[..destination]) &&
+                                    !original.Memory.Vram[destination..(destination + count)]
+                                        .SequenceEqual(changed.Memory.Vram[destination..(destination + count)]) &&
+                                    original.Memory.Vram[(destination + count)..].SequenceEqual(
+                                        changed.Memory.Vram[(destination + count)..]),
+                                $"edited {fileName} changes only its native fragment transfer range");
+                        }
                         visible = !SoftwareLayeredSnapshotRenderer.Render(original)
                             .AsSpan().SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(changed));
@@ -135,8 +168,9 @@ internal static partial class Program
                     stockAudio.AdvanceFrame(stockBus, default);
                     editedAudio.AdvanceFrame(editedBus, default);
                 }
-                AssertTrue(visible,
-                    $"edited {fileName} changes visible post-credits pixels");
+                if (!fragment)
+                    AssertTrue(visible,
+                        $"edited {fileName} changes visible post-credits pixels");
                 AssertEqual(0, stockBus.ForbiddenReadAttempts,
                     $"stock {fileName} never rereads source ROM art");
                 AssertEqual(0, editedBus.ForbiddenReadAttempts,
@@ -159,6 +193,6 @@ internal static partial class Program
         {
             File.Delete(invalidMap);
         }
-        Console.WriteLine("Post-credits art: three reward variants and the waiting BG2 map retain native phase, VRAM, palette and pixels without source reads; four independent edits are visible.");
+        Console.WriteLine("Post-credits art: three reward variants, waiting BG2 map and two tile fragments retain native phase, VRAM, palette and pixels without source reads; four independent edits are visible and both fragment edits isolate their native VRAM ranges.");
     }
 }

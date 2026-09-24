@@ -721,34 +721,16 @@ internal sealed partial class EndingCreditsState
             bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
-        byte[] fragmentA = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
-            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
-        byte[] fragmentB = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
-            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
         RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
         RequireMinimum(mode7, EndingCreditsRomData.Rendering.Mode7Bytes,
             "post-credits Mode-7 characters");
-        RequireMinimum(fragmentA, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes,
-            "post-credits tile fragment A");
-        RequireMinimum(fragmentB, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
-            "post-credits tile fragment B");
 
         vram.Clear();
         vram.LoadBytes(
             EndingCreditsRomData.Rendering.ObjectCharactersDestination,
             font.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
         LoadCreditsCharacterArt();
-        vram.LoadBytes(
-            EndingCreditsRomData.Rendering.PostCreditsFragmentADestination,
-            fragmentA.AsSpan(0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes));
-        vram.LoadBytes(
-            EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination,
-            fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
 
         creditsAssetsLoaded = true;
     }
@@ -770,6 +752,16 @@ internal sealed partial class EndingCreditsState
                 EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
                 EndingCreditsRomData.Rendering.ObjectFragmentLimit)
             : objectArtwork.WaitingTilemap.Transfer.ToArray();
+        byte[] fragmentA = objectArtwork is null
+            ? RomDataReader.Decompress(bus,
+                EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
+                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
+            : objectArtwork.PostCreditsFragmentA.Transfer.ToArray();
+        byte[] fragmentB = objectArtwork is null
+            ? RomDataReader.Decompress(bus,
+                EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
+                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
+            : objectArtwork.PostCreditsFragmentB.Transfer.ToArray();
         byte[] result = EndingReward == EndingReward.Suitless
             ? objectArtwork is null
                 ? RomDataReader.Decompress(bus,
@@ -783,6 +775,10 @@ internal sealed partial class EndingCreditsState
             "post-credits OBJ characters");
         RequireMinimum(waitingMap, EndingCreditsRomData.Rendering.WaitingTilemapBytes,
             "waiting-Samus tilemap");
+        RequireMinimum(fragmentA, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes,
+            "post-credits tile fragment A");
+        RequireMinimum(fragmentB, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
+            "post-credits tile fragment B");
         RequireMinimum(result, EndingCreditsRomData.Rendering.Mode7Bytes,
             "post-credits reward characters");
         vram.LoadBytes(EndingCreditsRomData.Rendering.FontCharactersDestination,
@@ -794,6 +790,10 @@ internal sealed partial class EndingCreditsState
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
         // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.
         vram.LoadBytes(0, result.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsFragmentADestination,
+            fragmentA.AsSpan(0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes));
+        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination,
+            fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
     }
 
     private void StepEscapeClouds(bool sceneB)

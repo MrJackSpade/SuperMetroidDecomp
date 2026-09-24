@@ -42,6 +42,14 @@ internal static partial class Program
         AssertTrue(stock.WaitingTilemap.Transfer.Span.SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");
+        AssertSheet(stock.PostCreditsFragmentA,
+            EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
+            EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
+            "post-credits fragment A");
+        AssertSheet(stock.PostCreditsFragmentB,
+            EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
+            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
+            "post-credits fragment B");
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -196,7 +204,7 @@ internal static partial class Program
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
         File.Delete(invalidPath);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending OBJ art: nine native sheets, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: eleven native sheets, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -222,7 +230,9 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.WaitingForCreditsCharacters or
                 EndingCreditsRomData.Assets.ShootingScreenCharacters or
                 EndingCreditsRomData.Assets.SuitlessSamusCharacters or
-                EndingCreditsRomData.Assets.WaitingForCreditsTilemap)
+                EndingCreditsRomData.Assets.WaitingForCreditsTilemap or
+                EndingCreditsRomData.Assets.PostCreditsTileFragmentA or
+                EndingCreditsRomData.Assets.PostCreditsTileFragmentB)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException($"Ending OBJ reread cartridge source ${address:X6}.");

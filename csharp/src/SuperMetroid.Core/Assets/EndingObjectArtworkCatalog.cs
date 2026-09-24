@@ -20,7 +20,8 @@ public sealed class EndingObjectArtworkCatalog
     public EndingObjectArtworkCatalog(RoomCharacterAtlas clouds,
         RoomCharacterAtlas explosion, IReadOnlyList<RoomCharacterAtlas> fragments,
         RoomCharacterAtlas waitingSamus, RoomCharacterAtlas shootingScreen,
-        RoomCharacterAtlas suitlessSamus, RoomBackgroundTilemapAtlas waitingTilemap)
+        RoomCharacterAtlas suitlessSamus, RoomBackgroundTilemapAtlas waitingTilemap,
+        RoomCharacterAtlas postCreditsFragmentA, RoomCharacterAtlas postCreditsFragmentB)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
@@ -28,6 +29,8 @@ public sealed class EndingObjectArtworkCatalog
         ShootingScreen = shootingScreen ?? throw new ArgumentNullException(nameof(shootingScreen));
         SuitlessSamus = suitlessSamus ?? throw new ArgumentNullException(nameof(suitlessSamus));
         WaitingTilemap = waitingTilemap ?? throw new ArgumentNullException(nameof(waitingTilemap));
+        PostCreditsFragmentA = postCreditsFragmentA ?? throw new ArgumentNullException(nameof(postCreditsFragmentA));
+        PostCreditsFragmentB = postCreditsFragmentB ?? throw new ArgumentNullException(nameof(postCreditsFragmentB));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
@@ -35,6 +38,8 @@ public sealed class EndingObjectArtworkCatalog
             ShootingScreen.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
             SuitlessSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
             WaitingTilemap.Transfer.Length != EndingObjectArtworkFormat.WaitingTilemapByteCount ||
+            PostCreditsFragmentA.Transfer.Length != EndingObjectArtworkFormat.PostCreditsFragmentAByteCount ||
+            PostCreditsFragmentB.Transfer.Length != EndingObjectArtworkFormat.PostCreditsFragmentBByteCount ||
             fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             fragments.Any(fragment => fragment is null ||
                 fragment.Transfer.Length != EndingObjectArtworkFormat.FragmentByteCount))
@@ -52,6 +57,9 @@ public sealed class EndingObjectArtworkCatalog
     public RoomCharacterAtlas SuitlessSamus { get; }
     /// <summary>BG2 waiting scene's ordered 32x32 tile and palette references.</summary>
     public RoomBackgroundTilemapAtlas WaitingTilemap { get; }
+    /// <summary>Small BG/OBJ character uploads retained at VRAM bytes $4000 and $4800.</summary>
+    public RoomCharacterAtlas PostCreditsFragmentA { get; }
+    public RoomCharacterAtlas PostCreditsFragmentB { get; }
 
     /// <summary>Four ordered $0800-byte OBJ fragments uploaded at VRAM $E000..$FFFF.</summary>
     public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
@@ -62,7 +70,7 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 3;
+    public const int ManifestVersion = 4;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";
@@ -70,10 +78,14 @@ public static class EndingObjectArtworkFormat
     public const string ShootingScreenFileName = "post-credits-shooting.png";
     public const string SuitlessSamusFileName = "post-credits-suitless-samus.png";
     public const string WaitingTilemapFileName = "credits-waiting-tilemap.json";
+    public const string PostCreditsFragmentAFileName = "post-credits-tile-fragment-a.png";
+    public const string PostCreditsFragmentBFileName = "post-credits-tile-fragment-b.png";
     public const int CloudByteCount = 0x4000;
     public const int ExplosionByteCount = 0x6000;
     public const int RewardByteCount = 0x4000;
     public const int WaitingTilemapByteCount = 0x0800;
+    public const int PostCreditsFragmentAByteCount = 0x0100;
+    public const int PostCreditsFragmentBByteCount = 0x0800;
     public const int FragmentByteCount = 0x0800;
     public const int FragmentCount = 4;
     public static string FragmentFileName(int index) => index switch

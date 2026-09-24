@@ -561,12 +561,11 @@ public sealed partial class RoomPlmSystem
         if (station.AnimationTimer != 0)
             return true;
 
-        ushort timer = ReadBank84Word(
-            bus,
-            unchecked((ushort)(station.AnimationList + station.AnimationFrame * 4)));
-        ushort draw = ReadBank84Word(
-            bus,
-            unchecked((ushort)(station.AnimationList + station.AnimationFrame * 4 + 2)));
+        StationAnimationProgramDefinitions.Frame frame =
+            StationAnimationProgramDefinitions.Resolve(
+                station.AnimationList, station.AnimationFrame);
+        ushort timer = frame.Duration;
+        ushort draw = frame.DrawPointer;
         if ((timer & 0x8000) != 0 || timer == 0)
         {
             throw new InvalidDataException(
@@ -625,8 +624,10 @@ public sealed partial class RoomPlmSystem
         ushort list = station.AnimationFrame == 0
             ? RoomPlmInstructionLists.SaveStationAnimationFirstFrame
             : RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
-        ushort timer = ReadBank84Word(bus, list);
-        ushort draw = ReadBank84Word(bus, unchecked((ushort)(list + 2)));
+        StationAnimationProgramDefinitions.Frame frame =
+            StationAnimationProgramDefinitions.Resolve(list, 0);
+        ushort timer = frame.Duration;
+        ushort draw = frame.DrawPointer;
         if (timer != 4)
         {
             throw new InvalidDataException(

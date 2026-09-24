@@ -112,6 +112,9 @@ public static class RoomPlmInstructionLists
     /// <summary>Entry two bytes into the scroll list after collision wakes it.</summary>
     public const ushort ScrollTriggerActivated = 0xaf8c;
 
+    /// <summary>Idle save-pod draw entry at $84:AFE8, before its trigger sleeps.</summary>
+    public const ushort SaveStationIdleDraw = 0xafe8;
+
     /// <summary>First save-pod animation frame entry at $84:AFFA.</summary>
     public const ushort SaveStationAnimationFirstFrame = 0xaffa;
 

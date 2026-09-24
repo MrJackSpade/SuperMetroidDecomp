@@ -1572,26 +1572,25 @@ internal static partial class Program
         for (ushort draw = 0xa200; draw <= 0xa21e; draw += 6)
             WriteOneBlockDraw(bus, draw, unchecked((ushort)(0xb100 + draw - 0xa200)));
 
-        // Elevator's four cartridge frames and station idle draw triples.
+        // Elevator's four synthetic frames. Station timing/pointer records are now
+        // immutable compiled cartridge data; only their selected draw payloads are
+        // constructed here so this fixture can focus on station state transitions.
         SeedTimedDrawLoop(bus, 0xafb6, 4, 4, 0xa100);
         WriteWord(bus, 0x84afc6, 0x8724);
         WriteWord(bus, 0x84afc8, 0xafb6);
-        SeedTimedDrawLoop(bus, 0xad66, 6, 3, 0xa140);
-        SeedTimedDrawLoop(bus, 0xad76, 2, 3, 0xa160);
-        SeedTimedDrawLoop(bus, 0xadc6, 6, 3, 0xa180);
-        SeedTimedDrawLoop(bus, 0xae50, 6, 3, 0xa1a0);
-        WriteWord(bus, 0x84afe8, 1);
-        WriteWord(bus, 0x84afea, 0xa1c0);
-        WriteOneBlockDraw(bus, 0xa1c0, 0xb180);
+        foreach ((ushort pointer, ushort word) in new (ushort, ushort)[]
+        {
+            (0x9f25, 0x8000), (0x9f31, 0x8001), (0x9f3d, 0x8002),
+            (0x9f6d, 0x8000), (0x9f79, 0x8001), (0x9f85, 0x8002),
+            (0x9f91, 0x8000), (0x9f9d, 0x8001), (0x9fa9, 0x8002),
+        })
+            WriteOneBlockDraw(bus, pointer, word);
+        WriteOneBlockDraw(bus, 0x9a3f, 0xb180);
 
-        // Save list `$AFFA-$B006`. The loop count at `$84:AFF9` is compiled mechanics,
-        // so the sparse bus deliberately leaves that retired source byte absent.
-        WriteWord(bus, 0x84affa, 4);
-        WriteWord(bus, 0x84affc, 0xa1c6);
-        WriteWord(bus, 0x84affe, 4);
-        WriteWord(bus, 0x84b000, 0xa1cc);
-        WriteOneBlockDraw(bus, 0xa1c6, 0xb181);
-        WriteOneBlockDraw(bus, 0xa1cc, 0xb182);
+        // Save's two compiled animation records select the native draw pointers.
+        // The loop count at `$84:AFF9` is compiled mechanics too.
+        WriteOneBlockDraw(bus, 0x9a9f, 0xb181);
+        WriteOneBlockDraw(bus, 0x9a6f, 0xb182);
     }
 
     private static void SeedTimedDrawLoop(

@@ -912,6 +912,11 @@ if (args is ["--contact-crumble-programs"])
     VerifyContactCrumblePrograms();
     return 0;
 }
+if (args is ["--station-animation-programs"])
+{
+    VerifyStationAnimationProgramDefinitions();
+    return 0;
+}
 if (args is ["--arm-cannon-definitions"])
 {
     VerifySamusArmCannonDefinitions(
@@ -2401,6 +2406,7 @@ VerifyXrayOverlays();
 VerifyBreakableGrapplePlms();
 VerifyBombBlockPrograms();
 VerifyContactCrumblePrograms();
+VerifyStationAnimationProgramDefinitions();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();
 VerifySamusPostureMovement();

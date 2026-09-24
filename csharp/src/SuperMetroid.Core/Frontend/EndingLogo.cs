@@ -43,8 +43,7 @@ internal sealed class EndingLogo
         {
             for (int palette = 0; palette < 2; palette++)
             {
-                int pointer = RomDataReader.ReadWordFixedBank(bus,
-                    EndingLogoDefinitions.PaletteTable + PaletteStep * 4 + palette * 2);
+                int pointer = EndingLogoPalettePointerDefinitions.Source(PaletteStep, palette);
                 for (int i = 15; i >= 0; i--)
                     cgram.SetColor((palette == 0 ? 16 : 240) + i,
                         RomDataReader.ReadWordFixedBank(bus, (IntroCinematicRomData.Banks.Spritemaps << 16) | (pointer - (15 - i) * 2)));

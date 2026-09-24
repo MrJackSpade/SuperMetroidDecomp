@@ -20,7 +20,9 @@ internal static partial class Program
             if (logo.PaletteStep > 0)
                 for (int p = 0; p < 2; p++)
                 {
-                    int pointer = RomDataReader.ReadWordFixedBank(bus, 0x8be5e7 + (logo.PaletteStep - 1) * 4 + p * 2);
+                    int pointer = RomDataReader.ReadWordFixedBank(bus,
+                        EndingLogoPalettePointerDefinitions.NativeTableAddress +
+                        (logo.PaletteStep - 1) * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | (pointer - 30 + i * 2)),
                             cgram.Colors[(p == 0 ? 16 : 240) + i], "native logo crossfade palette table entry");
@@ -55,11 +57,23 @@ internal static partial class Program
             AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
                 $"logo actor {index} initial instruction list");
         }
+        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
+        for (int palette = 0; palette < 2; palette++)
+            AssertEqual(ReadWord(bus,
+                    EndingLogoPalettePointerDefinitions.NativeTableAddress + step * 4 + palette * 2),
+                EndingLogoPalettePointerDefinitions.Source(step, palette),
+                $"logo fade step {step} palette {palette} source pointer");
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingLogoDefinitions.Actor(4),
             "logo actor definition boundary");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EndingLogoPalettePointerDefinitions.Source(EndingLogoDefinitions.PaletteSteps, 0),
+            "logo palette step boundary");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EndingLogoPalettePointerDefinitions.Source(0, 2),
+            "logo palette selector boundary");
         Console.WriteLine(
-            "  Logo definitions: twelve native callback/list words match the compiled catalog.");
+            "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
     }
 
     private sealed class EndingLogoDefinitionReadGuard(ISnesAddressSpace source) :
@@ -69,6 +83,14 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address >= EndingLogoPalettePointerDefinitions.NativeTableAddress &&
+                address < EndingLogoPalettePointerDefinitions.NativeTableAddress +
+                EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending logo reread palette pointer byte ${address:X6}.");
+            }
             foreach (ushort pointer in EndingLogoDefinitions.Actors)
             {
                 int start = EndingLogoDefinitions.NativeDefinitionBank | pointer;

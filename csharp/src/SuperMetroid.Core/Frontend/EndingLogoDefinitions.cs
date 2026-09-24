@@ -36,8 +36,6 @@ internal static class EndingLogoDefinitions
     public static (ushort X, ushort Y) BottomLanding => (382, 383);
     /// <summary>$8B:F25E, circle actor instruction starting the logo palette crossfade.</summary>
     public const ushort GreyOutInstruction = 0xf25e;
-    /// <summary>$8B:E5E7, sixteen pairs of reverse-copy bank-$8C palette pointers.</summary>
-    public const int PaletteTable = 0x8be5e7;
     /// <summary>E58A completes after sixteen palette pointer pairs.</summary>
     public const int PaletteSteps = 16;
     /// <summary>E504 initializes OBJ palette seven from $8C:EFE9.</summary>

@@ -32,9 +32,13 @@ public sealed class RoomSkyTilemapCatalog : IRomArtworkSource
             data = default;
             return false;
         }
-        if (byteCount < 0 || byteCount > pages.Length - offset)
+        // Both native background upload owners transfer complete, aligned sky
+        // pages. Accepting an arbitrary short slice would let a damaged command
+        // appear valid merely because its source begins inside an installed page.
+        if (offset % RoomSkyTilemapFormat.PageByteCount != 0 ||
+            byteCount != RoomSkyTilemapFormat.PageByteCount)
             throw new InvalidDataException(
-                $"Scrolling-sky transfer ${sourceAddress:X6}+${byteCount:X} crosses the installed pages.");
+                $"Scrolling-sky transfer ${sourceAddress:X6}+${byteCount:X} is not one aligned page.");
         data = pages.AsMemory(offset, byteCount);
         return true;
     }

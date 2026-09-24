@@ -995,6 +995,10 @@ public static class DoorDefinitions
     /// $9216 + 12*i; i=2 names shared elevator pseudo-door $88FC.
     /// Index 3 reaches scroll data $0001 at $8F:A697. The ROM
     /// oracle checks all entries, aliases, and this boundary.
+    /// Issue #1138, Warehouse Entrance $8F:A6C8: normalized BTS
+    /// i=0..2 uses $922E + 12*i; i=3 names shared elevator
+    /// pseudo-door $88FC. Index 4 reaches scroll data $0001 at
+    /// $8F:A6D0. The ROM oracle checks entries, aliases, and bound.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

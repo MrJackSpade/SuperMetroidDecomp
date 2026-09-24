@@ -110,12 +110,16 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
+        byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
+            spritemapJson);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
             Convert.ToHexString(SHA256.HashData(secondMelt)),
             Convert.ToHexString(SHA256.HashData(firstMeltTilemap)),
-            Convert.ToHexString(SHA256.HashData(secondMeltTilemap)));
+            Convert.ToHexString(SHA256.HashData(secondMeltTilemap)),
+            Convert.ToHexString(SHA256.HashData(spritemapJson)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -143,7 +147,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
-            string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256))
+            string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256) ||
+            string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
 
@@ -215,15 +220,32 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 $"Invalid Crocomire melt artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
         }
-        return new EnemyTileArtworkCatalog(sheets, palettes, crocomire);
+        byte[] compositionJson = ReadStockOrOverride(
+            EnemySpritemapDefinitions.FileName, manifest.EnemyCompositionsSha256);
+        EnemySpritemapCatalog spritemaps;
+        try
+        {
+            spritemaps = EnemySpritemapCatalog.Load(
+                new MemoryStream(compositionJson, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
+        return new EnemyTileArtworkCatalog(sheets, palettes, crocomire, spritemaps);
 
         byte[] ReadCrocomireAsset(string fileName, string expectedSha256)
+            => ReadStockOrOverride(fileName, expectedSha256);
+
+        byte[] ReadStockOrOverride(string fileName, string expectedSha256)
         {
             string stockPath = Path.Combine(stockDirectory, fileName);
             byte[] stock = File.ReadAllBytes(stockPath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), expectedSha256,
                     StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock Crocomire melt asset {stockPath} failed its manifest hash.");
+                throw new InvalidDataException($"Stock enemy asset {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, fileName);
             return overridePath is not null && File.Exists(overridePath)
@@ -307,7 +329,8 @@ public static class EnemyTileArtworkFiles
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
-        string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256);
+        string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
+        string EnemyCompositionsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

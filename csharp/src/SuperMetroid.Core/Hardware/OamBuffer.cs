@@ -381,41 +381,68 @@ public sealed class OamBuffer
             SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
-
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-            int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
-            byte calculatedY;
-            if (!clipVerticalWrap)
-            {
-                calculatedY = unchecked((byte)unsignedYSum);
-            }
-            else
-            {
-                // Extended enemy spritemaps route each component through $81:8B22 or
-                // $81:8B96. Their complementary carry/sign tests prevent a piece on one
-                // side of the vertical boundary from wrapping onto the other side.
-                bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
-                bool hideForVerticalWrap = originYIsOnScreen
-                    ? yOffsetIsNegative ? unsignedYSum < 0x100 : unsignedYSum >= 0x100
-                    : yOffsetIsNegative ? unsignedYSum >= 0x100 : unsignedYSum < 0x100;
-                calculatedY = hideForVerticalWrap ? (byte)0xf0 : unchecked((byte)unsignedYSum);
-            }
-            SnesObjAttributeWord finalAttributes = new SnesObjAttributeWord(sourceAttributes)
-                .AddPackedTileBase(baseTileIndex)
-            .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
-
-            int spriteIndex = NextByteOffset >> 2;
-            int lowOffset = NextByteOffset;
-            _lowTable[lowOffset] = unchecked((byte)calculatedX);
-            _lowTable[lowOffset + 1] = calculatedY;
-            WriteAttributes(lowOffset, finalAttributes);
-            SetHighTablePair(
-                spriteIndex,
-                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
-
-            NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+            AppendEnemySpritemapPart(new EnemySpritemapPart(encodedXOffset,
+                    encodedYOffset, new SnesObjAttributeWord(sourceAttributes)),
+                originX, originY, paletteBits, baseTileIndex,
+                clipVerticalWrap, originYIsOnScreen);
             entryAddress = AddWithinBank(entryAddress, 5);
         }
+    }
+
+    /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
+    public void AddEnemySpritemap(
+        ReadOnlySpan<EnemySpritemapPart> parts,
+        ushort originX,
+        ushort originY,
+        ushort paletteBits,
+        ushort baseTileIndex,
+        bool clipVerticalWrap = false,
+        bool originYIsOnScreen = true)
+    {
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        foreach (EnemySpritemapPart part in parts)
+            AppendEnemySpritemapPart(part, originX, originY, paletteBits,
+                baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+    }
+
+    private void AppendEnemySpritemapPart(EnemySpritemapPart part,
+        ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
+        bool clipVerticalWrap, bool originYIsOnScreen)
+    {
+        SnesSpritemapXWord encodedXOffset = part.X;
+        byte encodedYOffset = part.Y;
+        ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
+        int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
+        byte calculatedY;
+        if (!clipVerticalWrap)
+        {
+            calculatedY = unchecked((byte)unsignedYSum);
+        }
+        else
+        {
+            // Extended enemy spritemaps route each component through $81:8B22 or
+            // $81:8B96. Their complementary carry/sign tests prevent a piece on one
+            // side of the vertical boundary from wrapping onto the other side.
+            bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
+            bool hideForVerticalWrap = originYIsOnScreen
+                ? yOffsetIsNegative ? unsignedYSum < 0x100 : unsignedYSum >= 0x100
+                : yOffsetIsNegative ? unsignedYSum >= 0x100 : unsignedYSum < 0x100;
+            calculatedY = hideForVerticalWrap ? (byte)0xf0 : unchecked((byte)unsignedYSum);
+        }
+        SnesObjAttributeWord finalAttributes = part.Attributes
+            .AddPackedTileBase(baseTileIndex)
+            .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
+
+        int spriteIndex = NextByteOffset >> 2;
+        int lowOffset = NextByteOffset;
+        _lowTable[lowOffset] = unchecked((byte)calculatedX);
+        _lowTable[lowOffset + 1] = calculatedY;
+        WriteAttributes(lowOffset, finalAttributes);
+        SetHighTablePair(
+            spriteIndex,
+            SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
+
+        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
 
     /// <summary>

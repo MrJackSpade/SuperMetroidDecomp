@@ -205,10 +205,17 @@ same name. PNG pixels must remain indexed 0..15; its diagnostic PNG palette is
 only a preview. The JSON contains exactly sixteen RGB5 colors, each channel
 0..31. Stock files and `enemy-tiles.json` are regenerated and hash-checked;
 overrides survive repair and updates. Enemy VRAM/CGRAM destinations,
-spritemaps, hitboxes, health, and AI are unchanged by visual edits. This covers
+health, and AI are unchanged by these tile/color edits. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
+The same directory contains `enemy-compositions.json` with named Boyon idle and
+bounce frames. Copy it to `overrides/enemy-tiles/` to edit a frame's ordered OAM
+parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
+`flipX`, or `flipY`. Frame timing and selection, enemy hitboxes, movement, and
+damage remain engine-owned. The stock JSON is hash-checked; malformed overrides
+fail with a load error. Other enemy families still use their ROM spritemaps until
+their visual frames are extracted.
 Crocomire's first and second melting images are the separate indexed files
 `crocomire-melt-first.png` and `crocomire-melt-second.png` in the same directory.
 Their matching 16×16 BG2 layouts are `crocomire-melt-first-tiles.json` and

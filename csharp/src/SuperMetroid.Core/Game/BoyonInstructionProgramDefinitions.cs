@@ -8,7 +8,8 @@ internal readonly record struct BoyonInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from Boyon's idle and bouncing programs.</summary>
 /// <remarks>
 /// Property commands, callbacks, durations, and loop control are immutable simulation
-/// data. The ten interleaved spritemap pointers remain live cartridge presentation data.
+/// data. The ten interleaved visual selectors are compiled separately in
+/// <see cref="Assets.EnemySpritemapDefinitions"/>; neither belongs in editable artwork.
 /// </remarks>
 internal static class BoyonInstructionProgramDefinitions
 {

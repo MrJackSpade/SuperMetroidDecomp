@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
@@ -57,20 +58,17 @@ internal static partial class Program
         AssertTrue(!bouncingState.BounceDisabled,
             "Boyon bouncing callback permits the movement arc");
 
-        AssertEqual(
-            BoyonInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Boyon spritemap words remain cartridge reads");
         for (int index = 0;
              index < BoyonInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = BoyonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Boyon presentation word $A2:{address:X4}");
+            AssertEqual(ReadBoyonInstructionWord(rom, 0xa20000 | address),
+                EnemySpritemapDefinitions.BoyonFrameAt(address),
+                $"compiled Boyon visual selector $A2:{address:X4} matches cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Boyon mechanics byte");
+            "production execution avoids compiled Boyon mechanics and visual selector bytes");
 
         AssertThrows<InvalidDataException>(
             () => BoyonInstructionProgramDefinitions.ReadMechanicsWord(0x86ad),
@@ -89,8 +87,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Boyon instruction mechanics: eighteen compiled words, idle and bouncing " +
-            "production loops, bounce callback/property changes, and ten live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "production loops, bounce callback/property changes, and ten compiled " +
+            "visual selectors pass with source bytes forbidden.");
 
         static RoomEnemySystem CreateBoyonProgramSystem(
             BoyonInstructionProgramReadGuard guard,
@@ -141,18 +139,23 @@ internal static partial class Program
     private sealed class BoyonInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Boyon mechanics byte ${address:X6}.");
+                    $"Production read compiled Boyon instruction byte ${address:X6}.");
             }
 
+            return source.ReadByte(address);
+        }
+
+        private static bool IsCompiledPresentationByte(int address)
+        {
             if ((address & 0xff0000) == 0xa20000)
             {
                 ushort bankAddress = unchecked((ushort)address);
@@ -165,13 +168,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        return true;
                     }
                 }
             }
 
-            return source.ReadByte(address);
+            return false;
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

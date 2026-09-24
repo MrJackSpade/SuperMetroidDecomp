@@ -905,9 +905,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
-                    oam.AddEnemySpritemap(
-                        _bus!,
-                        slot.Definition.Bank,
+                    DrawEnemySpritemap(oam, slot.Definition.Bank,
                         slot.SpritemapPointer,
                         originX,
                         originY,
@@ -947,9 +945,7 @@ public sealed partial class RoomEnemySystem
                         ((componentX + 128) & 0xfe00) == 0 &&
                         ((componentY + 128) & 0xfe00) == 0)
                     {
-                        oam.AddEnemySpritemap(
-                            _bus,
-                            slot.Definition.Bank,
+                        DrawEnemySpritemap(oam, slot.Definition.Bank,
                             ordinarySpritemap,
                             componentX,
                             componentY,
@@ -2553,6 +2549,21 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
+    private void DrawEnemySpritemap(OamBuffer oam, byte bank, ushort pointer,
+        ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
+        bool clipVerticalWrap = false, bool originYIsOnScreen = true)
+    {
+        if (TileArtwork?.Spritemaps?.TryGet(bank, pointer,
+                out ReadOnlyMemory<EnemySpritemapPart> installed) == true)
+        {
+            oam.AddEnemySpritemap(installed.Span, originX, originY,
+                paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+            return;
+        }
+        oam.AddEnemySpritemap(_bus!, bank, pointer, originX, originY,
+            paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+    }
+
     private void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -2577,9 +2588,12 @@ public sealed partial class RoomEnemySystem
             if ((word & 0x8000) == 0)
             {
                 slot.InstructionTimer = word;
-                slot.SpritemapPointer = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                slot.SpritemapPointer =
+                    slot.EnemyDefinitionPointer == BoyonDefinition
+                        ? EnemySpritemapDefinitions.BoyonFrameAt(
+                            unchecked((ushort)(cursor + 2)))
+                        : ReadWord(_bus!, (slot.Definition.Bank << 16) |
+                            unchecked((ushort)(cursor + 2)));
                 slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

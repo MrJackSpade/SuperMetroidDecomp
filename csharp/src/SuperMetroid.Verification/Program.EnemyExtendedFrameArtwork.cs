@@ -41,6 +41,10 @@ internal static partial class Program
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("wall_pirate_", StringComparison.Ordinal)),
             "all wall-Pirate visual frame identities are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.NinjaFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("ninja_pirate_", StringComparison.Ordinal)),
+            "all ninja-Pirate visual frame identities are installed");
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             foreach ((ushort x, ushort y) in new (ushort, ushort)[]
@@ -113,7 +117,7 @@ internal static partial class Program
         // new identities from the hash-checked current stock catalog.
         var legacyDocument = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreviousVersion,
+            Version = EnemyExtendedFrameDefinitions.FirstVersion,
             Frames = document.Frames.Where(entry => entry.Key.StartsWith(
                 "walking_pirate_", StringComparison.Ordinal)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
@@ -172,6 +176,90 @@ internal static partial class Program
                     wallPointer, out _),
             "edited wall-Pirate composition survives catalog reload");
 
+        // The second published schema includes edited walking and wall frames,
+        // but no Ninja identities. It must inherit only those new frames from
+        // current stock without dropping either family's prior edit.
+        var versionTwoDocument = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreviousVersion,
+            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
+                "ninja_pirate_", StringComparison.Ordinal)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        byte[] versionTwoJson = JsonSerializer.SerializeToUtf8Bytes(versionTwoDocument,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        AssertThrows<InvalidDataException>(
+            () => EnemyExtendedFrameCatalog.Load(
+                new MemoryStream(versionTwoJson, writable: false)),
+            "v2 extended override requires complete verified v3 stock");
+        File.WriteAllBytes(overridePath, versionTwoJson);
+        EnemyTileArtworkCatalog versionTwo = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer versionTwoWalking = DrawExtended(versionTwo, guard,
+            editedPointer, 0x0040, 0x0080);
+        OamBuffer versionTwoWall = DrawExtended(versionTwo, guard,
+            wallPointer, 0x0040, 0x0080);
+        AssertTrue(versionTwoWalking.LowTable.SequenceEqual(editedOam.LowTable) &&
+                   versionTwoWall.LowTable.SequenceEqual(movedWall.LowTable),
+            "v2 override preserves both walking and wall-Pirate art edits");
+
+        EnemyExtendedFrameDefinition ninjaFrame = EnemyExtendedFrameDefinitions
+            .Frames.ToArray().First(frame => frame.Name.StartsWith(
+                "ninja_pirate_", StringComparison.Ordinal));
+        string ninjaName = ninjaFrame.Name;
+        ushort ninjaPointer = ninjaFrame.Pointer;
+        OamBuffer stockNinja = DrawExtended(stock, guard,
+            ninjaPointer, 0x0040, 0x0080);
+        OamBuffer versionTwoNinja = DrawExtended(versionTwo, guard,
+            ninjaPointer, 0x0040, 0x0080);
+        OamBuffer versionOneNinja = DrawExtended(legacy, guard,
+            ninjaPointer, 0x0040, 0x0080);
+        AssertTrue(stockNinja.LowTable.SequenceEqual(versionTwoNinja.LowTable) &&
+                   stockNinja.HighTable.SequenceEqual(versionTwoNinja.HighTable) &&
+                   stockNinja.LowTable.SequenceEqual(versionOneNinja.LowTable) &&
+                   stockNinja.HighTable.SequenceEqual(versionOneNinja.HighTable),
+            "v1 and v2 overrides inherit verified stock Ninja frames");
+
+        EnemyExtendedVisualComponent ninjaFirst = document.Frames[ninjaName][0];
+        document.Frames[ninjaName][0] = ninjaFirst with
+        {
+            OffsetX = ninjaFirst.OffsetX + 1,
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }));
+        EnemyTileArtworkCatalog editedNinja = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer movedNinja = DrawExtended(editedNinja, guard,
+            ninjaPointer, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockNinja.LowTable[0] + 1)),
+            movedNinja.LowTable[0],
+            "editable Ninja component moves live OAM by one pixel");
+        AssertEqual(stockNinja.LowTable[1], movedNinja.LowTable[1],
+            "Ninja X edit does not move visual Y");
+        AssertEqual(GetTouchCallback(stock, guard, ninjaPointer),
+            GetTouchCallback(editedNinja, guard, ninjaPointer),
+            "editable Ninja component does not move its compiled hitbox");
+        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+                    ninjaPointer, out _),
+            "edited Ninja composition survives catalog reload");
+
+        EnemyExtendedVisualComponent[] editedNinjaComponents = document.Frames[ninjaName];
+        document.Frames.Remove(ninjaName);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "v3 override missing a Ninja frame fails loudly");
+        document.Frames.Add(ninjaName, editedNinjaComponents);
+
         EnemyExtendedVisualComponent[] editedWallComponents = document.Frames[wallName];
         document.Frames.Remove(wallName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -181,7 +269,7 @@ internal static partial class Program
             }));
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
-            "v2 override missing a wall-Pirate frame fails loudly");
+            "v3 override missing a wall-Pirate frame fails loudly");
         document.Frames.Add(wallName, editedWallComponents);
 
         document.Frames.Remove(editedName);
@@ -199,9 +287,9 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Space Pirate extended art: 55 walking/wall frames match native OAM " +
-            "at three origins with visual ROM reads forbidden; both families' edits, " +
-            "compiled-hitbox isolation, v1 override migration, reload, stock hash " +
+            "Space Pirate extended art: 131 walking/wall/ninja frames match native OAM " +
+            "at three origins with visual ROM reads forbidden; three-family edits, " +
+            "compiled-hitbox isolation, v1/v2 override migration, reload, stock hash " +
             "and invalid-resource checks pass.");
     }
 
@@ -215,9 +303,7 @@ internal static partial class Program
             .GetField("_drawQueues", flags)!.GetValue(enemies)!;
         queues[0].Add(0);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = IsWallPirateFrame(pointer)
-            ? RoomEnemySystem.GreyWallSpacePirateDefinition
-            : RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+        slot.EnemyDefinitionPointer = PirateDefinitionForFrame(pointer);
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = EnemyExtendedFrameDefinitions.Bank,
@@ -239,9 +325,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = IsWallPirateFrame(pointer)
-            ? RoomEnemySystem.GreyWallSpacePirateDefinition
-            : RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+        slot.EnemyDefinitionPointer = PirateDefinitionForFrame(pointer);
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = EnemyExtendedFrameDefinitions.Bank,
@@ -267,10 +351,23 @@ internal static partial class Program
         return (ushort)arguments[6]!;
     }
 
-    private static bool IsWallPirateFrame(ushort pointer) =>
-        EnemyExtendedFrameDefinitions.Frames.ToArray().Any(frame =>
-            frame.Pointer == pointer && frame.Name.StartsWith("wall_pirate_",
-                StringComparison.Ordinal));
+    private static ushort PirateDefinitionForFrame(ushort pointer)
+    {
+        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        {
+            if (frame.Pointer != pointer)
+                continue;
+            if (frame.Name.StartsWith("ninja_pirate_", StringComparison.Ordinal))
+                return RoomEnemySystem.GreyNinjaSpacePirateDefinition;
+            if (frame.Name.StartsWith("wall_pirate_", StringComparison.Ordinal))
+                return RoomEnemySystem.GreyWallSpacePirateDefinition;
+            return RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+        }
+        if (pointer == EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap)
+            return RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+        throw new InvalidDataException(
+            $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");
+    }
 
     private sealed class ExtendedVisualReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace

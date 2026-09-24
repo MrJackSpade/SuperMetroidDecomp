@@ -220,15 +220,16 @@ An existing version-four override remains valid after the Skultera stock frames
 are added: its older edited frames are retained, and only the new Skultera
 frames are supplied from verified stock content. Save a version-five copy if
 you want to edit Skultera frames as well.
-Walking and wall Space Pirates use the separate, historically named
+Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
-`overrides/enemy-tiles/` to edit the 55 named extended frames. Each frame contains
+`overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
 OAM fields listed above. Component offsets move only the drawing; the native
 hitbox geometry and touch/shot callbacks remain engine-owned; walking, wall,
 and ninja Pirate collision records are compiled and unaffected by JSON edits. A valid
-version-one override retains its walking-Pirate edits while the new wall frames
-come from verified version-two stock; make a version-two copy to edit wall frames.
+version-one override retains its walking-Pirate edits while wall and ninja frames
+come from verified stock. A version-two override also retains wall edits and
+inherits the new ninja frames; make a version-three copy to edit ninja frames.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
 Other extended enemy families still use cartridge visual records until their

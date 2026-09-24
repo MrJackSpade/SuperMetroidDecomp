@@ -44,8 +44,8 @@ public sealed class EnemyExtendedFrameCatalog
 
     /// <summary>
     /// Validates named frames and compiles visual-only OAM pieces. A complete
-    /// current stock catalog lets a previous-version override retain walking
-    /// Pirate edits while newly introduced wall frames come from stock.
+    /// current stock catalog lets version-one/two overrides retain their edits
+    /// while newly introduced frame families come from verified stock.
     /// </summary>
     public static EnemyExtendedFrameCatalog Load(Stream json,
         EnemyExtendedFrameCatalog? stockForLegacyOverride = null)
@@ -67,20 +67,29 @@ public sealed class EnemyExtendedFrameCatalog
         {
             throw new InvalidDataException("Invalid extended enemy composition JSON.", error);
         }
-        bool previousOverride =
-            document.Version == EnemyExtendedFrameDefinitions.PreviousVersion &&
-            stockForLegacyOverride is not null;
-        ReadOnlySpan<EnemyExtendedFrameDefinition> expected = previousOverride
-            ? EnemyExtendedFrameDefinitions.Frames[..EnemyExtendedFrameDefinitions.WalkingFrameCount]
-            : EnemyExtendedFrameDefinitions.Frames;
-        if (document.Version != (previousOverride
-                ? EnemyExtendedFrameDefinitions.PreviousVersion
-                : EnemyExtendedFrameDefinitions.Version) ||
-            document.Frames is null || document.Frames.Count != expected.Length ||
-            (previousOverride && stockForLegacyOverride!.frames.Count !=
+        int expectedCount = document.Version switch
+        {
+            EnemyExtendedFrameDefinitions.FirstVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.WalkingFrameCount,
+            EnemyExtendedFrameDefinitions.PreviousVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.WalkingFrameCount +
+                EnemyExtendedFrameDefinitions.WallFrameCount,
+            EnemyExtendedFrameDefinitions.Version =>
+                EnemyExtendedFrameDefinitions.ExpectedFrameCount,
+            _ => -1,
+        };
+        bool legacyOverride = expectedCount >= 0 &&
+            expectedCount != EnemyExtendedFrameDefinitions.ExpectedFrameCount;
+        if (expectedCount < 0 || document.Frames is null ||
+            document.Frames.Count != expectedCount ||
+            (legacyOverride && stockForLegacyOverride!.frames.Count !=
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount))
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");
+        ReadOnlySpan<EnemyExtendedFrameDefinition> expected =
+            EnemyExtendedFrameDefinitions.Frames[..expectedCount];
 
         var frames = new Dictionary<int, EnemyExtendedDrawComponent[]>();
         foreach (EnemyExtendedFrameDefinition definition in expected)
@@ -115,7 +124,7 @@ public sealed class EnemyExtendedFrameCatalog
                 throw new InvalidDataException(
                     $"Extended enemy frame {definition.Name} repeats a visual identity.");
         }
-        if (!previousOverride)
+        if (!legacyOverride)
             return new EnemyExtendedFrameCatalog(frames);
         var merged = new Dictionary<int, EnemyExtendedDrawComponent[]>(
             stockForLegacyOverride!.frames);
@@ -133,7 +142,7 @@ public sealed record EnemyExtendedVisualComponent
     public required SpriteVisualPart[] Parts { get; init; }
 }
 
-/// <summary>Versioned walking/wall-Pirate extended-frame compositions.</summary>
+/// <summary>Versioned walking/wall/ninja-Pirate extended-frame compositions.</summary>
 public sealed record EnemyExtendedFrameDocument
 {
     public required int Version { get; init; }

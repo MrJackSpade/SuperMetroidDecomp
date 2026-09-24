@@ -257,9 +257,9 @@ public static class EnemyTileArtworkFiles
         EnemyExtendedFrameCatalog extendedFrames;
         try
         {
-            // A v1 override contains all walking frames but predates wall
-            // Pirate artwork. Overlay only those validated edits on complete,
-            // hash-checked v2 stock rather than rejecting the user's work.
+            // V1 has walking frames and v2 adds wall frames. Overlay either
+            // validated legacy file onto complete, hash-checked v3 stock so
+            // newly added Ninja art cannot discard the user's existing edits.
             string stockExtendedPath = Path.Combine(stockDirectory,
                 EnemyExtendedFrameDefinitions.FileName);
             byte[] stockExtendedJson = File.ReadAllBytes(stockExtendedPath);

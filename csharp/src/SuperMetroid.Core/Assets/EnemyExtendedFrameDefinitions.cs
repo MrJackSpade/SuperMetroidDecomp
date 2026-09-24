@@ -7,20 +7,23 @@ internal readonly record struct EnemyExtendedFrameDefinition(
     byte Bank, ushort Pointer, string Name);
 
 /// <summary>
-/// Named visual identities for ordinary walking and wall Space Pirate composite
+/// Named visual identities for ordinary walking, wall, and ninja Pirate composite
 /// frames. The selectors come from compiled instruction catalogs; component
 /// hitbox pointers remain gameplay-owned and are absent from the asset.
 /// </summary>
 internal static class EnemyExtendedFrameDefinitions
 {
-    internal const int PreviousVersion = 1;
-    internal const int Version = 2;
+    internal const int FirstVersion = 1;
+    internal const int PreviousVersion = 2;
+    internal const int Version = 3;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
     internal const int WalkingFrameCount = 37;
     internal const int WallFrameCount = 18;
-    internal const int ExpectedFrameCount = WalkingFrameCount + WallFrameCount;
+    internal const int NinjaFrameCount = 76;
+    internal const int ExpectedFrameCount =
+        WalkingFrameCount + WallFrameCount + NinjaFrameCount;
 
     private static readonly string[] WalkingNames =
     [
@@ -107,9 +110,31 @@ internal static class EnemyExtendedFrameDefinitions
                 WallNames[wallCount++]));
         }
         if (wallCount != WallFrameCount || WallNames.Length != WallFrameCount ||
-            frames.Count != ExpectedFrameCount)
+            frames.Count != WalkingFrameCount + WallFrameCount)
             throw new InvalidDataException(
                 $"Wall Pirate has {wallCount} distinct frames; expected {WallFrameCount}.");
+        int ninjaCount = 0;
+        for (int index = 0;
+             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = NinjaSpacePirateInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
+                throw new InvalidDataException(
+                    $"Ninja Pirate frame selector $B2:{operand:X4} is not compiled.");
+            if (!seen.Add(pointer))
+                continue;
+            // Ninja programs reuse many selected frames in different attacks.
+            // The bank-local frame identity is a stable, unambiguous author key
+            // without assigning a possibly misleading attack-specific name.
+            frames.Add(new EnemyExtendedFrameDefinition(Bank, pointer,
+                $"ninja_pirate_{pointer:X4}"));
+            ninjaCount++;
+        }
+        if (ninjaCount != NinjaFrameCount || frames.Count != ExpectedFrameCount)
+            throw new InvalidDataException(
+                $"Ninja Pirate has {ninjaCount} distinct frames; expected {NinjaFrameCount}.");
         return frames.ToArray();
     }
 }

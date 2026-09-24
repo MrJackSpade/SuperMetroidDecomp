@@ -1007,6 +1007,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $925E; no stride follows from one word.
     /// Index 1 reaches next room header $0137 at $8F:A734. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1141, Red Brinstar Save $8F:A75B: sole valid
+    /// normalized BTS i=0 resolves to $926A; no stride follows from
+    /// one word. Index 1 reaches next room header $0200 at $8F:A75D.
+    /// The ROM oracle checks the entry, aliases, and boundary.
     /// Issue #1142, Ice Beam Acid $8F:A784: normalized BTS i=0..1
     /// selects $9276 + 12*i. Index 2 reaches next room header $0201
     /// at $8F:A788. The ROM oracle checks entries, aliases, and bound.

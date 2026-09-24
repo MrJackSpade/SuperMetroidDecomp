@@ -225,8 +225,8 @@ Walking and wall Space Pirates use the separate, historically named
 `overrides/enemy-tiles/` to edit the 55 named extended frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
 OAM fields listed above. Component offsets move only the drawing; the native
-hitbox geometry and touch/shot callbacks remain engine-owned; walking and wall
-Pirate collision records are compiled and unaffected by JSON edits. A valid
+hitbox geometry and touch/shot callbacks remain engine-owned; walking, wall,
+and ninja Pirate collision records are compiled and unaffected by JSON edits. A valid
 version-one override retains its walking-Pirate edits while the new wall frames
 come from verified version-two stock; make a version-two copy to edit wall frames.
 The stock file is manifest-hash checked, and missing or malformed override

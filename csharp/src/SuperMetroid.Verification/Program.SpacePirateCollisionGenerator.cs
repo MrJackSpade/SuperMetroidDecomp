@@ -6,7 +6,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>
-    /// Development-only transcription of walking/wall-Pirate extended hitbox records.
+    /// Development-only transcription of walking/wall/ninja-Pirate hitbox records.
     /// The checked-in result is immutable simulation metadata, not editable art.
     /// </summary>
     private static void GenerateSpacePirateCollisionDefinitions()
@@ -40,6 +40,19 @@ internal static partial class Program
                     $"Wall Pirate frame selector $B2:{operand:X4} is not compiled.");
             sourceFrames.TryAdd(pointer, new(EnemyExtendedFrameDefinitions.Bank,
                 pointer, $"wall_pirate_{pointer:X4}"));
+        }
+        for (int index = 0;
+             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = NinjaSpacePirateInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(EnemyExtendedFrameDefinitions.Bank,
+                    operand, out ushort pointer))
+                throw new InvalidDataException(
+                    $"Ninja Pirate frame selector $B2:{operand:X4} is not compiled.");
+            sourceFrames.TryAdd(pointer, new(EnemyExtendedFrameDefinitions.Bank,
+                pointer, $"ninja_pirate_{pointer:X4}"));
         }
         foreach (EnemyExtendedFrameDefinition frame in sourceFrames.Values
                      .OrderBy(frame => frame.Pointer))
@@ -87,8 +100,8 @@ internal static partial class Program
             componentTotal += count;
             frames.Add((frame.Pointer, components));
         }
-        if (frames.Count != 56 || componentTotal != 108 || hitboxes.Count != 74 ||
-            hitboxes.Values.Sum(rectangles => rectangles.Length) != 76)
+        if (frames.Count != 132 || componentTotal != 229 || hitboxes.Count != 147 ||
+            hitboxes.Values.Sum(rectangles => rectangles.Length) != 155)
             throw new InvalidDataException(
                 $"Space Pirate collision inventory changed: {frames.Count} frames, " +
                 $"{componentTotal} components, {hitboxes.Count} lists, " +
@@ -105,7 +118,7 @@ internal static partial class Program
         source.AppendLine("internal readonly record struct SpacePirateCollisionFrame(ushort Pointer, SpacePirateCollisionComponent[] Components);");
         source.AppendLine("internal readonly record struct SpacePirateCollisionList(ushort Pointer, SpacePirateCollisionHitbox[] Rectangles);");
         source.AppendLine();
-        source.AppendLine("/// <summary>Fixed bank-$B2 walking/wall-Pirate collision data, separate from editable OAM art.</summary>");
+        source.AppendLine("/// <summary>Fixed bank-$B2 walking/wall/ninja-Pirate collision data, separate from editable OAM art.</summary>");
         source.AppendLine("internal static class SpacePirateCollisionDefinitions");
         source.AppendLine("{");
         source.AppendLine("    private static readonly SpacePirateCollisionFrame[] Frames =");
@@ -169,7 +182,7 @@ internal static partial class Program
         File.WriteAllText(path, source.ToString(), new UTF8Encoding(false));
         Console.WriteLine(
             $"Generated {frames.Count} Space-Pirate collision frames, " +
-            $"{componentTotal} components, {hitboxes.Count} lists and 76 rectangles at {path}.");
+            $"{componentTotal} components, {hitboxes.Count} lists and 155 rectangles at {path}.");
 
         static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
             (ushort)(bus.ReadByte((bank << 16) | address) |

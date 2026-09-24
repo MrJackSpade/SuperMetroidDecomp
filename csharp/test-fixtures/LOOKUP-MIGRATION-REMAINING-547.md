@@ -48,12 +48,15 @@ The ninja spritemap payloads selected by those pointers remain ROM-backed
 presentation assets. Walking and wall Space Pirate extended compositions are
 installed together; neither uses its native component/OAM records during draw.
 
-Both ordinary Space Pirate families now resolve extended collision components,
+All three ordinary Space Pirate families resolve extended collision components,
 hitbox bounds, and touch/shot callback identities from one compiled bank-$B2
-catalog. Its 56 frames, 108 components, 74 lists, and 76 rectangles include
-the shared visually empty initialization frame. The actual touch/shot walker
-matches 23,760 native boundary probes while reads of those source records are
-forbidden; editable visual offsets do not alter this physical catalog.
+catalog. The combined
+walking/wall/ninja catalog has 132 frames, 229 components, 147 lists, and 155
+rectangles, including the shared visually empty initialization frame. The
+actual production walker matches 51,192 native touch/shot boundary probes with
+the complete source records blocked; editable visual offsets do not alter
+this physical catalog. Ninja visual payloads remain ROM-backed until separately
+installed as presentation assets.
 
 ## Confirmed remaining runtime mechanics reads
 

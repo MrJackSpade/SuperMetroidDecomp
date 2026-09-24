@@ -2753,9 +2753,10 @@ public sealed partial class RoomEnemySystem
         ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
 
         if (IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-            IsWallSpacePirateDefinition(enemy.EnemyDefinitionPointer))
+            IsWallSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
+            IsNinjaSpacePirateDefinition(enemy.EnemyDefinitionPointer))
         {
-            // Both ordinary Pirate families have fixed, engine-owned collision.
+            // All three ordinary Pirate families have engine-owned collision.
             // Editable component offsets in the installed visual asset cannot move
             // these rectangles or replace their native touch/shot callbacks.
             foreach (SpacePirateCollisionComponent component in

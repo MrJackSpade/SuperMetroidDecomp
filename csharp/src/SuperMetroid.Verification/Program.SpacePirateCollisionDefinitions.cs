@@ -13,9 +13,10 @@ internal static partial class Program
             .Where(frame => frame.Name.StartsWith("walking_pirate_",
                 StringComparison.Ordinal))
             .Select(frame => frame.Pointer).ToHashSet();
-        AssertEqual(56, SpacePirateCollisionDefinitions.FrameCount,
+        var ninjaFramePointers = new HashSet<ushort>();
+        AssertEqual(132, SpacePirateCollisionDefinitions.FrameCount,
             "compiled Space Pirate extended-frame count");
-        AssertEqual(74, SpacePirateCollisionDefinitions.ListCount,
+        AssertEqual(147, SpacePirateCollisionDefinitions.ListCount,
             "compiled Space Pirate hitbox-list count");
         int componentCount = 0;
         var nativeRanges = new HashSet<int>();
@@ -45,11 +46,11 @@ internal static partial class Program
                 componentCount++;
             }
         }
-        AssertEqual(108, componentCount,
+        AssertEqual(229, componentCount,
             "Space Pirate compiled collision-component count");
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
-                $"walking-Pirate editable frame {frame.Name} has fixed collision");
+                $"installed Pirate frame {frame.Name} has fixed collision");
         for (int index = 0;
              index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -62,6 +63,21 @@ internal static partial class Program
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
                 $"wall-Pirate selected frame $B2:{pointer:X4} has fixed collision");
         }
+        for (int index = 0;
+             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = NinjaSpacePirateInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xb2, operand,
+                    out ushort pointer),
+                $"ninja-Pirate selector $B2:{operand:X4} is compiled");
+            ninjaFramePointers.Add(pointer);
+            AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
+                $"ninja-Pirate selected frame $B2:{pointer:X4} has fixed collision");
+        }
+        AssertEqual(76, ninjaFramePointers.Count,
+            "distinct ninja-Pirate collision-frame identities");
         AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(
                 EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap).Length > 0,
             "Space Pirate initializer's common empty frame has fixed collision");
@@ -94,7 +110,7 @@ internal static partial class Program
                 rectangleCount++;
             }
         }
-        AssertEqual(76, rectangleCount,
+        AssertEqual(155, rectangleCount,
             "Space Pirate compiled collision-rectangle count");
         AssertThrows<InvalidDataException>(
             () => SpacePirateCollisionDefinitions.ComponentsAt(0x8000),
@@ -181,12 +197,12 @@ internal static partial class Program
                 }
             }
         }
-        AssertEqual(110 * 3 * 6 * 6 * 2, probes,
+        AssertEqual(237 * 3 * 6 * 6 * 2, probes,
             "Space Pirate exhaustive authored-rectangle boundary probes");
         AssertEqual(0, guard.BlockedReadAttempts,
             "compiled Space Pirate collision does not read native component or hitbox bytes");
-        Console.WriteLine($"Space Pirate collision: 56 frames, 108 components, " +
-            $"74 lists, 76 rectangles and {probes} native/compiled touch-shot " +
+        Console.WriteLine($"Space Pirate collision: 132 frames, 229 components, " +
+            $"147 lists, 155 rectangles and {probes} native/compiled touch-shot " +
             "boundary probes pass with authored ROM bytes blocked.");
 
         ushort ReadWord(ushort address) => (ushort)(
@@ -207,12 +223,16 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
             RoomEnemySlot slot = enemies.Slots[0];
             bool wallFrame = pointer != EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap &&
+                !ninjaFramePointers.Contains(pointer) &&
                 !walkingFramePointers.Contains(pointer);
-            slot.EnemyDefinitionPointer = !compiledPirate
-                ? (ushort)0xffff
-                : wallFrame
-                    ? RoomEnemySystem.GreyWallSpacePirateDefinition
-                    : RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+            slot.EnemyDefinitionPointer = compiledPirate switch
+            {
+                false => 0xffff,
+                true when ninjaFramePointers.Contains(pointer) =>
+                    RoomEnemySystem.GreyNinjaSpacePirateDefinition,
+                true when wallFrame => RoomEnemySystem.GreyWallSpacePirateDefinition,
+                _ => RoomEnemySystem.GreyWalkingSpacePirateDefinition,
+            };
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.SpritemapPointer = pointer;
             slot.XPosition = x;

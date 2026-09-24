@@ -1635,6 +1635,14 @@ public sealed partial class RoomPlmSystem
         // records: row zero, then `{dx=0,dy=1}` and row one.
         int originX = blockIndex % level.WidthInBlocks;
         int originY = blockIndex / level.WidthInBlocks;
+        if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
+        {
+            DrawCompiledShotBlockInstruction(
+                level, streamer, compiled, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset);
+            return;
+        }
+
         int entryX = originX;
         int entryY = originY;
         ushort cursor = drawPointer;
@@ -1658,29 +1666,10 @@ public sealed partial class RoomPlmSystem
             {
                 int x = entryX + (vertical ? 0 : blockOffset);
                 int y = entryY + (vertical ? blockOffset : 0);
-                int targetBlockIndex;
-                try
-                {
-                    targetBlockIndex = level.GetPlmBlockIndex(x, y);
-                }
-                catch (ArgumentOutOfRangeException error)
-                {
-                    throw new InvalidDataException(
-                        $"PLM draw list ${drawPointer:X4} targets block ({x},{y}) outside " +
-                        "the safe native level allocation.",
-                        error);
-                }
-
                 ushort levelWord = ReadBank84Word(bus, cursor);
                 cursor = unchecked((ushort)(cursor + 2));
-                DrawLevelWord(
-                    level,
-                    streamer,
-                    targetBlockIndex,
-                    levelWord,
-                    layer1XPosition,
-                    layer1YPosition,
-                    bg1XOffset);
+                DrawPlmWordAt(level, streamer, drawPointer, x, y, levelWord,
+                    layer1XPosition, layer1YPosition, bg1XOffset);
             }
 
             byte relativeX = bus.ReadByte(Bank84(cursor));
@@ -1695,6 +1684,65 @@ public sealed partial class RoomPlmSystem
 
         throw new InvalidDataException(
             $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
+    }
+
+    private void DrawCompiledShotBlockInstruction(
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        RoomPlmShotBlockDrawDefinitions.DrawList definition,
+        int originX,
+        int originY,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
+    {
+        int entryX = originX;
+        int entryY = originY;
+        foreach (RoomPlmShotBlockDrawDefinitions.Run run in definition.Runs.Span)
+        {
+            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
+            int count = run.DirectionAndCount & 0x7fff;
+            if (count != run.LevelWords.Length)
+                throw new InvalidDataException(
+                    $"Compiled PLM draw list ${definition.Pointer:X4} has inconsistent block count.");
+            for (int offset = 0; offset < count; offset++)
+            {
+                int x = entryX + (vertical ? 0 : offset);
+                int y = entryY + (vertical ? offset : 0);
+                DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
+                    run.LevelWords.Span[offset], layer1XPosition, layer1YPosition, bg1XOffset);
+            }
+
+            entryX = originX + run.NextX;
+            entryY = originY + run.NextY;
+        }
+    }
+
+    private void DrawPlmWordAt(
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        ushort drawPointer,
+        int x,
+        int y,
+        ushort levelWord,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
+    {
+        int blockIndex;
+        try
+        {
+            blockIndex = level.GetPlmBlockIndex(x, y);
+        }
+        catch (ArgumentOutOfRangeException error)
+        {
+            throw new InvalidDataException(
+                $"PLM draw list ${drawPointer:X4} targets block ({x},{y}) outside " +
+                "the safe native level allocation.", error);
+        }
+
+        DrawLevelWord(level, streamer, blockIndex, levelWord,
+            layer1XPosition, layer1YPosition, bg1XOffset);
     }
 
     private void DrawLevelWord(

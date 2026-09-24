@@ -39,6 +39,44 @@ internal static partial class Program
         AssertTrue(!RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(0xa345, out _),
             "interleaved draw-list pointers are not misclassified as control words");
 
+        int drawListCount = 0;
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 RoomPlmShotBlockDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                AssertEqual(run.DirectionAndCount,
+                    unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                        (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
+                    $"shot-block draw list ${list.Pointer:X4} direction/count");
+                forbidden.Add(0x840000 | cursor++);
+                forbidden.Add(0x840000 | cursor++);
+                foreach (ushort word in run.LevelWords.Span)
+                {
+                    AssertEqual(word,
+                        unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                            (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
+                        $"shot-block draw list ${list.Pointer:X4} level word at ${cursor:X4}");
+                    forbidden.Add(0x840000 | cursor++);
+                    forbidden.Add(0x840000 | cursor++);
+                }
+
+                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor),
+                    $"shot-block draw list ${list.Pointer:X4} next X");
+                forbidden.Add(0x840000 | cursor++);
+                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
+                    $"shot-block draw list ${list.Pointer:X4} next Y");
+                forbidden.Add(0x840000 | cursor++);
+            }
+
+            drawListCount++;
+        }
+
+        AssertEqual(19, drawListCount, "all shot-block animation and restoration lists are compiled");
+        AssertTrue(!RoomPlmShotBlockDrawDefinitions.TryGet(0xa344, out _),
+            "uncatalogued draw pointers do not alias a nearby list");
+
         // Compare the real PLM handler frame by frame with and without precisely the
         // compiled control bytes forbidden. ROM equality above supplies source parity;
         // this production-path check covers the sound handoff,
@@ -68,7 +106,7 @@ internal static partial class Program
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 
-        Console.WriteLine($"Shot-block PLMs: {wordCount} control words and {byteCount} sound bytes match ROM; all eight programs execute with source bytes forbidden.");
+        Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
     }
 
     private sealed record ShotBlockFixture(

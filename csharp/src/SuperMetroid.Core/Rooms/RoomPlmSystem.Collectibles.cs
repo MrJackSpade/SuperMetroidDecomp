@@ -24,7 +24,6 @@ public sealed partial class RoomPlmSystem
     private const ushort ChozoOrbBurstDraw = 0xa2d9;
     private const ushort FirstTankFrame0Draw = 0xa2df;
     private const ushort ShotBlockRevealFrame0Draw = 0xa3dd;
-    private const ushort RespawnBlockFrame0Draw = 0xa345;
     private const ushort DynamicItemFrame0Table = 0xe05f;
     private const ushort DynamicItemFrame1Table = 0xe077;
 
@@ -481,7 +480,7 @@ public sealed partial class RoomPlmSystem
                 item.AnimationIndex = 2;
                 DrawCollectible(
                     bus, level, streamer, slot,
-                    unchecked((ushort)(RespawnBlockFrame0Draw + item.AnimationIndex * 6)),
+                    unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)),
                     layer1XPosition, layer1YPosition, bg1XOffset);
                 item.Timer = 4;
                 return true;
@@ -492,7 +491,7 @@ public sealed partial class RoomPlmSystem
                 {
                     DrawCollectible(
                         bus, level, streamer, slot,
-                        unchecked((ushort)(RespawnBlockFrame0Draw + item.AnimationIndex * 6)),
+                        unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)),
                         layer1XPosition, layer1YPosition, bg1XOffset);
                     item.Timer = 4;
                     return true;

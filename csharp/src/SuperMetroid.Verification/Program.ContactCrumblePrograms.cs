@@ -122,7 +122,108 @@ internal static partial class Program
                 $"contact-crumble BTS {bts} completes its native timeline");
         }
 
+        VerifyContactCrumbleVisualSeparation(rom, forbidden);
+
         Console.WriteLine($"Contact-crumble PLMs: {wordCount} control words, {byteCount} sound bytes, and {restoreCount} restoration lists match ROM; all eight programs run with source reads forbidden.");
+    }
+
+    private static void VerifyContactCrumbleVisualSeparation(
+        SuperMetroidAddressSpace rom, HashSet<int> forbidden)
+    {
+        RoomPlmShotBlockVisualEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
+            .Select(list => new RoomPlmShotBlockVisualEntry(list.Pointer,
+                list.Runs.Span.ToArray().Select(run =>
+                    run.LevelWords.Span.ToArray().Select(word =>
+                        new RoomLevelWord(word).VisualWord).ToArray()).ToArray()))
+            .ToArray();
+        RoomPlmShotBlockVisualEntry first = entries.Single(entry =>
+            entry.DrawPointer == RoomPlmShotBlockDrawDefinitions.SingleFrame0);
+        first.Runs[0][0] = 0x0054;
+        var edited = new RoomPlmShotBlockVisualCatalog(entries);
+
+        (ushort physical, ushort immediate, ushort streamed) RenderBreak(
+            RoomPlmShotBlockVisualCatalog visuals)
+        {
+            const int width = 8;
+            const int blockIndex = 27;
+            var words = new ushort[width * width];
+            words[blockIndex] = 0xb321;
+            var definitions = new byte[0x400 * 8];
+            for (int tile = 0; tile < 4; tile++)
+            {
+                definitions[0x53 * 8 + tile * 2] = 0x17;
+                definitions[0x54 * 8 + tile * 2] = 0x18;
+            }
+
+            var level = new RoomLevelData(width, width, words,
+                new byte[words.Length], new ushort[words.Length], definitions);
+            var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
+            AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+                    new RoomBlockBehavior(0)),
+                "visual test installs the real contact-crumble PLM");
+            var streamer = level.CreateBackgroundStreamer();
+            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            for (int frame = 0; frame < 4; frame++)
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "contact-break draw avoids compiled source bytes");
+            AssertEqual(1, plms.TilemapUpdates.Count,
+                "contact-break first frame publishes one immediate upload");
+            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                plms.TilemapUpdates[0].TopRow[0],
+                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
+                    blockIndex, 0).TopRow[0]);
+        }
+
+        var stock = RenderBreak(RoomPlmShotBlockVisualCatalog.Stock());
+        var changed = RenderBreak(edited);
+        AssertEqual((ushort)0x0053, stock.physical,
+            "contact-crumble first frame installs native air collision");
+        AssertEqual(stock.physical, changed.physical,
+            "shared breakup-art edit leaves contact-crumble collision unchanged");
+        AssertEqual((ushort)0x0017, stock.immediate,
+            "stock contact breakup reaches the immediate tile upload");
+        AssertEqual((ushort)0x0018, changed.immediate,
+            "edited contact breakup reaches the immediate tile upload");
+        AssertEqual((ushort)0x0018, changed.streamed,
+            "edited contact breakup persists through camera streaming");
+
+        (ushort physical, ushort streamed) RenderRestoredParent(byte tileIndex)
+        {
+            const int width = 8;
+            const int blockIndex = 27;
+            var words = new ushort[width * width];
+            words[blockIndex] = 0xb321;
+            var definitions = new byte[0x400 * 8];
+            for (int tile = 0; tile < 4; tile++)
+                definitions[0xbc * 8 + tile * 2] = tileIndex;
+            var level = new RoomLevelData(width, width, words,
+                new byte[words.Length], new ushort[words.Length], definitions);
+            var plms = new RoomPlmSystem();
+            AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+                    new RoomBlockBehavior(1)),
+                "restored-art test installs linked contact-crumble PLM");
+            var streamer = level.CreateBackgroundStreamer();
+            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            for (int frame = 0; frame < 100; frame++)
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "linked contact restoration uses no compiled source bytes");
+            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
+                    blockIndex, 0).TopRow[0]);
+        }
+
+        var stockParent = RenderRestoredParent(0x17);
+        var editedParent = RenderRestoredParent(0x18);
+        AssertEqual((ushort)0xb0bc, stockParent.physical,
+            "linked contact block restores its native special parent word");
+        AssertEqual(stockParent.physical, editedParent.physical,
+            "editing block $0BC composition leaves special collision intact");
+        AssertEqual((ushort)0x0017, stockParent.streamed,
+            "stock restored contact parent uses room-block composition");
+        AssertEqual((ushort)0x0018, editedParent.streamed,
+            "edited block $0BC composition reaches later streaming");
     }
 
     private sealed record ContactCrumbleFixture(

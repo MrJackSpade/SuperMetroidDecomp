@@ -322,6 +322,10 @@ Their three linked-block restoration lists retain fixed collision words and use
 visual block `$058`; edit that block's tile composition under `room-blocks/` to
 change its restored appearance. Neither route changes bomb-block collision,
 sounds, or respawn timing.
+Samus-contact crumble blocks use those same shared breakup frames. Their linked
+restoration lists keep compiled type-B parent/type-5 and type-D child words and
+display visual block `$0BC`; edit that block under `room-blocks/` to change its
+restored appearance. Neither edit changes contact collision or crumble timing.
 
 Breakable Grapple-block appearances are installed separately as
 `game/room-plm-grapple-blocks/grapple-blocks.json`. Copy the file to the matching

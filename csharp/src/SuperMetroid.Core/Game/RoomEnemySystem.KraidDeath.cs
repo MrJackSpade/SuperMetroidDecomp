@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -240,7 +241,19 @@ public sealed partial class RoomEnemySystem
         // records so NMI owns visibility. Isolated enemy audits have no NMI/queue owner;
         // executing that one frame's transfer directly preserves the identical bytes and
         // keeps their per-frame sequencing observable without fabricating a host queue.
-        if (vramWriteQueue is not null)
+        if (TileArtwork is not null)
+        {
+            HudTileAtlas hud = HudTileArtwork ?? throw new InvalidDataException(
+                "Installed Kraid death restoration has no standard BG3 artwork.");
+            if (vramWriteQueue is not null)
+                vramWriteQueue.EnqueueAsset(
+                    KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
+                    KraidBackgroundRomData.StandardBg3TransferBytes, destinationWord);
+            else
+                _vram!.ExecuteQueuedAssetWrite(hud.KraidRestoreQuarter(transferIndex).Span,
+                    destinationWord);
+        }
+        else if (vramWriteQueue is not null)
         {
             vramWriteQueue.Enqueue(
                 KraidBackgroundRomData.StandardBg3TransferBytes,

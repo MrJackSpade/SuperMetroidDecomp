@@ -295,7 +295,10 @@ tilemaps and character sheets are replaceable artwork.
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
 engine behavior. Kraid's direct HUD-character upload also uses the existing
 `game/maps/hud-tiles.png` and `overrides/maps/hud-tiles.png` artwork instead of
-rereading those characters from the ROM. The Tourian statue-ghost library upload
+rereading those characters from the ROM. Kraid's four-frame death restoration
+reads the same indexed HUD sheet in four ordered quarters; editing that PNG
+changes those BG3 characters too, without changing the native transfer cadence.
+The Tourian statue-ghost library upload
 likewise uses the installed room-character sheet instead of the raw ROM source.
 Stock hashes and override repair follow the same rules as the room-character
 sheets.

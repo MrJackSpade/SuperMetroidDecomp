@@ -28,10 +28,19 @@ public sealed partial class SuperMetroidRuntime
             Enemies.CeresRidleyMode7Colors = value?.CeresRidleyMode7Colors;
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
             Enemies.EscapeTypewriterPresentation = value?.EscapeTypewriter;
+            Enemies.HudTileArtwork = value?.HudTiles;
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;
             if (value is not null)
                 VramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,
                     SuperMetroid.Core.Hardware.VramAssetId.StandardHudTiles);
+            if (value is not null)
+                for (int quarter = 0; quarter < Game.KraidBackgroundRomData.StandardBg3TransferCount;
+                     quarter++)
+                    VramWrites.RebindBusSource(
+                        Game.KraidBackgroundRomData.StandardBg3TilesAddress +
+                            quarter * Game.KraidBackgroundRomData.StandardBg3TransferBytes,
+                        Game.KraidBackgroundRomData.StandardBg3TransferBytes,
+                        Game.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
             if (value is not null)
             {
                 VramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,

@@ -74,7 +74,10 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
             ? (grappleArtwork ?? throw new InvalidOperationException("Grapple artwork is not bound.")).Resolve(asset)
             : asset is VramAssetId.ProjectileIceWaveTrailTiles or VramAssetId.ProjectileMissileTrailTiles
             ? (trailArtwork?.Tiles ?? throw new InvalidOperationException("Trail artwork is not bound.")).Resolve(asset)
-            : asset is VramAssetId.StandardHudTiles or VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles
+            : asset is VramAssetId.StandardHudTiles or
+                VramAssetId.KraidBg3RestoreQuarter0 or VramAssetId.KraidBg3RestoreQuarter1 or
+                VramAssetId.KraidBg3RestoreQuarter2 or VramAssetId.KraidBg3RestoreQuarter3 or
+                VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
             : (beamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
 

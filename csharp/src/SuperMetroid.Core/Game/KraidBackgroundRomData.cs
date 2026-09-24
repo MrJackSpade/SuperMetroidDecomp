@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -69,6 +71,16 @@ public static class KraidBackgroundRomData
 
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
     public const int StandardBg3TransferCount = 4;
+
+    /// <summary>Maps the four cartridge-authored restoration phases to installed art.</summary>
+    public static VramAssetId StandardBg3AssetForQuarter(int index) => index switch
+    {
+        0 => VramAssetId.KraidBg3RestoreQuarter0,
+        1 => VramAssetId.KraidBg3RestoreQuarter1,
+        2 => VramAssetId.KraidBg3RestoreQuarter2,
+        3 => VramAssetId.KraidBg3RestoreQuarter3,
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
 
     /// <summary>
     /// <c>Tiles_KraidRoomBackground</c> at <c>$A7:A716</c>, uploaded both when Kraid

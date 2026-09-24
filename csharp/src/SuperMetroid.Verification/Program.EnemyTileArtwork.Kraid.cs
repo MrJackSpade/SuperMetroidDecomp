@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -157,6 +158,143 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed Kraid head override fails at load");
         VerifyInstalledKraidRoomBackground(rom, directory, stock);
+        VerifyInstalledKraidBg3Restoration(rom, directory, stock);
+    }
+
+    private static void VerifyInstalledKraidBg3Restoration(
+        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog enemyArtwork)
+    {
+        AssertEqual(24, (int)VramAssetId.GrappleVerticalSegmentTiles,
+            "existing pending-VRAM asset identities remain stable");
+        AssertEqual(25, (int)VramAssetId.KraidBg3RestoreQuarter0,
+            "new Kraid quarter IDs append after existing debugger-state IDs");
+        string mapDirectory = Path.Combine(directory, "kraid-bg3-map-art");
+        MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
+        AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(mapDirectory, null);
+        byte[] native = RomDataReader.ReadFixedBank(rom,
+            KraidBackgroundRomData.StandardBg3TilesAddress,
+            HudTileAtlasFormat.CharacterByteCount);
+        AssertTrue(stock.HudTiles.Transfer.Span[..native.Length].SequenceEqual(native),
+            "shared installed HUD PNG preserves all Kraid BG3 restoration source bytes");
+
+        SnesVram baselineQueued = RunKraidBg3Restoration(rom, null, null, null,
+            useQueue: true);
+        SnesVram baselineDirect = RunKraidBg3Restoration(rom, null, null, null,
+            useQueue: false);
+        AssertTrue(baselineDirect.Bytes.SequenceEqual(baselineQueued.Bytes),
+            "native direct and NMI-queued Kraid BG3 restoration agree");
+        SnesVram installedQueued = RunKraidBg3Restoration(rom, enemyArtwork,
+            stock.HudTiles, stock, useQueue: true);
+        SnesVram installedDirect = RunKraidBg3Restoration(rom, enemyArtwork,
+            stock.HudTiles, stock, useQueue: false);
+        AssertTrue(installedQueued.Bytes.SequenceEqual(baselineQueued.Bytes),
+            "installed NMI-queued Kraid BG3 restoration preserves native VRAM");
+        AssertTrue(installedDirect.Bytes.SequenceEqual(baselineQueued.Bytes),
+            "installed direct Kraid BG3 restoration preserves native VRAM");
+        var runtime = new SuperMetroidRuntime(rom) { MapPresentation = stock };
+        runtime.Enemies.TileArtwork = enemyArtwork;
+        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.HudTileArtwork),
+            "runtime presentation binding supplies shared HUD art to Kraid");
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+             quarter++)
+        {
+            VramAssetId asset = KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter);
+            AssertTrue(((IVramAssetProvider)runtime).Resolve(asset).Span
+                    .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
+                $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
+        }
+        var restored = new SuperMetroidRuntime(rom);
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+             quarter++)
+            restored.VramWrites.Enqueue(
+                KraidBackgroundRomData.StandardBg3TransferBytes,
+                KraidBackgroundRomData.StandardBg3TilesAddress +
+                    quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
+                checked((ushort)(KraidBackgroundRomData.StandardBg3VramWord +
+                    quarter * (KraidBackgroundRomData.StandardBg3TransferBytes / 2))));
+        restored.MapPresentation = stock;
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+             quarter++)
+            AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
+                restored.VramWrites.Entries[quarter].AssetId,
+                $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
+        restored.VramWrites.DrainTo(restored.Vram, new KraidCompressedSourceGuard(rom), restored);
+        AssertTrue(restored.Vram.Bytes.SequenceEqual(baselineQueued.Bytes),
+            "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
+
+        string overrides = Path.Combine(directory, "kraid-bg3-map-overrides");
+        Directory.CreateDirectory(overrides);
+        string stockPng = Path.Combine(mapDirectory, HudTileAtlasFormat.FileName);
+        using var input = new MemoryStream(File.ReadAllBytes(stockPng), writable: false);
+        IndexedPngImage image = IndexedPng.Read(input,
+            MapTileAtlasFormat.Width, MapTileAtlasFormat.Height);
+        image.Pixels[0] ^= 1;
+        using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
+            IndexedPng.Write(output, image.Width, image.Height,
+                image.Pixels, image.Palette);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
+        SnesVram changed = RunKraidBg3Restoration(rom, enemyArtwork,
+            edited.HudTiles, edited, useQueue: true);
+        int destination = KraidBackgroundRomData.StandardBg3VramWord * sizeof(ushort);
+        AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
+            changed.ReadByte(destination),
+            "edited shared HUD pixel changes Kraid's first restored BG3 character");
+        AssertTrue(baselineQueued.Bytes[(destination + 1)..]
+                .SequenceEqual(changed.Bytes[(destination + 1)..]),
+            "edited Kraid BG3 character leaves all other VRAM bytes unchanged");
+        AreaMapPresentationCatalog reloaded = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
+        AssertTrue(RunKraidBg3Restoration(rom, enemyArtwork,
+                reloaded.HudTiles, reloaded, useQueue: true)
+            .Bytes.SequenceEqual(changed.Bytes),
+            "Kraid BG3 uses the current HUD PNG override after catalog reload");
+    }
+
+    private static SnesVram RunKraidBg3Restoration(
+        SuperMetroidAddressSpace rom,
+        EnemyTileArtworkCatalog? enemyArtwork,
+        HudTileAtlas? hud,
+        AreaMapPresentationCatalog? map,
+        bool useQueue)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var guard = enemyArtwork is null ? null : new KraidCompressedSourceGuard(rom);
+        ISnesAddressSpace bus = guard is null ? rom : guard;
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = enemyArtwork,
+            HudTileArtwork = hud,
+        };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        var transfer = typeof(RoomEnemySystem)
+            .GetMethod("AdvanceKraidDeathBg3Transfer", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState, int,
+                KraidAiFunction, VramWriteQueue?>>(enemies);
+        RoomEnemySlot body = enemies.Slots[0];
+        var state = new KraidEnemyState();
+        var queue = new VramWriteQueue();
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+             quarter++)
+        {
+            transfer(body, state, quarter, KraidAiFunction.DeathFadeInBackground,
+                useQueue ? queue : null);
+            if (useQueue)
+            {
+                AssertEqual(1, queue.Entries.Count,
+                    $"Kraid BG3 quarter {quarter} produces one native NMI record");
+                if (enemyArtwork is not null)
+                    AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
+                        queue.Entries[0].AssetId,
+                        $"Kraid BG3 quarter {quarter} queues installed art");
+                queue.DrainTo(vram, bus, map);
+            }
+            AssertEqual(quarter + 1, state.DeathBg3TransferCount,
+                $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
+        }
+        AssertEqual(0, guard?.ForbiddenReadAttempts ?? 0,
+            "installed Kraid BG3 restore never reads the source ROM characters");
+        return vram;
     }
 
     private static void VerifyInstalledKraidRoomBackground(
@@ -288,6 +426,9 @@ internal static partial class Program
                 address is >= KraidBackgroundRomData.RoomBackgroundTileAddress and <
                     KraidBackgroundRomData.RoomBackgroundTileAddress +
                     KraidBackgroundRomData.RoomBackgroundTileBytes ||
+                address is >= KraidBackgroundRomData.StandardBg3TilesAddress and <
+                    KraidBackgroundRomData.StandardBg3TilesAddress +
+                    HudTileAtlasFormat.CharacterByteCount ||
                 HeadPointers.Any(pointer =>
                         address >= (KraidBackgroundRomData.NativeBank | pointer) &&
                         address < (KraidBackgroundRomData.NativeBank | pointer) +

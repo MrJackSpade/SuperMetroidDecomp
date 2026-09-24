@@ -128,6 +128,10 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
     {
         VramAssetId.StandardHudTiles => HudTiles.Transfer,
+        VramAssetId.KraidBg3RestoreQuarter0 => HudTiles.KraidRestoreQuarter(0),
+        VramAssetId.KraidBg3RestoreQuarter1 => HudTiles.KraidRestoreQuarter(1),
+        VramAssetId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),
+        VramAssetId.KraidBg3RestoreQuarter3 => HudTiles.KraidRestoreQuarter(3),
         VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
         _ => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
     };

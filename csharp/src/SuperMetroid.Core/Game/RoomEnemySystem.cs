@@ -113,6 +113,10 @@ public sealed partial class RoomEnemySystem
     [field: NonSerialized]
     public EnemyTileArtworkCatalog? TileArtwork { get; set; }
 
+    /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
+    [field: NonSerialized]
+    public HudTileAtlas? HudTileArtwork { get; set; }
+
     public ushort PopulationPointer { get; private set; }
     public ushort TilesetPointer { get; private set; }
     public ushort FirstFreeEnemyIndex { get; private set; }

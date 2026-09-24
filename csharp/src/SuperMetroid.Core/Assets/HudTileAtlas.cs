@@ -8,6 +8,16 @@ public sealed class HudTileAtlas
     private readonly byte[] transfer;
     private HudTileAtlas(byte[] transfer) => this.transfer = transfer;
     internal ReadOnlyMemory<byte> Transfer => transfer;
+
+    /// <summary>One native 0x400-byte death-restoration slice of the shared BG3 characters.</summary>
+    public ReadOnlyMemory<byte> KraidRestoreQuarter(int index)
+    {
+        if ((uint)index >= Game.KraidBackgroundRomData.StandardBg3TransferCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        return transfer.AsMemory(
+            index * Game.KraidBackgroundRomData.StandardBg3TransferBytes,
+            Game.KraidBackgroundRomData.StandardBg3TransferBytes);
+    }
     public void LoadTo(SnesVram vram, int destinationByteAddress) => vram.LoadBytes(destinationByteAddress, transfer);
 
     /// <summary>Refreshes artwork without replaying the initial transfer's room-tilemap clearing half.</summary>

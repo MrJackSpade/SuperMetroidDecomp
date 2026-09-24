@@ -57,22 +57,26 @@ internal static partial class Program
         VerifyCollisionReversal(onRightWall: false);
         VerifyCollisionReversal(onRightWall: true);
 
-        AssertEqual(
-            WallSpacePirateInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all wall Pirate spritemap words remain live cartridge reads");
+        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
         for (int index = 0;
              index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads wall Pirate presentation $B2:{address:X4}");
+            var (enemies, slot, _, samus) = CreateSystem();
+            slot.CurrentInstruction = unchecked((ushort)(address - 2));
+            slot.InstructionTimer = 1;
+            process.Invoke(enemies,
+                [slot, samus, level, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            AssertEqual(ReadWallPirateWord(rom, 0xb20000 | address),
+                slot.SpritemapPointer,
+                $"production execution selects wall Pirate frame $B2:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled wall Pirate mechanics bytes");
+            "production execution avoids compiled wall Pirate mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => WallSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xecc6),
             "wall Pirate spritemap pointer is rejected as mechanics");
@@ -90,7 +94,7 @@ internal static partial class Program
         Console.WriteLine(
             "Wall Space Pirate instruction mechanics: 150 compiled words, all eight " +
             "production programs, both attack/jump handoffs, four climb directions, and " +
-            "42 live spritemap reads pass with mechanics bytes forbidden.");
+            "42 compiled frame selectors pass with source bytes forbidden.");
 
         void VerifyAttack(bool movingRight)
         {
@@ -251,7 +255,6 @@ internal static partial class Program
     private sealed class WallSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -275,8 +278,10 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled wall Pirate frame selector " +
+                            $"${address:X6}.");
                     }
                 }
             }

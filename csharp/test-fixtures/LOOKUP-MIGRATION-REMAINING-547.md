@@ -39,6 +39,9 @@ frame-selector operands now resolve from compiled definitions during the real
 instruction dispatcher. The production-path verifier executes all 50 frames
 and the eight longer instruction programs with the original selector bytes
 forbidden, while comparing every selected pointer to the pinned cartridge.
+Wall Space Pirates now use the same compiled lookup for their 42 frame
+selectors. All eight longer programs and every authored frame run with those
+source bytes forbidden and the selected values checked against the cartridge.
 The spritemap payloads selected by those pointers remain presentation assets
 and are still ROM-backed until separately extracted and visually verified.
 

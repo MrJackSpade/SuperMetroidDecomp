@@ -1007,6 +1007,10 @@ public static class DoorDefinitions
     /// BTS i=0 resolves to $925E; no stride follows from one word.
     /// Index 1 reaches next room header $0137 at $8F:A734. The ROM
     /// oracle checks the entry, both aliases, and this boundary.
+    /// Issue #1149, Ice Beam Snake $8F:A8E0: normalized BTS i=0..2
+    /// selects $9366 + 12*i. Index 3 reaches scroll data $0002 at
+    /// $8F:A8E6. The ROM oracle checks all entries, high-bit aliases,
+    /// and the first rejected index.
     /// </remarks>
     private static readonly DoorListDefinition[] lists =
     [

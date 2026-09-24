@@ -10,6 +10,8 @@ internal static partial class Program
         var rom = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var walkingFramePointers = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Where(frame => frame.Name.StartsWith("walking_pirate_",
+                StringComparison.Ordinal))
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(56, SpacePirateCollisionDefinitions.FrameCount,
             "compiled Space Pirate extended-frame count");

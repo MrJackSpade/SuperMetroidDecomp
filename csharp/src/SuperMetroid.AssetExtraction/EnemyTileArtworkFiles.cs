@@ -257,8 +257,21 @@ public static class EnemyTileArtworkFiles
         EnemyExtendedFrameCatalog extendedFrames;
         try
         {
+            // A v1 override contains all walking frames but predates wall
+            // Pirate artwork. Overlay only those validated edits on complete,
+            // hash-checked v2 stock rather than rejecting the user's work.
+            string stockExtendedPath = Path.Combine(stockDirectory,
+                EnemyExtendedFrameDefinitions.FileName);
+            byte[] stockExtendedJson = File.ReadAllBytes(stockExtendedPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockExtendedJson)),
+                    manifest.EnemyExtendedCompositionsSha256,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(
+                    $"Stock extended enemy compositions {stockExtendedPath} failed its manifest hash.");
+            EnemyExtendedFrameCatalog stockExtended = EnemyExtendedFrameCatalog.Load(
+                new MemoryStream(stockExtendedJson, writable: false));
             extendedFrames = EnemyExtendedFrameCatalog.Load(
-                new MemoryStream(extendedJson, writable: false));
+                new MemoryStream(extendedJson, writable: false), stockExtended);
         }
         catch (InvalidDataException error)
         {

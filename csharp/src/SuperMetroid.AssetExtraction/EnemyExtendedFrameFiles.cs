@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Extracts walking-Pirate extended visual components without exporting their
+/// Extracts walking/wall-Pirate extended visual components without exporting their
 /// native hitbox pointers or any instruction/callback words.
 /// </summary>
 internal static class EnemyExtendedFrameFiles

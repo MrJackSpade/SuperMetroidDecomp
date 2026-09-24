@@ -36,7 +36,11 @@ internal static partial class Program
             "walking Pirate common empty frame draws without ROM reads");
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
-            "walking Pirate distinct extended-frame count");
+            "walking/wall Pirate distinct extended-frame count");
+        AssertEqual(EnemyExtendedFrameDefinitions.WallFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("wall_pirate_", StringComparison.Ordinal)),
+            "all wall-Pirate visual frame identities are installed");
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             foreach ((ushort x, ushort y) in new (ushort, ushort)[]
@@ -96,13 +100,89 @@ internal static partial class Program
             "editable walking Pirate component moves live OAM by one pixel");
         AssertEqual(stockOam.LowTable[1], editedOam.LowTable[1],
             "walking Pirate X edit does not move visual Y");
-        AssertEqual(GetTouchCallback(stock, rom, editedPointer),
-            GetTouchCallback(edited, rom, editedPointer),
-            "editable walking Pirate component does not move the native hitbox");
+        AssertEqual(GetTouchCallback(stock, guard, editedPointer),
+            GetTouchCallback(edited, guard, editedPointer),
+            "editable walking Pirate component does not move the compiled hitbox");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
                     editedPointer, out _),
             "extended composition override survives catalog reload");
+
+        // Existing v1 overrides were authored before wall-Pirate frames were
+        // extracted. Preserve their validated walking edits and fill only the
+        // new identities from the hash-checked current stock catalog.
+        var legacyDocument = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreviousVersion,
+            Frames = document.Frames.Where(entry => entry.Key.StartsWith(
+                "walking_pirate_", StringComparison.Ordinal)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(legacyDocument,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        AssertThrows<InvalidDataException>(
+            () => EnemyExtendedFrameCatalog.Load(
+                new MemoryStream(legacyJson, writable: false)),
+            "legacy extended override needs complete verified stock to merge");
+        File.WriteAllBytes(overridePath, legacyJson);
+        EnemyTileArtworkCatalog legacy = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer legacyWalking = DrawExtended(legacy, guard,
+            editedPointer, 0x0040, 0x0080);
+        AssertTrue(legacyWalking.LowTable.SequenceEqual(editedOam.LowTable) &&
+                   legacyWalking.HighTable.SequenceEqual(editedOam.HighTable),
+            "v1 walking-Pirate artwork edit survives the v2 catalog update");
+
+        const string wallName = "wall_pirate_climb_left_0";
+        ushort wallPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Single(frame => frame.Name == wallName).Pointer;
+        OamBuffer stockWall = DrawExtended(stock, guard,
+            wallPointer, 0x0040, 0x0080);
+        OamBuffer legacyWall = DrawExtended(legacy, guard,
+            wallPointer, 0x0040, 0x0080);
+        AssertTrue(stockWall.LowTable.SequenceEqual(legacyWall.LowTable) &&
+                   stockWall.HighTable.SequenceEqual(legacyWall.HighTable),
+            "v1 override inherits stock wall-Pirate frames");
+
+        EnemyExtendedVisualComponent wallFirst = document.Frames[wallName][0];
+        document.Frames[wallName][0] = wallFirst with
+        {
+            OffsetX = wallFirst.OffsetX + 1,
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }));
+        EnemyTileArtworkCatalog editedWall = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer movedWall = DrawExtended(editedWall, guard,
+            wallPointer, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockWall.LowTable[0] + 1)),
+            movedWall.LowTable[0],
+            "editable wall-Pirate component moves live OAM by one pixel");
+        AssertEqual(stockWall.LowTable[1], movedWall.LowTable[1],
+            "wall-Pirate X edit does not move visual Y");
+        AssertEqual(GetTouchCallback(stock, guard, wallPointer),
+            GetTouchCallback(editedWall, guard, wallPointer),
+            "editable wall-Pirate component does not move its compiled hitbox");
+        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+                    wallPointer, out _),
+            "edited wall-Pirate composition survives catalog reload");
+
+        EnemyExtendedVisualComponent[] editedWallComponents = document.Frames[wallName];
+        document.Frames.Remove(wallName);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "v2 override missing a wall-Pirate frame fails loudly");
+        document.Frames.Add(wallName, editedWallComponents);
 
         document.Frames.Remove(editedName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -119,9 +199,10 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Walking Pirate extended art: 37 frames/75 components match native OAM " +
-            "at three origins with visual ROM reads forbidden; edits, hitbox isolation, " +
-            "reload, stock hash and invalid-resource checks pass.");
+            "Space Pirate extended art: 55 walking/wall frames match native OAM " +
+            "at three origins with visual ROM reads forbidden; both families' edits, " +
+            "compiled-hitbox isolation, v1 override migration, reload, stock hash " +
+            "and invalid-resource checks pass.");
     }
 
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog? art,
@@ -134,7 +215,9 @@ internal static partial class Program
             .GetField("_drawQueues", flags)!.GetValue(enemies)!;
         queues[0].Add(0);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+        slot.EnemyDefinitionPointer = IsWallPirateFrame(pointer)
+            ? RoomEnemySystem.GreyWallSpacePirateDefinition
+            : RoomEnemySystem.GreyWalkingSpacePirateDefinition;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = EnemyExtendedFrameDefinitions.Bank,
@@ -156,6 +239,9 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
+        slot.EnemyDefinitionPointer = IsWallPirateFrame(pointer)
+            ? RoomEnemySystem.GreyWallSpacePirateDefinition
+            : RoomEnemySystem.GreyWalkingSpacePirateDefinition;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = EnemyExtendedFrameDefinitions.Bank,
@@ -163,15 +249,28 @@ internal static partial class Program
         slot.SpritemapPointer = pointer;
         slot.XPosition = 0x0040;
         slot.YPosition = 0x0080;
+        SpacePirateCollisionComponent component =
+            SpacePirateCollisionDefinitions.ComponentsAt(pointer)[0];
+        SpacePirateCollisionHitbox hitbox =
+            SpacePirateCollisionDefinitions.HitboxesAt(component.HitboxPointer)[0];
+        ushort sampleX = unchecked((ushort)(slot.XPosition + component.X +
+            (hitbox.Left + hitbox.Right) / 2));
+        ushort sampleY = unchecked((ushort)(slot.YPosition + component.Y +
+            (hitbox.Top + hitbox.Bottom) / 2));
         MethodInfo collision = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         object?[] arguments =
-            [slot, (ushort)0x003b, (ushort)0x0078, (ushort)0, (ushort)0,
+            [slot, sampleX, sampleY, (ushort)0, (ushort)0,
                 false, (ushort)0];
         AssertTrue((bool)collision.Invoke(enemies, arguments)!,
-            "walking Pirate stock hitbox contains its sampled point");
+            "Space Pirate stock hitbox contains its sampled point");
         return (ushort)arguments[6]!;
     }
+
+    private static bool IsWallPirateFrame(ushort pointer) =>
+        EnemyExtendedFrameDefinitions.Frames.ToArray().Any(frame =>
+            frame.Pointer == pointer && frame.Name.StartsWith("wall_pirate_",
+                StringComparison.Ordinal));
 
     private sealed class ExtendedVisualReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace

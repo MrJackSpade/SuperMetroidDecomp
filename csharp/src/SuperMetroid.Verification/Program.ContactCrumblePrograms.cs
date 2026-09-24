@@ -39,6 +39,59 @@ internal static partial class Program
                 RoomPlmInstructionLists.ContactCrumble1x1Respawning + 5, out _),
             "an interleaved draw pointer is not classified as control");
 
+        int restoreCount = 0;
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 RoomPlmContactCrumbleRestoreDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                AssertEqual(run.DirectionAndCount,
+                    unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                        rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
+                    $"contact restoration ${list.Pointer:X4} direction/count");
+                forbidden.Add(0x840000 | cursor++);
+                forbidden.Add(0x840000 | cursor++);
+                foreach (ushort word in run.LevelWords.Span)
+                {
+                    AssertEqual(word,
+                        unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
+                            rom.ReadByte(0x840000 | (cursor + 1)) << 8)),
+                        $"contact restoration ${list.Pointer:X4} level word");
+                    forbidden.Add(0x840000 | cursor++);
+                    forbidden.Add(0x840000 | cursor++);
+                }
+
+                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor),
+                    $"contact restoration ${list.Pointer:X4} next X");
+                forbidden.Add(0x840000 | cursor++);
+                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor),
+                    $"contact restoration ${list.Pointer:X4} next Y");
+                forbidden.Add(0x840000 | cursor++);
+            }
+
+            restoreCount++;
+        }
+
+        AssertEqual(3, restoreCount, "all linked contact-crumble restoration lists are compiled");
+        AssertTrue(!RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet(0xa4a0, out _),
+            "an unknown nearby contact restoration pointer does not alias a compiled list");
+
+        // The four shape-specific breakup animations are shared with shot and bomb
+        // blocks. They must remain compiled even when a contact-crumble list selects them.
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 RoomPlmShotBlockDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                int length = 2 + 2 * run.LevelWords.Length + 2;
+                for (int offset = 0; offset < length; offset++)
+                    forbidden.Add(0x840000 | (cursor + offset));
+                cursor += length;
+            }
+        }
+
         for (byte bts = 0; bts < 8; bts++)
         {
             ContactCrumbleFixture native = NewContactCrumbleFixture(bts);
@@ -69,7 +122,7 @@ internal static partial class Program
                 $"contact-crumble BTS {bts} completes its native timeline");
         }
 
-        Console.WriteLine($"Contact-crumble PLMs: {wordCount} control words and {byteCount} sound bytes match ROM; all eight programs run with source reads forbidden.");
+        Console.WriteLine($"Contact-crumble PLMs: {wordCount} control words, {byteCount} sound bytes, and {restoreCount} restoration lists match ROM; all eight programs run with source reads forbidden.");
     }
 
     private sealed record ContactCrumbleFixture(

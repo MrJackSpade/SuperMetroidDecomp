@@ -6,6 +6,14 @@ public sealed partial class SuperMetroidGame
 {
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
     [NonSerialized] private BeamTileCatalog? beamArtwork;
+    [NonSerialized] private EnemyTileArtworkCatalog? enemyTileArtwork;
+
+    /// <summary>Supplies editable ordinary enemy character sheets across room and state loads.</summary>
+    public void BindEnemyTileArtwork(EnemyTileArtworkCatalog? catalog)
+    {
+        enemyTileArtwork = catalog;
+        if (runtime is not null) runtime.Enemies.TileArtwork = catalog;
+    }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private ChargeFlarePlacementCatalog? chargeFlarePlacement;
     [NonSerialized] private ChargeFlareSpriteCatalog? chargeFlareCompositions;

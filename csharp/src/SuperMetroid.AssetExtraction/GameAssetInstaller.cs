@@ -79,6 +79,7 @@ public static class GameAssetInstaller
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
+            EnemyTileArtworkFiles.ValidateStock(installation.EnemyTileDirectory);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
             IntroCinematicArtworkFiles.ValidateStock(installation.IntroCinematicDirectory);
             EndingMode7ArtworkFiles.ValidateStock(installation.EndingMode7Directory);
@@ -121,6 +122,12 @@ public static class GameAssetInstaller
             cancellationToken.ThrowIfCancellationRequested();
             ProjectilePresentationFiles.Extract(new SuperMetroidAddressSpace(rom),
                 Path.Combine(staging, GameInstallationLayout.ProjectileDirectoryName));
+            progress?.Report("Extracting ordinary enemy tile sheets...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string enemyTiles = Path.Combine(staging, GameInstallationLayout.EnemyTileDirectoryName);
+            EnemyTileArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), enemyTiles,
+                SupportedCartridge.Sha256);
+            EnemyTileArtworkFiles.ValidateStock(enemyTiles);
             progress?.Report("Extracting room character artwork...");
             cancellationToken.ThrowIfCancellationRequested();
             string roomCharacters = Path.Combine(staging, GameInstallationLayout.RoomCharacterDirectoryName);

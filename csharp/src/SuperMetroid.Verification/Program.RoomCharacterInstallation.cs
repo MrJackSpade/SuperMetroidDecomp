@@ -41,6 +41,13 @@ internal static partial class Program
             AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
                     RoomCharacterArtworkFiles.ManifestFileName)),
                 "room-character stock manifest is installed");
+            AssertTrue(File.Exists(Path.Combine(installed.EnemyTileDirectory,
+                    EnemyTileArtworkFormat.ManifestFileName)),
+                "enemy-tile stock manifest is installed");
+            AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
+                Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-tiles.png").Length,
+                "full installer publishes all retail enemy sheets");
+            _ = installed.LoadEnemyTiles();
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             CartridgeRoomHeader landing = CartridgeRoomHeader.Load(bus, 0x91f8);

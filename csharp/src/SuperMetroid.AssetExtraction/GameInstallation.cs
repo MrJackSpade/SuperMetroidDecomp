@@ -67,6 +67,11 @@ public sealed record GameInstallation(string Root)
         RoomSkyTilemapArtworkFiles.Load(RoomBackgroundTilemapDirectory, RoomBackgroundTilemapOverrideDirectory);
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
     public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
+    /// <summary>Ordinary enemy tile sheets; replacement PNGs survive stock-content rebuilds.</summary>
+    public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
+    public string EnemyTileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemyTileDirectoryName);
+    public EnemyTileArtworkCatalog LoadEnemyTiles() =>
+        EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
@@ -82,6 +87,7 @@ public static class GameInstallationLayout
     public const string AudioDirectoryName = "audio";
     public const string MapDirectoryName = "maps";
     public const string ProjectileDirectoryName = "projectiles";
+    public const string EnemyTileDirectoryName = "enemy-tiles";
     public const string RoomCharacterDirectoryName = "room-characters";
     public const string IntroCinematicDirectoryName = "intro-cinematic";
     public const string EndingMode7DirectoryName = "ending-mode7";
@@ -92,7 +98,7 @@ public static class GameInstallationLayout
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 30;
+    public const int FormatVersion = 31;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

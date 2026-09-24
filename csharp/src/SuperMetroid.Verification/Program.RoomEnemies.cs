@@ -142,6 +142,51 @@ static void VerifyRoomEnemyLoading()
         "definition vulnerability pointer offset $3C");
     AssertEqual(0x9200, definition.NamePointer, "definition name pointer offset $3E");
 
+    // The installed-art path must consume exactly the same VRAM geometry while the
+    // cartridge tile sources are forbidden. The second definition exercises the native
+    // high-bit staging branch, so a single hard-coded destination cannot pass.
+    var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
+    foreach ((ushort pointer, int source, int byteCount) in new[]
+             {
+                 (primaryDefinitionPointer, 0xa29100, 0x40),
+                 (specialDefinitionPointer, 0xa39320, 0x20),
+             })
+    {
+        byte[] planar = Enumerable.Range(0, byteCount)
+            .Select(index => bus.ReadByte(source + index)).ToArray();
+        int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
+            out int width, out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
+    }
+    var installedEnemies = new RoomEnemySystem
+    {
+        TileArtwork = new EnemyTileArtworkCatalog(stockSheets),
+    };
+    var installedVram = new SnesVram();
+    var installedCgram = new SnesCgram();
+    installedEnemies.Load(new EnemyTileSourceReadGuard(bus), populationPointer, tilesetPointer,
+        installedVram, installedCgram, () => 0x9999);
+    AssertTrue(vram.Bytes.SequenceEqual(installedVram.Bytes),
+        "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
+    AssertTrue(cgram.Colors.SequenceEqual(installedCgram.Colors),
+        "enemy tile overrides cannot alter native palettes");
+    AssertEqual(slot.XPosition, installedEnemies.Slots[0].XPosition,
+        "enemy tile overrides do not alter population coordinates");
+    AssertEqual(slot.Definition.Health, installedEnemies.Slots[0].Definition.Health,
+        "enemy tile overrides do not alter health");
+    AssertEqual(slot.Definition.XRadius, installedEnemies.Slots[0].Definition.XRadius,
+        "enemy tile overrides do not alter hitboxes");
+    AssertThrows<InvalidDataException>(() =>
+        new EnemyTileArtworkCatalog(new Dictionary<ushort, RoomCharacterAtlas>())
+            .LoadTo(primaryDefinitionPointer, 0x40, new SnesVram(), 0xe000),
+        "missing installed enemy sheet fails at its actual upload");
+    AssertThrows<InvalidDataException>(() =>
+        installedEnemies.TileArtwork!.LoadTo(primaryDefinitionPointer, 0x20, new SnesVram(), 0xe000),
+        "wrong-size enemy sheet cannot silently truncate its native transfer");
+
     // Reload the same object with an empty population and a deliberately invalid tileset.
     // Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // first-free/death-quota words untouched even though current enemy counts are cleared.
@@ -165,6 +210,18 @@ static void VerifyRoomEnemyLoading()
     Console.WriteLine(
         "  Enemies: complete headers, populations, spawn snapshots, palettes, tile staging, " +
         "boss state, placeholders, and empty-room behavior agree.");
+}
+
+private sealed class EnemyTileSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+{
+    public byte ReadByte(int address)
+    {
+        if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340)
+            throw new InvalidDataException($"Installed enemy tile upload read ROM ${address:X6}.");
+        return source.ReadByte(address);
+    }
+
+    public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
 /// <summary>

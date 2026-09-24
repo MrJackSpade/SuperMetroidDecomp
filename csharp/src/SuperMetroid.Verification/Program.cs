@@ -1513,6 +1513,12 @@ if (args is ["--room-character-atlases"])
     VerifyRoomCharacterAtlases();
     return 0;
 }
+if (args is ["--enemy-tile-artwork"])
+{
+    VerifyEnemyTileArtwork();
+    VerifyRoomEnemyLoading();
+    return 0;
+}
 if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
 {
     VerifyIntroCinematicArtwork(introBackgroundRom);
@@ -2465,6 +2471,7 @@ VerifyPaletteFxInstructionCodeCatalogs();
 VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
+VerifyEnemyTileArtwork();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

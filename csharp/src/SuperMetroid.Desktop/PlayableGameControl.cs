@@ -18,6 +18,7 @@ namespace SuperMetroid.Desktop;
 public sealed partial class PlayableGameControl : UserControl
 {
     private readonly string romPath;
+    private SuperMetroid.Core.Assets.EnemyTileArtworkCatalog? enemyTileArtwork;
     private readonly string saveFilePath;
     private readonly string legacySaveRamPath;
     private readonly SuperMetroidGameOptions gameOptions;
@@ -252,8 +253,10 @@ public sealed partial class PlayableGameControl : UserControl
         roomSkyTilemapArt = installation?.LoadRoomSkyTilemaps();
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
         projectilePresentation = installation?.LoadProjectiles();
+        enemyTileArtwork = installation?.LoadEnemyTiles();
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
+        game.BindEnemyTileArtwork(enemyTileArtwork);
         game.BindTrailArtwork(projectilePresentation?.Trails);
         game.BindChargeFlarePlacement(projectilePresentation?.FlarePlacement);
         game.BindChargeFlareCompositions(projectilePresentation?.FlareCompositions);
@@ -361,6 +364,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
+        game.BindEnemyTileArtwork(enemyTileArtwork);
         game.BindTrailArtwork(projectilePresentation?.Trails);
         game.BindChargeFlarePlacement(projectilePresentation?.FlarePlacement);
         game.BindChargeFlareCompositions(projectilePresentation?.FlareCompositions);

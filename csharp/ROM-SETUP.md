@@ -50,6 +50,7 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
+- `game/enemy-tiles/`: 122 stock indexed ordinary enemy tile sheets and their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
@@ -194,6 +195,17 @@ may retain its saved pixels until the next room load. Do not edit stock
 files or `room-characters.json`: stock hashes are validated and repaired from the
 installed ROM, while overrides survive repair and updates. Invalid override PNGs
 produce a path-specific load error rather than silently falling back to stock.
+
+Ordinary room-enemy tile uploads have their own sheets in `game/enemy-tiles/`.
+Each `enemy-XXXX-tiles.png` is identified by the enemy definition's stable
+four-digit cartridge ID. Copy a sheet to `overrides/enemy-tiles/` with the same
+name and edit its indexed pixels (0..15); the diagnostic PNG palette is only a
+preview. Stock files and `enemy-tiles.json` are regenerated and hash-checked;
+the override survives repair and updates. Enemy VRAM placement, colors,
+spritemaps, hitboxes, health, and AI are unchanged by a tile edit. This covers
+the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
+enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
+retain its old pixels until the next room load.
 Base room colors are separately extracted into `game/room-palettes/*.json`.
 Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
 `version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to

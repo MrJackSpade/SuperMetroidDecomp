@@ -109,6 +109,10 @@ public sealed partial class RoomEnemySystem
     /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
     public IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => _graphicsSet;
 
+    /// <summary>Installed indexed enemy tiles; null retains the cartridge-backed diagnostic path.</summary>
+    [field: NonSerialized]
+    public EnemyTileArtworkCatalog? TileArtwork { get; set; }
+
     public ushort PopulationPointer { get; private set; }
     public ushort TilesetPointer { get; private set; }
     public ushort FirstFreeEnemyIndex { get; private set; }
@@ -1047,10 +1051,15 @@ public sealed partial class RoomEnemySystem
                     $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
             }
 
-            var tileBytes = new byte[byteCount];
-            for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                tileBytes[byteIndex] = bus.ReadByte(AddWithinBank(definition.TileDataAddress, byteIndex));
-            vram.LoadBytes(vramByteOffset, tileBytes);
+            if (TileArtwork is { } installed)
+                installed.LoadTo(definitionPointer, byteCount, vram, vramByteOffset);
+            else
+            {
+                var tileBytes = new byte[byteCount];
+                for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
+                    tileBytes[byteIndex] = bus.ReadByte(AddWithinBank(definition.TileDataAddress, byteIndex));
+                vram.LoadBytes(vramByteOffset, tileBytes);
+            }
 
             _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,

@@ -26,6 +26,12 @@ internal static partial class Program
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");
             var stockMeltImages = new List<byte[]>();
+            ushort[] stockFirstMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
+                bus, stock, CrocomireMeltingArtworkAddresses.FirstTilemap,
+                CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
+            ushort[] stockSecondMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
+                bus, stock, CrocomireMeltingArtworkAddresses.SecondTilemap,
+                CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
             foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
             {
                 byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
@@ -105,6 +111,47 @@ internal static partial class Program
                     CrocomireMeltingTransferDefinitions.Passes[0])
                 .SequenceEqual(changedMelt),
                 "Crocomire melt override survives catalog reload");
+            string firstTilemapFile = Path.Combine(directory,
+                CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            CrocomireMeltingTilemapDocument tilemapDocument =
+                JsonSerializer.Deserialize<CrocomireMeltingTilemapDocument>(
+                    File.ReadAllBytes(firstTilemapFile),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            CrocomireMeltingTilemapCell[] editedCells =
+                (CrocomireMeltingTilemapCell[])tilemapDocument.Cells.Clone();
+            editedCells[0] = editedCells[0] with
+            {
+                TileIndex = editedCells[0].TileIndex ^ 1,
+            };
+            string tilemapOverride = Path.Combine(overrideDirectory,
+                CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            using (var tilemapOutput = File.Create(tilemapOverride))
+                CrocomireMeltingArtwork.WriteTilemap(tilemapOutput,
+                    tilemapDocument with { Cells = editedCells });
+            EnemyTileArtworkCatalog editedMeltMap = EnemyTileArtworkFiles.Load(
+                directory, overrideDirectory);
+            ushort[] changedTiles = VerifyInstalledCrocomireMeltingTilemap(
+                bus, editedMeltMap, CrocomireMeltingArtworkAddresses.FirstTilemap,
+                CrocomireInstructionProgramDefinitions.MeltingOneTopRow,
+                compareRom: false);
+            AssertEqual((ushort)(stockFirstMeltTiles[0] ^ 1), changedTiles[0],
+                "Crocomire melt JSON edit changes its selected BG2 tile reference");
+            AssertTrue(changedTiles.AsSpan(1).SequenceEqual(stockFirstMeltTiles.AsSpan(1)),
+                "Crocomire melt JSON edit leaves other BG2 cells unchanged");
+            AssertTrue(VerifyInstalledCrocomireMeltingTilemap(
+                    bus, editedMeltMap,
+                    CrocomireMeltingArtworkAddresses.SecondTilemap,
+                    CrocomireInstructionProgramDefinitions.MeltingTwoTopRow,
+                    compareRom: false)
+                .SequenceEqual(stockSecondMeltTiles),
+                "first-melt tilemap edit does not change the second melt");
+            AssertTrue(VerifyInstalledCrocomireMeltingTilemap(bus,
+                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                    CrocomireMeltingArtworkAddresses.FirstTilemap,
+                    CrocomireInstructionProgramDefinitions.MeltingOneTopRow,
+                    compareRom: false)
+                .SequenceEqual(changedTiles),
+                "Crocomire melt tilemap override survives catalog reload");
             var stockVram = new SnesVram();
             var editedVram = new SnesVram();
             stock.LoadTo(editedPointer, editedByteCount, stockVram, 0);
@@ -163,6 +210,11 @@ internal static partial class Program
                     directory, overrideDirectory),
                 "malformed Crocomire melt override fails loudly");
             File.WriteAllBytes(meltOverride, File.ReadAllBytes(meltFile));
+            File.WriteAllBytes(tilemapOverride, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(
+                    directory, overrideDirectory),
+                "malformed Crocomire tilemap override fails loudly");
+            File.WriteAllBytes(tilemapOverride, File.ReadAllBytes(firstTilemapFile));
             File.WriteAllBytes(paletteOverridePath, new byte[] { 0 });
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                 "malformed enemy palette override fails loudly");
@@ -178,6 +230,6 @@ internal static partial class Program
         {
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
-        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets and both Crocomire melt images, exact bytes, live indexed edits, persistence, and invalid resources pass.");
+        Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets plus both Crocomire PNGs and BG2 layouts, exact stock bytes, live visual edits, persistence, and invalid resources pass.");
     }
 }

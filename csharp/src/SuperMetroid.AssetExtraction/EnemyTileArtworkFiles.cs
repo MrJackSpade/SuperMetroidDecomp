@@ -100,12 +100,22 @@ public static class EnemyTileArtworkFiles
         byte[] secondMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingTransferDefinitions.Passes[1],
             CrocomireMeltingArtworkFormat.SecondByteCount);
+        byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
+            CrocomireMeltingArtworkAddresses.FirstTilemap);
+        byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
+            CrocomireMeltingArtworkAddresses.SecondTilemap);
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
+        File.WriteAllBytes(Path.Combine(directory,
+            CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
+        File.WriteAllBytes(Path.Combine(directory,
+            CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
-            Convert.ToHexString(SHA256.HashData(secondMelt)));
+            Convert.ToHexString(SHA256.HashData(secondMelt)),
+            Convert.ToHexString(SHA256.HashData(firstMeltTilemap)),
+            Convert.ToHexString(SHA256.HashData(secondMeltTilemap)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -131,7 +141,9 @@ public static class EnemyTileArtworkFiles
             manifest.Entries is null ||
             manifest.Entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount ||
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstSha256) ||
-            string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256))
+            string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
 
@@ -179,31 +191,39 @@ public static class EnemyTileArtworkFiles
                 throw new InvalidDataException($"Invalid enemy palette {selectedPalettePath}: {error.Message}", error);
             }
         }
-        byte[] first = ReadCrocomireMelt(CrocomireMeltingArtworkFormat.FirstFileName,
+        byte[] first = ReadCrocomireAsset(CrocomireMeltingArtworkFormat.FirstFileName,
             manifest.CrocomireFirstSha256);
-        byte[] second = ReadCrocomireMelt(CrocomireMeltingArtworkFormat.SecondFileName,
+        byte[] second = ReadCrocomireAsset(CrocomireMeltingArtworkFormat.SecondFileName,
             manifest.CrocomireSecondSha256);
+        byte[] firstTilemap = ReadCrocomireAsset(
+            CrocomireMeltingArtworkFormat.FirstTilemapFileName,
+            manifest.CrocomireFirstTilemapSha256);
+        byte[] secondTilemap = ReadCrocomireAsset(
+            CrocomireMeltingArtworkFormat.SecondTilemapFileName,
+            manifest.CrocomireSecondTilemapSha256);
         CrocomireMeltingArtwork crocomire;
         try
         {
             crocomire = CrocomireMeltingArtwork.Load(
                 new MemoryStream(first, writable: false),
-                new MemoryStream(second, writable: false));
+                new MemoryStream(second, writable: false),
+                new MemoryStream(firstTilemap, writable: false),
+                new MemoryStream(secondTilemap, writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Crocomire melt PNG in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
+                $"Invalid Crocomire melt artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
         }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire);
 
-        byte[] ReadCrocomireMelt(string fileName, string expectedSha256)
+        byte[] ReadCrocomireAsset(string fileName, string expectedSha256)
         {
             string stockPath = Path.Combine(stockDirectory, fileName);
             byte[] stock = File.ReadAllBytes(stockPath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), expectedSha256,
                     StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock Crocomire melt PNG {stockPath} failed its manifest hash.");
+                throw new InvalidDataException($"Stock Crocomire melt asset {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, fileName);
             return overridePath is not null && File.Exists(overridePath)
@@ -250,9 +270,44 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
+        int sourceAddress)
+    {
+        var cells = new CrocomireMeltingTilemapCell[
+            CrocomireMeltingArtworkFormat.TilemapCellCount];
+        for (int index = 0; index < cells.Length; index++)
+        {
+            int address = sourceAddress + index * 2;
+            ushort raw = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            var word = new SnesBgTilemapWord(raw);
+            cells[index] = new CrocomireMeltingTilemapCell
+            {
+                TileIndex = word.CharacterIndex,
+                Palette = word.PaletteIndex,
+                Priority = word.HasPriority,
+                FlipX = word.FlipHorizontally,
+                FlipY = word.FlipVertically,
+            };
+        }
+        int terminator = sourceAddress + cells.Length * 2;
+        if ((ushort)(bus.ReadByte(terminator) | bus.ReadByte(terminator + 1) << 8) != 0xffff)
+            throw new InvalidDataException(
+                $"Crocomire melt tilemap ${sourceAddress:X6} lacks its native terminator.");
+        using var json = new MemoryStream();
+        CrocomireMeltingArtwork.WriteTilemap(json, new CrocomireMeltingTilemapDocument
+        {
+            Version = CrocomireMeltingArtworkFormat.TilemapVersion,
+            Width = CrocomireMeltingArtworkFormat.TilemapWidth,
+            Height = CrocomireMeltingArtworkFormat.TilemapHeight,
+            Cells = cells,
+        });
+        return json.ToArray();
+    }
+
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<ushort, EnemyTileFileEntry> Entries,
-        string CrocomireFirstSha256, string CrocomireSecondSha256);
+        string CrocomireFirstSha256, string CrocomireSecondSha256,
+        string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -5,9 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Crocomire's 45-entry bridge, melting, skeleton, and completion dispatcher.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int CrocomireFirstMeltingTilemap = 0xa49c79;
-    private const int CrocomireSecondMeltingTilemap = 0xa49e7b;
-
     private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState? samus)
     {
         switch (state.DeathSequenceIndex)
@@ -41,7 +39,7 @@ public sealed partial class RoomEnemySystem
             case CrocomireDeathPhases.InstallFirstMeltImage:
                 InitializeCrocomireMeltingTilemap(
                     state,
-                    CrocomireFirstMeltingTilemap,
+                    CrocomireMeltingArtworkAddresses.FirstTilemap,
                     CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
                 return;
             case CrocomireDeathPhases.CopyFirstMeltGraphics:
@@ -87,7 +85,7 @@ public sealed partial class RoomEnemySystem
             case CrocomireDeathPhases.InstallSecondMeltImage:
                 InitializeCrocomireMeltingTilemap(
                     state,
-                    CrocomireSecondMeltingTilemap,
+                    CrocomireMeltingArtworkAddresses.SecondTilemap,
                     CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
                 return;
             case CrocomireDeathPhases.CopySecondMeltGraphics:

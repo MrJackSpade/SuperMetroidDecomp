@@ -271,6 +271,49 @@ internal static partial class Program
         return scratch;
     }
 
+    private static ushort[] VerifyInstalledCrocomireMeltingTilemap(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog artwork,
+        int sourceAddress, ushort bodyInstructionList, bool compareRom = true)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var state = new CrocomireEnemyState(enemies.Slots[0]);
+        var death = new CrocomireDeathState();
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+            enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        var initialize = typeof(RoomEnemySystem).GetMethod(
+            "InitializeCrocomireMeltingTilemap", flags)!
+            .CreateDelegate<Action<CrocomireEnemyState, int, ushort>>(enemies);
+
+        initialize(state, sourceAddress, bodyInstructionList);
+        AssertEqual((ushort)2, state.DeathSequenceIndex,
+            $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
+        AssertEqual((ushort)48, death.PixelsToErasePerColumn,
+            $"installed Crocomire melt tilemap ${sourceAddress:X6} erase count");
+        AssertEqual((ushort)48, death.TargetHeightOrSkeletonTileIndex,
+            $"installed Crocomire melt tilemap ${sourceAddress:X6} target height");
+        var result = death.Bg2WorkingTilemap.Slice(32,
+            CrocomireMeltingArtworkFormat.TilemapCellCount).ToArray();
+        for (int index = 0; index < result.Length; index++)
+        {
+            int address = sourceAddress + index * 2;
+            ushort expected = (ushort)(rom.ReadByte(address) |
+                rom.ReadByte(address + 1) << 8);
+            if (compareRom)
+                AssertEqual(expected, result[index],
+                    $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");
+            int vramByte = (0x4800 + 32 + index) * 2;
+            AssertEqual((byte)result[index], vram.ReadByte(vramByte),
+                $"installed Crocomire tilemap ${sourceAddress:X6} VRAM low {index}");
+            AssertEqual((byte)(result[index] >> 8), vram.ReadByte(vramByte + 1),
+                $"installed Crocomire tilemap ${sourceAddress:X6} VRAM high {index}");
+        }
+        return result;
+    }
+
     private sealed class CrocomireMeltingDefinitionReadGuard(
         ISnesAddressSpace source, bool blockGraphics = false) :
         ISnesAddressSpace
@@ -287,6 +330,11 @@ internal static partial class Program
                     $"Crocomire melting attempted migrated definition read ${address:X6}.");
             if (blockGraphics)
             {
+                if (address >= CrocomireMeltingArtworkAddresses.FirstTilemap &&
+                    address < CrocomireMeltingArtworkAddresses.SecondTilemap +
+                        (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2)
+                    throw new InvalidOperationException(
+                        $"Crocomire melting attempted installed tilemap read ${address:X6}.");
                 foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
                 foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
                 {

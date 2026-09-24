@@ -33,17 +33,27 @@ public sealed partial class RoomEnemySystem
 
         Span<ushort> working = death.MutableBg2WorkingTilemap;
         working.Fill(CrocomireBlankBg2Tile);
-        int copiedWords = 0;
-        while (copiedWords < 0x0400)
+        int copiedWords;
+        if (TileArtwork?.CrocomireMelting is { } artwork)
         {
-            ushort word = ReadWord(_bus!, tilemapAddress + copiedWords * 2);
-            if (word == 0xffff)
-                break;
-            working[32 + copiedWords] = word;
-            copiedWords++;
+            ReadOnlySpan<ushort> tilemap = artwork.Tilemap(tilemapAddress);
+            copiedWords = tilemap.Length;
+            tilemap.CopyTo(working[32..]);
         }
-        if (copiedWords == 0x0400)
-            throw new InvalidDataException("Crocomire melting tilemap has no $FFFF terminator.");
+        else
+        {
+            copiedWords = 0;
+            while (copiedWords < 0x0400)
+            {
+                ushort word = ReadWord(_bus!, tilemapAddress + copiedWords * 2);
+                if (word == 0xffff)
+                    break;
+                working[32 + copiedWords] = word;
+                copiedWords++;
+            }
+            if (copiedWords == 0x0400)
+                throw new InvalidDataException("Crocomire melting tilemap has no $FFFF terminator.");
+        }
 
         // $A4:93BE receives byte count `tilemap bytes + $0400`, so the initial upload also
         // includes 512 blank leading words and retains blank space after the compact image.

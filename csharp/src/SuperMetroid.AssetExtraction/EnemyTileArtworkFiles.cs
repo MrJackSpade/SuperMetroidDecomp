@@ -136,6 +136,9 @@ public static class EnemyTileArtworkFiles
                 KraidBackgroundArtworkFormat.HeadFileName(pointer)), json);
             kraidHeadHashes.Add(pointer, Convert.ToHexString(SHA256.HashData(json)));
         }
+        byte[] kraidRoomBackground = ExtractKraidRoomBackground(bus);
+        File.WriteAllBytes(Path.Combine(directory,
+            KraidBackgroundArtworkFormat.RoomBackgroundFileName), kraidRoomBackground);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -146,7 +149,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(extendedJson)),
             Convert.ToHexString(SHA256.HashData(upperKraid)),
             Convert.ToHexString(SHA256.HashData(lowerKraid)),
-            kraidHeadHashes);
+            kraidHeadHashes,
+            Convert.ToHexString(SHA256.HashData(kraidRoomBackground)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -179,7 +183,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
-            manifest.KraidHeadsSha256 is null)
+            manifest.KraidHeadsSha256 is null ||
+            string.IsNullOrWhiteSpace(manifest.KraidRoomBackgroundSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -330,9 +335,24 @@ public static class EnemyTileArtworkFiles
                     $"Invalid Kraid head tilemap {fileName}: {error.Message}", error);
             }
         }
+        string roomBackgroundName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
+        byte[] roomBackgroundPng = ReadStockOrOverride(
+            roomBackgroundName, manifest.KraidRoomBackgroundSha256);
+        RoomCharacterAtlas roomBackground;
+        try
+        {
+            roomBackground = RoomCharacterAtlas.Load(
+                new MemoryStream(roomBackgroundPng, writable: false),
+                KraidBackgroundRomData.RoomBackgroundTileBytes);
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Kraid room-background PNG {roomBackgroundName}: {error.Message}", error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
-                kraidHeads));
+                kraidHeads, roomBackground));
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -413,6 +433,26 @@ public static class EnemyTileArtworkFiles
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 
+    private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
+    {
+        byte[] planar = RomDataReader.ReadFixedBank(bus,
+            KraidBackgroundRomData.RoomBackgroundTileAddress,
+            KraidBackgroundRomData.RoomBackgroundTileBytes);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
+            KraidBackgroundRomData.RoomBackgroundTileBytes /
+                RoomCharacterAtlasFormat.BytesPerTile,
+            out int width, out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] encoded = png.ToArray();
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+            new MemoryStream(encoded, writable: false),
+            KraidBackgroundRomData.RoomBackgroundTileBytes);
+        if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+            throw new InvalidDataException("Kraid room-background PNG changed native tile bytes.");
+        return encoded;
+    }
+
     private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
         int sourceAddress)
     {
@@ -453,7 +493,8 @@ public static class EnemyTileArtworkFiles
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
         string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256,
         string KraidUpperSha256, string KraidLowerSha256,
-        Dictionary<ushort, string> KraidHeadsSha256);
+        Dictionary<ushort, string> KraidHeadsSha256,
+        string KraidRoomBackgroundSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

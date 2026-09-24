@@ -111,6 +111,23 @@ public sealed partial class RoomEnemySystem
         state.HeadTilemapUploadCount++;
     }
 
+    /// <summary>Uploads the fixed 4-bpp room backdrop characters at the native VRAM word.</summary>
+    private void UploadKraidRoomBackgroundTiles()
+    {
+        if (TileArtwork is null)
+        {
+            _vram!.ExecuteQueuedWrite(_bus!,
+                KraidBackgroundRomData.RoomBackgroundTileAddress,
+                KraidBackgroundRomData.RoomBackgroundTileBytes,
+                KraidBackgroundRomData.RoomBackgroundTileVramWord);
+            return;
+        }
+        KraidBackgroundArtwork art = TileArtwork.KraidBackground
+            ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
+        art.RoomBackgroundTiles.LoadTo(_vram!,
+            KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort));
+    }
+
     /// <summary>Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase.</summary>
     private static void SetKraidBg2Priority(KraidEnemyState state)
     {

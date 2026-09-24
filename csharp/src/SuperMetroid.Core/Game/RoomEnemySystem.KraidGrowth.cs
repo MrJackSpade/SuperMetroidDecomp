@@ -98,11 +98,7 @@ public sealed partial class RoomEnemySystem
                 // initializes palette-six fading. Without it, BG1's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
                 // exposing Kraid BG2's `$0338` filler rectangle above his head.
-                _vram!.ExecuteQueuedWrite(
-                    _bus!,
-                    KraidBackgroundRomData.RoomBackgroundTileAddress,
-                    KraidBackgroundRomData.RoomBackgroundTileBytes,
-                    KraidBackgroundRomData.RoomBackgroundTileVramWord);
+                UploadKraidRoomBackgroundTiles();
                 return;
 
             case KraidAiFunction.GrowFadeInRoomBackground:

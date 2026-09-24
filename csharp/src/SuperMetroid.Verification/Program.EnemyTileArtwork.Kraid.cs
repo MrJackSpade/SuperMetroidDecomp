@@ -156,6 +156,75 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed Kraid head override fails at load");
+        VerifyInstalledKraidRoomBackground(rom, directory, stock);
+    }
+
+    private static void VerifyInstalledKraidRoomBackground(
+        SuperMetroidAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+    {
+        byte[] native = RomDataReader.ReadFixedBank(rom,
+            KraidBackgroundRomData.RoomBackgroundTileAddress,
+            KraidBackgroundRomData.RoomBackgroundTileBytes);
+        AssertTrue(stock.KraidBackground!.RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
+            "installed Kraid room-background PNG preserves native planar characters");
+        SnesVram baseline = UploadKraidRoomBackground(rom, null);
+        var guard = new KraidCompressedSourceGuard(rom);
+        SnesVram installed = UploadKraidRoomBackground(guard, stock);
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "installed Kraid room-background upload avoids ROM characters");
+        AssertTrue(installed.Bytes.SequenceEqual(baseline.Bytes),
+            "installed Kraid room-background upload preserves full native VRAM");
+
+        string fileName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
+        string stockPath = Path.Combine(directory, fileName);
+        byte[] original = File.ReadAllBytes(stockPath);
+        string overrides = Path.Combine(directory, "kraid-room-background-override");
+        Directory.CreateDirectory(overrides);
+        using var input = new MemoryStream(original, writable: false);
+        IndexedPngImage image = IndexedPng.Read(input, 16 * 8, 8);
+        image.Pixels[0] ^= 1;
+        string overridePath = Path.Combine(overrides, fileName);
+        using (var output = File.Create(overridePath))
+            IndexedPng.Write(output, image.Width, image.Height,
+                image.Pixels, image.Palette);
+        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        var editedGuard = new KraidCompressedSourceGuard(rom);
+        SnesVram changed = UploadKraidRoomBackground(editedGuard, edited);
+        AssertEqual(0, editedGuard.ForbiddenReadAttempts,
+            "edited Kraid room-background PNG avoids ROM reads");
+        int destination = KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort);
+        AssertEqual((byte)(baseline.ReadByte(destination) ^ 0x80),
+            changed.ReadByte(destination),
+            "edited Kraid background pixel changes native VRAM destination");
+        AssertTrue(baseline.Bytes[(destination + 1)..]
+                .SequenceEqual(changed.Bytes[(destination + 1)..]),
+            "Kraid backdrop PNG edit leaves later VRAM bytes unchanged");
+        SnesVram reloaded = UploadKraidRoomBackground(new KraidCompressedSourceGuard(rom),
+            EnemyTileArtworkFiles.Load(directory, overrides));
+        AssertTrue(reloaded.Bytes.SequenceEqual(changed.Bytes),
+            "Kraid room-background PNG override survives catalog reload");
+
+        File.WriteAllBytes(stockPath, [0]);
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+            "tampered Kraid room-background stock PNG fails manifest hash");
+        File.WriteAllBytes(stockPath, original);
+        File.WriteAllBytes(overridePath, [0]);
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
+            "malformed Kraid room-background PNG override fails at load");
+    }
+
+    private static SnesVram UploadKraidRoomBackground(
+        ISnesAddressSpace bus, EnemyTileArtworkCatalog? artwork)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        var upload = typeof(RoomEnemySystem).GetMethod("UploadKraidRoomBackgroundTiles", flags)!
+            .CreateDelegate<Action>(enemies);
+        upload();
+        return vram;
     }
 
     private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
@@ -216,6 +285,9 @@ internal static partial class Program
         {
             if (address == KraidBackgroundRomData.UpperTilemap ||
                 address == KraidBackgroundRomData.LowerTilemap ||
+                address is >= KraidBackgroundRomData.RoomBackgroundTileAddress and <
+                    KraidBackgroundRomData.RoomBackgroundTileAddress +
+                    KraidBackgroundRomData.RoomBackgroundTileBytes ||
                 HeadPointers.Any(pointer =>
                         address >= (KraidBackgroundRomData.NativeBank | pointer) &&
                         address < (KraidBackgroundRomData.NativeBank | pointer) +

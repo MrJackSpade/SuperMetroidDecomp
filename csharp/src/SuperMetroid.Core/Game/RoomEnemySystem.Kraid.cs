@@ -41,11 +41,7 @@ public sealed partial class RoomEnemySystem
             _cgram!.LoadFromBus(_bus!, 0xa786c7, colorCount: 16, destinationIndex: 96);
             state.BackgroundTilemapWords.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
             state.BackgroundTilemapsPrepared = true;
-            _vram!.ExecuteQueuedWrite(
-                _bus!,
-                KraidBackgroundRomData.RoomBackgroundTileAddress,
-                KraidBackgroundRomData.RoomBackgroundTileBytes,
-                KraidBackgroundRomData.RoomBackgroundTileVramWord);
+            UploadKraidRoomBackgroundTiles();
             _kraidPlmRequests.AddRange(KraidPlmDefinitions.DefeatedRoom);
             // The body is the owner of `$A7:C715-$C815`; deleting it here skips the two
             // BG2 clears and four standard-BG3 restoration DMAs. The other seven physical

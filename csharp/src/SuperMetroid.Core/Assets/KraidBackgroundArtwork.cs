@@ -10,15 +10,20 @@ public sealed class KraidBackgroundArtwork
 
     public KraidBackgroundArtwork(RoomBackgroundTilemapAtlas upper,
         RoomBackgroundTilemapAtlas lower,
-        IReadOnlyDictionary<ushort, KraidHeadTilemapAtlas> heads)
+        IReadOnlyDictionary<ushort, KraidHeadTilemapAtlas> heads,
+        RoomCharacterAtlas roomBackgroundTiles)
     {
         Upper = upper;
         Lower = lower;
         this.heads = new Dictionary<ushort, KraidHeadTilemapAtlas>(heads);
+        RoomBackgroundTiles = roomBackgroundTiles;
     }
 
     public RoomBackgroundTilemapAtlas Upper { get; }
     public RoomBackgroundTilemapAtlas Lower { get; }
+
+    /// <summary>Characters revealed behind Kraid after growth or defeat.</summary>
+    public RoomCharacterAtlas RoomBackgroundTiles { get; }
 
     /// <summary>Resolves one cartridge-selected frame without changing its timing or hitboxes.</summary>
     public ReadOnlySpan<ushort> HeadWords(ushort sourcePointer) =>
@@ -33,6 +38,7 @@ public static class KraidBackgroundArtworkFormat
 {
     public const string UpperFileName = "kraid-upper-bg2.json";
     public const string LowerFileName = "kraid-lower-bg2.json";
+    public const string RoomBackgroundFileName = "kraid-room-background.png";
 
     public static string HeadFileName(ushort sourcePointer) =>
         $"kraid-head-{sourcePointer:X4}.json";

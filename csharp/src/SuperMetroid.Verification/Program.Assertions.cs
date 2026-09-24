@@ -31,7 +31,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
-sealed class TestAddressSpace : ISnesAddressSpace, IRoomEnemyDefinitionFixtureSource
+sealed class TestAddressSpace : ISnesAddressSpace, IRoomEnemyFixtureSource
 {
     private readonly Dictionary<int, byte> _bytes = [];
 
@@ -59,6 +59,49 @@ sealed class TestAddressSpace : ISnesAddressSpace, IRoomEnemyDefinitionFixtureSo
 
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         RoomEnemySystem.ReadDefinition(this, pointer);
+
+    public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
+    {
+        int cursor = RoomEnemyRomLayout.PopulationBank | pointer;
+        var records = new List<RoomEnemyPopulationRecord>();
+        for (int slot = 0; slot <= RoomEnemySystem.MaximumEnemyCount; slot++)
+        {
+            ushort definitionPointer = ReadFixtureWord(cursor);
+            if (definitionPointer == 0xffff)
+                return new RoomEnemyPopulationDefinition(
+                    pointer, records.ToArray(), ReadByte(cursor + 2));
+            if (slot == RoomEnemySystem.MaximumEnemyCount)
+                throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
+            records.Add(new RoomEnemyPopulationRecord(
+                definitionPointer, ReadFixtureWord(cursor + 2),
+                ReadFixtureWord(cursor + 4), ReadFixtureWord(cursor + 6),
+                ReadFixtureWord(cursor + 8), ReadFixtureWord(cursor + 10),
+                ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
+            cursor += 16;
+        }
+        throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");
+    }
+
+    public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
+    {
+        int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
+        var records = new List<RoomEnemyGraphicsSetHeader>();
+        for (int slot = 0; slot <= 4; slot++)
+        {
+            ushort definitionPointer = ReadFixtureWord(cursor);
+            if (definitionPointer == 0xffff)
+                return new RoomEnemyGraphicsSetDefinition(pointer, records.ToArray());
+            if (slot == 4)
+                throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
+            records.Add(new RoomEnemyGraphicsSetHeader(
+                definitionPointer, ReadFixtureWord(cursor + 2)));
+            cursor += 4;
+        }
+        throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");
+    }
+
+    private ushort ReadFixtureWord(int address) =>
+        unchecked((ushort)(ReadByte(address) | ReadByte(address + 1) << 8));
 }
 
 /// <summary>

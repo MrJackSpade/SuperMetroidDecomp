@@ -453,11 +453,13 @@ public sealed partial class RoomEnemySystem
         // $A0:8A6D does not even inspect the room's enemy set when the first population
         // word is the terminator. This is observable: an empty room must not overwrite
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
-        if (ReadWord(bus, RoomEnemyRomLayout.PopulationBank | populationPointer) != 0xffff)
+        RoomEnemyPopulationDefinition population =
+            ResolveRoomEnemyPopulation(bus, populationPointer);
+        if (!population.Records.IsEmpty)
             LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
         LoadPopulation(
             bus,
-            populationPointer,
+            population,
             level,
             samus,
             controllerInput,
@@ -1010,22 +1012,21 @@ public sealed partial class RoomEnemySystem
         SnesVram vram,
         SnesCgram cgram)
     {
-        int cursor = RoomEnemyRomLayout.TilesetBank | tilesetPointer;
+        RoomEnemyGraphicsSetDefinition graphicsSet =
+            ResolveRoomEnemyGraphicsSet(bus, tilesetPointer);
         int nextEnemyTileIndex = 0;
         int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
 
-        while (true)
+        foreach (RoomEnemyGraphicsSetHeader source in graphicsSet.Records.Span)
         {
-            ushort definitionPointer = ReadWord(bus, cursor);
-            if (definitionPointer == 0xffff)
-                return;
+            ushort definitionPointer = source.DefinitionPointer;
             if (_graphicsSet.Count == MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
                     $"Enemy graphics set $B4:{tilesetPointer:X4} exceeds the native four-entry arrays.");
             }
 
-            ushort vramDestination = ReadWord(bus, AddWithinBank(cursor, 2));
+            ushort vramDestination = source.VramDestination;
             // Retail enemy headers are immutable gameplay definitions. Graphics uploads
             // still use the selected extracted artwork (or diagnostic ROM fallback), but
             // the header itself must not be re-read from the cartridge on room entry.
@@ -1080,52 +1081,29 @@ public sealed partial class RoomEnemySystem
             // makes malformed/high-bit records visible instead of silently normalized.
             nextEnemyTileIndex = unchecked((ushort)(nextEnemyTileIndex + (definition.TileDataSize >> 5)));
             nextStagingOffset = unchecked((ushort)(nextStagingOffset + definition.TileDataSize));
-            cursor = AddWithinBank(cursor, 4);
         }
     }
 
     private void LoadPopulation(
         ISnesAddressSpace bus,
-        ushort populationPointer,
+        RoomEnemyPopulationDefinition populationDefinition,
         RoomLevelData? level,
         SamusState? samus,
         ushort controllerInput,
         ushort cameraX,
         ushort cameraY)
     {
-        int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
-        int slotIndex = 0;
-        while (true)
+        ReadOnlySpan<RoomEnemyPopulationRecord> records = populationDefinition.Records.Span;
+        for (int slotIndex = 0; slotIndex < records.Length; slotIndex++)
         {
-            ushort definitionPointer = ReadWord(bus, cursor);
-            if (definitionPointer == 0xffff)
-            {
-                // InitializeEnemies returns early for an initially empty population. It has
-                // already zeroed both enemy counters, but it does not rewrite the previous
-                // first-free index or death quota. Preserve that retail quirk on reloads.
-                if (slotIndex == 0)
-                    return;
-
-                DeathQuota = bus.ReadByte(AddWithinBank(cursor, 2));
-                EnemyCount = unchecked((ushort)slotIndex);
-                FirstFreeEnemyIndex = unchecked((ushort)(slotIndex * NativeSlotSize));
-                return;
-            }
+            RoomEnemyPopulationRecord population = records[slotIndex];
+            ushort definitionPointer = population.DefinitionPointer;
             if (slotIndex == MaximumEnemyCount)
             {
                 throw new InvalidDataException(
-                    $"Enemy population $A1:{populationPointer:X4} has more than 32 records.");
+                    $"Enemy population $A1:{populationDefinition.Pointer:X4} has more than 32 records.");
             }
 
-            RoomEnemyPopulationRecord population = new(
-                definitionPointer,
-                ReadWord(bus, AddWithinBank(cursor, 2)),
-                ReadWord(bus, AddWithinBank(cursor, 4)),
-                ReadWord(bus, AddWithinBank(cursor, 6)),
-                ReadWord(bus, AddWithinBank(cursor, 8)),
-                ReadWord(bus, AddWithinBank(cursor, 10)),
-                ReadWord(bus, AddWithinBank(cursor, 12)),
-                ReadWord(bus, AddWithinBank(cursor, 14)));
             RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(bus, definitionPointer);
             RoomEnemySlot slot = _slots[slotIndex];
             InitializeSlotFromDefinition(slot, population, definition);
@@ -1142,9 +1120,17 @@ public sealed partial class RoomEnemySystem
                     : (ushort)0x804d
                 : (ushort)0;
 
-            slotIndex++;
-            cursor = AddWithinBank(cursor, 16);
         }
+
+        // InitializeEnemies returns early for an initially empty population. It has
+        // already zeroed both enemy counters, but does not rewrite the previous
+        // first-free index or death quota. Nonempty populations publish these after
+        // all initialization callbacks, exactly as the native terminator path does.
+        if (records.IsEmpty)
+            return;
+        DeathQuota = populationDefinition.DeathQuota;
+        EnemyCount = unchecked((ushort)records.Length);
+        FirstFreeEnemyIndex = unchecked((ushort)(records.Length * NativeSlotSize));
     }
 
     private void InitializeSlotFromDefinition(
@@ -3977,9 +3963,21 @@ public sealed partial class RoomEnemySystem
     /// <summary>Uses compiled retail definitions unless a constructed test bus explicitly supplies fixtures.</summary>
     private static RoomEnemyDefinition ResolveRoomEnemyDefinition(
         ISnesAddressSpace bus, ushort pointer) =>
-        bus is IRoomEnemyDefinitionFixtureSource fixture
+        bus is IRoomEnemyFixtureSource fixture
             ? fixture.ReadEnemyDefinition(pointer)
             : RoomEnemyDefinitionCatalog.Get(pointer);
+
+    private static RoomEnemyPopulationDefinition ResolveRoomEnemyPopulation(
+        ISnesAddressSpace bus, ushort pointer) =>
+        bus is IRoomEnemyFixtureSource fixture
+            ? fixture.ReadEnemyPopulation(pointer)
+            : RoomEnemyPopulationDefinitions.Get(pointer);
+
+    private static RoomEnemyGraphicsSetDefinition ResolveRoomEnemyGraphicsSet(
+        ISnesAddressSpace bus, ushort pointer) =>
+        bus is IRoomEnemyFixtureSource fixture
+            ? fixture.ReadEnemyGraphicsSet(pointer)
+            : RoomEnemyGraphicsSetDefinitions.Get(pointer);
 
     /// <summary>
     /// Parses one complete 64-byte enemy header from the fixed bank-$A0 definition table.

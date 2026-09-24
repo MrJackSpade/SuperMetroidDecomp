@@ -15,8 +15,29 @@ rooms opt into their own authored headers through the explicit
 `IRoomEnemyDefinitionFixtureSource` interface. The public `ReadDefinition` ROM
 parser remains available to extraction/debug tools, not production room loading.
 
-This is a partial #537 migration. Ordered room populations, drop and
-vulnerability tables, enemy-name words, and final presentation bindings still
-need separation. The catalog's artwork addresses and palette/spritemap IDs are
-stable native references at this stage, not editable gameplay data. No claim of
+This is a partial #537 migration. Drop and vulnerability tables, enemy-name
+words, and final presentation bindings still need separation. The catalog's
+artwork addresses and palette/spritemap IDs are stable native references at
+this stage, not editable gameplay data. No claim of
 ROM-free general room loading or completed enemy visual modding is made.
+
+## Ordered room populations and graphics sets
+
+All 323 room states select 302 distinct bank-$A1 population lists containing
+1,658 ordered placements and 302 bank-$B4 graphics sets containing 425 ordered
+members. `RoomEnemyPopulationDefinitions` and
+`RoomEnemyGraphicsSetDefinitions` compile those records, including the byte
+after each population terminator that becomes the enemy-death quota. Production
+room loading no longer reads either source list. The empty-population early
+return still preserves the previous first-free index and death quota.
+
+`--enemy-room-lists` enumerates every selected pointer from compiled room states,
+compares each ordered record, terminator, and quota against the independent ROM
+oracle, rejects unknown IDs, and loads the Ceres entry room with all list-source
+bytes forbidden. Synthetic fixtures use `IRoomEnemyFixtureSource`; the Crystal
+Flash contact and post-Ceres gunship wrappers forward their authored records.
+The full verification suite also exercises those interactions.
+
+This remains partial #537 work: drop/vulnerability probabilities and tables,
+enemy-name words, presentation bindings, and a broader ROM-free runtime audit
+are not finished by compiling room lists.

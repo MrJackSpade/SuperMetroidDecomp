@@ -1,14 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>
-/// Explicit override for constructed verifier buses whose authored enemy headers differ
-/// from retail. Production address spaces never implement this test-only seam.
-/// </summary>
-internal interface IRoomEnemyDefinitionFixtureSource
-{
-    RoomEnemyDefinition ReadEnemyDefinition(ushort pointer);
-}
-
 /// <summary>Typed, immutable bank-$A0 enemy headers referenced by all 323 retail room states.</summary>
 /// <remarks>
 /// Generated from the pinned NTSC J/U v1.0 cartridge. The 148 pointer identities are

@@ -276,8 +276,34 @@ internal static partial class Program
 }
 
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
-internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) : ISnesAddressSpace
+internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) :
+    ISnesAddressSpace, IRoomEnemyFixtureSource
 {
+    public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+        RoomEnemyDefinitionCatalog.Get(pointer);
+
+    public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
+    {
+        if (pointer != CrystalFlashContactDefinitions.Pointer)
+            throw new ArgumentOutOfRangeException(nameof(pointer));
+        return new RoomEnemyPopulationDefinition(pointer,
+        [
+            new RoomEnemyPopulationRecord(
+                CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
+                CrystalFlashContactDefinitions.Properties, 0, 0, 0),
+        ], 0);
+    }
+
+    public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
+    {
+        if (pointer != CrystalFlashContactDefinitions.Pointer)
+            throw new ArgumentOutOfRangeException(nameof(pointer));
+        return new RoomEnemyGraphicsSetDefinition(pointer,
+        [
+            new RoomEnemyGraphicsSetHeader(CrystalFlashContactDefinitions.RipperHeader, 0),
+        ]);
+    }
+
     public byte ReadByte(int address)
     {
         ReadOnlySpan<ushort> population = [CrystalFlashContactDefinitions.RipperHeader, x, y, 0,

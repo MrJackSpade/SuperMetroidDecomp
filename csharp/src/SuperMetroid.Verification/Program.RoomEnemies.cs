@@ -229,10 +229,16 @@ static void VerifyRoomEnemyLoading()
 }
 
 private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
-    ISnesAddressSpace, IRoomEnemyDefinitionFixtureSource
+    ISnesAddressSpace, IRoomEnemyFixtureSource
 {
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         source.ReadEnemyDefinition(pointer);
+
+    public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
+        source.ReadEnemyPopulation(pointer);
+
+    public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
+        source.ReadEnemyGraphicsSet(pointer);
 
     public byte ReadByte(int address)
     {

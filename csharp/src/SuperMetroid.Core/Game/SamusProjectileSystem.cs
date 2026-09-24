@@ -240,20 +240,32 @@ public sealed partial class SamusProjectileSystem
                     : SamusProjectileRomData.Palettes.BeamChargePointers;
                 ushort suitOffset = GetSuitPaletteOffset(samus.EquippedItems);
 
-                // The first lookup selects one of the three suit-specific six-word lists
-                // in bank $91. The second produces a bank-$9B, sixteen-color palette.
-                // `$0B62` is kept as a byte offset because that is what the native ADC uses.
-                ushort listPointer = ReadWord(bus, pointerTable + suitOffset);
-                int listEntryAddress = SamusProjectileRomData.Banks.Pose |
-                    unchecked((ushort)(listPointer + SamusChargePaletteIndex));
-                ushort palettePointer = ReadWord(bus, listEntryAddress);
-                cgram.LoadFromBus(
-                    bus,
-                    SamusProjectileRomData.Banks.PaletteAndTrailData | palettePointer,
-                    colorCount: SamusProjectileRomData.Palettes.ColorCount,
-                    destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
-
+                // The installed path compiles the two pointer levels for bounded native
+                // offsets. Restored non-catalog offsets still execute both indirect reads.
+                ushort palettePointer = 0;
+                bool catalogued = samus.ChargeColors is not null &&
+                    (pseudoScrew
+                        ? SamusChargePalettePointerDefinitions.TryPseudoScrew(
+                            suitOffset, SamusChargePaletteIndex, out palettePointer)
+                        : SamusChargePalettePointerDefinitions.TryChargedBeam(
+                            suitOffset, SamusChargePaletteIndex, out palettePointer));
+                if (!catalogued)
+                {
+                    ushort listPointer = ReadWord(bus, pointerTable + suitOffset);
+                    int listEntryAddress = SamusProjectileRomData.Banks.Pose |
+                        unchecked((ushort)(listPointer + SamusChargePaletteIndex));
+                    palettePointer = ReadWord(bus, listEntryAddress);
+                }
                 int paletteIndex = SamusChargePaletteIndex / 2;
+                if (catalogued && samus.ChargeColors is { } installedColors)
+                    installedColors.ApplyCharge(cgram, pseudoScrew, suitOffset / 2, paletteIndex);
+                else
+                    cgram.LoadFromBus(
+                        bus,
+                        SamusProjectileRomData.Banks.PaletteAndTrailData | palettePointer,
+                        colorCount: SamusProjectileRomData.Palettes.ColorCount,
+                        destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
+
                 SamusChargePaletteIndex = SamusChargePaletteIndex >= 10
                     ? (ushort)0
                     : unchecked((ushort)(SamusChargePaletteIndex + 2));
@@ -352,15 +364,21 @@ public sealed partial class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        ushort hyperPointer = ReadWord(
-            bus,
-            SamusProjectileRomData.Palettes.HyperBeamShotPointers + tableOffset);
-        cgram.LoadFromBus(
-            bus,
-            SamusProjectileRomData.Banks.PaletteAndTrailData | hyperPointer,
-            colorCount: SamusProjectileRomData.Palettes.ColorCount,
-            destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
+        ushort hyperPointer = 0;
+        bool cataloguedHyper = samus.ChargeColors is not null &&
+            SamusChargePalettePointerDefinitions.TryHyperShot(tableOffset, out hyperPointer);
+        if (!cataloguedHyper)
+            hyperPointer = ReadWord(bus,
+                SamusProjectileRomData.Palettes.HyperBeamShotPointers + tableOffset);
         int hyperPaletteIndex = (0x14 - tableOffset) / 2;
+        if (cataloguedHyper && samus.ChargeColors is { } installedHyperColors)
+            installedHyperColors.ApplyHyper(cgram, hyperPaletteIndex);
+        else
+            cgram.LoadFromBus(
+                bus,
+                SamusProjectileRomData.Banks.PaletteAndTrailData | hyperPointer,
+                colorCount: SamusProjectileRomData.Palettes.ColorCount,
+                destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
         ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette,

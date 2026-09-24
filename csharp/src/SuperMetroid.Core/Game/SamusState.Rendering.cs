@@ -42,6 +42,14 @@ public sealed partial class SamusState
         set => fullBodyCycleColors = value;
     }
 
+    [NonSerialized] private SamusChargeColorCatalog? chargeColors;
+    /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
+    public SamusChargeColorCatalog? ChargeColors
+    {
+        get => chargeColors;
+        set => chargeColors = value;
+    }
+
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.

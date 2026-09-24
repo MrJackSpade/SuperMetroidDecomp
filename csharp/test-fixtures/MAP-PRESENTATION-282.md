@@ -1672,3 +1672,22 @@ forbidden. It asserts each body/bubble CGRAM color, checks both timers and
 cursors against an unedited native run, rejects invalid RGB5 data, and verifies
 that stock re-extraction preserves the user override. Non-catalogued debugger
 cursor values retain the native read path.
+
+## Editable Samus charge and Hyper-shot colors (#536, #540, #541, #549)
+
+Catalog version 70 adds `samus-charge-colors.json` with `chargedBeam` and
+`pseudoScrew` families, each ordered Power/Varia/Gravity Suit and six playback
+phases of sixteen RGB5 colors, plus ten ordered `hyperShot` glow frames. Copy
+the stock JSON to `overrides/maps` to change the displayed Samus OBJ colors.
+The cartridge's charge threshold, contact-damage condition, phase order,
+Hyper-shot two-call holds, and normal-suit restoration remain unchanged.
+The repeated pseudo-Screw frames are represented separately so edits can
+distinguish frames without changing native cadence.
+
+`--map-presentation` checks all 736 extracted color words and every compiled
+pointer against the pinned cartridge. It runs all 36 charge/pseudo-Screw phases
+and 20 Hyper-shot calls through the production palette handler with pointer and
+source-color ROM reads forbidden, asserting each CGRAM word and the Hyper-shot
+hold frames. It also checks edit identity, invalid RGB5 data, override removal,
+and stock re-extraction without overwriting user edits. Non-catalogued restored
+phase words retain the existing native indirect-read path.

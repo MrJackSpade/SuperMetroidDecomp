@@ -295,6 +295,11 @@ public static class MapPresentationExtractor
             file.Write(crystalFlashColorBytes);
         hashes.Add(CrystalFlashColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(crystalFlashColorBytes)));
+        byte[] samusChargeColorBytes = SamusChargeColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, SamusChargeColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(samusChargeColorBytes);
+        hashes.Add(SamusChargeColorFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(samusChargeColorBytes)));
         byte[] samusHyperBeamColorBytes = SamusHyperBeamColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusHyperBeamColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusHyperBeamColorBytes);

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -16,7 +17,27 @@ internal static partial class Program
         AssertEqual(10, KraidNailInstructionProgramDefinitions.MechanicsWordCount,
             "Kraid fingernail compiled mechanics word count");
         AssertEqual(8, KraidNailInstructionProgramDefinitions.PresentationWordCount,
-            "Kraid fingernail live presentation word count");
+            "Kraid fingernail compiled visual operand count");
+        AssertEqual(ReadKraidNailInstructionWord(rom, 0x8b0c),
+            KraidVisualDefinitions.InitialNailFrame,
+            "compiled Kraid fingernail initial frame matches its cartridge selector");
+        foreach ((int slotIndex, ushort expectedDefinition) in new[]
+                 {
+                     (6, RoomEnemySystem.KraidGoodNailDefinition),
+                     (7, RoomEnemySystem.KraidBadNailDefinition),
+                 })
+        {
+            int record = EnemyRomTablePointers.Kraid.PopulationRecords + slotIndex * 16;
+            ushort definition = (ushort)(rom.ReadByte(record) |
+                rom.ReadByte(record + 1) << 8);
+            ushort extraProperties = (ushort)(rom.ReadByte(record + 10) |
+                rom.ReadByte(record + 11) << 8);
+            AssertEqual(expectedDefinition, definition,
+                $"retail Kraid nail slot {slotIndex} matches the visual family");
+            AssertTrue((extraProperties &
+                    (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
+                $"retail Kraid nail slot {slotIndex} uses ordinary OAM composition");
+        }
         for (int index = 0;
              index < KraidNailInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -60,8 +81,8 @@ internal static partial class Program
                 $"Kraid fingernail ${definitionPointer:X4} loops to its first frame");
         }
 
-        AssertEqual(8, guard.ObservedPresentationWords.Count,
-            "all Kraid fingernail spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Kraid fingernail programs never read installed visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid fingernail production execution avoids compiled mechanics bytes");
         for (int index = 0;
@@ -70,8 +91,10 @@ internal static partial class Program
         {
             ushort address =
                 KraidNailInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Kraid fingernail spritemap $A7:{address:X4}");
+            AssertEqual(ReadKraidNailInstructionWord(rom, address),
+                KraidVisualDefinitions.FrameAt(
+                    RoomEnemySystem.KraidGoodNailDefinition, address),
+                $"compiled Kraid fingernail frame $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => KraidNailInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Kraid fingernail spritemap $A7:{address:X4} is rejected as mechanics");
@@ -80,6 +103,36 @@ internal static partial class Program
             () => KraidNailInstructionProgramDefinitions.ReadMechanicsWord(
                 KraidNailInstructionProgramDefinitions.AdjacentPresentationData),
             "adjacent Kraid arm presentation data is rejected as fingernail mechanics");
+        AssertThrows<InvalidDataException>(
+            () => KraidVisualDefinitions.FrameAt(
+                RoomEnemySystem.KraidGoodNailDefinition,
+                KraidNailInstructionProgramDefinitions.AdjacentPresentationData),
+            "adjacent Kraid visual operand is not a fingernail frame");
+
+        foreach ((ushort definition, int slotIndex) in new[]
+                 {
+                     (RoomEnemySystem.KraidGoodNailDefinition, 6),
+                     (RoomEnemySystem.KraidBadNailDefinition, 7),
+                 })
+        {
+            var enemies = new RoomEnemySystem();
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            typeof(RoomEnemySystem).GetField("_kraidState", flags)!
+                .SetValue(enemies, new KraidEnemyState());
+            typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
+                .SetValue(enemies, (Func<bool>)(() => false));
+            enemies.Slots[0].EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+            RoomEnemySlot slot = enemies.Slots[slotIndex];
+            slot.EnemyDefinitionPointer = definition;
+            typeof(RoomEnemySystem).GetMethod("InitializeKraidNail", flags)!
+                .Invoke(enemies, [slot, slotIndex]);
+            AssertEqual(KraidVisualDefinitions.InitialNailFrame,
+                slot.SpritemapPointer,
+                $"Kraid fingernail slot {slotIndex} installs the compiled initial frame");
+        }
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Kraid fingernail initialization never reads the initial frame from ROM");
 
         _ = ProbeKraidNailInstructionAllocation();
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -90,7 +143,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Kraid fingernail instruction mechanics: ten compiled words, both nail " +
-            "definitions, and eight live spritemap reads pass.");
+            "definitions, eight compiled visual selectors, and both initial frames pass " +
+            "with selector and mechanics ROM reads forbidden.");
     }
 
     private static int ProbeKraidNailInstructionAllocation()
@@ -116,7 +170,7 @@ internal static partial class Program
     private sealed class KraidNailInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -139,8 +193,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Kraid nail selector ${address:X6}.");
                     }
                 }
             }

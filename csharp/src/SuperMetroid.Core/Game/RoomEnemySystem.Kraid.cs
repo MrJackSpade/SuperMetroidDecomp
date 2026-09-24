@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -156,8 +157,7 @@ public sealed partial class RoomEnemySystem
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.InstructionTimer = 0x7fff;
         nail.CurrentInstruction = KraidNailInstructionProgramDefinitions.Loop;
-        nail.SpritemapPointer = ReadWord(
-            _bus!, EnemyRomTablePointers.Kraid.InitialNailSpritemapWord);
+        nail.SpritemapPointer = KraidVisualDefinitions.InitialNailFrame;
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
         nail.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
         nail.VariableF = 64;

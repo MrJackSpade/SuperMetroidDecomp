@@ -11,11 +11,13 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 8;
-    internal const int PreviousVersion = 7;
-    internal const int PreviousFrameCount = 101;
-    internal const int PriorVersion = 6;
-    internal const int PriorFrameCount = 79;
+    internal const int Version = 9;
+    internal const int PreviousVersion = 8;
+    internal const int PreviousFrameCount = 145;
+    internal const int PriorVersion = 7;
+    internal const int PriorFrameCount = 101;
+    internal const int EarlierVersion = 6;
+    internal const int EarlierFrameCount = 79;
     internal const int IntermediateVersion = 5;
     internal const int IntermediateFrameCount = 69;
     internal const int LegacyVersion = 4;
@@ -27,6 +29,8 @@ internal static class EnemySpritemapDefinitions
     internal const byte ZoaBank = 0xa3;
     internal const byte SkreeMetareeBank = 0xa3;
     internal const byte PipeBugBank = 0xb3;
+    internal const byte FakeKraidBank = 0xa6;
+    internal const byte KraidNailBank = 0xa7;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -180,6 +184,28 @@ internal static class EnemySpritemapDefinitions
         new(PipeBugBank, 0x92ec, "pipe_yellow_arc_right_0"),
         new(PipeBugBank, 0x92f3, "pipe_yellow_arc_right_1"),
         new(PipeBugBank, 0x92fa, "pipe_yellow_arc_right_2"),
+        new(FakeKraidBank, 0x9c64, "fake_kraid_walk_left_0"),
+        new(FakeKraidBank, 0x9cb6, "fake_kraid_walk_left_1"),
+        new(FakeKraidBank, 0x9d08, "fake_kraid_walk_left_2"),
+        new(FakeKraidBank, 0x9d5a, "fake_kraid_walk_left_3"),
+        new(FakeKraidBank, 0x9dac, "fake_kraid_spit_left_0"),
+        new(FakeKraidBank, 0x9dfe, "fake_kraid_spit_left_1"),
+        new(FakeKraidBank, 0x9e50, "fake_kraid_spit_left_2"),
+        new(FakeKraidBank, 0x9ea2, "fake_kraid_walk_right_0"),
+        new(FakeKraidBank, 0x9ef4, "fake_kraid_walk_right_1"),
+        new(FakeKraidBank, 0x9f46, "fake_kraid_walk_right_2"),
+        new(FakeKraidBank, 0x9f98, "fake_kraid_walk_right_3"),
+        new(FakeKraidBank, 0x9fea, "fake_kraid_spit_right_0"),
+        new(FakeKraidBank, 0xa03c, "fake_kraid_spit_right_1"),
+        new(FakeKraidBank, 0xa08e, "fake_kraid_spit_right_2"),
+        new(KraidNailBank, 0xa617, "kraid_nail_0"),
+        new(KraidNailBank, 0xa623, "kraid_nail_1"),
+        new(KraidNailBank, 0xa639, "kraid_nail_2"),
+        new(KraidNailBank, 0xa645, "kraid_nail_3"),
+        new(KraidNailBank, 0xa65b, "kraid_nail_4"),
+        new(KraidNailBank, 0xa667, "kraid_nail_5"),
+        new(KraidNailBank, 0xa67d, "kraid_nail_6"),
+        new(KraidNailBank, 0xa689, "kraid_nail_7"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -213,6 +239,10 @@ internal static class EnemySpritemapDefinitions
                 PipeBugDefinitions.NorfairEnemyDefinition or
                 PipeBugDefinitions.YellowEnemyDefinition =>
                 PipeBugVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+            RoomEnemySystem.FakeKraidDefinition or
+                RoomEnemySystem.KraidGoodNailDefinition or
+                RoomEnemySystem.KraidBadNailDefinition =>
+                KraidVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
@@ -223,7 +253,10 @@ internal static class EnemySpritemapDefinitions
             PipeBugDefinitions.BrinstarEnemyDefinition or
             PipeBugDefinitions.StrongBrinstarEnemyDefinition or
             PipeBugDefinitions.NorfairEnemyDefinition or
-            PipeBugDefinitions.YellowEnemyDefinition;
+            PipeBugDefinitions.YellowEnemyDefinition or
+            RoomEnemySystem.FakeKraidDefinition or
+            RoomEnemySystem.KraidGoodNailDefinition or
+            RoomEnemySystem.KraidBadNailDefinition;
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

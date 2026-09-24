@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -16,6 +17,17 @@ internal static partial class Program
     {
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
+
+        int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
+        ushort populationDefinition = (ushort)(rom.ReadByte(population) |
+            rom.ReadByte(population + 1) << 8);
+        ushort extraProperties = (ushort)(rom.ReadByte(population + 10) |
+            rom.ReadByte(population + 11) << 8);
+        AssertEqual(RoomEnemySystem.FakeKraidDefinition, populationDefinition,
+            "retail Fake Kraid population matches the installed visual family");
+        AssertTrue((extraProperties &
+                (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
+            "retail Fake Kraid uses ordinary OAM composition");
 
         for (int index = 0;
              index < FakeKraidInstructionProgramDefinitions.MechanicsWordCount;
@@ -64,18 +76,23 @@ internal static partial class Program
             FakeKraidInstructionProgramDefinitions.FireSpitFacingRight,
             movingRight: true);
 
-        AssertEqual(FakeKraidInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Fake Kraid spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+            "Fake Kraid programs never read installed visual selectors");
         for (int index = 0;
              index < FakeKraidInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 FakeKraidInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Fake Kraid presentation $A6:{address:X4}");
+            AssertEqual(ReadFakeKraidInstructionWord(rom, 0xa60000 | address),
+                KraidVisualDefinitions.FrameAt(
+                    RoomEnemySystem.FakeKraidDefinition, address),
+                $"compiled Fake Kraid frame $A6:{address:X4}");
         }
+        AssertThrows<InvalidDataException>(
+            () => KraidVisualDefinitions.FrameAt(
+                RoomEnemySystem.FakeKraidDefinition, 0x9a42),
+            "unlisted Fake Kraid visual operand fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Fake Kraid mechanics byte");
 
@@ -98,8 +115,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Fake Kraid instruction mechanics: forty-eight compiled words, all six live " +
-            "programs, four action selectors, and twenty-four spritemap reads pass with " +
-            "mechanics bytes forbidden.");
+            "programs and four action selectors pass with twenty-four visual selectors " +
+            "and mechanics source words forbidden.");
 
         void VerifyInitializer(bool movingRight)
         {
@@ -221,7 +238,7 @@ internal static partial class Program
     private sealed class FakeKraidInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -245,8 +262,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenPresentationReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read installed Fake Kraid selector ${address:X6}.");
                     }
                 }
             }

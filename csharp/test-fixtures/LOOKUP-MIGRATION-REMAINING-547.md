@@ -1,5 +1,19 @@
 # Remaining lookup migration inventory (#547)
 
+## Fake Kraid and Kraid fingernail visual selectors (2026-09-24)
+
+Fake Kraid's 24 interleaved visual operands select fourteen ordinary OAM frames;
+Kraid's two nail slots share eight frames selected by eight operands. Those fixed
+selectors are compiled in `KraidVisualDefinitions`, and all 22 frames are editable
+in `enemy-compositions.json`. The nail initializer also installs the compiled
+first-frame identity instead of reading `$A7:8B0C`. Movement, spit callbacks,
+fingernail flight, collision, and instruction timing remain engine-owned.
+
+Production tests run the real instruction dispatchers with all selector and
+mechanics source bytes forbidden, compare each compiled selection and stock OAM
+frame to the pinned cartridge, and check visible edits and old-override migration.
+This does not cover Kraid's extended arm, foot, or lint compositions.
+
 Initially inspected at `73343942`; expanded at `a86728da`. This is a verified list of remaining callers, **not an
 exhaustive completion certificate**. Multiline reads and intermediate-address
 variables must be inspected; a search for `ReadWord(...Speed...)` misses them.

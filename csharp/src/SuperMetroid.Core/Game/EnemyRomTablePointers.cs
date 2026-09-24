@@ -129,6 +129,12 @@ internal static class EnemyRomTablePointers
     /// <summary>Kraid palettes, hitboxes, growth, and projectile motion data.</summary>
     public static class Kraid
     {
+        /// <summary>Eight ordered Kraid room-population records at $A1:9EB5.</summary>
+        public const int PopulationRecords = 0xa19eb5;
+
+        /// <summary>Fake Kraid's ordinary enemy-population record at $A1:A0EA.</summary>
+        public const int FakeKraidPopulationRecord = 0xa1a0ea;
+
         /// <summary>$A7:BE3E, Function_KraidNail_Initialize.upwardsVelocityPointers; selected when the sibling's Y velocity is negative.</summary>
         public const int NailUpwardVelocityPointers = 0xa7be3e;
 

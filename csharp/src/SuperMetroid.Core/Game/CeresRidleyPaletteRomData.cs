@@ -1,0 +1,41 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>Authored bank-$A6 Ceres Ridley palette sources and native CGRAM destinations.</summary>
+public static class CeresRidleyPaletteRomData
+{
+    /// <summary>Door and Baby-container target colors loaded during Ceres Ridley initialization at $A6:E16F.</summary>
+    public const int StartColors = 0xa6e16f;
+    public const int StartColorCount = 32;
+    public const int StartCgramIndex = 0x140 / 2;
+
+    /// <summary>Sixteen three-color eye-fade rows beginning at $A6:E2AA.</summary>
+    public const int EyeFadeColors = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows;
+    public const int EyeFadeRowCount = 16;
+    public const int EyeFadeColorCount = 3;
+    public const int EyeFadeCgramIndex = 252;
+
+    /// <summary>Sixteen eleven-color body-fade rows at $A6:E30A-$E469.</summary>
+    public const int BodyFadeColors = 0xa6e30a;
+    public const int BodyFadeRowCount = 16;
+    public const int BodyFadeColorCount = 11;
+    public const int BodyFadeBgCgramIndex = 0x122 / 2;
+    public const int BodyFadeObjCgramIndex = 0x1e2 / 2;
+
+    /// <summary>Three fourteen-color health shades at $A6:E46A; native combat selects rows zero or two.</summary>
+    public const int HealthColors = 0xa6e46a;
+    public const int HealthRowCount = 3;
+    public const int HealthColorCount = 14;
+    public const int HealthMidRow = 0;
+    public const int HealthLateRow = 2;
+    public const int HealthCgramIndex = 0x1e2 / 2;
+
+    /// <summary>Retreat BG colors one through fifteen at $A6:A9E3.</summary>
+    public const int RetreatBgColors = 0xa6a9e3;
+    public const int RetreatBgColorCount = 15;
+    public const int RetreatBgCgramIndex = 0x0a2 / 2;
+    /// <summary>Eight retreat colors at $A6:AA01 copied to both BG and OBJ palettes.</summary>
+    public const int RetreatSharedColors = 0xa6aa01;
+    public const int RetreatSharedColorCount = 8;
+    public const int RetreatSharedBgCgramIndex = 0x042 / 2;
+    public const int RetreatSharedObjCgramIndex = 0x1e2 / 2;
+}

@@ -300,6 +300,11 @@ public static class MapPresentationExtractor
             file.Write(samusChargeColorBytes);
         hashes.Add(SamusChargeColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(samusChargeColorBytes)));
+        byte[] ceresRidleyColorBytes = CeresRidleyColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, CeresRidleyColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(ceresRidleyColorBytes);
+        hashes.Add(CeresRidleyColorFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(ceresRidleyColorBytes)));
         byte[] samusHyperBeamColorBytes = SamusHyperBeamColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusHyperBeamColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusHyperBeamColorBytes);

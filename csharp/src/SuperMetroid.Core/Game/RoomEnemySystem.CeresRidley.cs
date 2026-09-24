@@ -162,13 +162,18 @@ public sealed partial class RoomEnemySystem
         // WriteColorsToTargetPalette($140, $A6:E16F, $20) installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in
         // CGRAM, matching the established Ceres-door palette seam.
-        _cgram!.LoadFromBus(_bus!, 0xa6e16f, colorCount: 32, destinationIndex: 0x140 / 2);
+        if (CeresRidleyColors is { } startColors)
+            startColors.ApplyStart(_cgram!);
+        else
+            _cgram!.LoadFromBus(_bus!, CeresRidleyPaletteRomData.StartColors,
+                CeresRidleyPaletteRomData.StartColorCount,
+                CeresRidleyPaletteRomData.StartCgramIndex);
 
         // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
         // and is intentionally left untouched.
         for (int color = 0x1e2 / 2; color <= 0x1fe / 2; color++)
-            _cgram.SetColor(color, 0);
+            _cgram!.SetColor(color, 0);
     }
 
     /// <summary>
@@ -387,9 +392,20 @@ public sealed partial class RoomEnemySystem
 
                     // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
                     // copied to colors 1..8 of BG palette two and OBJ palette seven.
-                    _cgram!.LoadFromBus(_bus!, 0xa6a9e3, 15, 0x00a2 / 2);
-                    _cgram.LoadFromBus(_bus!, 0xa6aa01, 8, 0x0042 / 2);
-                    _cgram.LoadFromBus(_bus!, 0xa6aa01, 8, 0x01e2 / 2);
+                    if (CeresRidleyColors is { } retreatColors)
+                        retreatColors.ApplyRetreat(_cgram!);
+                    else
+                    {
+                        _cgram!.LoadFromBus(_bus!, CeresRidleyPaletteRomData.RetreatBgColors,
+                            CeresRidleyPaletteRomData.RetreatBgColorCount,
+                            CeresRidleyPaletteRomData.RetreatBgCgramIndex);
+                        _cgram.LoadFromBus(_bus!, CeresRidleyPaletteRomData.RetreatSharedColors,
+                            CeresRidleyPaletteRomData.RetreatSharedColorCount,
+                            CeresRidleyPaletteRomData.RetreatSharedBgCgramIndex);
+                        _cgram.LoadFromBus(_bus!, CeresRidleyPaletteRomData.RetreatSharedColors,
+                            CeresRidleyPaletteRomData.RetreatSharedColorCount,
+                            CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex);
+                    }
                 }
                 break;
 
@@ -468,13 +484,17 @@ public sealed partial class RoomEnemySystem
         if (state.FightMode == 0 || state.HitCounter < 50)
             return;
 
-        int paletteIndex = state.HitCounter < 70 ? 0 : 2;
-        const int colorsPerHealthPalette = 14;
-        _cgram!.LoadFromBus(
-            _bus!,
-            0xa6e46a + paletteIndex * colorsPerHealthPalette * 2,
-            colorCount: colorsPerHealthPalette,
-            destinationIndex: 0x01e2 / 2);
+        int paletteIndex = state.HitCounter < 70
+            ? CeresRidleyPaletteRomData.HealthMidRow
+            : CeresRidleyPaletteRomData.HealthLateRow;
+        if (CeresRidleyColors is { } healthColors)
+            healthColors.ApplyHealth(_cgram!, paletteIndex);
+        else
+            _cgram!.LoadFromBus(_bus!,
+                CeresRidleyPaletteRomData.HealthColors +
+                paletteIndex * CeresRidleyPaletteRomData.HealthColorCount * sizeof(ushort),
+                CeresRidleyPaletteRomData.HealthColorCount,
+                CeresRidleyPaletteRomData.HealthCgramIndex);
     }
 
     private static void TickCeresRidleyLiftoffDecelerating(
@@ -960,9 +980,16 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
-            fadeStep.PaletteRow * 6;
-        _cgram!.LoadFromBus(_bus!, source, colorCount: 3, destinationIndex: 252);
+        if (CeresRidleyColors is { } eyeColors)
+            eyeColors.ApplyEyeFade(_cgram!, fadeStep.PaletteRow);
+        else
+        {
+            int source = CeresRidleyPaletteRomData.EyeFadeColors +
+                fadeStep.PaletteRow * CeresRidleyPaletteRomData.EyeFadeColorCount * sizeof(ushort);
+            _cgram!.LoadFromBus(_bus!, source,
+                CeresRidleyPaletteRomData.EyeFadeColorCount,
+                CeresRidleyPaletteRomData.EyeFadeCgramIndex);
+        }
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
     }
 
@@ -973,11 +1000,28 @@ public sealed partial class RoomEnemySystem
             return;
         state.FunctionTimer = 0;
 
-        int source = 0xa6e30a + state.FadePaletteOffset;
-        _cgram!.LoadFromBus(_bus!, source, colorCount: 11, destinationIndex: 0x122 / 2);
-        _cgram.LoadFromBus(_bus!, source, colorCount: 11, destinationIndex: 0x1e2 / 2);
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 22));
-        if (state.FadePaletteOffset < 0x0160)
+        int row = state.FadePaletteOffset /
+            (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
+        if (CeresRidleyColors is { } bodyColors &&
+            state.FadePaletteOffset %
+                (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)) == 0 &&
+            row < CeresRidleyPaletteRomData.BodyFadeRowCount)
+            bodyColors.ApplyBodyFade(_cgram!, row);
+        else
+        {
+            // Preserve native adjacent-data behavior for non-catalogued restored offsets.
+            int source = CeresRidleyPaletteRomData.BodyFadeColors + state.FadePaletteOffset;
+            _cgram!.LoadFromBus(_bus!, source,
+                CeresRidleyPaletteRomData.BodyFadeColorCount,
+                CeresRidleyPaletteRomData.BodyFadeBgCgramIndex);
+            _cgram.LoadFromBus(_bus!, source,
+                CeresRidleyPaletteRomData.BodyFadeColorCount,
+                CeresRidleyPaletteRomData.BodyFadeObjCgramIndex);
+        }
+        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset +
+            CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)));
+        if (state.FadePaletteOffset < CeresRidleyPaletteRomData.BodyFadeRowCount *
+            CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort))
             return;
 
         // CeresRidley_Func_5 clears tangible bit $0400 after the final palette row, waits

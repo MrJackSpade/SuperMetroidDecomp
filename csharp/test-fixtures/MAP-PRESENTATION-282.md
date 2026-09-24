@@ -1691,3 +1691,21 @@ source-color ROM reads forbidden, asserting each CGRAM word and the Hyper-shot
 hold frames. It also checks edit identity, invalid RGB5 data, override removal,
 and stock re-extraction without overwriting user edits. Non-catalogued restored
 phase words retain the existing native indirect-read path.
+
+## Editable Ceres Ridley fade and retreat colors (#536, #538, #549)
+
+Catalog version 71 adds `ceres-ridley-colors.json` with named `start`,
+`eyeFade`, `bodyFade`, `health`, `retreatBg`, and `retreatShared` RGB5 arrays.
+The cartridge controls the eye/body fade schedule, hit-count selection, and
+retreat transition; the JSON changes only the colors they display. The eye
+fade has sixteen authored rows, although its 64-step schedule holds the final
+row for the last 48 steps. The health array retains all three cartridge rows,
+including the middle row that Ceres combat does not select.
+
+`--map-presentation` compares all 321 extracted color words to the pinned ROM
+and runs initialization, all 64 eye steps, all sixteen body rows and the
+health thresholds through the production enemy handlers with the original
+color source addresses forbidden. It checks the two body CGRAM destinations,
+both copies of the retreat's shared colors, invalid RGB5 values, content
+identity, and override survival after stock re-extraction. Ceres Mode-7 zoom
+palettes and other enemy palette paths remain outside this slice.

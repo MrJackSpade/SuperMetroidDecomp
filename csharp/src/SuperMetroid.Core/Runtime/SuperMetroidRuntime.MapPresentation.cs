@@ -24,6 +24,7 @@ public sealed partial class SuperMetroidRuntime
             BindSamusPalettePresentation();
             Enemies.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             Enemies.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
+            Enemies.CeresRidleyColors = value?.CeresRidleyColors;
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
             Enemies.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;

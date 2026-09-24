@@ -56,6 +56,10 @@ public sealed partial class RoomEnemySystem
     [field: NonSerialized]
     public EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
 
+    /// <summary>Host-bound Ceres Ridley fade and retreat colors; rebound after state restore.</summary>
+    [field: NonSerialized]
+    public CeresRidleyColorCatalog? CeresRidleyColors { get; set; }
+
     [NonSerialized] private EscapeTypewriterPresentation? escapeTypewriterPresentation;
     /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation

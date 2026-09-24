@@ -1534,6 +1534,16 @@ if (args is ["--verify-enemy-visual-selectors"])
     VerifyCompiledEnemyVisualSelectors();
     return 0;
 }
+if (args is ["--generate-walking-pirate-collision"])
+{
+    GenerateWalkingPirateCollisionDefinitions();
+    return 0;
+}
+if (args is ["--verify-walking-pirate-collision"])
+{
+    VerifyWalkingPirateCollisionDefinitions();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
@@ -2506,6 +2516,7 @@ VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyEnemyTileArtwork();
 VerifyCompiledEnemyVisualSelectors();
+VerifyWalkingPirateCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

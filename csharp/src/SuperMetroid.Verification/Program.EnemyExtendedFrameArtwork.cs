@@ -20,6 +20,20 @@ internal static partial class Program
             AssertTrue(stock.ExtendedFrames!.TryGet(frame.Bank, frame.Pointer, out _),
                 $"installed extended frame {frame.Name} exists");
         }
+        ushort emptyPointer = EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap;
+        guard.BlockFrame(EnemyExtendedFrameDefinitions.Bank, emptyPointer);
+        AssertTrue(stock.ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+                emptyPointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> empty) &&
+                   empty.IsEmpty,
+            "walking Pirate initial empty frame is a compiled draw identity");
+        OamBuffer nativeEmpty = DrawExtended(null, rom, emptyPointer,
+            0x0040, 0x0080);
+        OamBuffer installedEmpty = DrawExtended(stock, guard, emptyPointer,
+            0x0040, 0x0080);
+        AssertTrue(nativeEmpty.LowTable.SequenceEqual(installedEmpty.LowTable) &&
+                   nativeEmpty.HighTable.SequenceEqual(installedEmpty.HighTable) &&
+                   nativeEmpty.NextByteOffset == installedEmpty.NextByteOffset,
+            "walking Pirate common empty frame draws without ROM reads");
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking Pirate distinct extended-frame count");

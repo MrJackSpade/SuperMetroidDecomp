@@ -225,7 +225,8 @@ Walking Space Pirates use the separate
 `overrides/enemy-tiles/` to edit the named extended frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
 OAM fields listed above. Component offsets move only the drawing; the native
-hitbox geometry and touch/shot callbacks remain engine-owned. The stock file
+hitbox geometry and touch/shot callbacks remain engine-owned; walking Pirate
+collision records are compiled and are unaffected by JSON edits. The stock file
 is manifest-hash checked, and missing or malformed override frames fail loudly.
 Other extended enemy families still use cartridge visual records until their
 compositions are extracted separately.

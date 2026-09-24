@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -22,6 +23,15 @@ public sealed class EnemyExtendedFrameCatalog
     internal bool TryGet(byte bank, ushort pointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {
+        // Bank-$B2's common empty extended frame has no OAM parts. It is a
+        // compiled draw identity, not user artwork, including during the first
+        // frame after an enemy slot is initialized.
+        if (bank == EnemyExtendedFrameDefinitions.Bank &&
+            pointer == EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap)
+        {
+            components = ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty;
+            return true;
+        }
         if (frames.TryGetValue((bank << 16) | pointer,
                 out EnemyExtendedDrawComponent[]? found))
         {

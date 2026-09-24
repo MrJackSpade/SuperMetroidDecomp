@@ -2746,6 +2746,41 @@ public sealed partial class RoomEnemySystem
         if ((enemy.SpritemapPointer & 0x8000) == 0)
             return false;
 
+        ushort targetLeft = unchecked((ushort)(targetX - targetXRadius));
+        ushort targetRight = unchecked((ushort)(targetX + targetXRadius));
+        ushort targetTop = unchecked((ushort)(targetY - targetYRadius));
+        ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
+
+        if (IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer))
+        {
+            // Walking Pirates have fixed, engine-owned extended collision records.
+            // Editable component offsets in the installed visual asset cannot move
+            // these rectangles or replace their native touch/shot callbacks.
+            foreach (WalkingPirateCollisionComponent component in
+                     WalkingPirateCollisionDefinitions.ComponentsAt(
+                         enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (WalkingPirateCollisionHitbox hitbox in
+                         WalkingPirateCollisionDefinitions.HitboxesAt(
+                             component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;
@@ -2753,10 +2788,6 @@ public sealed partial class RoomEnemySystem
         // word as 4097 components walks into adjacent ROM and eventually selects garbage
         // callbacks such as `$F880` instead of the authored `$F03F/$804C` pair.
         int componentCount = _bus!.ReadByte(extendedMap);
-        ushort targetLeft = unchecked((ushort)(targetX - targetXRadius));
-        ushort targetRight = unchecked((ushort)(targetX + targetXRadius));
-        ushort targetTop = unchecked((ushort)(targetY - targetYRadius));
-        ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
 
         for (int componentIndex = 0; componentIndex < componentCount; componentIndex++)
         {
@@ -2784,16 +2815,9 @@ public sealed partial class RoomEnemySystem
                 // These asymmetric signed comparisons are literal translations. They
                 // retain the cartridge's inclusive left/bottom and exclusive right/top
                 // edges instead of replacing them with a friendlier host rectangle API.
-                bool overlaps = selectShotCallback
-                    ? !IsNegative16(targetRight - left) &&
-                      IsNegative16(targetLeft - right) &&
-                      !IsNegative16(targetBottom - top) &&
-                      IsNegative16(targetTop - bottom)
-                    : IsNegative16(left - targetRight) &&
-                      !IsNegative16(right - targetLeft) &&
-                      IsNegative16(top - targetBottom) &&
-                      !IsNegative16(bottom - targetTop);
-                if (!overlaps)
+                if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                        targetTop, targetBottom, left, top, right, bottom,
+                        selectShotCallback))
                     continue;
 
                 callback = ReadWord(
@@ -2805,6 +2829,24 @@ public sealed partial class RoomEnemySystem
 
         return false;
     }
+
+    /// <summary>
+    /// Shared literal `$A0:9A5A/$9B7F` rectangle tests. The shot and touch
+    /// walkers have different strict/inclusive boundaries in the cartridge.
+    /// </summary>
+    private static bool OverlapsExtendedHitbox(
+        ushort targetLeft, ushort targetRight, ushort targetTop,
+        ushort targetBottom, ushort left, ushort top, ushort right,
+        ushort bottom, bool selectShotCallback) =>
+        selectShotCallback
+            ? !IsNegative16(targetRight - left) &&
+              IsNegative16(targetLeft - right) &&
+              !IsNegative16(targetBottom - top) &&
+              IsNegative16(targetTop - bottom)
+            : IsNegative16(left - targetRight) &&
+              !IsNegative16(right - targetLeft) &&
+              IsNegative16(top - targetBottom) &&
+              !IsNegative16(bottom - targetTop);
 
     /// <summary>
     /// Identifies actors whose ordinary Samus-contact collision actually enters

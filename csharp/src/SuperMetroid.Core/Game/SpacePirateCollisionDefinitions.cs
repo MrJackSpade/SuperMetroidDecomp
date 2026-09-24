@@ -1,19 +1,37 @@
-// Generated from the pinned cartridge by --generate-walking-pirate-collision.
+// Generated from the pinned cartridge by --generate-space-pirate-collision.
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Engine-owned offset and hitbox identity in one extended frame component.</summary>
-internal readonly record struct WalkingPirateCollisionComponent(short X, short Y, ushort HitboxPointer);
+internal readonly record struct SpacePirateCollisionComponent(short X, short Y, ushort HitboxPointer);
 /// <summary>Engine-owned signed collision bounds and touch/shot callbacks.</summary>
-internal readonly record struct WalkingPirateCollisionHitbox(short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-internal readonly record struct WalkingPirateCollisionFrame(ushort Pointer, WalkingPirateCollisionComponent[] Components);
-internal readonly record struct WalkingPirateCollisionList(ushort Pointer, WalkingPirateCollisionHitbox[] Rectangles);
+internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
+internal readonly record struct SpacePirateCollisionFrame(ushort Pointer, SpacePirateCollisionComponent[] Components);
+internal readonly record struct SpacePirateCollisionList(ushort Pointer, SpacePirateCollisionHitbox[] Rectangles);
 
-/// <summary>Fixed bank-$B2 walking-Pirate collision data, separate from editable OAM art.</summary>
-internal static class WalkingPirateCollisionDefinitions
+/// <summary>Fixed bank-$B2 walking/wall-Pirate collision data, separate from editable OAM art.</summary>
+internal static class SpacePirateCollisionDefinitions
 {
-    private static readonly WalkingPirateCollisionFrame[] Frames =
+    private static readonly SpacePirateCollisionFrame[] Frames =
     [
         new(0x804F, [new(0, 0, 0x8059), ]),
+        new(0x88A0, [new(0, 0, 0x970E), new(0, 0, 0x9690), ]),
+        new(0x88B2, [new(0, 0, 0x9700), new(0, 0, 0x969E), ]),
+        new(0x88C4, [new(0, 0, 0x96F2), new(0, 0, 0x96AC), ]),
+        new(0x88D6, [new(0, 0, 0x96BA), new(0, 0, 0x96E4), ]),
+        new(0x88E8, [new(0, 0, 0x96C8), new(0, 0, 0x96D6), ]),
+        new(0x88FA, [new(0, -2, 0x972A), new(0, 0, 0x970E), ]),
+        new(0x890C, [new(1, -2, 0x9738), new(0, 0, 0x96D6), ]),
+        new(0x891E, [new(0, 0, 0x9746), ]),
+        new(0x8928, [new(0, 0, 0x9754), ]),
+        new(0x8932, [new(0, 0, 0x97E0), new(0, 0, 0x9762), ]),
+        new(0x8944, [new(0, 0, 0x97D2), new(0, 0, 0x9770), ]),
+        new(0x8956, [new(0, 0, 0x97C4), new(0, 0, 0x977E), ]),
+        new(0x8968, [new(0, 0, 0x978C), new(0, 0, 0x97B6), ]),
+        new(0x897A, [new(0, 0, 0x979A), new(0, 0, 0x97A8), ]),
+        new(0x898C, [new(0, 0, 0x97EE), new(0, 2, 0x97A8), ]),
+        new(0x899E, [new(0, 0, 0x97FC), new(0, 2, 0x97A8), ]),
+        new(0x89B0, [new(0, 0, 0x980A), ]),
+        new(0x89BA, [new(0, 0, 0x9818), ]),
         new(0x89C4, [new(-5, 3, 0x9B60), new(0, 0, 0x9826), ]),
         new(0x89D6, [new(-5, 3, 0x9B7C), new(0, 0, 0x9834), ]),
         new(0x89E8, [new(-5, 3, 0x9B8A), new(0, 0, 0x9842), ]),
@@ -52,10 +70,38 @@ internal static class WalkingPirateCollisionDefinitions
         new(0x8F92, [new(0, 8, 0x9C78), ]),
         new(0x8FA6, [new(0, 8, 0x9E68), ]),
     ];
-    private static readonly WalkingPirateCollisionList[] Lists =
+    private static readonly SpacePirateCollisionList[] Lists =
     [
         new(0x8059, [new(0, 0, 0, 0, 0x8023, 0x802D), ]),
+        new(0x9690, [new(-18, -19, 6, 0, 0x876C, 0x8779), ]),
+        new(0x969E, [new(-18, -19, 6, 0, 0x876C, 0x8779), ]),
+        new(0x96AC, [new(-18, -19, 6, 0, 0x876C, 0x8779), ]),
+        new(0x96BA, [new(-18, -19, 6, 0, 0x876C, 0x8779), ]),
+        new(0x96C8, [new(-18, -19, 6, 0, 0x876C, 0x8779), ]),
+        new(0x96D6, [new(-14, 0, 4, 30, 0x876C, 0x8779), ]),
+        new(0x96E4, [new(-15, 0, -1, 30, 0x876C, 0x8779), ]),
+        new(0x96F2, [new(-15, -6, 0, 23, 0x876C, 0x8779), ]),
+        new(0x9700, [new(-16, -5, -1, 25, 0x876C, 0x8779), ]),
+        new(0x970E, [new(-17, -8, 0, 30, 0x876C, 0x8779), ]),
         new(0x971C, [new(-13, -19, 10, 30, 0x876C, 0x8779), ]),
+        new(0x972A, [new(-15, -19, 14, 6, 0x876C, 0x8779), ]),
+        new(0x9738, [new(-16, -19, 14, 3, 0x876C, 0x8779), ]),
+        new(0x9746, [new(-10, -21, 19, 22, 0x876C, 0x8779), ]),
+        new(0x9754, [new(-8, -19, 18, 16, 0x876C, 0x8779), ]),
+        new(0x9762, [new(-9, -23, 17, 0, 0x876C, 0x8779), ]),
+        new(0x9770, [new(-9, -19, 16, 0, 0x876C, 0x8779), ]),
+        new(0x977E, [new(-9, -19, 17, 0, 0x876C, 0x8779), ]),
+        new(0x978C, [new(-9, -19, 16, 0, 0x876C, 0x8779), ]),
+        new(0x979A, [new(-9, -19, 17, 0, 0x876C, 0x8779), ]),
+        new(0x97A8, [new(-7, 0, 15, 30, 0x876C, 0x8779), ]),
+        new(0x97B6, [new(-2, 0, 15, 30, 0x876C, 0x8779), ]),
+        new(0x97C4, [new(-2, 0, 15, 23, 0x876C, 0x8779), ]),
+        new(0x97D2, [new(0, 0, 15, 25, 0x876C, 0x8779), ]),
+        new(0x97E0, [new(-1, 0, 15, 30, 0x876C, 0x8779), ]),
+        new(0x97EE, [new(-15, -19, 15, 0, 0x876C, 0x8779), ]),
+        new(0x97FC, [new(-15, -19, 14, 3, 0x876C, 0x8779), ]),
+        new(0x980A, [new(-20, -19, 10, 25, 0x876C, 0x8779), ]),
+        new(0x9818, [new(-20, -19, 6, 16, 0x876C, 0x8779), ]),
         new(0x9826, [new(-11, 0, 8, 30, 0x876C, 0x8779), ]),
         new(0x9834, [new(-11, 0, 8, 30, 0x876C, 0x8779), ]),
         new(0x9842, [new(-7, 0, 6, 30, 0x876C, 0x8779), ]),
@@ -103,10 +149,10 @@ internal static class WalkingPirateCollisionDefinitions
     ];
     internal static int FrameCount => Frames.Length;
     internal static int ListCount => Lists.Length;
-    internal static WalkingPirateCollisionFrame Frame(int index) => Frames[index];
-    internal static WalkingPirateCollisionList List(int index) => Lists[index];
+    internal static SpacePirateCollisionFrame Frame(int index) => Frames[index];
+    internal static SpacePirateCollisionList List(int index) => Lists[index];
 
-    internal static ReadOnlySpan<WalkingPirateCollisionComponent> ComponentsAt(ushort pointer)
+    internal static ReadOnlySpan<SpacePirateCollisionComponent> ComponentsAt(ushort pointer)
     {
         int low = 0, high = Frames.Length - 1;
         while (low <= high)
@@ -117,9 +163,9 @@ internal static class WalkingPirateCollisionDefinitions
             if (candidate < pointer) low = middle + 1;
             else high = middle - 1;
         }
-        throw new InvalidDataException($"Walking Pirate collision frame $B2:{pointer:X4} is not compiled.");
+        throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");
     }
-    internal static ReadOnlySpan<WalkingPirateCollisionHitbox> HitboxesAt(ushort pointer)
+    internal static ReadOnlySpan<SpacePirateCollisionHitbox> HitboxesAt(ushort pointer)
     {
         int low = 0, high = Lists.Length - 1;
         while (low <= high)
@@ -130,6 +176,6 @@ internal static class WalkingPirateCollisionDefinitions
             if (candidate < pointer) low = middle + 1;
             else high = middle - 1;
         }
-        throw new InvalidDataException($"Walking Pirate hitbox list $B2:{pointer:X4} is not compiled.");
+        throw new InvalidDataException($"Space Pirate hitbox list $B2:{pointer:X4} is not compiled.");
     }
 }

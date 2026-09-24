@@ -2741,8 +2741,9 @@ public sealed partial class RoomEnemySystem
     {
         callback = 0;
 
-        // Native multibox collision only accepts negative 16-bit spritemap pointers. The
-        // common empty map `$804F` has a zero component count and naturally returns false.
+        // Native multibox collision only accepts negative 16-bit spritemap pointers.
+        // The common visually empty map `$804F` still owns a point hitbox, so it
+        // must enter the same collision walker as other extended frames.
         if ((enemy.SpritemapPointer & 0x8000) == 0)
             return false;
 
@@ -2751,19 +2752,20 @@ public sealed partial class RoomEnemySystem
         ushort targetTop = unchecked((ushort)(targetY - targetYRadius));
         ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
 
-        if (IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer))
+        if (IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
+            IsWallSpacePirateDefinition(enemy.EnemyDefinitionPointer))
         {
-            // Walking Pirates have fixed, engine-owned extended collision records.
+            // Both ordinary Pirate families have fixed, engine-owned collision.
             // Editable component offsets in the installed visual asset cannot move
             // these rectangles or replace their native touch/shot callbacks.
-            foreach (WalkingPirateCollisionComponent component in
-                     WalkingPirateCollisionDefinitions.ComponentsAt(
+            foreach (SpacePirateCollisionComponent component in
+                     SpacePirateCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
-                foreach (WalkingPirateCollisionHitbox hitbox in
-                         WalkingPirateCollisionDefinitions.HitboxesAt(
+                foreach (SpacePirateCollisionHitbox hitbox in
+                         SpacePirateCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));

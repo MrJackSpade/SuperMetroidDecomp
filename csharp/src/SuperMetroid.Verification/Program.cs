@@ -1534,14 +1534,14 @@ if (args is ["--verify-enemy-visual-selectors"])
     VerifyCompiledEnemyVisualSelectors();
     return 0;
 }
-if (args is ["--generate-walking-pirate-collision"])
+if (args is ["--generate-space-pirate-collision"])
 {
-    GenerateWalkingPirateCollisionDefinitions();
+    GenerateSpacePirateCollisionDefinitions();
     return 0;
 }
-if (args is ["--verify-walking-pirate-collision"])
+if (args is ["--verify-space-pirate-collision"])
 {
-    VerifyWalkingPirateCollisionDefinitions();
+    VerifySpacePirateCollisionDefinitions();
     return 0;
 }
 if (args is ["--projectile-frame-bindings"])
@@ -2516,7 +2516,7 @@ VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyEnemyTileArtwork();
 VerifyCompiledEnemyVisualSelectors();
-VerifyWalkingPirateCollisionDefinitions();
+VerifySpacePirateCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

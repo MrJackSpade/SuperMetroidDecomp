@@ -44,8 +44,16 @@ selectors. All eight longer programs and every authored frame run with those
 source bytes forbidden and the selected values checked against the cartridge.
 Ninja Space Pirates likewise use 140 compiled selectors; all twenty programs,
 callbacks and each frame-selector address pass with source bytes forbidden.
-The spritemap payloads selected by those pointers remain presentation assets
-and are still ROM-backed until separately extracted and visually verified.
+The wall and ninja spritemap payloads selected by those pointers remain
+presentation assets and are still ROM-backed until separately extracted and
+visually verified. Walking-Pirate compositions are installed separately.
+
+Both ordinary Space Pirate families now resolve extended collision components,
+hitbox bounds, and touch/shot callback identities from one compiled bank-$B2
+catalog. Its 56 frames, 108 components, 74 lists, and 76 rectangles include
+the shared visually empty initialization frame. The actual touch/shot walker
+matches 23,760 native boundary probes while reads of those source records are
+forbidden; editable visual offsets do not alter this physical catalog.
 
 ## Confirmed remaining runtime mechanics reads
 

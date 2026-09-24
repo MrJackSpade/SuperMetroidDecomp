@@ -5,112 +5,126 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyWalkingPirateCollisionDefinitions()
+    private static void VerifySpacePirateCollisionDefinitions()
     {
         var rom = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(38, WalkingPirateCollisionDefinitions.FrameCount,
-            "compiled walking-Pirate extended-frame count");
-        AssertEqual(46, WalkingPirateCollisionDefinitions.ListCount,
-            "compiled walking-Pirate hitbox-list count");
+        var walkingFramePointers = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(56, SpacePirateCollisionDefinitions.FrameCount,
+            "compiled Space Pirate extended-frame count");
+        AssertEqual(74, SpacePirateCollisionDefinitions.ListCount,
+            "compiled Space Pirate hitbox-list count");
         int componentCount = 0;
         var nativeRanges = new HashSet<int>();
-        for (int index = 0; index < WalkingPirateCollisionDefinitions.FrameCount;
+        for (int index = 0; index < SpacePirateCollisionDefinitions.FrameCount;
              index++)
         {
-            WalkingPirateCollisionFrame frame =
-                WalkingPirateCollisionDefinitions.Frame(index);
+            SpacePirateCollisionFrame frame =
+                SpacePirateCollisionDefinitions.Frame(index);
             int native = 0xb20000 | frame.Pointer;
             AssertEqual(rom.ReadByte(native), frame.Components.Length,
-                $"walking-Pirate frame $B2:{frame.Pointer:X4} component count");
+                $"Space Pirate frame $B2:{frame.Pointer:X4} component count");
             Block(frame.Pointer, 2 + frame.Components.Length * 8);
             for (int componentIndex = 0;
                  componentIndex < frame.Components.Length; componentIndex++)
             {
-                WalkingPirateCollisionComponent component =
+                SpacePirateCollisionComponent component =
                     frame.Components[componentIndex];
                 ushort record = unchecked((ushort)(frame.Pointer + 2 +
                     componentIndex * 8));
                 AssertEqual(unchecked((short)ReadWord(record)), component.X,
-                    "walking-Pirate native collision-component X");
+                    "Space Pirate native collision-component X");
                 AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(record + 2)))),
-                    component.Y, "walking-Pirate native collision-component Y");
+                    component.Y, "Space Pirate native collision-component Y");
                 AssertEqual(ReadWord(unchecked((ushort)(record + 6))),
                     component.HitboxPointer,
-                    "walking-Pirate native component hitbox identity");
+                    "Space Pirate native component hitbox identity");
                 componentCount++;
             }
         }
-        AssertEqual(76, componentCount,
-            "walking-Pirate compiled collision-component count");
+        AssertEqual(108, componentCount,
+            "Space Pirate compiled collision-component count");
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
-            AssertTrue(WalkingPirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
+            AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
                 $"walking-Pirate editable frame {frame.Name} has fixed collision");
-        AssertTrue(WalkingPirateCollisionDefinitions.ComponentsAt(
-                EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap).Length > 0,
-            "walking-Pirate initializer's common empty frame has fixed collision");
-        int rectangleCount = 0;
-        for (int index = 0; index < WalkingPirateCollisionDefinitions.ListCount;
+        for (int index = 0;
+             index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
-            WalkingPirateCollisionList list =
-                WalkingPirateCollisionDefinitions.List(index);
+            ushort operand = WallSpacePirateInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xb2, operand,
+                    out ushort pointer),
+                $"wall-Pirate selector $B2:{operand:X4} is compiled");
+            AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
+                $"wall-Pirate selected frame $B2:{pointer:X4} has fixed collision");
+        }
+        AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(
+                EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap).Length > 0,
+            "Space Pirate initializer's common empty frame has fixed collision");
+        int rectangleCount = 0;
+        for (int index = 0; index < SpacePirateCollisionDefinitions.ListCount;
+             index++)
+        {
+            SpacePirateCollisionList list =
+                SpacePirateCollisionDefinitions.List(index);
             AssertEqual(ReadWord(list.Pointer), list.Rectangles.Length,
-                $"walking-Pirate hitbox $B2:{list.Pointer:X4} rectangle count");
+                $"Space Pirate hitbox $B2:{list.Pointer:X4} rectangle count");
             Block(list.Pointer, 2 + list.Rectangles.Length * 12);
             for (int rectangle = 0; rectangle < list.Rectangles.Length; rectangle++)
             {
-                WalkingPirateCollisionHitbox expected = list.Rectangles[rectangle];
+                SpacePirateCollisionHitbox expected = list.Rectangles[rectangle];
                 ushort address = unchecked((ushort)(list.Pointer + 2 +
                     rectangle * 12));
                 AssertEqual(unchecked((short)ReadWord(address)), expected.Left,
-                    "walking-Pirate native hitbox left");
+                    "Space Pirate native hitbox left");
                 AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(address + 2)))),
-                    expected.Top, "walking-Pirate native hitbox top");
+                    expected.Top, "Space Pirate native hitbox top");
                 AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(address + 4)))),
-                    expected.Right, "walking-Pirate native hitbox right");
+                    expected.Right, "Space Pirate native hitbox right");
                 AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(address + 6)))),
-                    expected.Bottom, "walking-Pirate native hitbox bottom");
+                    expected.Bottom, "Space Pirate native hitbox bottom");
                 AssertEqual(ReadWord(unchecked((ushort)(address + 8))),
-                    expected.TouchAi, "walking-Pirate native touch callback");
+                    expected.TouchAi, "Space Pirate native touch callback");
                 AssertEqual(ReadWord(unchecked((ushort)(address + 10))),
-                    expected.ShotAi, "walking-Pirate native shot callback");
+                    expected.ShotAi, "Space Pirate native shot callback");
                 rectangleCount++;
             }
         }
-        AssertEqual(48, rectangleCount,
-            "walking-Pirate compiled collision-rectangle count");
+        AssertEqual(76, rectangleCount,
+            "Space Pirate compiled collision-rectangle count");
         AssertThrows<InvalidDataException>(
-            () => WalkingPirateCollisionDefinitions.ComponentsAt(0x8000),
-            "unknown walking-Pirate frame rejects instead of reading ROM");
+            () => SpacePirateCollisionDefinitions.ComponentsAt(0x8000),
+            "unknown Space Pirate frame rejects instead of reading ROM");
         AssertThrows<InvalidDataException>(
-            () => WalkingPirateCollisionDefinitions.HitboxesAt(0x8000),
-            "unknown walking-Pirate hitbox rejects instead of reading ROM");
-        ushort warmedFrame = WalkingPirateCollisionDefinitions.Frame(0).Pointer;
-        ushort warmedList = WalkingPirateCollisionDefinitions.List(0).Pointer;
-        _ = WalkingPirateCollisionDefinitions.ComponentsAt(warmedFrame).Length;
-        _ = WalkingPirateCollisionDefinitions.HitboxesAt(warmedList).Length;
+            () => SpacePirateCollisionDefinitions.HitboxesAt(0x8000),
+            "unknown Space Pirate hitbox rejects instead of reading ROM");
+        ushort warmedFrame = SpacePirateCollisionDefinitions.Frame(0).Pointer;
+        ushort warmedList = SpacePirateCollisionDefinitions.List(0).Pointer;
+        _ = SpacePirateCollisionDefinitions.ComponentsAt(warmedFrame).Length;
+        _ = SpacePirateCollisionDefinitions.HitboxesAt(warmedList).Length;
         long beforeLookup = GC.GetAllocatedBytesForCurrentThread();
         int lookupChecksum = 0;
         for (int index = 0; index < 65536; index++)
         {
-            lookupChecksum += WalkingPirateCollisionDefinitions
+            lookupChecksum += SpacePirateCollisionDefinitions
                 .ComponentsAt(warmedFrame).Length;
-            lookupChecksum += WalkingPirateCollisionDefinitions
+            lookupChecksum += SpacePirateCollisionDefinitions
                 .HitboxesAt(warmedList).Length;
         }
-        AssertTrue(lookupChecksum > 0, "walking-Pirate lookup probe consumes data");
+        AssertTrue(lookupChecksum > 0, "Space Pirate lookup probe consumes data");
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - beforeLookup,
-            "warmed walking-Pirate collision lookups allocate no frame storage");
+            "warmed Space Pirate collision lookups allocate no frame storage");
 
-        var guard = new WalkingPirateCollisionReadGuard(rom, nativeRanges);
+        var guard = new SpacePirateCollisionReadGuard(rom, nativeRanges);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         int probes = 0;
-        foreach (WalkingPirateCollisionFrame frame in
-                 Enumerable.Range(0, WalkingPirateCollisionDefinitions.FrameCount)
-                     .Select(WalkingPirateCollisionDefinitions.Frame))
+        foreach (SpacePirateCollisionFrame frame in
+                 Enumerable.Range(0, SpacePirateCollisionDefinitions.FrameCount)
+                     .Select(SpacePirateCollisionDefinitions.Frame))
         {
             foreach ((ushort originX, ushort originY) in
                      new (ushort, ushort)[]
@@ -119,14 +133,14 @@ internal static partial class Program
                      })
             {
                 var native = CreateSystem(rom, frame.Pointer, originX,
-                    originY, walkingPirate: false);
+                    originY, compiledPirate: false);
                 var compiled = CreateSystem(guard, frame.Pointer, originX,
-                    originY, walkingPirate: true);
-                foreach (WalkingPirateCollisionComponent component in
+                    originY, compiledPirate: true);
+                foreach (SpacePirateCollisionComponent component in
                          frame.Components)
                 {
-                    foreach (WalkingPirateCollisionHitbox hitbox in
-                             WalkingPirateCollisionDefinitions.HitboxesAt(
+                    foreach (SpacePirateCollisionHitbox hitbox in
+                             SpacePirateCollisionDefinitions.HitboxesAt(
                                  component.HitboxPointer))
                     {
                         ushort componentX = unchecked((ushort)(originX + component.X));
@@ -156,21 +170,21 @@ internal static partial class Program
                                 compiled.Enemies, compiled.Slot, xs[xi], ys[yi],
                                 radiusX, radiusY, mode != 0);
                             AssertEqual(nativeHit, compiledHit,
-                                $"walking-Pirate frame $B2:{frame.Pointer:X4} native overlap");
+                                $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
                             AssertEqual(nativeCallback, compiledCallback,
-                                $"walking-Pirate frame $B2:{frame.Pointer:X4} native callback");
+                                $"Space Pirate frame $B2:{frame.Pointer:X4} native callback");
                             probes++;
                         }
                     }
                 }
             }
         }
-        AssertEqual(78 * 3 * 6 * 6 * 2, probes,
-            "walking-Pirate exhaustive authored-rectangle boundary probes");
+        AssertEqual(110 * 3 * 6 * 6 * 2, probes,
+            "Space Pirate exhaustive authored-rectangle boundary probes");
         AssertEqual(0, guard.BlockedReadAttempts,
-            "compiled walking-Pirate collision does not read native component or hitbox bytes");
-        Console.WriteLine($"Walking Pirate collision: 38 frames, 76 components, " +
-            $"46 lists, 48 rectangles and {probes} native/compiled touch-shot " +
+            "compiled Space Pirate collision does not read native component or hitbox bytes");
+        Console.WriteLine($"Space Pirate collision: 56 frames, 108 components, " +
+            $"74 lists, 76 rectangles and {probes} native/compiled touch-shot " +
             "boundary probes pass with authored ROM bytes blocked.");
 
         ushort ReadWord(ushort address) => (ushort)(
@@ -185,14 +199,18 @@ internal static partial class Program
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot) CreateSystem(
             ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
-            bool walkingPirate)
+            bool compiledPirate)
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = walkingPirate
-                ? RoomEnemySystem.GreyWalkingSpacePirateDefinition
-                : (ushort)0xffff;
+            bool wallFrame = pointer != EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap &&
+                !walkingFramePointers.Contains(pointer);
+            slot.EnemyDefinitionPointer = !compiledPirate
+                ? (ushort)0xffff
+                : wallFrame
+                    ? RoomEnemySystem.GreyWallSpacePirateDefinition
+                    : RoomEnemySystem.GreyWalkingSpacePirateDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.SpritemapPointer = pointer;
             slot.XPosition = x;
@@ -211,7 +229,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class WalkingPirateCollisionReadGuard(
+    private sealed class SpacePirateCollisionReadGuard(
         ISnesAddressSpace source, HashSet<int> blocked) : ISnesAddressSpace
     {
         internal int BlockedReadAttempts { get; private set; }
@@ -222,7 +240,7 @@ internal static partial class Program
             {
                 BlockedReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Compiled walking-Pirate collision read native byte ${address:X6}.");
+                    $"Compiled Space Pirate collision read native byte ${address:X6}.");
             }
             return source.ReadByte(address);
         }

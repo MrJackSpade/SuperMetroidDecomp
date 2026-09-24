@@ -54,7 +54,7 @@ internal sealed class EndingPostShot
         {
             // Func141 calls the fade before the upload helper: its final fade call
             // permits the first sheet replacement on that very same frame.
-            if (samusFade == EndingPostShotDefinitions.FadeFrames && Uploads < EndingPostShotDefinitions.UploadCount)
+            if (samusFade == EndingPostShotDefinitions.FadeFrames && Uploads < EndingPostShotUploadDefinitions.Count)
                 Upload(vram, Uploads++);
             ReadyForWhiteFlash = --hold == 0;
         }
@@ -77,10 +77,10 @@ internal sealed class EndingPostShot
 
     private void Upload(SnesVram vram, int index)
     {
-        int entry = EndingPostShotDefinitions.UploadTable + index * EndingPostShotDefinitions.UploadRecordBytes;
-        int length = RomDataReader.ReadWordFixedBank(bus, entry);
-        int source = RomDataReader.ReadWordFixedBank(bus, entry + 2) | bus.ReadByte(entry + 4) << 16;
-        int destination = RomDataReader.ReadWordFixedBank(bus, entry + 6);
+        EndingPostShotUploadDefinition transfer = EndingPostShotUploadDefinitions.Get(index);
+        int length = transfer.Length;
+        int source = transfer.SourceAddress;
+        int destination = transfer.DestinationWord;
         ReadOnlySpan<byte> bytes;
         if (source == EndingPostShotDefinitions.SubtitleSource)
             bytes = font.AsSpan(EndingPostShotDefinitions.SubtitleFontOffset, length);

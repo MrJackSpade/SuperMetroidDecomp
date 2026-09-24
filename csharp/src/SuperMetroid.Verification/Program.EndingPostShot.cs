@@ -7,6 +7,22 @@ internal static partial class Program
 {
     private static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
+        for (int index = 0; index < EndingPostShotUploadDefinitions.Count; index++)
+        {
+            int address = EndingPostShotUploadDefinitions.TableAddress +
+                index * EndingPostShotUploadDefinitions.RecordBytes;
+            EndingPostShotUploadDefinition compiled = EndingPostShotUploadDefinitions.Get(index);
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), compiled.Length,
+                $"post-shot upload {index} length matches cartridge");
+            int nativeSource = RomDataReader.ReadWordFixedBank(bus, address + 2) |
+                bus.ReadByte(address + 4) << 16;
+            AssertEqual(nativeSource, compiled.SourceAddress,
+                $"post-shot upload {index} source matches cartridge");
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address + 6),
+                compiled.DestinationWord,
+                $"post-shot upload {index} destination matches cartridge");
+        }
+        var guardedBus = new PostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
         cgram.LoadFromBus(bus, 0x8ce7e9);
         ushort[] initial = cgram.Colors.ToArray();
@@ -17,7 +33,7 @@ internal static partial class Program
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontAtlas fontAtlas = EndingFontAtlas.Load(fontPng);
-        var shot = new EndingPostShot(bus, cgram, fontAtlas);
+        var shot = new EndingPostShot(guardedBus, cgram, fontAtlas);
         byte[] tiles = RomDataReader.Decompress(bus, 0x99e089, 0x8000);
         byte[] map = RomDataReader.Decompress(bus, 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
@@ -49,6 +65,29 @@ internal static partial class Program
             if (frame == 53) map.AsSpan(0, 0x800).CopyTo(expected.AsSpan(0xa800));
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "each native logo transfer changes exactly its intended VRAM bytes");
         }
+        AssertEqual(0, guardedBus.ForbiddenReadAttempts,
+            "post-shot uploads never reread the fixed cartridge transfer table");
         Console.WriteLine("  Post-shot: 36 rotation frames, delayed palette fades, six exact uploads, 180-frame hold.");
+    }
+
+    private sealed class PostShotUploadTableReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace
+    {
+        public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (address >= EndingPostShotUploadDefinitions.TableAddress &&
+                address < EndingPostShotUploadDefinitions.TableAddress +
+                    EndingPostShotUploadDefinitions.Count * EndingPostShotUploadDefinitions.RecordBytes)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Post-shot upload reread fixed cartridge table at ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

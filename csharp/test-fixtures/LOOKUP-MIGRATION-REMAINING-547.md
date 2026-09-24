@@ -2120,3 +2120,11 @@ the real room loader's character output. Desktop `PlayableGameControl` and Andro
 restoration; both the general room loader and dedicated Landing Site loader consume it.
 This is room-character integration only, not completion of other visual sources or the
 whole ROM-free runtime contract.
+
+The post-credits Super Metroid logo's six eight-byte upload records at `$8B:E45A`
+are compiled in `EndingPostShotUploadDefinitions`. The actual 216-frame post-shot
+sequence now uses those definitions instead of rereading the ROM table. Each
+length, source, and VRAM destination matches the pinned cartridge, and a guarded
+production run rejects any table read while checking all six resulting transfers.
+The two compressed logo-art streams remain separate presentation dependencies
+for #543/#549; compiling their DMA schedule does not remove those artwork reads.

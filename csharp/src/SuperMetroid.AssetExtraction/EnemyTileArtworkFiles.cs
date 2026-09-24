@@ -116,6 +116,12 @@ public static class EnemyTileArtworkFiles
         byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
+        byte[] upperKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.UpperTilemap);
+        byte[] lowerKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.LowerTilemap);
+        File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
+            upperKraid);
+        File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
+            lowerKraid);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -123,7 +129,9 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(firstMeltTilemap)),
             Convert.ToHexString(SHA256.HashData(secondMeltTilemap)),
             Convert.ToHexString(SHA256.HashData(spritemapJson)),
-            Convert.ToHexString(SHA256.HashData(extendedJson)));
+            Convert.ToHexString(SHA256.HashData(extendedJson)),
+            Convert.ToHexString(SHA256.HashData(upperKraid)),
+            Convert.ToHexString(SHA256.HashData(lowerKraid)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -153,7 +161,9 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256))
+            string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
+            string.IsNullOrWhiteSpace(manifest.KraidLowerSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
 
@@ -279,8 +289,28 @@ public static class EnemyTileArtworkFiles
                 $"Invalid extended enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
+            KraidBackgroundArtworkFormat.UpperFileName, manifest.KraidUpperSha256);
+        RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
+            KraidBackgroundArtworkFormat.LowerFileName, manifest.KraidLowerSha256);
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
-            spritemaps, extendedFrames);
+            spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid));
+
+        RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
+        {
+            byte[] selected = ReadStockOrOverride(fileName, expectedSha256);
+            try
+            {
+                return RoomBackgroundTilemapAtlas.Load(
+                    new MemoryStream(selected, writable: false),
+                    KraidBackgroundRomData.DecompressedTilemapBytes);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid Kraid BG2 tilemap {fileName}: {error.Message}", error);
+            }
+        }
 
         byte[] ReadCrocomireAsset(string fileName, string expectedSha256)
             => ReadStockOrOverride(fileName, expectedSha256);
@@ -338,6 +368,13 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
+    {
+        byte[] native = RomDataReader.Decompress(bus, sourceAddress,
+            KraidBackgroundRomData.DecompressedTilemapBytes);
+        return RoomBackgroundTilemapExtractor.Encode(native);
+    }
+
     private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
         int sourceAddress)
     {
@@ -376,7 +413,8 @@ public static class EnemyTileArtworkFiles
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
-        string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256);
+        string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256,
+        string KraidUpperSha256, string KraidLowerSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

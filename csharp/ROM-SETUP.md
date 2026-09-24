@@ -51,7 +51,8 @@ Within either platform's application-data root:
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
-  Crocomire's two melting images and two BG2 layouts, and their manifest.
+  Crocomire's two melting images and two BG2 layouts, Kraid's upper/lower BG2
+  tile-reference maps, and their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
@@ -247,6 +248,14 @@ distortion timing, transfer destinations, and collision stay fixed.
 Pixels beyond each native image's written byte range are reserved and must
 remain zero. Stock melt sheets are hash-checked and repaired with the other
 enemy art, while valid overrides survive repair and application updates.
+Kraid's private BG2 body sources are `kraid-upper-bg2.json` and
+`kraid-lower-bg2.json` in `game/enemy-tiles/`. Copy either file to
+`overrides/enemy-tiles/` with the same name to edit its two ordered 32×32
+pages. Each cell names `tileColumn`, `tileRow`, `palette`, `priority`, `flipX`,
+and `flipY`. Kraid's engine still composes the working map and owns head
+animation, growth, collision, and VRAM transfer timing. These two source
+maps do not yet replace the animated head maps or Kraid's character sheets.
+The stock maps are manifest-hash checked; invalid overrides fail during load.
 Base room colors are separately extracted into `game/room-palettes/*.json`.
 Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
 `version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to

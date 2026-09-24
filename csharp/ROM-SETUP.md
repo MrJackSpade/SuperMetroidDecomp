@@ -50,7 +50,7 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
-- `game/intro-cinematic/`: stock indexed opening-background PNG and its manifest.
+- `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
@@ -81,8 +81,8 @@ dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release 
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
 # Check room-character, palette and visual-block stock import, edits, repair and invalid overrides.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
-# Check the opening background PNG, live VRAM replacement, and stock repair.
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-background-artwork "C:\ROMs\Super Metroid.smc"
+# Check all opening character PNGs, live VRAM replacement, and stock repair.
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-cinematic-artwork "C:\ROMs\Super Metroid.smc"
 ```
 
 The integration verifier accepts an optional second argument containing reference audio
@@ -92,16 +92,19 @@ save preservation, and booting the production Android session from the installed
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
 
-## Opening-cinematic background PNG override
+## Opening-cinematic character PNG overrides
 
-The opening cinematic's 32 KiB background-character sheet is separately installed as
-`game/intro-cinematic/intro-background-characters.png`. Copy it to the same filename under
-`overrides/intro-cinematic/` and edit its 256x256 indexed pixels (indexes 0 through 15).
-Restart to select the edit; loading a debugger state rebinds the current sheet. Palette
-colors, scene tilemaps, object sprites, scrolling, and timing are not changed by this PNG.
-The stock file and `intro-background.json` are validated and repaired from the installed
-ROM; the override survives repair and application updates. Invalid overrides fail with
-their file path instead of silently falling back.
+The opening cinematic installs three indexed 4-bpp sheets under `game/intro-cinematic/`:
+`intro-background-characters.png` (256x256), `intro-object-characters.png` (256x64),
+and `intro-cinematic-object-characters.png` (256x72). Copy any sheet to the same filename
+under `overrides/intro-cinematic/` and edit its pixel indexes (0 through 15). The
+two object sheets follow cartridge upload order; the cinematic sheet overwrites the
+last 1 KiB of the fixed intro sheet in VRAM. Restart to select edits; loading a
+debugger state rebinds the current sheets. Palette colors, scene tilemaps, sprite
+compositions, scrolling, and timing are not changed by these PNGs. Stock files and
+`intro-artwork.json` are validated and repaired from the installed ROM; overrides
+survive repair and application updates. Invalid overrides fail with their paths
+instead of silently falling back.
 
 ## Room-character PNG overrides
 

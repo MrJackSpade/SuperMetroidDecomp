@@ -49,12 +49,21 @@ public sealed partial class IntroCinematicState
         if (value is not null)
             ApplyIntroFont(value.Transfer.Span);
     }
-    /// <summary>Rebinds installed background pixels after restoring emulated state.</summary>
-    public void BindBackgroundArtwork(IntroBackgroundAtlas? value)
+    /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
+    public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
     {
         if (value is not null)
+        {
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
-                value.Transfer.Span);
+                value.BackgroundCharacters.Transfer.Span);
+            vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
+                value.IntroObjectCharacters.Transfer.Span);
+            vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,
+                value.CinematicObjectCharacters.Transfer.Span);
+            // $8B:A3AC uploads beam tiles after the opening OBJ sheets; retain that
+            // overlap without reloading the beam palette over a restored scene palette.
+            SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0);
+        }
     }
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
@@ -99,7 +108,7 @@ public sealed partial class IntroCinematicState
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
-        IntroBackgroundAtlas? backgroundArtwork = null)
+        IntroCinematicArtworkCatalog? characterArtwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
@@ -111,7 +120,7 @@ public sealed partial class IntroCinematicState
         cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
         cgram.Colors.CopyTo(introPalette);
 
-        byte[] bgCharacters = backgroundArtwork?.Transfer.ToArray() ?? RomDataReader.Decompress(
+        byte[] bgCharacters = characterArtwork?.BackgroundCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
             bus,
             IntroCinematicRomData.Assets.BackgroundCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundCharacterBytes);
@@ -126,7 +135,7 @@ public sealed partial class IntroCinematicState
             bus,
             IntroCinematicRomData.Assets.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes);
-        byte[] introObjects = RomDataReader.Decompress(
+        byte[] introObjects = characterArtwork?.CinematicObjectCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
             bus,
             IntroCinematicRomData.Assets.ObjectCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.ObjectCharacterBytes);
@@ -161,7 +170,7 @@ public sealed partial class IntroCinematicState
         vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
             bg1Pages.AsSpan(0, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
         vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
-            RomDataReader.ReadFixedBank(
+            characterArtwork?.IntroObjectCharacters.Transfer.ToArray() ?? RomDataReader.ReadFixedBank(
                 bus,
                 IntroCinematicRomData.Assets.IntroObjectCharacters,
                 IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));

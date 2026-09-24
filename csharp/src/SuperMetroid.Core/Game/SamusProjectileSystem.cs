@@ -132,18 +132,25 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(cgram);
 
         int beamType = equippedBeams & 0x0fff;
-
-        ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
-        vram.ExecuteQueuedWrite(
-            bus,
-            SamusProjectileRomData.Banks.CharacterData | tilePointer,
-            sizeInBytes: 0x0100,
-            encodedDestination: 0x6300);
+        LoadBeamTiles(bus, vram, equippedBeams);
 
         ushort palettePointer = ReadWord(
             bus,
             SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
         SamusBeamPaletteLoader.Load(bus, cgram, palettePointer);
+    }
+
+    /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
+    public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram, ushort equippedBeams)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(vram);
+        int beamType = equippedBeams & 0x0fff;
+        ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
+        vram.ExecuteQueuedWrite(bus,
+            SamusProjectileRomData.Banks.CharacterData | tilePointer,
+            Assets.BeamTileAtlasDefinitions.ByteCount,
+            Assets.BeamTileAtlasDefinitions.DestinationWord);
     }
 
     /// <summary>

@@ -1675,6 +1675,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false);
             return;
         }
+        if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, station, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
         {
             // All five cartridge lists are a single word at the PLM origin. The

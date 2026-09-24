@@ -1301,6 +1301,12 @@ internal static partial class Program
             "missile access resolves parent");
         for (int frame = 0; frame < 102; frame++)
             plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertEqual(0xb859, level.GetCollisionBlock(18, 6).LevelWord,
+            "compiled save-pod idle draw installs its physical floor word");
+        AssertEqual(0x005b, level.GetCollisionBlock(18, 2).LevelWord,
+            "compiled save-pod draw extends its shaft above the trigger");
+        AssertEqual(0x8059, level.GetCollisionBlock(18, 1).LevelWord,
+            "compiled save-pod draw installs its upper cap");
         AssertTrue(system.HasAreaMap(2), "map station marks current area acquired");
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
         AssertEqual(2, plms.StationActivationEvents.Count,
@@ -1572,25 +1578,11 @@ internal static partial class Program
         for (ushort draw = 0xa200; draw <= 0xa21e; draw += 6)
             WriteOneBlockDraw(bus, draw, unchecked((ushort)(0xb100 + draw - 0xa200)));
 
-        // Elevator's four synthetic frames. Station timing/pointer records are now
-        // immutable compiled cartridge data; only their selected draw payloads are
-        // constructed here so this fixture can focus on station state transitions.
+        // Elevator's four synthetic frames. Station timing, pointer selection, and
+        // draw payloads are compiled, so this sparse bus carries none of those bytes.
         SeedTimedDrawLoop(bus, 0xafb6, 4, 4, 0xa100);
         WriteWord(bus, 0x84afc6, 0x8724);
         WriteWord(bus, 0x84afc8, 0xafb6);
-        foreach ((ushort pointer, ushort word) in new (ushort, ushort)[]
-        {
-            (0x9f25, 0x8000), (0x9f31, 0x8001), (0x9f3d, 0x8002),
-            (0x9f6d, 0x8000), (0x9f79, 0x8001), (0x9f85, 0x8002),
-            (0x9f91, 0x8000), (0x9f9d, 0x8001), (0x9fa9, 0x8002),
-        })
-            WriteOneBlockDraw(bus, pointer, word);
-        WriteOneBlockDraw(bus, 0x9a3f, 0xb180);
-
-        // Save's two compiled animation records select the native draw pointers.
-        // The loop count at `$84:AFF9` is compiled mechanics too.
-        WriteOneBlockDraw(bus, 0x9a9f, 0xb181);
-        WriteOneBlockDraw(bus, 0x9a6f, 0xb182);
     }
 
     private static void SeedTimedDrawLoop(

@@ -27,12 +27,44 @@ internal static partial class Program
                 StationAnimationProgramDefinitions.MapIdle, 3),
             "station animation cannot read into adjacent code or data");
 
-        // The population test seeds only draw payloads at these native pointers.
-        // No duration/draw-pointer words are present in its sparse address space;
-        // running its actual map/energy/missile/save station paths therefore proves
-        // the production station handler is using this compiled selection table.
+        int drawCount = 0;
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 RoomPlmStationDrawDefinitions.All)
+        {
+            int cursor = list.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            {
+                AssertEqual(run.DirectionAndCount,
+                    ReadStationRomWord(rom, cursor),
+                    $"station draw ${list.Pointer:X4} direction/count");
+                cursor += 2;
+                foreach (ushort word in run.LevelWords.Span)
+                {
+                    AssertEqual(word, ReadStationRomWord(rom, cursor),
+                        $"station draw ${list.Pointer:X4} physical level word");
+                    cursor += 2;
+                }
+
+                AssertEqual(unchecked((byte)run.NextX), rom.ReadByte(0x840000 | cursor++),
+                    $"station draw ${list.Pointer:X4} next X");
+                AssertEqual(unchecked((byte)run.NextY), rom.ReadByte(0x840000 | cursor++),
+                    $"station draw ${list.Pointer:X4} next Y");
+            }
+
+            drawCount++;
+        }
+        AssertEqual(12, drawCount, "every station animation draw list is compiled");
+        AssertTrue(!RoomPlmStationDrawDefinitions.TryGet(0x9a40, out _),
+            "adjacent ROM bytes cannot alias a complete station draw list");
+
+        // The population fixture carries no station animation or draw-list bytes.
+        // Its real map, missile, and save paths can finish only with compiled data.
         VerifySequentialRoomPlmPopulationLoader();
         Console.WriteLine(
-            "Station animations: all 15 frame records match ROM; sparse-bus station activation and save animation use compiled selections.");
+            "Station animations: all 15 frame records and 12 draw lists match ROM; sparse-bus station activation and save animation use compiled data.");
     }
+
+    private static ushort ReadStationRomWord(SuperMetroidAddressSpace rom, int address) =>
+        unchecked((ushort)(rom.ReadByte(0x840000 | address) |
+            rom.ReadByte(0x840000 | (address + 1)) << 8));
 }

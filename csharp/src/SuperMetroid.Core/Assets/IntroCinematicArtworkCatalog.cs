@@ -8,7 +8,9 @@ public sealed class IntroCinematicArtworkCatalog
 {
     public IntroCinematicArtworkCatalog(RoomCharacterAtlas backgroundCharacters,
         RoomCharacterAtlas introObjectCharacters, RoomCharacterAtlas cinematicObjectCharacters,
-        IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages)
+        IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages,
+        RoomBackgroundTilemapAtlas portraitTilemap,
+        RoomBackgroundTilemapAtlas initialNarrationTilemap)
     {
         BackgroundCharacters = backgroundCharacters ?? throw new ArgumentNullException(nameof(backgroundCharacters));
         IntroObjectCharacters = introObjectCharacters ?? throw new ArgumentNullException(nameof(introObjectCharacters));
@@ -27,6 +29,15 @@ public sealed class IntroCinematicArtworkCatalog
                 IntroCinematicArtworkFormat.BackgroundPageByteCount));
         }
         BackgroundPages = pages;
+        PortraitTilemap = RequirePage(portraitTilemap, "portrait");
+        InitialNarrationTilemap = RequirePage(initialNarrationTilemap, "initial narration");
+
+        static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
+        {
+            if (page is null || page.Transfer.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+                throw new InvalidDataException($"Opening cinematic {name} tilemap must contain one 32x32 page.");
+            return page.Transfer;
+        }
     }
 
     /// <summary>BG characters uploaded to VRAM byte $0000.</summary>
@@ -37,6 +48,10 @@ public sealed class IntroCinematicArtworkCatalog
     public RoomCharacterAtlas CinematicObjectCharacters { get; }
     /// <summary>Four ordered 32x32 BG tilemap pages uploaded at VRAM byte $A000.</summary>
     public ReadOnlyMemory<byte> BackgroundPages { get; }
+    /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
+    public ReadOnlyMemory<byte> PortraitTilemap { get; }
+    /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
+    public ReadOnlyMemory<byte> InitialNarrationTilemap { get; }
 }
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>
@@ -46,6 +61,8 @@ public static class IntroCinematicArtworkFormat
     public const string BackgroundFileName = "intro-background-characters.png";
     public const string IntroObjectFileName = "intro-object-characters.png";
     public const string CinematicObjectFileName = "intro-cinematic-object-characters.png";
+    public const string PortraitTilemapFileName = "intro-portrait-tilemap.json";
+    public const string InitialNarrationTilemapFileName = "intro-initial-narration-tilemap.json";
     public const int BackgroundPageCount = 4;
     public const int BackgroundPageByteCount = 0x0800;
     public static string BackgroundPageFileName(int index) => $"intro-background-page-{index}.json";

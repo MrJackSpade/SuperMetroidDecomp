@@ -7,10 +7,10 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Installs opening-scene indexed PNGs separately from persistent player overrides.</summary>
+/// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 3;
+    private const int FormatVersion = 4;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -32,6 +32,12 @@ public static class IntroCinematicArtworkFiles
             RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.ObjectCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount),
             IntroCinematicArtworkFormat.CinematicObjectByteCount);
+        WritePage(IntroCinematicArtworkFormat.PortraitTilemapFileName,
+            RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.SamusHeadTilemap,
+                maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
+        WritePage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
+            RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
+                maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         byte[] backgroundPages = RomDataReader.Decompress(bus,
             IntroCinematicRomData.Assets.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageCount *
@@ -40,15 +46,9 @@ public static class IntroCinematicArtworkFiles
             IntroCinematicArtworkFormat.BackgroundPageByteCount)
             throw new InvalidDataException("Opening cinematic BG tilemap has the wrong number of pages.");
         for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
-        {
-            string name = IntroCinematicArtworkFormat.BackgroundPageFileName(page);
-            byte[] encoded = RoomBackgroundTilemapExtractor.Encode(
+            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
 
         var manifest = new IntroCinematicArtworkManifest(FormatVersion, sourceCartridgeSha256, hashes);
         using var stream = new FileStream(Path.Combine(directory, IntroCinematicArtworkFormat.ManifestFileName),
@@ -70,6 +70,16 @@ public static class IntroCinematicArtworkFiles
                 new MemoryStream(encoded, writable: false), expectedByteCount);
             if (!roundTrip.Transfer.Span.SequenceEqual(planar))
                 throw new InvalidDataException($"Intro PNG {name} did not round-trip its cartridge tiles.");
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
+
+        void WritePage(string name, ReadOnlySpan<byte> native)
+        {
+            if (native.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+                throw new InvalidDataException($"Intro tilemap {name} must contain one $0800-byte page.");
+            byte[] encoded = RoomBackgroundTilemapExtractor.Encode(native);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
@@ -106,7 +116,9 @@ public static class IntroCinematicArtworkFiles
             LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount),
             Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray());
+                .ToArray(),
+            LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
+            LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName));
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {
@@ -154,6 +166,8 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkFormat.BackgroundFileName,
         IntroCinematicArtworkFormat.IntroObjectFileName,
         IntroCinematicArtworkFormat.CinematicObjectFileName,
+        IntroCinematicArtworkFormat.PortraitTilemapFileName,
+        IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
     ];

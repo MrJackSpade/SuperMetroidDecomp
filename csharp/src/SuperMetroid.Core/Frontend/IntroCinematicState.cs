@@ -56,6 +56,13 @@ public sealed partial class IntroCinematicState
         {
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
                 value.BackgroundCharacters.Transfer.Span);
+            vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
+                value.PortraitTilemap.Span);
+            // $8B:A66F replaces the initial BG3 card with live typewriter words
+            // when page one begins. Never overwrite that current state on restore.
+            if (Phase < IntroCinematicPhase.WaitForPageOneMusicQueue)
+                vram.LoadBytes(IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
+                    value.InitialNarrationTilemap.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
                 value.BackgroundPages.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
@@ -129,7 +136,7 @@ public sealed partial class IntroCinematicState
         byte[] fontOne = introFont?.Transfer.ToArray() ?? RomDataReader.Decompress(
             bus, IntroCinematicRomData.Assets.FontOne,
             maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
-        byte[] samusHeadTilemap = RomDataReader.Decompress(
+        byte[] samusHeadTilemap = characterArtwork?.PortraitTilemap.ToArray() ?? RomDataReader.Decompress(
             bus,
             IntroCinematicRomData.Assets.SamusHeadTilemap,
             maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes);
@@ -141,7 +148,7 @@ public sealed partial class IntroCinematicState
             bus,
             IntroCinematicRomData.Assets.ObjectCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.ObjectCharacterBytes);
-        byte[] firstNarrationTilemap = RomDataReader.Decompress(
+        byte[] firstNarrationTilemap = characterArtwork?.InitialNarrationTilemap.ToArray() ?? RomDataReader.Decompress(
             bus,
             IntroCinematicRomData.Assets.FirstNarrationTilemap,
             maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes);

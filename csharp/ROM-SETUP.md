@@ -111,6 +111,9 @@ The same directory also contains `intro-background-page-0.json` through
 with tile column/row, palette, priority and flip fields. Copy an individual page
 under `overrides/intro-cinematic/` to edit its placement without changing character
 pixels or scene timing. These pages are reloaded after debugger-state restoration.
+`intro-portrait-tilemap.json` and `intro-initial-narration-tilemap.json` use the same
+32x32 schema. The initial narration page applies only before the first illustrated
+page begins; restoring a later debugger state preserves its live typewriter text.
 
 ## Room-character PNG overrides
 

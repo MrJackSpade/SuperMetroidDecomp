@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
-    /// <summary>Exercises all installed opening-scene character sheets through the real VRAM loader.</summary>
+    /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
     private static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -35,6 +35,14 @@ internal static partial class Program
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundPageTilemaps,
                         maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes)),
                 "four installed BG page JSON files preserve every native tilemap word");
+            AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(
+                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.SamusHeadTilemap,
+                        maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes)),
+                "installed portrait JSON preserves every native tilemap word");
+            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(
+                    RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
+                        maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes)),
+                "installed initial narration JSON preserves every native tilemap word");
 
             var native = new IntroCinematicState(bus);
             var guarded = new IntroArtworkSourceReadGuard(bus);
@@ -192,8 +200,65 @@ internal static partial class Program
                 AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
                     $"removing {name} override restores stock BG VRAM");
             }
+            foreach ((string name, int destination, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>> transfer)
+                in new (string, int, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>>)[]
+                {
+                    (IntroCinematicArtworkFormat.PortraitTilemapFileName,
+                        IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
+                        artwork => artwork.PortraitTilemap),
+                    (IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
+                        IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
+                        artwork => artwork.InitialNarrationTilemap),
+                })
+            {
+                string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
+                string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
+                RoomBackgroundTilemapDocument document;
+                using (var input = File.OpenRead(stockPath))
+                    document = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(input,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        ?? throw new InvalidDataException($"Empty opening tilemap {name}.");
+                RoomBackgroundTilemapCell original = document.Pages[0].Cells[0];
+                document.Pages[0].Cells[0] = original with
+                {
+                    TileColumn = (original.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
+                };
+                using (var output = File.Create(overridePath))
+                    RoomBackgroundTilemapAtlas.Write(output, document,
+                        IntroCinematicArtworkFormat.BackgroundPageByteCount);
+
+                IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+                byte[] expected = nativeVram.ToArray();
+                transfer(edited).Span.CopyTo(expected.AsSpan(destination));
+                AssertTrue(!expected.AsSpan().SequenceEqual(nativeVram) &&
+                        new IntroCinematicState(guarded, characterArtwork: edited)
+                            .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                    $"edited {name} reaches only its initial cinematic VRAM page");
+                var restoredEarly = new IntroCinematicState(guarded, characterArtwork: stock);
+                restoredEarly.BindCharacterArtwork(edited);
+                AssertTrue(restoredEarly.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
+                    $"restored first narration/portrait state receives edited {name}");
+
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var restoredLate = new IntroCinematicState(guarded, characterArtwork: stock);
+                typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
+                    .Invoke(restoredLate, null);
+                byte[] lateBefore = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
+                restoredLate.BindCharacterArtwork(edited);
+                byte[] lateAfter = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
+                if (name == IntroCinematicArtworkFormat.InitialNarrationTilemapFileName)
+                    AssertTrue(lateAfter.SequenceEqual(lateBefore),
+                        "later typewriter map survives rebinding an edited initial narration page");
+                else
+                {
+                    transfer(edited).Span.CopyTo(lateBefore.AsSpan(destination));
+                    AssertTrue(lateAfter.SequenceEqual(lateBefore),
+                        "later illustrated page receives edited portrait map without changing typewriter text");
+                }
+                File.Delete(overridePath);
+            }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                "edited and rebound cinematic never reads cartridge character or BG-page sources");
+                "edited and rebound cinematic never reads cartridge character or tilemap sources");
 
             string backgroundStockPath = Path.Combine(installation.IntroCinematicDirectory, names[0]);
             string backgroundOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, names[0]);
@@ -245,7 +310,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro BG page fails instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs and four BG pages, exact overlapping VRAM, independent edits/rebinds, repair and strict failures pass.");
+                "Intro art: three indexed PNGs and six tilemaps, exact VRAM, phase-aware rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -265,6 +330,8 @@ internal static partial class Program
         {
             if (address is IntroCinematicRomData.Assets.BackgroundCharacters or
                 IntroCinematicRomData.Assets.BackgroundPageTilemaps or
+                IntroCinematicRomData.Assets.SamusHeadTilemap or
+                IntroCinematicRomData.Assets.FirstNarrationTilemap or
                 IntroCinematicRomData.Assets.IntroObjectCharacters or
                 IntroCinematicRomData.Assets.ObjectCharacters)
             {

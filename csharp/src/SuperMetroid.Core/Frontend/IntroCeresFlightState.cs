@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
-    private const int PaletteAddress = 0x8ce5e9;
-    private const int Mode7CharacterAddress = 0x95a82f;
-    private const int Mode7TilemapAddress = 0x96fe69;
-    private const int ObjectCharacterAddress = 0x96d10a;
-    private const ushort SpaceColonyTilemapWord = 0x5c00;
-    private const ushort SpaceColonyCharacterWord = 0x6000;
-
     // `$8C:D629` writes one English character into BG1 every $10 frames. These are
     // complete SNES tilemap words: bit $2000 selects BG1's high-priority plane and the
     // low ten bits select the already-resident character from the cinematic OBJ set.
@@ -37,7 +30,7 @@ internal sealed class IntroCeresFlightState
     private readonly ISnesAddressSpace bus;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
-    private readonly byte[] tilemap;
+    private byte[] tilemap;
     private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
@@ -59,25 +52,54 @@ internal sealed class IntroCeresFlightState
     private bool spaceColonyHoldStarted;
     private int fadeDelay;
 
-    public IntroCeresFlightState(ISnesAddressSpace bus)
+    public IntroCeresFlightState(ISnesAddressSpace bus, CeresFlightArtworkCatalog? artwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
 
-        byte[] characters = RomDataReader.Decompress(bus, Mode7CharacterAddress, maximumOutputBytes: 0x4000);
-        tilemap = RomDataReader.Decompress(bus, Mode7TilemapAddress, maximumOutputBytes: 0x1000);
-        byte[] objectCharacters = RomDataReader.Decompress(bus, ObjectCharacterAddress, maximumOutputBytes: 0x4000);
-        RequireMinimum(characters, 0x4000, "gunship/Ceres Mode 7 characters");
-        RequireMinimum(tilemap, 0x0300, "gunship front Mode 7 tilemap");
-        RequireMinimum(objectCharacters, 0x4000, "space/Ceres OBJ characters");
+        byte[] characters = artwork?.Mode7Characters.ToArray() ?? RomDataReader.Decompress(bus,
+            CeresFlightRomData.Assets.Mode7Characters,
+            maximumOutputBytes: CeresFlightRomData.Vram.Mode7CharacterByteCount);
+        tilemap = artwork?.Mode7Maps.ToArray() ?? RomDataReader.Decompress(bus,
+            CeresFlightRomData.Assets.Mode7Maps, maximumOutputBytes: 0x1000);
+        byte[] objectCharacters = artwork?.ObjectCharacters.ToArray() ?? RomDataReader.Decompress(bus,
+            CeresFlightRomData.Assets.ObjectCharacters,
+            maximumOutputBytes: CeresFlightRomData.Vram.ObjectCharacterByteCount);
+        RequireMinimum(characters, CeresFlightRomData.Vram.Mode7CharacterByteCount,
+            "gunship/Ceres Mode 7 characters");
+        RequireMinimum(tilemap, CeresFlightRomData.Vram.Mode7MapByteCount,
+            "gunship front/rear Mode 7 tilemaps");
+        RequireMinimum(objectCharacters, CeresFlightRomData.Vram.ObjectCharacterByteCount,
+            "space/Ceres OBJ characters");
 
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
         // byte with tile $8C, then overwrites only the front-view map's first $300 bytes.
-        vram.LoadMode7CharacterBytes(characters.AsSpan(0, 0x4000));
-        vram.FillMode7MapBytes(0x8c, 0x4000);
-        vram.LoadMode7MapBytes(tilemap.AsSpan(0, 0x0300));
-        vram.LoadBytes(0xc000, objectCharacters.AsSpan(0, 0x4000));
-        cgram.LoadFromBus(bus, PaletteAddress);
+        vram.LoadMode7CharacterBytes(characters.AsSpan(0,
+            CeresFlightRomData.Vram.Mode7CharacterByteCount));
+        vram.FillMode7MapBytes(CeresFlightRomData.Vram.Mode7BlankMapTile,
+            CeresFlightRomData.Vram.Mode7MapFillWordCount);
+        vram.LoadMode7MapBytes(tilemap.AsSpan(0,
+            CeresFlightRomData.Vram.Mode7MapSliceByteCount));
+        vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
+            objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
+        cgram.LoadFromBus(bus, CeresFlightRomData.Assets.Palette);
         Phase = IntroCeresFlightPhase.WaitForMusicQueue;
+    }
+
+    /// <summary>Reapplies current external art without resetting the live flight phase or palette.</summary>
+    public void BindArtwork(CeresFlightArtworkCatalog? artwork)
+    {
+        if (artwork is null) return;
+        tilemap = artwork.Mode7Maps.ToArray();
+        vram.LoadMode7CharacterBytes(artwork.Mode7Characters.Span);
+        vram.FillMode7MapBytes(CeresFlightRomData.Vram.Mode7BlankMapTile,
+            CeresFlightRomData.Vram.Mode7MapFillWordCount);
+        int mapOffset = Phase is IntroCeresFlightPhase.WaitForMusicQueue or
+            IntroCeresFlightPhase.FlyingIntoCamera
+            ? 0 : CeresFlightRomData.Vram.Mode7MapSliceByteCount;
+        vram.LoadMode7MapBytes(tilemap.AsSpan(mapOffset,
+            CeresFlightRomData.Vram.Mode7MapSliceByteCount));
+        vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
+            artwork.ObjectCharacters.Span);
     }
 
     public IntroCeresFlightPhase Phase { get; private set; }
@@ -193,7 +215,8 @@ internal sealed class IntroCeresFlightState
         var layers = new List<RenderLayer> { new ObjPriorityRenderLayer(0) };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or IntroCeresFlightPhase.Finished)
         {
-            var caption = new Bg4BppRenderLayer(SpaceColonyTilemapWord, SpaceColonyCharacterWord, 0, 0, 32, 32, false);
+            var caption = new Bg4BppRenderLayer(CeresFlightRomData.Layers.SpaceColonyTilemapWord,
+                CeresFlightRomData.Layers.SpaceColonyCharacterWord, 0, 0, 32, 32, false);
             layers.Add(caption);
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(caption with { Priority = true });
@@ -231,7 +254,8 @@ internal sealed class IntroCeresFlightState
         // $BE22 queues the second $300-byte map immediately behind the front view in the
         // same decompressed stream. Only low bytes change; the shared character plane and
         // the surrounding tile-$8C star field remain resident.
-        vram.LoadMode7MapBytes(tilemap.AsSpan(0x0300, 0x0300));
+        vram.LoadMode7MapBytes(tilemap.AsSpan(CeresFlightRomData.Vram.Mode7MapSliceByteCount,
+            CeresFlightRomData.Vram.Mode7MapSliceByteCount));
         backgroundX = 0xffe0;
         backgroundXSubPosition = 0;
         backgroundY = 0xff80;
@@ -329,7 +353,8 @@ internal sealed class IntroCeresFlightState
         (int column, ushort tile) = SpaceColonyLetters[spaceColonyLetterIndex++];
         const int CaptionRow = 0x18;
         spaceColonyTilemap[CaptionRow * 32 + column] = tile;
-        vram.ExecuteWordTransfer(spaceColonyTilemap, SpaceColonyTilemapWord, 1);
+        vram.ExecuteWordTransfer(spaceColonyTilemap,
+            CeresFlightRomData.Layers.SpaceColonyTilemapWord, 1);
     }
 
     private void StepFadeOut()
@@ -362,8 +387,8 @@ internal sealed class IntroCeresFlightState
         Rgba32[] caption = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            SpaceColonyTilemapWord,
-            SpaceColonyCharacterWord,
+            CeresFlightRomData.Layers.SpaceColonyTilemapWord,
+            CeresFlightRomData.Layers.SpaceColonyCharacterWord,
             horizontalScroll: 0,
             verticalScroll: 0,
             width: 256,

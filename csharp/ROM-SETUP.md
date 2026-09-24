@@ -115,6 +115,12 @@ pixels or scene timing. These pages are reloaded after debugger-state restoratio
 32x32 schema. The initial narration page applies only before the first illustrated
 page begins; restoring a later debugger state preserves its live typewriter text.
 
+The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
+`ceres-flight-object-characters.png` (256x128 indexed), and
+`ceres-flight-mode7-maps.json` (32x24 front and rear views). Override these under the
+same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
+sheet; the game's camera, scale, rotation, actor movement and letter timing remain code.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

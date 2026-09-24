@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 4;
+    private const int FormatVersion = 5;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -49,6 +49,12 @@ public static class IntroCinematicArtworkFiles
             WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
+        foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
+        {
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(file);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+        }
 
         var manifest = new IntroCinematicArtworkManifest(FormatVersion, sourceCartridgeSha256, hashes);
         using var stream = new FileStream(Path.Combine(directory, IntroCinematicArtworkFormat.ManifestFileName),
@@ -118,7 +124,8 @@ public static class IntroCinematicArtworkFiles
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
                 .ToArray(),
             LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
-            LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName));
+            LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName),
+            LoadCeresFlight());
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {
@@ -147,6 +154,25 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        CeresFlightArtworkCatalog LoadCeresFlight()
+        {
+            (string mode7Path, byte[] mode7) = ReadSelected(CeresFlightArtworkFormat.Mode7FileName);
+            (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFormat.MapFileName);
+            (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFormat.ObjectFileName);
+            try
+            {
+                return CeresFlightArtworkCatalog.Load(
+                    new MemoryStream(mode7, writable: false),
+                    new MemoryStream(map, writable: false),
+                    new MemoryStream(objects, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid Ceres flight artwork ({mode7Path}, {mapPath}, {objectPath}): {error.Message}", error);
+            }
+        }
+
         (string Path, byte[] Bytes) ReadSelected(string name)
         {
             string stockPath = Path.Combine(stockDirectory, name);
@@ -170,6 +196,9 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
+        CeresFlightArtworkFormat.Mode7FileName,
+        CeresFlightArtworkFormat.MapFileName,
+        CeresFlightArtworkFormat.ObjectFileName,
     ];
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);

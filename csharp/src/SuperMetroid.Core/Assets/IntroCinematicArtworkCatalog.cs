@@ -10,7 +10,8 @@ public sealed class IntroCinematicArtworkCatalog
         RoomCharacterAtlas introObjectCharacters, RoomCharacterAtlas cinematicObjectCharacters,
         IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages,
         RoomBackgroundTilemapAtlas portraitTilemap,
-        RoomBackgroundTilemapAtlas initialNarrationTilemap)
+        RoomBackgroundTilemapAtlas initialNarrationTilemap,
+        CeresFlightArtworkCatalog ceresFlight)
     {
         BackgroundCharacters = backgroundCharacters ?? throw new ArgumentNullException(nameof(backgroundCharacters));
         IntroObjectCharacters = introObjectCharacters ?? throw new ArgumentNullException(nameof(introObjectCharacters));
@@ -31,6 +32,7 @@ public sealed class IntroCinematicArtworkCatalog
         BackgroundPages = pages;
         PortraitTilemap = RequirePage(portraitTilemap, "portrait");
         InitialNarrationTilemap = RequirePage(initialNarrationTilemap, "initial narration");
+        CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
 
         static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {
@@ -52,6 +54,8 @@ public sealed class IntroCinematicArtworkCatalog
     public ReadOnlyMemory<byte> PortraitTilemap { get; }
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
     public ReadOnlyMemory<byte> InitialNarrationTilemap { get; }
+    /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
+    public CeresFlightArtworkCatalog CeresFlight { get; }
 }
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>

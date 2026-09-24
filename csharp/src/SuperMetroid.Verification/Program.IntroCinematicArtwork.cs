@@ -68,6 +68,7 @@ internal static partial class Program
                         $"installed cinematic preserves native graphics and colors at frame {frame}");
                 }
             }
+            VerifyCeresFlightArtwork(installation, bus);
 
             string[] names =
             [
@@ -333,7 +334,10 @@ internal static partial class Program
                 IntroCinematicRomData.Assets.SamusHeadTilemap or
                 IntroCinematicRomData.Assets.FirstNarrationTilemap or
                 IntroCinematicRomData.Assets.IntroObjectCharacters or
-                IntroCinematicRomData.Assets.ObjectCharacters)
+                IntroCinematicRomData.Assets.ObjectCharacters or
+                CeresFlightRomData.Assets.Mode7Characters or
+                CeresFlightRomData.Assets.Mode7Maps or
+                CeresFlightRomData.Assets.ObjectCharacters)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

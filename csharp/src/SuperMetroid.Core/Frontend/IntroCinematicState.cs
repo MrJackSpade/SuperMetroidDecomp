@@ -32,6 +32,7 @@ public sealed partial class IntroCinematicState
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     [NonSerialized] private IntroFontAtlas? introFont;
+    [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
     public IntroNarrationPresentation? NarrationPresentation
     {
@@ -52,6 +53,8 @@ public sealed partial class IntroCinematicState
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
     public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
     {
+        characterArtwork = value;
+        ceresFlight?.BindArtwork(value?.CeresFlight);
         if (value is not null)
         {
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
@@ -123,6 +126,7 @@ public sealed partial class IntroCinematicState
         this.bus = bus;
         this.audio = audio;
         this.introFont = introFont;
+        this.characterArtwork = characterArtwork;
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
@@ -473,7 +477,7 @@ public sealed partial class IntroCinematicState
                     // brightness owner: the narration has just deliberately reached
                     // INIDISP zero, while $8B:BDE4 restores full brightness only after
                     // the fourteen-frame delayed music command has completed.
-                    ceresFlight = new IntroCeresFlightState(bus);
+                    ceresFlight = new IntroCeresFlightState(bus, characterArtwork?.CeresFlight);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;

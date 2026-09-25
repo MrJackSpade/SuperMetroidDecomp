@@ -24,9 +24,12 @@ as well. Guarded fixtures run every orientation through entry closing,
 boss-condition unlock, flashing, one-hit opening, opened-bit persistence,
 and reload-to-blue conversion while blocking the program and all twenty
 physical grey/shared-clear draws. Bomb Torizo's special grey-door program
-at $BA4C remains separate cartridge-backed work.
+has also been compiled separately: $BA4C..BA6E and $BA7F..BAD0 (117 bytes).
+The intervening Bombs-test callback is machine code, not instruction data.
+Its guarded fixture runs both sides of the Bombs gate, Torizo-defeat unlock,
+opening, persistence, and reload-to-blue conversion.
 
-Bomb Torizo's special grey door, eye doors, gates, items, statues, and other room-object instruction programs
+Eye doors, gates, items, statues, and other room-object instruction programs
 still require the same migration. Their visual art and physical draw layouts
 are separate work from compiled control flow; these families alone do not make
 runtime gameplay ROM-free.

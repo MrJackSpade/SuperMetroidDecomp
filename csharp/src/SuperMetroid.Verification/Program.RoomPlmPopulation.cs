@@ -334,9 +334,9 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Reproduces the exact `$BAF4` resident-door path from room `$9804`: the transition
-    /// redirects it to secondary list `$BA4C`, Bombs admit the closing draw, and its final
-    /// Goto returns to first list `$BA7F` without escaping into the generic `$8A72` path.
+    /// Reproduces the `$BAF4` resident-door path from room `$9804` using the
+    /// compiled retail instructions with a synthetic population/header. Bombs
+    /// admit the closing animation, then its final Goto returns to `$BA7F`.
     /// </summary>
     private static void VerifyBombTorizoGreyDoorClosingReentry(TestAddressSpace bus)
     {
@@ -348,12 +348,6 @@ internal static partial class Program
         const ushort roomArgument = 0x081b;
         const ushort initialList = 0xba7f;
         const ushort closingList = 0xba4c;
-        const ushort closingDraw = 0xa683;
-        const ushort lockedDraw = 0xa6d7;
-        const ushort closedBlueList = 0xc100;
-        const ushort activationList = 0xba93;
-        const ushort openTriggerList = 0xc110;
-        const ushort openingList = 0xc120;
 
         WriteWord(bus, 0x840000 | RoomPlmHeaders.BombTorizoGreyDoor, 0xc794);
         WriteWord(bus,
@@ -363,27 +357,9 @@ internal static partial class Program
             0x840000 | unchecked((ushort)(RoomPlmHeaders.BombTorizoGreyDoor + 4)),
             closingList);
 
-        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)), closedBlueList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)), activationList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 12)), lockedDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(activationList + 2)), openTriggerList);
-        bus.WriteBytes(0x840000 | unchecked((ushort)(openTriggerList + 2)),
-        [
-            0x01,
-            unchecked((byte)openingList),
-            unchecked((byte)(openingList >> 8)),
-        ]);
-
-        WriteWord(bus, 0x840000 | closingList,
-            RoomPlmInstructionCodes.GotoIfSamusHasNoBombs);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 2)), closingList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 4)), 1);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 6)), closingDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 8)),
-            RoomPlmInstructionCodes.Goto);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 10)), initialList);
-        // These two cartridge draw pointers are compiled definitions now. Keep the
-        // resident instruction stream synthetic, but verify its real four-block art.
+        // The PLM program and its draw pointers are compiled cartridge data. Do
+        // not inject a shortened stand-in at their native addresses: the timing
+        // and Bombs callback need to execute the same lists used in gameplay.
 
         bus.WriteBytes(0x8f0000 | population,
         [
@@ -442,13 +418,15 @@ internal static partial class Program
         AssertEqual(0x0482, level.GetCollisionBlock(doorX, doorY).LevelWord,
             "collected Bombs admit the secondary list's closing draw");
 
-        plms.Step(
-            bus, level, streamer, 0, 0, 0,
-            scrolls: null,
-            enemyDeaths: 0,
-            enemyDeathQuota: 0,
-            controllerNewInput: 0,
-            collectedItems: samus.CollectedItems);
+        for (int frame = 0; frame < 80 &&
+             plms.GreyDoors.Single().Phase == GreyDoorPhase.Closing; frame++)
+            plms.Step(
+                bus, level, streamer, 0, 0, 0,
+                scrolls: null,
+                enemyDeaths: 0,
+                enemyDeathQuota: 0,
+                controllerNewInput: 0,
+                collectedItems: samus.CollectedItems);
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
         AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,

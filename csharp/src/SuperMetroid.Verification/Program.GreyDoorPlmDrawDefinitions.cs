@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         VerifyGreyDoorProgramDefinitions(rom);
+        VerifyBombTorizoGreyDoorProgramDefinitions(rom);
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -70,7 +71,9 @@ internal static partial class Program
             bus.WriteBytes(0x8f0000 | population,
             [
                 unchecked((byte)header), unchecked((byte)(header >> 8)),
-                4, 4, 0, 0,
+                4, 4,
+                header == RoomPlmHeaders.BombTorizoGreyDoor ? (byte)0x1b : (byte)0,
+                header == RoomPlmHeaders.BombTorizoGreyDoor ? (byte)0x08 : (byte)0,
                 0, 0,
             ]);
             const int width = 16;
@@ -113,6 +116,8 @@ internal static partial class Program
                 AssertEqual((ushort)0x0053,
                     level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],
                     "edited grey cap survives later camera streaming");
+                VerifyBombTorizoGreyDoorLifecycle(guarded, level, streamer,
+                    plms, system, population, origin, blockDefinitions);
             }
             else
             {
@@ -185,7 +190,80 @@ internal static partial class Program
         VerifySharedDoorClearVisual(rom, entries, lists);
         VerifyGreyDoorVisualInstallation(rom);
         Console.WriteLine(
-            "  Grey doors: 420 compiled program bytes, four close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
+            "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
+    }
+
+    private static void VerifyBombTorizoGreyDoorLifecycle(
+        GreyDoorDrawReadGuard guarded,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        RoomPlmSystem plms,
+        Bank80SystemState system,
+        ushort population,
+        int origin,
+        byte[] blockDefinitions)
+    {
+        var enteringDoor = new CartridgeDoorHeader(
+            Pointer: 0,
+            DestinationRoomPointer: 0,
+            BitFlags: 0,
+            Orientation: 5,
+            PlmX: 4,
+            PlmY: 4,
+            DestinationScreenX: 0,
+            DestinationScreenY: 0,
+            SamusDistance: 0,
+            SetupCodePointer: 0);
+        AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
+            "Bomb Torizo door selects its Bomb-gated closing list");
+        for (int frame = 0; frame < 10; frame++)
+            plms.Step(guarded, level, streamer, 0, 0, 0);
+        AssertEqual(GreyDoorPhase.Closing, plms.GreyDoors.Single().Phase,
+            "Bomb Torizo closing list loops while Samus has no Bombs");
+        for (int frame = 0; frame < 80 &&
+             plms.GreyDoors.Single().Phase == GreyDoorPhase.Closing; frame++)
+            plms.Step(guarded, level, streamer, 0, 0, 0,
+                scrolls: null,
+                enemyDeaths: 0,
+                enemyDeathQuota: 0,
+                controllerNewInput: 0,
+                collectedItems: SamusEquipmentFlags.Bombs.ToNativeWord());
+        AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
+            "collected Bombs let the special closing list rejoin its resident owner");
+        system.SetBossBits(AreaId.Crateria, BossBits.AreaTorizo);
+        plms.Step(guarded, level, streamer, 0, 0, 0);
+        AssertEqual(GreyDoorPhase.Flashing, plms.GreyDoors.Single().Phase,
+            "Bomb Torizo defeat unlocks the special grey door");
+        AssertTrue(plms.TryNotifyColoredDoorHit(origin, new SamusProjectileTypeWord(0)),
+            "Bomb Torizo grey door accepts a post-unlock beam hit");
+        plms.Step(guarded, level, streamer, 0, 0, 0);
+        AssertEqual(GreyDoorPhase.Opening, plms.GreyDoors.Single().Phase,
+            "Bomb Torizo grey door selects its opening list");
+        for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
+            plms.Step(guarded, level, streamer, 0, 0, 0);
+        AssertEqual(0, plms.ActiveCount,
+            "Bomb Torizo grey door completes its opening and deletes");
+        AssertTrue(system.HasOpenedDoorBit(0x1b),
+            "Bomb Torizo grey door persists its sanitized room argument");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "Bomb Torizo grey door avoids both compiled program and draw sources");
+
+        const int width = 16;
+        var reopenedLevel = new RoomLevelData(width, width,
+            new ushort[width * width], new byte[width * width],
+            new ushort[width * width], blockDefinitions);
+        BackgroundTilemapStreamer reopenedStreamer =
+            reopenedLevel.CreateBackgroundStreamer();
+        var reopened = new RoomPlmSystem();
+        AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
+                reopenedStreamer, new SnesVram(), population, system,
+                AreaId.Crateria, () => new SamusState(), () => false),
+            "opened Bomb Torizo grey door reloads");
+        reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
+        AssertEqual(0, reopened.ActiveCount,
+            "opened Bomb Torizo grey door converts to a blue cap");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "Bomb Torizo reload avoids both compiled program and draw sources");
     }
 
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -214,6 +292,41 @@ internal static partial class Program
             "ordinary grey-door program does not claim following yellow door");
         AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(0xbffc, out _),
             "ordinary grey-door program refuses a cross-family word");
+    }
+
+    private static void VerifyBombTorizoGreyDoorProgramDefinitions(
+        SuperMetroidAddressSpace rom)
+    {
+        foreach ((ushort first, ushort last) in new[]
+        {
+            (BombTorizoGreyDoorPlmProgramDefinitions.ClosingStart,
+                BombTorizoGreyDoorPlmProgramDefinitions.ClosingEnd),
+            (BombTorizoGreyDoorPlmProgramDefinitions.ResidentStart,
+                BombTorizoGreyDoorPlmProgramDefinitions.ResidentEnd),
+        })
+        {
+            for (int address = first; address <= last; address++)
+            {
+                AssertTrue(BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(
+                        checked((ushort)address), out byte compiled),
+                    $"Bomb Torizo door program claims byte $84:{address:X4}");
+                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                    $"Bomb Torizo door program byte $84:{address:X4} matches ROM");
+                if (address == last)
+                    continue;
+                AssertTrue(BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsWord(
+                        checked((ushort)address), out ushort compiledWord),
+                    $"Bomb Torizo door program claims word $84:{address:X4}");
+                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                    rom.ReadByte(0x840000 | (address + 1)) << 8);
+                AssertEqual(native, compiledWord,
+                    $"Bomb Torizo door program word $84:{address:X4} matches ROM");
+            }
+        }
+        AssertTrue(!BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xba6f, out _),
+            "Bombs callback machine code remains outside compiled instruction data");
+        AssertTrue(!BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbad1, out _),
+            "unused setup machine code remains outside compiled instruction data");
     }
 
     private static void VerifySharedDoorClearVisual(
@@ -331,6 +444,13 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Resident grey door reread compiled instruction ${address:X6}.");
+            }
+            if (address is >= 0x84ba4c and <= 0x84ba6e or
+                >= 0x84ba7f and <= 0x84bad0)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Bomb Torizo grey door reread compiled instruction ${address:X6}.");
             }
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             {

@@ -64,6 +64,18 @@ public sealed partial class IntroCinematicState
             baseline.Colors.CopyTo(introPalette);
             if (Phase == IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(cgram);
+            if (Phase >= IntroCinematicPhase.WaitForPageOneMusicQueue &&
+                Phase < IntroCinematicPhase.CeresFlight)
+            {
+                // The divider occupies only rows 24-27. Preserve live typewriter
+                // words and caret state in every other row on debugger rebind.
+                value.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
+                    IntroCinematicRomData.Text.FinalLineDestinationStart,
+                    IntroCinematicRomData.Text.FinalLineWordCount));
+                vram.ExecuteWordTransfer(value.FinalLine.Words.Span,
+                    (ushort)(IntroCinematicRomData.Layers.NarrationTilemapWord +
+                        IntroCinematicRomData.Text.FinalLineDestinationStart), 1);
+            }
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
                 value.BackgroundCharacters.Transfer.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
@@ -1416,12 +1428,19 @@ public sealed partial class IntroCinematicState
         }
 
         // $8B:A72B supplies the four-row ornamental divider at rows 24-27.
-        for (int index = 0; index < IntroCinematicRomData.Text.FinalLineWordCount; index++)
+        if (characterArtwork is { } selectedArtwork)
+            selectedArtwork.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
+                IntroCinematicRomData.Text.FinalLineDestinationStart,
+                IntroCinematicRomData.Text.FinalLineWordCount));
+        else
         {
-            textTilemap[IntroCinematicRomData.Text.FinalLineDestinationStart + index] =
-                RomDataReader.ReadWordFixedBank(
-                    bus,
-                    IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort));
+            for (int index = 0; index < IntroCinematicRomData.Text.FinalLineWordCount; index++)
+            {
+                textTilemap[IntroCinematicRomData.Text.FinalLineDestinationStart + index] =
+                    RomDataReader.ReadWordFixedBank(
+                        bus,
+                        IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort));
+            }
         }
 
         // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset

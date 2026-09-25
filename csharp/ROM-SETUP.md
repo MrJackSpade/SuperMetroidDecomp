@@ -123,6 +123,11 @@ page begins; restoring a later debugger state preserves its live typewriter text
 the colors without changing narration timing or scene transitions. A restored
 initial card rebinds the selected colors; an in-progress fade retains its live
 accumulators and uses the selected palette at the next scene target.
+`intro-final-text-divider.json` contains the 32-by-4 ordered BG3 tile references
+beneath the illustrated text pages. Copy it to `overrides/intro-cinematic/` to
+edit tile positions, palette selections, priority, or flips. Live text, caret
+motion, and page timing stay in code; a restored illustrated page replaces only
+those four divider rows.
 
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and

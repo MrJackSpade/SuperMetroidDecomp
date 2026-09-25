@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -43,6 +44,13 @@ internal static partial class Program
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
                         maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes)),
                 "installed initial narration JSON preserves every native tilemap word");
+            for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
+            {
+                int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
+                ushort nativeWord = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+                AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
+                    $"opening divider tile {index} matches cartridge source");
+            }
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -166,6 +174,93 @@ internal static partial class Program
                 "stock repair restores exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
+            string dividerStockPath = Path.Combine(installation.IntroCinematicDirectory,
+                IntroFinalLineTilemapFormat.FileName);
+            string dividerOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory,
+                IntroFinalLineTilemapFormat.FileName);
+            IntroFinalLineTilemapDocument dividerDocument =
+                JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
+                    File.ReadAllBytes(dividerStockPath),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                ?? throw new InvalidDataException("Extracted opening divider is empty.");
+            const BindingFlags dividerSetupFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var nativeDividerState = new IntroCinematicState(bus);
+            var stockDividerState = new IntroCinematicState(guarded, characterArtwork: stock);
+            foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
+                typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
+                    .Invoke(scene, null);
+            byte[] stockDividerVram = stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
+            AssertTrue(stockDividerVram.SequenceEqual(
+                    nativeDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram),
+                "installed opening divider produces exact native illustrated-page VRAM");
+            int changedCell = Array.FindIndex(dividerDocument.Cells,
+                cell => cell.TileColumn < RoomBackgroundTilemapFormat.TileColumns - 1);
+            AssertTrue(changedCell >= 0, "opening divider has an editable tile column");
+            RoomBackgroundTilemapCell originalDividerCell = dividerDocument.Cells[changedCell];
+            dividerDocument.Cells[changedCell] = originalDividerCell with
+            {
+                TileColumn = originalDividerCell.TileColumn + 1,
+            };
+            using (var output = File.Create(dividerOverridePath))
+                IntroFinalLineTilemap.Write(output, dividerDocument);
+            IntroCinematicArtworkCatalog editedDivider = installation.LoadIntroCinematicArt();
+            var editedDividerState = new IntroCinematicState(guarded, characterArtwork: editedDivider);
+            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
+                .Invoke(editedDividerState, null);
+            byte[] expectedDividerVram = stockDividerVram.ToArray();
+            int dividerByte = (IntroCinematicRomData.Layers.NarrationTilemapWord +
+                IntroCinematicRomData.Text.FinalLineDestinationStart + changedCell) * sizeof(ushort);
+            BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
+                editedDivider.FinalLine.Words.Span[changedCell]);
+            AssertTrue(!expectedDividerVram.SequenceEqual(stockDividerVram) &&
+                    editedDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
+                        expectedDividerVram),
+                "one edited divider cell changes only its production BG3 tile word");
+            stockDividerState.BindCharacterArtwork(editedDivider);
+            AssertTrue(stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
+                    expectedDividerVram),
+                "restored illustrated page rebinds divider without erasing live text elsewhere");
+            using (var output = File.Create(dividerOverridePath))
+                IntroFinalLineTilemap.Write(output, dividerDocument with
+                {
+                    Cells = dividerDocument.Cells.Select(cell => cell with
+                    {
+                        Palette = (cell.Palette + 3) % RoomBackgroundTilemapFormat.PaletteCount,
+                    }).ToArray(),
+                });
+            IntroCinematicArtworkCatalog visibleDivider = installation.LoadIntroCinematicArt();
+            var stockDividerVisual = new IntroCinematicState(guarded, characterArtwork: stock);
+            var editedDividerVisual = new IntroCinematicState(guarded, characterArtwork: visibleDivider);
+            foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
+            {
+                typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
+                    .Invoke(scene, null);
+                typeof(IntroCinematicState).GetField("brightness", dividerSetupFlags)!
+                    .SetValue(scene, 15);
+            }
+            AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
+                "visual divider override leaves page phase unchanged");
+            AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(
+                    stockDividerVisual.CaptureTranslatedRenderSnapshot()).AsSpan().SequenceEqual(
+                    SoftwareLayeredSnapshotRenderer.Render(
+                        editedDividerVisual.CaptureTranslatedRenderSnapshot())),
+                "divider palette edits change displayed illustrated-page pixels");
+            File.Delete(dividerOverridePath);
+            stockDividerState.BindCharacterArtwork(stock);
+            AssertTrue(stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(
+                    stockDividerVram),
+                "removing opening divider override restores exact native BG3 words");
+            AssertThrows<InvalidDataException>(() => IntroFinalLineTilemap.Load(
+                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(dividerDocument with
+                {
+                    Cells = dividerDocument.Cells.Take(127).ToArray(),
+                }))), "opening divider rejects a truncated tilemap");
+            File.WriteAllBytes(dividerOverridePath, [0]);
+            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+                "malformed opening divider override fails loudly");
+            File.Delete(dividerOverridePath);
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "installed opening divider never rereads its cartridge source");
             VerifyCeresFlightArtwork(installation, bus);
             VerifyCeresDestructionArtwork(installation, bus);
             VerifyEndingFlyawayArtwork(installation);
@@ -414,7 +509,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro BG page fails instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, six tilemaps and full RGB5 palette; VRAM/CGRAM parity, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven tilemaps and full RGB5 palette; VRAM/CGRAM parity, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -462,6 +557,14 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread opening palette ${address:X6}.");
+            }
+            if (address >= IntroCinematicRomData.Assets.FinalTextLine &&
+                address < IntroCinematicRomData.Assets.FinalTextLine +
+                    IntroFinalLineTilemapFormat.CellCount * sizeof(ushort))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread opening divider ${address:X6}.");
             }
             return source.ReadByte(address);
         }

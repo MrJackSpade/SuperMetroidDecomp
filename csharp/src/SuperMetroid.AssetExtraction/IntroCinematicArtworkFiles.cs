@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 8;
+    private const int FormatVersion = 9;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -50,6 +50,7 @@ public static class IntroCinematicArtworkFiles
             WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
+        WriteFinalLine();
         WritePalette();
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
@@ -133,6 +134,42 @@ public static class IntroCinematicArtworkFiles
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
+
+        void WriteFinalLine()
+        {
+            var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
+            var cells = new RoomBackgroundTilemapCell[native.Length];
+            for (int index = 0; index < native.Length; index++)
+            {
+                int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
+                var word = new SnesBgTilemapWord((ushort)(bus.ReadByte(source) |
+                    bus.ReadByte(source + 1) << 8));
+                native[index] = word.Raw;
+                cells[index] = new RoomBackgroundTilemapCell
+                {
+                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
+                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
+                    Palette = word.PaletteIndex,
+                    Priority = word.HasPriority,
+                    FlipX = word.FlipHorizontally,
+                    FlipY = word.FlipVertically,
+                };
+            }
+            using var json = new MemoryStream();
+            IntroFinalLineTilemap.Write(json, new IntroFinalLineTilemapDocument
+            {
+                Version = IntroFinalLineTilemapFormat.Version,
+                Cells = cells,
+            });
+            byte[] encoded = json.ToArray();
+            if (!IntroFinalLineTilemap.Load(new MemoryStream(encoded, writable: false))
+                .Words.Span.SequenceEqual(native))
+                throw new InvalidDataException("Opening divider tilemap JSON did not round-trip cartridge words.");
+            string name = IntroFinalLineTilemapFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
@@ -168,6 +205,7 @@ public static class IntroCinematicArtworkFiles
                 .ToArray(),
             LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
             LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName),
+            LoadFinalLine(),
             LoadPalette(),
             LoadCeresFlight(),
             LoadCeresDestruction());
@@ -233,6 +271,19 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        IntroFinalLineTilemap LoadFinalLine()
+        {
+            (string path, byte[] selected) = ReadSelected(IntroFinalLineTilemapFormat.FileName);
+            try
+            {
+                return IntroFinalLineTilemap.Load(new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid opening divider {path}: {error.Message}", error);
+            }
+        }
+
         CeresDestructionArtworkCatalog LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
@@ -274,6 +325,7 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkFormat.CinematicObjectFileName,
         IntroCinematicArtworkFormat.PortraitTilemapFileName,
         IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
+        IntroFinalLineTilemapFormat.FileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFormat.FileName,

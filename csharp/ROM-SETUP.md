@@ -118,6 +118,11 @@ pixels or scene timing. These pages are reloaded after debugger-state restoratio
 `intro-portrait-tilemap.json` and `intro-initial-narration-tilemap.json` use the same
 32x32 schema. The initial narration page applies only before the first illustrated
 page begins; restoring a later debugger state preserves its live typewriter text.
+`intro-narration-palette.json` in the same directory contains the opening scene's
+256 native-precision RGB5 colors. Copy it to `overrides/intro-cinematic/` to edit
+the colors without changing narration timing or scene transitions. A restored
+initial card rebinds the selected colors; an in-progress fade retains its live
+accumulators and uses the selected palette at the next scene target.
 
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and

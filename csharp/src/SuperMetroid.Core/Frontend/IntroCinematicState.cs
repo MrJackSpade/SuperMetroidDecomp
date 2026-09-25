@@ -57,6 +57,13 @@ public sealed partial class IntroCinematicState
         ceresFlight?.BindArtwork(value?.CeresFlight);
         if (value is not null)
         {
+            // A restored fade keeps its current CGRAM/accumulators, but later scene
+            // targets must use the currently selected installed palette.
+            var baseline = new SnesCgram();
+            value.Palette.LoadTo(baseline);
+            baseline.Colors.CopyTo(introPalette);
+            if (Phase == IntroCinematicPhase.WaitForInitialMusicQueue)
+                value.Palette.LoadTo(cgram);
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
                 value.BackgroundCharacters.Transfer.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
@@ -130,7 +137,8 @@ public sealed partial class IntroCinematicState
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
-        cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
+        if (characterArtwork is null) cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
+        else characterArtwork.Palette.LoadTo(cgram);
         cgram.Colors.CopyTo(introPalette);
 
         byte[] bgCharacters = characterArtwork?.BackgroundCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
@@ -194,7 +202,8 @@ public sealed partial class IntroCinematicState
         // intro palette. The projectile tile DMA remains resident for both gameplay
         // flashbacks; restore the later intro CGRAM copy after using the shared helper.
         SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, equippedBeams: 0);
-        cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
+        if (characterArtwork is null) cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
+        else characterArtwork.Palette.LoadTo(cgram);
 
         Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
     }

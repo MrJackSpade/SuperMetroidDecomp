@@ -43,6 +43,10 @@ internal static partial class Program
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
                         maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes)),
                 "installed initial narration JSON preserves every native tilemap word");
+            AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
+                    RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
+                        SnesCgram.ByteCount)),
+                "installed opening palette preserves every native RGB5 word");
 
             var native = new IntroCinematicState(bus);
             var guarded = new IntroArtworkSourceReadGuard(bus);
@@ -68,6 +72,100 @@ internal static partial class Program
                         $"installed cinematic preserves native graphics and colors at frame {frame}");
                 }
             }
+            Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
+            string paletteName = IntroCinematicPaletteFormat.FileName;
+            string paletteStockPath = Path.Combine(installation.IntroCinematicDirectory, paletteName);
+            string paletteOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, paletteName);
+            IntroCinematicPaletteDocument paletteDocument =
+                JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(
+                    File.ReadAllBytes(paletteStockPath),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                ?? throw new InvalidDataException("Extracted opening palette is empty.");
+            PaletteRgb5 originalColor = paletteDocument.Colors[1];
+            paletteDocument.Colors[1] = originalColor with
+            {
+                Red = originalColor.Red == 31 ? 30 : originalColor.Red + 1,
+            };
+            using (var output = File.Create(paletteOverridePath))
+                IntroCinematicPalette.Write(output, paletteDocument);
+            IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
+            var editedPaletteState = new IntroCinematicState(guarded, characterArtwork: editedPalette);
+            var stockPaletteState = new IntroCinematicState(guarded, characterArtwork: stock);
+            ushort[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
+            ushort[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
+            AssertTrue(!editedCgram.SequenceEqual(originalCgram) &&
+                editedCgram.AsSpan(0, 1).SequenceEqual(originalCgram.AsSpan(0, 1)) &&
+                editedCgram.AsSpan(2).SequenceEqual(originalCgram.AsSpan(2)),
+                "edited opening RGB5 color reaches only its production CGRAM destination");
+            stockPaletteState.BindCharacterArtwork(editedPalette);
+            AssertTrue(stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.SequenceEqual(editedCgram),
+                "restored initial narration rebinds the current palette without restarting its phase");
+            for (int frame = 0; frame < 120; frame++)
+            {
+                editedPaletteState.Step(0);
+                stockPaletteState.Step(0);
+                AssertEqual(editedPaletteState.Phase, stockPaletteState.Phase,
+                    $"opening palette edit preserves cinematic phase at frame {frame}");
+            }
+            // The initial single-color edit proves exact CGRAM targeting; it can be
+            // hidden behind the first card's chosen palette indices. A broad color
+            // edit proves the selected resource also reaches visible scene pixels.
+            using (var output = File.Create(paletteOverridePath))
+                IntroCinematicPalette.Write(output, paletteDocument with
+                {
+                    Colors = paletteDocument.Colors.Select(color => color with
+                    {
+                        Red = (color.Red + 7) & 31,
+                        Green = (color.Green + 11) & 31,
+                    }).ToArray(),
+                });
+            IntroCinematicArtworkCatalog visiblePalette = installation.LoadIntroCinematicArt();
+            var stockVisualState = new IntroCinematicState(guarded, characterArtwork: stock);
+            var editedVisualState = new IntroCinematicState(guarded, characterArtwork: visiblePalette);
+            bool changedVisiblePixel = false;
+            for (int frame = 0; frame < 400; frame++)
+            {
+                stockVisualState.Step(0);
+                editedVisualState.Step(0);
+                AssertEqual(stockVisualState.Phase, editedVisualState.Phase,
+                    $"visible opening palette edit preserves cinematic phase at frame {frame}");
+                if (frame % 20 == 0 && !SoftwareLayeredSnapshotRenderer.Render(
+                        stockVisualState.CaptureTranslatedRenderSnapshot()).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(
+                            editedVisualState.CaptureTranslatedRenderSnapshot())))
+                    changedVisiblePixel = true;
+            }
+            AssertTrue(changedVisiblePixel,
+                "edited opening RGB5 colors change displayed narration pixels");
+            AssertThrows<InvalidDataException>(() => IntroCinematicPalette.Load(
+                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
+                {
+                    Colors = paletteDocument.Colors.Take(255).ToArray(),
+                }))), "opening palette rejects a truncated color table");
+            AssertThrows<InvalidDataException>(() => IntroCinematicPalette.Load(
+                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
+                {
+                    Colors = paletteDocument.Colors.Select((color, index) =>
+                        index == 1 ? color with { Red = 32 } : color).ToArray(),
+                }))), "opening palette rejects out-of-range RGB5 channels");
+            File.Delete(paletteOverridePath);
+            AssertTrue(installation.LoadIntroCinematicArt().Palette.Transfer.Span.SequenceEqual(
+                    stock.Palette.Transfer.Span),
+                "removing opening palette override restores exact native colors");
+            File.WriteAllBytes(paletteOverridePath, [0]);
+            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+                "malformed opening palette override fails instead of silently restoring stock");
+            File.Delete(paletteOverridePath);
+            File.WriteAllBytes(paletteStockPath, [0]);
+            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+                "opening palette stock corruption fails manifest validation");
+            _ = GameAssetInstaller.EnsureInstalled(root)
+                ?? throw new InvalidOperationException("Opening palette stock repair lost the installation.");
+            AssertTrue(installation.LoadIntroCinematicArt().Palette.Transfer.Span.SequenceEqual(
+                    stock.Palette.Transfer.Span),
+                "stock repair restores exact cartridge opening palette colors");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "installed opening palette never rereads its cartridge source");
             VerifyCeresFlightArtwork(installation, bus);
             VerifyCeresDestructionArtwork(installation, bus);
             VerifyEndingFlyawayArtwork(installation);
@@ -316,7 +414,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro BG page fails instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs and six tilemaps, exact VRAM, phase-aware rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, six tilemaps and full RGB5 palette; VRAM/CGRAM parity, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -357,6 +455,13 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread Ceres flight palette ${address:X6}.");
+            }
+            if (address >= IntroCinematicRomData.Assets.Palette &&
+                address < IntroCinematicRomData.Assets.Palette + SnesCgram.ByteCount)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread opening palette ${address:X6}.");
             }
             return source.ReadByte(address);
         }

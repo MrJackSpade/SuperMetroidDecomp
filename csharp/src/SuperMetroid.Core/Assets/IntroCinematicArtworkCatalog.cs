@@ -11,6 +11,7 @@ public sealed class IntroCinematicArtworkCatalog
         IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages,
         RoomBackgroundTilemapAtlas portraitTilemap,
         RoomBackgroundTilemapAtlas initialNarrationTilemap,
+        IntroCinematicPalette palette,
         CeresFlightArtworkCatalog ceresFlight,
         CeresDestructionArtworkCatalog ceresDestruction)
     {
@@ -33,6 +34,7 @@ public sealed class IntroCinematicArtworkCatalog
         BackgroundPages = pages;
         PortraitTilemap = RequirePage(portraitTilemap, "portrait");
         InitialNarrationTilemap = RequirePage(initialNarrationTilemap, "initial narration");
+        Palette = palette ?? throw new ArgumentNullException(nameof(palette));
         CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
         CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
 
@@ -56,6 +58,8 @@ public sealed class IntroCinematicArtworkCatalog
     public ReadOnlyMemory<byte> PortraitTilemap { get; }
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
     public ReadOnlyMemory<byte> InitialNarrationTilemap { get; }
+    /// <summary>Native-precision colors loaded before the first narration card.</summary>
+    public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>
     public CeresFlightArtworkCatalog CeresFlight { get; }
     /// <summary>Destruction maps and subsequent Zebes reveal art.</summary>

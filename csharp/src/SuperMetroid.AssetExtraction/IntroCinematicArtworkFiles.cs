@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -10,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 7;
+    private const int FormatVersion = 8;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -49,6 +50,7 @@ public static class IntroCinematicArtworkFiles
             WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
+        WritePalette();
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
@@ -96,6 +98,41 @@ public static class IntroCinematicArtworkFiles
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
+
+        void WritePalette()
+        {
+            var native = new byte[SnesCgram.ByteCount];
+            for (int index = 0; index < native.Length; index++)
+                native[index] = bus.ReadByte(IntroCinematicRomData.Assets.Palette + index);
+            var colors = new PaletteRgb5[SnesCgram.ColorCount];
+            for (int index = 0; index < colors.Length; index++)
+            {
+                ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
+                    native.AsSpan(index * sizeof(ushort)));
+                if ((word & 0x8000) != 0)
+                    throw new InvalidDataException($"Opening palette color {index} has an unrepresentable high bit.");
+                colors[index] = new PaletteRgb5
+                {
+                    Red = word & 31,
+                    Green = word >> 5 & 31,
+                    Blue = word >> 10 & 31,
+                };
+            }
+            using var json = new MemoryStream();
+            IntroCinematicPalette.Write(json, new IntroCinematicPaletteDocument
+            {
+                Version = IntroCinematicPaletteFormat.Version,
+                Colors = colors,
+            });
+            byte[] encoded = json.ToArray();
+            if (!IntroCinematicPalette.Load(new MemoryStream(encoded, writable: false))
+                .Transfer.Span.SequenceEqual(native))
+                throw new InvalidDataException("Opening palette JSON did not round-trip cartridge colors.");
+            string name = IntroCinematicPaletteFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
@@ -131,6 +168,7 @@ public static class IntroCinematicArtworkFiles
                 .ToArray(),
             LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
             LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName),
+            LoadPalette(),
             LoadCeresFlight(),
             LoadCeresDestruction());
 
@@ -182,6 +220,19 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        IntroCinematicPalette LoadPalette()
+        {
+            (string path, byte[] selected) = ReadSelected(IntroCinematicPaletteFormat.FileName);
+            try
+            {
+                return IntroCinematicPalette.Load(new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid opening palette {path}: {error.Message}", error);
+            }
+        }
+
         CeresDestructionArtworkCatalog LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
@@ -225,6 +276,7 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
+        IntroCinematicPaletteFormat.FileName,
         CeresFlightArtworkFormat.Mode7FileName,
         CeresFlightArtworkFormat.MapFileName,
         CeresFlightArtworkFormat.ObjectFileName,

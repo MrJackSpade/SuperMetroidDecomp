@@ -36,6 +36,15 @@ internal static partial class Program
 
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
+        for (int address = TitleSequenceInstructionDefinitions.StartAddress;
+            address < TitleSequenceInstructionDefinitions.EndAddress; address++)
+            AssertEqual(bus.ReadByte(address),
+                TitleSequenceInstructionDefinitions.ReadByte(address),
+                $"compiled title-card byte ${address:X6}");
+        AssertThrows<InvalidDataException>(() =>
+            TitleSequenceInstructionDefinitions.ReadWord(
+                TitleSequenceInstructionDefinitions.EndAddress),
+            "installed title card reader rejects adjacent bank-$8B code");
         var cartridgeReads = new HashSet<int>();
         var tracingBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
@@ -58,9 +67,9 @@ internal static partial class Program
             TitleSequenceRomData.Vram.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
-        // The ROM text-list words remain the native animation clock. Only the bank-$8C
-        // OBJ composition bytes are replaced by installed JSON when one is selected.
-        cartridgeReads.RemoveWhere(address => (address >> 16) == 0x8b);
+        // The installed title uses compiled card timing and sprite selectors alongside
+        // editable bank-$8C OAM compositions. The original source addresses are all
+        // blocked while the complete natural scene is compared with the ROM-backed path.
         var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         var stock = new TitleSequenceState(bus);
         var installed = new TitleSequenceState(guardedBus, titleGraphicsPresentation: presentation);

@@ -2391,8 +2391,15 @@ if (args is ["--phantoon-position"])
     VerifyPhantoonPosition();
     return 0;
 }
+if (args is ["--title-instruction-definitions"])
+{
+    VerifyTitleGradientTables(SuperMetroidAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc")));
+    VerifyTitleSequenceRomData();
+    return 0;
+}
 if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
-    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --samus-grapple | --samus-xray | --grapple-doors | --grapple-sounds | --grapple-spin | --grapple-gates | --grapple-enemy-death | --shutter-riding | --shutter-embedding]");
+    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --title-instruction-definitions | --phantoon-position | --samus-grapple | --samus-xray | --grapple-doors | --grapple-sounds | --grapple-spin | --grapple-gates | --grapple-enemy-death | --shutter-riding | --shutter-embedding]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyPlmDrawClone();
 VerifyGameConfigurationIni();

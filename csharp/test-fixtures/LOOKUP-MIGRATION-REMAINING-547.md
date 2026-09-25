@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Title-card timing and sprite selectors (2026-09-25)
+
+The four fixed title-card lists and adjacent logo pointer at `$8B:A03D..A0C8`
+are now compiled as a bounded 140-byte program for installed sessions. Bare
+diagnostic construction retains the ROM-backed path so constructed title
+fixtures can still exercise the shared state machine. Verification compares
+every source byte with the pinned ROM, blocks those addresses alongside title
+sprite and compressed-graphics sources, and compares the full installed title
+through the logo/copyright scene against independent stock playback. Scene
+timing, pan/zoom transforms and OAM remain application-owned mechanics.
+
 ## Intro Mother Brain physical flashback room (2026-09-25)
 
 The fixed 224-word level-data copy at `$8C:BEC3` is now compiled as a

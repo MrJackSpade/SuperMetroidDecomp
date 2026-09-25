@@ -36,6 +36,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmMotherBrainGlassVisualCatalog? roomPlmMotherBrainGlassVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog? roomPlmNoobTubeVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
     private readonly SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog? roomBackgroundTilemaps;
@@ -114,6 +115,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmDownwardGateVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDownwardGateVisuals() : null;
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
+        roomPlmEscapeGateVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmEscapeGateVisuals() : null;
+        Game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
         roomPlmCollectibleVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCollectibleVisuals() : null;
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
@@ -225,6 +229,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmMotherBrainGlassVisuals(roomPlmMotherBrainGlassVisuals);
         Game.BindRoomPlmNoobTubeVisuals(roomPlmNoobTubeVisuals);
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
+        Game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);

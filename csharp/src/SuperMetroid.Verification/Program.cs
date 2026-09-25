@@ -2532,6 +2532,8 @@ VerifyRoomPlmInstructionListCatalog();
 VerifySequentialRoomPlmPopulationLoader();
 VerifyMotherBrainEscapeGateCompiledDefinitions(
     SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+VerifyEscapeGateVisuals(
+    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyCompiledRoomPlmPopulationDefinitions(
     SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyNoobTubePlm();

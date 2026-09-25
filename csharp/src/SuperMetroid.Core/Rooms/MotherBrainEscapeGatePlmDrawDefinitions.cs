@@ -23,6 +23,30 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        Open => "open",
+        HalfClosed => "half-closed",
+        Closed => "closed",
+        _ => throw new InvalidDataException(
+            $"Mother Brain escape-gate draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
+    }
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
         new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>

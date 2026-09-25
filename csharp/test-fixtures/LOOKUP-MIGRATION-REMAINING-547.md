@@ -45,9 +45,13 @@ The Mother Brain escape gate now has its closed, unused half-closed/open, and
 door-transition closing lists compiled from $BB34..BB51 (30 bytes). Its three
 four-block physical draw layouts at $9473..9496 are compiled separately.
 The ordinary closed-room load and redirected escape closure both run with all
-program and draw source bytes forbidden, including the fallback closer. Gate
-appearance overrides remain to be authored separately from these collision
-words.
+program and draw source bytes forbidden, including the fallback closer. All
+three gate appearances are now editable in
+`room-plm-escape-gate/escape-gate.json`. An edited closed or half-closed
+frame reaches immediate tilemap redraw and later camera streaming while the
+compiled collision words remain unchanged. Stock extraction validates the
+pinned ROM, malformed overrides fail, and a valid override survives stock
+replacement.
 
 ## N00b-tube PLM instruction control (2026-09-24)
 

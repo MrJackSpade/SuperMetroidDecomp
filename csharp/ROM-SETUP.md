@@ -472,6 +472,15 @@ change. The visible moving gate actor uses separate bank-$86 sprite art and is
 not replaced by this resource. Invalid stock or override data fails loudly;
 the override survives stock installation repair or updates.
 
+Mother Brain's escape-gate appearances are installed as
+`game/room-plm-escape-gate/escape-gate.json`. Copy that file to
+`overrides/room-plm-escape-gate/escape-gate.json`, edit only `blocks` visual
+words (0..4095), then restart. Keep all three four-block frames: `open`,
+`half-closed`, and `closed`. These words select visual blocks from the active
+room's combined CRE/area definitions; the cartridge's collision, closing
+timing, and door-transition handoff remain compiled mechanics. Malformed
+overrides fail loudly, and a valid override survives stock installation repair.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

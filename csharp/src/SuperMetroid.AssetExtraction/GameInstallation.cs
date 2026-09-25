@@ -109,6 +109,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmDownwardGateVisualCatalog LoadRoomPlmDownwardGateVisuals() =>
         RoomPlmDownwardGateVisualFiles.Load(RoomPlmDownwardGateVisualDirectory,
             RoomPlmDownwardGateVisualOverrideDirectory);
+    public string RoomPlmEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName);
+    public string RoomPlmEscapeGateVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName);
+    /// <summary>Editable escape-gate appearance; closing and collision stay compiled.</summary>
+    public RoomPlmEscapeGateVisualCatalog LoadRoomPlmEscapeGateVisuals() =>
+        RoomPlmEscapeGateVisualFiles.Load(RoomPlmEscapeGateVisualDirectory,
+            RoomPlmEscapeGateVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -169,10 +175,11 @@ public static class GameInstallationLayout
     public const string RoomPlmMotherBrainGlassVisualDirectoryName = "room-plm-mother-brain-glass";
     public const string RoomPlmNoobTubeVisualDirectoryName = "room-plm-noob-tube";
     public const string RoomPlmDownwardGateVisualDirectoryName = "room-plm-downward-gates";
+    public const string RoomPlmEscapeGateVisualDirectoryName = "room-plm-escape-gate";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 46;
+    public const int FormatVersion = 47;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

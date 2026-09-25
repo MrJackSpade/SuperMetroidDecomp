@@ -60,6 +60,7 @@ internal static partial class Program
             "out-of-range door-closing direction fails loudly");
         VerifyResidentDoorClosingDefinitions(rom);
         VerifyMotherBrainEscapeGateCompiledDefinitions(rom);
+        VerifyEscapeGateVisuals(rom);
         VerifySequentialRoomPlmPopulationLoader();
         Console.WriteLine(
             "Door-closing definitions: all twelve fallback and seventeen resident selections match.");

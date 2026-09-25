@@ -41,6 +41,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals;
     [NonSerialized] private RoomPlmNoobTubeVisualCatalog? noobTubeVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
+    [NonSerialized] private RoomPlmEscapeGateVisualCatalog? escapeGateVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
@@ -111,6 +112,13 @@ public sealed partial class RoomPlmSystem
     {
         get => downwardGateVisuals;
         set => downwardGateVisuals = value;
+    }
+
+    /// <summary>Nonserialized Mother Brain escape-gate appearance; collision stays compiled.</summary>
+    public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals
+    {
+        get => escapeGateVisuals;
+        set => escapeGateVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1817,7 +1825,7 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, escapeGate, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false, escapeGateVisuals: escapeGateVisuals);
             return;
         }
         if (RoomPlmCollectibleDrawDefinitions.TryGet(drawPointer, out var collectible))
@@ -1897,7 +1905,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmGreyDoorVisualCatalog? greyDoorVisuals = null,
         RoomPlmEyeDoorVisualCatalog? eyeDoorVisuals = null,
         RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals = null,
-        RoomPlmNoobTubeVisualCatalog? noobTubeVisuals = null)
+        RoomPlmNoobTubeVisualCatalog? noobTubeVisuals = null,
+        RoomPlmEscapeGateVisualCatalog? escapeGateVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -1925,6 +1934,7 @@ public sealed partial class RoomPlmSystem
                     ?? eyeDoorVisuals?.GetWord(definition.Pointer, offset)
                     ?? motherBrainGlassVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? noobTubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? escapeGateVisuals?.GetWord(definition.Pointer, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

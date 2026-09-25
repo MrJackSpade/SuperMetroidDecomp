@@ -67,5 +67,15 @@ public enum VramAssetId
     /// <summary>Third quarter of the installed standard BG3 sheet restored during Kraid's death.</summary>
     KraidBg3RestoreQuarter2,
     /// <summary>Fourth quarter of the installed standard BG3 sheet restored during Kraid's death.</summary>
-    KraidBg3RestoreQuarter3
+    KraidBg3RestoreQuarter3,
+    /// <summary>First editable gunship takeoff character chunk.</summary>
+    GunshipLiftoffFirstTiles,
+    /// <summary>Second editable gunship takeoff character chunk.</summary>
+    GunshipLiftoffSecondTiles,
+    /// <summary>Third editable gunship takeoff character chunk.</summary>
+    GunshipLiftoffThirdTiles,
+    /// <summary>Fourth editable gunship takeoff character chunk.</summary>
+    GunshipLiftoffFourthTiles,
+    /// <summary>Fifth editable gunship takeoff character chunk.</summary>
+    GunshipLiftoffFifthTiles
 }

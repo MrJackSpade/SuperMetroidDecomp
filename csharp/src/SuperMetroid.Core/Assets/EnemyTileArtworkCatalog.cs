@@ -17,7 +17,8 @@ public sealed class EnemyTileArtworkCatalog
         EnemySpritemapCatalog? spritemaps = null,
         EnemyExtendedFrameCatalog? extendedFrames = null,
         KraidBackgroundArtwork? kraidBackground = null,
-        KraidColorCatalog? kraidColors = null)
+        KraidColorCatalog? kraidColors = null,
+        GunshipLiftoffArtworkCatalog? gunshipLiftoff = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -30,6 +31,7 @@ public sealed class EnemyTileArtworkCatalog
         ExtendedFrames = extendedFrames;
         KraidBackground = kraidBackground;
         KraidColors = kraidColors;
+        GunshipLiftoff = gunshipLiftoff;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -46,6 +48,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Installed Kraid RGB5 artwork; null only for constructed fixtures.</summary>
     public KraidColorCatalog? KraidColors { get; }
+
+    /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
+    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
     public void LoadTo(ushort definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
@@ -71,7 +76,10 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 18;
+    public const int Version = 19;
+    /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
+    public static string GunshipLiftoffFileName(int index) =>
+        $"gunship-liftoff-{index + 1}-tiles.png";
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
     /// <summary>

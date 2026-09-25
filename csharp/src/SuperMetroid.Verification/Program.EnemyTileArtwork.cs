@@ -26,6 +26,7 @@ internal static partial class Program
             VerifyInstalledKraidColors(bus, directory, stock);
             VerifyInstalledEnemySpritemaps(bus, directory, stock);
             VerifyInstalledEnemyExtendedFrames(bus, directory, stock);
+            VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");

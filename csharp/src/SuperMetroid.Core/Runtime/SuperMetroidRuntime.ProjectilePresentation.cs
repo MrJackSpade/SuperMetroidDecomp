@@ -8,6 +8,9 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
+        if (Enemies.TileArtwork?.GunshipLiftoff?.TryResolve(
+                sourceAddress, byteCount, out data) == true)
+            return true;
         if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (RoomSkyTilemapArt is not null)
@@ -68,7 +71,14 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     }
 
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) =>
-        asset is VramAssetId.GrapplePointFirstTiles or VramAssetId.GrapplePointSecondTiles or
+        asset is VramAssetId.GunshipLiftoffFirstTiles or
+            VramAssetId.GunshipLiftoffSecondTiles or
+            VramAssetId.GunshipLiftoffThirdTiles or
+            VramAssetId.GunshipLiftoffFourthTiles or
+            VramAssetId.GunshipLiftoffFifthTiles
+            ? (Enemies.TileArtwork?.GunshipLiftoff ??
+                throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
+            : asset is VramAssetId.GrapplePointFirstTiles or VramAssetId.GrapplePointSecondTiles or
             VramAssetId.GrapplePointThirdTiles or VramAssetId.GrapplePointFourthTiles or
             VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles or VramAssetId.GrappleVerticalSegmentTiles
             ? (grappleArtwork ?? throw new InvalidOperationException("Grapple artwork is not bound.")).Resolve(asset)

@@ -234,6 +234,11 @@ Existing version-four through version-thirteen overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
 content and new visual bindings default to the stock identity selections. Save a
 current version-fourteen copy to edit Magdollite frames or display bindings.
+The five `gunship-liftoff-N-tiles.png` files in `game/enemy-tiles/` contain the
+gunship's takeoff character uploads. Copy an individual PNG to
+`overrides/enemy-tiles/` to replace its indexed 4-bpp pixels. The five upload
+times and VRAM destinations stay fixed; edits are resolved when each queued
+upload reaches NMI, including after restoring an older pending debugger state.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
 `overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains

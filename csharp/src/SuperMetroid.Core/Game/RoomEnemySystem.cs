@@ -2464,19 +2464,19 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Gunship takeoff requires the runtime VRAM queue.");
 
         int transferIndex = top.VariableB;
-        if ((uint)transferIndex >= 5)
+        if ((uint)transferIndex >= GunshipLiftoffTransferDefinitions.Frames.Length)
             throw new InvalidDataException("Gunship takeoff tile index escaped its five-entry table.");
-        ushort source = ReadWord(
-            _bus!, EnemyRomTablePointers.Gunship.LiftoffGraphicsSourceWords + transferIndex * 2);
-        ushort destination = ReadWord(
-            _bus!, EnemyRomTablePointers.Gunship.LiftoffVramDestinationWords + transferIndex * 2);
-        vramWriteQueue.Enqueue(
-            sizeInBytes: 0x0400,
-            sourceAddress: 0x940000 | source,
-            encodedVramDestination: destination);
+        GunshipLiftoffTransferDefinition transfer =
+            GunshipLiftoffTransferDefinitions.Frames[transferIndex];
+        if (TileArtwork?.GunshipLiftoff is not null)
+            vramWriteQueue.EnqueueAsset(transfer.Asset,
+                GunshipLiftoffTransferDefinitions.ByteCount, transfer.DestinationWord);
+        else
+            vramWriteQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
+                transfer.SourceAddress, transfer.DestinationWord);
 
         top.VariableB++;
-        if (top.VariableB >= 5)
+        if (top.VariableB >= GunshipLiftoffTransferDefinitions.Frames.Length)
         {
             top.VariableF = GunshipCodePointers.FireUpEngines;
             top.VariableB = 0;

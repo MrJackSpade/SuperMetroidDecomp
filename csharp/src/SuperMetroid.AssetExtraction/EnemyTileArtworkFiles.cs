@@ -116,6 +116,30 @@ public static class EnemyTileArtworkFiles
         byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
+        var gunshipLiftoffHashes = new Dictionary<int, string>();
+        for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
+        {
+            GunshipLiftoffTransferDefinition transfer =
+                GunshipLiftoffTransferDefinitions.Frames[index];
+            var planar = new byte[GunshipLiftoffTransferDefinitions.ByteCount];
+            for (int offset = 0; offset < planar.Length; offset++)
+                planar[offset] = bus.ReadByte(transfer.SourceAddress + offset);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
+                RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+            using var image = new MemoryStream();
+            IndexedPng.Write(image, width, height, pixels,
+                SnesGraphics.DiagnosticPalette(16));
+            byte[] png = image.ToArray();
+            RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+                new MemoryStream(png, writable: false), planar.Length);
+            if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+                throw new InvalidDataException(
+                    $"Gunship takeoff frame {index} changed native pixels during extraction.");
+            File.WriteAllBytes(Path.Combine(directory,
+                EnemyTileArtworkFormat.GunshipLiftoffFileName(index)), png);
+            gunshipLiftoffHashes.Add(index,
+                Convert.ToHexString(SHA256.HashData(png)));
+        }
         byte[] upperKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.UpperTilemap);
         byte[] lowerKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.LowerTilemap);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
@@ -149,6 +173,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(secondMeltTilemap)),
             Convert.ToHexString(SHA256.HashData(spritemapJson)),
             Convert.ToHexString(SHA256.HashData(extendedJson)),
+            gunshipLiftoffHashes,
             Convert.ToHexString(SHA256.HashData(upperKraid)),
             Convert.ToHexString(SHA256.HashData(lowerKraid)),
             kraidHeadHashes,
@@ -184,6 +209,9 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
+            manifest.GunshipLiftoffSha256 is null ||
+            manifest.GunshipLiftoffSha256.Count !=
+                GunshipLiftoffTransferDefinitions.Frames.Length ||
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
             manifest.KraidHeadsSha256 is null ||
@@ -320,6 +348,29 @@ public static class EnemyTileArtworkFiles
                 $"Invalid extended enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        var gunshipFrames = new RoomCharacterAtlas[
+            GunshipLiftoffTransferDefinitions.Frames.Length];
+        for (int index = 0; index < gunshipFrames.Length; index++)
+        {
+            if (!manifest.GunshipLiftoffSha256.TryGetValue(index,
+                    out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
+                throw new InvalidDataException(
+                    $"Enemy tile manifest omits gunship takeoff frame {index}.");
+            string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(index);
+            byte[] selected = ReadStockOrOverride(fileName, expectedHash);
+            try
+            {
+                gunshipFrames[index] = RoomCharacterAtlas.Load(
+                    new MemoryStream(selected, writable: false),
+                    GunshipLiftoffTransferDefinitions.ByteCount);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid gunship takeoff PNG {fileName}: {error.Message}", error);
+            }
+        }
+        var gunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunshipFrames);
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
             KraidBackgroundArtworkFormat.UpperFileName, manifest.KraidUpperSha256);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
@@ -369,7 +420,7 @@ public static class EnemyTileArtworkFiles
         }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
-                kraidHeads, roomBackground), kraidColors);
+                kraidHeads, roomBackground), kraidColors, gunshipLiftoff);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -543,6 +594,7 @@ public static class EnemyTileArtworkFiles
         string CrocomireFirstSha256, string CrocomireSecondSha256,
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
         string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256,
+        Dictionary<int, string> GunshipLiftoffSha256,
         string KraidUpperSha256, string KraidLowerSha256,
         Dictionary<ushort, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,

@@ -931,6 +931,11 @@ if (args is ["--spore-spawn-ceiling-visuals"])
     VerifySporeSpawnCeilingVisuals();
     return 0;
 }
+if (args is ["--botwoon-wall-plms"])
+{
+    VerifyCompiledBotwoonWallPlms();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2564,6 +2569,7 @@ VerifyTourianAccessVisuals();
 VerifySpeedBoosterVisuals();
 VerifyMaridiaElevatubeVisuals();
 VerifyCompiledSporeSpawnCeilingPlms();
+VerifyCompiledBotwoonWallPlms();
 VerifySporeSpawnCeilingVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();

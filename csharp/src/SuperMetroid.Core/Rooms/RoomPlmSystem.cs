@@ -1847,6 +1847,14 @@ public sealed partial class RoomPlmSystem
                 sporeSpawnCeilingVisuals: sporeSpawnCeilingVisuals);
             return;
         }
+        if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, BotwoonWallPlmDrawDefinitions.Clear,
+                originX, originY, layer1XPosition, layer1YPosition,
+                bg1XOffset, useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
         {
             DrawCompiledBlockInstruction(
@@ -2182,6 +2190,8 @@ public sealed partial class RoomPlmSystem
             ? value
             : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
+            : BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+            ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
@@ -2226,6 +2236,8 @@ public sealed partial class RoomPlmSystem
         TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
             ? value
             : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+            ? value
+            : BotwoonWallPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
             ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value)
             ? value

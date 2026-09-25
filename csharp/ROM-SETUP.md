@@ -191,6 +191,9 @@ Twelve ending/credits character streams are installed under `game/ending-objects
 `post-credits-shooting.png`, and `post-credits-suitless-samus.png`. The waiting
 sheet also supplies the two suited reward variants. The waiting scene's ordered
 BG2 tile references are `credits-waiting-tilemap.json` in the same directory.
+`ending-cloud-sprites.json` contains the six editable atmospheric-cloud OAM
+compositions, including part offsets, tile references, flips, priority, and
+optional palette overrides. Cloud motion and one-frame animation loops remain code.
 Two small cartridge tile uploads, `post-credits-tile-fragment-a.png` and
 `post-credits-tile-fragment-b.png`, are also installed as indexed PNGs. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2
@@ -200,7 +203,7 @@ are fixed game logic. Copy any indexed PNG or either JSON file to
 same filename to replace it without changing scene mechanics.
 The planet-explosion upload still overlays the four fragments after its main sheet,
 then restores the already-installed ending font over the overlapping font region.
-Sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
+Other sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
 
 Five ending color images are installed as native-precision RGB5 JSON under
 `game/ending-palettes/`: escape, explosion, credits, post-credits, and the final

@@ -59,6 +59,25 @@ public static class EndingObjectArtworkFiles
             EndingPostShotDefinitions.LogoMap,
             EndingObjectArtworkFormat.PostShotLogoMapByteCount);
 
+        var cloudFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (EndingCloudSpriteFrameDefinition definition in EndingCloudSpriteDefinitions.Frames)
+            cloudFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+        using (var sprites = new MemoryStream())
+        {
+            EndingCloudSpritePresentation.Write(sprites, new EndingCloudSpriteDocument
+            {
+                Version = EndingCloudSpriteFormat.Version,
+                Frames = cloudFrames,
+            });
+            byte[] file = sprites.ToArray();
+            string name = EndingCloudSpriteFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name),
+                       FileMode.CreateNew, FileAccess.Write))
+                output.Write(file);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+        }
+
         using var manifest = new FileStream(Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
             FileAccess.Write);
@@ -137,6 +156,7 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
             EndingObjectArtworkFormat.PostShotLogoTileFileName,
             EndingObjectArtworkFormat.PostShotLogoMapFileName,
+            EndingCloudSpriteFormat.FileName,
         ];
         if (manifest.Version != EndingObjectArtworkFormat.ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -169,7 +189,34 @@ public static class EndingObjectArtworkFiles
             LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName,
                 EndingObjectArtworkFormat.PostShotLogoTileByteCount),
             LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
-                EndingObjectArtworkFormat.PostShotLogoMapByteCount));
+                EndingObjectArtworkFormat.PostShotLogoMapByteCount),
+            LoadCloudSprites());
+
+        EndingCloudSpritePresentation LoadCloudSprites()
+        {
+            string name = EndingCloudSpriteFormat.FileName;
+            string stockPath = Path.Combine(stockDirectory, name);
+            byte[] stock = File.ReadAllBytes(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
+                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(
+                    $"Stock ending cloud sprites {stockPath} failed its manifest hash.");
+            string? overridePath = overrideDirectory is null ? null :
+                Path.Combine(overrideDirectory, name);
+            string selectedPath = overridePath is not null && File.Exists(overridePath)
+                ? overridePath : stockPath;
+            try
+            {
+                return EndingCloudSpritePresentation.Load(new MemoryStream(
+                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid ending cloud sprites {selectedPath}: {error.Message}", error);
+            }
+        }
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
         {

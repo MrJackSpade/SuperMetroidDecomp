@@ -11,7 +11,8 @@ public enum EndingObjectFragmentId
 
 /// <summary>
 /// Editable character sheets and the waiting-scene BG2 map for the ending and credits.
-/// Actor instructions, OAM composition, palette selection and timing remain code.
+/// Actor instructions, palette selection and timing remain code; atmospheric
+/// cloud OAM compositions are a separate editable presentation resource.
 /// </summary>
 public sealed class EndingObjectArtworkCatalog
 {
@@ -22,7 +23,8 @@ public sealed class EndingObjectArtworkCatalog
         RoomCharacterAtlas waitingSamus, RoomCharacterAtlas shootingScreen,
         RoomCharacterAtlas suitlessSamus, RoomBackgroundTilemapAtlas waitingTilemap,
         RoomCharacterAtlas postCreditsFragmentA, RoomCharacterAtlas postCreditsFragmentB,
-        RoomCharacterAtlas postShotLogoTiles, RoomBackgroundTilemapAtlas postShotLogoMap)
+        RoomCharacterAtlas postShotLogoTiles, RoomBackgroundTilemapAtlas postShotLogoMap,
+        EndingCloudSpritePresentation cloudSprites)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
@@ -34,6 +36,7 @@ public sealed class EndingObjectArtworkCatalog
         PostCreditsFragmentB = postCreditsFragmentB ?? throw new ArgumentNullException(nameof(postCreditsFragmentB));
         PostShotLogoTiles = postShotLogoTiles ?? throw new ArgumentNullException(nameof(postShotLogoTiles));
         PostShotLogoMap = postShotLogoMap ?? throw new ArgumentNullException(nameof(postShotLogoMap));
+        CloudSprites = cloudSprites ?? throw new ArgumentNullException(nameof(cloudSprites));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
@@ -53,6 +56,8 @@ public sealed class EndingObjectArtworkCatalog
     }
 
     public RoomCharacterAtlas Clouds { get; }
+    /// <summary>Six editable atmospheric-cloud OAM compositions.</summary>
+    public EndingCloudSpritePresentation CloudSprites { get; }
     public RoomCharacterAtlas Explosion { get; }
     /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
     public RoomCharacterAtlas WaitingSamus { get; }
@@ -79,7 +84,7 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 5;
+    public const int ManifestVersion = 6;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";

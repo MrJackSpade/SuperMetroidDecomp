@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -60,6 +61,59 @@ internal static partial class Program
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
             "installed post-shot logo map preserves all native BG2 tile words");
 
+        for (int pointer = EndingCloudInstructionDefinitions.Start;
+             pointer < EndingCloudInstructionDefinitions.End; pointer += sizeof(ushort))
+        {
+            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
+            ushort nativeWord = (ushort)(bus.ReadByte(address) |
+                bus.ReadByte(address + 1) << 8);
+            AssertEqual(nativeWord, EndingCloudInstructionDefinitions.ReadWord((ushort)pointer),
+                $"ending cloud instruction $8B:{pointer:X4} matches cartridge");
+        }
+        AssertThrows<InvalidDataException>(() =>
+            EndingCloudInstructionDefinitions.ReadWord(
+                EndingCloudInstructionDefinitions.End),
+            "ending cloud reader cannot escape its six lists");
+        for (int index = 0; index < EndingCloudSpriteDefinitions.Frames.Length; index++)
+        {
+            ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
+            var nativeActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
+            var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
+            for (int frame = 0; frame < 120; frame++)
+            {
+                nativeActor.Step(bus);
+                installedActor.Step(bus, instructionWord: EndingCloudInstructionDefinitions.ReadWord);
+                AssertEqual(nativeActor.InstructionPointer, installedActor.InstructionPointer,
+                    $"ending cloud {index} list cursor at frame {frame}");
+                AssertEqual(nativeActor.SpriteMapPointer, installedActor.SpriteMapPointer,
+                    $"ending cloud {index} selected visual frame at frame {frame}");
+            }
+            EndingCloudSpriteFrameDefinition definition = EndingCloudSpriteDefinitions.Frames[index];
+            foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
+            {
+                bool onScreen =
+                    (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
+                int source = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, definition.Pointer);
+                var nativeOam = new OamBuffer();
+                nativeOam.BeginFrame();
+                if (onScreen)
+                    nativeOam.AddOnScreenSpritemap(bus, source, 120, y, 0x0800);
+                else
+                    nativeOam.AddOffScreenSpritemap(bus, source, 120, y, 0x0800);
+                nativeOam.FinalizeFrame();
+                var installedOam = new OamBuffer();
+                installedOam.BeginFrame();
+                stock.CloudSprites.Draw(definition.Pointer, installedOam,
+                    120, y, 0x0800, onScreen);
+                installedOam.FinalizeFrame();
+                AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
+                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                        nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
+                    $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM");
+            }
+        }
+
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
@@ -97,7 +151,64 @@ internal static partial class Program
                 phases.Contains(EndingCreditsPhase.FadeInZebesExplosion),
             "ending clouds and explosion assets were loaded in their actual scenes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed ending OBJ scenes never reread their six visual cartridge sources");
+            "installed ending OBJ scenes never reread cloud instructions, sprite maps or character sources");
+
+        string cloudSpriteName = EndingCloudSpriteFormat.FileName;
+        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
+        string cloudSpritePath = Path.Combine(installation.EndingObjectDirectory, cloudSpriteName);
+        string cloudSpriteOverride = Path.Combine(
+            installation.EndingObjectOverrideDirectory, cloudSpriteName);
+        EndingCloudSpriteDocument cloudDocument =
+            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
+                File.ReadAllBytes(cloudSpritePath), MapPresentationFormat.JsonOptions) ??
+            throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
+        cloudDocument.Frames["scene-a-right"] = cloudDocument.Frames["scene-a-right"]
+            .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();
+        using (var output = File.Create(cloudSpriteOverride))
+            EndingCloudSpritePresentation.Write(output, cloudDocument);
+        byte[] editedCloudSpriteBytes = File.ReadAllBytes(cloudSpriteOverride);
+        EndingObjectArtworkCatalog editedCloudSprites = installation.LoadEndingObjectArt();
+        var cloudAudio = new CartridgeAudioState();
+        var cloudScene = new EndingCreditsState(guard, cloudAudio, 0, 0);
+        cloudScene.BindObjectArtwork(stock);
+        for (int frame = 0; frame < 2000 &&
+            cloudScene.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
+        {
+            cloudScene.Step();
+            cloudAudio.AdvanceFrame(guard, default);
+        }
+        AssertEqual(EndingCreditsPhase.EscapeSceneA, cloudScene.Phase,
+            "ending cloud edit reaches visible first atmospheric scene");
+        bool visibleCloudEdit = false;
+        for (int frame = 0; frame < 700 &&
+            cloudScene.Phase < EndingCreditsPhase.FadeInEscapeSceneB &&
+            !visibleCloudEdit; frame++)
+        {
+            cloudScene.BindObjectArtwork(stock);
+            LayeredRenderSnapshot beforeCloudEdit = cloudScene.CaptureRenderSnapshot();
+            cloudScene.BindObjectArtwork(editedCloudSprites);
+            LayeredRenderSnapshot afterCloudEdit = cloudScene.CaptureRenderSnapshot();
+            visibleCloudEdit = !beforeCloudEdit.Memory.Oam.SequenceEqual(
+                    afterCloudEdit.Memory.Oam) &&
+                !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).AsSpan().SequenceEqual(
+                    SoftwareLayeredSnapshotRenderer.Render(afterCloudEdit));
+            if (!visibleCloudEdit)
+            {
+                cloudScene.Step();
+                cloudAudio.AdvanceFrame(guard, default);
+            }
+        }
+        AssertTrue(visibleCloudEdit,
+            "edited cloud composition changes live OAM and visible ending pixels");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "cloud art rebind never rereads installed bank-$8C sprite maps");
+        cloudDocument.Frames.Remove("scene-a-right");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var invalid = new MemoryStream();
+            EndingCloudSpritePresentation.Write(invalid, cloudDocument);
+        }, "ending cloud sprites reject missing named art");
+        File.Delete(cloudSpriteOverride);
 
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         string[] names =
@@ -203,17 +314,33 @@ internal static partial class Program
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,
             EndingObjectArtworkFormat.ExplosionFileName);
         File.WriteAllBytes(stockExplosion, [0]);
+        File.WriteAllBytes(cloudSpriteOverride, editedCloudSpriteBytes);
+        File.WriteAllBytes(cloudSpritePath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingObjectArt(),
-            "valid ending OBJ override cannot hide a corrupt stock explosion PNG");
+            "valid ending OBJ overrides cannot hide corrupt stock art or sprite JSON");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ending OBJ content vanished during stock repair.");
         AssertTrue(repaired.LoadEndingObjectArt().Clouds.Transfer.Span.SequenceEqual(editedClouds) &&
                 repaired.LoadEndingObjectArt().Explosion.Transfer.Span.SequenceEqual(
                     stock.Explosion.Transfer.Span),
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
+        var preservedCloudOam = new OamBuffer();
+        preservedCloudOam.BeginFrame();
+        repaired.LoadEndingObjectArt().CloudSprites.Draw(0xb83b, preservedCloudOam,
+            120, 72, 0x0800, originIsOnScreen: true);
+        preservedCloudOam.FinalizeFrame();
+        var editedCloudOam = new OamBuffer();
+        editedCloudOam.BeginFrame();
+        editedCloudSprites.CloudSprites.Draw(0xb83b, editedCloudOam,
+            120, 72, 0x0800, originIsOnScreen: true);
+        editedCloudOam.FinalizeFrame();
+        AssertTrue(preservedCloudOam.LowTable.SequenceEqual(editedCloudOam.LowTable) &&
+                preservedCloudOam.HighTable.SequenceEqual(editedCloudOam.HighTable),
+            "ending cloud sprite override survives stock repair with edited OAM");
         File.Delete(invalidPath);
+        File.Delete(cloudSpriteOverride);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending/credits art: twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: six compiled cloud loops, six editable cloud OAM frames, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -230,6 +357,26 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address >= (int)new SnesAddress(0x8b,
+                    EndingCloudInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b,
+                    EndingCloudInstructionDefinitions.End))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending cloud reread compiled instruction ${address:X6}.");
+            }
+            foreach (EndingCloudSpriteFrameDefinition frame in EndingCloudSpriteDefinitions.Frames)
+            {
+                int start = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Ending cloud reread installed spritemap ${address:X6}.");
+                }
+            }
             if (address is EndingCreditsRomData.Assets.EscapeCloudCharacters or
                 EndingCreditsRomData.Assets.EndingObjectCharacters or
                 EndingCreditsRomData.Assets.EndingObjectCharacters70 or

@@ -144,7 +144,11 @@ internal sealed partial class EndingCreditsState
         var oam = new OamBuffer();
         oam.BeginFrame();
         foreach (EndingSprite wrapper in sprites.OrderByDescending(actor => actor.NativeSlot))
-            wrapper.Sprite.Draw(bus, oam);
+        {
+            bool cloud = wrapper.Role <= EndingSpriteRole.CloudBottomB;
+            wrapper.Sprite.Draw(bus, oam, installedArt: cloud
+                ? objectArtwork?.CloudSprites : null);
+        }
         oam.FinalizeFrame();
         return oam;
     }

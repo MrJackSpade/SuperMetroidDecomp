@@ -802,7 +802,8 @@ internal sealed partial class EndingCreditsState
         {
             IntroDiscoverySprite sprite = wrapper.Sprite;
             EndingCloudMotion.Step(wrapper, mode7Zoom);
-            sprite.Step(bus);
+            sprite.Step(bus, instructionWord: objectArtwork is null
+                ? null : EndingCloudInstructionDefinitions.ReadWord);
         }
     }
 

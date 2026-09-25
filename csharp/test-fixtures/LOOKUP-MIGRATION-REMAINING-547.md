@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Atmospheric ending cloud actor lists (2026-09-25)
+
+The six eight-byte bank-$8B cloud loops at `$ECED..ED1C` are compiled as a
+bounded one-frame/goto rule with six distinct cartridge frame identities. A
+cartridge-backed test compares all 24 source words, then runs each actor for
+120 handler calls against the independent ROM interpreter. Their six bank-$8C
+OAM compositions are separately installed as `ending-cloud-sprites.json`.
+Stock OAM matches at normal and negative origins; the installed ending crosses
+both atmospheric views without reading the list or spritemap source ranges.
+A one-part edit changes live OAM and rendered pixels, rebinds mid-scene, fails
+loudly when malformed, and survives stock-file repair. Other ending actor
+families remain to be migrated.
+
 ## Ceres destruction and Zebes-reveal actor instruction lists (2026-09-25)
 
 All thirteen live initial, explosion, planet, star-sheet, and title actor lists

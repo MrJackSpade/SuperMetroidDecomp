@@ -7,7 +7,9 @@ internal static partial class Program
 {
     private static void VerifyLowerNorfairHand()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var source = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        var bus = new ChozoProgramAndDrawReadGuard(source);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
         var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
             new RoomPlmChozoStatueVisualEntry(
@@ -108,6 +110,8 @@ internal static partial class Program
             reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 0x1d * reentered.WidthInBlocks + 0x0c, 0).TopRow[0],
             "event-completed hand re-entry streams the installed visual override");
+        AssertEqual(0, bus.ForbiddenReadAttempts,
+            "complete Lower Norfair hand sequence did not reread compiled PLM data");
         Console.WriteLine($"Lower Norfair hand: collision/admission, live FX writes, {displayedHeights.Count} displayed drain heights, control release and re-entry pass.");
     }
 }

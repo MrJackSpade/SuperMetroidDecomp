@@ -2112,6 +2112,10 @@ public sealed partial class RoomPlmSystem
                 ? value
             : BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
+            : RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
             : ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
@@ -2144,6 +2148,10 @@ public sealed partial class RoomPlmSystem
             : DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value

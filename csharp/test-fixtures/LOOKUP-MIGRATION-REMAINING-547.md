@@ -52,9 +52,15 @@ hand and Wrecked Ship's clear/block slope access) now have compiled physical
 words and editable visual blocks in
 `room-plm-chozo-statues/chozo-statues.json`. Extraction checks every run,
 word, and signed offset against the pinned ROM. The crumble plug's four frames
-are already covered by the shared compiled shot-block visual resource. Chozo
-instruction programs and other room-object draw families still need separate
-ROM-free migration work.
+are already covered by the shared compiled shot-block visual resource. Other
+room-object draw families still need separate ROM-free migration work.
+
+The four bounded Chozo statue PLM instruction-list ranges now have compiled
+mechanics bytes, as does the shared two-byte delete list used by the Wrecked
+Ship hand. Tests compare every byte/word to the pinned ROM and forbid those
+program reads during live slope, crumble, hand-delete, and Lower Norfair
+acid-lowering paths. Adjacent native callback and setup machine code is not
+misclassified as instruction data.
 
 The six previously compiled linked bomb/contact-crumble restoration layouts
 now expose visual block choices in

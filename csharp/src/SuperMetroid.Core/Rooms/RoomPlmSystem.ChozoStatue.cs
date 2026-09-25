@@ -103,7 +103,7 @@ public sealed partial class RoomPlmSystem
         {
             case RoomPlmInstructionCodes.GotoIfEventSet when
                 slot.HeaderPointer == ChozoStatuePlmRomData.LowerNorfairHand:
-                ushort eventNumber = ReadBank84Word(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
+                ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 if (eventNumber != (ushort)EventNumber.LowerNorfairChozoLoweredAcid)
                     throw new InvalidDataException($"Lower Norfair hand referenced unexpected event ${eventNumber:X4}.");
                 // The same list initializes the intact hand or restores drained acid on
@@ -111,7 +111,7 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = (_coloredDoorSystem ??
                     throw new InvalidOperationException("Chozo hand has no progression owner."))
                     .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)
-                    ? ReadBank84Word(bus, unchecked((ushort)(slot.InstructionPointer + 4)))
+                    ? ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 4)))
                     : unchecked((ushort)(slot.InstructionPointer + 6));
                 return true;
             case ChozoStatuePlmRomData.TransformSpikesToSlopes:

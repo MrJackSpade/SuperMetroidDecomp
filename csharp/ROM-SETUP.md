@@ -507,6 +507,9 @@ Lower Norfair hand and the two Wrecked Ship slope-access states. These edits
 cannot change draw geometry, slope collision, or the statue's event/acid
 behavior. The crumble plug continues to use the shared shot-block frames.
 Invalid overrides fail; valid ones survive stock installation repair.
+The Chozo crumble, hand, and slope-access PLM instruction lists are also
+compiled as bounded mechanics data, while the native statue callbacks remain
+separate executable behavior.
 
 Linked bomb-block and Samus-contact crumble-block restoration appearances
 are installed as `game/room-plm-linked-restores/linked-restores.json`.

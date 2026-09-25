@@ -50,6 +50,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals;
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals;
+    [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
@@ -181,6 +182,12 @@ public sealed partial class RoomPlmSystem
     {
         get => sporeSpawnCeilingVisuals;
         set => sporeSpawnCeilingVisuals = value;
+    }
+
+    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals
+    {
+        get => botwoonWallVisuals;
+        set => botwoonWallVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1852,7 +1859,8 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, BotwoonWallPlmDrawDefinitions.Clear,
                 originX, originY, layer1XPosition, layer1YPosition,
-                bg1XOffset, useShotBlockVisuals: false);
+                bg1XOffset, useShotBlockVisuals: false,
+                botwoonWallVisuals: botwoonWallVisuals);
             return;
         }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
@@ -2059,7 +2067,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals = null,
         RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals = null,
         RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
-        RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null)
+        RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
+        RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -2096,6 +2105,7 @@ public sealed partial class RoomPlmSystem
                     ?? speedBoosterVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? maridiaElevatubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

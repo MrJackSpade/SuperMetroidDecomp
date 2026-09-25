@@ -107,6 +107,7 @@ public static class GameAssetInstaller
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(installation.RoomPlmSpeedBoosterVisualDirectory);
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(installation.RoomPlmMaridiaElevatubeVisualDirectory);
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(installation.RoomPlmSporeSpawnCeilingVisualDirectory);
+            RoomPlmBotwoonWallVisualFiles.ValidateStock(installation.RoomPlmBotwoonWallVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -337,6 +338,13 @@ public static class GameAssetInstaller
             RoomPlmSporeSpawnCeilingVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 sporeCeilingVisuals, SupportedCartridge.Sha256);
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(sporeCeilingVisuals);
+            progress?.Report("Extracting Botwoon wall visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string botwoonWallVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
+            RoomPlmBotwoonWallVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                botwoonWallVisuals, SupportedCartridge.Sha256);
+            RoomPlmBotwoonWallVisualFiles.ValidateStock(botwoonWallVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

@@ -284,6 +284,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
         roomPlmSporeSpawnCeilingVisuals = installation?.LoadRoomPlmSporeSpawnCeilingVisuals();
         game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
+        roomPlmBotwoonWallVisuals = installation?.LoadRoomPlmBotwoonWallVisuals();
+        game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
         roomPlmCollectibleVisuals = installation?.LoadRoomPlmCollectibleVisuals();
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         roomPlmDynamicCollectibleArt = installation?.LoadRoomPlmDynamicCollectibleArt();
@@ -421,6 +423,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
         game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
         game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
+        game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         game.BindXrayRevealVisuals(xrayRevealVisuals);

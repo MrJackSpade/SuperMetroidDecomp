@@ -163,6 +163,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmSporeSpawnCeilingVisualCatalog LoadRoomPlmSporeSpawnCeilingVisuals() =>
         RoomPlmSporeSpawnCeilingVisualFiles.Load(RoomPlmSporeSpawnCeilingVisualDirectory,
             RoomPlmSporeSpawnCeilingVisualOverrideDirectory);
+    public string RoomPlmBotwoonWallVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
+    public string RoomPlmBotwoonWallVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
+    /// <summary>Editable Botwoon wall-clear tiles; collision and crumble timing stay compiled.</summary>
+    public RoomPlmBotwoonWallVisualCatalog LoadRoomPlmBotwoonWallVisuals() =>
+        RoomPlmBotwoonWallVisualFiles.Load(RoomPlmBotwoonWallVisualDirectory,
+            RoomPlmBotwoonWallVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -240,11 +246,12 @@ public static class GameInstallationLayout
     public const string RoomPlmSpeedBoosterVisualDirectoryName = "room-plm-speed-booster";
     public const string RoomPlmMaridiaElevatubeVisualDirectoryName = "room-plm-maridia-elevatube";
     public const string RoomPlmSporeSpawnCeilingVisualDirectoryName = "room-plm-spore-spawn-ceiling";
+    public const string RoomPlmBotwoonWallVisualDirectoryName = "room-plm-botwoon-wall";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 56;
+    public const int FormatVersion = 57;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

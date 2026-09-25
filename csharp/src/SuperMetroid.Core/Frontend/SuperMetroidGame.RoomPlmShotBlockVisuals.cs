@@ -23,6 +23,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
+    [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -160,6 +161,14 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmSporeSpawnCeilingVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmSporeSpawnCeilingVisuals = catalog;
+    }
+
+    /// <summary>Binds Botwoon wall-clear art after startup or state restoration.</summary>
+    public void BindRoomPlmBotwoonWallVisuals(
+        RoomPlmBotwoonWallVisualCatalog? catalog)
+    {
+        roomPlmBotwoonWallVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmBotwoonWallVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

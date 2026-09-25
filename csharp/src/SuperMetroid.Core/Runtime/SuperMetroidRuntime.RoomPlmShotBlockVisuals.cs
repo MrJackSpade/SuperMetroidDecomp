@@ -134,6 +134,12 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.SporeSpawnCeilingVisuals = value;
     }
 
+    public RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals
+    {
+        get => Plms.BotwoonWallVisuals;
+        set => Plms.BotwoonWallVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

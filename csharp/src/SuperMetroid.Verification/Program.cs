@@ -936,6 +936,11 @@ if (args is ["--botwoon-wall-plms"])
     VerifyCompiledBotwoonWallPlms();
     return 0;
 }
+if (args is ["--botwoon-wall-visuals"])
+{
+    VerifyBotwoonWallVisuals();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2570,6 +2575,7 @@ VerifySpeedBoosterVisuals();
 VerifyMaridiaElevatubeVisuals();
 VerifyCompiledSporeSpawnCeilingPlms();
 VerifyCompiledBotwoonWallPlms();
+VerifyBotwoonWallVisuals();
 VerifySporeSpawnCeilingVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();

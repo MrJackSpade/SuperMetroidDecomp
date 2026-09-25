@@ -13,4 +13,12 @@ internal static class BotwoonWallPlmDrawDefinitions
         {
             new(0x8009, Enumerable.Repeat((ushort)0x00ff, 9).ToArray(), 0, 0),
         });
+
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
+        [Clear];
+
+    internal static string VisualId(ushort pointer) => pointer == ClearPointer
+        ? "clear-wall"
+        : throw new InvalidDataException(
+            $"Botwoon wall draw ${pointer:X4} has no visual ID.");
 }

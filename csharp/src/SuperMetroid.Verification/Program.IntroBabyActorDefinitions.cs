@@ -1,12 +1,30 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using System.Reflection;
 
 internal static partial class Program
 {
     private static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        foreach ((int start, int end) in new[]
+        {
+            (IntroBabyDiscoveryInstructionDefinitions.EggStart,
+                IntroBabyDiscoveryInstructionDefinitions.EggEnd),
+            (IntroBabyDiscoveryInstructionDefinitions.BabyStart,
+                IntroBabyDiscoveryInstructionDefinitions.BabyEnd),
+            (IntroBabyDiscoveryInstructionDefinitions.DeletePointer,
+                IntroBabyDiscoveryInstructionDefinitions.DeletePointer + 2),
+        })
+            for (int pointer = start; pointer < end; pointer++)
+                AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
+                    IntroBabyDiscoveryInstructionDefinitions.ReadByte((ushort)pointer),
+                    $"SR388 egg/baby instruction byte $8B:{pointer:X4}");
+        AssertThrows<InvalidDataException>(
+            () => IntroBabyDiscoveryInstructionDefinitions.ReadWord(
+                IntroBabyDiscoveryInstructionDefinitions.EggEnd),
+            "SR388 discovery reader rejects scientist-scene lists");
         IntroBabyActorDefinition[] actors =
         [
             IntroBabyActorDefinitions.Egg,
@@ -41,6 +59,9 @@ internal static partial class Program
         AssertTrue(IntroBabyDiscoveryCollisionDefinitions.SourceBytes.SequenceEqual(nativeCollision),
             "SR388 discovery physical level matches every cartridge source byte");
         var discovery = new IntroBabyDiscoveryState(guarded);
+        var referenceBus = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        var reference = new IntroBabyDiscoveryState(referenceBus);
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {
             ushort expected = block * sizeof(ushort) < nativeCollision.Length
@@ -50,9 +71,47 @@ internal static partial class Program
                 $"SR388 discovery physical block {block} preserves native word");
         }
         discovery.Samus.XPosition = 0x00a8;
-        discovery.Step(nmiFrameCounter: 0, introCrossfadeTimer: 0x007f);
-        AssertTrue(discovery.EggHatchingStarted,
-            "intro egg production pre-instruction starts hatching below native X threshold");
+        reference.Samus.XPosition = 0x00a8;
+        BindingFlags actorFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var egg = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
+            .GetField("egg", actorFlags)!.GetValue(discovery)!;
+        var baby = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
+            .GetField("confusedBaby", actorFlags)!.GetValue(discovery)!;
+        var nativeEgg = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
+            .GetField("egg", actorFlags)!.GetValue(reference)!;
+        var nativeBaby = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
+            .GetField("confusedBaby", actorFlags)!.GetValue(reference)!;
+        int pageThreeFrame = -1;
+        for (int frame = 0; frame < 1024; frame++)
+        {
+            discovery.Step((ushort)frame, introCrossfadeTimer: 0x007f);
+            reference.Step((ushort)frame, introCrossfadeTimer: 0x007f);
+            AssertEqual(reference.EggHatchingStarted, discovery.EggHatchingStarted,
+                $"SR388 egg hatch transition at frame {frame} matches ROM-backed actor");
+            AssertEqual(reference.PageThreeRequested, discovery.PageThreeRequested,
+                $"SR388 page-three request at frame {frame} matches ROM-backed actor");
+            AssertEqual(reference.ActiveEggParticleCount, discovery.ActiveEggParticleCount,
+                $"SR388 egg particle count at frame {frame} matches ROM-backed actor");
+            AssertEqual(nativeEgg.SpriteMapPointer, egg.SpriteMapPointer,
+                $"SR388 egg visual frame {frame} matches ROM-backed instruction playback");
+            AssertEqual(nativeBaby.SpriteMapPointer, baby.SpriteMapPointer,
+                $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
+            AssertEqual(nativeBaby.YPosition, baby.YPosition,
+                $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");
+            if (discovery.PageThreeRequested)
+            {
+                pageThreeFrame = frame;
+                break;
+            }
+        }
+        AssertTrue(discovery.EggHatchingStarted && pageThreeFrame >= 0,
+            "intro egg hatches and requests page three within the native program");
+        discovery.Step((ushort)(pageThreeFrame + 1), introCrossfadeTimer: 0);
+        reference.Step((ushort)(pageThreeFrame + 1), introCrossfadeTimer: 0);
+        AssertEqual(nativeEgg.IsActive, egg.IsActive,
+            "SR388 egg reverse-crossfade deletion matches ROM-backed actor");
+        AssertTrue(!egg.IsActive,
+            "SR388 egg actually deletes on the first reverse-crossfade frame");
 
         IntroScientistCutsceneState delivery = IntroScientistCutsceneState.CreateDelivery();
         IntroScientistCutsceneState examination = IntroScientistCutsceneState.CreateExamination();
@@ -67,10 +126,10 @@ internal static partial class Program
         AssertTrue(examination.PageFiveRequested,
             "examined-baby production actor reaches page-five instruction");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "intro egg/baby setup never rereads compiled definitions or discovery collision bytes");
+            "intro egg/baby playback never rereads compiled definitions, instructions or discovery collision bytes");
 
         Console.WriteLine(
-            "  Intro baby actors: definition and initializer words plus 768 collision bytes match; guarded discovery and scientist scenes pass.");
+            "  Intro baby actors: definition, 138 instruction/delete and 768 collision bytes match; full guarded discovery and scientist scenes pass.");
     }
 
     private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
@@ -89,6 +148,9 @@ internal static partial class Program
                         IntroBabyDiscoveryCollisionDefinitions.SourceByteCount) ||
                 address is >= 0x8bce5b and < 0x8bce6d or
                 >= 0x8bce79 and < 0x8bce7f or
+                >= 0x8bcb33 and < 0x8bcb9f or
+                >= 0x8bcc2b and < 0x8bcc47 or
+                >= 0x8bce53 and < 0x8bce55 or
                 >= 0x8ba8d5 and < 0x8ba8e8 or
                 >= 0x8bad55 and < 0x8bad68 or
                 >= 0x8bad93 and < 0x8bada6 or

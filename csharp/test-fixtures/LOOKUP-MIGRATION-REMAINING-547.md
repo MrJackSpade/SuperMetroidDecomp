@@ -73,6 +73,16 @@ blocked, and confirms a palette edit changes visible SR388 discovery pixels
 without moving the particle. Restored scenes rebind the current art; malformed
 resources fail rather than falling back to ROM data.
 
+The SR388 egg and confused baby now compile their separate bank-$8B
+instruction spans at `$CB33..CB9E` and `$CC2B..CC46`, plus the shared delete
+word at `$CE53`. The real discovery state uses the compiled reader for these
+two actors only; the scientist delivery/examination actors are not redirected.
+Verification compares all 138 program/delete bytes with the pinned ROM, runs
+the entire hatch and page-three handoff alongside an independent ROM-backed
+state, checks selected egg/baby frames, baby motion and spawned fragments each
+frame, and requires the egg's reverse-crossfade deletion with the source lists
+unreadable. The egg and baby's visual spritemaps remain separate artwork work.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

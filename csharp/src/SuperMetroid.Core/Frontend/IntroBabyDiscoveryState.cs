@@ -97,12 +97,14 @@ internal sealed class IntroBabyDiscoveryState
         {
             egg.Redirect(CinematicCodePointers.Lists.Delete);
         }
-        egg.Step(bus, HandleEggInstruction);
+        egg.Step(bus, HandleEggInstruction,
+            IntroBabyDiscoveryInstructionDefinitions.ReadWord);
 
         // The baby slot follows the egg slot in the native descending actor traversal, so
         // it observes the egg's freshly advanced list pointer in this same frame.
         StepConfusedBaby(introCrossfadeTimer);
-        confusedBaby.Step(bus, HandleConfusedBabyInstruction);
+        confusedBaby.Step(bus, HandleConfusedBabyInstruction,
+            IntroBabyDiscoveryInstructionDefinitions.ReadWord);
 
         foreach (IntroEggParticle particle in eggParticles)
             particle.Step(bus);

@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## N00b-tube PLM physical draws (2026-09-24)
+
+The seven n00b-tube draw payloads are now compiled physical definitions, from
+its one-block intact trigger through the twelve-block, four-run break-apart
+layouts. Every direction/count, level word, and signed next-run offset matches
+the pinned cartridge. The production room PLM loads and draws each layout
+with all seven source payloads forbidden, asserting the resulting physical
+blocks. Its power-bomb gate, shard/bubble spawn, earthquake, water handoff,
+and event commit still run in the existing native instruction interpreter.
+Editable tube artwork and broader PLM programs remain separate work.
+
 ## Mother Brain glass PLM physical draws (2026-09-24)
 
 Eleven cartridge-authored glass draw lists now have compiled physical records,

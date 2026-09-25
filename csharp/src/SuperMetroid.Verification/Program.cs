@@ -927,6 +927,12 @@ if (args is ["--mother-brain-glass-plm-draws"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--noob-tube-plm-draws"])
+{
+    VerifyNoobTubePlmDrawDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--shot-block-plm-programs"])
 {
     VerifyShotBlockPlmPrograms();

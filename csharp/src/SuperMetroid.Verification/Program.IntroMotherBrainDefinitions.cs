@@ -6,6 +6,11 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        for (int pointer = IntroMotherBrainInstructionDefinitions.StartPointer;
+             pointer < IntroMotherBrainInstructionDefinitions.EndPointer; pointer++)
+            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
+                IntroMotherBrainInstructionDefinitions.ReadByte((ushort)pointer),
+                $"intro Mother Brain instruction byte $8B:{pointer:X4}");
 
         IntroMotherBrainActorDefinition[] actors =
         [
@@ -68,7 +73,47 @@ internal static partial class Program
             IntroMotherBrainSpriteState.XPosition, "intro Mother Brain compiled X origin");
         AssertEqual(IntroMotherBrainDefinitions.MotherBrainOrigin.Y,
             IntroMotherBrainSpriteState.YPosition, "intro Mother Brain compiled Y origin");
-        motherBrain.Step(guarded);
+        for (int frame = 0; frame < 80; frame++)
+        {
+            motherBrain.Step(guarded);
+            int record = IntroMotherBrainInstructionDefinitions.StartPointer +
+                ((frame / 16) % 4) * 4;
+            ushort expected = ReadIntroMotherBrainWord(retail,
+                IntroMotherBrainDefinitions.NativeBank | (record + 2));
+            AssertEqual(expected, motherBrain.SpriteMapPointer,
+                $"intro Mother Brain normal frame {frame} selects its native spritemap");
+        }
+        for (int hit = 0; hit < 4; hit++)
+            AssertEqual(hit == 3, motherBrain.RegisterMissileHit(),
+                $"intro Mother Brain hit {hit + 1} starts explosion only on the fourth hit");
+        var cgram = new SnesCgram();
+        var palette = new ushort[SnesCgram.ColorCount];
+        for (ushort frame = 1; frame <= 128; frame++)
+        {
+            motherBrain.RunPreInstruction(cgram, palette, frame, introCrossfadeTimer: 1);
+            motherBrain.Step(guarded);
+            if (frame < 128)
+                AssertTrue(!motherBrain.PageTwoRequested,
+                    $"intro Mother Brain does not request page two before explosion frame {frame}");
+        }
+        AssertTrue(motherBrain.PageTwoRequested,
+            "intro Mother Brain page-two callback runs at explosion frame 128");
+        for (int frame = 0; frame < 64; frame++)
+        {
+            motherBrain.RunPreInstruction(cgram, palette, (ushort)(129 + frame),
+                introCrossfadeTimer: 1);
+            motherBrain.Step(guarded);
+            int record = IntroMotherBrainInstructionDefinitions.PageTwoLoopPointer +
+                (((frame + 1) / 16) % 4) * 4;
+            ushort expected = ReadIntroMotherBrainWord(retail,
+                IntroMotherBrainDefinitions.NativeBank | (record + 2));
+            AssertEqual(expected, motherBrain.SpriteMapPointer,
+                $"intro Mother Brain page-two frame {frame} preserves native loop");
+        }
+        motherBrain.RunPreInstruction(cgram, palette, cinematicFrameCounter: 193,
+            introCrossfadeTimer: 0);
+        AssertTrue(!motherBrain.IsVisible,
+            "intro Mother Brain page-two crossfade deletes the actor at timer zero");
 
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
@@ -81,10 +126,10 @@ internal static partial class Program
         AssertEqual(0, explosions.ActiveCount,
             "intro Mother Brain explosion actors delete at page-two crossfade completion");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "intro Mother Brain actors never reread compiled definitions or placement tables");
+            "intro Mother Brain actors never reread compiled definitions, instructions or placement tables");
 
         Console.WriteLine(
-            "  Intro Mother Brain definitions: nine actor words and 24 placement words match; complete explosion lifetime is ROM-table independent.");
+            "  Intro Mother Brain definitions: actor/placement words and 46 instruction bytes match; normal/page-two loops and explosion lifetime are ROM-table independent.");
     }
 
     private static ushort ReadIntroMotherBrainWord(SuperMetroidAddressSpace bus, int address) =>
@@ -98,7 +143,8 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             bool forbidden =
-                address is >= 0x8bce55 and < 0x8bce5b or
+                address is >= 0x8bcb05 and < 0x8bcb33 or
+                >= 0x8bce55 and < 0x8bce5b or
                 >= 0x8bcf15 and < 0x8bcf21 or
                 >= 0x8bb9b6 and < 0x8bb9d4 or
                 >= 0x8bb9fd and < 0x8bba0f;

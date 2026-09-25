@@ -18,6 +18,14 @@ foreground words, then executes the production discovery constructor and
 scientist scene path with the old collision source unreadable. Its visual BG
 page, actor animation streams, and demo input are separate work.
 
+The intro Mother Brain actor's fixed bank-$8B instruction lists at
+`$CB05..CB32` are now compiled separately from its bank-$8C spritemap
+compositions. The forty-six program bytes match the pinned ROM. Guarded
+production tests cover eighty frames of the four-frame normal loop, the
+fourth-hit 128-frame explosion handoff, sixty-four page-two loop frames and
+timer-zero deletion with the entire instruction source range unreadable.
+Its visual spritemaps and other cinematic actors are still separate work.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

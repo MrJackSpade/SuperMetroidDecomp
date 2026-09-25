@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -125,11 +124,11 @@ internal sealed class IntroMotherBrainSpriteState
         ushort pointer = instructionPointer;
         while (true)
         {
-            ushort instructionOrDuration = ReadWord(bus, pointer);
+            ushort instructionOrDuration = IntroMotherBrainInstructionDefinitions.ReadWord(pointer);
             if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 instructionTimer = instructionOrDuration;
-                SpriteMapPointer = ReadWord(bus, Add(pointer, 2));
+                SpriteMapPointer = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
                 instructionPointer = Add(pointer, 4);
                 return;
             }
@@ -145,7 +144,7 @@ internal sealed class IntroMotherBrainSpriteState
 
                 if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction)
                 {
-                    ushort preInstruction = ReadWord(bus, Add(pointer, 2));
+                    ushort preInstruction = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
                     if (preInstruction != CinematicCodePointers.PreInstruction_IntroMotherBrain_CrossFading)
                     {
                         throw new InvalidDataException(
@@ -161,14 +160,9 @@ internal sealed class IntroMotherBrainSpriteState
                     $"Intro Mother Brain sprite opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is invalid.");
             }
 
-            pointer = ReadWord(bus, Add(pointer, 2));
+            pointer = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
         }
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(
-            bus,
-            IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private static ushort Add(ushort pointer, int byteCount) =>
         unchecked((ushort)(pointer + byteCount));

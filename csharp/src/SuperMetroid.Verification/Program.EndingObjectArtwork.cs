@@ -404,6 +404,15 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Ending reward reread compiled instruction ${address:X6}.");
             }
+            if (address >= (int)new SnesAddress(0x8b,
+                    EndingLogoInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b,
+                    EndingLogoInstructionDefinitions.End))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending logo reread compiled instruction ${address:X6}.");
+            }
             foreach (EndingCloudSpriteFrameDefinition frame in EndingCloudSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(

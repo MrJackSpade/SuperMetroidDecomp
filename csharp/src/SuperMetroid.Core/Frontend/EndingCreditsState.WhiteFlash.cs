@@ -43,7 +43,8 @@ internal sealed partial class EndingCreditsState
 
     private void StepPostCreditsLogo()
     {
-        endingLogo!.Step(cgram);
+        endingLogo!.Step(cgram, objectArtwork is null
+            ? null : EndingLogoInstructionDefinitions.ReadWord);
         if (!endingLogo.Completed) return;
         postCreditsText = new EndingBackgroundTextState(bus, postCreditsTilemap,
             EndingCreditsRomData.Instructions.ItemPercentageText, inventory, japaneseText,

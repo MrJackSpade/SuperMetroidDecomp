@@ -78,6 +78,35 @@ internal static partial class Program
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
             }
+            if (hours == 2)
+            {
+                // Continue the installed suitless route through all four logo
+                // actors, not merely the initial logo upload after the shot.
+                for (int frame = 0; frame < 2000 &&
+                    native.Phase != EndingCreditsPhase.ItemPercentage; frame++)
+                {
+                    AssertEqual(native.Phase, installed.Phase,
+                        $"installed logo phase at frame {frame}");
+                    if (frame % 29 == 0 || native.Phase == EndingCreditsPhase.PostCreditsLogo)
+                    {
+                        LayeredRenderSnapshot expected = native.CaptureRenderSnapshot();
+                        LayeredRenderSnapshot actual = installed.CaptureRenderSnapshot();
+                        AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
+                                actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
+                                SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                                    SoftwareLayeredSnapshotRenderer.Render(expected)),
+                            $"installed logo pixels at frame {frame}");
+                    }
+                    native.Step();
+                    installed.Step();
+                    nativeAudio.AdvanceFrame(nativeBus, default);
+                    installedAudio.AdvanceFrame(guardedBus, default);
+                }
+                AssertEqual(EndingCreditsPhase.ItemPercentage, native.Phase,
+                    "native logo reaches item percentage");
+                AssertEqual(EndingCreditsPhase.ItemPercentage, installed.Phase,
+                    "compiled installed logo reaches item percentage");
+            }
             AssertEqual(0, guardedBus.ForbiddenReadAttempts,
                 $"installed {hours}h reward never rereads post-credit art sources");
         }

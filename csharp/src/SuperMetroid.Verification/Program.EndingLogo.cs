@@ -7,15 +7,41 @@ internal static partial class Program
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         VerifyEndingLogoDefinitions(bus);
+        for (int pointer = EndingLogoInstructionDefinitions.Start;
+             pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer),
+                EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
+                $"ending logo instruction $8B:{pointer:X4} matches cartridge");
+        AssertThrows<InvalidDataException>(() =>
+            EndingLogoInstructionDefinitions.ReadWord(EndingLogoInstructionDefinitions.End),
+            "logo instruction reader rejects the following definition table");
+        AssertThrows<InvalidDataException>(() =>
+            EndingLogoInstructionDefinitions.ReadWord(
+                unchecked((ushort)(EndingLogoInstructionDefinitions.Start + 1))),
+            "logo instruction reader rejects an unaligned address");
         var guarded = new EndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
+        var nativeCgram = new SnesCgram();
         int landings = 0;
         var logo = new EndingLogo(guarded, cgram, () => landings++);
+        var nativeLogo = new EndingLogo(bus, nativeCgram, () => { });
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)
         {
-            logo.Step(cgram); frame++;
+            nativeLogo.Step(nativeCgram);
+            logo.Step(cgram, EndingLogoInstructionDefinitions.ReadWord);
+            frame++;
+            AssertEqual(nativeLogo.Completed, logo.Completed,
+                $"compiled logo lifetime at frame {frame}");
+            AssertEqual(nativeLogo.CrossfadeStarted, logo.CrossfadeStarted,
+                $"compiled logo palette handoff at frame {frame}");
+            AssertEqual(nativeLogo.PaletteStep, logo.PaletteStep,
+                $"compiled logo palette step at frame {frame}");
+            AssertTrue(nativeCgram.Colors.SequenceEqual(cgram.Colors) &&
+                    nativeLogo.Draw().LowTable.SequenceEqual(logo.Draw().LowTable) &&
+                    nativeLogo.Draw().HighTable.SequenceEqual(logo.Draw().HighTable),
+                $"compiled logo palette and OAM at frame {frame}");
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
             if (logo.PaletteStep > 0)
                 for (int p = 0; p < 2; p++)
@@ -83,6 +109,13 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address >= 0x8b0000 + EndingLogoInstructionDefinitions.Start &&
+                address < 0x8b0000 + EndingLogoInstructionDefinitions.End)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending logo reread compiled instruction byte ${address:X6}.");
+            }
             if (address >= EndingLogoPalettePointerDefinitions.NativeTableAddress &&
                 address < EndingLogoPalettePointerDefinitions.NativeTableAddress +
                 EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort))

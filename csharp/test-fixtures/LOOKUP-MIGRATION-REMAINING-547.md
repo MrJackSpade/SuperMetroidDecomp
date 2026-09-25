@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Final assembling-logo actor lists (2026-09-25)
+
+The four bank-$8B upper/lower S and wrapping-circle lists at `$EE5D..EE9A`
+are compiled as 31 fixed words. Every source word matches the pinned ROM;
+the independent native and compiled logo owners match OAM, CGRAM, crossfade
+state, and completion on every frame through the sixteen-step palette handoff.
+The installed suitless ending also reaches item percentage with these list
+bytes unreadable and native scene pixels intact. Logo spritemap compositions
+remain a separate visual-artwork migration.
+
 ## Post-credits Samus actor lists (2026-09-25)
 
 The seventeen contiguous bank-$8B suitless and suited idle, gesture, jump,

@@ -34,7 +34,7 @@ internal sealed class EndingLogo
         cgram.LoadFromBus(bus, EndingLogoDefinitions.InitialPalette, 16, 240);
     }
 
-    public void Step(SnesCgram cgram)
+    public void Step(SnesCgram cgram, Func<ushort, ushort>? instructionWord = null)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The cinematic function runs before sprite instructions, so the first palette
@@ -53,7 +53,7 @@ internal sealed class EndingLogo
         for (int i = 0; i < actors.Length; i++)
         {
             if (i < 2 && !settled[i]) MoveHalf(i);
-            actors[i].Step(bus, Instruction);
+            actors[i].Step(bus, Instruction, instructionWord);
         }
     }
 

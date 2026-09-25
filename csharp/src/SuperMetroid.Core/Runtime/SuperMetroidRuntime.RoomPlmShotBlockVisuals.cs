@@ -116,6 +116,12 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.TourianAccessVisuals = value;
     }
 
+    public RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals
+    {
+        get => Plms.SpeedBoosterVisuals;
+        set => Plms.SpeedBoosterVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

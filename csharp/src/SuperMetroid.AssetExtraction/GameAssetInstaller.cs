@@ -104,6 +104,7 @@ public static class GameAssetInstaller
             RoomPlmChozoStatueVisualFiles.ValidateStock(installation.RoomPlmChozoStatueVisualDirectory);
             RoomPlmLinkedRestoreVisualFiles.ValidateStock(installation.RoomPlmLinkedRestoreVisualDirectory);
             RoomPlmTourianAccessVisualFiles.ValidateStock(installation.RoomPlmTourianAccessVisualDirectory);
+            RoomPlmSpeedBoosterVisualFiles.ValidateStock(installation.RoomPlmSpeedBoosterVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -313,6 +314,13 @@ public static class GameAssetInstaller
             RoomPlmTourianAccessVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 tourianAccessVisuals, SupportedCartridge.Sha256);
             RoomPlmTourianAccessVisualFiles.ValidateStock(tourianAccessVisuals);
+            progress?.Report("Extracting Speed Booster bomb-reveal visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string speedBoosterVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName);
+            RoomPlmSpeedBoosterVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                speedBoosterVisuals, SupportedCartridge.Sha256);
+            RoomPlmSpeedBoosterVisualFiles.ValidateStock(speedBoosterVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

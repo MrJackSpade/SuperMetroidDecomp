@@ -47,6 +47,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals;
     [NonSerialized] private RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals;
+    [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
@@ -160,6 +161,12 @@ public sealed partial class RoomPlmSystem
     {
         get => tourianAccessVisuals;
         set => tourianAccessVisuals = value;
+    }
+
+    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals
+    {
+        get => speedBoosterVisuals;
+        set => speedBoosterVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1793,7 +1800,8 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, speedReveal, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false,
+                speedBoosterVisuals: speedBoosterVisuals);
             return;
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
@@ -2015,7 +2023,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals = null,
         RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals = null,
         RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals = null,
-        RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals = null)
+        RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals = null,
+        RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -2049,6 +2058,7 @@ public sealed partial class RoomPlmSystem
                     ?? chozoStatueVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? linkedRestoreVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? tourianAccessVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? speedBoosterVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

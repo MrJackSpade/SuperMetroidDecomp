@@ -20,6 +20,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? roomPlmChozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
     [NonSerialized] private RoomPlmTourianAccessVisualCatalog? roomPlmTourianAccessVisuals;
+    [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -134,6 +135,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmTourianAccessVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmTourianAccessVisuals = catalog;
+    }
+
+    /// <summary>Binds Speed Booster bomb-reveal art after startup or state restoration.</summary>
+    public void BindRoomPlmSpeedBoosterVisuals(RoomPlmSpeedBoosterVisualCatalog? catalog)
+    {
+        roomPlmSpeedBoosterVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmSpeedBoosterVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

@@ -2,6 +2,15 @@
 
 ## Additional room-PLM instruction control (2026-09-24)
 
+The bomb-special Speed Booster reveal's single compiled physical draw now has
+an installed editable visual word in `room-plm-speed-booster/speed-booster.json`.
+The production bomb-reveal PLM applies an edited tile immediately and during
+later streaming while retaining type-B collision and its deletion frame, with
+the original program/draw source bytes unreadable. Stock extraction, manifest
+validation, malformed overrides, and update persistence are checked separately.
+Other Speed Booster terrain programs remain compiled mechanics, not editable
+PLM bytecode.
+
 Four further retail PLM families now use compiled bank-$84 instruction data:
 Mother Brain's glass ($D202..D2F8), Draygon's reachable left/right cannons
 ($DCDE..DD26 and $DDB9..DE01), Bomb Torizo's hand ($D368..D3C6), and all

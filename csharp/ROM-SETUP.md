@@ -546,6 +546,13 @@ visual words (0..4095), retaining all five IDs and each frame's native block
 count. The six-row removal, collision words, and frame timing remain compiled.
 Invalid overrides fail; valid edits survive stock installation repair.
 
+The bomb-revealed Speed Booster block uses
+`game/room-plm-speed-booster/speed-booster.json`. Copy it to
+`overrides/room-plm-speed-booster/speed-booster.json` and edit the sole
+`bomb-reveal` entry's `blocks` word (0..4095). Its type-B collision and
+one-frame reveal timing remain compiled. Invalid edits fail validation;
+valid overrides survive stock repair.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

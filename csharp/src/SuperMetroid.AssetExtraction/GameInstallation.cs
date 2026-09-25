@@ -145,6 +145,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmTourianAccessVisualCatalog LoadRoomPlmTourianAccessVisuals() =>
         RoomPlmTourianAccessVisualFiles.Load(RoomPlmTourianAccessVisualDirectory,
             RoomPlmTourianAccessVisualOverrideDirectory);
+    public string RoomPlmSpeedBoosterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName);
+    public string RoomPlmSpeedBoosterVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName);
+    /// <summary>Editable bomb-revealed Speed Booster tile; collision stays compiled.</summary>
+    public RoomPlmSpeedBoosterVisualCatalog LoadRoomPlmSpeedBoosterVisuals() =>
+        RoomPlmSpeedBoosterVisualFiles.Load(RoomPlmSpeedBoosterVisualDirectory,
+            RoomPlmSpeedBoosterVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -219,11 +225,12 @@ public static class GameInstallationLayout
     public const string RoomPlmChozoStatueVisualDirectoryName = "room-plm-chozo-statues";
     public const string RoomPlmLinkedRestoreVisualDirectoryName = "room-plm-linked-restores";
     public const string RoomPlmTourianAccessVisualDirectoryName = "room-plm-tourian-access";
+    public const string RoomPlmSpeedBoosterVisualDirectoryName = "room-plm-speed-booster";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 53;
+    public const int FormatVersion = 54;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

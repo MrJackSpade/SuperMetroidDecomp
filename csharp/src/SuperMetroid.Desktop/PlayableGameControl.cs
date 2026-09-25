@@ -278,6 +278,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
         roomPlmTourianAccessVisuals = installation?.LoadRoomPlmTourianAccessVisuals();
         game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
+        roomPlmSpeedBoosterVisuals = installation?.LoadRoomPlmSpeedBoosterVisuals();
+        game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
         roomPlmCollectibleVisuals = installation?.LoadRoomPlmCollectibleVisuals();
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         roomPlmDynamicCollectibleArt = installation?.LoadRoomPlmDynamicCollectibleArt();
@@ -412,6 +414,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
         game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
+        game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         game.BindXrayRevealVisuals(xrayRevealVisuals);

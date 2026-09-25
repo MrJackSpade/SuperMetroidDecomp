@@ -911,6 +911,11 @@ if (args is ["--tourian-access-visuals"])
     VerifyTourianAccessVisuals();
     return 0;
 }
+if (args is ["--speed-booster-visuals"])
+{
+    VerifySpeedBoosterVisuals();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2541,6 +2546,7 @@ VerifySpeedBoosterCollisionBlocks();
 VerifyMaridiaElevatubePlm();
 VerifyCompiledTourianAccessPlmPrograms();
 VerifyTourianAccessVisuals();
+VerifySpeedBoosterVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

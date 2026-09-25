@@ -671,7 +671,8 @@ public sealed partial class IntroCinematicState
         flashbackDemoInput = new DemoInputState();
         flashbackDemoInput.Clear();
         flashbackDemoInput.Enable();
-        flashbackDemoInput.LoadObject(bus, IntroCinematicRomData.Flashback.DemoInputObject);
+        flashbackDemoInput.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart,
+            definitionWord: IntroMotherBrainInputDefinitions.ReadWord);
 
         // $8B:B018 replaces the target palette with kPalettes_Intro, decomposes every
         // component, clears only the incoming gameplay ranges, and immediately composes.
@@ -937,7 +938,8 @@ public sealed partial class IntroCinematicState
 
     private void StepMotherBrainDemo()
     {
-        flashbackDemoInput!.Step(bus, specialInstruction: HandleMotherBrainDemoInstruction);
+        flashbackDemoInput!.Step(bus, specialInstruction: HandleMotherBrainDemoInstruction,
+            instructionWord: IntroMotherBrainInputDefinitions.ReadWord);
 
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running

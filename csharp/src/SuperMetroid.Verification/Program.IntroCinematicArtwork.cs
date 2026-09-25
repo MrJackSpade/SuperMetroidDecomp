@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -80,6 +81,7 @@ internal static partial class Program
             VerifyIntroRinkaSpriteArtwork(bus, stock, installation);
             VerifyIntroEggEffectSpriteArtwork(bus, stock, installation);
             VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation);
+            VerifyIntroMotherBrainDemoInput(bus, stock);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -1139,6 +1141,21 @@ internal static partial class Program
                     throw new InvalidOperationException(
                         $"Cinematic reread intro discovery actor sprite ${address:X6}.");
                 }
+            }
+            int motherBrainDemoListStart = DemoInputRomData.BankBase |
+                IntroMotherBrainInputDefinitions.ListStart;
+            int motherBrainDemoListEnd = DemoInputRomData.BankBase |
+                IntroMotherBrainInputDefinitions.ListEnd;
+            int motherBrainDemoHeaderStart = DemoInputRomData.BankBase |
+                IntroMotherBrainInputDefinitions.HeaderStart;
+            int motherBrainDemoHeaderEnd = DemoInputRomData.BankBase |
+                IntroMotherBrainInputDefinitions.HeaderEnd;
+            if (address >= motherBrainDemoListStart && address < motherBrainDemoListEnd ||
+                address >= motherBrainDemoHeaderStart && address < motherBrainDemoHeaderEnd)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread intro Mother Brain demo program ${address:X6}.");
             }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

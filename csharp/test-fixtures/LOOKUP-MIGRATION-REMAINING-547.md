@@ -37,6 +37,14 @@ timer-zero deletion with the entire instruction source range unreadable.
 Its three visual spritemaps are separately extracted as editable artwork;
 other cinematic actors remain separate work.
 
+The Mother Brain flashback demo-controller header at `$91:8784..8789` and
+its complete 106-byte input stream at `$91:8694..86FD` are now compiled
+separately from the reusable bank-$91 interpreter. Verification compares all
+112 bytes with the pinned ROM and runs the controller to native disable/delete
+against an independent ROM-backed playback, checking cursor, countdown,
+held/edge words, and enable state every frame. The production flashback
+setup and first controller step run with those source ranges unreadable.
+
 The small and large fourth-hit explosion actors now compile their complete
 64-byte bank-$8B instruction region at `$CDAB..CDEA` and shared two-byte
 delete opcode at `$CE53`. Verification compares every byte with the pinned

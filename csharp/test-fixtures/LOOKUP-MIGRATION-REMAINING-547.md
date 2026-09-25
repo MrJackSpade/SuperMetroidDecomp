@@ -9,7 +9,13 @@ the pinned cartridge. The production room PLM loads and draws each layout
 with all seven source payloads forbidden, asserting the resulting physical
 blocks. Its power-bomb gate, shard/bubble spawn, earthquake, water handoff,
 and event commit still run in the existing native instruction interpreter.
-Editable tube artwork and broader PLM programs remain separate work.
+All seven tube frames are also installed as editable visual words in
+`room-plm-noob-tube/noob-tube.json`, including each twelve-block row in
+native run order. A changed interior tile reaches immediate and later
+streamed graphics without changing the physical level word. The shared
+resource codec checks all native row counts and signed offsets, hashes the
+stock content, rejects malformed overrides, and preserves valid overrides
+through repair. Broader PLM programs remain separate work.
 
 ## Mother Brain glass PLM physical draws (2026-09-24)
 

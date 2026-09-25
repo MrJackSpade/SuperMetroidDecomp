@@ -96,6 +96,7 @@ public static class GameAssetInstaller
             RoomPlmGreyDoorVisualFiles.ValidateStock(installation.RoomPlmGreyDoorVisualDirectory);
             RoomPlmEyeDoorVisualFiles.ValidateStock(installation.RoomPlmEyeDoorVisualDirectory);
             RoomPlmMotherBrainGlassVisualFiles.ValidateStock(installation.RoomPlmMotherBrainGlassVisualDirectory);
+            RoomPlmNoobTubeVisualFiles.ValidateStock(installation.RoomPlmNoobTubeVisualDirectory);
             RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -249,6 +250,13 @@ public static class GameAssetInstaller
             RoomPlmMotherBrainGlassVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 motherBrainGlassVisuals, SupportedCartridge.Sha256);
             RoomPlmMotherBrainGlassVisualFiles.ValidateStock(motherBrainGlassVisuals);
+            progress?.Report("Extracting n00b-tube PLM visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string noobTubeVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmNoobTubeVisualDirectoryName);
+            RoomPlmNoobTubeVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                noobTubeVisuals, SupportedCartridge.Sha256);
+            RoomPlmNoobTubeVisualFiles.ValidateStock(noobTubeVisuals);
             progress?.Report("Extracting downward-gate PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string gateVisuals = Path.Combine(staging,

@@ -32,6 +32,34 @@ internal static class NoobTubePlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        Intact => "intact",
+        Damaged => "damaged",
+        Opened => "opened",
+        Cleared => "cleared",
+        BrokenLate => "broken-late",
+        OpenedRows => "opened-rows",
+        BrokenFull => "broken-full",
+        _ => throw new InvalidDataException(
+            $"N00b-tube draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
+    }
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

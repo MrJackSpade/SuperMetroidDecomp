@@ -442,6 +442,16 @@ damage thresholds, shatter timing, shards, and progression cannot be changed
 by this appearance file. Stock content is hash-checked; malformed overrides
 fail loudly, while valid overrides survive stock repair.
 
+The n00b-tube break-apart frames are installed as
+`game/room-plm-noob-tube/noob-tube.json`. Copy the file to
+`overrides/room-plm-noob-tube/noob-tube.json`, edit only the 0..4095
+`blocks` visual words, and restart. Keep all seven frame IDs. Twelve-block
+rows are flattened in native run order in the stock file; run placement,
+physical blocks, the power-bomb trigger, shards, and event timing remain
+compiled. The active room's tile definitions supply the actual art. Stock
+data is hash-checked, invalid overrides fail loudly, and valid overrides
+survive stock repair.
+
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to
 `overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`

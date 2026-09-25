@@ -100,7 +100,7 @@ internal static class RoomPlmDoorVisualFileCodec
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
-                if (run.LevelWords.Length is < 1 or > 4 ||
+                if (run.LevelWords.Length is < 1 or > 12 ||
                     (run.DirectionAndCount & 0x7fff) != run.LevelWords.Length ||
                     ReadWord(bus, cursor) != run.DirectionAndCount)
                     throw new InvalidDataException(

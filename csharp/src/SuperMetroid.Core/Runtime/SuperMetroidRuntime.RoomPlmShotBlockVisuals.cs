@@ -60,6 +60,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.MotherBrainGlassVisuals = value;
     }
 
+    /// <summary>Visual-only n00b-tube resources; reattached after state restoration.</summary>
+    public RoomPlmNoobTubeVisualCatalog? RoomPlmNoobTubeVisuals
+    {
+        get => Plms.NoobTubeVisuals;
+        set => Plms.NoobTubeVisuals = value;
+    }
+
     /// <summary>Visual-only gate-block resources; reattached after debugger-state restoration.</summary>
     public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals
     {

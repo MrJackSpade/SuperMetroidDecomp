@@ -260,6 +260,13 @@ forbidding reads from those source ranges. The four crumble appearances were
 already editable through the shared shot-block resource. This does not migrate
 the full PLM interpreter or unrelated room-object families.
 
+The nine-byte hardcoded Maridia elevatube program at `$84:B8F0` and its
+one-block physical draw at `$84:9367` are also compiled. A real PLM spawn and
+handler fixture checks the sixteen-frame hold, library-two sound `$15`, block
+word, and deletion with both source regions unreadable. Verification compares
+each control operand and draw byte with the pinned ROM. This does not
+cover the elevatube's separate room-main motion or other room-object programs.
+
 ## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 
 The three bank-$A2 Ripper variants select twelve distinct moving frames through

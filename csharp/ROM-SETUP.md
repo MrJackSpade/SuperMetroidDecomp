@@ -535,6 +535,9 @@ crumble-frame selections, timers, restore/delete instructions, and the bomb
 reveal's physical draw word no longer require bank-$84 runtime reads. The four
 crumble appearances remain editable through the shared shot-block resource;
 their timing and collision are not appearance settings.
+The hardcoded Maridia elevatube PLM likewise uses compiled cartridge delay,
+draw, sound, and deletion data, leaving its physical tile and sound behavior
+unchanged without reading that bank-$84 source at runtime.
 
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to

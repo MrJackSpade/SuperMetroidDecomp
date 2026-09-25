@@ -896,6 +896,11 @@ if (args is ["--speed-booster-block-plms"])
     VerifySpeedBoosterCollisionBlocks();
     return 0;
 }
+if (args is ["--maridia-elevatube-plm"])
+{
+    VerifyMaridiaElevatubePlm();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2523,6 +2528,7 @@ VerifySamusGunExtendedMovement();
 VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySpeedBoosterCollisionBlocks();
+VerifyMaridiaElevatubePlm();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

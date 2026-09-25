@@ -16,7 +16,17 @@ is also compiled: twelve 32-block rows, ten zero rows followed by uniform
 The actor verifier compares all 768 cartridge bytes and all 512 resulting
 foreground words, then executes the production discovery constructor and
 scientist scene path with the old collision source unreadable. Its visual BG
-page and demo input are separate work.
+page is separate work.
+
+The SR388 discovery demo object header at `$91:877E..8783` and its three
+running, stop-and-look, and end input lists at `$91:860D..864E` are now
+compiled as a bounded 72-byte controller program. The shared bank-$91 demo
+interpreter accepts this owner's word reader without changing other callers.
+Verification compares every source byte, exercises the initial running loop
+for 128 frames against the ROM-backed interpreter, then compares the live
+discovery's input cursor, timer, held/edge words, Samus X, and end-demo lock
+against a separate ROM-backed controller with both source ranges unreadable
+to production. Other intro demo objects remain separately scoped.
 
 The intro Mother Brain actor's fixed bank-$8B instruction lists at
 `$CB05..CB32` are now compiled separately from its bank-$8C spritemap

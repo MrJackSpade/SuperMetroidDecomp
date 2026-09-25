@@ -160,19 +160,23 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Loads one six-byte bank-$91 object definition as <c>$91:8395</c> does.
+    /// An owner may supply a compiled definition reader when that object has been migrated.
     /// </summary>
     public void LoadObject(
         ISnesAddressSpace bus,
         ushort objectPointer,
         ushort initializationParameter = 0,
-        Action<DemoInputState, ushort>? initializer = null)
+        Action<DemoInputState, ushort>? initializer = null,
+        Func<ushort, ushort>? definitionWord = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
         InitializationParameter = initializationParameter;
-        ushort initializerPointer = ReadWord(bus, objectPointer);
-        PreInstructionPointer = ReadWord(bus, unchecked((ushort)(objectPointer + 2)));
-        InstructionPointer = ReadWord(bus, unchecked((ushort)(objectPointer + 4)));
+        ushort Read(ushort pointer) => definitionWord is null
+            ? ReadWord(bus, pointer) : definitionWord(pointer);
+        ushort initializerPointer = Read(objectPointer);
+        PreInstructionPointer = Read(unchecked((ushort)(objectPointer + 2)));
+        InstructionPointer = Read(unchecked((ushort)(objectPointer + 4)));
         InstructionTimer = 1;
         Timer = 0;
 
@@ -184,11 +188,13 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words.
+    /// An owner may supply a bounded compiled list reader; other objects remain ROM-backed.
     /// </summary>
     public void Step(
         ISnesAddressSpace bus,
         Action<DemoInputState, ushort>? preInstruction = null,
-        Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction = null)
+        Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction = null,
+        Func<ushort, ushort>? instructionWord = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (!Enabled || InstructionPointer == 0)
@@ -208,7 +214,7 @@ public sealed class DemoInputState
             NativeWordCounter.Decrement(InstructionTimer);
         InstructionTimer = instructionTimer.Value;
         if (instructionTimer.IsZero)
-            ProcessInstructionList(bus, specialInstruction);
+            ProcessInstructionList(bus, specialInstruction, instructionWord);
 
         // $91:83D3 publishes the old demo words to the drawing-input history before it
         // replaces the live joypad words and remembers the newly produced pair.
@@ -220,17 +226,20 @@ public sealed class DemoInputState
 
     private void ProcessInstructionList(
         ISnesAddressSpace bus,
-        Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction)
+        Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction,
+        Func<ushort, ushort>? instructionWord)
     {
+        ushort Read(ushort pointer) => instructionWord is null
+            ? ReadWord(bus, pointer) : instructionWord(pointer);
         ushort cursor = InstructionPointer;
         while (true)
         {
-            ushort word = ReadWord(bus, cursor);
+            ushort word = Read(cursor);
             if ((word & DemoInputRomData.Instructions.OpcodeBit) == 0)
             {
                 InstructionTimer = word;
-                ushort rawHeld = ReadWord(bus, unchecked((ushort)(cursor + 2)));
-                ushort rawNewlyPressed = ReadWord(bus, unchecked((ushort)(cursor + 4)));
+                ushort rawHeld = Read(unchecked((ushort)(cursor + 2)));
+                ushort rawNewlyPressed = Read(unchecked((ushort)(cursor + 4)));
                 Held = (ushort)SnesButtons.FromRaw(rawHeld, "demo held-input record");
                 NewlyPressed = (ushort)SnesButtons.FromRaw(
                     rawNewlyPressed,
@@ -253,7 +262,7 @@ public sealed class DemoInputState
                     return;
 
                 case DemoInputRomData.Instructions.SetPreInstruction:
-                    PreInstructionPointer = ReadWord(bus, cursor);
+                    PreInstructionPointer = Read(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 
@@ -262,19 +271,19 @@ public sealed class DemoInputState
                     break;
 
                 case DemoInputRomData.Instructions.Goto:
-                    cursor = ReadWord(bus, cursor);
+                    cursor = Read(cursor);
                     break;
 
                 case DemoInputRomData.Instructions.DecrementTimerAndGoto:
                     NativeWordCounterStep timer = NativeWordCounter.Decrement(Timer);
                     Timer = timer.Value;
                     cursor = !timer.IsZero
-                        ? ReadWord(bus, cursor)
+                        ? Read(cursor)
                         : unchecked((ushort)(cursor + 2));
                     break;
 
                 case DemoInputRomData.Instructions.SetTimer:
-                    Timer = ReadWord(bus, cursor);
+                    Timer = Read(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 

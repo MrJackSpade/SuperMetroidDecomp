@@ -14,16 +14,19 @@ internal sealed class IntroBabyDiscoveryState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
+    private readonly Func<ushort, ushort> demoWordReader;
     private readonly DemoInputState demo = new();
     private readonly List<IntroEggParticle> eggParticles = [];
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
     private readonly IntroDiscoverySprite egg;
     private readonly IntroDiscoverySprite confusedBaby;
 
-    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null, SamusState? existingSamus = null)
+    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+        SamusState? existingSamus = null, Func<ushort, ushort>? demoWordReader = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
+        this.demoWordReader = demoWordReader ?? IntroBabyDiscoveryInputDefinitions.ReadWord;
 
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
         confusedBaby = CreateActor(IntroBabyActorDefinitions.ConfusedBaby);
@@ -47,7 +50,8 @@ internal sealed class IntroBabyDiscoveryState
 
         demo.Clear();
         demo.Enable();
-        demo.LoadObject(bus, 0x877e);
+        demo.LoadObject(bus, IntroBabyDiscoveryInputDefinitions.HeaderStart,
+            definitionWord: this.demoWordReader);
     }
 
     public SamusState Samus { get; }
@@ -65,7 +69,8 @@ internal sealed class IntroBabyDiscoveryState
         demo.Step(
             bus,
             preInstruction: (_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer),
-            specialInstruction: HandleDemoInstruction);
+            specialInstruction: HandleDemoInstruction,
+            instructionWord: demoWordReader);
 
         // The native intro-demo alpha publishes the current pose's collision radius
         // before input/movement, rather than requiring pose setters to publish early.

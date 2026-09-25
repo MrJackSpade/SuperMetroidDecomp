@@ -228,6 +228,11 @@ without changing the cartridge's partial CGRAM copy ranges, fade cadence, or
 palette-FX programs. The stock files are hash-checked; malformed overrides fail
 loudly instead of silently reverting to stock.
 
+The ending's animated explosion, cloud, gunship and post-credits glare colors
+use the shared `game/maps/room-palette-effects.json` resource. Copy it to
+`overrides/maps/` to edit those RGB5 frames. The ending still owns the cartridge
+object allocation, cycle timing, color destinations and scene transitions.
+
 Mother Brain's rainbow and drained-phase colors are installed as
 `game/maps/mother-brain-rainbow-palette.json`. Copy it to the same filename under
 `overrides/maps/` to edit the body, brain, and leg palettes. `beamInitial` is the

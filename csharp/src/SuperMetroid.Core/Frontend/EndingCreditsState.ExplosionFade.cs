@@ -11,7 +11,7 @@ internal sealed partial class EndingCreditsState
     {
         // Func115 clears the previous cloud palette programs before taking its source
         // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
-        paletteFx = new Game.RoomPaletteFxSystem();
+        ResetPaletteFx();
         explosionFadeSource = cgram.Colors.ToArray();
         explosionFadeStep = 0;
         ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, 0);

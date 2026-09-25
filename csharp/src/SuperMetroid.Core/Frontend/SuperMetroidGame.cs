@@ -1007,6 +1007,7 @@ public sealed partial class SuperMetroidGame
                     endingCredits.BindMode7Artwork(endingMode7Art);
                     endingCredits.BindObjectArtwork(endingObjectArt);
                     endingCredits.BindPaletteArtwork(endingPaletteArt);
+                    endingCredits.BindPaletteFxColors(mapPresentation?.RoomPaletteFx);
                     endingCredits.BindEndingFont(mapPresentation?.EndingFont);
                     endingCredits.BindStaffCredits(mapPresentation?.StaffCredits);
                     GameState = SuperMetroidGameState.EndingAndCredits;

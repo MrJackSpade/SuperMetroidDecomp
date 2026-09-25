@@ -444,7 +444,7 @@ internal sealed partial class EndingCreditsState
 
     private void SetupEscapeSceneB()
     {
-        paletteFx = new RoomPaletteFxSystem();
+        ResetPaletteFx();
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GreyClouds, 0);
         LoadMode7(EndingMode7SceneId.EscapeB);
         LoadEscapeCloudCharacters();
@@ -506,7 +506,7 @@ internal sealed partial class EndingCreditsState
     private void SetupCredits()
     {
         // Func126 clears palette objects before installing credits/reward palettes.
-        paletteFx = new RoomPaletteFxSystem();
+        ResetPaletteFx();
         LoadCreditsAndPostCreditsAssets();
         credits = new CreditsObjectState(staffCredits ?? throw new InvalidOperationException(
             "Ending credits require installed ending-credits.json content."));

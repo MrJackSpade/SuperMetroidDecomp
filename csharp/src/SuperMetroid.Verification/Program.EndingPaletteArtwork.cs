@@ -12,6 +12,7 @@ internal static partial class Program
     private static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
+        AreaMapPresentationCatalog maps = installation.LoadMaps();
         var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
@@ -22,13 +23,15 @@ internal static partial class Program
         }
 
         var guardedBus = new EndingPaletteSourceReadGuard(
-            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"),
+            maps.RoomPaletteFx);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var nativeState = new EndingCreditsState(nativeBus, nativeAudio, 2, 59);
         var installedState = new EndingCreditsState(guardedBus, installedAudio, 2, 59);
         installedState.BindPaletteArtwork(stock);
-        CreditsPresentation credits = installation.LoadMaps().StaffCredits;
+        installedState.BindPaletteFxColors(maps.RoomPaletteFx);
+        CreditsPresentation credits = maps.StaffCredits;
         nativeState.BindStaffCredits(credits);
         installedState.BindStaffCredits(credits);
         var reached = new HashSet<EndingCreditsPhase>();
@@ -59,8 +62,10 @@ internal static partial class Program
         foreach (EndingCreditsPhase phase in new[]
         {
             EndingCreditsPhase.WaitForEscapeMusic,
+            EndingCreditsPhase.FadeInEscapeSceneB,
             EndingCreditsPhase.FadeInZebesExplosion,
             EndingCreditsPhase.ZebesExplosionTileUpload,
+            EndingCreditsPhase.PlanetEscapeFast,
             EndingCreditsPhase.Credits,
             EndingCreditsPhase.PostCreditsBlank,
             EndingCreditsPhase.OperationSuccessfulText,
@@ -69,7 +74,7 @@ internal static partial class Program
             AssertTrue(reached.Contains(phase),
                 $"ending palette parity exercises {phase}");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
-            "installed ending never rereads static or logo palette ROM colors");
+            "installed ending never rereads static, logo or palette-FX ROM colors");
         VerifyEndingLogoPaletteArtwork(stock, nativeBus, guardedBus);
 
         Directory.CreateDirectory(installation.EndingPaletteOverrideDirectory);
@@ -107,6 +112,7 @@ internal static partial class Program
                 var editedAudio = new CartridgeAudioState();
                 var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
                 editedState.BindPaletteArtwork(edited);
+                editedState.BindPaletteFxColors(maps.RoomPaletteFx);
                 var stockAudio = new CartridgeAudioState();
                 var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
                 editedState.Step();
@@ -141,6 +147,7 @@ internal static partial class Program
         }
         VerifyVisibleCreditsPaletteOverride(installation, guardedBus, nativeBus);
         VerifyVisibleLogoPaletteOverride(installation, guardedBus, nativeBus);
+        VerifyVisibleEndingPaletteFxOverride(installation, guardedBus, nativeBus);
 
         string invalidPath = Path.Combine(installation.EndingPaletteOverrideDirectory,
             EndingPaletteDefinitions.FileName(EndingPaletteId.Escape));
@@ -173,7 +180,73 @@ internal static partial class Program
                 .SequenceEqual(stock[EndingPaletteId.Credits].Transfer.Span),
             "stock palette repair preserves the external override and restores native credits colors");
         File.Delete(invalidPath);
-        Console.WriteLine("Ending palettes: seven native images, complete logo fade, full ending CGRAM parity, isolated overrides and strict failures pass.");
+        AssertEqual(0, guardedBus.ForbiddenReadAttempts,
+            "stock and edited ending scenes never reread installed palette colors");
+        Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity, live visible overrides and strict source-read guards pass.");
+    }
+
+    private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation,
+        ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
+    {
+        byte[] stockFile = File.ReadAllBytes(Path.Combine(installation.MapDirectory,
+            RoomPaletteFxPresentationFormat.FileName));
+        RoomPaletteFxPresentationDocument document =
+            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(stockFile,
+                MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Stock ending palette-FX document is empty.");
+        foreach (PaletteRgb5[] frame in document.ZebesExplosionLava)
+            for (int color = 0; color < frame.Length; color++)
+                frame[color] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
+        byte[] editedFile = JsonSerializer.SerializeToUtf8Bytes(document,
+            MapPresentationFormat.JsonOptions);
+        RoomPaletteFxPresentation editedColors = RoomPaletteFxPresentation.Load(
+            new MemoryStream(editedFile, writable: false));
+
+        var editedAudio = new CartridgeAudioState();
+        var stockAudio = new CartridgeAudioState();
+        var editedScene = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
+        var stockScene = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
+        editedScene.BindPaletteArtwork(installation.LoadEndingPalettes());
+        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        editedScene.BindPaletteFxColors(maps.RoomPaletteFx);
+        CreditsPresentation credits = maps.StaffCredits;
+        editedScene.BindStaffCredits(credits);
+        stockScene.BindStaffCredits(credits);
+        bool visibleDifference = false;
+        bool reboundDuringScene = false;
+        for (int frame = 0; frame < 60_000 &&
+            stockScene.Phase != EndingCreditsPhase.Credits; frame++)
+        {
+            if (frame == 20)
+            {
+                ushort[] before = editedScene.CaptureRenderSnapshot().Memory.Cgram.ToArray();
+                editedScene.BindPaletteFxColors(editedColors);
+                AssertTrue(before.AsSpan().SequenceEqual(
+                        editedScene.CaptureRenderSnapshot().Memory.Cgram),
+                    "rebinding ending palette-FX preserves already-drawn CGRAM state");
+                reboundDuringScene = true;
+            }
+            AssertEqual(stockScene.Phase, editedScene.Phase,
+                $"edited ending palette-FX preserves cinematic phase at frame {frame}");
+            editedScene.Step();
+            stockScene.Step();
+            editedAudio.AdvanceFrame(guardedBus, default);
+            stockAudio.AdvanceFrame(nativeBus, default);
+            if (frame % 3 != 0) continue;
+            LayeredRenderSnapshot changed = editedScene.CaptureRenderSnapshot();
+            LayeredRenderSnapshot original = stockScene.CaptureRenderSnapshot();
+            if (changed.Memory.Cgram.SequenceEqual(original.Memory.Cgram)) continue;
+            AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
+                "ending palette-FX edit does not change graphics or transfer timing");
+            if (!SoftwareLayeredSnapshotRenderer.Render(changed).AsSpan().SequenceEqual(
+                    SoftwareLayeredSnapshotRenderer.Render(original)))
+            {
+                visibleDifference = true;
+                break;
+            }
+        }
+        AssertTrue(reboundDuringScene && visibleDifference,
+            "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
     }
 
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
@@ -219,7 +292,9 @@ internal static partial class Program
         var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
         var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
         editedState.BindPaletteArtwork(edited);
-        CreditsPresentation credits = installation.LoadMaps().StaffCredits;
+        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        editedState.BindPaletteFxColors(maps.RoomPaletteFx);
+        CreditsPresentation credits = maps.StaffCredits;
         editedState.BindStaffCredits(credits);
         stockState.BindStaffCredits(credits);
         bool visibleDifference = false;
@@ -267,7 +342,9 @@ internal static partial class Program
         var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
         var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
         editedState.BindPaletteArtwork(edited);
-        CreditsPresentation credits = installation.LoadMaps().StaffCredits;
+        AreaMapPresentationCatalog maps = installation.LoadMaps();
+        editedState.BindPaletteFxColors(maps.RoomPaletteFx);
+        CreditsPresentation credits = maps.StaffCredits;
         editedState.BindStaffCredits(credits);
         stockState.BindStaffCredits(credits);
         bool visibleDifference = false;
@@ -296,7 +373,8 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
-    private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source,
+        RoomPaletteFxPresentation effectColors) : ISnesAddressSpace
     {
         private static readonly (EndingPaletteId Id, int Start, int End)[] Ranges =
             Enum.GetValues<EndingPaletteId>()
@@ -311,6 +389,14 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address is >= 0x8d8000 and < 0x8e0000 &&
+                (effectColors.TryReadColor((ushort)address, out _) ||
+                 effectColors.TryReadColor(unchecked((ushort)(address - 1)), out _)))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending reread installed palette-FX color byte ${address:X6}.");
+            }
             foreach ((EndingPaletteId id, int start, int end) in Ranges)
             {
                 if (address < start || address >= end) continue;

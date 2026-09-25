@@ -31,7 +31,36 @@ internal static partial class Program
                     maximumOutputBytes: CeresDestructionArtworkFormat.ZebesCharacterByteCount)),
             "installed Zebes reveal PNG preserves every transferred character byte");
 
-        var guard = new IntroArtworkSourceReadGuard(bus);
+        foreach (CeresDestructionSpriteFrameDefinition frame in
+            CeresDestructionSpriteDefinitions.Frames)
+        {
+            foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
+            {
+                bool onScreen =
+                    (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
+                int source = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                var nativeOam = new OamBuffer();
+                nativeOam.BeginFrame();
+                if (onScreen)
+                    nativeOam.AddOnScreenSpritemap(bus, source, 120, y, 0x0800);
+                else
+                    nativeOam.AddOffScreenSpritemap(bus, source, 120, y, 0x0800);
+                nativeOam.FinalizeFrame();
+                var installedOam = new OamBuffer();
+                installedOam.BeginFrame();
+                stock.CeresDestruction.Sprites.Draw(frame.Pointer, installedOam,
+                    120, y, 0x0800, onScreen);
+                installedOam.FinalizeFrame();
+                AssertTrue(installedOam.LowTable.SequenceEqual(nativeOam.LowTable) &&
+                        installedOam.HighTable.SequenceEqual(nativeOam.HighTable) &&
+                        installedOam.LastFinalizedSpriteCount == nativeOam.LastFinalizedSpriteCount,
+                    $"Ceres destruction {frame.Name} at Y=${y:X4} preserves cartridge OAM");
+            }
+        }
+
+        var guard = new IntroArtworkSourceReadGuard(bus,
+            blockCeresFlightSprites: true, blockCeresDestructionSprites: true);
         var native = new CeresDestructionCinematicState(bus);
         var installed = new CeresDestructionCinematicState(guard, artwork: stock);
         var phases = new HashSet<CeresDestructionPhase>();
@@ -63,6 +92,49 @@ internal static partial class Program
 
         string overrideRoot = installation.IntroCinematicOverrideDirectory;
         Directory.CreateDirectory(overrideRoot);
+        string spritesName = CeresDestructionSpriteFormat.FileName;
+        string spritesPath = Path.Combine(installation.IntroCinematicDirectory, spritesName);
+        string spritesOverride = Path.Combine(overrideRoot, spritesName);
+        CeresDestructionSpriteDocument spriteDocument =
+            JsonSerializer.Deserialize<CeresDestructionSpriteDocument>(
+                File.ReadAllBytes(spritesPath), MapPresentationFormat.JsonOptions) ??
+            throw new InvalidDataException("Stock Ceres destruction sprites are empty.");
+        string changedFrame = "station-under-attack-large-asteroid";
+        spriteDocument.Frames[changedFrame] = spriteDocument.Frames[changedFrame]
+            .Select(part => part with { OffsetX = part.OffsetX + 16 }).ToArray();
+        using (var output = File.Create(spritesOverride))
+            CeresDestructionSpritePresentation.Write(output, spriteDocument);
+        IntroCinematicArtworkCatalog editedSprites = installation.LoadIntroCinematicArt();
+        var spriteState = new CeresDestructionCinematicState(guard, artwork: stock);
+        for (int frame = 0; frame < 36; frame++) spriteState.Step();
+        LayeredRenderSnapshot beforeSprites = spriteState.CaptureRenderSnapshot();
+        spriteState.BindArtwork(editedSprites);
+        LayeredRenderSnapshot afterSprites = spriteState.CaptureRenderSnapshot();
+        AssertTrue(!beforeSprites.Memory.Oam.SequenceEqual(afterSprites.Memory.Oam) &&
+                !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).AsSpan().SequenceEqual(
+                    SoftwareLayeredSnapshotRenderer.Render(afterSprites)),
+            "edited Ceres destruction composition changes production OAM and visible pixels");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "rebound Ceres destruction actor never rereads installed spritemaps");
+        spriteDocument.Frames.Remove(changedFrame);
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var invalid = new MemoryStream();
+            CeresDestructionSpritePresentation.Write(invalid, spriteDocument);
+        }, "Ceres destruction sprites reject a missing named frame");
+        File.WriteAllBytes(spritesPath, [0]);
+        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+            "a destruction sprite override cannot hide corrupt stock artwork");
+        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
+            ?? throw new InvalidOperationException("Ceres destruction sprite repair lost installation.");
+        var repairedSpriteState = new CeresDestructionCinematicState(guard,
+            artwork: repaired.LoadIntroCinematicArt());
+        for (int frame = 0; frame < 36; frame++) repairedSpriteState.Step();
+        AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
+                afterSprites.Memory.Oam),
+            "Ceres destruction sprite override survives stock repair and remains visible");
+        File.Delete(spritesOverride);
+
         string ceresPath = Path.Combine(installation.IntroCinematicDirectory,
             CeresDestructionArtworkFormat.CeresMapFileName);
         string ceresOverride = Path.Combine(overrideRoot,
@@ -148,6 +220,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "malformed Ceres destruction override fails loudly");
         File.Delete(ceresOverride);
-        Console.WriteLine("Ceres destruction art: native pixels, exact PNG/JSON transfers, overrides and state rebind pass.");
+        Console.WriteLine("Ceres destruction art: 23 native OAM frames, visible sprite edit, exact PNG/JSON transfers, overrides and state rebind pass.");
     }
 }

@@ -10,8 +10,11 @@ compares each actor's cursor, selected frame, and lifetime for 480 frames
 against an independent ROM-backed interpreter, and completes the entire
 destruction/Zebes reveal with those source ranges unreadable. The invisible
 spawner's fixed waits are already compiled in the scene owner; it has no live
-instruction interpreter to migrate. Bank-$8C visual spritemaps remain separate
-presentation work for #543.
+instruction interpreter to migrate. The 23 distinct bank-$8C visual spritemaps
+are now installed as `ceres-destruction-sprites.json`, with shared small-asteroid
+and vortex frames resolved through `ceres-flight-sprites.json`. Stock OAM and
+visible scene pixels match the ROM without source spritemap reads. A visual edit
+changes live OAM/pixels, rebinds to an active scene, and survives stock repair.
 
 ## Ceres approach actor instruction lists (2026-09-25)
 
@@ -27,8 +30,8 @@ each native OAM entry count and stock round-trip. Production approach rendering
 matches all six original frames (including negative-origin clipping) without
 reading the bank-$8C spritemaps; a one-part offset edit changes live OAM and
 visible pixels, restored scenes rebind it, malformed resources fail, and stock
-repair preserves the override. The Ceres destruction scene's other visual
-actors remain separate migration work.
+repair preserves the override. The destruction scene's distinct actors use
+their own editable file described above.
 
 ## Title-card timing and sprite selectors (2026-09-25)
 

@@ -992,7 +992,8 @@ internal static partial class Program
         bool blockIntroEggEffects = false,
         bool blockIntroDiscoveryActors = false,
         bool blockIntroScientistSprites = false,
-        bool blockCeresFlightSprites = false) : ISnesAddressSpace
+        bool blockCeresFlightSprites = false,
+        bool blockCeresDestructionSprites = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -1009,6 +1010,21 @@ internal static partial class Program
                         ForbiddenReadAttempts++;
                         throw new InvalidOperationException(
                             $"Ceres flight reread installed spritemap ${address:X6}.");
+                    }
+                }
+            }
+            if (blockCeresDestructionSprites)
+            {
+                foreach (CeresDestructionSpriteFrameDefinition frame in
+                    CeresDestructionSpriteDefinitions.Frames)
+                {
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                    {
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Ceres destruction reread installed spritemap ${address:X6}.");
                     }
                 }
             }

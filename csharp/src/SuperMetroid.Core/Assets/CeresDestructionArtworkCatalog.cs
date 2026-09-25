@@ -10,24 +10,28 @@ namespace SuperMetroid.Core.Assets;
 public sealed class CeresDestructionArtworkCatalog
 {
     private CeresDestructionArtworkCatalog(byte[] ceresMaps,
-        RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters)
+        RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters,
+        CeresDestructionSpritePresentation sprites)
     {
         CeresMaps = ceresMaps;
         ZebesMap = zebesMap;
         ZebesCharacters = zebesCharacters;
+        Sprites = sprites;
     }
 
     /// <summary>Two destruction views followed by the native clear-map slice.</summary>
     public ReadOnlyMemory<byte> CeresMaps { get; }
     public RoomBackgroundTilemapAtlas ZebesMap { get; }
     public RoomCharacterAtlas ZebesCharacters { get; }
+    public CeresDestructionSpritePresentation Sprites { get; }
 
     public static CeresDestructionArtworkCatalog Load(Stream ceresMapJson,
-        Stream zebesMapJson, Stream zebesCharactersPng)
+        Stream zebesMapJson, Stream zebesCharactersPng, Stream spritesJson)
     {
         ArgumentNullException.ThrowIfNull(ceresMapJson);
         ArgumentNullException.ThrowIfNull(zebesMapJson);
         ArgumentNullException.ThrowIfNull(zebesCharactersPng);
+        ArgumentNullException.ThrowIfNull(spritesJson);
         CeresDestructionMapDocument document = ReadMap(ceresMapJson);
         var maps = new byte[CeresDestructionArtworkFormat.MapByteCount];
         for (int view = 0; view < document.Views.Length; view++)
@@ -38,7 +42,8 @@ public sealed class CeresDestructionArtworkCatalog
             RoomBackgroundTilemapAtlas.Load(zebesMapJson,
                 CeresDestructionArtworkFormat.ZebesMapByteCount),
             RoomCharacterAtlas.Load(zebesCharactersPng,
-                CeresDestructionArtworkFormat.ZebesCharacterByteCount));
+                CeresDestructionArtworkFormat.ZebesCharacterByteCount),
+            CeresDestructionSpritePresentation.Load(spritesJson));
     }
 
     public static void WriteMap(Stream json, CeresDestructionMapDocument document)

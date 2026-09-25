@@ -51,10 +51,25 @@ internal static class CeresDestructionArtworkExtractor
         IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] zebesPng = png.ToArray();
 
+        var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (CeresDestructionSpriteFrameDefinition definition in
+            CeresDestructionSpriteDefinitions.Frames)
+            frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+        using var spritesJson = new MemoryStream();
+        CeresDestructionSpritePresentation.Write(spritesJson,
+            new CeresDestructionSpriteDocument
+            {
+                Version = CeresDestructionSpriteFormat.Version,
+                Frames = frames,
+            });
+        byte[] spritesFile = spritesJson.ToArray();
+
         CeresDestructionArtworkCatalog compiled = CeresDestructionArtworkCatalog.Load(
             new MemoryStream(mapJson.ToArray(), writable: false),
             new MemoryStream(zebesMapJson, writable: false),
-            new MemoryStream(zebesPng, writable: false));
+            new MemoryStream(zebesPng, writable: false),
+            new MemoryStream(spritesFile, writable: false));
         if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
                 CeresDestructionArtworkFormat.MapByteCount)) ||
             !compiled.ZebesMap.Transfer.Span.SequenceEqual(zebesMap.AsSpan(0,
@@ -66,6 +81,7 @@ internal static class CeresDestructionArtworkExtractor
             [CeresDestructionArtworkFormat.CeresMapFileName] = mapJson.ToArray(),
             [CeresDestructionArtworkFormat.ZebesMapFileName] = zebesMapJson,
             [CeresDestructionArtworkFormat.ZebesCharacterFileName] = zebesPng,
+            [CeresDestructionSpriteFormat.FileName] = spritesFile,
         };
     }
 }

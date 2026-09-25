@@ -163,6 +163,10 @@ Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.j
 under `overrides/intro-cinematic/`; restored debugger states rebind these visuals
 without restarting the destruction or descent timeline. Explosion, actor and
 camera behavior remain compiled cartridge logic.
+`ceres-destruction-sprites.json` adds the 23 distinct station-blast, explosion,
+planet, star-sheet, and title OAM frames. Destruction actors also use shared frames
+from `ceres-flight-sprites.json`. Both files support visual part edits without
+changing the native actor instruction timing, motion, or scene handoff.
 The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
 view of the Ceres flight map, with its original sixteen-frame upload cadence.
 

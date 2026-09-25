@@ -26,6 +26,7 @@ internal sealed partial class CeresDestructionCinematicState
     private readonly SnesCgram cgram = new();
     private byte[] ceresTilemaps;
     [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
+    [NonSerialized] private IIntroCinematicSpritePresentation? spriteArtwork;
     private readonly List<IntroDiscoverySprite> actors = [];
     private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
     private readonly SamusPowerBombExplosionState stationExplosion = new();
@@ -59,6 +60,8 @@ internal sealed partial class CeresDestructionCinematicState
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
         this.artwork = artwork;
+        spriteArtwork = artwork is null ? null : new CeresSceneSpritePresentation(
+            artwork.CeresFlight.Sprites, artwork.CeresDestruction.Sprites);
         stationExplosion.PresentationColors = fixedColors;
         // State $25 selects the common cinematic bank and destruction track eight.
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
@@ -84,6 +87,8 @@ internal sealed partial class CeresDestructionCinematicState
     internal void BindArtwork(IntroCinematicArtworkCatalog? value)
     {
         artwork = value;
+        spriteArtwork = value is null ? null : new CeresSceneSpritePresentation(
+            value.CeresFlight.Sprites, value.CeresDestruction.Sprites);
         if (value is null) return;
         ceresTilemaps = LoadCeresTilemaps();
         if (Phase < CeresDestructionPhase.WaitForZebesMusicQueue)

@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 19;
+    private const int FormatVersion = 20;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -629,17 +629,19 @@ public static class IntroCinematicArtworkFiles
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
             (string zebesMapPath, byte[] zebesMap) = ReadSelected(CeresDestructionArtworkFormat.ZebesMapFileName);
             (string zebesPngPath, byte[] zebesPng) = ReadSelected(CeresDestructionArtworkFormat.ZebesCharacterFileName);
+            (string spritesPath, byte[] sprites) = ReadSelected(CeresDestructionSpriteFormat.FileName);
             try
             {
                 return CeresDestructionArtworkCatalog.Load(
                     new MemoryStream(ceres, writable: false),
                     new MemoryStream(zebesMap, writable: false),
-                    new MemoryStream(zebesPng, writable: false));
+                    new MemoryStream(zebesPng, writable: false),
+                    new MemoryStream(sprites, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}): {error.Message}",
+                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}, {spritesPath}): {error.Message}",
                     error);
             }
         }
@@ -685,6 +687,7 @@ public static class IntroCinematicArtworkFiles
         CeresDestructionArtworkFormat.CeresMapFileName,
         CeresDestructionArtworkFormat.ZebesMapFileName,
         CeresDestructionArtworkFormat.ZebesCharacterFileName,
+        CeresDestructionSpriteFormat.FileName,
     ];
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);

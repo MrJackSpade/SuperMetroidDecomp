@@ -113,7 +113,8 @@ internal sealed partial class CeresDestructionCinematicState
         // not stable slot order after an earlier explosion dies and its slot is reused.
         IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
             ? actors.OrderByDescending(actor => ceresActorSlots[actor]) : actors;
-        foreach (IntroDiscoverySprite actor in drawActors) actor.Draw(bus, oam);
+        foreach (IntroDiscoverySprite actor in drawActors)
+            actor.Draw(bus, oam, installedArt: spriteArtwork);
         oam.FinalizeFrame();
         return oam;
     }

@@ -52,6 +52,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals;
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
     [NonSerialized] private RoomPlmKraidVisualCatalog? kraidVisuals;
+    [NonSerialized] private RoomPlmCrocomireVisualCatalog? crocomireVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
@@ -195,6 +196,12 @@ public sealed partial class RoomPlmSystem
     {
         get => kraidVisuals;
         set => kraidVisuals = value;
+    }
+
+    public RoomPlmCrocomireVisualCatalog? CrocomireVisuals
+    {
+        get => crocomireVisuals;
+        set => crocomireVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1881,7 +1888,8 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, crocomireDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false,
+                crocomireVisuals: crocomireVisuals);
             return;
         }
         if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
@@ -2119,7 +2127,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
         RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
-        RoomPlmKraidVisualCatalog? kraidVisuals = null)
+        RoomPlmKraidVisualCatalog? kraidVisuals = null,
+        RoomPlmCrocomireVisualCatalog? crocomireVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -2158,6 +2167,7 @@ public sealed partial class RoomPlmSystem
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? kraidVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

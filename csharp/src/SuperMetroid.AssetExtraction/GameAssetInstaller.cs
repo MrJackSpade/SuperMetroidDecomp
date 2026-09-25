@@ -109,6 +109,7 @@ public static class GameAssetInstaller
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(installation.RoomPlmSporeSpawnCeilingVisualDirectory);
             RoomPlmBotwoonWallVisualFiles.ValidateStock(installation.RoomPlmBotwoonWallVisualDirectory);
             RoomPlmKraidVisualFiles.ValidateStock(installation.RoomPlmKraidVisualDirectory);
+            RoomPlmCrocomireVisualFiles.ValidateStock(installation.RoomPlmCrocomireVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -353,6 +354,13 @@ public static class GameAssetInstaller
             RoomPlmKraidVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 kraidVisuals, SupportedCartridge.Sha256);
             RoomPlmKraidVisualFiles.ValidateStock(kraidVisuals);
+            progress?.Report("Extracting Crocomire room-object visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string crocomireVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName);
+            RoomPlmCrocomireVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                crocomireVisuals, SupportedCartridge.Sha256);
+            RoomPlmCrocomireVisualFiles.ValidateStock(crocomireVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

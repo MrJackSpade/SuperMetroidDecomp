@@ -29,6 +29,33 @@ internal static class CrocomireArenaPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
         Lists.TryGetValue(pointer, out draw);
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        ClearBridge => "clear-bridge",
+        CrumbleBridgeBlock => "crumble-bridge-block",
+        ClearBridgeBlock => "clear-bridge-block",
+        ClearInvisibleWall => "clear-invisible-wall",
+        CreateInvisibleWall => "create-invisible-wall",
+        _ => throw new InvalidDataException(
+            $"Crocomire arena draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(VisualId(candidate.Pointer), id,
+                    StringComparison.Ordinal))
+            {
+                draw = candidate;
+                return true;
+            }
+        }
+        draw = default;
+        return false;
+    }
+
     private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

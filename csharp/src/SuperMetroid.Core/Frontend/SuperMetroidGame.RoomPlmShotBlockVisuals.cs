@@ -25,6 +25,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     [NonSerialized] private RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
+    [NonSerialized] private RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -177,6 +178,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmKraidVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmKraidVisuals = catalog;
+    }
+
+    /// <summary>Binds Crocomire arena appearance after startup or state restoration.</summary>
+    public void BindRoomPlmCrocomireVisuals(RoomPlmCrocomireVisualCatalog? catalog)
+    {
+        roomPlmCrocomireVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmCrocomireVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

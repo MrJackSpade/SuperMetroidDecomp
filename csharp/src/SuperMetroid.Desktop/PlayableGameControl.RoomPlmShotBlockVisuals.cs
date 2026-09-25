@@ -23,6 +23,7 @@ public sealed partial class PlayableGameControl
     private SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
+    private SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 }

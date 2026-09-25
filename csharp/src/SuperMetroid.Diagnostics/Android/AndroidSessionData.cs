@@ -47,6 +47,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
@@ -159,6 +160,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmKraidVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmKraidVisuals() : null;
         Game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
+        roomPlmCrocomireVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCrocomireVisuals() : null;
+        Game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);
         roomPlmCollectibleVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCollectibleVisuals() : null;
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
@@ -284,6 +288,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
         Game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
         Game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
+        Game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         Game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         Game.BindXrayRevealVisuals(xrayRevealVisuals);

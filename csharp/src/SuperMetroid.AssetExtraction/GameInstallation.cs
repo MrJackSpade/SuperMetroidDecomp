@@ -169,6 +169,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmBotwoonWallVisualCatalog LoadRoomPlmBotwoonWallVisuals() =>
         RoomPlmBotwoonWallVisualFiles.Load(RoomPlmBotwoonWallVisualDirectory,
             RoomPlmBotwoonWallVisualOverrideDirectory);
+    public string RoomPlmKraidVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmKraidVisualDirectoryName);
+    public string RoomPlmKraidVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmKraidVisualDirectoryName);
+    /// <summary>Editable Kraid ceiling/spike art; physical mutations stay compiled.</summary>
+    public RoomPlmKraidVisualCatalog LoadRoomPlmKraidVisuals() =>
+        RoomPlmKraidVisualFiles.Load(RoomPlmKraidVisualDirectory,
+            RoomPlmKraidVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -247,11 +253,12 @@ public static class GameInstallationLayout
     public const string RoomPlmMaridiaElevatubeVisualDirectoryName = "room-plm-maridia-elevatube";
     public const string RoomPlmSporeSpawnCeilingVisualDirectoryName = "room-plm-spore-spawn-ceiling";
     public const string RoomPlmBotwoonWallVisualDirectoryName = "room-plm-botwoon-wall";
+    public const string RoomPlmKraidVisualDirectoryName = "room-plm-kraid";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 57;
+    public const int FormatVersion = 58;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

@@ -108,6 +108,7 @@ public static class GameAssetInstaller
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(installation.RoomPlmMaridiaElevatubeVisualDirectory);
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(installation.RoomPlmSporeSpawnCeilingVisualDirectory);
             RoomPlmBotwoonWallVisualFiles.ValidateStock(installation.RoomPlmBotwoonWallVisualDirectory);
+            RoomPlmKraidVisualFiles.ValidateStock(installation.RoomPlmKraidVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -345,6 +346,13 @@ public static class GameAssetInstaller
             RoomPlmBotwoonWallVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 botwoonWallVisuals, SupportedCartridge.Sha256);
             RoomPlmBotwoonWallVisualFiles.ValidateStock(botwoonWallVisuals);
+            progress?.Report("Extracting Kraid room-object visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string kraidVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmKraidVisualDirectoryName);
+            RoomPlmKraidVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                kraidVisuals, SupportedCartridge.Sha256);
+            RoomPlmKraidVisualFiles.ValidateStock(kraidVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

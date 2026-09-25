@@ -40,6 +40,48 @@ internal static class KraidRoomPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
         Lists.TryGetValue(pointer, out draw);
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        CrumbleFirst => "crumble-first",
+        CrumbleSecond => "crumble-second",
+        CrumbleThird => "crumble-third",
+        CeilingBackground1 => "ceiling-background-one",
+        CeilingBackground2 => "ceiling-background-two",
+        CeilingBackground3 => "ceiling-background-three",
+        SpikeFirst => "spike-first",
+        SpikeSecond => "spike-second",
+        ClearCeiling => "clear-ceiling",
+        ClearSpikes => "clear-spikes",
+        _ => throw new InvalidDataException(
+            $"Kraid room draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(VisualId(candidate.Pointer), id,
+                    StringComparison.Ordinal))
+            {
+                draw = candidate;
+                return true;
+            }
+        }
+        draw = default;
+        return false;
+    }
+
+    internal static bool IsKraidOwner(ushort header) => header is
+        RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1 or
+        RoomPlmHeaders.CrumbleKraidPlatformVariant1 or
+        RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2 or
+        RoomPlmHeaders.CrumbleKraidPlatformVariant2 or
+        RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3 or
+        RoomPlmHeaders.ClearKraidCeiling or
+        RoomPlmHeaders.CrumbleKraidSpikes or
+        RoomPlmHeaders.ClearKraidSpikes;
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

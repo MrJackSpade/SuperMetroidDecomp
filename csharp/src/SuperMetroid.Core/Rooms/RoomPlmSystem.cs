@@ -51,6 +51,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals;
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
+    [NonSerialized] private RoomPlmKraidVisualCatalog? kraidVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
@@ -188,6 +189,12 @@ public sealed partial class RoomPlmSystem
     {
         get => botwoonWallVisuals;
         set => botwoonWallVisuals = value;
+    }
+
+    public RoomPlmKraidVisualCatalog? KraidVisuals
+    {
+        get => kraidVisuals;
+        set => kraidVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1519,6 +1526,7 @@ public sealed partial class RoomPlmSystem
                     bus,
                     level,
                     streamer,
+                    slot.HeaderPointer,
                     slot.BlockIndex,
                     drawPointer,
                     layer1XPosition,
@@ -1798,6 +1806,19 @@ public sealed partial class RoomPlmSystem
         ushort drawPointer,
         ushort layer1XPosition,
         ushort layer1YPosition,
+        ushort bg1XOffset) =>
+        DrawRomInstruction(bus, level, streamer, 0, blockIndex, drawPointer,
+            layer1XPosition, layer1YPosition, bg1XOffset);
+
+    private void DrawRomInstruction(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        ushort headerPointer,
+        int blockIndex,
+        ushort drawPointer,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
         ushort bg1XOffset)
     {
         // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
@@ -1823,6 +1844,17 @@ public sealed partial class RoomPlmSystem
                 layer1XPosition, layer1YPosition, bg1XOffset,
                 useShotBlockVisuals: false,
                 speedBoosterVisuals: speedBoosterVisuals);
+            return;
+        }
+        if (KraidRoomPlmDrawDefinitions.IsKraidOwner(headerPointer) &&
+            KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var ownedKraidDraw))
+        {
+            // $9367 is shared with Maridia's elevatube. Select its appearance
+            // from the active PLM header, never from the pointer alone.
+            DrawCompiledBlockInstruction(
+                level, streamer, ownedKraidDraw, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false, kraidVisuals: kraidVisuals);
             return;
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
@@ -2076,7 +2108,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals = null,
         RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
-        RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null)
+        RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
+        RoomPlmKraidVisualCatalog? kraidVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -2114,6 +2147,7 @@ public sealed partial class RoomPlmSystem
                     ?? maridiaElevatubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? kraidVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

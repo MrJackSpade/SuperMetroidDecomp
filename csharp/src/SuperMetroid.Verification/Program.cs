@@ -946,6 +946,11 @@ if (args is ["--kraid-room-plms"])
     VerifyCompiledKraidRoomPlms();
     return 0;
 }
+if (args is ["--kraid-room-visuals"])
+{
+    VerifyKraidRoomVisuals();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2582,6 +2587,7 @@ VerifyCompiledSporeSpawnCeilingPlms();
 VerifyCompiledBotwoonWallPlms();
 VerifyBotwoonWallVisuals();
 VerifyCompiledKraidRoomPlms();
+VerifyKraidRoomVisuals();
 VerifySporeSpawnCeilingVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();

@@ -24,6 +24,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
+    [NonSerialized] private RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -169,6 +170,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmBotwoonWallVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmBotwoonWallVisuals = catalog;
+    }
+
+    /// <summary>Binds Kraid ceiling/spike appearance after startup or state restoration.</summary>
+    public void BindRoomPlmKraidVisuals(RoomPlmKraidVisualCatalog? catalog)
+    {
+        roomPlmKraidVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmKraidVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

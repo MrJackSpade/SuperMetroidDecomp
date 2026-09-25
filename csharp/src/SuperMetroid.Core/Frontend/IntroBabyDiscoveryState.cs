@@ -2,7 +2,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
@@ -42,7 +41,7 @@ internal sealed class IntroBabyDiscoveryState
 
         // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final
         // 128 foreground words and all BTS bytes retain the earlier zero initialization.
-        byte[] source = RomDataReader.ReadFixedBank(bus, 0x8cc083, 0x0300);
+        byte[] source = IntroBabyDiscoveryCollisionDefinitions.CopySourceBytes();
         Level = CreateLevel(source);
 
         demo.Clear();

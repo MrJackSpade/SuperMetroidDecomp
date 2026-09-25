@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -34,7 +35,20 @@ internal static partial class Program
         }
 
         var guarded = new IntroBabyActorDefinitionReadGuard(retail);
+        byte[] nativeCollision = RomDataReader.ReadFixedBank(retail,
+            IntroBabyDiscoveryCollisionDefinitions.SourceAddress,
+            IntroBabyDiscoveryCollisionDefinitions.SourceByteCount);
+        AssertTrue(IntroBabyDiscoveryCollisionDefinitions.SourceBytes.SequenceEqual(nativeCollision),
+            "SR388 discovery physical level matches every cartridge source byte");
         var discovery = new IntroBabyDiscoveryState(guarded);
+        for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
+        {
+            ushort expected = block * sizeof(ushort) < nativeCollision.Length
+                ? (ushort)(nativeCollision[block * 2] | nativeCollision[block * 2 + 1] << 8)
+                : (ushort)0;
+            AssertEqual(expected, discovery.Level.ForegroundEntries.Span[block],
+                $"SR388 discovery physical block {block} preserves native word");
+        }
         discovery.Samus.XPosition = 0x00a8;
         discovery.Step(nmiFrameCounter: 0, introCrossfadeTimer: 0x007f);
         AssertTrue(discovery.EggHatchingStarted,
@@ -53,10 +67,10 @@ internal static partial class Program
         AssertTrue(examination.PageFiveRequested,
             "examined-baby production actor reaches page-five instruction");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "intro egg and baby actors never reread compiled definition/initializer records");
+            "intro egg/baby setup never rereads compiled definitions or discovery collision bytes");
 
         Console.WriteLine(
-            "  Intro baby actors: twelve definition and twelve initializer words match; egg and both scientist scenes are source-record independent.");
+            "  Intro baby actors: definition and initializer words plus 768 collision bytes match; guarded discovery and scientist scenes pass.");
     }
 
     private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
@@ -70,6 +84,9 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             bool forbidden =
+                (address >= IntroBabyDiscoveryCollisionDefinitions.SourceAddress &&
+                    address < IntroBabyDiscoveryCollisionDefinitions.SourceAddress +
+                        IntroBabyDiscoveryCollisionDefinitions.SourceByteCount) ||
                 address is >= 0x8bce5b and < 0x8bce6d or
                 >= 0x8bce79 and < 0x8bce7f or
                 >= 0x8ba8d5 and < 0x8ba8e8 or

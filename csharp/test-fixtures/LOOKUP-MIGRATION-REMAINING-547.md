@@ -10,6 +10,14 @@ tail blocks) with the pinned ROM, then runs the actual flashback setup while
 forbidding reads of the original source range. Other intro demo input and
 sprite/control streams still require separate ROM-free migration.
 
+The following SR388 discovery scene's separate physical source at `$8C:C083`
+is also compiled: twelve 32-block rows, ten zero rows followed by uniform
+`$1000` and `$8000` rows. The declared room's final four rows remain zero.
+The actor verifier compares all 768 cartridge bytes and all 512 resulting
+foreground words, then executes the production discovery constructor and
+scientist scene path with the old collision source unreadable. Its visual BG
+page, actor animation streams, and demo input are separate work.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

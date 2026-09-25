@@ -324,7 +324,7 @@ physical word. The multi-run bottom-row edit reaches immediate redraw and
 later streaming; stock hashes, malformed overrides, and stock replacement are
 covered. Other PLM families remain pending.
 
-## GRipper, Ripper II, and Ripper visuals (2026-09-24)
+## Fireflea visuals (2026-09-25)
 
 Fireflea's 52 interleaved bank-$A3 visual selectors now use the compiled
 enemy-selector table, and their 21 distinct three-part OAM compositions are
@@ -333,6 +333,8 @@ matches every cartridge frame selection with both mechanics and selector source
 bytes forbidden. Stock OAM at three origins, visible edited Y placement, and
 version-eleven override migration are verified. Its timing, motion, darkness
 effect, and collision remain engine-owned. Other enemy families are pending.
+
+## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 
 The three bank-$A2 Ripper variants select twelve distinct moving frames through
 twenty-four fixed visual operands. The GRipper/Ripper II frozen facings add two

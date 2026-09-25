@@ -1174,7 +1174,8 @@ public sealed partial class IntroCinematicState
             flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
             flashbackRinkas?.Draw(bus, oam);
         }
-        flashbackMotherBrainExplosions?.Draw(bus, oam);
+        flashbackMotherBrainExplosions?.Draw(bus, oam,
+            characterArtwork?.MotherBrainExplosionSprites);
         if (flashbackMotherBrain.IsVisible && flashbackMotherBrain.SpriteMapPointer != 0)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic

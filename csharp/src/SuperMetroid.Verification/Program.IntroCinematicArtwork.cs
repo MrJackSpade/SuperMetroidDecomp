@@ -76,6 +76,7 @@ internal static partial class Program
             VerifyIntroCaretSpriteArtwork(bus, stock, installation);
             VerifyIntroMotherBrainCollision(bus, stock);
             VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation);
+            VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -552,7 +553,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -882,7 +883,105 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
-    private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
+        SuperMetroidAddressSpace bus, IntroCinematicArtworkCatalog stock,
+        GameInstallation installation)
+    {
+        const ushort x = 120;
+        const ushort y = 100;
+        ushort palette = IntroCinematicRomData.Objects.ExplosionPalette.Raw;
+        foreach (IntroMotherBrainExplosionSpriteFrameDefinition definition in
+            IntroMotherBrainExplosionSpriteDefinitions.Frames)
+        {
+            var native = new OamBuffer();
+            native.BeginFrame();
+            native.AddOnScreenSpritemap(bus,
+                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    definition.Pointer), x, y, palette);
+            native.FinalizeFrame();
+            var installed = new OamBuffer();
+            installed.BeginFrame();
+            stock.MotherBrainExplosionSprites.Draw(definition.Pointer, installed,
+                x, y, palette);
+            installed.FinalizeFrame();
+            AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
+                    installed.HighTable.SequenceEqual(native.HighTable) &&
+                    installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
+                $"intro Mother Brain explosion {definition.Name} produces exact native OAM");
+        }
+
+        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
+        string name = IntroMotherBrainExplosionSpriteFormat.FileName;
+        IntroMotherBrainExplosionSpriteDocument document =
+            JsonSerializer.Deserialize<IntroMotherBrainExplosionSpriteDocument>(
+                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        document.Frames["small-explosion-0"] = document.Frames["small-explosion-0"]
+            .Select(part => part with { Palette = 0 }).ToArray();
+        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
+        using (var output = File.Create(overridePath))
+            IntroMotherBrainExplosionSpritePresentation.Write(output, document);
+        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+
+        var guarded = new IntroArtworkSourceReadGuard(bus,
+            blockIntroMotherBrainExplosions: true);
+        var explosions = new IntroMotherBrainExplosionSystem();
+        explosions.SpawnFourthHitExplosions();
+        explosions.Step(guarded, introCrossfadeTimer: 1);
+        var stockOam = new OamBuffer();
+        stockOam.BeginFrame();
+        explosions.Draw(guarded, stockOam, stock.MotherBrainExplosionSprites);
+        stockOam.FinalizeFrame();
+        var editedOam = new OamBuffer();
+        editedOam.BeginFrame();
+        explosions.Draw(guarded, editedOam, edited.MotherBrainExplosionSprites);
+        editedOam.FinalizeFrame();
+        AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&
+                editedOam.HighTable.SequenceEqual(stockOam.HighTable),
+            "intro explosion palette edit changes production OAM attributes, not actor placement");
+        for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
+            AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
+                    .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
+                $"intro explosion palette edit preserves native part {part} X/Y");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed intro explosion actors never reread the twelve native compositions");
+
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var stockState = new IntroCinematicState(guarded, characterArtwork: stock);
+        var editedState = new IntroCinematicState(guarded, characterArtwork: edited);
+        foreach (IntroCinematicState state in new[] { stockState, editedState })
+        {
+            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
+                .Invoke(state, null);
+            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
+                .Invoke(state, null);
+            typeof(IntroCinematicState)
+                .GetField("flashbackMotherBrainExplosions", flags)!
+                .SetValue(state, explosions);
+        }
+        var render = typeof(IntroCinematicState)
+            .GetMethod("RenderMotherBrainFlashback", flags)!;
+        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
+        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        AssertTrue(!stockPixels.SequenceEqual(editedPixels),
+            "intro explosion art override changes visible production flashback pixels");
+        stockState.BindCharacterArtwork(edited);
+        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+            "restored intro explosion scene rebinds the selected visual composition");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "production intro explosion render avoids all twelve native compositions");
+
+        document.Frames.Remove("small-explosion-0");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var malformed = new MemoryStream();
+            IntroMotherBrainExplosionSpritePresentation.Write(malformed, document);
+        }, "intro explosion artwork rejects a missing named frame");
+        File.Delete(overridePath);
+    }
+
+    private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source,
+        bool blockIntroMotherBrainExplosions = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -974,6 +1073,19 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread intro Mother Brain sprite ${address:X6}.");
+            }
+            int explosionSpriteStart = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroMotherBrainExplosionSpriteDefinitions.SmallStart);
+            int explosionSpriteEnd = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroMotherBrainExplosionSpriteDefinitions.End);
+            if (blockIntroMotherBrainExplosions &&
+                address >= explosionSpriteStart && address < explosionSpriteEnd)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread intro Mother Brain explosion sprite ${address:X6}.");
             }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

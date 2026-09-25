@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -44,8 +45,9 @@ internal sealed class IntroMotherBrainExplosionSystem
             actor.Step(bus, introCrossfadeTimer);
     }
 
-    /// <summary>Adds each visible ROM spritemap to the current cinematic OAM frame.</summary>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam)
+    /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
+    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+        IntroMotherBrainExplosionSpritePresentation? installedArt = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -54,14 +56,17 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.SpriteMapPointer == 0)
                 continue;
 
-            oam.AddOnScreenSpritemap(
-                bus,
-                (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps,
-                    actor.SpriteMapPointer),
-                actor.XPosition,
-                actor.YPosition,
-                paletteBits: IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            if (installedArt is not null)
+                installedArt.Draw(actor.SpriteMapPointer, oam, actor.XPosition,
+                    actor.YPosition, IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            else
+                oam.AddOnScreenSpritemap(
+                    bus,
+                    (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                        actor.SpriteMapPointer),
+                    actor.XPosition,
+                    actor.YPosition,
+                    paletteBits: IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 

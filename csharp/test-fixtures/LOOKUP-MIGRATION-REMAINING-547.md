@@ -32,7 +32,13 @@ The small and large fourth-hit explosion actors now compile their complete
 delete opcode at `$CE53`. Verification compares every byte with the pinned
 ROM, then checks both staggered loops over 192 production frames and their
 crossfade deletion with the source ranges unreadable. The twelve referenced
-bank-$8C visual spritemaps remain a separate artwork migration.
+bank-$8C visual spritemaps at `$97F7..98D1` are now separately extracted as
+editable `intro-mother-brain-explosion-sprites.json`. Every installed frame
+matches native OAM; a palette override changes visible flashback pixels without
+moving the actors, and a restored state rebinds the selected art. The guarded
+flashback render no longer reads those twelve source records. Later cinematic
+actors may reuse some addresses, so the source-read guard is scoped to this
+scene rather than forbidding them globally.
 
 ## Additional room-PLM instruction control (2026-09-24)
 

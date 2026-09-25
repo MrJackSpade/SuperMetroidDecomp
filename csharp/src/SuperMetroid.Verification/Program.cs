@@ -901,6 +901,11 @@ if (args is ["--maridia-elevatube-plm"])
     VerifyMaridiaElevatubePlm();
     return 0;
 }
+if (args is ["--tourian-access-plms"])
+{
+    VerifyCompiledTourianAccessPlmPrograms();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2529,6 +2534,7 @@ VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySpeedBoosterCollisionBlocks();
 VerifyMaridiaElevatubePlm();
+VerifyCompiledTourianAccessPlmPrograms();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

@@ -267,6 +267,15 @@ word, and deletion with both source regions unreadable. Verification compares
 each control operand and draw byte with the pinned ROM. This does not
 cover the elevatube's separate room-main motion or other room-object programs.
 
+The Tourian entrance access-floor PLMs now use compiled instruction words at
+`$84:AAE5..AAFF` and `$84:AB0C..AB11` and all five physical draws at
+`$84:9297..930E`. The neighboring `$84:AB00` move-down routine is executable
+callback code, not an instruction-list byte range. Verification compares all
+sixteen words, the loop operand, and every draw run with the pinned ROM. Both
+the immediate six-row clear and the full six-row crumble execute with program
+and draw source reads forbidden, asserting every final level word and native
+deletion frame. An editable access-floor visual resource remains pending.
+
 ## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 
 The three bank-$A2 Ripper variants select twelve distinct moving frames through

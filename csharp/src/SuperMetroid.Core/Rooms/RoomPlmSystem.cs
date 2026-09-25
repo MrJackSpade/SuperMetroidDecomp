@@ -1796,6 +1796,15 @@ public sealed partial class RoomPlmSystem
                 bg1XOffset, useShotBlockVisuals: false);
             return;
         }
+        if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
+                out var accessFloor))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, accessFloor, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
         {
             DrawCompiledBlockInstruction(
@@ -2119,7 +2128,9 @@ public sealed partial class RoomPlmSystem
     // compiled family claims only its own exact control addresses; all other bank-$84
     // programs continue through the cartridge interpreter.
     private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
-        MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out ushort value)
+        TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
+            ? value
+            : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
@@ -2160,7 +2171,9 @@ public sealed partial class RoomPlmSystem
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
-        MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out byte value)
+        TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
+            ? value
+            : MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value)
             ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
             ? value

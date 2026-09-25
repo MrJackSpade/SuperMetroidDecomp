@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## N00b-tube PLM instruction control (2026-09-24)
+
+Both reachable n00b-tube instruction branches now execute their 36 control
+and draw-selector words plus one sound byte from a compiled program catalog.
+All 73 authored bytes agree with the pinned ROM. The complete break and
+already-broken reload fixtures run with both program source ranges unreadable,
+covering wake input, power-bomb gate, crack/shards/bubbles, earthquake, event,
+water-physics handoff, and cleanup. Other PLM families still have program ROM
+dependencies.
+
 ## Retail room PLM populations (2026-09-24)
 
 All 284 distinct bank-$8F PLM populations selected by the 323 compiled room

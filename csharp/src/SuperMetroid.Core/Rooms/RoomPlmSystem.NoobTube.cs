@@ -89,20 +89,20 @@ public sealed partial class RoomPlmSystem
         switch (instruction)
         {
             case RoomPlmInstructionCodes.GotoIfEventSet:
-                ushort eventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 if (eventNumber != (ushort)NoobTubePlmRomData.BrokenEvent)
                 {
                     throw new InvalidDataException(
                         $"N00b tube referenced event ${eventNumber:X4}, not event $000B.");
                 }
-                ushort target = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
+                ushort target = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
                 slot.InstructionPointer = RequireNoobTubeEventReader()(NoobTubePlmRomData.BrokenEvent)
                     ? target
                     : unchecked((ushort)(cursor + 6));
                 return true;
 
             case RoomPlmInstructionCodes.LinkInstruction:
-                slot.LinkInstruction = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                slot.LinkInstruction = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -143,7 +143,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstructionCodes.SetEvent:
-                ushort setEvent = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                ushort setEvent = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 if (setEvent != (ushort)NoobTubePlmRomData.BrokenEvent)
                 {
                     throw new InvalidDataException(

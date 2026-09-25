@@ -448,7 +448,8 @@ The n00b-tube break-apart frames are installed as
 `blocks` visual words, and restart. Keep all seven frame IDs. Twelve-block
 rows are flattened in native run order in the stock file; run placement,
 physical blocks, the power-bomb trigger, shards, and event timing remain
-compiled. The active room's tile definitions supply the actual art. Stock
+compiled. The tube's two reachable instruction branches are compiled as
+engine behavior too. The active room's tile definitions supply the actual art. Stock
 data is hash-checked, invalid overrides fail loudly, and valid overrides
 survive stock repair.
 

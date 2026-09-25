@@ -2017,6 +2017,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : DownwardGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : NoobTubePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
@@ -2029,6 +2031,8 @@ public sealed partial class RoomPlmSystem
             : RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : DownwardGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : NoobTubePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : bus.ReadByte(Bank84(address));
 

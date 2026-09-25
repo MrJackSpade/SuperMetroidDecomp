@@ -933,6 +933,11 @@ if (args is ["--noob-tube-plm-draws"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--noob-tube-plm-program"])
+{
+    VerifyNoobTubePlm();
+    return 0;
+}
 if (args is ["--shot-block-plm-programs"])
 {
     VerifyShotBlockPlmPrograms();

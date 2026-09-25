@@ -181,6 +181,13 @@ public sealed record GameInstallation(string Root)
     public RoomPlmCrocomireVisualCatalog LoadRoomPlmCrocomireVisuals() =>
         RoomPlmCrocomireVisualFiles.Load(RoomPlmCrocomireVisualDirectory,
             RoomPlmCrocomireVisualOverrideDirectory);
+    public string RoomPlmMotherBrainFakeDeathVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName);
+    public string RoomPlmMotherBrainFakeDeathVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName);
+    /// <summary>Editable fake-death terrain art; physical room mutations remain compiled.</summary>
+    public RoomPlmMotherBrainFakeDeathVisualCatalog LoadRoomPlmMotherBrainFakeDeathVisuals() =>
+        RoomPlmMotherBrainFakeDeathVisualFiles.Load(
+            RoomPlmMotherBrainFakeDeathVisualDirectory,
+            RoomPlmMotherBrainFakeDeathVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -261,11 +268,12 @@ public static class GameInstallationLayout
     public const string RoomPlmBotwoonWallVisualDirectoryName = "room-plm-botwoon-wall";
     public const string RoomPlmKraidVisualDirectoryName = "room-plm-kraid";
     public const string RoomPlmCrocomireVisualDirectoryName = "room-plm-crocomire";
+    public const string RoomPlmMotherBrainFakeDeathVisualDirectoryName = "room-plm-mother-brain-fake-death";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 59;
+    public const int FormatVersion = 60;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

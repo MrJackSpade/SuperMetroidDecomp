@@ -10,8 +10,13 @@ vertical/horizontal run shapes, and signed offsets. Verification compares all
 66 instruction words and every draw byte against the pinned ROM, then runs all
 twenty reachable hardcoded PLM headers through the production allocator with
 those source records forbidden. It checks every resulting room block, first
-draw-frame lifetime, and next-frame deletion. Visual tile choices still need
-extraction; this is not completion of the wider room-object migration.
+draw-frame lifetime, and next-frame deletion. Their twenty-two visible layouts
+are now separately installed in
+`room-plm-mother-brain-fake-death/mother-brain-fake-death.json`; a background-row
+and signed-offset tube edit reach production tilemap output without changing
+collision. Stock ROM/manifest validation, malformed overrides, and persistence
+through stock replacement are verified. This is not completion of the wider
+room-object migration.
 
 Spore Spawn's ceiling now has both reachable bank-$84 instruction lists and
 four two-run physical draw layouts compiled. The crumble list intentionally

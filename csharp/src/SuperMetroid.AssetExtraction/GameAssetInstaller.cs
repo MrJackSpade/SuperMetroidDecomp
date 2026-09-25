@@ -110,6 +110,8 @@ public static class GameAssetInstaller
             RoomPlmBotwoonWallVisualFiles.ValidateStock(installation.RoomPlmBotwoonWallVisualDirectory);
             RoomPlmKraidVisualFiles.ValidateStock(installation.RoomPlmKraidVisualDirectory);
             RoomPlmCrocomireVisualFiles.ValidateStock(installation.RoomPlmCrocomireVisualDirectory);
+            RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
+                installation.RoomPlmMotherBrainFakeDeathVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -361,6 +363,15 @@ public static class GameAssetInstaller
             RoomPlmCrocomireVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 crocomireVisuals, SupportedCartridge.Sha256);
             RoomPlmCrocomireVisualFiles.ValidateStock(crocomireVisuals);
+            progress?.Report("Extracting Mother Brain fake-death room visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string motherBrainFakeDeathVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName);
+            RoomPlmMotherBrainFakeDeathVisualFiles.Extract(
+                new SuperMetroidAddressSpace(rom),
+                motherBrainFakeDeathVisuals, SupportedCartridge.Sha256);
+            RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
+                motherBrainFakeDeathVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

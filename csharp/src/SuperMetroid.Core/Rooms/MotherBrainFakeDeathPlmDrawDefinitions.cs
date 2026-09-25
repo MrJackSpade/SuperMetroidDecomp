@@ -60,6 +60,50 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
         Lists.TryGetValue(pointer, out draw);
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        FillWall => "fill-wall",
+        EscapeDoor => "escape-door",
+        BackgroundRow2 => "background-row-2",
+        BackgroundRow3 => "background-row-3",
+        BackgroundRow4 => "background-row-4",
+        BackgroundRow5 => "background-row-5",
+        BackgroundRow6 => "background-row-6",
+        BackgroundRow7 => "background-row-7",
+        BackgroundRow8 => "background-row-8",
+        BackgroundRow9 => "background-row-9",
+        BackgroundRowA => "background-row-a",
+        BackgroundRowB => "background-row-b",
+        BackgroundRowC => "background-row-c",
+        BackgroundRowD => "background-row-d",
+        BackgroundRowEUnused => "background-row-e-unused",
+        BackgroundRowFUnused => "background-row-f-unused",
+        ClearCeilingBlock => "clear-ceiling-block",
+        ClearCeilingTube => "clear-ceiling-tube",
+        ClearBottomMiddleSideTube => "clear-bottom-middle-side-tube",
+        ClearBottomMiddleTubes => "clear-bottom-middle-tubes",
+        ClearBottomLeftTube => "clear-bottom-left-tube",
+        ClearBottomRightTube => "clear-bottom-right-tube",
+        _ => throw new InvalidDataException(
+            $"Mother Brain fake-death draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(VisualId(candidate.Pointer), id,
+                    StringComparison.Ordinal))
+            {
+                draw = candidate;
+                return true;
+            }
+        }
+        draw = default;
+        return false;
+    }
+
     private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

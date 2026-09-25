@@ -152,6 +152,12 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.CrocomireVisuals = value;
     }
 
+    public RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals
+    {
+        get => Plms.MotherBrainFakeDeathVisuals;
+        set => Plms.MotherBrainFakeDeathVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

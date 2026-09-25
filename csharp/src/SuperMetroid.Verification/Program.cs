@@ -956,6 +956,11 @@ if (args is ["--mother-brain-fake-death-plms"])
     VerifyCompiledMotherBrainFakeDeathPlms();
     return 0;
 }
+if (args is ["--mother-brain-fake-death-visuals"])
+{
+    VerifyMotherBrainFakeDeathVisuals();
+    return 0;
+}
 if (args is ["--crocomire-arena-visuals"])
 {
     VerifyCrocomireArenaVisuals();
@@ -2604,6 +2609,7 @@ VerifyBotwoonWallVisuals();
 VerifyCompiledKraidRoomPlms();
 VerifyCompiledCrocomireArenaPlms();
 VerifyCompiledMotherBrainFakeDeathPlms();
+VerifyMotherBrainFakeDeathVisuals();
 VerifyCrocomireArenaVisuals();
 VerifyKraidRoomVisuals();
 VerifySporeSpawnCeilingVisuals();

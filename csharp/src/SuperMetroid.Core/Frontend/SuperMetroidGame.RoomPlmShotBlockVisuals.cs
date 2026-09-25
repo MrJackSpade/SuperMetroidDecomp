@@ -26,6 +26,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     [NonSerialized] private RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
     [NonSerialized] private RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
+    [NonSerialized] private RoomPlmMotherBrainFakeDeathVisualCatalog? roomPlmMotherBrainFakeDeathVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -185,6 +186,14 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmCrocomireVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmCrocomireVisuals = catalog;
+    }
+
+    /// <summary>Binds Mother Brain fake-death room art after startup or state restoration.</summary>
+    public void BindRoomPlmMotherBrainFakeDeathVisuals(
+        RoomPlmMotherBrainFakeDeathVisualCatalog? catalog)
+    {
+        roomPlmMotherBrainFakeDeathVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmMotherBrainFakeDeathVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

@@ -53,6 +53,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
     [NonSerialized] private RoomPlmKraidVisualCatalog? kraidVisuals;
     [NonSerialized] private RoomPlmCrocomireVisualCatalog? crocomireVisuals;
+    [NonSerialized] private RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
@@ -202,6 +203,12 @@ public sealed partial class RoomPlmSystem
     {
         get => crocomireVisuals;
         set => crocomireVisuals = value;
+    }
+
+    public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals
+    {
+        get => motherBrainFakeDeathVisuals;
+        set => motherBrainFakeDeathVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1899,7 +1906,8 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, fakeDeathDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false,
+                motherBrainFakeDeathVisuals: motherBrainFakeDeathVisuals);
             return;
         }
         if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
@@ -2138,7 +2146,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
         RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
         RoomPlmKraidVisualCatalog? kraidVisuals = null,
-        RoomPlmCrocomireVisualCatalog? crocomireVisuals = null)
+        RoomPlmCrocomireVisualCatalog? crocomireVisuals = null,
+        RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -2178,6 +2187,7 @@ public sealed partial class RoomPlmSystem
                     ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? kraidVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? motherBrainFakeDeathVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

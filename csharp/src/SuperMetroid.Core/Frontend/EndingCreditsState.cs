@@ -824,12 +824,17 @@ internal sealed partial class EndingCreditsState
             EndingSprite? wrapper = sprites.Find(actor => actor.NativeSlot == slot && actor.Sprite.IsActive);
             if (wrapper is null) continue;
             StepEndingSpritePreInstruction(wrapper);
+            Func<ushort, ushort>? instructionWord = objectArtwork is null ? null : wrapper.Role switch
+            {
+                >= EndingSpriteRole.ExplodingZebes and
+                    <= EndingSpriteRole.ExplosionAfterglow => EndingExplosionInstructionDefinitions.ReadWord,
+                >= EndingSpriteRole.OperationWasText and
+                    <= EndingSpriteRole.ClearTimeDigit => EndingCompletionTextInstructionDefinitions.ReadWord,
+                _ => null,
+            };
             wrapper.Sprite.Step(bus, (opcode, cursor) =>
                 HandleSpriteOpcode(wrapper, opcode, cursor),
-                instructionWord: objectArtwork is not null &&
-                    wrapper.Role is >= EndingSpriteRole.ExplodingZebes and
-                        <= EndingSpriteRole.ExplosionAfterglow
-                    ? EndingExplosionInstructionDefinitions.ReadWord : null);
+                instructionWord: instructionWord);
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }

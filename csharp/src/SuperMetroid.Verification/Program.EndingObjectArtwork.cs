@@ -114,6 +114,7 @@ internal static partial class Program
             }
         }
         VerifyEndingExplosionActorArtwork(installation, bus, stock);
+        VerifyEndingCompletionTextInstructions(bus);
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -123,8 +124,8 @@ internal static partial class Program
         var installed = new EndingCreditsState(guard, installedAudio, 0, 0);
         installed.BindObjectArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
-        for (int frame = 0; frame < 10000 &&
-            native.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
+        for (int frame = 0; frame < 12000 &&
+            native.Phase != EndingCreditsPhase.FadeOutToCredits; frame++)
         {
             AssertEqual(native.Phase, installed.Phase,
                 $"installed ending OBJ art preserves phase at frame {frame}");
@@ -143,14 +144,16 @@ internal static partial class Program
             nativeAudio.AdvanceFrame(bus, default);
             installedAudio.AdvanceFrame(guard, default);
         }
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, native.Phase,
-            "ending OBJ fixture reaches the planet flyaway");
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, installed.Phase,
-            "installed OBJ art retains the native planet-flyaway handoff");
+        AssertEqual(EndingCreditsPhase.FadeOutToCredits, native.Phase,
+            "ending OBJ fixture reaches the completed-time credits handoff");
+        AssertEqual(EndingCreditsPhase.FadeOutToCredits, installed.Phase,
+            "installed OBJ art retains the native completed-time credits handoff");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
                 phases.Contains(EndingCreditsPhase.FadeInEscapeSceneB) &&
-                phases.Contains(EndingCreditsPhase.FadeInZebesExplosion),
-            "ending clouds and explosion assets were loaded in their actual scenes");
+                phases.Contains(EndingCreditsPhase.FadeInZebesExplosion) &&
+                phases.Contains(EndingCreditsPhase.PlanetEscapeFast) &&
+                phases.Contains(EndingCreditsPhase.OperationSuccessfulText),
+            "ending clouds, explosion and completion text were exercised in their actual scenes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
 
@@ -343,7 +346,7 @@ internal static partial class Program
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending/credits art: compiled cloud and explosion actors, editable cloud/explosion OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: compiled cloud, explosion and completion-text actors, editable cloud/explosion OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -377,6 +380,15 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Ending explosion reread compiled instruction ${address:X6}.");
+            }
+            if (address >= (int)new SnesAddress(0x8b,
+                    EndingCompletionTextInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b,
+                    EndingCompletionTextInstructionDefinitions.End))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending completion text reread compiled instruction ${address:X6}.");
             }
             foreach (EndingCloudSpriteFrameDefinition frame in EndingCloudSpriteDefinitions.Frames)
             {

@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Ending completion and clear-time actor lists (2026-09-25)
+
+The fourteen bank-$8B completion-message, clear-time, ten digit, and colon
+lists at `$EB91..ECD8` are compiled as 164 fixed words. Every word and each
+actor's 480-frame cursor, selected frame, and lifetime match the pinned ROM.
+The installed ending now proceeds from escape through the actual text sequence
+to the credits handoff with these source words unreadable and native pixels
+preserved. The glyph spritemaps remain ROM-backed until their separate visual
+composition migration.
+
 ## Zebes explosion actor lists and sprite maps (2026-09-25)
 
 The eight bank-$8B actor lists at `$EB0F..EB90` are a bounded, compiled

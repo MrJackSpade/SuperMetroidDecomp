@@ -169,7 +169,7 @@ public sealed partial class RoomPlmSystem
         {
             case RoomPlmInstructionCodes.GotoIfDoorBitSet:
             {
-                ushort destination = ReadBank84Word(
+                ushort destination = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 bool opened = unchecked((short)slot.RoomArgument) >= 0 &&
                     (_eyeDoorSystem ?? throw new InvalidOperationException(
@@ -182,7 +182,7 @@ public sealed partial class RoomPlmSystem
             }
 
             case RoomPlmInstructionCodes.LinkInstruction:
-                slot.LinkInstruction = ReadBank84Word(
+                slot.LinkInstruction = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                 return true;
@@ -194,9 +194,9 @@ public sealed partial class RoomPlmSystem
                     throw new InvalidOperationException("Eye-door proximity bytecode requires Samus.");
                 int plmX = slot.BlockIndex % level.WidthInBlocks;
                 int plmY = slot.BlockIndex / level.WidthInBlocks;
-                byte maxX = bus.ReadByte(Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
-                byte maxY = bus.ReadByte(Bank84(unchecked((ushort)(slot.InstructionPointer + 3))));
-                ushort destination = ReadBank84Word(
+                byte maxX = ReadProgramByte(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
+                byte maxY = ReadProgramByte(bus, unchecked((ushort)(slot.InstructionPointer + 3)));
+                ushort destination = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 4)));
                 int deltaX = Math.Abs((samus.XPosition >> 4) - plmX);
                 int deltaY = Math.Abs((samus.YPosition >> 4) - plmY);
@@ -208,9 +208,9 @@ public sealed partial class RoomPlmSystem
 
             case RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto:
             {
-                byte threshold = bus.ReadByte(
-                    Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
-                ushort destination = ReadBank84Word(
+                byte threshold = ReadProgramByte(
+                    bus, unchecked((ushort)(slot.InstructionPointer + 2)));
+                ushort destination = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 3)));
                 state.HitCounter = unchecked((byte)(state.HitCounter + 1));
                 if (state.HitCounter < threshold)
@@ -294,7 +294,7 @@ public sealed partial class RoomPlmSystem
         bool hasParameter)
     {
         ushort parameter = hasParameter
-            ? ReadBank84Word(bus, unchecked((ushort)(slot.InstructionPointer + 2)))
+            ? ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2)))
             : (ushort)0;
         SpawnEyeDoorProjectile(slot, definitionPointer, parameter);
         slot.InstructionPointer = unchecked((ushort)(

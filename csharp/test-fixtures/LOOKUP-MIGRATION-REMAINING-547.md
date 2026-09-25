@@ -29,7 +29,14 @@ The intervening Bombs-test callback is machine code, not instruction data.
 Its guarded fixture runs both sides of the Bombs gate, Torizo-defeat unlock,
 opening, persistence, and reload-to-blue conversion.
 
-Eye doors, gates, items, statues, and other room-object instruction programs
+The mirrored three-component eye doors now use the contiguous $D81E..DA8B
+compiled instruction region (622 bytes). Both directions complete the real
+near-Samus activation, Super Missile opening, passive-component deletion,
+and opened-room blue-cap reload with the original instructions and all
+twenty-three physical draw payloads unreadable. The executable pre-instructions
+and bank-$86 projectile behavior remain distinct from PLM instruction data.
+
+Gates, items, statues, and other room-object instruction programs
 still require the same migration. Their visual art and physical draw layouts
 are separate work from compiled control flow; these families alone do not make
 runtime gameplay ROM-free.

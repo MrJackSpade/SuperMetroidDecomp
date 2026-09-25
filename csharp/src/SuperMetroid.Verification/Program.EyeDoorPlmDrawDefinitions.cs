@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyEyeDoorProgramDefinitions(rom);
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -51,6 +52,8 @@ internal static partial class Program
 
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null);
         VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited);
+        VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Left, lists);
+        VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Right, lists);
         AssertThrows<InvalidDataException>(
             () => new RoomPlmEyeDoorVisualCatalog(entries.Skip(1)),
             "eye-door catalog rejects missing frames");
@@ -61,7 +64,35 @@ internal static partial class Program
         rightEye.Blocks[0] = stockWord;
         VerifyEyeDoorVisualInstallation(rom);
         Console.WriteLine(
-            "  Eye-door PLM draws: 23 native lists, guarded mirrored assemblies, and editable stock/override appearance preserve collision.");
+            "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 23 physical draws, and editable stock/override appearance preserve collision.");
+    }
+
+    private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
+    {
+        for (int address = EyeDoorPlmProgramDefinitions.FirstAddress;
+             address <= EyeDoorPlmProgramDefinitions.LastAddress; address++)
+        {
+            AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(
+                    checked((ushort)address), out byte compiled),
+                $"eye-door program claims byte $84:{address:X4}");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"eye-door program byte $84:{address:X4} matches ROM");
+            if (address == EyeDoorPlmProgramDefinitions.LastAddress)
+                continue;
+            AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(
+                    checked((ushort)address), out ushort compiledWord),
+                $"eye-door program claims word $84:{address:X4}");
+            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8);
+            AssertEqual(native, compiledWord,
+                $"eye-door program word $84:{address:X4} matches ROM");
+        }
+        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(0xd81d, out _),
+            "eye-door program does not claim preceding executable setup code");
+        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(0xda8c, out _),
+            "eye-door program does not claim following unrelated data");
+        AssertTrue(!EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(0xda8b, out _),
+            "eye-door program refuses a word crossing into unrelated data");
     }
 
     private static void VerifyEyeDoorNativeDrawPath(
@@ -116,6 +147,104 @@ internal static partial class Program
                     .TopRow[0],
                 "edited right eye survives later camera streaming");
         }
+    }
+
+    private static void VerifyEyeDoorRetailProgramPath(
+        SuperMetroidAddressSpace rom,
+        EyeDoorOrientation orientation,
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists)
+    {
+        const int width = 16;
+        const byte eyeX = 7;
+        const byte eyeY = 4;
+        const ushort doorBit = 5;
+        ushort[] headers = orientation == EyeDoorOrientation.Left
+            ? [RoomPlmHeaders.EyeDoorEyeFacingLeft,
+                RoomPlmHeaders.EyeDoorFacingLeft,
+                RoomPlmHeaders.EyeDoorBottomFacingLeft]
+            : [RoomPlmHeaders.EyeDoorEyeFacingRight,
+                RoomPlmHeaders.EyeDoorFacingRight,
+                RoomPlmHeaders.EyeDoorBottomFacingRight];
+        var bank84 = new byte[0x8000];
+        for (int offset = 0; offset < bank84.Length; offset++)
+            bank84[offset] = rom.ReadByte(0x848000 + offset);
+        var bus = new TestAddressSpace();
+        bus.WriteBytes(0x848000, bank84);
+        const ushort population = 0x9000;
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            unchecked((byte)headers[0]), unchecked((byte)(headers[0] >> 8)), eyeX, eyeY,
+            unchecked((byte)doorBit), 0,
+            unchecked((byte)headers[1]), unchecked((byte)(headers[1] >> 8)), eyeX, eyeY + 2,
+            unchecked((byte)doorBit), 0,
+            unchecked((byte)headers[2]), unchecked((byte)(headers[2] >> 8)), eyeX, eyeY + 4,
+            unchecked((byte)doorBit), 0,
+            0, 0,
+        ]);
+        var level = new RoomLevelData(width, width,
+            new ushort[width * width], new byte[width * width],
+            new ushort[width * width], new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var samus = new SamusState
+        {
+            XPosition = eyeX * 16 + 8,
+            YPosition = eyeY * 16 + 8,
+        };
+        var requests = new List<EyeDoorProjectileRequest>();
+        var system = new Bank80SystemState();
+        var plms = new RoomPlmSystem();
+        var guarded = new EyeDoorDrawReadGuard(bus, lists);
+        AssertEqual(3, plms.LoadRoomPopulation(guarded, level, streamer,
+                new SnesVram(), population, system, AreaId.Brinstar,
+                () => samus, () => false, spawnEyeDoorProjectile: requests.Add),
+            $"{orientation} retail eye-door program loads all three components");
+
+        int eyeBlock = eyeY * width + eyeX;
+        for (int frame = 0; frame < 1024 &&
+             plms.EyeDoors.Single(door => door.Component == EyeDoorComponent.Eye)
+                 .PreInstruction != EyeDoorPlmRomData.MissileHitPreInstruction; frame++)
+            plms.Step(guarded, level, streamer, 0, 0, 0);
+        AssertEqual(EyeDoorPlmRomData.MissileHitPreInstruction,
+            plms.EyeDoors.Single(door => door.Component == EyeDoorComponent.Eye)
+                .PreInstruction,
+            $"{orientation} retail eye-door program arms its missile pre-instruction");
+        AssertTrue(plms.TryNotifyColoredDoorHit(eyeBlock,
+                new SamusProjectileTypeWord(0x0200)),
+            $"{orientation} retail eye door accepts a Super Missile collision");
+        plms.Step(guarded, level, streamer, 0, 0, 0);
+        for (int frame = 0; frame < 1024 && plms.ActiveCount != 0; frame++)
+            plms.Step(guarded, level, streamer, 0, 0, 0);
+        AssertTrue(system.HasOpenedDoorBit(doorBit),
+            $"{orientation} retail eye-door opening persists the door bit");
+        AssertEqual(0, plms.ActiveCount,
+            $"{orientation} retail eye and passive components complete and delete");
+        RoomCollisionBlock cap = level.GetCollisionBlockByIndex(eyeBlock - width);
+        AssertEqual(RoomCollisionType.ShootableBlock, cap.CollisionType,
+            $"{orientation} retail eye opening constructs the blue cap");
+        AssertEqual(orientation == EyeDoorOrientation.Left
+                ? RoomBlockBehaviorValues.BlueDoorFacingLeft.Value
+                : RoomBlockBehaviorValues.BlueDoorFacingRight.Value,
+            cap.Behavior,
+            $"{orientation} retail eye opening selects the blue-cap orientation");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");
+
+        var reopenedLevel = new RoomLevelData(width, width,
+            new ushort[width * width], new byte[width * width],
+            new ushort[width * width], new byte[0x400 * 8]);
+        BackgroundTilemapStreamer reopenedStreamer =
+            reopenedLevel.CreateBackgroundStreamer();
+        var reopened = new RoomPlmSystem();
+        AssertEqual(3, reopened.LoadRoomPopulation(guarded, reopenedLevel,
+                reopenedStreamer, new SnesVram(), population, system, AreaId.Brinstar,
+                () => samus, () => false, spawnEyeDoorProjectile: requests.Add),
+            $"{orientation} opened eye-door room reloads three components");
+        for (int frame = 0; frame < 16 && reopened.ActiveCount != 0; frame++)
+            reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
+        AssertEqual(0, reopened.ActiveCount,
+            $"{orientation} opened eye-door reload converts to blue and removes passive parts");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            $"{orientation} opened eye-door reload avoids instruction and draw ROM reads");
     }
 
     private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
@@ -184,6 +313,12 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address is >= 0x84d81e and <= 0x84da8b)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Eye door reread compiled instruction ${address:X6}.");
+            }
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             {
                 int first = 0x840000 | list.Pointer;

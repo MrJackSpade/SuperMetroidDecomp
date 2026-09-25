@@ -397,6 +397,17 @@ camera streaming. Stock content is hash-checked, invalid overrides fail
 loudly, and overrides survive stock repair. Colored, grey, and eye-door
 artwork is not covered by this blue-cap resource.
 
+Yellow, green, and red door-cap appearances are installed as
+`game/room-plm-colored-doors/colored-doors.json`. Copy it to
+`overrides/room-plm-colored-doors/colored-doors.json`, edit only `blocks`
+visual words (0..4095), and restart. Keep all 48 IDs: four frames for each
+color and orientation. Each frame contains four visual blocks from the active
+room's combined CRE/area definitions. The full physical level words, shot
+filters, hit counters, opening cadence, sounds, and door-bit persistence stay
+cartridge-defined. Edited cap tiles appear immediately and during later camera
+streaming. Stock content is hash-checked, invalid overrides fail loudly, and
+overrides survive stock repair. Grey and eye-door art remain separate work.
+
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to
 `overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`

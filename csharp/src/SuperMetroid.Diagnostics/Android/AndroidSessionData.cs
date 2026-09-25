@@ -30,6 +30,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog? roomPlmGrappleBlockVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog? roomPlmStationVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog? roomPlmBlueDoorVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog? roomPlmColoredDoorVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
@@ -91,6 +92,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmBlueDoorVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmBlueDoorVisuals() : null;
         Game.BindRoomPlmBlueDoorVisuals(roomPlmBlueDoorVisuals);
+        roomPlmColoredDoorVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmColoredDoorVisuals() : null;
+        Game.BindRoomPlmColoredDoorVisuals(roomPlmColoredDoorVisuals);
         roomPlmDownwardGateVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDownwardGateVisuals() : null;
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
@@ -199,6 +203,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
         Game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
         Game.BindRoomPlmBlueDoorVisuals(roomPlmBlueDoorVisuals);
+        Game.BindRoomPlmColoredDoorVisuals(roomPlmColoredDoorVisuals);
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         Game.BindXrayRevealVisuals(xrayRevealVisuals);

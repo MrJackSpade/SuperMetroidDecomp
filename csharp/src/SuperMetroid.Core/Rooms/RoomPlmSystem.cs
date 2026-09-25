@@ -35,6 +35,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? grappleBlockVisuals;
     [NonSerialized] private RoomPlmStationVisualCatalog? stationVisuals;
     [NonSerialized] private RoomPlmBlueDoorVisualCatalog? blueDoorVisuals;
+    [NonSerialized] private RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
 
@@ -64,6 +65,13 @@ public sealed partial class RoomPlmSystem
     {
         get => blueDoorVisuals;
         set => blueDoorVisuals = value;
+    }
+
+    /// <summary>Visual-only colored-door cap frames supplied by installed content.</summary>
+    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals
+    {
+        get => coloredDoorVisuals;
+        set => coloredDoorVisuals = value;
     }
 
     /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
@@ -1720,7 +1728,7 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, coloredDoor, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false, coloredDoorVisuals: coloredDoorVisuals);
             return;
         }
         if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
@@ -1811,7 +1819,8 @@ public sealed partial class RoomPlmSystem
         bool useShotBlockVisuals,
         RoomPlmStationVisualCatalog? customVisuals = null,
         RoomPlmDownwardGateVisualCatalog? gateVisuals = null,
-        RoomPlmBlueDoorVisualCatalog? blueDoorVisuals = null)
+        RoomPlmBlueDoorVisualCatalog? blueDoorVisuals = null,
+        RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -1834,6 +1843,7 @@ public sealed partial class RoomPlmSystem
                     ?? customVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? gateVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? blueDoorVisuals?.GetWord(definition.Pointer, offset)
+                    ?? coloredDoorVisuals?.GetWord(definition.Pointer, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

@@ -8,9 +8,13 @@ four-block frames. Verification compares every direction word, block word, and
 terminator with the pinned cartridge; all twelve actual resident first-draw
 paths run with the full draw-list payload corpus forbidden. The bank-$84
 instruction programs still own hit filters, timers, sounds, persistence, and
-blue-cap conversion. Colored-door visuals are not separately editable yet;
-that presentation binding and the special Bomb Torizo grey door are separate
-room-object work.
+blue-cap conversion. All 48 visual block choices are now separately editable
+in `room-plm-colored-doors/colored-doors.json`. The installer checks native
+source parity and hashes stock data; a changed frame reaches immediate redraw
+and later streaming without modifying the physical level word. The blue and
+colored resources share one file codec so override validation and stock repair
+behave identically. The special Bomb Torizo grey door and other room objects
+remain separate work.
 
 ## Blue-door PLM draw lists (2026-09-24)
 

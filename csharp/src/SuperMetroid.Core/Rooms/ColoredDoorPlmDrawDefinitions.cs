@@ -63,6 +63,21 @@ internal static class ColoredDoorPlmDrawDefinitions
         throw new InvalidDataException($"Colored-door draw ${pointer:X4} has no visual ID.");
     }
 
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
+    }
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

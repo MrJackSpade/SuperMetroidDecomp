@@ -3,25 +3,25 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Installed, replaceable blue-door cap visual block references.</summary>
-public static class RoomPlmBlueDoorVisualFiles
+/// <summary>Installed, replaceable yellow, green, and red door-cap visual references.</summary>
+public static class RoomPlmColoredDoorVisualFiles
 {
-    public const string VisualFileName = "blue-doors.json";
+    public const string VisualFileName = "colored-doors.json";
     public const string ManifestFileName = RoomPlmDoorCapVisualFileCodec.ManifestFileName;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
         RoomPlmDoorCapVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.All,
-            BlueDoorPlmDrawDefinitions.VisualId);
+            VisualFileName, "Colored-door", ColoredDoorPlmDrawDefinitions.All,
+            ColoredDoorPlmDrawDefinitions.VisualId);
 
-    public static RoomPlmBlueDoorVisualCatalog Load(
+    public static RoomPlmColoredDoorVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorCapVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.All,
-            BlueDoorPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmBlueDoorVisualCatalog(entries.Select(entry =>
-                new RoomPlmBlueDoorVisualEntry(entry.Id, entry.Blocks))),
+            VisualFileName, "Colored-door", ColoredDoorPlmDrawDefinitions.All,
+            ColoredDoorPlmDrawDefinitions.VisualId,
+            entries => new RoomPlmColoredDoorVisualCatalog(entries.Select(entry =>
+                new RoomPlmColoredDoorVisualEntry(entry.Id, entry.Blocks))),
             (catalog, pointer, block) => catalog.GetWord(pointer, block));
 
     public static void ValidateStock(string directory) => _ = Load(directory, null);

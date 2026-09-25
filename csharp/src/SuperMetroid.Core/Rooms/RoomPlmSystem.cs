@@ -43,6 +43,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? escapeGateVisuals;
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals;
+    [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
@@ -127,6 +128,13 @@ public sealed partial class RoomPlmSystem
     {
         get => bombTorizoHandVisuals;
         set => bombTorizoHandVisuals = value;
+    }
+
+    /// <summary>Nonserialized Draygon cannon art; physical draw words stay compiled.</summary>
+    public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals
+    {
+        get => draygonCannonVisuals;
+        set => draygonCannonVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1845,6 +1853,15 @@ public sealed partial class RoomPlmSystem
                 bombTorizoHandVisuals: bombTorizoHandVisuals);
             return;
         }
+        if (DraygonCannonPlmDrawDefinitions.TryGet(drawPointer, out var draygonCannon))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, draygonCannon, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false,
+                draygonCannonVisuals: draygonCannonVisuals);
+            return;
+        }
         if (RoomPlmCollectibleDrawDefinitions.TryGet(drawPointer, out var collectible))
         {
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
@@ -1924,7 +1941,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals = null,
         RoomPlmNoobTubeVisualCatalog? noobTubeVisuals = null,
         RoomPlmEscapeGateVisualCatalog? escapeGateVisuals = null,
-        RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals = null)
+        RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals = null,
+        RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -1954,6 +1972,7 @@ public sealed partial class RoomPlmSystem
                     ?? noobTubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? escapeGateVisuals?.GetWord(definition.Pointer, offset)
                     ?? bombTorizoHandVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? draygonCannonVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

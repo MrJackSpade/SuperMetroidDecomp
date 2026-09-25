@@ -38,6 +38,15 @@ intact-hand and sixteen cleared-hand visible blocks are editable in
 `room-plm-bomb-torizo-hand/bomb-torizo-hand.json`, with strict stock and
 override validation.
 
+The twelve reachable right/left Draygon cannon draw lists now have compiled
+physical rows and editable visual blocks in
+`room-plm-draygon-cannons/draygon-cannons.json`. Extraction checks every
+word and signed offset against the pinned ROM. The real four-cannon fixture
+guards both compiled program ranges and every claimed draw payload; right
+and left shield edits reach immediate or later-streamed tiles without changing
+collision. Both four-frame damaged loops execute with the source payloads
+unreadable. Unused diagonal cannon orientations remain outside this catalog.
+
 The mirrored three-component eye doors now use the contiguous $D81E..DA8B
 compiled instruction region (622 bytes). Both directions complete the real
 near-Samus activation, Super Missile opening, passive-component deletion,

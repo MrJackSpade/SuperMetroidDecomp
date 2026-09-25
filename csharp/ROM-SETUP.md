@@ -490,6 +490,15 @@ geometry, collision words, Bombs gate, debris timing, and music are not
 editable through this file. Invalid files fail loudly; valid overrides survive
 stock installation repair.
 
+Reachable Draygon cannon appearances are installed as
+`game/room-plm-draygon-cannons/draygon-cannons.json`. Copy the file to
+`overrides/room-plm-draygon-cannons/draygon-cannons.json` and edit only
+`blocks` visual words (0..4095), then restart. Keep all twelve semantic
+right/left shield and damaged-frame IDs, four blocks per frame in native run
+order. This does not alter cannon collision, projectile thresholds, or boss
+control-word writes. The unused diagonal orientations are not part of this
+resource. Invalid overrides fail; valid ones survive stock repair.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

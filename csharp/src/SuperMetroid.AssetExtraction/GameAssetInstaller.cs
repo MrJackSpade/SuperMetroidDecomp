@@ -100,6 +100,7 @@ public static class GameAssetInstaller
             RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
             RoomPlmEscapeGateVisualFiles.ValidateStock(installation.RoomPlmEscapeGateVisualDirectory);
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(installation.RoomPlmBombTorizoHandVisualDirectory);
+            RoomPlmDraygonCannonVisualFiles.ValidateStock(installation.RoomPlmDraygonCannonVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
@@ -280,6 +281,13 @@ public static class GameAssetInstaller
             RoomPlmBombTorizoHandVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 bombTorizoHandVisuals, SupportedCartridge.Sha256);
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(bombTorizoHandVisuals);
+            progress?.Report("Extracting Draygon cannon visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string draygonCannonVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmDraygonCannonVisualDirectoryName);
+            RoomPlmDraygonCannonVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                draygonCannonVisuals, SupportedCartridge.Sha256);
+            RoomPlmDraygonCannonVisualFiles.ValidateStock(draygonCannonVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

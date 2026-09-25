@@ -88,6 +88,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.BombTorizoHandVisuals = value;
     }
 
+    /// <summary>Visual-only Draygon cannon resource; reattached after state restoration.</summary>
+    public RoomPlmDraygonCannonVisualCatalog? RoomPlmDraygonCannonVisuals
+    {
+        get => Plms.DraygonCannonVisuals;
+        set => Plms.DraygonCannonVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

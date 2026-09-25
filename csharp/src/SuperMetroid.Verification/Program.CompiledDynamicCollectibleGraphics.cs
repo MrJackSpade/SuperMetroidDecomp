@@ -70,6 +70,7 @@ internal static partial class Program
                 $"retail Bombs item VRAM character byte {offset}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail collectible loader does not reread compiled character or palette bytes");
+        VerifyInstalledDynamicCollectibleArt(rom);
     }
 
     private static ushort ReadCollectibleGraphicsWord(

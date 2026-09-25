@@ -239,6 +239,7 @@ public sealed partial class RoomPlmSystem
             // offsets for a kind. The generated catalog proves that identity against
             // the pinned cartridge; gameplay never needs to reread these ROM bytes.
             RoomPlmDynamicCollectibleGraphic definition =
+                dynamicCollectibleArt?.Resolve(kind) ??
                 RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
             graphics = definition.Tiles;
             paletteOffsets = definition.PaletteOffsets;

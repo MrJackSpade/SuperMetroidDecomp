@@ -20,6 +20,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? roomPlmChozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
+    [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
     /// <summary>Binds installed shot-block visuals at startup and after state restoration.</summary>
     public void BindRoomPlmShotBlockVisuals(RoomPlmShotBlockVisualCatalog? catalog)
@@ -132,5 +133,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmCollectibleVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmCollectibleVisuals = catalog;
+    }
+
+    /// <summary>Binds installed permanent-item PNG and palette art after startup or state restore.</summary>
+    public void BindRoomPlmDynamicCollectibleArt(
+        RoomPlmDynamicCollectibleArtCatalog? catalog)
+    {
+        roomPlmDynamicCollectibleArt = catalog;
+        if (runtime is not null) runtime.RoomPlmDynamicCollectibleArt = catalog;
     }
 }

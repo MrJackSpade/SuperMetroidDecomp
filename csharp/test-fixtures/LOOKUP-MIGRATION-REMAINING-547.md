@@ -154,8 +154,11 @@ verifies those three presentation lists agree and compiles one definition per
 kind. The verifier compares every byte to the cartridge and loads the retail
 Bombs Chozo-orb population while forbidding reads of all compiled tile and
 palette sources. Synthetic-room item lists remain bus-supplied. The compiled
-tiles are not yet installed as editable PNGs, and the remaining PLM programs
-still need migration.
+tiles are installed as 17 indexed PNGs with a separate palette-offset JSON;
+overrides change actual item VRAM and block-definition palette words while
+preserving pickup state. Stock hashes, override precedence/removal, and invalid
+asset failures have dedicated verification. Remaining PLM programs still need
+migration.
 
 ## Mother Brain glass PLM physical draws (2026-09-24)
 

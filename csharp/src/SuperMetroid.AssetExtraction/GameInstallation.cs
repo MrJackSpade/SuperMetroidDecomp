@@ -145,6 +145,14 @@ public sealed record GameInstallation(string Root)
     public RoomPlmCollectibleVisualCatalog LoadRoomPlmCollectibleVisuals() =>
         RoomPlmCollectibleVisualFiles.Load(RoomPlmCollectibleVisualDirectory,
             RoomPlmCollectibleVisualOverrideDirectory);
+    public string RoomPlmDynamicCollectibleArtDirectory => Path.Combine(ContentDirectory,
+        GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName);
+    public string RoomPlmDynamicCollectibleArtOverrideDirectory => Path.Combine(Root,
+        "overrides", GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName);
+    /// <summary>Editable item character PNGs and tile-palette selectors.</summary>
+    public RoomPlmDynamicCollectibleArtCatalog LoadRoomPlmDynamicCollectibleArt() =>
+        RoomPlmDynamicCollectibleArtFiles.Load(RoomPlmDynamicCollectibleArtDirectory,
+            RoomPlmDynamicCollectibleArtOverrideDirectory);
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
     public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
@@ -205,9 +213,10 @@ public static class GameInstallationLayout
     public const string RoomPlmChozoStatueVisualDirectoryName = "room-plm-chozo-statues";
     public const string RoomPlmLinkedRestoreVisualDirectoryName = "room-plm-linked-restores";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
+    public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 51;
+    public const int FormatVersion = 52;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

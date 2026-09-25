@@ -115,4 +115,11 @@ public sealed partial class SuperMetroidRuntime
         get => Plms.CollectibleVisuals;
         set => Plms.CollectibleVisuals = value;
     }
+
+    /// <summary>Installed permanent-item tile/palette art; restored independently of PLM state.</summary>
+    public RoomPlmDynamicCollectibleArtCatalog? RoomPlmDynamicCollectibleArt
+    {
+        get => Plms.DynamicCollectibleArt;
+        set => Plms.DynamicCollectibleArt = value;
+    }
 }

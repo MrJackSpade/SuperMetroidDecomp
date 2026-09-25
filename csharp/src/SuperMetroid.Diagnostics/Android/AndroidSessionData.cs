@@ -42,6 +42,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmChozoStatueVisualCatalog? roomPlmChozoStatueVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog? xrayRevealVisuals;
     private readonly SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog? roomBackgroundTilemaps;
     private readonly SuperMetroid.Core.Assets.RoomSkyTilemapCatalog? roomSkyTilemaps;
@@ -137,6 +138,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmCollectibleVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmCollectibleVisuals() : null;
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
+        roomPlmDynamicCollectibleArt = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDynamicCollectibleArt() : null;
+        Game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         xrayRevealVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadXrayRevealVisuals() : null;
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
@@ -251,6 +255,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
         Game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
         Game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
+        Game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         Game.BindXrayRevealVisuals(xrayRevealVisuals);
         Game.BindRoomBackgroundTilemapArt(roomBackgroundTilemaps);
         Game.BindRoomSkyTilemapArt(roomSkyTilemaps);

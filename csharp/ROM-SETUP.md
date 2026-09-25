@@ -465,8 +465,8 @@ bank-$8F scroll programs. The 17 dynamically uploaded permanent-item kinds
 also use compiled character bytes and palette offsets rather than reading
 bank $89 and their initial bank-$84 instruction lists during retail loads.
 Constructed rooms can still supply their own item graphics on the bus. These
-tile uploads are compiled definitions, not yet PNG override assets; other PLM
-instruction-program ROM dependencies remain to be migrated.
+tile uploads are compiled definitions with installed PNG/palette overrides;
+other PLM instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to
@@ -535,13 +535,25 @@ Permanent collectible PLM appearances are installed as
 (0..4095), then restart. Keep all 24 semantic IDs: the empty block, Chozo orb
 and burst, the four two-frame tank kinds, four two-frame dynamic graphics slots,
 and the three shot-block reveal frames. The words select visual blocks from the
-active room's combined CRE/area definitions. The dynamic graphics slot still
-loads its native character tiles; those tile pixels are a separate resource.
+active room's combined CRE/area definitions. The dynamic graphics slot loads
+character tiles from the separate item art resources described below.
 Item acquisition, collision, room-item and Chozo persistence, sound, frame
 timing, and physical level words remain compiled. An edited word changes the
 immediate redraw and later camera streaming without changing the item reward.
 Invalid stock or override data fails loudly; the override survives stock
 installation repair or updates.
+
+Permanent-item character art is installed as 17 indexed 64x8 sheets under
+`game/room-plm-collectible-tiles/`, named `item-XX-kind.png`. Tiles 0-3 are
+animation frame zero and tiles 4-7 are frame one, in native upload order.
+Copy any sheet to the matching path under
+`overrides/room-plm-collectible-tiles/` to edit its 16-color pixel indexes.
+Copy `palettes.json` into that override directory to edit each kind's eight
+tile-palette offsets (0..7). These offsets select room CGRAM palettes; the PNG
+uses a diagnostic palette only to make indexes visible in an editor. Restart
+after editing. The installed stock files are hash-checked against the compiled
+cartridge definitions; malformed or incomplete overrides fail loudly. Edits
+reach room VRAM and tile definitions without changing pickup behavior.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
 file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,

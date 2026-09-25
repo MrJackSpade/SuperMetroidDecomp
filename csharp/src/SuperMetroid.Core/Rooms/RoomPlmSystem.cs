@@ -47,6 +47,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
+    [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
     public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals
@@ -158,6 +159,13 @@ public sealed partial class RoomPlmSystem
     {
         get => collectibleVisuals;
         set => collectibleVisuals = value;
+    }
+
+    /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
+    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt
+    {
+        get => dynamicCollectibleArt;
+        set => dynamicCollectibleArt = value;
     }
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>

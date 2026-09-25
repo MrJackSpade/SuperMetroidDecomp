@@ -278,6 +278,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
         roomPlmCollectibleVisuals = installation?.LoadRoomPlmCollectibleVisuals();
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
+        roomPlmDynamicCollectibleArt = installation?.LoadRoomPlmDynamicCollectibleArt();
+        game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         xrayRevealVisuals = installation?.LoadXrayRevealVisuals();
         game.BindXrayRevealVisuals(xrayRevealVisuals);
         roomBackgroundTilemapArt = installation?.LoadRoomBackgroundTilemaps();
@@ -408,6 +410,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
+        game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         game.BindXrayRevealVisuals(xrayRevealVisuals);
         game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);

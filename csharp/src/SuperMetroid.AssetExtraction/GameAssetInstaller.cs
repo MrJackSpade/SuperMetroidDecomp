@@ -104,6 +104,7 @@ public static class GameAssetInstaller
             RoomPlmChozoStatueVisualFiles.ValidateStock(installation.RoomPlmChozoStatueVisualDirectory);
             RoomPlmLinkedRestoreVisualFiles.ValidateStock(installation.RoomPlmLinkedRestoreVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
+            RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
             return true;
@@ -311,6 +312,13 @@ public static class GameAssetInstaller
             RoomPlmCollectibleVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 collectibleVisuals, SupportedCartridge.Sha256);
             RoomPlmCollectibleVisualFiles.ValidateStock(collectibleVisuals);
+            progress?.Report("Extracting permanent-item tile PNGs...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string collectibleTiles = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName);
+            RoomPlmDynamicCollectibleArtFiles.Extract(new SuperMetroidAddressSpace(rom),
+                collectibleTiles, SupportedCartridge.Sha256);
+            RoomPlmDynamicCollectibleArtFiles.ValidateStock(collectibleTiles);
             progress?.Report("Extracting X-ray reveal visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string xrayReveals = Path.Combine(staging,

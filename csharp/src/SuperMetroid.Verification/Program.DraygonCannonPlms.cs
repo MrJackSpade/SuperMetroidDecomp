@@ -11,6 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyDraygonCannonPlms()
     {
+        VerifyDraygonCannonPlmProgram();
         const int roomWidth = 32;
         const int roomHeight = 32;
         var bus = new TestAddressSpace();

@@ -106,14 +106,14 @@ public sealed partial class RoomPlmSystem
         switch (instruction)
         {
             case RoomPlmInstructionCodes.LinkInstruction:
-                slot.LinkInstruction = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                slot.LinkInstruction = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
             case RoomPlmInstructionCodes.IncrementArgumentAndGotoIfGreaterOrEqual:
             {
-                byte threshold = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 2))));
-                ushort destination = ReadBank84Word(bus, unchecked((ushort)(cursor + 3)));
+                byte threshold = ReadProgramByte(bus, unchecked((ushort)(cursor + 2)));
+                ushort destination = ReadProgramWord(bus, unchecked((ushort)(cursor + 3)));
                 byte next = unchecked((byte)(slot.RoomArgument + 1));
                 if (next >= threshold)
                 {

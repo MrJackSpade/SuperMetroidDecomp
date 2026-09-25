@@ -1348,14 +1348,19 @@ public sealed partial class IntroCinematicState
             // crossfades, and is restored when the next narration page starts.
             // The spritemap itself lives in bank $8C and OBSEL=$03 selects word $6000 as
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
-            oam.AddOnScreenSpritemap(
-                bus,
-                (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps,
-                    objects.SpriteMapPointer),
-                originX: objects.CaretX,
-                originY: objects.CaretY,
-                paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw);
+            if (characterArtwork is not null)
+                characterArtwork.CaretSprites.Draw(objects.SpriteMapPointer, oam,
+                    objects.CaretX, objects.CaretY,
+                    IntroCinematicRomData.Objects.ScientistPalette.Raw);
+            else
+                oam.AddOnScreenSpritemap(
+                    bus,
+                    (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps,
+                        objects.SpriteMapPointer),
+                    originX: objects.CaretX,
+                    originY: objects.CaretY,
+                    paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         oam.FinalizeFrame();
 

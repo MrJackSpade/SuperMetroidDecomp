@@ -72,6 +72,7 @@ internal static partial class Program
                 }
             }
             VerifyIntroEyeArtwork(bus, stock, installation);
+            VerifyIntroCaretSpriteArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -535,8 +536,14 @@ internal static partial class Program
             File.WriteAllBytes(invalidEye, [0]);
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected opening eye frames fail instead of silently falling back");
+            File.Delete(invalidEye);
+            string invalidCaret = Path.Combine(installation.IntroCinematicOverrideDirectory,
+                IntroCaretSpriteFormat.FileName);
+            File.WriteAllBytes(invalidCaret, [0]);
+            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
+                "malformed selected caret sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, four eye rectangles and full RGB5 palette; VRAM/CGRAM parity, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye rectangles, caret compositions and full RGB5 palette; native parity, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -622,6 +629,76 @@ internal static partial class Program
             "installed eye lists and all four frames avoid native source reads");
     }
 
+    private static void VerifyIntroCaretSpriteArtwork(SuperMetroidAddressSpace bus,
+        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+    {
+        const ushort originX = 8;
+        const ushort originY = 24;
+        ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
+        foreach (IntroCaretFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
+        {
+            var native = new OamBuffer();
+            native.BeginFrame();
+            native.AddOnScreenSpritemap(bus,
+                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    definition.Pointer), originX, originY, paletteBits);
+            native.FinalizeFrame();
+            var installed = new OamBuffer();
+            installed.BeginFrame();
+            stock.CaretSprites.Draw(definition.Pointer, installed,
+                originX, originY, paletteBits);
+            installed.FinalizeFrame();
+            AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
+                    installed.HighTable.SequenceEqual(native.HighTable) &&
+                    installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
+                $"opening caret {definition.Name} produces exact native OAM");
+        }
+
+        string caretPath = Path.Combine(installation.IntroCinematicDirectory,
+            IntroCaretSpriteFormat.FileName);
+        IntroCaretSpriteDocument document = JsonSerializer.Deserialize<IntroCaretSpriteDocument>(
+            File.ReadAllBytes(caretPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        SpriteVisualPart part = document.Frames["caret-still"][0];
+        document.Frames["caret-still"][0] = part with { TileColumn = part.TileColumn + 1 };
+        using var editedJson = new MemoryStream();
+        IntroCaretSpritePresentation.Write(editedJson, document);
+        editedJson.Position = 0;
+        IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
+        var changed = new OamBuffer();
+        changed.BeginFrame();
+        edited.Draw(IntroCaretSpriteDefinitions.Still, changed, originX, originY, paletteBits);
+        changed.FinalizeFrame();
+        var original = new OamBuffer();
+        original.BeginFrame();
+        stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, original,
+            originX, originY, paletteBits);
+        original.FinalizeFrame();
+        AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
+                changed.LowTable[..2].SequenceEqual(original.LowTable[..2]) &&
+                changed.HighTable.SequenceEqual(original.HighTable),
+            "caret JSON tile edit changes OAM art without changing sprite placement");
+
+        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var nativeState = new IntroCinematicState(bus);
+        var installedState = new IntroCinematicState(guarded, characterArtwork: stock);
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
+            .Invoke(nativeState, null);
+        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
+            .Invoke(installedState, null);
+        var objectField = typeof(IntroCinematicState).GetField("objects", flags)!;
+        ((IntroCinematicObjectSystem)objectField.GetValue(nativeState)!).Step();
+        ((IntroCinematicObjectSystem)objectField.GetValue(installedState)!).Step();
+        var prepare = typeof(IntroCinematicState).GetMethod("PrepareIllustratedPageOam", flags)!;
+        var nativeOam = (OamBuffer)prepare.Invoke(nativeState, null)!;
+        var installedOam = (OamBuffer)prepare.Invoke(installedState, null)!;
+        AssertTrue(installedOam.LowTable.SequenceEqual(nativeOam.LowTable) &&
+                installedOam.HighTable.SequenceEqual(nativeOam.HighTable),
+            "installed illustrated page draws caret without cartridge spritemap reads");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed caret art avoids the native OAM composition source");
+    }
+
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
@@ -671,6 +748,18 @@ internal static partial class Program
                 IntroEyeAnimationDefinitions.StartPointer);
             int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                 IntroEyeAnimationDefinitions.FrameStartPointer);
+            foreach (IntroCaretFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
+            {
+                int sourceAddress = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, caret.Pointer);
+                int byteCount = 2 + caret.StockPartCount * 5;
+                if (address >= sourceAddress && address < sourceAddress + byteCount)
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Cinematic reread caret composition ${address:X6}.");
+                }
+            }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -
                         IntroEyeAnimationDefinitions.StartPointer) ||

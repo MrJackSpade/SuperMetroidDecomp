@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -136,18 +135,21 @@ internal sealed class IntroMotherBrainExplosionSystem
             ushort pointer = instructionPointer;
             while (true)
             {
-                ushort instructionOrDuration = ReadWord(bus, pointer);
+                ushort instructionOrDuration =
+                    IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer);
                 if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
                     instructionTimer = instructionOrDuration;
-                    SpriteMapPointer = ReadWord(bus, Add(pointer, 2));
+                    SpriteMapPointer = IntroMotherBrainExplosionInstructionDefinitions.ReadWord(
+                        Add(pointer, 2));
                     instructionPointer = Add(pointer, 4);
                     return;
                 }
 
                 if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_Goto)
                 {
-                    pointer = ReadWord(bus, Add(pointer, 2));
+                    pointer = IntroMotherBrainExplosionInstructionDefinitions.ReadWord(
+                        Add(pointer, 2));
                     continue;
                 }
 
@@ -163,11 +165,6 @@ internal sealed class IntroMotherBrainExplosionSystem
                     $"Intro Mother Brain explosion opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is invalid.");
             }
         }
-
-        private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-            RomDataReader.ReadWordFixedBank(
-                bus,
-                IntroCinematicRomData.Banks.CinematicCode | pointer);
 
         private static ushort Add(ushort pointer, int byteCount) =>
             unchecked((ushort)(pointer + byteCount));

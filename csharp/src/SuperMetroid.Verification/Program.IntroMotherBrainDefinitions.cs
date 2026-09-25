@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using System.Collections;
+using System.Reflection;
 
 internal static partial class Program
 {
@@ -11,6 +13,16 @@ internal static partial class Program
             AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
                 IntroMotherBrainInstructionDefinitions.ReadByte((ushort)pointer),
                 $"intro Mother Brain instruction byte $8B:{pointer:X4}");
+        for (int pointer = IntroMotherBrainExplosionInstructionDefinitions.StartPointer;
+             pointer < IntroMotherBrainExplosionInstructionDefinitions.EndPointer; pointer++)
+            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
+                IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer),
+                $"intro Mother Brain explosion instruction byte $8B:{pointer:X4}");
+        for (int pointer = IntroMotherBrainExplosionInstructionDefinitions.DeletePointer;
+             pointer < IntroMotherBrainExplosionInstructionDefinitions.DeletePointer + 2; pointer++)
+            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
+                IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer),
+                $"intro Mother Brain explosion delete byte $8B:{pointer:X4}");
 
         IntroMotherBrainActorDefinition[] actors =
         [
@@ -118,8 +130,29 @@ internal static partial class Program
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
         AssertEqual(8, explosions.ActiveCount, "intro Mother Brain allocates all explosion actors");
+        var explosionActors = (IList)typeof(IntroMotherBrainExplosionSystem)
+            .GetField("actors", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(explosions)!;
         for (int frame = 0; frame < 192; frame++)
+        {
             explosions.Step(guarded, introCrossfadeTimer: 1);
+            int smallPhase = frame % IntroMotherBrainExplosionInstructionDefinitions.SmallLoopFrames;
+            int bigPhase = frame % IntroMotherBrainExplosionInstructionDefinitions.BigLoopFrames;
+            ushort expectedSmall = smallPhase < 18
+                ? ReadIntroMotherBrainWord(retail, IntroMotherBrainDefinitions.NativeBank |
+                    (IntroMotherBrainExplosionInstructionDefinitions.SmallPointer +
+                        (smallPhase / 3) * 4 + 2))
+                : (ushort)0;
+            ushort expectedBig = bigPhase < 36
+                ? ReadIntroMotherBrainWord(retail, IntroMotherBrainDefinitions.NativeBank |
+                    (IntroMotherBrainExplosionInstructionDefinitions.StartPointer +
+                        (bigPhase / 6) * 4 + 2))
+                : (ushort)0;
+            AssertEqual(expectedSmall, SpritePointer(explosionActors[0]!),
+                $"intro first small explosion frame {frame} follows native timing");
+            AssertEqual(expectedBig, SpritePointer(explosionActors[3]!),
+                $"intro first big explosion frame {frame} follows native timing");
+        }
         AssertEqual(8, explosions.ActiveCount,
             "intro Mother Brain explosion actors survive until page-two crossfade completion");
         explosions.Step(guarded, introCrossfadeTimer: 0);
@@ -129,7 +162,10 @@ internal static partial class Program
             "intro Mother Brain actors never reread compiled definitions, instructions or placement tables");
 
         Console.WriteLine(
-            "  Intro Mother Brain definitions: actor/placement words and 46 instruction bytes match; normal/page-two loops and explosion lifetime are ROM-table independent.");
+            "  Intro Mother Brain definitions: actor/placement words and 112 instruction/delete bytes match; normal/page-two and both staggered explosion loops are ROM-table independent.");
+
+        static ushort SpritePointer(object actor) => (ushort)actor.GetType()
+            .GetProperty("SpriteMapPointer")!.GetValue(actor)!;
     }
 
     private static ushort ReadIntroMotherBrainWord(SuperMetroidAddressSpace bus, int address) =>
@@ -144,6 +180,8 @@ internal static partial class Program
         {
             bool forbidden =
                 address is >= 0x8bcb05 and < 0x8bcb33 or
+                >= 0x8bcdab and < 0x8bcdeb or
+                >= 0x8bce53 and < 0x8bce55 or
                 >= 0x8bce55 and < 0x8bce5b or
                 >= 0x8bcf15 and < 0x8bcf21 or
                 >= 0x8bb9b6 and < 0x8bb9d4 or

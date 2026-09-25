@@ -24,7 +24,15 @@ compositions. The forty-six program bytes match the pinned ROM. Guarded
 production tests cover eighty frames of the four-frame normal loop, the
 fourth-hit 128-frame explosion handoff, sixty-four page-two loop frames and
 timer-zero deletion with the entire instruction source range unreadable.
-Its visual spritemaps and other cinematic actors are still separate work.
+Its three visual spritemaps are separately extracted as editable artwork;
+other cinematic actors remain separate work.
+
+The small and large fourth-hit explosion actors now compile their complete
+64-byte bank-$8B instruction region at `$CDAB..CDEA` and shared two-byte
+delete opcode at `$CE53`. Verification compares every byte with the pinned
+ROM, then checks both staggered loops over 192 production frames and their
+crossfade deletion with the source ranges unreadable. The twelve referenced
+bank-$8C visual spritemaps remain a separate artwork migration.
 
 ## Additional room-PLM instruction control (2026-09-24)
 

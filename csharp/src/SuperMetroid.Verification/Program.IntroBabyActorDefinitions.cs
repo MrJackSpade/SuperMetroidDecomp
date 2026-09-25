@@ -24,6 +24,23 @@ internal static partial class Program
                     $"SR388 egg/baby instruction byte $8B:{pointer:X4}");
         foreach ((int start, int end) in new[]
         {
+            (IntroScientistInstructionDefinitions.DeliveryStart,
+                IntroScientistInstructionDefinitions.DeliveryEnd),
+            (IntroScientistInstructionDefinitions.ExaminationStart,
+                IntroScientistInstructionDefinitions.ExaminationEnd),
+            (IntroScientistInstructionDefinitions.DeletePointer,
+                IntroScientistInstructionDefinitions.DeletePointer + 2),
+        })
+            for (int pointer = start; pointer < end; pointer++)
+                AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
+                    IntroScientistInstructionDefinitions.ReadByte((ushort)pointer),
+                    $"intro scientist instruction byte $8B:{pointer:X4}");
+        AssertThrows<InvalidDataException>(() =>
+            IntroScientistInstructionDefinitions.ReadWord(
+                IntroScientistInstructionDefinitions.ExaminationEnd),
+            "scientist actor reader rejects the confused-baby program");
+        foreach ((int start, int end) in new[]
+        {
             (IntroBabyDiscoveryInputDefinitions.ListStart,
                 IntroBabyDiscoveryInputDefinitions.ListEnd),
             (IntroBabyDiscoveryInputDefinitions.HeaderStart,
@@ -176,23 +193,65 @@ internal static partial class Program
         AssertEqual(reference.Samus.InputLocked, discovery.Samus.InputLocked,
             "SR388 end-demo Samus input lock matches ROM-backed controller");
 
+        ushort RomScientistWord(ushort pointer) => ReadIntroBabyActorWord(referenceBus,
+            IntroBabyActorDefinitions.NativeBank | pointer);
         IntroScientistCutsceneState delivery = IntroScientistCutsceneState.CreateDelivery();
         IntroScientistCutsceneState examination = IntroScientistCutsceneState.CreateExamination();
+        IntroScientistCutsceneState nativeDelivery =
+            IntroScientistCutsceneState.CreateDelivery(instructionWord: RomScientistWord);
+        IntroScientistCutsceneState nativeExamination =
+            IntroScientistCutsceneState.CreateExamination(instructionWord: RomScientistWord);
+        var deliveredBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
+            .GetField("baby", actorFlags)!.GetValue(delivery)!;
+        var examinedBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
+            .GetField("baby", actorFlags)!.GetValue(examination)!;
+        var nativeDeliveredBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
+            .GetField("baby", actorFlags)!.GetValue(nativeDelivery)!;
+        var nativeExaminedBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
+            .GetField("baby", actorFlags)!.GetValue(nativeExamination)!;
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.PageFourRequested || !examination.PageFiveRequested); frame++)
         {
             delivery.Step(guarded, frame, introCrossfadeTimer: 0x007f);
             examination.Step(guarded, frame, introCrossfadeTimer: 0x007f);
+            nativeDelivery.Step(referenceBus, frame, introCrossfadeTimer: 0x007f);
+            nativeExamination.Step(referenceBus, frame, introCrossfadeTimer: 0x007f);
+            AssertEqual(nativeDelivery.BackgroundX, delivery.BackgroundX,
+                $"scientist delivery camera X at frame {frame}");
+            AssertEqual(nativeExamination.BackgroundY, examination.BackgroundY,
+                $"scientist examination camera Y at frame {frame}");
+            AssertEqual(nativeDeliveredBaby.XPosition, deliveredBaby.XPosition,
+                $"scientist delivery baby X at frame {frame}");
+            AssertEqual(nativeExaminedBaby.YPosition, examinedBaby.YPosition,
+                $"scientist examination baby Y at frame {frame}");
+            AssertEqual(nativeDeliveredBaby.SpriteMapPointer, deliveredBaby.SpriteMapPointer,
+                $"scientist delivery visual frame {frame}");
+            AssertEqual(nativeExaminedBaby.SpriteMapPointer, examinedBaby.SpriteMapPointer,
+                $"scientist examination visual frame {frame}");
+            AssertEqual(nativeDelivery.PageFourRequested, delivery.PageFourRequested,
+                $"scientist page-four handoff at frame {frame}");
+            AssertEqual(nativeExamination.PageFiveRequested, examination.PageFiveRequested,
+                $"scientist page-five handoff at frame {frame}");
         }
         AssertTrue(delivery.PageFourRequested,
             "delivered-baby production actor reaches page-four instruction");
         AssertTrue(examination.PageFiveRequested,
             "examined-baby production actor reaches page-five instruction");
+        delivery.Step(guarded, 0, introCrossfadeTimer: 0);
+        examination.Step(guarded, 0, introCrossfadeTimer: 0);
+        nativeDelivery.Step(referenceBus, 0, introCrossfadeTimer: 0);
+        nativeExamination.Step(referenceBus, 0, introCrossfadeTimer: 0);
+        AssertEqual(nativeDeliveredBaby.IsActive, deliveredBaby.IsActive,
+            "scientist delivery crossfade deletion matches ROM-backed actor");
+        AssertEqual(nativeExaminedBaby.IsActive, examinedBaby.IsActive,
+            "scientist examination crossfade deletion matches ROM-backed actor");
+        AssertTrue(!deliveredBaby.IsActive && !examinedBaby.IsActive,
+            "scientist actors delete at zero crossfade");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "intro egg/baby playback never rereads compiled definitions, instructions, demo input or discovery collision bytes");
 
         Console.WriteLine(
-            "  Intro baby actors: definition, 138 instruction/delete, 72 demo-input and 768 collision bytes match; full guarded discovery and scientist scenes pass.");
+            "  Intro baby actors: definition, 138 discovery, 142 scientist, 72 demo-input and 768 collision bytes match; full guarded scenes pass.");
     }
 
     private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
@@ -219,6 +278,10 @@ internal static partial class Program
                 >= 0x8bad93 and < 0x8bada6 or
                 >= 0x8bba4b and < 0x8bba5e;
             forbidden |=
+                (address >= (IntroBabyActorDefinitions.NativeBank |
+                    IntroScientistInstructionDefinitions.DeliveryStart) &&
+                 address < (IntroBabyActorDefinitions.NativeBank |
+                    IntroScientistInstructionDefinitions.ExaminationEnd)) ||
                 (address >= (DemoInputRomData.BankBase |
                     IntroBabyDiscoveryInputDefinitions.ListStart) &&
                  address < (DemoInputRomData.BankBase |

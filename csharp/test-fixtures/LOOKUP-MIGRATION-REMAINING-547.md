@@ -108,6 +108,16 @@ rebinds selected artwork after restore. The production egg and baby renderer
 works with all three source ranges unreadable, without changing their compiled
 animation, motion, or physical collision.
 
+The scientist delivery and examination actors now compile their separate
+46-byte and 94-byte bank-$8B instruction lists at `$CB9F..CBCC` and
+`$CBCD..CC2A`, sharing the already compiled delete word at `$CE53`.
+Verification compares all 142 bytes to the pinned ROM, runs both real
+scene owners against independent ROM-backed actors frame by frame, checks
+each camera pan, baby position, selected visual frame and page handoff, and
+requires both actors to delete when the reverse-crossfade counter reaches
+zero. The production scenes cannot read the source lists. Their visual
+spritemaps remain separately editable-artwork work.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

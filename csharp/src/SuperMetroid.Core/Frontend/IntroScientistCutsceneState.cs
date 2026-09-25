@@ -9,11 +9,14 @@ internal sealed class IntroScientistCutsceneState
     private readonly IntroDiscoverySprite baby;
     private readonly CartridgeAudioState? audio;
     private readonly ScientistSceneKind kind;
+    private readonly Func<ushort, ushort> instructionWord;
 
-    private IntroScientistCutsceneState(ScientistSceneKind kind, CartridgeAudioState? audio)
+    private IntroScientistCutsceneState(ScientistSceneKind kind, CartridgeAudioState? audio,
+        Func<ushort, ushort>? instructionWord)
     {
         this.kind = kind;
         this.audio = audio;
+        this.instructionWord = instructionWord ?? IntroScientistInstructionDefinitions.ReadWord;
         bool delivery = kind == ScientistSceneKind.Delivery;
         IntroBabyActorDefinition definition = delivery
             ? IntroBabyActorDefinitions.DeliveredBaby
@@ -41,11 +44,13 @@ internal sealed class IntroScientistCutsceneState
 
     public bool PageFiveRequested { get; private set; }
 
-    public static IntroScientistCutsceneState CreateDelivery(CartridgeAudioState? audio = null) =>
-        new(ScientistSceneKind.Delivery, audio);
+    public static IntroScientistCutsceneState CreateDelivery(CartridgeAudioState? audio = null,
+        Func<ushort, ushort>? instructionWord = null) =>
+        new(ScientistSceneKind.Delivery, audio, instructionWord);
 
-    public static IntroScientistCutsceneState CreateExamination(CartridgeAudioState? audio = null) =>
-        new(ScientistSceneKind.Examination, audio);
+    public static IntroScientistCutsceneState CreateExamination(CartridgeAudioState? audio = null,
+        Func<ushort, ushort>? instructionWord = null) =>
+        new(ScientistSceneKind.Examination, audio, instructionWord);
 
     public void Step(
         ISnesAddressSpace bus,
@@ -81,7 +86,7 @@ internal sealed class IntroScientistCutsceneState
             }
         }
 
-        baby.Step(bus, HandleInstruction);
+        baby.Step(bus, HandleInstruction, instructionWord);
     }
 
     public void Draw(ISnesAddressSpace bus, OamBuffer oam) => baby.Draw(bus, oam);

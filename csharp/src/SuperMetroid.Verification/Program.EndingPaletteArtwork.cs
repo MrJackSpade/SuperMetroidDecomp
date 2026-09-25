@@ -31,9 +31,21 @@ internal static partial class Program
         var installedState = new EndingCreditsState(guardedBus, installedAudio, 2, 59);
         installedState.BindPaletteArtwork(stock);
         installedState.BindPaletteFxColors(maps.RoomPaletteFx);
+        installedState.BindEndingText(maps.EndingText);
+        installedState.BindEndingFont(maps.EndingFont);
+        installedState.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
+        installedState.BindMode7Artwork(installation.LoadEndingMode7Art());
+        installedState.BindObjectArtwork(installation.LoadEndingObjectArt());
         CreditsPresentation credits = maps.StaffCredits;
         nativeState.BindStaffCredits(credits);
         installedState.BindStaffCredits(credits);
+        // This matches the playable host's installed ending bindings. The fallback
+        // bus remains available in narrower native-reference tests below, but the
+        // production-shaped scene must complete without *any* cartridge read.
+        guardedBus.RejectAllCartridgeReads = true;
+        AssertThrows<InvalidOperationException>(
+            () => guardedBus.ReadByte(EndingCreditsRomData.Assets.FlyawayCharacters),
+            "ending ROM guard rejects an otherwise valid non-palette cartridge source");
         var reached = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 60_000 &&
             nativeState.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
@@ -59,6 +71,7 @@ internal static partial class Program
             "native ending reaches final hold in palette parity fixture");
         AssertEqual(nativeState.Phase, installedState.Phase,
             "installed ending reaches the same final hold");
+        guardedBus.RejectAllCartridgeReads = false;
         foreach (EndingCreditsPhase phase in new[]
         {
             EndingCreditsPhase.WaitForEscapeMusic,
@@ -182,7 +195,7 @@ internal static partial class Program
         File.Delete(invalidPath);
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "stock and edited ending scenes never reread installed palette colors");
-        Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity, live visible overrides and strict source-read guards pass.");
+        Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity, ROM-free installed scene/audio-step guard, live visible overrides and strict failures pass.");
     }
 
     private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation,
@@ -386,6 +399,7 @@ internal static partial class Program
                 .ToArray();
 
         public int ForbiddenReadAttempts { get; private set; }
+        public bool RejectAllCartridgeReads { get; set; }
 
         public byte ReadByte(int address)
         {
@@ -404,6 +418,11 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Ending reread {id} palette source ${address:X6}.");
             }
+            int bank = address >> 16;
+            if (RejectAllCartridgeReads && bank is not (0x7e or 0x7f) &&
+                (address & 0x8000) != 0)
+                throw new InvalidOperationException(
+                    $"Installed ending reread cartridge byte ${address:X6}.");
             return source.ReadByte(address);
         }
 

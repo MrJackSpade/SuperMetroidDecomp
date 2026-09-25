@@ -80,11 +80,11 @@ public sealed partial class RoomPlmSystem
         ApplyColoredDoorSetup(level, slot.BlockIndex);
 
         ushort initialList = slot.InstructionPointer;
-        ushort closedBlueList = ReadBank84Word(bus, unchecked((ushort)(initialList + 2)));
-        ushort hitList = ReadBank84Word(bus, unchecked((ushort)(initialList + 6)));
-        byte hitThreshold = bus.ReadByte(Bank84(unchecked((ushort)(hitList + 2))));
-        ushort openingList = ReadBank84Word(bus, unchecked((ushort)(hitList + 3)));
-        ushort coloredClosedDraw = ReadBank84Word(bus, unchecked((ushort)(initialList + 14)));
+        ushort closedBlueList = ReadProgramWord(bus, unchecked((ushort)(initialList + 2)));
+        ushort hitList = ReadProgramWord(bus, unchecked((ushort)(initialList + 6)));
+        byte hitThreshold = ReadProgramByte(bus, unchecked((ushort)(hitList + 2)));
+        ushort openingList = ReadProgramWord(bus, unchecked((ushort)(hitList + 3)));
+        ushort coloredClosedDraw = ReadProgramWord(bus, unchecked((ushort)(initialList + 14)));
         bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasOpenedDoorBit(slot.RoomArgument);
 
@@ -141,7 +141,7 @@ public sealed partial class RoomPlmSystem
             // setup/draw atomically here while retaining the cartridge pointers and art.
             byte blueBts = unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)door.Orientation));
-            ushort drawPointer = ReadBank84Word(
+            ushort drawPointer = ReadProgramWord(
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
             level.SetPlmBehavior(slot.BlockIndex, blueBts);

@@ -13,7 +13,13 @@ executes each family through the production PLM handler with those source
 ranges forbidden. The blue-door test additionally covers all three lists for
 each orientation and blocks all sixteen physical draw payloads.
 
-Other door, gate, item, statue, eye-door, and room-object instruction programs
+The adjacent twelve yellow/green/red resident-door streams are also compiled:
+$BFFD..C184, $C185..C300, and $C301..C488 (1,164 bytes total). Twelve
+production-path fixtures exercise room-entry close, accepted projectile hits,
+the complete opening animation, persistence, and reload-to-blue conversion
+with both the program span and all 48 physical colored-cap draws unreadable.
+
+Grey/eye doors, gates, items, statues, and other room-object instruction programs
 still require the same migration. Their visual art and physical draw layouts
 are separate work from compiled control flow; these families alone do not make
 runtime gameplay ROM-free.

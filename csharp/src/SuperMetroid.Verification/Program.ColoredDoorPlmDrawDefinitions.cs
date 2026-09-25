@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyColoredDoorProgramDefinitions(rom);
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -96,11 +97,12 @@ internal static partial class Program
                 ColoredDoorVisuals = header == RoomPlmHeaders.GreenDoorFacingLeft
                     ? edited : stock,
             };
+            var system = new Bank80SystemState();
             var guarded = new ColoredDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(guarded, level,
                     streamer, new SnesVram(), population,
-                    new Bank80SystemState(), AreaId.Crateria,
+                    system, AreaId.Crateria,
                     () => new SamusState(), () => false),
                 $"resident colored-door header ${header:X4} loads");
             ushort initial = ReadWord(rom, 0x840000 | (header + 2));
@@ -115,7 +117,7 @@ internal static partial class Program
                     level.GetCollisionBlockByIndex(origin + block * stride).LevelWord,
                     $"resident colored-door ${header:X4} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"resident colored-door ${header:X4} avoids draw payload ROM reads");
+                $"resident colored-door ${header:X4} avoids program and draw ROM reads");
             if (header == RoomPlmHeaders.GreenDoorFacingLeft)
             {
                 AssertEqual((ushort)0x0053, plms.TilemapUpdates[0].TopRow[0],
@@ -124,6 +126,66 @@ internal static partial class Program
                     level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],
                     "edited colored cap survives later camera streaming");
             }
+
+            var enteringDoor = new CartridgeDoorHeader(
+                Pointer: 0,
+                DestinationRoomPointer: 0,
+                BitFlags: 0,
+                Orientation: 5,
+                PlmX: 4,
+                PlmY: 4,
+                DestinationScreenX: 0,
+                DestinationScreenY: 0,
+                SamusDistance: 0,
+                SetupCodePointer: 0);
+            AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
+                $"resident colored door ${header:X4} selects its native closing list");
+            for (int frame = 0; frame < 20 &&
+                 plms.ColoredDoors.Single().Phase == ColoredDoorPhase.Closing; frame++)
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            AssertEqual(ColoredDoorPhase.Waiting, plms.ColoredDoors.Single().Phase,
+                $"resident colored door ${header:X4} finishes closing and resumes its owner");
+
+            SamusProjectileTypeWord accepted = header switch
+            {
+                >= RoomPlmHeaders.YellowDoorFacingLeft and
+                    <= RoomPlmHeaders.YellowDoorFacingDown => new(0x0300),
+                >= RoomPlmHeaders.GreenDoorFacingLeft and
+                    <= RoomPlmHeaders.GreenDoorFacingDown => new(0x0200),
+                _ => new(0x0100),
+            };
+            int hits = header >= RoomPlmHeaders.RedDoorFacingLeft ? 5 : 1;
+            for (int hit = 0; hit < hits; hit++)
+            {
+                AssertTrue(plms.TryNotifyColoredDoorHit(origin, accepted),
+                    $"resident colored door ${header:X4} accepts hit {hit + 1}");
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            }
+            AssertEqual(ColoredDoorPhase.Opening, plms.ColoredDoors.Single().Phase,
+                $"resident colored door ${header:X4} reaches opening threshold");
+            for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            AssertEqual(0, plms.ActiveCount,
+                $"resident colored door ${header:X4} completes opening and deletes");
+            AssertTrue(system.HasOpenedDoorBit(0),
+                $"resident colored door ${header:X4} persists the opened state");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"resident colored door ${header:X4} completes without program/draw ROM reads");
+
+            var reopenedLevel = new RoomLevelData(width, width,
+                new ushort[width * width], new byte[width * width],
+                new ushort[width * width], blockDefinitions);
+            BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();
+            var reopened = new RoomPlmSystem { ColoredDoorVisuals = stock };
+            AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
+                reopenedStreamer, new SnesVram(), population, system,
+                AreaId.Crateria, () => new SamusState(), () => false),
+                $"opened colored door ${header:X4} reloads");
+            reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
+            AssertEqual(0, reopened.ActiveCount,
+                $"opened colored door ${header:X4} converts to a blue cap");
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"opened colored door ${header:X4} converts without program/draw ROM reads");
         }
         AssertThrows<InvalidDataException>(
             () => new RoomPlmColoredDoorVisualCatalog(entries.Skip(1)),
@@ -135,7 +197,45 @@ internal static partial class Program
         editedFrame.Blocks[0] = originalVisual;
         VerifyColoredDoorVisualInstallation(rom);
         Console.WriteLine(
-            "  Colored-door PLM draws: 48 native lists, 12 guarded resident first draws, and editable stock/override appearance preserve collision.");
+            "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
+    }
+
+    private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
+    {
+        foreach ((ushort first, ushort last) in new[]
+        {
+            (ColoredDoorPlmProgramDefinitions.YellowStart,
+                ColoredDoorPlmProgramDefinitions.YellowEnd),
+            (ColoredDoorPlmProgramDefinitions.GreenStart,
+                ColoredDoorPlmProgramDefinitions.GreenEnd),
+            (ColoredDoorPlmProgramDefinitions.RedStart,
+                ColoredDoorPlmProgramDefinitions.RedEnd),
+        })
+        {
+            for (int address = first; address <= last; address++)
+            {
+                AssertTrue(ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(
+                    checked((ushort)address), out byte compiled),
+                    $"colored-door program claims byte $84:{address:X4}");
+                AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                    $"colored-door program byte $84:{address:X4} matches ROM");
+                if (address == last)
+                    continue;
+                AssertTrue(ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(
+                    checked((ushort)address), out ushort compiledWord),
+                    $"colored-door program claims word $84:{address:X4}");
+                ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                    rom.ReadByte(0x840000 | (address + 1)) << 8);
+                AssertEqual(native, compiledWord,
+                    $"colored-door program word $84:{address:X4} matches ROM");
+            }
+        }
+        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbffc, out _),
+            "colored-door program does not claim preceding grey-door byte");
+        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(0xc489, out _),
+            "colored-door program does not claim following blue-door byte");
+        AssertTrue(!ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(0xc184, out _),
+            "yellow list refuses a word crossing into the green list");
     }
 
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
@@ -206,6 +306,12 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address >= 0x84bffd && address <= 0x84c488)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Resident colored door reread compiled instruction ${address:X6}.");
+            }
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             {
                 int first = 0x840000 | list.Pointer;

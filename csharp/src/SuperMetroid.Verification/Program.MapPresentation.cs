@@ -299,6 +299,36 @@ internal static partial class Program
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
         AssertTrue(nativeNormal.Colors.SequenceEqual(installedNormal.Colors),
             "Mother Brain normal restoration matches both fixed native sources");
+        AssertEqual(MotherBrainBeamRomData.InitialColor,
+            original.MotherBrainRainbowPalette.BeamInitialColor,
+            "installed beam initial fixed color matches the cartridge");
+        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
+        {
+            int cursor = frame * MotherBrainBeamRomData.ColorStride;
+            int address = MotherBrainBeamRomData.ColorTable + cursor;
+            ushort nativeBeamColor = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            AssertEqual(nativeBeamColor, original.MotherBrainRainbowPalette.BeamColorWord(cursor),
+                $"installed beam HDMA color {frame} matches bank-$88");
+        }
+        AssertEqual(ushort.MaxValue, original.MotherBrainRainbowPalette.BeamColorWord(
+                MotherBrainRainbowPaletteFormat.BeamCycleColorCount * MotherBrainBeamRomData.ColorStride),
+            "installed beam color loop retains its native signed terminator");
+        var nativeBeamSequence = new MotherBrainRainbowBeamHdmaState();
+        var installedBeamSequence = new MotherBrainRainbowBeamHdmaState
+        {
+            PresentationColors = original.MotherBrainRainbowPalette,
+        };
+        var installedBeamReadGuard = new PaletteReadForbiddenBus();
+        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
+        {
+            nativeBeamSequence.Step(bus, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+            installedBeamSequence.Step(installedBeamReadGuard, true, 100, 95,
+                SnesAngle.QuarterTurn, 0x4000);
+            AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
+                nativeBeamSequence.ColorCursor == installedBeamSequence.ColorCursor &&
+                nativeBeamSequence.Windows.SequenceEqual(installedBeamSequence.Windows),
+                $"installed beam frame {frame} matches native color, cursor, and geometry through loop reset");
+        }
 
         PaletteRgb5 beam = document.Rainbow[0].Body[0];
         document.Rainbow[0].Body[0] = beam with { Red = beam.Red == 31 ? 30 : beam.Red + 1 };
@@ -316,6 +346,18 @@ internal static partial class Program
         document.FromGrey[0].BackLegs[0] = revive with { Green = revive.Green == 31 ? 30 : revive.Green + 1 };
         PaletteRgb5 normal = document.Normal.Body[0];
         document.Normal.Body[0] = normal with { Red = normal.Red == 31 ? 30 : normal.Red + 1 };
+        document = document with
+        {
+            BeamInitial = document.BeamInitial with
+            {
+                Blue = document.BeamInitial.Blue == 31 ? 30 : document.BeamInitial.Blue + 1,
+            },
+        };
+        PaletteRgb5 hdmaColor = document.BeamCycle[0];
+        document.BeamCycle[0] = hdmaColor with
+        {
+            Red = hdmaColor.Red == 31 ? 30 : hdmaColor.Red + 1,
+        };
         string replacement = Path.Combine(overrides, MotherBrainRainbowPaletteFormat.FileName);
         using (var stream = File.Create(replacement))
             MotherBrainRainbowPalettePresentation.Write(stream, document);
@@ -361,6 +403,26 @@ internal static partial class Program
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "normal-restoration override reaches the native body destination");
+        var stockBeam = new MotherBrainRainbowBeamHdmaState
+        {
+            PresentationColors = original.MotherBrainRainbowPalette,
+        };
+        var editedBeam = new MotherBrainRainbowBeamHdmaState
+        {
+            PresentationColors = runtime.Enemies.MotherBrainRainbowColors,
+        };
+        var beamReadGuard = new PaletteReadForbiddenBus();
+        stockBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+        AssertTrue(stockBeam.Color != editedBeam.Color &&
+            stockBeam.Windows.SequenceEqual(editedBeam.Windows),
+            "beam initial-color edit changes only color, not HDMA geometry");
+        stockBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+        AssertTrue(stockBeam.Color != editedBeam.Color &&
+            stockBeam.ColorCursor == editedBeam.ColorCursor &&
+            stockBeam.Windows.SequenceEqual(editedBeam.Windows),
+            "beam cycle edit reaches the live HDMA frame without a ROM read or timing change");
 
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
@@ -378,10 +440,15 @@ internal static partial class Program
             {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
             }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain normal palette");
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                BeamCycle = document.BeamCycle.Take(37).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain beam color cycle");
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity, AreaMapPresentationCatalog.Load(stock, overrides).ContentIdentity,
             "removing Mother Brain rainbow override restores installed-content identity");
-        Console.WriteLine("Mother Brain rainbow palette: 10 beam, 16 grey, and normal native outputs; ROM-free copies/WRAM tail, five live edits and strict validation pass.");
+        Console.WriteLine("Mother Brain rainbow palette: 10 body, 38 HDMA beam, 16 grey, and normal native colors; ROM-free beam/copies, live edits and strict validation pass.");
     }
 
     private static void VerifyMotherBrainHealthPaletteOverride(

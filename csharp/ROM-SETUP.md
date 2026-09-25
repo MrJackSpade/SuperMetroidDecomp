@@ -177,6 +177,13 @@ without changing the cartridge's partial CGRAM copy ranges, fade cadence, or
 palette-FX programs. The stock files are hash-checked; malformed overrides fail
 loudly instead of silently reverting to stock.
 
+Mother Brain's rainbow and drained-phase colors are installed as
+`game/maps/mother-brain-rainbow-palette.json`. Copy it to the same filename under
+`overrides/maps/` to edit the body, brain, and leg palettes. `beamInitial` is the
+first rainbow-beam HDMA color; `beamCycle` contains its 38 subsequent RGB5 colors.
+The signed loop terminator, beam window geometry, and attack timing remain engine
+logic. A debugger-state load rebinds the current color resource.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

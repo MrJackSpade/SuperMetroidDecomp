@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -9,6 +10,13 @@ namespace SuperMetroid.Core.Game;
 public sealed class MotherBrainRainbowBeamHdmaState
 {
     private readonly ushort[] windows = new ushort[SnesPpuLayout.ScreenHeightPixels];
+    [NonSerialized] private MotherBrainRainbowPalettePresentation? presentationColors;
+    /// <summary>Host-owned visual colors; the beam window and update cadence stay cartridge logic.</summary>
+    public MotherBrainRainbowPalettePresentation? PresentationColors
+    {
+        get => presentationColors;
+        set => presentationColors = value;
+    }
     public bool Active { get; private set; }
     public ushort Color { get; private set; }
     public int ColorCursor { get; private set; }
@@ -30,16 +38,16 @@ public sealed class MotherBrainRainbowBeamHdmaState
         {
             Active = true;
             ColorCursor = 0;
-            Color = MotherBrainBeamRomData.InitialColor;
+            Color = presentationColors?.BeamInitialColor ?? MotherBrainBeamRomData.InitialColor;
         }
         else
         {
-            ushort color = ReadWord(bus, MotherBrainBeamRomData.ColorTable + ColorCursor);
+            ushort color = ReadColorWord(bus, ColorCursor);
             if (unchecked((short)color) < 0)
             {
                 // The native reset frame repeats entry zero without incrementing.
                 ColorCursor = 0;
-                color = ReadWord(bus, MotherBrainBeamRomData.ColorTable);
+                color = ReadColorWord(bus, 0);
             }
             else ColorCursor += MotherBrainBeamRomData.ColorStride;
             Color = color;
@@ -126,6 +134,9 @@ public sealed class MotherBrainRainbowBeamHdmaState
 
     private static int Tangent(ISnesAddressSpace bus, int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+    private ushort ReadColorWord(ISnesAddressSpace bus, int cursor) =>
+        presentationColors is { } colors
+            ? colors.BeamColorWord(cursor)
+            : (ushort)(bus.ReadByte(MotherBrainBeamRomData.ColorTable + cursor) |
+                bus.ReadByte(MotherBrainBeamRomData.ColorTable + cursor + 1) << 8);
 }

@@ -99,9 +99,12 @@ public sealed partial class SuperMetroidRuntime
                 Samus!.LoadSuitPalette(_addressSpace, Cgram);
             }
             if (!TimeIsFrozen && Enemies.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
+            {
+                rainbowBrain.RainbowBeamHdma.PresentationColors = Enemies.MotherBrainRainbowColors;
                 rainbowBrain.RainbowBeamHdma.Step(_addressSpace, rainbowBrain.RainbowBeamHdmaActive,
                     rainbowHead.XPosition, rainbowHead.YPosition,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
+            }
             if (Enemies.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,

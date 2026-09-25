@@ -30,6 +30,8 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, false,
                 MotherBrainRainbowPaletteRomData.NormalSecondarySource),
+            BeamInitial = ToColor(MotherBrainBeamRomData.InitialColor),
+            BeamCycle = ReadBeamCycle(),
         });
         return json.ToArray();
 
@@ -70,13 +72,32 @@ internal static class MotherBrainRainbowPaletteExtractor
         PaletteRgb5 ReadColor(int address)
         {
             ushort word = ReadWord(address);
-            return new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            return ToColor(word);
         }
+
+        PaletteRgb5[] ReadBeamCycle()
+        {
+            var colors = new PaletteRgb5[MotherBrainRainbowPaletteFormat.BeamCycleColorCount];
+            for (int index = 0; index < colors.Length; index++)
+            {
+                ushort word = ReadWord(MotherBrainBeamRomData.ColorTable +
+                    index * MotherBrainBeamRomData.ColorStride);
+                if ((word & 0x8000) != 0)
+                    throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
+                colors[index] = ToColor(word);
+            }
+            if (ReadWord(MotherBrainBeamRomData.ColorTable +
+                colors.Length * MotherBrainBeamRomData.ColorStride) != ushort.MaxValue)
+                throw new InvalidDataException("Mother Brain beam cycle lacks its native signed terminator.");
+            return colors;
+        }
+
+        static PaletteRgb5 ToColor(ushort word) => new()
+        {
+            Red = word & 31,
+            Green = word >> 5 & 31,
+            Blue = word >> 10 & 31,
+        };
 
         ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
     }

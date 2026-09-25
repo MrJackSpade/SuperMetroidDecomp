@@ -11,14 +11,34 @@ public sealed class MotherBrainRainbowPalettePresentation
     private readonly PaletteFrame[] toGrey;
     private readonly PaletteFrame[] fromGrey;
     private readonly PaletteFrame normal;
+    private readonly ushort beamInitial;
+    private readonly ushort[] beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
-        PaletteFrame[] fromGrey, PaletteFrame normal)
+        PaletteFrame[] fromGrey, PaletteFrame normal, ushort beamInitial, ushort[] beamCycle)
     {
         this.rainbow = rainbow;
         this.toGrey = toGrey;
         this.fromGrey = fromGrey;
         this.normal = normal;
+        this.beamInitial = beamInitial;
+        this.beamCycle = beamCycle;
+    }
+
+    /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
+    public ushort BeamInitialColor => beamInitial;
+
+    /// <summary>
+    /// Resolves the native byte cursor. The signed terminator remains engine control,
+    /// not an editable color; the HDMA owner performs the reset on that frame.
+    /// </summary>
+    public ushort BeamColorWord(int byteCursor)
+    {
+        if (byteCursor < 0 || byteCursor % MotherBrainBeamRomData.ColorStride != 0 ||
+            byteCursor > beamCycle.Length * MotherBrainBeamRomData.ColorStride)
+            throw new InvalidDataException($"Mother Brain beam color cursor ${byteCursor:X} is outside its authored cycle.");
+        int index = byteCursor / MotherBrainBeamRomData.ColorStride;
+        return index == beamCycle.Length ? ushort.MaxValue : beamCycle[index];
     }
 
     /// <summary>Copies one cartridge rainbow-list entry to the three body/brain/leg slots.</summary>
@@ -95,7 +115,10 @@ public sealed class MotherBrainRainbowPalettePresentation
                 MotherBrainDrainedPaletteRomData.RevivalColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, true, nameof(document.FromGrey)),
             CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, false, nameof(document.Normal))[0]);
+                MotherBrainRainbowPaletteRomData.ColorCount, false, nameof(document.Normal))[0],
+            CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
+            CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
+                nameof(document.BeamCycle)));
     }
 
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
@@ -152,6 +175,8 @@ public sealed record MotherBrainRainbowPaletteDocument
     public required MotherBrainRainbowPaletteFrameDocument[] ToGrey { get; init; }
     public required MotherBrainRainbowPaletteFrameDocument[] FromGrey { get; init; }
     public required MotherBrainRainbowPaletteFrameDocument Normal { get; init; }
+    public required PaletteRgb5 BeamInitial { get; init; }
+    public required PaletteRgb5[] BeamCycle { get; init; }
 }
 
 public sealed record MotherBrainRainbowPaletteFrameDocument
@@ -164,7 +189,9 @@ public sealed record MotherBrainRainbowPaletteFrameDocument
 public static class MotherBrainRainbowPaletteFormat
 {
     public const string FileName = "mother-brain-rainbow-palette.json";
-    public const int Version = 1;
+    public const int Version = 2;
     public const int RainbowFrameCount = 10;
     public const int GreyFrameCount = 8;
+    /// <summary>38 sampled BGR555 words before the signed bank-$88 loop terminator.</summary>
+    public const int BeamCycleColorCount = 38;
 }

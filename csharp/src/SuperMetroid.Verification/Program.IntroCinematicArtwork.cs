@@ -79,6 +79,7 @@ internal static partial class Program
             VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation);
             VerifyIntroRinkaSpriteArtwork(bus, stock, installation);
             VerifyIntroEggEffectSpriteArtwork(bus, stock, installation);
+            VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -555,7 +556,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery-actor compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -985,7 +986,8 @@ internal static partial class Program
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source,
         bool blockIntroMotherBrainExplosions = false,
         bool blockIntroRinkas = false,
-        bool blockIntroEggEffects = false) : ISnesAddressSpace
+        bool blockIntroEggEffects = false,
+        bool blockIntroDiscoveryActors = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -1114,6 +1116,29 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread intro egg effect sprite ${address:X6}.");
+            }
+            if (blockIntroDiscoveryActors)
+            {
+                int eggStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    IntroDiscoveryActorSpriteDefinitions.EggStart);
+                int eggEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    IntroDiscoveryActorSpriteDefinitions.EggEnd);
+                int babyStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    IntroDiscoveryActorSpriteDefinitions.BabyStart);
+                int babySmallEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    IntroDiscoveryActorSpriteDefinitions.BabySmallEnd);
+                int babyLarge = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    IntroDiscoveryActorSpriteDefinitions.BabyLarge);
+                int babyEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    IntroDiscoveryActorSpriteDefinitions.BabyEnd);
+                if (address >= eggStart && address < eggEnd ||
+                    address >= babyStart && address < babySmallEnd ||
+                    address >= babyLarge && address < babyEnd)
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Cinematic reread intro discovery actor sprite ${address:X6}.");
+                }
             }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

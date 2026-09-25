@@ -1221,7 +1221,8 @@ public sealed partial class IntroCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        babyDiscovery!.DrawActors(oam, characterArtwork?.EggEffectSprites);
+        babyDiscovery!.DrawActors(oam, characterArtwork?.EggEffectSprites,
+            characterArtwork?.DiscoveryActorSprites);
 
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the

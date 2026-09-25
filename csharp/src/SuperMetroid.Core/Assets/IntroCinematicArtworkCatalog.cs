@@ -18,6 +18,7 @@ public sealed class IntroCinematicArtworkCatalog
         IntroMotherBrainExplosionSpritePresentation motherBrainExplosionSprites,
         IntroRinkaSpritePresentation rinkaSprites,
         IntroEggEffectSpritePresentation eggEffectSprites,
+        IntroDiscoveryActorSpritePresentation discoveryActorSprites,
         IntroCinematicPalette palette,
         CeresFlightArtworkCatalog ceresFlight,
         CeresDestructionArtworkCatalog ceresDestruction)
@@ -49,6 +50,8 @@ public sealed class IntroCinematicArtworkCatalog
             throw new ArgumentNullException(nameof(motherBrainExplosionSprites));
         RinkaSprites = rinkaSprites ?? throw new ArgumentNullException(nameof(rinkaSprites));
         EggEffectSprites = eggEffectSprites ?? throw new ArgumentNullException(nameof(eggEffectSprites));
+        DiscoveryActorSprites = discoveryActorSprites ??
+            throw new ArgumentNullException(nameof(discoveryActorSprites));
         Palette = palette ?? throw new ArgumentNullException(nameof(palette));
         CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
         CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
@@ -87,6 +90,8 @@ public sealed class IntroCinematicArtworkCatalog
     public IntroRinkaSpritePresentation RinkaSprites { get; }
     /// <summary>Eleven editable SR388 egg-shell and slime visual frames.</summary>
     public IntroEggEffectSpritePresentation EggEffectSprites { get; }
+    /// <summary>Twenty editable SR388 egg and confused-baby actor frames.</summary>
+    public IntroDiscoveryActorSpritePresentation DiscoveryActorSprites { get; }
     /// <summary>Native-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>

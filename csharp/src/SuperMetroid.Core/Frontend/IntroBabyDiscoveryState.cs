@@ -113,12 +113,13 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     public void DrawActors(OamBuffer oam,
-        IntroEggEffectSpritePresentation? eggEffectArt = null)
+        IntroEggEffectSpritePresentation? eggEffectArt = null,
+        IntroDiscoveryActorSpritePresentation? actorArt = null)
     {
         // IntroSamusDisplayFlag=+1 makes cinematic objects enter OAM before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.
-        egg.Draw(bus, oam);
-        confusedBaby.Draw(bus, oam);
+        egg.Draw(bus, oam, installedArt: actorArt);
+        confusedBaby.Draw(bus, oam, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
             particle.Draw(bus, oam, eggEffectArt);
         foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)

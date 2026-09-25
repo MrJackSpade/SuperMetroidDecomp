@@ -16,7 +16,7 @@ is also compiled: twelve 32-block rows, ten zero rows followed by uniform
 The actor verifier compares all 768 cartridge bytes and all 512 resulting
 foreground words, then executes the production discovery constructor and
 scientist scene path with the old collision source unreadable. Its visual BG
-page, actor animation streams, and demo input are separate work.
+page and demo input are separate work.
 
 The intro Mother Brain actor's fixed bank-$8B instruction lists at
 `$CB05..CB32` are now compiled separately from its bank-$8C spritemap
@@ -81,7 +81,14 @@ Verification compares all 138 program/delete bytes with the pinned ROM, runs
 the entire hatch and page-three handoff alongside an independent ROM-backed
 state, checks selected egg/baby frames, baby motion and spawned fragments each
 frame, and requires the egg's reverse-crossfade deletion with the source lists
-unreadable. The egg and baby's visual spritemaps remain separate artwork work.
+unreadable. The egg and baby's twenty visual spritemaps at `$8C:8D6F..8F7D`,
+`$8C:8FCB..8FDF`, and `$8C:909D..90FD` are now separately installed in
+editable `intro-discovery-actor-sprites.json`. All twenty frames match the
+native OAM at on-screen and negative origins. A one-pixel visual edit to the
+intact egg changes the lit discovery scene's rendered pixels, and the scene
+rebinds selected artwork after restore. The production egg and baby renderer
+works with all three source ranges unreadable, without changing their compiled
+animation, motion, or physical collision.
 
 ## Additional room-PLM instruction control (2026-09-24)
 

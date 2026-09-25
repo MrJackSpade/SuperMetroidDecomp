@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 16;
+    private const int FormatVersion = 17;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -57,6 +57,7 @@ public static class IntroCinematicArtworkFiles
         WriteMotherBrainExplosionSprites();
         WriteRinkaSprites();
         WriteEggEffectSprites();
+        WriteDiscoveryActorSprites();
         WritePalette();
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
@@ -337,6 +338,28 @@ public static class IntroCinematicArtworkFiles
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
+
+        void WriteDiscoveryActorSprites()
+        {
+            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+            foreach (IntroDiscoveryActorSpriteFrameDefinition definition in
+                IntroDiscoveryActorSpriteDefinitions.Frames)
+                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
+                    definition.Pointer, definition.StockPartCount, definition.Name));
+            using var json = new MemoryStream();
+            IntroDiscoveryActorSpritePresentation.Write(json,
+                new IntroDiscoveryActorSpriteDocument
+                {
+                    Version = IntroDiscoveryActorSpriteFormat.Version,
+                    Frames = frames,
+                });
+            byte[] encoded = json.ToArray();
+            string name = IntroDiscoveryActorSpriteFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name),
+                FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
@@ -379,6 +402,7 @@ public static class IntroCinematicArtworkFiles
             LoadMotherBrainExplosionSprites(),
             LoadRinkaSprites(),
             LoadEggEffectSprites(),
+            LoadDiscoveryActorSprites(),
             LoadPalette(),
             LoadCeresFlight(),
             LoadCeresDestruction());
@@ -544,6 +568,22 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        IntroDiscoveryActorSpritePresentation LoadDiscoveryActorSprites()
+        {
+            (string path, byte[] selected) = ReadSelected(
+                IntroDiscoveryActorSpriteFormat.FileName);
+            try
+            {
+                return IntroDiscoveryActorSpritePresentation.Load(
+                    new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid intro discovery actor sprites {path}: {error.Message}", error);
+            }
+        }
+
         CeresDestructionArtworkCatalog LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
@@ -592,6 +632,7 @@ public static class IntroCinematicArtworkFiles
         IntroMotherBrainExplosionSpriteFormat.FileName,
         IntroRinkaSpriteFormat.FileName,
         IntroEggEffectSpriteFormat.FileName,
+        IntroDiscoveryActorSpriteFormat.FileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFormat.FileName,

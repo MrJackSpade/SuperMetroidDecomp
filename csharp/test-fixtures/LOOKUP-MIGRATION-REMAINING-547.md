@@ -2,6 +2,15 @@
 
 ## Additional room-PLM instruction control (2026-09-24)
 
+Spore Spawn's ceiling now has both reachable bank-$84 instruction lists and
+four two-run physical draw layouts compiled. The crumble list intentionally
+falls through into the clear list. A guarded production PLM sequence checks
+three four-frame breakup appearances, the four-frame clear, sound, deletion,
+and all four level words while rejecting reads of every claimed program and
+draw byte. The pinned-ROM comparison checks the exact ten instruction words,
+one sound byte, and all four draw layouts. Appearance replacement is a separate
+#539 presentation step; the current compiled visual words remain fixed.
+
 Maridia's hardcoded elevatube PLM now selects its visible block from
 `room-plm-maridia-elevatube/maridia-elevatube.json`. The production PLM runs
 with program/draw source bytes unreadable, preserves its physical word and

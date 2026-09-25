@@ -1830,6 +1830,15 @@ public sealed partial class RoomPlmSystem
                 tourianAccessVisuals: tourianAccessVisuals);
             return;
         }
+        if (SporeSpawnCeilingPlmDrawDefinitions.TryGet(drawPointer,
+                out var sporeCeiling))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, sporeCeiling, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
         {
             DrawCompiledBlockInstruction(
@@ -2161,6 +2170,8 @@ public sealed partial class RoomPlmSystem
     private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
             ? value
+            : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+            ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
@@ -2203,6 +2214,8 @@ public sealed partial class RoomPlmSystem
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
+            ? value
+            : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
             ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value)
             ? value

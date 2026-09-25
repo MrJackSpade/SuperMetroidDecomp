@@ -80,6 +80,8 @@ internal static partial class Program
             }
             if (hours == 2)
             {
+                EndingObjectArtworkCatalog editedLogo = LoadEditedEndingLogoArtwork(installation);
+                bool visibleLogoEdit = false;
                 // Continue the installed suitless route through all four logo
                 // actors, not merely the initial logo upload after the shot.
                 for (int frame = 0; frame < 2000 &&
@@ -96,6 +98,15 @@ internal static partial class Program
                                 SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(expected)),
                             $"installed logo pixels at frame {frame}");
+                        if (native.Phase == EndingCreditsPhase.PostCreditsLogo)
+                        {
+                            installed.BindObjectArtwork(editedLogo);
+                            LayeredRenderSnapshot changed = installed.CaptureRenderSnapshot();
+                            visibleLogoEdit |= !actual.Memory.Oam.SequenceEqual(changed.Memory.Oam) &&
+                                !SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                                    SoftwareLayeredSnapshotRenderer.Render(changed));
+                            installed.BindObjectArtwork(stock);
+                        }
                     }
                     native.Step();
                     installed.Step();
@@ -106,6 +117,8 @@ internal static partial class Program
                     "native logo reaches item percentage");
                 AssertEqual(EndingCreditsPhase.ItemPercentage, installed.Phase,
                     "compiled installed logo reaches item percentage");
+                AssertTrue(visibleLogoEdit,
+                    "edited right logo circle changes live OAM and visible ending pixels");
             }
             AssertEqual(0, guardedBus.ForbiddenReadAttempts,
                 $"installed {hours}h reward never rereads post-credit art sources");

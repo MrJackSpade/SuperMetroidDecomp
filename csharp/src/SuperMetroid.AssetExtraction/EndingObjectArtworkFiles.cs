@@ -136,6 +136,25 @@ public static class EndingObjectArtworkFiles
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
+        var logoFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (EndingLogoSpriteFrameDefinition definition in EndingLogoSpriteDefinitions.Frames)
+            logoFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+        using (var sprites = new MemoryStream())
+        {
+            EndingLogoSpritePresentation.Write(sprites,
+                new EndingLogoSpriteDocument
+                {
+                    Version = EndingLogoSpriteFormat.Version,
+                    Frames = logoFrames,
+                });
+            byte[] file = sprites.ToArray();
+            string name = EndingLogoSpriteFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name),
+                       FileMode.CreateNew, FileAccess.Write))
+                output.Write(file);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+        }
 
         using var manifest = new FileStream(Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
@@ -219,6 +238,7 @@ public static class EndingObjectArtworkFiles
             EndingExplosionSpriteFormat.FileName,
             EndingCompletionTextSpriteFormat.FileName,
             EndingRewardSpriteFormat.FileName,
+            EndingLogoSpriteFormat.FileName,
         ];
         if (manifest.Version != EndingObjectArtworkFormat.ManifestVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
@@ -255,7 +275,8 @@ public static class EndingObjectArtworkFiles
             LoadCloudSprites(),
             LoadExplosionSprites(),
             LoadCompletionTextSprites(),
-            LoadRewardSprites());
+            LoadRewardSprites(),
+            LoadLogoSprites());
 
         EndingCloudSpritePresentation LoadCloudSprites()
         {
@@ -358,6 +379,32 @@ public static class EndingObjectArtworkFiles
             {
                 throw new InvalidDataException(
                     $"Invalid ending reward sprites {selectedPath}: {error.Message}", error);
+            }
+        }
+
+        EndingLogoSpritePresentation LoadLogoSprites()
+        {
+            string name = EndingLogoSpriteFormat.FileName;
+            string stockPath = Path.Combine(stockDirectory, name);
+            byte[] stock = File.ReadAllBytes(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
+                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(
+                    $"Stock ending logo sprites {stockPath} failed its manifest hash.");
+            string? overridePath = overrideDirectory is null ? null :
+                Path.Combine(overrideDirectory, name);
+            string selectedPath = overridePath is not null && File.Exists(overridePath)
+                ? overridePath : stockPath;
+            try
+            {
+                return EndingLogoSpritePresentation.Load(new MemoryStream(
+                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid ending logo sprites {selectedPath}: {error.Message}", error);
             }
         }
 

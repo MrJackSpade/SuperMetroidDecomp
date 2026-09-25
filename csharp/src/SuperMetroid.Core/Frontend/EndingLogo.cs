@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -80,12 +81,13 @@ internal sealed class EndingLogo
         return cursor;
     }
 
-    public OamBuffer Draw()
+    public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null)
     {
         var oam = new OamBuffer(); oam.BeginFrame();
         if (!Completed)
             foreach (var actor in actors)
-                actor.Draw(bus, oam, EndingLogoDefinitions.Camera, EndingLogoDefinitions.Camera);
+                actor.Draw(bus, oam, EndingLogoDefinitions.Camera,
+                    EndingLogoDefinitions.Camera, installedArt);
         oam.FinalizeFrame(); return oam;
     }
 }

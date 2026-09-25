@@ -204,6 +204,9 @@ does not alter the cartridge-matched typewriter pacing or credits handoff.
 Samus pose compositions used across the reward reveal, gesture, jump, landing,
 and shot. Their shared actor instructions and physical handoff remain compiled
 game logic.
+`ending-logo-sprites.json` contains the eight final assembling-logo OAM
+compositions: two S halves and three frames for each circle half. Logo motion,
+wrap timing, and palette-crossfade behavior remain compiled game logic.
 Two small cartridge tile uploads, `post-credits-tile-fragment-a.png` and
 `post-credits-tile-fragment-b.png`, are also installed as indexed PNGs. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2

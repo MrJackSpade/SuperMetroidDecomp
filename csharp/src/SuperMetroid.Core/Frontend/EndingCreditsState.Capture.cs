@@ -20,7 +20,8 @@ internal sealed partial class EndingCreditsState
             if (!endingLogo.Completed) layers.Add(new ObjRenderLayer(endingLogo.CrossfadeStarted));
             layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
                 0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
-            return new(PpuMemorySnapshot.Capture(vram, cgram, endingLogo.Draw()), layers.ToArray(), 3, brightness);
+            return new(PpuMemorySnapshot.Capture(vram, cgram,
+                endingLogo.Draw(objectArtwork?.LogoSprites)), layers.ToArray(), 3, brightness);
         }
         if (postShot is not null)
         {

@@ -7,8 +7,11 @@ are compiled as 31 fixed words. Every source word matches the pinned ROM;
 the independent native and compiled logo owners match OAM, CGRAM, crossfade
 state, and completion on every frame through the sixteen-step palette handoff.
 The installed suitless ending also reaches item percentage with these list
-bytes unreadable and native scene pixels intact. Logo spritemap compositions
-remain a separate visual-artwork migration.
+bytes unreadable and native scene pixels intact. The eight bank-$8C logo
+spritemaps are separately installed as `ending-logo-sprites.json`: stock OAM
+matches at normal and negative origins, the full scene runs with those source
+records unreadable, and a mid-scene circle edit changes live pixels without
+changing the logo timing.
 
 ## Post-credits Samus actor lists (2026-09-25)
 

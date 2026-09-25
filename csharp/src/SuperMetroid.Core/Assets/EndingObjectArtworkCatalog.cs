@@ -27,7 +27,8 @@ public sealed class EndingObjectArtworkCatalog
         EndingCloudSpritePresentation cloudSprites,
         EndingExplosionSpritePresentation explosionSprites,
         EndingCompletionTextSpritePresentation completionTextSprites,
-        EndingRewardSpritePresentation rewardSprites)
+        EndingRewardSpritePresentation rewardSprites,
+        EndingLogoSpritePresentation logoSprites)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
@@ -44,6 +45,7 @@ public sealed class EndingObjectArtworkCatalog
         CompletionTextSprites = completionTextSprites ??
             throw new ArgumentNullException(nameof(completionTextSprites));
         RewardSprites = rewardSprites ?? throw new ArgumentNullException(nameof(rewardSprites));
+        LogoSprites = logoSprites ?? throw new ArgumentNullException(nameof(logoSprites));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
@@ -71,6 +73,8 @@ public sealed class EndingObjectArtworkCatalog
     public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
     /// <summary>Thirty-seven editable post-credits Samus reward OAM compositions.</summary>
     public EndingRewardSpritePresentation RewardSprites { get; }
+    /// <summary>Eight editable OAM compositions for the final assembling logo.</summary>
+    public EndingLogoSpritePresentation LogoSprites { get; }
     public RoomCharacterAtlas Explosion { get; }
     /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
     public RoomCharacterAtlas WaitingSamus { get; }
@@ -97,7 +101,7 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 9;
+    public const int ManifestVersion = 10;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";

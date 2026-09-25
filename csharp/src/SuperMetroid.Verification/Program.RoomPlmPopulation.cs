@@ -59,6 +59,7 @@ internal static partial class Program
             () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
             "out-of-range door-closing direction fails loudly");
         VerifyResidentDoorClosingDefinitions(rom);
+        VerifyMotherBrainEscapeGateCompiledDefinitions(rom);
         VerifySequentialRoomPlmPopulationLoader();
         Console.WriteLine(
             "Door-closing definitions: all twelve fallback and seventeen resident selections match.");
@@ -1002,6 +1003,7 @@ internal static partial class Program
         WriteVerticalPlmDraw(bus, 0x9473, [0x80ff, 0x80ff, 0x80ff, 0x80ff]);
         WriteVerticalPlmDraw(bus, 0x947f, [0x830f, 0x80ff, 0x80ff, 0x830f]);
         WriteVerticalPlmDraw(bus, 0x948b, [0x830f, 0x8ae8, 0x82e8, 0x830f]);
+        var guarded = new MotherBrainEscapeGateReadGuard(bus);
 
         RoomLevelData ordinaryLevel = CreateRoom(
             width,
@@ -1015,7 +1017,7 @@ internal static partial class Program
         var ordinary = new RoomPlmSystem();
         var system = new Bank80SystemState();
         AssertEqual(1, ordinary.LoadRoomPopulation(
-                bus,
+                guarded,
                 ordinaryLevel,
                 ordinaryStreamer,
                 new SnesVram(),
@@ -1032,12 +1034,12 @@ internal static partial class Program
         AssertEqual(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed,
             ordinary.PopulationSlots.Single().InstructionPointer,
             "ordinary entry retains C8CA's first closed-gate list");
-        ordinary.Step(bus, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
+        ordinary.Step(guarded, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
         AssertEqual(closedGateMiddleWord,
             ordinaryLevel.GetCollisionBlock(gateX, gateY + 1).LevelWord,
             "non-escape entry draws the cartridge's already-closed gate");
         for (int frame = 0; frame < 6; frame++)
-            ordinary.Step(bus, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
+            ordinary.Step(guarded, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
         AssertEqual(0, ordinary.ActiveCount,
             "non-escape closed-gate actor releases its slot after six authored frames");
 
@@ -1051,7 +1053,7 @@ internal static partial class Program
         BackgroundTilemapStreamer escapeStreamer = escapeLevel.CreateBackgroundStreamer();
         var escape = new RoomPlmSystem();
         escape.LoadRoomPopulation(
-            bus,
+            guarded,
             escapeLevel,
             escapeStreamer,
             new SnesVram(),
@@ -1071,7 +1073,7 @@ internal static partial class Program
             DestinationScreenY: 0,
             SamusDistance: 0x8000,
             SetupCodePointer: 0);
-        AssertTrue(escape.TrySpawnDoorClosingPlm(bus, escapeLevel, motherBrainExit, system),
+        AssertTrue(escape.TrySpawnDoorClosingPlm(guarded, escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
@@ -1081,21 +1083,21 @@ internal static partial class Program
             escape.PopulationSlots.Single().InstructionPointer,
             "door transition selects C8CA's second instruction list");
 
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
         AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(gateX, gateY).LevelWord,
             "closing frame one draws the fully open gate");
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
         AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(gateX, gateY).LevelWord,
             "two-frame gate timer retains the open image on its countdown frame");
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
         AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(gateX, gateY).LevelWord,
             "closing frame two draws the half-closed gate");
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
         AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(gateX, gateY + 1).LevelWord,
             "closing frame three installs the final solid gate collision");
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
-        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(guarded, escapeLevel, escapeStreamer, 0, 0, 0);
         AssertEqual(0, escape.ActiveCount,
             "escape gate releases its slot after the final two-frame hold");
 
@@ -1107,7 +1109,7 @@ internal static partial class Program
             blockDefinitions: new byte[0x400 * 8]);
         fallbackLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var fallback = new RoomPlmSystem();
-        AssertTrue(fallback.TrySpawnDoorClosingPlm(bus, fallbackLevel, motherBrainExit, system),
+        AssertTrue(fallback.TrySpawnDoorClosingPlm(guarded, fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
         AssertEqual(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
             fallback.PopulationSlots.Single().HeaderPointer,
@@ -1117,10 +1119,87 @@ internal static partial class Program
 
         var nonClosingDoor = motherBrainExit with { Orientation = 0 };
         var nonClosing = new RoomPlmSystem();
-        AssertTrue(!nonClosing.TrySpawnDoorClosingPlm(bus, fallbackLevel, nonClosingDoor, system),
+        AssertTrue(!nonClosing.TrySpawnDoorClosingPlm(guarded, fallbackLevel, nonClosingDoor, system),
             "directions zero through three retain the native no-closing-PLM branch");
         AssertEqual(0, nonClosing.ActiveCount,
             "non-closing door does not consume a PLM slot");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "Mother Brain escape gate never rereads compiled programs or physical draws");
+    }
+
+    private sealed class MotherBrainEscapeGateReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace
+    {
+        internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (address is >= 0x84bb34 and <= 0x84bb51 or
+                >= 0x849473 and <= 0x849496)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Mother Brain escape gate reread compiled source ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
+        SuperMetroidAddressSpace rom)
+    {
+        for (int address = MotherBrainEscapeGatePlmProgramDefinitions.FirstAddress;
+             address <= MotherBrainEscapeGatePlmProgramDefinitions.LastAddress; address++)
+        {
+            AssertTrue(MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(
+                    checked((ushort)address), out byte compiled),
+                $"escape-gate program claims byte $84:{address:X4}");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"escape-gate program byte $84:{address:X4} matches ROM");
+            if (address == MotherBrainEscapeGatePlmProgramDefinitions.LastAddress)
+                continue;
+            AssertTrue(MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(
+                    checked((ushort)address), out ushort compiledWord),
+                $"escape-gate program claims word $84:{address:X4}");
+            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8);
+            AssertEqual(native, compiledWord,
+                $"escape-gate program word $84:{address:X4} matches ROM");
+        }
+        AssertTrue(!MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(0xbb33, out _),
+            "escape-gate program excludes preceding PLM header");
+        AssertTrue(!MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(0xbb52, out _),
+            "escape-gate program excludes following pre-instruction machine code");
+
+        AssertEqual(3, MotherBrainEscapeGatePlmDrawDefinitions.All.Count(),
+            "escape gate owns open, half-closed and closed physical draws");
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
+                 MotherBrainEscapeGatePlmDrawDefinitions.All)
+        {
+            AssertEqual(1, list.Runs.Length,
+                $"escape-gate draw ${list.Pointer:X4} has one vertical run");
+            RoomPlmShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
+            AssertEqual(run.DirectionAndCount,
+                (ushort)(rom.ReadByte(0x840000 | list.Pointer) |
+                    rom.ReadByte(0x840000 | (list.Pointer + 1)) << 8),
+                $"escape-gate draw ${list.Pointer:X4} direction and count match ROM");
+            AssertEqual(4, run.LevelWords.Length,
+                $"escape-gate draw ${list.Pointer:X4} has four physical words");
+            for (int block = 0; block < run.LevelWords.Length; block++)
+            {
+                int address = 0x840000 | (list.Pointer + 2 + block * 2);
+                ushort native = (ushort)(rom.ReadByte(address) |
+                    rom.ReadByte(address + 1) << 8);
+                AssertEqual(native, run.LevelWords.Span[block],
+                    $"escape-gate draw ${list.Pointer:X4} block {block} matches ROM");
+            }
+            int terminator = 0x840000 | (list.Pointer + 10);
+            AssertEqual((ushort)0,
+                (ushort)(rom.ReadByte(terminator) | rom.ReadByte(terminator + 1) << 8),
+                $"escape-gate draw ${list.Pointer:X4} has zero offset terminator");
+        }
     }
 
     private static void WriteVerticalPlmDraw(

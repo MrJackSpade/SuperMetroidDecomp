@@ -36,10 +36,18 @@ and opened-room blue-cap reload with the original instructions and all
 twenty-three physical draw payloads unreadable. The executable pre-instructions
 and bank-$86 projectile behavior remain distinct from PLM instruction data.
 
-Gates, items, statues, and other room-object instruction programs
-still require the same migration. Their visual art and physical draw layouts
-are separate work from compiled control flow; these families alone do not make
-runtime gameplay ROM-free.
+Other gate presentation, items, statues, and room-object instruction programs
+still require migration. Visual art and physical draw layouts are separate
+work from compiled control flow; these families alone do not make runtime
+gameplay ROM-free.
+
+The Mother Brain escape gate now has its closed, unused half-closed/open, and
+door-transition closing lists compiled from $BB34..BB51 (30 bytes). Its three
+four-block physical draw layouts at $9473..9496 are compiled separately.
+The ordinary closed-room load and redirected escape closure both run with all
+program and draw source bytes forbidden, including the fallback closer. Gate
+appearance overrides remain to be authored separately from these collision
+words.
 
 ## N00b-tube PLM instruction control (2026-09-24)
 

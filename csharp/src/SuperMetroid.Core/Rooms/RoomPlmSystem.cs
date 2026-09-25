@@ -1812,6 +1812,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, gateVisuals: downwardGateVisuals);
             return;
         }
+        if (MotherBrainEscapeGatePlmDrawDefinitions.TryGet(drawPointer, out var escapeGate))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, escapeGate, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmCollectibleDrawDefinitions.TryGet(drawPointer, out var collectible))
         {
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
@@ -2035,6 +2043,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
@@ -2065,6 +2075,8 @@ public sealed partial class RoomPlmSystem
             : BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : bus.ReadByte(Bank84(address));
 

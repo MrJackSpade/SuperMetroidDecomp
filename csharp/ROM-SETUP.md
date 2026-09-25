@@ -197,6 +197,9 @@ optional palette overrides. `ending-explosion-sprites.json` contains the sixteen
 editable planet-damage, flash, lava, glow, starfield, silhouette, and afterglow
 OAM compositions. Their actor instruction lists, movement, and scene callbacks
 remain compiled game logic rather than artwork overrides.
+`ending-completion-text-sprites.json` contains the 56 progressive operation,
+success, clear-time, digit, and colon OAM compositions. Editing these parts
+does not alter the cartridge-matched typewriter pacing or credits handoff.
 Two small cartridge tile uploads, `post-credits-tile-fragment-a.png` and
 `post-credits-tile-fragment-b.png`, are also installed as indexed PNGs. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2

@@ -7,8 +7,10 @@ lists at `$EB91..ECD8` are compiled as 164 fixed words. Every word and each
 actor's 480-frame cursor, selected frame, and lifetime match the pinned ROM.
 The installed ending now proceeds from escape through the actual text sequence
 to the credits handoff with these source words unreadable and native pixels
-preserved. The glyph spritemaps remain ROM-backed until their separate visual
-composition migration.
+preserved. The 56 distinct bank-$8C glyph spritemaps are installed separately
+as `ending-completion-text-sprites.json`; normal and negative-origin OAM match
+the cartridge, the full scene runs with these source records unreadable, and a
+live one-line edit changes the rendered text without changing the timing.
 
 ## Zebes explosion actor lists and sprite maps (2026-09-25)
 

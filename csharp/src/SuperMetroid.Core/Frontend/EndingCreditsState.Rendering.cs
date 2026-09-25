@@ -150,6 +150,8 @@ internal sealed partial class EndingCreditsState
                 <= EndingSpriteRole.CloudBottomB => objectArtwork?.CloudSprites,
                 >= EndingSpriteRole.ExplodingZebes and
                     <= EndingSpriteRole.ExplosionAfterglow => objectArtwork?.ExplosionSprites,
+                >= EndingSpriteRole.OperationWasText and
+                    <= EndingSpriteRole.ClearTimeDigit => objectArtwork?.CompletionTextSprites,
                 _ => null,
             };
             wrapper.Sprite.Draw(bus, oam, installedArt: spriteArt);

@@ -25,7 +25,8 @@ public sealed class EndingObjectArtworkCatalog
         RoomCharacterAtlas postCreditsFragmentA, RoomCharacterAtlas postCreditsFragmentB,
         RoomCharacterAtlas postShotLogoTiles, RoomBackgroundTilemapAtlas postShotLogoMap,
         EndingCloudSpritePresentation cloudSprites,
-        EndingExplosionSpritePresentation explosionSprites)
+        EndingExplosionSpritePresentation explosionSprites,
+        EndingCompletionTextSpritePresentation completionTextSprites)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
@@ -39,6 +40,8 @@ public sealed class EndingObjectArtworkCatalog
         PostShotLogoMap = postShotLogoMap ?? throw new ArgumentNullException(nameof(postShotLogoMap));
         CloudSprites = cloudSprites ?? throw new ArgumentNullException(nameof(cloudSprites));
         ExplosionSprites = explosionSprites ?? throw new ArgumentNullException(nameof(explosionSprites));
+        CompletionTextSprites = completionTextSprites ??
+            throw new ArgumentNullException(nameof(completionTextSprites));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
@@ -62,6 +65,8 @@ public sealed class EndingObjectArtworkCatalog
     public EndingCloudSpritePresentation CloudSprites { get; }
     /// <summary>Sixteen editable Zebes-explosion OAM compositions.</summary>
     public EndingExplosionSpritePresentation ExplosionSprites { get; }
+    /// <summary>Fifty-six editable completion-message and clear-time OAM compositions.</summary>
+    public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
     public RoomCharacterAtlas Explosion { get; }
     /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
     public RoomCharacterAtlas WaitingSamus { get; }
@@ -88,7 +93,7 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 7;
+    public const int ManifestVersion = 8;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";

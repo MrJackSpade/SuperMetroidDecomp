@@ -248,6 +248,18 @@ reads forbidden, and show an edited energy-tank visual changing both immediate
 and later streamed tiles while the physical level word stays fixed. Other PLM
 families and presentation payloads remain pending.
 
+## Speed Booster contact PLM programs (2026-09-25)
+
+The five reachable bank-$84 contact lists (`$C951`, `$C974`, `$C997`,
+`$C9CF`, `$C9E4`) and bomb-special reveal `$C928` now use compiled control
+words: sound, all frame timers and draw selectors, restore/delete instructions,
+and the reveal's physical one-block draw `$A4F3`. Their 74 words, five sound
+operands, and reveal bytes are compared with the pinned cartridge. A focused
+fixture executes all five real boosted-contact paths and the bomb reveal while
+forbidding reads from those source ranges. The four crumble appearances were
+already editable through the shared shot-block resource. This does not migrate
+the full PLM interpreter or unrelated room-object families.
+
 ## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 
 The three bank-$A2 Ripper variants select twelve distinct moving frames through

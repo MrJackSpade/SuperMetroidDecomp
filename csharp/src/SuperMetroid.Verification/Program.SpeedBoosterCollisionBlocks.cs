@@ -15,6 +15,7 @@ internal static partial class Program
         VerifyBoostedFloorContactRunsRespawningPlm();
         VerifyBoostedWallContactRunsPermanentPlm();
         VerifyBrinstarAreaTableVariants();
+        VerifyCompiledSpeedBoosterPlmPrograms();
 
         Console.WriteLine(
             "  Speed Booster blocks: contact gating, all five PLMs, sound, crumble, and respawn agree.");

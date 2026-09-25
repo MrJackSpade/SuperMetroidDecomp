@@ -529,6 +529,13 @@ four-block counts. These choices change restored appearance, not the
 linked parent/child collision, respawn timer, or contact/bomb trigger.
 Malformed overrides fail; valid edits survive stock installation repair.
 
+The five reachable Speed Booster contact PLM programs and the bomb-special
+reveal program are compiled from the pinned cartridge. Their sound operands,
+crumble-frame selections, timers, restore/delete instructions, and the bomb
+reveal's physical draw word no longer require bank-$84 runtime reads. The four
+crumble appearances remain editable through the shared shot-block resource;
+their timing and collision are not appearance settings.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

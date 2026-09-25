@@ -159,7 +159,8 @@ public sealed partial class RoomPlmSystem
                     error);
             }
 
-            PlmSlot? slot = AllocateRoomPopulationSlot(bus, record, blockIndex);
+            PlmSlot? slot = AllocateRoomPopulationSlot(
+                bus, record, blockIndex, useCompiledRetailPopulation);
             if (slot is null)
                 continue; // The native routine returns carry set when all forty IDs are live.
 
@@ -173,16 +174,19 @@ public sealed partial class RoomPlmSystem
                     getSamus,
                     isAreaTorizoDefeated,
                     record,
-                    slot))
+                    slot,
+                    useCompiledRetailPopulation))
             {
                 // Do not leave the preallocated but untranslated actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact ROM
                 // record without relying on a room-name special case.
                 ClearSlot(slot);
-                ushort setupPointer = ReadBank84Word(bus, header);
-                ushort instructionList = ReadBank84Word(
-                    bus,
-                    unchecked((ushort)(header + 2)));
+                ushort setupPointer = useCompiledRetailPopulation
+                    ? RoomPlmHeaderDefinitions.Get(header).Setup
+                    : ReadBank84Word(bus, header);
+                ushort instructionList = useCompiledRetailPopulation
+                    ? RoomPlmHeaderDefinitions.Get(header).InitialInstruction
+                    : ReadBank84Word(bus, unchecked((ushort)(header + 2)));
                 throw new NotSupportedException(
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
                     $"at $8F:{record.RecordPointer:X4} uses untranslated header " +
@@ -218,7 +222,8 @@ public sealed partial class RoomPlmSystem
     private PlmSlot? AllocateRoomPopulationSlot(
         ISnesAddressSpace bus,
         RoomPlmPopulationRecord record,
-        int blockIndex)
+        int blockIndex,
+        bool useCompiledRetailPopulation)
     {
         for (int index = _slots.Length - 1; index >= 0; index--)
         {
@@ -230,7 +235,9 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.HeaderPointer = record.HeaderPointer;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
+            slot.InstructionPointer = useCompiledRetailPopulation
+                ? RoomPlmHeaderDefinitions.Get(record.HeaderPointer).InitialInstruction
+                : DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(
                     record.HeaderPointer, out ushort compiledInstruction)
                 ? compiledInstruction
                 : ReadBank84Word(bus, unchecked((ushort)(record.HeaderPointer + 2)));
@@ -282,7 +289,8 @@ public sealed partial class RoomPlmSystem
         Func<SamusState?> getSamus,
         Func<bool> isAreaTorizoDefeated,
         RoomPlmPopulationRecord record,
-        PlmSlot slot)
+        PlmSlot slot,
+        bool useCompiledRetailPopulation)
     {
         ushort header = record.HeaderPointer;
         if (TryIdentifyColoredDoor(
@@ -315,7 +323,8 @@ public sealed partial class RoomPlmSystem
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
-            SetupCollectibleSlot(bus, level, streamer, vram, system, slot, kind, presentation);
+            SetupCollectibleSlot(bus, level, streamer, vram, system, slot, kind,
+                presentation, useCompiledRetailPopulation);
             return true;
         }
 

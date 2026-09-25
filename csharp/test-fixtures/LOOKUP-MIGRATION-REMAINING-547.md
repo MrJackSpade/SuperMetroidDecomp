@@ -9,7 +9,11 @@ compiled byte is checked against that ROM, and a representative nonempty
 population loads through the real sequential allocator with its source range
 unreadable while matching native slot state. Runtime retail loads use the
 compiled records; synthetic-room tests retain their explicit address-space
-path. Setup and instruction programs still have separate ROM dependencies.
+path. The 70 distinct bank-$84 headers referenced by those populations now
+also have compiled setup and initial-instruction pointers, including the
+dynamic-collectible graphics handoff. All 140 header words match the pinned
+ROM; a guarded retail load leaves the header source ranges unread. Actual
+PLM setup and instruction programs remain separate migration work.
 
 ## N00b-tube PLM physical draws (2026-09-24)
 

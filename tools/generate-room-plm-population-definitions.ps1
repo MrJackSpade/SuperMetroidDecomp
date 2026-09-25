@@ -8,6 +8,7 @@ try {
     $romFile = [IO.Path]::GetFullPath((Join-Path $repoRoot $RomPath))
     $stateFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs'
     $outputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmPopulationDefinitions.Generated.cs'
+    $headerOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaderDefinitions.Generated.cs'
     $expectedHash = '12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72'
     $actualHash = (Get-FileHash -LiteralPath $romFile -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($actualHash -cne $expectedHash) {
@@ -36,6 +37,7 @@ try {
     $lines.Add('    private static readonly (ushort Pointer, string Hex)[] Sources =')
     $lines.Add('    [')
     $recordTotal = 0
+    $headers = [Collections.Generic.HashSet[int]]::new()
     foreach ($pointer in $ordered) {
         $offset = 0x78000 + ($pointer - 0x8000)
         $bytes = [Collections.Generic.List[byte]]::new()
@@ -53,6 +55,7 @@ try {
             if (++$count -gt 256 || $offset -ge $rom.Length - 5) {
                 throw ('Population $8F:{0:X4} has no bounded terminator.' -f $pointer)
             }
+            [void] $headers.Add($header)
             for ($index = 0; $index -lt 6; $index++) {
                 $bytes.Add($rom[$offset + $index])
             }
@@ -68,7 +71,29 @@ try {
     $lines.Add('    ];')
     $lines.Add('}')
     [IO.File]::WriteAllLines($outputFile, $lines, [Text.UTF8Encoding]::new($false))
-    Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records: $outputFile"
+
+    $orderedHeaders = @($headers | Sort-Object)
+    if ($orderedHeaders.Count -ne 70) {
+        throw "Expected 70 distinct retail PLM headers, found $($orderedHeaders.Count)."
+    }
+    $headerLines = [Collections.Generic.List[string]]::new()
+    $headerLines.Add('namespace SuperMetroid.Core.Rooms;')
+    $headerLines.Add('')
+    $headerLines.Add('/// <summary>Pinned setup/initial-list pairs selected by retail PLM populations.</summary>')
+    $headerLines.Add('internal static partial class RoomPlmHeaderDefinitions')
+    $headerLines.Add('{')
+    $headerLines.Add('    private static readonly RoomPlmHeaderDefinition[] Sources =')
+    $headerLines.Add('    [')
+    foreach ($header in $orderedHeaders) {
+        $headerOffset = 0x20000 + ($header - 0x8000)
+        $setup = [int]$rom[$headerOffset] -bor ([int]$rom[$headerOffset + 1] -shl 8)
+        $initial = [int]$rom[$headerOffset + 2] -bor ([int]$rom[$headerOffset + 3] -shl 8)
+        $headerLines.Add(('        new(0x{0:X4}, 0x{1:X4}, 0x{2:X4}),' -f $header, $setup, $initial))
+    }
+    $headerLines.Add('    ];')
+    $headerLines.Add('}')
+    [IO.File]::WriteAllLines($headerOutputFile, $headerLines, [Text.UTF8Encoding]::new($false))
+    Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records and $($orderedHeaders.Count) headers."
 }
 catch {
     [Console]::Error.WriteLine($_.Exception.ToString())

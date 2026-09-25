@@ -456,6 +456,8 @@ Room-object placement records are compiled application definitions, not
 editable art. All retail room PLM populations are selected without rereading
 their bank-$8F source records; visual files above can replace appearance but
 do not change which objects spawn or their collision/progression behavior.
+The 70 referenced PLM setup/initial-list header pairs are compiled too;
+this does not yet remove every PLM instruction-program ROM dependency.
 
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to

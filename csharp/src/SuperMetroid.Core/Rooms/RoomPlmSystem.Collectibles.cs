@@ -132,7 +132,8 @@ public sealed partial class RoomPlmSystem
         Bank80SystemState system,
         PlmSlot slot,
         InWorldCollectibleKind kind,
-        CollectiblePresentation presentation)
+        CollectiblePresentation presentation,
+        bool useCompiledRetailPopulation)
     {
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
@@ -142,7 +143,8 @@ public sealed partial class RoomPlmSystem
             system.HasRoomChozoBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
             ? LoadDynamicCollectibleGraphics(
-                bus, level, streamer, vram, slot.HeaderPointer)
+                bus, level, streamer, vram, slot.HeaderPointer,
+                useCompiledRetailPopulation)
             : -1;
 
         ushort setupWord = unchecked((ushort)(original.LevelWord & 0x0fff));
@@ -225,9 +227,12 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         SnesVram vram,
-        ushort header)
+        ushort header,
+        bool useCompiledRetailPopulation)
     {
-        ushort instructionList = ReadBank84Word(bus, unchecked((ushort)(header + 2)));
+        ushort instructionList = useCompiledRetailPopulation
+            ? RoomPlmHeaderDefinitions.Get(header).InitialInstruction
+            : ReadBank84Word(bus, unchecked((ushort)(header + 2)));
         ushort opcode = ReadBank84Word(bus, instructionList);
         if (opcode != RoomPlmInstructionCodes.LoadItemGraphics)
         {

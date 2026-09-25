@@ -32,10 +32,36 @@ internal static partial class Program
             () => RoomPlmPopulationDefinitions.Get(0xffff),
             "unknown PLM population fails loudly");
 
+        RoomPlmHeaderDefinition[] headers = RoomPlmHeaderDefinitions.All.ToArray();
+        AssertEqual(RoomPlmHeaderDefinitions.RetailHeaderCount,
+            headers.Length, "compiled retail PLM header count");
+        var referencedHeaders = new HashSet<ushort>();
+        foreach (ushort pointer in actualPointers)
+        {
+            ReadOnlySpan<byte> bytes = RoomPlmPopulationDefinitions.Get(pointer).Span;
+            for (int offset = 0; offset < bytes.Length - 2; offset += 6)
+                referencedHeaders.Add((ushort)(bytes[offset] | bytes[offset + 1] << 8));
+        }
+        AssertTrue(referencedHeaders.SetEquals(headers.Select(header => header.Header)),
+            "compiled header metadata covers exactly the retail PLM population headers");
+        foreach (RoomPlmHeaderDefinition header in headers)
+        {
+            AssertEqual((ushort)(rom.ReadByte(0x840000 | header.Header) |
+                    rom.ReadByte(0x840000 | (header.Header + 1)) << 8),
+                header.Setup, $"PLM header $84:{header.Header:X4} setup matches ROM");
+            AssertEqual((ushort)(rom.ReadByte(0x840000 | (header.Header + 2)) |
+                    rom.ReadByte(0x840000 | (header.Header + 3)) << 8),
+                header.InitialInstruction,
+                $"PLM header $84:{header.Header:X4} initial list matches ROM");
+        }
+        AssertThrows<InvalidDataException>(
+            () => RoomPlmHeaderDefinitions.Get(0xffff),
+            "unknown retail PLM header fails loudly");
+
         const ushort populatedPointer = 0x8000;
         int sourceLength = RoomPlmPopulationDefinitions.Get(populatedPointer).Length;
         var guarded = new RoomPlmPopulationReadGuard(rom, populatedPointer,
-            sourceLength);
+            sourceLength, forbidHeaders: true);
         (int compiledCount, RoomPlmSlotSnapshot[] compiledSlots) = Load(guarded,
             populatedPointer, useCompiled: true);
         (int nativeCount, RoomPlmSlotSnapshot[] nativeSlots) = Load(rom,
@@ -46,6 +72,8 @@ internal static partial class Program
             "compiled retail PLM load preserves native slots and setup results");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "compiled retail PLM loader never reads bank-$8F population bytes");
+        AssertEqual(0, guarded.ForbiddenHeaderReadAttempts,
+            "compiled retail PLM loader never reads bank-$84 header metadata");
 
         (int emptyCount, RoomPlmSlotSnapshot[] emptySlots) = Load(
             new RoomPlmPopulationReadGuard(rom, 0x8058, 2),
@@ -53,7 +81,7 @@ internal static partial class Program
         AssertEqual(0, emptyCount, "compiled empty PLM population terminates");
         AssertEqual(0, emptySlots.Length, "compiled empty PLM population leaves no slots");
         Console.WriteLine(
-            "  PLM populations: 284 retail sources/941 records match ROM; guarded sequential load preserves slot state.");
+            "  PLM populations: 284 sources/941 records and 70 headers match ROM; guarded sequential load preserves slot state.");
     }
 
     private static (int Count, RoomPlmSlotSnapshot[] Slots) Load(
@@ -77,9 +105,11 @@ internal static partial class Program
     }
 
     private sealed class RoomPlmPopulationReadGuard(
-        ISnesAddressSpace source, ushort pointer, int length) : ISnesAddressSpace
+        ISnesAddressSpace source, ushort pointer, int length,
+        bool forbidHeaders = false) : ISnesAddressSpace
     {
         internal int ForbiddenReadAttempts { get; private set; }
+        internal int ForbiddenHeaderReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
@@ -89,6 +119,19 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Retail PLM population was reread at ${address:X6}.");
+            }
+            if (forbidHeaders)
+            {
+                foreach (RoomPlmHeaderDefinition header in RoomPlmHeaderDefinitions.All)
+                {
+                    int headerAddress = 0x840000 | header.Header;
+                    if (address >= headerAddress && address < headerAddress + 4)
+                    {
+                        ForbiddenHeaderReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Retail PLM header was reread at ${address:X6}.");
+                    }
+                }
             }
             return source.ReadByte(address);
         }

@@ -946,6 +946,11 @@ if (args is ["--kraid-room-plms"])
     VerifyCompiledKraidRoomPlms();
     return 0;
 }
+if (args is ["--crocomire-arena-plms"])
+{
+    VerifyCompiledCrocomireArenaPlms();
+    return 0;
+}
 if (args is ["--kraid-room-visuals"])
 {
     VerifyKraidRoomVisuals();
@@ -2587,6 +2592,7 @@ VerifyCompiledSporeSpawnCeilingPlms();
 VerifyCompiledBotwoonWallPlms();
 VerifyBotwoonWallVisuals();
 VerifyCompiledKraidRoomPlms();
+VerifyCompiledCrocomireArenaPlms();
 VerifyKraidRoomVisuals();
 VerifySporeSpawnCeilingVisuals();
 VerifySamusGroundedMovement();

@@ -481,6 +481,7 @@ public sealed partial class RoomPlmSystem
             slot.LoopTimer = 0;
             slot.InstructionPointer = instructionPointer;
             slot.InstructionTimer = 1;
+            slot.HeaderPointer = header;
             return true;
         }
 
@@ -1874,6 +1875,15 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false);
             return;
         }
+        if (CrocomireArenaPlmDrawDefinitions.TryGet(drawPointer,
+                out var crocomireDraw))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, crocomireDraw, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
                 out var accessFloor))
         {
@@ -2245,6 +2255,8 @@ public sealed partial class RoomPlmSystem
             : BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+            ? value
+            : CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
             ? value

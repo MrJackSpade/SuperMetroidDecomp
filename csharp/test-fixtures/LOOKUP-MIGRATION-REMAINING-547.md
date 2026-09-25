@@ -2,6 +2,17 @@
 
 ## Additional room-PLM instruction control (2026-09-24)
 
+Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control
+for all twenty-two contiguous timer/draw/delete programs at `$AC05..AC88`,
+including the two cartridge-unused background rows. The twenty-two bounded
+physical draw lists at `$94A3..9716` separately retain their exact level words,
+vertical/horizontal run shapes, and signed offsets. Verification compares all
+66 instruction words and every draw byte against the pinned ROM, then runs all
+twenty reachable hardcoded PLM headers through the production allocator with
+those source records forbidden. It checks every resulting room block, first
+draw-frame lifetime, and next-frame deletion. Visual tile choices still need
+extraction; this is not completion of the wider room-object migration.
+
 Spore Spawn's ceiling now has both reachable bank-$84 instruction lists and
 four two-run physical draw layouts compiled. The crumble list intentionally
 falls through into the clear list. A guarded production PLM sequence checks

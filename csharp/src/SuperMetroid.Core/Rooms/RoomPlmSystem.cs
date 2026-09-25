@@ -611,6 +611,7 @@ public sealed partial class RoomPlmSystem
             slot.LoopTimer = 0;
             slot.InstructionPointer = instructionPointer;
             slot.InstructionTimer = 1;
+            slot.HeaderPointer = header;
             if (header == RoomPlmHeaders.MotherBrainsRoomEscapeDoor)
             {
                 // B5F8 installs the door-list index and three upward-linked extensions
@@ -1892,6 +1893,15 @@ public sealed partial class RoomPlmSystem
                 crocomireVisuals: crocomireVisuals);
             return;
         }
+        if (MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer,
+                out var fakeDeathDraw))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, fakeDeathDraw, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (TourianAccessPlmDrawDefinitions.TryGet(drawPointer,
                 out var accessFloor))
         {
@@ -2267,6 +2277,8 @@ public sealed partial class RoomPlmSystem
             : KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+            ? value
+            : MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
             ? value

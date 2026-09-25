@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Mother Brain glass PLM physical draws (2026-09-24)
+
+Eleven cartridge-authored glass draw lists now have compiled physical records,
+including all one- through four-run layouts and their signed X/Y offsets.
+Every direction/count word, block word, and offset agrees with the pinned ROM.
+The production Mother Brain glass PLM loads and exercises every layout through
+its native first-draw call site with all eleven source payloads forbidden;
+assertions compare each resulting physical level word. This leaves the damage
+thresholds, shatter instructions, shard actors, and timing with the existing
+native interpreter. Editable glass appearance and the remaining PLM program
+dependencies are not completed by this physical-data slice.
+
 ## Eye-door PLM draw lists (2026-09-24)
 
 Both mirrored eye-door assemblies now use twenty-three compiled physical draw

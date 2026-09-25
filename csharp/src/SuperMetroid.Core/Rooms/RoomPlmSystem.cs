@@ -1763,6 +1763,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, eyeDoorVisuals: eyeDoorVisuals);
             return;
         }
+        if (MotherBrainGlassPlmDrawDefinitions.TryGet(drawPointer, out var motherBrainGlass))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, motherBrainGlass, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
         {
             DrawCompiledBlockInstruction(

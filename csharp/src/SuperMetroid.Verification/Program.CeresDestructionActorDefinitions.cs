@@ -83,6 +83,39 @@ internal static partial class Program
                 CeresDestructionActorDefinitions.ZebesActorCount),
             "Zebes reveal actor definition boundary");
 
+        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.LargeAsteroidStart,
+            CeresDestructionSpriteInstructionDefinitions.LargeAsteroidEnd);
+        VerifyProgram(CeresFlightSpriteInstructionDefinitions.RearClusterStart,
+            CeresFlightSpriteInstructionDefinitions.RearClusterEnd);
+        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.PlanetStart,
+            CeresDestructionSpriteInstructionDefinitions.PlanetEnd);
+        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.TitleStart,
+            CeresDestructionSpriteInstructionDefinitions.TitleEnd);
+        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.ExplosionsStart,
+            CeresDestructionSpriteInstructionDefinitions.ExplosionsEnd);
+        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.StarSheetsStart,
+            CeresDestructionSpriteInstructionDefinitions.StarSheetsEnd);
+        VerifyProgram(CeresDestructionSpriteInstructionDefinitions.StationBlastStart,
+            CeresDestructionSpriteInstructionDefinitions.StationBlastEnd);
+        AssertThrows<InvalidDataException>(() =>
+            CeresDestructionSpriteInstructionDefinitions.ReadWord(
+                CeresDestructionSpriteInstructionDefinitions.InitialExplosionEnd - 1),
+            "Ceres explosion reader cannot cross between adjacent lists");
+        AssertThrows<InvalidDataException>(() =>
+            CeresDestructionSpriteInstructionDefinitions.ReadWord(
+                CeresDestructionSpriteInstructionDefinitions.StarSheetsStart + 7),
+            "Ceres star-sheet reader cannot cross into the next quadrant");
+        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
+            VerifyList(CeresDestructionActorDefinitions.InitialActor(index).InstructionList,
+                $"destruction initial actor {index}");
+        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
+            VerifyList(CeresDestructionActorDefinitions.ZebesActor(index).InstructionList,
+                $"Zebes reveal actor {index}");
+        VerifyList(CeresExplosionDefinitions.InitialActor.InstructionList, "initial explosion");
+        VerifyList(CeresExplosionDefinitions.RepeatingActor.InstructionList, "repeating explosion");
+        VerifyList(CeresExplosionDefinitions.FinalWaveActor.InstructionList, "final-wave explosion");
+        VerifyList(CeresExplosionDefinitions.StationBlastActor.InstructionList, "station blast");
+
         var guard = new CeresDestructionActorDefinitionReadGuard(retail);
         var state = new CeresDestructionCinematicState(guard);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
@@ -90,10 +123,39 @@ internal static partial class Program
         AssertTrue(state.Finished,
             "Ceres destruction and Zebes reveal complete through production actor paths");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "Ceres destruction never rereads compiled scene actor metadata");
+            "Ceres destruction never rereads compiled actor metadata or instruction lists");
 
         Console.WriteLine(
-            "  Ceres destruction actors: 65 native words and the full station/Zebes production sequence pass with constructor, callback and motion metadata reads forbidden.");
+            "  Ceres destruction actors: 65 metadata words and 214 list bytes match ROM; all thirteen consumed lists and the full station/Zebes production sequence pass with source reads forbidden.");
+
+        void VerifyProgram(ushort start, ushort end)
+        {
+            for (int pointer = start; pointer < end; pointer++)
+                AssertEqual(retail.ReadByte(CeresDestructionActorDefinitions.NativeBank | pointer),
+                    CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)pointer),
+                    $"Ceres destruction instruction byte $8B:{pointer:X4}");
+        }
+
+        void VerifyList(ushort list, string name)
+        {
+            var native = new IntroDiscoverySprite(120, 96, 0x0800, list);
+            var compiled = new IntroDiscoverySprite(120, 96, 0x0800, list);
+            Func<ushort, ushort, ushort?>? callback =
+                list == CeresDestructionActorDefinitions.ZebesActor(5).InstructionList
+                    ? static (_, cursor) => cursor : null;
+            for (int frame = 0; frame < 480; frame++)
+            {
+                native.Step(retail, callback);
+                compiled.Step(retail, callback,
+                    CeresDestructionSpriteInstructionDefinitions.ReadWord);
+                AssertEqual(native.InstructionPointer, compiled.InstructionPointer,
+                    $"{name} instruction cursor at frame {frame}");
+                AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer,
+                    $"{name} visual frame at frame {frame}");
+                AssertEqual(native.IsActive, compiled.IsActive,
+                    $"{name} lifetime at frame {frame}");
+            }
+        }
 
         static void VerifyActor(
             SuperMetroidAddressSpace source,
@@ -190,6 +252,13 @@ internal static partial class Program
                 >= 0x8bc993 and < 0x8bc995 or
                 >= 0x8bc999 and < 0x8bc99b or
                 >= 0x8bc99f and < 0x8bc9a1 or
+                >= 0x8bcc3f and < 0x8bcc47 or
+                >= 0x8bcc4f and < 0x8bcc63 or
+                >= 0x8bccab and < 0x8bccb3 or
+                >= 0x8bccbb and < 0x8bccd5 or
+                >= 0x8bccdb and < 0x8bcd39 or
+                >= 0x8bcd83 and < 0x8bcda3 or
+                >= 0x8bce1b and < 0x8bce35 or
                 >= 0x8bce7f and < 0x8bce85 or
                 >= 0x8bce8b and < 0x8bce97 or
                 >= 0x8bcea3 and < 0x8bcea9 or

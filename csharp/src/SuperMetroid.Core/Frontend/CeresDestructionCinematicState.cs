@@ -13,9 +13,10 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <remarks>
 /// Bank <c>$8B:C11B-$CADF</c> owns this sequence. The state deliberately retains the
-/// native phase boundaries, counters, 16.16 camera motion, Mode-7 matrix values, and ROM
-/// sprite lists. That makes a debugger watch useful: there is no host-authored video or
-/// timer that merely happens to end at the same gameplay room.
+/// native phase boundaries, counters, 16.16 camera motion, Mode-7 matrix values, and
+/// compiled cartridge sprite-list instructions. That makes a debugger watch useful:
+/// there is no host-authored video or timer that merely happens to end at the
+/// same gameplay room.
 /// </remarks>
 internal sealed partial class CeresDestructionCinematicState
 {

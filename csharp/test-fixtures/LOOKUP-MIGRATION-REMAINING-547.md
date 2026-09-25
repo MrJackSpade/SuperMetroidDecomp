@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Ceres destruction and Zebes-reveal actor instruction lists (2026-09-25)
+
+All thirteen live initial, explosion, planet, star-sheet, and title actor lists
+now use a bounded 214-byte compiled bank-$8B catalog. Twenty bytes of the
+small-asteroid/vortex lists are shared with the Ceres approach catalog rather
+than copied. Verification compares every authored byte with the pinned ROM,
+compares each actor's cursor, selected frame, and lifetime for 480 frames
+against an independent ROM-backed interpreter, and completes the entire
+destruction/Zebes reveal with those source ranges unreadable. The invisible
+spawner's fixed waits are already compiled in the scene owner; it has no live
+instruction interpreter to migrate. Bank-$8C visual spritemaps remain separate
+presentation work for #543.
+
 ## Ceres approach actor instruction lists (2026-09-25)
 
 The five authored lists used by the front stars and all five rear-view actors

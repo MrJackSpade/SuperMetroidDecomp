@@ -121,9 +121,11 @@ page begins; restoring a later debugger state preserves its live typewriter text
 
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and
-`ceres-flight-mode7-maps.json` (32x24 front and rear views). Override these under the
-same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
-sheet; the game's camera, scale, rotation, actor movement and letter timing remain code.
+`ceres-flight-mode7-maps.json` (32x24 front and rear views), plus
+`ceres-flight-palette.json` (all 256 native-precision RGB5 colors). Override these under
+the same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
+sheet and palette; the game's camera, scale, rotation, actor movement and letter timing
+remain code. Palette edits also rebind after loading a debugger state.
 
 Ceres destruction reuses those character sheets and the approach's front/rear maps.
 Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`

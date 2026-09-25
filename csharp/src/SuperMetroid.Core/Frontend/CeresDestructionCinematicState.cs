@@ -77,13 +77,16 @@ internal sealed partial class CeresDestructionCinematicState
     /// <summary>
     /// Rebinds host-owned artwork after restoring a debugger state. Only the native
     /// graphics transfers already reached by the current phase are refreshed; counters,
-    /// actors, audio, palettes and gameplay timeline remain untouched.
+    /// actors, audio and gameplay timeline remain untouched. The shared Ceres palette
+    /// is refreshed only before the later engine-flicker palette program takes ownership.
     /// </summary>
     internal void BindArtwork(IntroCinematicArtworkCatalog? value)
     {
         artwork = value;
         if (value is null) return;
         ceresTilemaps = LoadCeresTilemaps();
+        if (Phase < CeresDestructionPhase.WaitForZebesMusicQueue)
+            value.CeresFlight.Palette.LoadTo(cgram);
         if (Phase <= CeresDestructionPhase.FadeOutCeres)
         {
             vram.LoadMode7CharacterBytes(value.CeresFlight.Mode7Characters.Span);
@@ -365,7 +368,10 @@ internal sealed partial class CeresDestructionCinematicState
                     CeresDestructionRomData.Vram.SharedObjectCharacterBytes)
                 : artwork.IntroObjectCharacters.Transfer.Span
                     [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
-        cgram.LoadFromBus(bus, CeresDestructionRomData.Assets.Palette);
+        if (artwork is null)
+            cgram.LoadFromBus(bus, CeresDestructionRomData.Assets.Palette);
+        else
+            artwork.CeresFlight.Palette.LoadTo(cgram);
 
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)

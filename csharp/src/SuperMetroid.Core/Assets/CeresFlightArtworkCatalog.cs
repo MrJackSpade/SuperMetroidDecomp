@@ -9,24 +9,27 @@ namespace SuperMetroid.Core.Assets;
 public sealed class CeresFlightArtworkCatalog
 {
     private CeresFlightArtworkCatalog(byte[] mode7Characters, byte[] mode7Maps,
-        byte[] objectCharacters)
+        byte[] objectCharacters, CeresFlightPalette palette)
     {
         Mode7Characters = mode7Characters;
         Mode7Maps = mode7Maps;
         ObjectCharacters = objectCharacters;
+        Palette = palette;
     }
 
     public ReadOnlyMemory<byte> Mode7Characters { get; }
     /// <summary>Front 768 map bytes followed by rear 768 map bytes.</summary>
     public ReadOnlyMemory<byte> Mode7Maps { get; }
     public ReadOnlyMemory<byte> ObjectCharacters { get; }
+    public CeresFlightPalette Palette { get; }
 
     public static CeresFlightArtworkCatalog Load(Stream mode7Png, Stream mapJson,
-        Stream objectPng)
+        Stream objectPng, Stream paletteJson)
     {
         ArgumentNullException.ThrowIfNull(mode7Png);
         ArgumentNullException.ThrowIfNull(mapJson);
         ArgumentNullException.ThrowIfNull(objectPng);
+        ArgumentNullException.ThrowIfNull(paletteJson);
         IndexedPngImage mode7 = IndexedPng.Read(mode7Png,
             CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height);
         IndexedPngImage objects = IndexedPng.Read(objectPng,
@@ -48,7 +51,8 @@ public sealed class CeresFlightArtworkCatalog
         if (characters.Length != CeresFlightArtworkFormat.Mode7ByteCount ||
             objectCharacters.Length != CeresFlightArtworkFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
-        return new CeresFlightArtworkCatalog(characters, map, objectCharacters);
+        return new CeresFlightArtworkCatalog(characters, map, objectCharacters,
+            CeresFlightPalette.Load(paletteJson));
     }
 
     public static void WriteMap(Stream json, CeresFlightMapDocument document)

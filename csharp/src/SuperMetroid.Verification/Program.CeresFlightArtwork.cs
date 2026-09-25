@@ -27,6 +27,9 @@ internal static partial class Program
         AssertTrue(stock.Mode7Maps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightRomData.Vram.Mode7MapByteCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
+        AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(RomDataReader.ReadFixedBank(bus,
+                CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount)),
+            "installed Ceres palette preserves all 256 native colors");
 
         var guard = new IntroArtworkSourceReadGuard(bus);
         var native = new IntroCeresFlightState(bus);
@@ -56,7 +59,7 @@ internal static partial class Program
                 phases.Contains(IntroCeresFlightPhase.SpaceColonyTitle),
             "stock Ceres PNG/JSON art preserves front, rear and SPACE COLONY phases");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed flight never reads its three cartridge art sources");
+            "installed flight never reads its cartridge art or palette sources");
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string[] names =
@@ -124,6 +127,7 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Ceres artwork and debugger rebind never read cartridge art sources");
         VerifyCeresVisibleOverrides(installation, bus);
+        VerifyCeresFlightPaletteOverride(installation, guard, stock);
 
         string invalidMap = Path.Combine(installation.IntroCinematicOverrideDirectory,
             CeresFlightArtworkFormat.MapFileName);
@@ -152,7 +156,70 @@ internal static partial class Program
                 selected.Mode7Maps.Span),
             "stock Ceres art repair preserves the player's external map override");
         File.Delete(invalidMap);
-        Console.WriteLine("Ceres flight art: native front/rear frames, independent PNG/JSON edits, rebind and strict failures pass.");
+        Console.WriteLine("Ceres flight art: native front/rear frames, independent PNG/JSON/palette edits, rebind and strict failures pass.");
+    }
+
+    private static void VerifyCeresFlightPaletteOverride(GameInstallation installation,
+        ISnesAddressSpace guardedBus, CeresFlightArtworkCatalog stock)
+    {
+        string stockPath = Path.Combine(installation.IntroCinematicDirectory,
+            CeresFlightPaletteFormat.FileName);
+        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory,
+            CeresFlightPaletteFormat.FileName);
+        CeresFlightPaletteDocument document = JsonSerializer.Deserialize<CeresFlightPaletteDocument>(
+            File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Stock Ceres flight palette is empty.");
+        document.Colors[0] = document.Colors[0] with
+        {
+            Red = (document.Colors[0].Red + 17) & 31,
+        };
+        using (var output = File.Create(overridePath))
+            CeresFlightPalette.Write(output, document);
+
+        CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
+        var native = new IntroCeresFlightState(guardedBus, stock);
+        var changed = new IntroCeresFlightState(guardedBus, edited);
+        for (int tick = 0; tick < 20; tick++)
+        {
+            native.Step();
+            changed.Step();
+        }
+        LayeredRenderSnapshot stockFrame = native.CaptureRenderSnapshot();
+        LayeredRenderSnapshot editedFrame = changed.CaptureRenderSnapshot();
+        AssertTrue(stockFrame.Memory.Vram.SequenceEqual(editedFrame.Memory.Vram),
+            "Ceres palette edit does not change graphics VRAM");
+        AssertTrue(!stockFrame.Memory.Cgram.SequenceEqual(editedFrame.Memory.Cgram),
+            "Ceres palette edit reaches active CGRAM");
+        AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockFrame).AsSpan().SequenceEqual(
+                SoftwareLayeredSnapshotRenderer.Render(editedFrame)),
+            "Ceres palette edit changes visible approach pixels");
+
+        var restored = new IntroCeresFlightState(guardedBus, stock);
+        restored.BindArtwork(edited);
+        AssertTrue(restored.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
+                new IntroCeresFlightState(guardedBus, edited).CaptureRenderSnapshot().Memory.Cgram),
+            "restored Ceres flight rebinds current palette without restarting phase");
+
+        IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
+            installation.IntroCinematicDirectory, null);
+        IntroCinematicArtworkCatalog editedParent = installation.LoadIntroCinematicArt();
+        var restoredDestruction = new CeresDestructionCinematicState(guardedBus,
+            artwork: stockParent);
+        var editedDestruction = new CeresDestructionCinematicState(guardedBus,
+            artwork: editedParent);
+        AssertTrue(!restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
+                editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
+            "shared Ceres palette edit reaches destruction CGRAM");
+        restoredDestruction.BindArtwork(editedParent);
+        AssertTrue(restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
+                editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
+            "restored destruction rebinds its shared palette before engine FX owns CGRAM");
+        File.Delete(overridePath);
+
+        File.WriteAllBytes(overridePath, [0]);
+        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+            "malformed Ceres flight palette fails instead of using stock silently");
+        File.Delete(overridePath);
     }
 
     private static void VerifyCeresVisibleOverrides(GameInstallation installation,

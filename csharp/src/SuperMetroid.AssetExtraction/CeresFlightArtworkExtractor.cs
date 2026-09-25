@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -46,19 +47,46 @@ internal static class CeresFlightArtworkExtractor
                 .ToArray().Select(value => (int)value).ToArray(),
         });
         byte[] mapFile = mapJson.ToArray();
+        byte[] nativePalette = RomDataReader.ReadFixedBank(bus,
+            CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount);
+        var colors = new PaletteRgb5[SnesCgram.ColorCount];
+        for (int index = 0; index < colors.Length; index++)
+        {
+            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
+                nativePalette.AsSpan(index * sizeof(ushort)));
+            if ((word & 0x8000) != 0)
+                throw new InvalidDataException(
+                    $"Ceres flight palette color {index} has an unrepresentable high bit.");
+            colors[index] = new PaletteRgb5
+            {
+                Red = word & 31,
+                Green = word >> 5 & 31,
+                Blue = word >> 10 & 31,
+            };
+        }
+        using var paletteJson = new MemoryStream();
+        CeresFlightPalette.Write(paletteJson, new CeresFlightPaletteDocument
+        {
+            Version = CeresFlightPaletteFormat.Version,
+            Colors = colors,
+        });
+        byte[] paletteFile = paletteJson.ToArray();
         CeresFlightArtworkCatalog roundTrip = CeresFlightArtworkCatalog.Load(
             new MemoryStream(mode7Png, writable: false),
             new MemoryStream(mapFile, writable: false),
-            new MemoryStream(objectPng, writable: false));
+            new MemoryStream(objectPng, writable: false),
+            new MemoryStream(paletteFile, writable: false));
         if (!roundTrip.Mode7Characters.Span.SequenceEqual(characters) ||
             !roundTrip.Mode7Maps.Span.SequenceEqual(map) ||
-            !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
+            !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters) ||
+            !roundTrip.Palette.Transfer.Span.SequenceEqual(nativePalette))
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
             [CeresFlightArtworkFormat.Mode7FileName] = mode7Png,
             [CeresFlightArtworkFormat.MapFileName] = mapFile,
             [CeresFlightArtworkFormat.ObjectFileName] = objectPng,
+            [CeresFlightPaletteFormat.FileName] = paletteFile,
         };
 
         byte[] Read(int address, int expected, string name)

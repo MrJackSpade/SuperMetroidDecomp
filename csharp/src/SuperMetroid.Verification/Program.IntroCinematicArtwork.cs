@@ -350,6 +350,13 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Cinematic reread character source ${address:X6}.");
             }
+            if (address >= CeresFlightRomData.Assets.Palette &&
+                address < CeresFlightRomData.Assets.Palette + SnesCgram.ByteCount)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread Ceres flight palette ${address:X6}.");
+            }
             return source.ReadByte(address);
         }
 

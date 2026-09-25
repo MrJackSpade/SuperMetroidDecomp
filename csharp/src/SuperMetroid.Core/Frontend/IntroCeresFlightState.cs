@@ -81,11 +81,14 @@ internal sealed class IntroCeresFlightState
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
         vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
             objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
-        cgram.LoadFromBus(bus, CeresFlightRomData.Assets.Palette);
+        if (artwork is null)
+            cgram.LoadFromBus(bus, CeresFlightRomData.Assets.Palette);
+        else
+            artwork.Palette.LoadTo(cgram);
         Phase = IntroCeresFlightPhase.WaitForMusicQueue;
     }
 
-    /// <summary>Reapplies current external art without resetting the live flight phase or palette.</summary>
+    /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtworkCatalog? artwork)
     {
         if (artwork is null) return;
@@ -100,6 +103,7 @@ internal sealed class IntroCeresFlightState
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
         vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
             artwork.ObjectCharacters.Span);
+        artwork.Palette.LoadTo(cgram);
     }
 
     public IntroCeresFlightPhase Phase { get; private set; }

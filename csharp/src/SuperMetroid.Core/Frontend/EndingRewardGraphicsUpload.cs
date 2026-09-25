@@ -7,14 +7,13 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Executes the sixteen queued transfers issued by the reward landing actor.</summary>
 internal sealed class EndingRewardGraphicsUpload
 {
-    private readonly ISnesAddressSpace bus;
     private byte[] graphics;
     private int completedChunks;
 
     public EndingRewardGraphicsUpload(ISnesAddressSpace bus,
         EndingRewardIconArtwork? artwork = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        ArgumentNullException.ThrowIfNull(bus);
         graphics = artwork is null
             ? RomDataReader.Decompress(bus,
                 EndingCreditsRomData.Assets.PostCreditsMode7Characters,
@@ -42,10 +41,8 @@ internal sealed class EndingRewardGraphicsUpload
 
     private void UploadChunk(SnesVram vram, int index)
     {
-        int source = RomDataReader.ReadWordFixedBank(bus,
-            EndingRewardGraphicsUploadDefinitions.SourceTable + index * sizeof(ushort));
-        int destination = RomDataReader.ReadWordFixedBank(bus,
-            EndingRewardGraphicsUploadDefinitions.DestinationTable + index * sizeof(ushort));
+        int source = EndingRewardGraphicsUploadDefinitions.SourceWord(index);
+        int destination = EndingRewardGraphicsUploadDefinitions.DestinationWord(index);
         // The queued transfer writes both VRAM ports with increment-after-high.
         // These bytes already contain the interleaved Mode-7 map/character data.
         vram.LoadBytes(destination * sizeof(ushort), graphics.AsSpan(

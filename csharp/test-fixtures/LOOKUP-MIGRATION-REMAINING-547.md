@@ -2754,3 +2754,10 @@ source reads forbidden. Independent edits become visible at the correct later
 reveal phase, and rebinding an active or completed sequence replaces already
 uploaded art without restarting the cinematic. Other ending/cinematic art and
 the larger #543/#549 integration gates remain open.
+
+The reward landing icon's sixteen `$8B:F6B8` source words and sixteen `$8B:F6D8`
+destination words are now compiled as the native bounded `$800`-byte WRAM-to-VRAM
+transfer schedule in `EndingRewardGraphicsUploadDefinitions`. All 32 values match
+the pinned cartridge independently, while the production uploader runs with both
+ROM tables unreadable and still reconstructs each partial and final icon upload.
+The interleaved Mode-7 icon pixels remain independently editable presentation art.

@@ -237,7 +237,10 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is EndingCreditsRomData.Assets.EscapeMapA or
+            if ((address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
+                 address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
+                 EndingRewardJumpDefinitions.UploadCount * sizeof(ushort)) ||
+                address is EndingCreditsRomData.Assets.EscapeMapA or
                 EndingCreditsRomData.Assets.EscapeCharactersA or
                 EndingCreditsRomData.Assets.EscapeMapB or
                 EndingCreditsRomData.Assets.EscapeCharactersB or

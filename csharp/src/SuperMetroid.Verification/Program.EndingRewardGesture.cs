@@ -11,7 +11,8 @@ internal static partial class Program
         VerifyEndingPostShot(bus);
         VerifyEndingLogo(bus);
         VerifyEndingCloudMotion();
-        var graphicsUpload = new EndingRewardGraphicsUpload(bus);
+        var uploadBus = new EndingRewardUploadDefinitionReadGuard(bus);
+        var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus);
         var graphicsVram = new SnesVram();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
@@ -19,6 +20,14 @@ internal static partial class Program
         graphicsVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray());
         for (int chunk = 0; chunk < 16; chunk++)
         {
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
+                    EndingRewardGraphicsUploadDefinitions.SourceTable + chunk * sizeof(ushort)),
+                EndingRewardGraphicsUploadDefinitions.SourceWord(chunk),
+                $"reward graphics source address {chunk} matches pinned cartridge");
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
+                    EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
+                EndingRewardGraphicsUploadDefinitions.DestinationWord(chunk),
+                $"reward graphics destination address {chunk} matches pinned cartridge");
             graphicsUpload.Upload(graphicsVram, chunk);
             int uploadedBytes = (chunk + 1) * 2048;
             AssertTrue(graphicsVram.Bytes[..uploadedBytes].SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
@@ -26,6 +35,14 @@ internal static partial class Program
             AssertTrue(graphicsVram.Bytes[uploadedBytes..].ToArray().All(value => value == 0xa5),
                 "reward graphics upload preserves pending chunks and the shooting OBJ sheet");
         }
+        AssertEqual(0, uploadBus.ForbiddenReadAttempts,
+            "reward icon upload no longer rereads either native address table");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EndingRewardGraphicsUploadDefinitions.SourceWord(16),
+            "reward icon source rejects the seventeenth transfer");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EndingRewardGraphicsUploadDefinitions.DestinationWord(-1),
+            "reward icon destination rejects a negative transfer");
         var rewardBus = new EndingRewardDefinitionReadGuard(bus);
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
@@ -73,6 +90,27 @@ internal static partial class Program
         }
         AssertEqual(0, rewardBus.ForbiddenReadAttempts,
             "ending reward actors never reread compiled definition records");
+    }
+
+    private sealed class EndingRewardUploadDefinitionReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
+                address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
+                EndingRewardJumpDefinitions.UploadCount * sizeof(ushort))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Reward icon upload reread address-table byte ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)

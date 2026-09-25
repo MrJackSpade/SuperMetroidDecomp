@@ -39,6 +39,38 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        Initial => "initial",
+        PaneDamage1 => "pane-damage-1",
+        PaneDamage2 => "pane-damage-2",
+        PaneTransition => "pane-transition",
+        ShiftedPane1 => "shifted-pane-1",
+        ShiftedPane2 => "shifted-pane-2",
+        ShiftedPane3 => "shifted-pane-3",
+        Shatter1 => "shatter-1",
+        Shatter2 => "shatter-2",
+        Shatter3 => "shatter-3",
+        Cleared => "cleared",
+        _ => throw new InvalidDataException(
+            $"Mother Brain glass draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
+    }
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

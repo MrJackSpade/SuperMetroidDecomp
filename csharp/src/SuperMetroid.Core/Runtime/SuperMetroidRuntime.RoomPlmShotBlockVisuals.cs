@@ -53,6 +53,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.EyeDoorVisuals = value;
     }
 
+    /// <summary>Visual-only Mother Brain glass resources; reattached after state restoration.</summary>
+    public RoomPlmMotherBrainGlassVisualCatalog? RoomPlmMotherBrainGlassVisuals
+    {
+        get => Plms.MotherBrainGlassVisuals;
+        set => Plms.MotherBrainGlassVisuals = value;
+    }
+
     /// <summary>Visual-only gate-block resources; reattached after debugger-state restoration.</summary>
     public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals
     {

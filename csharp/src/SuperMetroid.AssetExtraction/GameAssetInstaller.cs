@@ -95,6 +95,7 @@ public static class GameAssetInstaller
             RoomPlmColoredDoorVisualFiles.ValidateStock(installation.RoomPlmColoredDoorVisualDirectory);
             RoomPlmGreyDoorVisualFiles.ValidateStock(installation.RoomPlmGreyDoorVisualDirectory);
             RoomPlmEyeDoorVisualFiles.ValidateStock(installation.RoomPlmEyeDoorVisualDirectory);
+            RoomPlmMotherBrainGlassVisualFiles.ValidateStock(installation.RoomPlmMotherBrainGlassVisualDirectory);
             RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -241,6 +242,13 @@ public static class GameAssetInstaller
             RoomPlmEyeDoorVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 eyeDoorVisuals, SupportedCartridge.Sha256);
             RoomPlmEyeDoorVisualFiles.ValidateStock(eyeDoorVisuals);
+            progress?.Report("Extracting Mother Brain glass PLM visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string motherBrainGlassVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName);
+            RoomPlmMotherBrainGlassVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                motherBrainGlassVisuals, SupportedCartridge.Sha256);
+            RoomPlmMotherBrainGlassVisualFiles.ValidateStock(motherBrainGlassVisuals);
             progress?.Report("Extracting downward-gate PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string gateVisuals = Path.Combine(staging,

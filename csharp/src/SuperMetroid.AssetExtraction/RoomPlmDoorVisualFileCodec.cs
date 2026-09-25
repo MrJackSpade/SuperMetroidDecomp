@@ -7,8 +7,9 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Shared installed-file contract for door PLMs with one bounded draw run.
-/// The family catalogs validate complete IDs and each family's block shape.
+/// Shared installed-file contract for bounded PLM block-draw layouts. Visual
+/// blocks are stored in native run order, while the compiled definitions retain
+/// run directions, signed offsets and physical level words.
 /// </summary>
 internal static class RoomPlmDoorVisualFileCodec
 {
@@ -51,7 +52,7 @@ internal static class RoomPlmDoorVisualFileCodec
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
         Func<ushort, string> visualId,
         Func<Entry[], TCatalog> createCatalog,
-        Func<TCatalog, ushort, int, ushort> getWord)
+        Func<TCatalog, ushort, int, int, ushort> getWord)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
@@ -91,29 +92,40 @@ internal static class RoomPlmDoorVisualFileCodec
                  definitions.OrderBy(item => item.Pointer))
         {
             ushort pointer = draw.Pointer;
-            if (draw.Runs.Length != 1 ||
-                draw.Runs.Span[0].LevelWords.Length is < 1 or > 4 ||
-                (draw.Runs.Span[0].DirectionAndCount & 0x7fff) !=
-                draw.Runs.Span[0].LevelWords.Length)
+            if (draw.Runs.Length is < 1 or > 4)
                 throw new InvalidDataException(
-                    $"Compiled {family} draw ${pointer:X4} has an invalid block shape.");
-            RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[0];
-            if (ReadWord(bus, pointer) != run.DirectionAndCount)
-                throw new InvalidDataException(
-                    $"{family} draw ${pointer:X4} differs in source cartridge shape.");
-            var blocks = new ushort[run.LevelWords.Length];
-            for (int block = 0; block < blocks.Length; block++)
+                    $"Compiled {family} draw ${pointer:X4} has an invalid run count.");
+            var blocks = new List<ushort>();
+            ushort cursor = pointer;
+            for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
-                ushort source = ReadWord(bus, checked((ushort)(pointer + 2 + block * 2)));
-                if (source != run.LevelWords.Span[block])
+                RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
+                if (run.LevelWords.Length is < 1 or > 4 ||
+                    (run.DirectionAndCount & 0x7fff) != run.LevelWords.Length ||
+                    ReadWord(bus, cursor) != run.DirectionAndCount)
                     throw new InvalidDataException(
-                        $"{family} draw ${pointer:X4} differs at block {block}.");
-                blocks[block] = new RoomLevelWord(source).VisualWord;
+                        $"{family} draw ${pointer:X4} differs in run {runIndex} shape.");
+                for (int block = 0; block < run.LevelWords.Length; block++)
+                {
+                    ushort source = ReadWord(bus,
+                        checked((ushort)(cursor + 2 + block * 2)));
+                    if (source != run.LevelWords.Span[block])
+                        throw new InvalidDataException(
+                            $"{family} draw ${pointer:X4} differs at run {runIndex}, block {block}.");
+                    blocks.Add(new RoomLevelWord(source).VisualWord);
+                }
+                ushort nativeOffset = ReadWord(bus,
+                    checked((ushort)(cursor + 2 + run.LevelWords.Length * 2)));
+                ushort compiledOffset = (ushort)(
+                    unchecked((byte)run.NextX) |
+                    unchecked((byte)run.NextY) << 8);
+                if (nativeOffset != compiledOffset ||
+                    (runIndex == draw.Runs.Length - 1) != (nativeOffset == 0))
+                    throw new InvalidDataException(
+                        $"{family} draw ${pointer:X4} differs at run {runIndex} offset.");
+                cursor = checked((ushort)(cursor + 4 + run.LevelWords.Length * 2));
             }
-            if (ReadWord(bus, checked((ushort)(pointer + 2 + blocks.Length * 2))) != 0)
-                throw new InvalidDataException(
-                    $"{family} draw ${pointer:X4} lacks its zero terminator.");
-            entries.Add(new Entry(visualId(pointer), blocks));
+            entries.Add(new Entry(visualId(pointer), blocks.ToArray()));
         }
         return entries.ToArray();
     }
@@ -122,17 +134,23 @@ internal static class RoomPlmDoorVisualFileCodec
         string path, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
         Func<ushort, string> visualId,
-        Func<TCatalog, ushort, int, ushort> getWord)
+        Func<TCatalog, ushort, int, int, ushort> getWord)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in definitions)
-        for (int block = 0; block < draw.Runs.Span[0].LevelWords.Length; block++)
         {
-            ushort expected = new RoomLevelWord(
-                draw.Runs.Span[0].LevelWords.Span[block]).VisualWord;
-            if (getWord(catalog, draw.Pointer, block) != expected)
-                throw new InvalidDataException(
-                    $"Stock {family} visuals {path} differ from compiled frame " +
-                    visualId(draw.Pointer) + ".");
+            for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
+            {
+                RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
+                for (int block = 0; block < run.LevelWords.Length; block++)
+                {
+                    ushort expected = new RoomLevelWord(
+                        run.LevelWords.Span[block]).VisualWord;
+                    if (getWord(catalog, draw.Pointer, runIndex, block) != expected)
+                        throw new InvalidDataException(
+                            $"Stock {family} visuals {path} differ from compiled frame " +
+                            visualId(draw.Pointer) + $" run {runIndex}, block {block}.");
+                }
+            }
         }
     }
 

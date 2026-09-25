@@ -9,8 +9,13 @@ The production Mother Brain glass PLM loads and exercises every layout through
 its native first-draw call site with all eleven source payloads forbidden;
 assertions compare each resulting physical level word. This leaves the damage
 thresholds, shatter instructions, shard actors, and timing with the existing
-native interpreter. Editable glass appearance and the remaining PLM program
-dependencies are not completed by this physical-data slice.
+native interpreter. All eleven glass appearance frames are now installed in
+`room-plm-mother-brain-glass/mother-brain-glass.json` with editable visual
+blocks in native run order. A changed multi-run block reaches immediate and
+later streamed tiles without changing the physical level word. The shared
+resource codec checks every native run shape and offset, hashes stock data,
+rejects malformed overrides, and preserves valid overrides through repair.
+The remaining PLM program dependencies are not completed by this slice.
 
 ## Eye-door PLM draw lists (2026-09-24)
 

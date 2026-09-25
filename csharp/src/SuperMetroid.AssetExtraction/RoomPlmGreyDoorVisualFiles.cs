@@ -22,7 +22,7 @@ public static class RoomPlmGreyDoorVisualFiles
             GreyDoorPlmDrawDefinitions.VisualId,
             entries => new RoomPlmGreyDoorVisualCatalog(entries.Select(entry =>
                 new RoomPlmGreyDoorVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, block) => catalog.GetWord(pointer, block));
+            (catalog, pointer, _, block) => catalog.GetWord(pointer, block));
 
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 }

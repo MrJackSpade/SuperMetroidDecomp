@@ -431,6 +431,17 @@ hit counts, opening timing, sounds, or door-bit persistence. Stock files are
 hash-checked, malformed overrides fail loudly, and valid overrides survive
 stock repair.
 
+Mother Brain's glass frames are installed as
+`game/room-plm-mother-brain-glass/mother-brain-glass.json`. Copy the file to
+`overrides/room-plm-mother-brain-glass/mother-brain-glass.json`, edit only the
+0..4095 `blocks` visual words, and restart. Keep all eleven frame IDs. A
+multi-run frame lists its blocks in the native run order shown by the stock
+file; the compiled application keeps each run's shape and signed placement.
+The active room's CRE/area definitions supply the tiles. Glass collision,
+damage thresholds, shatter timing, shards, and progression cannot be changed
+by this appearance file. Stock content is hash-checked; malformed overrides
+fail loudly, while valid overrides survive stock repair.
+
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to
 `overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`

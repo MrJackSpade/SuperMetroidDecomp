@@ -22,7 +22,7 @@ public static class RoomPlmEyeDoorVisualFiles
             EyeDoorPlmDrawDefinitions.VisualId,
             entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
                 new RoomPlmEyeDoorVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, block) => catalog.GetWord(pointer, block));
+            (catalog, pointer, _, block) => catalog.GetWord(pointer, block));
 
     public static void ValidateStock(string stockDirectory) => Load(stockDirectory);
 }

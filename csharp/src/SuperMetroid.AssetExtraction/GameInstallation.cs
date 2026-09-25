@@ -91,6 +91,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmEyeDoorVisualCatalog LoadRoomPlmEyeDoorVisuals() =>
         RoomPlmEyeDoorVisualFiles.Load(RoomPlmEyeDoorVisualDirectory,
             RoomPlmEyeDoorVisualOverrideDirectory);
+    public string RoomPlmMotherBrainGlassVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName);
+    public string RoomPlmMotherBrainGlassVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName);
+    /// <summary>Editable glass appearance; shatter physics and room-object logic stay compiled.</summary>
+    public RoomPlmMotherBrainGlassVisualCatalog LoadRoomPlmMotherBrainGlassVisuals() =>
+        RoomPlmMotherBrainGlassVisualFiles.Load(RoomPlmMotherBrainGlassVisualDirectory,
+            RoomPlmMotherBrainGlassVisualOverrideDirectory);
     public string RoomPlmDownwardGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
     public string RoomPlmDownwardGateVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
     /// <summary>Editable gate-block art; activation, animation, and collision remain compiled.</summary>
@@ -154,11 +160,12 @@ public static class GameInstallationLayout
     public const string RoomPlmColoredDoorVisualDirectoryName = "room-plm-colored-doors";
     public const string RoomPlmGreyDoorVisualDirectoryName = "room-plm-grey-doors";
     public const string RoomPlmEyeDoorVisualDirectoryName = "room-plm-eye-doors";
+    public const string RoomPlmMotherBrainGlassVisualDirectoryName = "room-plm-mother-brain-glass";
     public const string RoomPlmDownwardGateVisualDirectoryName = "room-plm-downward-gates";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 44;
+    public const int FormatVersion = 45;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

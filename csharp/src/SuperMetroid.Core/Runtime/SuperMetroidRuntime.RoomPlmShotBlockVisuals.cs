@@ -128,6 +128,12 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.MaridiaElevatubeVisuals = value;
     }
 
+    public RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals
+    {
+        get => Plms.SporeSpawnCeilingVisuals;
+        set => Plms.SporeSpawnCeilingVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

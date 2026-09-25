@@ -22,6 +22,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmTourianAccessVisualCatalog? roomPlmTourianAccessVisuals;
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
+    [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -151,6 +152,14 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmMaridiaElevatubeVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmMaridiaElevatubeVisuals = catalog;
+    }
+
+    /// <summary>Binds Spore Spawn ceiling art after startup or state restoration.</summary>
+    public void BindRoomPlmSporeSpawnCeilingVisuals(
+        RoomPlmSporeSpawnCeilingVisualCatalog? catalog)
+    {
+        roomPlmSporeSpawnCeilingVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmSporeSpawnCeilingVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

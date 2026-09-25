@@ -559,6 +559,13 @@ The Maridia elevatube's one-block PLM appearance is installed at
 `elevatube-block` entry's `blocks` word (0..4095). The sixteen-frame hold,
 physical block, sound, and deletion remain compiled and unchanged.
 
+Spore Spawn's four 2×2 ceiling frames are installed at
+`game/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json`. Copy the file to
+`overrides/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json` and edit only
+the `blocks` visual words (0..4095). Retain all four frame IDs and four blocks
+per frame in native top-row-then-bottom-row order. The crumble/clear sequence,
+sound, timing, and physical terrain changes remain compiled.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

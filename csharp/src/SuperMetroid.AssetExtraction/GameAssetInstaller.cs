@@ -106,6 +106,7 @@ public static class GameAssetInstaller
             RoomPlmTourianAccessVisualFiles.ValidateStock(installation.RoomPlmTourianAccessVisualDirectory);
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(installation.RoomPlmSpeedBoosterVisualDirectory);
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(installation.RoomPlmMaridiaElevatubeVisualDirectory);
+            RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(installation.RoomPlmSporeSpawnCeilingVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -329,6 +330,13 @@ public static class GameAssetInstaller
             RoomPlmMaridiaElevatubeVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 maridiaElevatubeVisuals, SupportedCartridge.Sha256);
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(maridiaElevatubeVisuals);
+            progress?.Report("Extracting Spore Spawn ceiling visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string sporeCeilingVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName);
+            RoomPlmSporeSpawnCeilingVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                sporeCeilingVisuals, SupportedCartridge.Sha256);
+            RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(sporeCeilingVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

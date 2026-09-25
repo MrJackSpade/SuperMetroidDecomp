@@ -8,8 +8,11 @@ falls through into the clear list. A guarded production PLM sequence checks
 three four-frame breakup appearances, the four-frame clear, sound, deletion,
 and all four level words while rejecting reads of every claimed program and
 draw byte. The pinned-ROM comparison checks the exact ten instruction words,
-one sound byte, and all four draw layouts. Appearance replacement is a separate
-#539 presentation step; the current compiled visual words remain fixed.
+one sound byte, and all four draw layouts. Their four visible 2x2 frames are
+installed as editable `room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json`;
+live crumble/clear edits reach immediate and streamed tilemaps without changing
+physical words or deletion timing. Stock manifests, malformed overrides, and
+update persistence are verified separately. Other boss-terrain PLMs remain.
 
 Maridia's hardcoded elevatube PLM now selects its visible block from
 `room-plm-maridia-elevatube/maridia-elevatube.json`. The production PLM runs

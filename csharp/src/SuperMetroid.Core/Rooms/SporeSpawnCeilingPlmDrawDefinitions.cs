@@ -27,6 +27,31 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists;
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        ClearPointer => "clear-ceiling",
+        CrumbleFirstPointer => "crumble-frame-0",
+        CrumbleSecondPointer => "crumble-frame-1",
+        CrumbleThirdPointer => "crumble-frame-2",
+        _ => throw new InvalidDataException(
+            $"Spore Spawn ceiling draw ${pointer:X4} has no visual ID."),
+    };
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists)
+        {
+            if (!string.Equals(VisualId(candidate.Pointer), id,
+                    StringComparison.Ordinal))
+                continue;
+            list = candidate;
+            return true;
+        }
+        list = default;
+        return false;
+    }
+
     internal static ushort CrumbleFramePointer(int frame) => frame switch
     {
         0 => CrumbleFirstPointer,

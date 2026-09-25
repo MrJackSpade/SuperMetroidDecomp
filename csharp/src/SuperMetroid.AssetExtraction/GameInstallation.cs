@@ -157,6 +157,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmMaridiaElevatubeVisualCatalog LoadRoomPlmMaridiaElevatubeVisuals() =>
         RoomPlmMaridiaElevatubeVisualFiles.Load(RoomPlmMaridiaElevatubeVisualDirectory,
             RoomPlmMaridiaElevatubeVisualOverrideDirectory);
+    public string RoomPlmSporeSpawnCeilingVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName);
+    public string RoomPlmSporeSpawnCeilingVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName);
+    /// <summary>Editable Spore Spawn ceiling tiles; physical draw words stay compiled.</summary>
+    public RoomPlmSporeSpawnCeilingVisualCatalog LoadRoomPlmSporeSpawnCeilingVisuals() =>
+        RoomPlmSporeSpawnCeilingVisualFiles.Load(RoomPlmSporeSpawnCeilingVisualDirectory,
+            RoomPlmSporeSpawnCeilingVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -233,11 +239,12 @@ public static class GameInstallationLayout
     public const string RoomPlmTourianAccessVisualDirectoryName = "room-plm-tourian-access";
     public const string RoomPlmSpeedBoosterVisualDirectoryName = "room-plm-speed-booster";
     public const string RoomPlmMaridiaElevatubeVisualDirectoryName = "room-plm-maridia-elevatube";
+    public const string RoomPlmSporeSpawnCeilingVisualDirectoryName = "room-plm-spore-spawn-ceiling";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 55;
+    public const int FormatVersion = 56;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

@@ -926,6 +926,11 @@ if (args is ["--spore-spawn-ceiling-plms"])
     VerifyCompiledSporeSpawnCeilingPlms();
     return 0;
 }
+if (args is ["--spore-spawn-ceiling-visuals"])
+{
+    VerifySporeSpawnCeilingVisuals();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2559,6 +2564,7 @@ VerifyTourianAccessVisuals();
 VerifySpeedBoosterVisuals();
 VerifyMaridiaElevatubeVisuals();
 VerifyCompiledSporeSpawnCeilingPlms();
+VerifySporeSpawnCeilingVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

@@ -92,8 +92,8 @@ internal static class RoomPlmDoorVisualFileCodec
                  definitions.OrderBy(item => item.Pointer))
         {
             ushort pointer = draw.Pointer;
-            // Bomb Torizo's cleared-hand image has five native rows. Keep a
-            // bounded structural guard, but do not reject that valid layout.
+            // Multirow statue and hand layouts need up to five native runs.
+            // Keep a bounded structural guard without rejecting those layouts.
             if (draw.Runs.Length is < 1 or > 8)
                 throw new InvalidDataException(
                     $"Compiled {family} draw ${pointer:X4} has an invalid run count.");
@@ -102,7 +102,7 @@ internal static class RoomPlmDoorVisualFileCodec
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
-                if (run.LevelWords.Length is < 1 or > 12 ||
+                if (run.LevelWords.Length is < 1 or > 16 ||
                     (run.DirectionAndCount & 0x7fff) != run.LevelWords.Length ||
                     ReadWord(bus, cursor) != run.DirectionAndCount)
                     throw new InvalidDataException(

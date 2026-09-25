@@ -17,6 +17,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? roomPlmBombTorizoHandVisuals;
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;
+    [NonSerialized] private RoomPlmChozoStatueVisualCatalog? roomPlmChozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
 
@@ -110,6 +111,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmDraygonCannonVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmDraygonCannonVisuals = catalog;
+    }
+
+    /// <summary>Binds installed Chozo statue terrain art after state restoration.</summary>
+    public void BindRoomPlmChozoStatueVisuals(RoomPlmChozoStatueVisualCatalog? catalog)
+    {
+        roomPlmChozoStatueVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmChozoStatueVisuals = catalog;
     }
 
     /// <summary>Binds linked bomb/contact restore art at startup and after state restoration.</summary>

@@ -101,6 +101,7 @@ public static class GameAssetInstaller
             RoomPlmEscapeGateVisualFiles.ValidateStock(installation.RoomPlmEscapeGateVisualDirectory);
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(installation.RoomPlmBombTorizoHandVisualDirectory);
             RoomPlmDraygonCannonVisualFiles.ValidateStock(installation.RoomPlmDraygonCannonVisualDirectory);
+            RoomPlmChozoStatueVisualFiles.ValidateStock(installation.RoomPlmChozoStatueVisualDirectory);
             RoomPlmLinkedRestoreVisualFiles.ValidateStock(installation.RoomPlmLinkedRestoreVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -289,6 +290,13 @@ public static class GameAssetInstaller
             RoomPlmDraygonCannonVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 draygonCannonVisuals, SupportedCartridge.Sha256);
             RoomPlmDraygonCannonVisualFiles.ValidateStock(draygonCannonVisuals);
+            progress?.Report("Extracting Chozo statue terrain visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string chozoStatueVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName);
+            RoomPlmChozoStatueVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                chozoStatueVisuals, SupportedCartridge.Sha256);
+            RoomPlmChozoStatueVisualFiles.ValidateStock(chozoStatueVisuals);
             progress?.Report("Extracting linked-block restoration visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string linkedRestoreVisuals = Path.Combine(staging,

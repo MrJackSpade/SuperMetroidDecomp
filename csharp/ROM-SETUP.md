@@ -499,6 +499,15 @@ order. This does not alter cannon collision, projectile thresholds, or boss
 control-word writes. The unused diagonal orientations are not part of this
 resource. Invalid overrides fail; valid ones survive stock repair.
 
+Chozo statue terrain appearances are installed as
+`game/room-plm-chozo-statues/chozo-statues.json`. Copy the file to
+`overrides/room-plm-chozo-statues/chozo-statues.json` and edit only `blocks`
+visual words (0..4095), then restart. Keep the three IDs for the cleared
+Lower Norfair hand and the two Wrecked Ship slope-access states. These edits
+cannot change draw geometry, slope collision, or the statue's event/acid
+behavior. The crumble plug continues to use the shared shot-block frames.
+Invalid overrides fail; valid ones survive stock installation repair.
+
 Linked bomb-block and Samus-contact crumble-block restoration appearances
 are installed as `game/room-plm-linked-restores/linked-restores.json`.
 Copy it to `overrides/room-plm-linked-restores/linked-restores.json`, edit

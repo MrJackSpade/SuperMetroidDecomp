@@ -95,6 +95,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.DraygonCannonVisuals = value;
     }
 
+    /// <summary>Visual-only Chozo statue terrain resources; reattached after state restoration.</summary>
+    public RoomPlmChozoStatueVisualCatalog? RoomPlmChozoStatueVisuals
+    {
+        get => Plms.ChozoStatueVisuals;
+        set => Plms.ChozoStatueVisuals = value;
+    }
+
     /// <summary>Visual-only linked restoration resource; reattached after state restoration.</summary>
     public RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals
     {

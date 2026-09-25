@@ -9,6 +9,16 @@ internal static partial class Program
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
+            new RoomPlmChozoStatueVisualEntry(
+                ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer),
+                draw.Runs.Span.ToArray().SelectMany(run =>
+                    run.LevelWords.Span.ToArray().Select(word =>
+                        new RoomLevelWord(word).VisualWord)).ToArray())).ToArray();
+        handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
+            .Blocks[0] = 0x0053;
+        runtime.RoomPlmChozoStatueVisuals =
+            new RoomPlmChozoStatueVisualCatalog(handEntries);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -92,6 +102,12 @@ internal static partial class Program
         AssertTrue(level != runtime.LevelData, "re-entry uses newly loaded room terrain");
         AssertTrue(runtime.LevelData!.GetCollisionBlock(4, 8).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
+        RoomLevelData reentered = runtime.LevelData!;
+        reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
+        AssertEqual((ushort)0x0053,
+            reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
+                0x1d * reentered.WidthInBlocks + 0x0c, 0).TopRow[0],
+            "event-completed hand re-entry streams the installed visual override");
         Console.WriteLine($"Lower Norfair hand: collision/admission, live FX writes, {displayedHeights.Count} displayed drain heights, control release and re-entry pass.");
     }
 }

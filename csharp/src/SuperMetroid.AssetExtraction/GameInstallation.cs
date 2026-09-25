@@ -127,6 +127,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmDraygonCannonVisualCatalog LoadRoomPlmDraygonCannonVisuals() =>
         RoomPlmDraygonCannonVisualFiles.Load(RoomPlmDraygonCannonVisualDirectory,
             RoomPlmDraygonCannonVisualOverrideDirectory);
+    public string RoomPlmChozoStatueVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName);
+    public string RoomPlmChozoStatueVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName);
+    /// <summary>Editable Chozo hand and slope-access art; physical blocks remain compiled.</summary>
+    public RoomPlmChozoStatueVisualCatalog LoadRoomPlmChozoStatueVisuals() =>
+        RoomPlmChozoStatueVisualFiles.Load(RoomPlmChozoStatueVisualDirectory,
+            RoomPlmChozoStatueVisualOverrideDirectory);
     public string RoomPlmLinkedRestoreVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName);
     public string RoomPlmLinkedRestoreVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName);
     /// <summary>Editable linked-block restoration art; collision stays compiled.</summary>
@@ -196,11 +202,12 @@ public static class GameInstallationLayout
     public const string RoomPlmEscapeGateVisualDirectoryName = "room-plm-escape-gate";
     public const string RoomPlmBombTorizoHandVisualDirectoryName = "room-plm-bomb-torizo-hand";
     public const string RoomPlmDraygonCannonVisualDirectoryName = "room-plm-draygon-cannons";
+    public const string RoomPlmChozoStatueVisualDirectoryName = "room-plm-chozo-statues";
     public const string RoomPlmLinkedRestoreVisualDirectoryName = "room-plm-linked-restores";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 50;
+    public const int FormatVersion = 51;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

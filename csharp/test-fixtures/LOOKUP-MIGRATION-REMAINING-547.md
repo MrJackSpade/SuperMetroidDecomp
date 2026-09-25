@@ -47,6 +47,15 @@ and left shield edits reach immediate or later-streamed tiles without changing
 collision. Both four-frame damaged loops execute with the source payloads
 unreadable. Unused diagonal cannon orientations remain outside this catalog.
 
+The three distinct Chozo statue terrain draw lists (Lower Norfair's cleared
+hand and Wrecked Ship's clear/block slope access) now have compiled physical
+words and editable visual blocks in
+`room-plm-chozo-statues/chozo-statues.json`. Extraction checks every run,
+word, and signed offset against the pinned ROM. The crumble plug's four frames
+are already covered by the shared compiled shot-block visual resource. Chozo
+instruction programs and other room-object draw families still need separate
+ROM-free migration work.
+
 The six previously compiled linked bomb/contact-crumble restoration layouts
 now expose visual block choices in
 `room-plm-linked-restores/linked-restores.json`. The shared file codec

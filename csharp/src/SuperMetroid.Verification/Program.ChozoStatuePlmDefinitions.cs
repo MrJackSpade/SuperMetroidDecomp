@@ -66,8 +66,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => ChozoStatuePlmDefinitions.Resolve(0xd6f2),
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
+        VerifyChozoStatueVisualInstallation(rom);
         Console.WriteLine(
-            "Chozo statue PLMs: all five native header/list identities and real terrain spawns pass without runtime header reads.");
+            "Chozo statue PLMs: all five header/list identities, native draw extraction and visual-only terrain overrides pass.");
     }
 
     private static ushort ReadChozoStatuePlmWord(SuperMetroidAddressSpace bus, int address) =>

@@ -7,10 +7,10 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Shared installed-file contract for door-cap PLMs with one four-block draw run.
-/// The family catalogs still validate their own complete IDs and visual-word shape.
+/// Shared installed-file contract for door PLMs with one bounded draw run.
+/// The family catalogs validate complete IDs and each family's block shape.
 /// </summary>
-internal static class RoomPlmDoorCapVisualFileCodec
+internal static class RoomPlmDoorVisualFileCodec
 {
     internal const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
@@ -92,14 +92,16 @@ internal static class RoomPlmDoorCapVisualFileCodec
         {
             ushort pointer = draw.Pointer;
             if (draw.Runs.Length != 1 ||
-                draw.Runs.Span[0].LevelWords.Length != 4)
+                draw.Runs.Span[0].LevelWords.Length is < 1 or > 4 ||
+                (draw.Runs.Span[0].DirectionAndCount & 0x7fff) !=
+                draw.Runs.Span[0].LevelWords.Length)
                 throw new InvalidDataException(
-                    $"Compiled {family} draw ${pointer:X4} is not a four-block cap.");
+                    $"Compiled {family} draw ${pointer:X4} has an invalid block shape.");
             RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[0];
             if (ReadWord(bus, pointer) != run.DirectionAndCount)
                 throw new InvalidDataException(
                     $"{family} draw ${pointer:X4} differs in source cartridge shape.");
-            var blocks = new ushort[4];
+            var blocks = new ushort[run.LevelWords.Length];
             for (int block = 0; block < blocks.Length; block++)
             {
                 ushort source = ReadWord(bus, checked((ushort)(pointer + 2 + block * 2)));
@@ -108,7 +110,7 @@ internal static class RoomPlmDoorCapVisualFileCodec
                         $"{family} draw ${pointer:X4} differs at block {block}.");
                 blocks[block] = new RoomLevelWord(source).VisualWord;
             }
-            if (ReadWord(bus, checked((ushort)(pointer + 10))) != 0)
+            if (ReadWord(bus, checked((ushort)(pointer + 2 + blocks.Length * 2))) != 0)
                 throw new InvalidDataException(
                     $"{family} draw ${pointer:X4} lacks its zero terminator.");
             entries.Add(new Entry(visualId(pointer), blocks));

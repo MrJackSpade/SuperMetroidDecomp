@@ -407,7 +407,7 @@ filters, hit counters, opening cadence, sounds, and door-bit persistence stay
 cartridge-defined. Edited cap tiles appear immediately and during later camera
 streaming. Stock content is hash-checked, invalid overrides fail loudly, and
 overrides survive stock repair. Grey-door art uses the separate resource below;
-eye-door art remains separate work.
+eye-door art uses the separate resource below.
 
 Grey-door caps and the four shared door-clear frames are installed as
 `game/room-plm-grey-doors/grey-doors.json`. Copy it to
@@ -418,7 +418,18 @@ clear frames are also used by blue and colored doors. Bomb Torizo's special
 grey-door program selects the ordinary right-facing grey cap. Physical level
 words, collision, condition gates, timing, sound, and door-bit persistence
 remain cartridge-defined. Invalid stock or override content fails loudly;
-user overrides survive stock repair. Eye-door art remains separate work.
+user overrides survive stock repair.
+
+Eye-door components are installed as `game/room-plm-eye-doors/eye-doors.json`.
+Copy it to `overrides/room-plm-eye-doors/eye-doors.json`, edit only `blocks`
+visual words (0..4095), and restart. Keep all 23 IDs: five animated eye
+frames per orientation, three middle and three bottom frames per orientation,
+and `left-eye-clear`. Each entry carries one, two or four visual blocks, as
+listed in the stock file; replacements use the active room's CRE/area tile
+definitions. These edits do not change eye-door collision, attacks, missile
+hit counts, opening timing, sounds, or door-bit persistence. Stock files are
+hash-checked, malformed overrides fail loudly, and valid overrides survive
+stock repair.
 
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to

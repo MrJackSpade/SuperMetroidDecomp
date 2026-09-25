@@ -46,6 +46,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.GreyDoorVisuals = value;
     }
 
+    /// <summary>Visual-only eye-door resources; reattached after state restoration.</summary>
+    public RoomPlmEyeDoorVisualCatalog? RoomPlmEyeDoorVisuals
+    {
+        get => Plms.EyeDoorVisuals;
+        set => Plms.EyeDoorVisuals = value;
+    }
+
     /// <summary>Visual-only gate-block resources; reattached after debugger-state restoration.</summary>
     public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals
     {

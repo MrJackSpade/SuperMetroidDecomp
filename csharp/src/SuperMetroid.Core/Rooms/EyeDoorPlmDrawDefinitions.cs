@@ -31,6 +31,41 @@ internal static class EyeDoorPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
+    internal static string VisualId(ushort pointer)
+    {
+        if (pointer == LeftEyeClear) return "left-eye-clear";
+        foreach ((ushort first, int count, int stride, string name) in new[]
+                 {
+                     (LeftEyeFirst, 5, 8, "left-eye"),
+                     (LeftMiddleFirst, 3, 6, "left-middle"),
+                     (LeftBottomFirst, 3, 6, "left-bottom"),
+                     (RightEyeFirst, 5, 8, "right-eye"),
+                     (RightMiddleFirst, 3, 6, "right-middle"),
+                     (RightBottomFirst, 3, 6, "right-bottom"),
+                 })
+        {
+            int offset = pointer - first;
+            if (offset >= 0 && offset < count * stride && offset % stride == 0)
+                return $"{name}-frame-{offset / stride}";
+        }
+        throw new InvalidDataException($"Eye-door draw ${pointer:X4} has no visual ID.");
+    }
+
+    internal static bool TryGetByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Lists.Values)
+        {
+            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
+    }
+
     private static IReadOnlyDictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {

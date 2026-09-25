@@ -7,17 +7,17 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomPlmBlueDoorVisualFiles
 {
     public const string VisualFileName = "blue-doors.json";
-    public const string ManifestFileName = RoomPlmDoorCapVisualFileCodec.ManifestFileName;
+    public const string ManifestFileName = RoomPlmDoorVisualFileCodec.ManifestFileName;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
-        RoomPlmDoorCapVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
+        RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.All,
             BlueDoorPlmDrawDefinitions.VisualId);
 
     public static RoomPlmBlueDoorVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorCapVisualFileCodec.Load(stockDirectory, overrideDirectory,
+        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.All,
             BlueDoorPlmDrawDefinitions.VisualId,
             entries => new RoomPlmBlueDoorVisualCatalog(entries.Select(entry =>

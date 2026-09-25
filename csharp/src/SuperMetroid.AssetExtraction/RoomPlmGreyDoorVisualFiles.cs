@@ -7,17 +7,17 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomPlmGreyDoorVisualFiles
 {
     public const string VisualFileName = "grey-doors.json";
-    public const string ManifestFileName = RoomPlmDoorCapVisualFileCodec.ManifestFileName;
+    public const string ManifestFileName = RoomPlmDoorVisualFileCodec.ManifestFileName;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
-        RoomPlmDoorCapVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
+        RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Grey-door", GreyDoorPlmDrawDefinitions.All,
             GreyDoorPlmDrawDefinitions.VisualId);
 
     public static RoomPlmGreyDoorVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorCapVisualFileCodec.Load(stockDirectory, overrideDirectory,
+        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             VisualFileName, "Grey-door", GreyDoorPlmDrawDefinitions.All,
             GreyDoorPlmDrawDefinitions.VisualId,
             entries => new RoomPlmGreyDoorVisualCatalog(entries.Select(entry =>

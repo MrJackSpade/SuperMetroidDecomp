@@ -8,8 +8,11 @@ four-block clear frame. Every direction/count word, physical block word, and
 terminator matches the pinned cartridge. Both complete three-component first
 draws execute through the production PLM interpreter with all twenty-three
 draw payloads forbidden. The native eye-door instruction streams still own
-timing, attacks, persistence, and blue-door conversion. Editable eye-door art
-and the rest of the PLM program/data migration remain separate work.
+timing, attacks, persistence, and blue-door conversion. Visual block choices
+for all twenty-three frames are separately editable in
+`room-plm-eye-doors/eye-doors.json`, with variable one-, two- and four-block
+shapes validated by the shared door-file codec. Other PLM program/data
+migration remains separate work.
 
 ## Grey-door and shared-clear PLM draw lists (2026-09-24)
 

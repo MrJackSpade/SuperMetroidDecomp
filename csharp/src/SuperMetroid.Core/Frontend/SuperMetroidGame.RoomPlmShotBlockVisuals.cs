@@ -10,6 +10,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmBlueDoorVisualCatalog? roomPlmBlueDoorVisuals;
     [NonSerialized] private RoomPlmColoredDoorVisualCatalog? roomPlmColoredDoorVisuals;
     [NonSerialized] private RoomPlmGreyDoorVisualCatalog? roomPlmGreyDoorVisuals;
+    [NonSerialized] private RoomPlmEyeDoorVisualCatalog? roomPlmEyeDoorVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
 
@@ -53,6 +54,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmGreyDoorVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmGreyDoorVisuals = catalog;
+    }
+
+    /// <summary>Binds installed mirrored eye-door art after state restoration.</summary>
+    public void BindRoomPlmEyeDoorVisuals(RoomPlmEyeDoorVisualCatalog? catalog)
+    {
+        roomPlmEyeDoorVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmEyeDoorVisuals = catalog;
     }
 
     /// <summary>Binds installed downward-gate block art at startup and after state restoration.</summary>

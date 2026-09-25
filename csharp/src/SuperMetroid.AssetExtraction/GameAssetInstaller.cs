@@ -94,6 +94,7 @@ public static class GameAssetInstaller
             RoomPlmBlueDoorVisualFiles.ValidateStock(installation.RoomPlmBlueDoorVisualDirectory);
             RoomPlmColoredDoorVisualFiles.ValidateStock(installation.RoomPlmColoredDoorVisualDirectory);
             RoomPlmGreyDoorVisualFiles.ValidateStock(installation.RoomPlmGreyDoorVisualDirectory);
+            RoomPlmEyeDoorVisualFiles.ValidateStock(installation.RoomPlmEyeDoorVisualDirectory);
             RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -233,6 +234,13 @@ public static class GameAssetInstaller
             RoomPlmGreyDoorVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 greyDoorVisuals, SupportedCartridge.Sha256);
             RoomPlmGreyDoorVisualFiles.ValidateStock(greyDoorVisuals);
+            progress?.Report("Extracting eye-door PLM visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string eyeDoorVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmEyeDoorVisualDirectoryName);
+            RoomPlmEyeDoorVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                eyeDoorVisuals, SupportedCartridge.Sha256);
+            RoomPlmEyeDoorVisualFiles.ValidateStock(eyeDoorVisuals);
             progress?.Report("Extracting downward-gate PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string gateVisuals = Path.Combine(staging,

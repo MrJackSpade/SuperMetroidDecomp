@@ -80,8 +80,9 @@ internal static partial class Program
             0x8058, useCompiled: true);
         AssertEqual(0, emptyCount, "compiled empty PLM population terminates");
         AssertEqual(0, emptySlots.Length, "compiled empty PLM population leaves no slots");
+        VerifyCompiledRoomScrollPrograms(rom);
         Console.WriteLine(
-            "  PLM populations: 284 sources/941 records and 70 headers match ROM; guarded sequential load preserves slot state.");
+            "  PLM populations: 284 sources/941 records, 70 headers and 173 scroll programs match ROM; guarded sequential load preserves slot state.");
     }
 
     private static (int Count, RoomPlmSlotSnapshot[] Slots) Load(

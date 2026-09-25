@@ -62,6 +62,14 @@ program reads during live slope, crumble, hand-delete, and Lower Norfair
 acid-lowering paths. Adjacent native callback and setup machine code is not
 misclassified as instruction data.
 
+The 173 distinct bank-$8F scroll-trigger mutation programs referenced by
+the 284 compiled retail PLM populations are now application-owned mechanics
+data (743 bytes, 285 index/state pairs). The generator validates the exact
+room population inventory, pointer bounds, legal scroll indexes/states and
+native terminators. A real retail trigger runs with all compiled scroll-program
+ROM ranges unreadable; constructed-room programs retain their supplied bus
+path and are exercised separately by the scroll-PLM fixture.
+
 The six previously compiled linked bomb/contact-crumble restoration layouts
 now expose visual block choices in
 `room-plm-linked-restores/linked-restores.json`. The shared file codec

@@ -51,10 +51,20 @@ public sealed partial class RoomPlmSystem
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
+        bool compiledRetail = slot.Scroll.UseCompiledRetailProgram;
+        ReadOnlyMemory<byte> compiledProgram = compiledRetail
+            ? RoomPlmScrollProgramDefinitions.Get(slot.RoomArgument)
+            : default;
         ushort cursor = slot.RoomArgument;
         for (int pairIndex = 0; pairIndex < RoomScrollGrid.StorageByteCount; pairIndex++)
         {
-            byte scrollIndex = bus.ReadByte((int)new SnesAddress(0x8f, cursor));
+            int offset = pairIndex * 2;
+            if (compiledRetail && offset >= compiledProgram.Length)
+                throw new InvalidDataException(
+                    $"Compiled scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
+            byte scrollIndex = compiledRetail
+                ? compiledProgram.Span[offset]
+                : bus.ReadByte((int)new SnesAddress(0x8f, cursor));
             if ((scrollIndex & 0x80) != 0)
             {
                 // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
@@ -70,8 +80,13 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            byte value = bus.ReadByte(
-                (int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
+            if (compiledRetail && offset + 1 >= compiledProgram.Length)
+                throw new InvalidDataException(
+                    $"Compiled scroll PLM program $8F:{slot.RoomArgument:X4} lacks a state byte.");
+            byte value = compiledRetail
+                ? compiledProgram.Span[offset + 1]
+                : bus.ReadByte(
+                    (int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
             scrolls.SetStorage(
                 scrollIndex,
                 RoomScrollStates.FromCartridge(
@@ -85,7 +100,8 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
-    private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot, ushort header)
+    private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot,
+        ushort header, bool useCompiledRetailPopulation)
     {
         if (header != RoomPlmHeaders.ScrollTrigger)
         {
@@ -111,7 +127,10 @@ public sealed partial class RoomPlmSystem
         }
 
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
-        slot.Scroll = new ScrollPlmState();
+        slot.Scroll = new ScrollPlmState
+        {
+            UseCompiledRetailProgram = useCompiledRetailPopulation,
+        };
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         level.SetForegroundEntry(
             slot.BlockIndex,
@@ -122,6 +141,8 @@ public sealed partial class RoomPlmSystem
     private sealed class ScrollPlmState
     {
         public bool Triggered { get; set; }
+        /// <summary>Retail populations own compiled byte pairs; synthetic rooms retain bus data.</summary>
+        public bool UseCompiledRetailProgram { get; set; }
     }
 }
 

@@ -458,7 +458,11 @@ editable art. All retail room PLM populations are selected without rereading
 their bank-$8F source records; visual files above can replace appearance but
 do not change which objects spawn or their collision/progression behavior.
 The 70 referenced PLM setup/initial-list header pairs are compiled too;
-this does not yet remove every PLM instruction-program ROM dependency.
+the 173 retail scroll-trigger mutation programs are compiled as well. Their
+room-scroll cell writes remain gameplay behavior, never an editable visual
+override. Constructed test-room populations can still supply their own
+bank-$8F scroll programs. Other PLM instruction-program ROM dependencies
+remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to

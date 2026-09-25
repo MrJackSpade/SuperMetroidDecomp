@@ -22,6 +22,7 @@ internal static partial class Program
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            VerifyFrontendRomFreeStartup(installation, sourceRom);
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),

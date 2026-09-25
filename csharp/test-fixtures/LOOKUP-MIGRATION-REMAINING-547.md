@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Eye-door PLM draw lists (2026-09-24)
+
+Both mirrored eye-door assemblies now use twenty-three compiled physical draw
+lists: the animated eye, middle and bottom components, and the left-facing
+four-block clear frame. Every direction/count word, physical block word, and
+terminator matches the pinned cartridge. Both complete three-component first
+draws execute through the production PLM interpreter with all twenty-three
+draw payloads forbidden. The native eye-door instruction streams still own
+timing, attacks, persistence, and blue-door conversion. Editable eye-door art
+and the rest of the PLM program/data migration remain separate work.
+
 ## Grey-door and shared-clear PLM draw lists (2026-09-24)
 
 The four ordinary grey-cap orientations have sixteen compiled physical draw

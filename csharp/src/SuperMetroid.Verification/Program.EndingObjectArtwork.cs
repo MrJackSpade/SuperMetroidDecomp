@@ -116,6 +116,7 @@ internal static partial class Program
         VerifyEndingExplosionActorArtwork(installation, bus, stock);
         VerifyEndingCompletionTextInstructions(bus);
         VerifyEndingCompletionTextSpriteArtwork(bus, stock);
+        VerifyEndingRewardInstructions(bus);
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -348,7 +349,7 @@ internal static partial class Program
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending/credits art: compiled cloud, explosion and completion-text actors, editable cloud/explosion/text OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text and reward actors, editable cloud/explosion/text OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -391,6 +392,15 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Ending completion text reread compiled instruction ${address:X6}.");
+            }
+            if (address >= (int)new SnesAddress(0x8b,
+                    EndingRewardInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b,
+                    EndingRewardInstructionDefinitions.End))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending reward reread compiled instruction ${address:X6}.");
             }
             foreach (EndingCloudSpriteFrameDefinition frame in EndingCloudSpriteDefinitions.Frames)
             {

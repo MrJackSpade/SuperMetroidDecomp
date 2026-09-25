@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Post-credits Samus actor lists (2026-09-25)
+
+The seventeen contiguous bank-$8B suitless and suited idle, gesture, jump,
+landing, and shot lists at `$ED1D..EE5C` are compiled as 160 fixed words.
+Every word and each actor's 480-frame cursor, visual selection, pre-instruction,
+and lifetime match the pinned ROM. The ending scene, gesture owner, and jump
+owner all use the same bounded program when installed artwork is active. The
+existing full post-credits verifier exercises suitless, helmetless, and armored
+reward routes through the shot with these source words unreadable, preserving
+the native phase progression, VRAM, palette, and visible pixels. The reward
+spritemap compositions remain a separate visual-artwork migration.
+
 ## Ending completion and clear-time actor lists (2026-09-25)
 
 The fourteen bank-$8B completion-message, clear-time, ten digit, and colon

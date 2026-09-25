@@ -320,7 +320,8 @@ internal sealed partial class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsGesture:
-                rewardGesture!.Step();
+                rewardGesture!.Step(objectArtwork is null
+                    ? null : EndingRewardInstructionDefinitions.ReadWord);
                 if (rewardGesture.JumpRequested)
                 {
                     rewardGesture = null;
@@ -331,7 +332,8 @@ internal sealed partial class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsJump:
-                rewardJump!.Step();
+                rewardJump!.Step(objectArtwork is null
+                    ? null : EndingRewardInstructionDefinitions.ReadWord);
                 if (rewardJump.ShotRequested)
                 {
                     postShot = new EndingPostShot(bus, cgram, ResolveEndingFont(), objectArtwork);
@@ -344,14 +346,16 @@ internal sealed partial class EndingCreditsState
                 // Cinematic function runs before actors; palette fades and queued
                 // tile replacements therefore precede the next sprite instruction.
                 postShot!.Step(vram, cgram);
-                rewardJump!.Step();
+                rewardJump!.Step(objectArtwork is null
+                    ? null : EndingRewardInstructionDefinitions.ReadWord);
                 if (postShot.ReadyForWhiteFlash)
                     BeginPostCreditsWhiteFlash();
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
                 if (whiteFlashColor > 0) whiteFlashColor--;
-                rewardJump!.Step();
+                rewardJump!.Step(objectArtwork is null
+                    ? null : EndingRewardInstructionDefinitions.ReadWord);
                 if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
                 break;
 
@@ -830,6 +834,7 @@ internal sealed partial class EndingCreditsState
                     <= EndingSpriteRole.ExplosionAfterglow => EndingExplosionInstructionDefinitions.ReadWord,
                 >= EndingSpriteRole.OperationWasText and
                     <= EndingSpriteRole.ClearTimeDigit => EndingCompletionTextInstructionDefinitions.ReadWord,
+                EndingSpriteRole.RewardSamus => EndingRewardInstructionDefinitions.ReadWord,
                 _ => null,
             };
             wrapper.Sprite.Step(bus, (opcode, cursor) =>

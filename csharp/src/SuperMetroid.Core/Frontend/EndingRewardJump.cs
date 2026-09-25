@@ -27,7 +27,7 @@ internal sealed class EndingRewardJump
         body = Spawn(reward == EndingReward.Suitless ? EndingRewardJumpDefinitions.SuitlessBody : EndingRewardJumpDefinitions.SuitedBody);
     }
 
-    public void Step()
+    public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         // Native fixed slots put the head above the body in the descending handler.
         // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
@@ -38,7 +38,7 @@ internal sealed class EndingRewardJump
                 Move(head);
                 if (unchecked((short)head.YPosition) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
-            head.Step(bus, Instruction);
+            head.Step(bus, Instruction, instructionWord);
         }
         if (body.PreInstructionPointer == EndingRewardJumpDefinitions.BodyFlight)
         {
@@ -62,7 +62,7 @@ internal sealed class EndingRewardJump
                 body.PreInstructionPointerForDiscovery(0);
             }
         }
-        body.Step(bus, Instruction);
+        body.Step(bus, Instruction, instructionWord);
     }
 
     public OamBuffer Draw()

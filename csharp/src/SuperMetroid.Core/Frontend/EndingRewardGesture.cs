@@ -28,11 +28,11 @@ internal sealed class EndingRewardGesture
         }
     }
 
-    public void Step()
+    public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
         foreach (IntroDiscoverySprite actor in actors)
-            actor.Step(bus, HandleInstruction);
+            actor.Step(bus, HandleInstruction, instructionWord);
         actors.RemoveAll(actor => !actor.IsActive);
     }
 

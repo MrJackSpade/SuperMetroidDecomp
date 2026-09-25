@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyBlueDoorProgramDefinitions(rom);
         static ushort ReadNativeWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -90,7 +91,7 @@ internal static partial class Program
                     level.GetCollisionBlockByIndex(origin + block * stride).LevelWord,
                     $"{orientation} native draw writes physical block {block} without ROM payload reads");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"{orientation} opening avoids all blue-cap draw-list ROM bytes");
+                $"{orientation} opening avoids compiled program and draw ROM bytes");
             if (orientation == ColoredDoorOrientation.Left)
             {
                 AssertEqual((ushort)0x0053,
@@ -100,6 +101,45 @@ internal static partial class Program
                     level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],
                     "edited blue-door tile survives later camera streaming");
             }
+
+            // Continue through every opening draw, the long air-cap hold and Delete.
+            for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+            AssertEqual(0, plms.ActiveCount,
+                $"{orientation} blue-door opening reaches its native Delete");
+
+            ushort closingList = orientation switch
+            {
+                ColoredDoorOrientation.Left => BlueDoorPlmProgramDefinitions.ClosingLeft,
+                ColoredDoorOrientation.Right => BlueDoorPlmProgramDefinitions.ClosingRight,
+                ColoredDoorOrientation.Up => BlueDoorPlmProgramDefinitions.ClosingUp,
+                ColoredDoorOrientation.Down => BlueDoorPlmProgramDefinitions.ClosingDown,
+                _ => throw new InvalidDataException("Unknown blue-door orientation."),
+            };
+            ushort closedList = orientation switch
+            {
+                ColoredDoorOrientation.Left => BlueDoorPlmProgramDefinitions.ClosedLeft,
+                ColoredDoorOrientation.Right => BlueDoorPlmProgramDefinitions.ClosedRight,
+                ColoredDoorOrientation.Up => BlueDoorPlmProgramDefinitions.ClosedUp,
+                ColoredDoorOrientation.Down => BlueDoorPlmProgramDefinitions.ClosedDown,
+                _ => throw new InvalidDataException("Unknown blue-door orientation."),
+            };
+            foreach (ushort list in new[] { closingList, closedList })
+            {
+                AssertTrue(plms.TrySpawnBlueDoorOpening(level, origin, behavior,
+                    new SamusProjectileTypeWord(0)),
+                    $"{orientation} allocates actor for list ${list:X4}");
+                plms.SetSoleInstructionPointerForVerification(list);
+                for (int frame = 0; frame < 20 && plms.ActiveCount != 0; frame++)
+                    plms.Step(guarded, level, streamer, 0, 0, 0);
+                AssertEqual(0, plms.ActiveCount,
+                    $"{orientation} list ${list:X4} reaches its native Delete");
+                AssertEqual((int)behavior.Value,
+                    level.GetCollisionBlockByIndex(origin).Behavior,
+                    $"{orientation} list ${list:X4} restores the blue-door BTS");
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                $"{orientation} complete blue-door lists avoid all compiled ROM sources");
         }
 
         AssertThrows<InvalidDataException>(
@@ -112,7 +152,33 @@ internal static partial class Program
         editedFrame.Blocks[0] = originalVisual;
         VerifyBlueDoorVisualInstallation(rom, leftFirstDraw);
 
-        Console.WriteLine("  Blue-door PLM draws: sixteen exact cartridge lists; four native opening paths reject ROM payload reads; editable stock/override presentation preserves collision.");
+        Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, sixteen physical draws, and editable visual blocks pass with source reads forbidden.");
+    }
+
+    private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
+    {
+        for (int address = BlueDoorPlmProgramDefinitions.FirstAddress;
+             address <= BlueDoorPlmProgramDefinitions.LastAddress; address++)
+        {
+            AssertTrue(BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(
+                checked((ushort)address), out byte compiled),
+                $"blue-door program claims byte $84:{address:X4}");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"blue-door program byte $84:{address:X4} matches ROM");
+            if (address == BlueDoorPlmProgramDefinitions.LastAddress)
+                continue;
+            AssertTrue(BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(
+                checked((ushort)address), out ushort compiledWord),
+                $"blue-door program claims word $84:{address:X4}");
+            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8);
+            AssertEqual(native, compiledWord,
+                $"blue-door program word $84:{address:X4} matches ROM");
+        }
+        AssertTrue(!BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(0xc54c, out _),
+            "blue-door program refuses a word crossing into setup machine code");
+        AssertTrue(!BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(0xc54d, out _),
+            "blue-door program does not claim adjacent setup machine code");
     }
 
     private static void VerifyBlueDoorVisualInstallation(
@@ -182,6 +248,12 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address >= 0x84c489 && address <= 0x84c54c)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Production blue-door instruction reread bank-$84 byte ${address:X6}.");
+            }
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             {
                 if (address >= (0x840000 | list.Pointer) &&

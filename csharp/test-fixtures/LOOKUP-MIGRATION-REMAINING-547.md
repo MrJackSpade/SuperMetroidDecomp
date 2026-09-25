@@ -1,5 +1,23 @@
 # Remaining lookup migration inventory (#547)
 
+## Additional room-PLM instruction control (2026-09-24)
+
+Four further retail PLM families now use compiled bank-$84 instruction data:
+Mother Brain's glass ($D202..D2F8), Draygon's reachable left/right cannons
+($DCDE..DD26 and $DDB9..DE01), Bomb Torizo's hand ($D368..D3C6), and all
+four blue-door opening/closing/closed-cap lists ($C489..C54C). Each catalog
+claims only authored instruction bytes, leaving adjacent callback machine
+code and unrelated PLM lists on the explicit cartridge path. Verification
+compares every compiled byte and overlapping word with the pinned ROM, then
+executes each family through the production PLM handler with those source
+ranges forbidden. The blue-door test additionally covers all three lists for
+each orientation and blocks all sixteen physical draw payloads.
+
+Other door, gate, item, statue, eye-door, and room-object instruction programs
+still require the same migration. Their visual art and physical draw layouts
+are separate work from compiled control flow; these families alone do not make
+runtime gameplay ROM-free.
+
 ## N00b-tube PLM instruction control (2026-09-24)
 
 Both reachable n00b-tube instruction branches now execute their 36 control

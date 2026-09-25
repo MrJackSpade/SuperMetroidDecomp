@@ -19,6 +19,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? roomPlmChozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
+    [NonSerialized] private RoomPlmTourianAccessVisualCatalog? roomPlmTourianAccessVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -126,6 +127,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmLinkedRestoreVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmLinkedRestoreVisuals = catalog;
+    }
+
+    /// <summary>Binds Tourian access-floor art at startup and after state restoration.</summary>
+    public void BindRoomPlmTourianAccessVisuals(RoomPlmTourianAccessVisualCatalog? catalog)
+    {
+        roomPlmTourianAccessVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmTourianAccessVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

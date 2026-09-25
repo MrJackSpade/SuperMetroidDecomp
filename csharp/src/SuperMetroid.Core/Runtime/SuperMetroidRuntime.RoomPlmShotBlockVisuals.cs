@@ -109,6 +109,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.LinkedRestoreVisuals = value;
     }
 
+    /// <summary>Visual-only Tourian access-floor resource; reattached after state restoration.</summary>
+    public RoomPlmTourianAccessVisualCatalog? RoomPlmTourianAccessVisuals
+    {
+        get => Plms.TourianAccessVisuals;
+        set => Plms.TourianAccessVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

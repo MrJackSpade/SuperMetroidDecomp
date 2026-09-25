@@ -103,6 +103,7 @@ public static class GameAssetInstaller
             RoomPlmDraygonCannonVisualFiles.ValidateStock(installation.RoomPlmDraygonCannonVisualDirectory);
             RoomPlmChozoStatueVisualFiles.ValidateStock(installation.RoomPlmChozoStatueVisualDirectory);
             RoomPlmLinkedRestoreVisualFiles.ValidateStock(installation.RoomPlmLinkedRestoreVisualDirectory);
+            RoomPlmTourianAccessVisualFiles.ValidateStock(installation.RoomPlmTourianAccessVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -305,6 +306,13 @@ public static class GameAssetInstaller
             RoomPlmLinkedRestoreVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 linkedRestoreVisuals, SupportedCartridge.Sha256);
             RoomPlmLinkedRestoreVisualFiles.ValidateStock(linkedRestoreVisuals);
+            progress?.Report("Extracting Tourian access-floor visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string tourianAccessVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
+            RoomPlmTourianAccessVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                tourianAccessVisuals, SupportedCartridge.Sha256);
+            RoomPlmTourianAccessVisualFiles.ValidateStock(tourianAccessVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

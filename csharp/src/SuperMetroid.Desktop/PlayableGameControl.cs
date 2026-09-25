@@ -276,6 +276,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
         roomPlmLinkedRestoreVisuals = installation?.LoadRoomPlmLinkedRestoreVisuals();
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
+        roomPlmTourianAccessVisuals = installation?.LoadRoomPlmTourianAccessVisuals();
+        game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
         roomPlmCollectibleVisuals = installation?.LoadRoomPlmCollectibleVisuals();
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         roomPlmDynamicCollectibleArt = installation?.LoadRoomPlmDynamicCollectibleArt();
@@ -409,6 +411,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindRoomPlmDraygonCannonVisuals(roomPlmDraygonCannonVisuals);
         game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
+        game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
         game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
         game.BindXrayRevealVisuals(xrayRevealVisuals);

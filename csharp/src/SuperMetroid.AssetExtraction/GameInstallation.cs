@@ -139,6 +139,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmLinkedRestoreVisualCatalog LoadRoomPlmLinkedRestoreVisuals() =>
         RoomPlmLinkedRestoreVisualFiles.Load(RoomPlmLinkedRestoreVisualDirectory,
             RoomPlmLinkedRestoreVisualOverrideDirectory);
+    public string RoomPlmTourianAccessVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
+    public string RoomPlmTourianAccessVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
+    /// <summary>Editable Tourian access-floor art; physical rows and timing stay compiled.</summary>
+    public RoomPlmTourianAccessVisualCatalog LoadRoomPlmTourianAccessVisuals() =>
+        RoomPlmTourianAccessVisualFiles.Load(RoomPlmTourianAccessVisualDirectory,
+            RoomPlmTourianAccessVisualOverrideDirectory);
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
@@ -212,11 +218,12 @@ public static class GameInstallationLayout
     public const string RoomPlmDraygonCannonVisualDirectoryName = "room-plm-draygon-cannons";
     public const string RoomPlmChozoStatueVisualDirectoryName = "room-plm-chozo-statues";
     public const string RoomPlmLinkedRestoreVisualDirectoryName = "room-plm-linked-restores";
+    public const string RoomPlmTourianAccessVisualDirectoryName = "room-plm-tourian-access";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 52;
+    public const int FormatVersion = 53;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

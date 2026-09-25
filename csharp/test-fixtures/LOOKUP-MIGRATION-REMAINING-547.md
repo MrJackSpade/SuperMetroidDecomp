@@ -274,7 +274,11 @@ callback code, not an instruction-list byte range. Verification compares all
 sixteen words, the loop operand, and every draw run with the pinned ROM. Both
 the immediate six-row clear and the full six-row crumble execute with program
 and draw source reads forbidden, asserting every final level word and native
-deletion frame. An editable access-floor visual resource remains pending.
+deletion frame. All five appearances are installed as editable visual words
+in `room-plm-tourian-access/tourian-access.json`, preserving each compiled
+physical word. The multi-run bottom-row edit reaches immediate redraw and
+later streaming; stock hashes, malformed overrides, and stock replacement are
+covered. Other PLM families remain pending.
 
 ## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 

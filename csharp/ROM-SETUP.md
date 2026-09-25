@@ -539,8 +539,12 @@ The hardcoded Maridia elevatube PLM likewise uses compiled cartridge delay,
 draw, sound, and deletion data, leaving its physical tile and sound behavior
 unchanged without reading that bank-$84 source at runtime.
 The Tourian entrance access floor also uses compiled clear/crumble programs
-and physical draw rows. Its six-row removal and original frame timings stay
-engine-owned; this slice does not expose an editable access-floor animation.
+and physical draw rows. Its five appearances are installed as
+`game/room-plm-tourian-access/tourian-access.json`. Copy the file to
+`overrides/room-plm-tourian-access/tourian-access.json` and edit only `blocks`
+visual words (0..4095), retaining all five IDs and each frame's native block
+count. The six-row removal, collision words, and frame timing remain compiled.
+Invalid overrides fail; valid edits survive stock installation repair.
 
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to

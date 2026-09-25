@@ -906,6 +906,11 @@ if (args is ["--tourian-access-plms"])
     VerifyCompiledTourianAccessPlmPrograms();
     return 0;
 }
+if (args is ["--tourian-access-visuals"])
+{
+    VerifyTourianAccessVisuals();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2535,6 +2540,7 @@ VerifySamusBlockCollision();
 VerifySpeedBoosterCollisionBlocks();
 VerifyMaridiaElevatubePlm();
 VerifyCompiledTourianAccessPlmPrograms();
+VerifyTourianAccessVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

@@ -1357,6 +1357,7 @@ public sealed partial class SuperMetroidGame
         runtime.RoomPlmDraygonCannonVisuals = roomPlmDraygonCannonVisuals;
         runtime.RoomPlmChozoStatueVisuals = roomPlmChozoStatueVisuals;
         runtime.RoomPlmLinkedRestoreVisuals = roomPlmLinkedRestoreVisuals;
+        runtime.RoomPlmTourianAccessVisuals = roomPlmTourianAccessVisuals;
         runtime.RoomPlmCollectibleVisuals = roomPlmCollectibleVisuals;
         runtime.RoomPlmDynamicCollectibleArt = roomPlmDynamicCollectibleArt;
         runtime.XrayRevealVisuals = xrayRevealVisuals;

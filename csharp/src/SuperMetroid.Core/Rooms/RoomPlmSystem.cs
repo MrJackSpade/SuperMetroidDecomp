@@ -46,6 +46,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals;
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals;
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals;
+    [NonSerialized] private RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
@@ -152,6 +153,13 @@ public sealed partial class RoomPlmSystem
     {
         get => linkedRestoreVisuals;
         set => linkedRestoreVisuals = value;
+    }
+
+    /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
+    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals
+    {
+        get => tourianAccessVisuals;
+        set => tourianAccessVisuals = value;
     }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
@@ -1802,7 +1810,8 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, accessFloor, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false,
+                tourianAccessVisuals: tourianAccessVisuals);
             return;
         }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryGet(drawPointer, out var bombRestore))
@@ -2005,7 +2014,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals = null,
         RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals = null,
         RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals = null,
-        RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals = null)
+        RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals = null,
+        RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -2038,6 +2048,7 @@ public sealed partial class RoomPlmSystem
                     ?? draygonCannonVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? chozoStatueVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? linkedRestoreVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? tourianAccessVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

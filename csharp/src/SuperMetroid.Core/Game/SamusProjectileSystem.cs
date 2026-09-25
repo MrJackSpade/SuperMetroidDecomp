@@ -128,14 +128,22 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         SnesVram vram,
         SnesCgram cgram,
-        ushort equippedBeams)
+        ushort equippedBeams,
+        Assets.BeamTileCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
 
         int beamType = equippedBeams & 0x0fff;
-        LoadBeamTiles(bus, vram, equippedBeams);
+        LoadBeamTiles(bus, vram, equippedBeams, artwork);
+
+        if (artwork?.Palettes is not null &&
+            beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
+        {
+            artwork.Palettes.LoadTo(cgram, beamType);
+            return;
+        }
 
         ushort palettePointer = ReadWord(
             bus,
@@ -144,11 +152,18 @@ public sealed partial class SamusProjectileSystem
     }
 
     /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
-    public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram, ushort equippedBeams)
+    public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram,
+        ushort equippedBeams, Assets.BeamTileCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         int beamType = equippedBeams & 0x0fff;
+        if (artwork is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
+        {
+            vram.LoadBytes(Assets.BeamTileAtlasDefinitions.DestinationWord * 2,
+                artwork.Resolve(Assets.BeamTileCatalog.AssetFor(beamType)).Span);
+            return;
+        }
         ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
         vram.ExecuteQueuedWrite(bus,
             SamusProjectileRomData.Banks.CharacterData | tilePointer,

@@ -33,6 +33,7 @@ public sealed partial class IntroCinematicState
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     [NonSerialized] private IntroFontAtlas? introFont;
     [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
+    [NonSerialized] private BeamTileCatalog? beamArtwork;
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
     public IntroNarrationPresentation? NarrationPresentation
     {
@@ -49,6 +50,14 @@ public sealed partial class IntroCinematicState
         introFont = value;
         if (value is not null)
             ApplyIntroFont(value.Transfer.Span);
+    }
+    /// <summary>Rebinds the beam DMA left resident under the opening OBJ sheets.</summary>
+    public void BindBeamArtwork(BeamTileCatalog? value)
+    {
+        beamArtwork = value;
+        if (value is not null)
+            SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0,
+                artwork: value);
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
     public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
@@ -95,7 +104,8 @@ public sealed partial class IntroCinematicState
                 value.CinematicObjectCharacters.Transfer.Span);
             // $8B:A3AC uploads beam tiles after the opening OBJ sheets; retain that
             // overlap without reloading the beam palette over a restored scene palette.
-            SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0);
+            SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0,
+                beamArtwork);
         }
         else
             objects?.BindEyeArtwork(null);
@@ -143,13 +153,15 @@ public sealed partial class IntroCinematicState
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
-        IntroCinematicArtworkCatalog? characterArtwork = null)
+        IntroCinematicArtworkCatalog? characterArtwork = null,
+        BeamTileCatalog? beamArtwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
         this.audio = audio;
         this.introFont = introFont;
         this.characterArtwork = characterArtwork;
+        this.beamArtwork = beamArtwork;
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
@@ -217,7 +229,8 @@ public sealed partial class IntroCinematicState
         // $8B:A3AC performs the ordinary beam tile/palette upload before copying the full
         // intro palette. The projectile tile DMA remains resident for both gameplay
         // flashbacks; restore the later intro CGRAM copy after using the shared helper.
-        SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, equippedBeams: 0);
+        SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram,
+            equippedBeams: 0, beamArtwork);
         if (characterArtwork is null) cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
         else characterArtwork.Palette.LoadTo(cgram);
 

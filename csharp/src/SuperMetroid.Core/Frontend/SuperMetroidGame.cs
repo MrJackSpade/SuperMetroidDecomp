@@ -365,7 +365,8 @@ public sealed partial class SuperMetroidGame
                             else
                             {
                                 intro = new IntroCinematicState(
-                                    bus, audio, mapPresentation?.IntroFont, introCinematicArt)
+                                    bus, audio, mapPresentation?.IntroFont, introCinematicArt,
+                                    beamArtwork)
                                 {
                                     ProjectileCompositions = projectileCompositions,
                                     TrailArtwork = trailArtwork,
@@ -395,7 +396,8 @@ public sealed partial class SuperMetroidGame
                     else
                     {
                         intro = new IntroCinematicState(
-                            bus, audio, mapPresentation?.IntroFont, introCinematicArt)
+                            bus, audio, mapPresentation?.IntroFont, introCinematicArt,
+                            beamArtwork)
                         {
                             ProjectileCompositions = projectileCompositions,
                             TrailArtwork = trailArtwork,

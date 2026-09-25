@@ -90,6 +90,16 @@ internal static partial class Program
                 "installed opening palette preserves every native RGB5 word");
 
             var native = new IntroCinematicState(bus);
+            var completeInstalled = new IntroCinematicState(
+                new FrontendCartridgeReadGuard(bus),
+                introFont: installation.LoadMaps().IntroFont,
+                characterArtwork: stock,
+                beamArtwork: installation.LoadProjectiles().BeamTiles);
+            var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Memory;
+            var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Memory;
+            AssertTrue(completeInstalledMemory.Vram.SequenceEqual(completeNativeMemory.Vram) &&
+                completeInstalledMemory.Cgram.SequenceEqual(completeNativeMemory.Cgram),
+                "fully installed opening upload preserves every native VRAM and CGRAM word without a cartridge read");
             var guarded = new IntroArtworkSourceReadGuard(bus);
             var installed = new IntroCinematicState(guarded, characterArtwork: stock);
             byte[] nativeVram = native.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();

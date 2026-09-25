@@ -61,6 +61,7 @@ public sealed partial class SuperMetroidGame
     {
         beamArtwork = catalog;
         if (runtime is not null) runtime.BeamArtwork = catalog;
+        intro?.BindBeamArtwork(catalog);
     }
 
     /// <summary>Attaches current host content to an existing runtime and future game/demo runtimes.</summary>

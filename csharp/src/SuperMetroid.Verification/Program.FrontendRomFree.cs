@@ -23,6 +23,8 @@ internal static partial class Program
         var native = new SuperMetroidGame(nativeBus);
         var installed = new SuperMetroidGame(guardedBus);
         installed.BindMapPresentation(installation.LoadMaps());
+        installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
+        installed.BindBeamArtwork(installation.LoadProjectiles().BeamTiles);
         bool titleStartSent = false;
         bool fileSelectStartSent = false;
         var visited = new HashSet<SuperMetroidGameState>();
@@ -63,11 +65,47 @@ internal static partial class Program
                     visited.Contains(SuperMetroidGameState.FileSelectMenus),
                     "ROM-free startup traverses title, file select and options");
                 Console.WriteLine($"Frontend ROM-free startup: {frame + 1} native-parity frames through options, all cartridge reads guarded.");
+                VerifyFrontendRomFreeIntro(native, installed);
                 return;
             }
         }
         throw new InvalidOperationException(
             "ROM-free startup fixture did not reach the options main menu.");
+    }
+
+    /// <summary>
+    /// Continue the same host instances through the options dispatcher and opening
+    /// narration. This catches a missing installation binding at the real transition.
+    /// </summary>
+    private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
+        SuperMetroidGame installed)
+    {
+        bool startSent = false;
+        int introFrames = 0;
+        for (int frame = 0; frame < 2500; frame++)
+        {
+            FrontendFrame before = installed.CurrentFrameMetadata;
+            ushort input = !startSent ? (ushort)SnesButton.Start : (ushort)0;
+            startSent = true;
+            FrontendFrame expected = native.Step(input);
+            FrontendFrame actual = installed.Step(input);
+            AssertEqual(expected.GameState, actual.GameState,
+                $"installed intro game state at frame {frame}");
+            AssertEqual(expected.Phase, actual.Phase,
+                $"installed intro native phase at frame {frame}");
+            if (frame % 37 == 0 || actual.GameState != before.GameState)
+                AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                    $"installed intro native pixels at frame {frame}, {actual.Phase}");
+            if (actual.GameState != SuperMetroidGameState.IntroCinematic)
+                continue;
+            introFrames++;
+            if (introFrames < 1500)
+                continue;
+            Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity frames, including {introFrames} cinematic frames; all cartridge reads guarded.");
+            return;
+        }
+        throw new InvalidOperationException(
+            "ROM-free frontend fixture did not reach 1500 opening-cinematic frames.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

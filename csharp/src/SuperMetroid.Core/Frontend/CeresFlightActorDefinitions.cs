@@ -25,7 +25,7 @@ internal static class CeresFlightActorDefinitions
     /// The exact bounded rule displays the same authored star sheet for
     /// ten handler calls and repeats while its scene owns the actor.
     /// IntroDiscoverySprite.Step never falls into adjacent list $CDAB.
-    /// Keep one ROM-backed visual asset for both definition aliases.
+    /// Both aliases select the same installed visual frame.
     /// </remarks>
     public static CeresFlightActorDefinition FrontStars => new(
         Pointer: 0xcf0f,
@@ -54,7 +54,7 @@ internal static class CeresFlightActorDefinitions
     /// ten handler calls, then repeat indefinitely while the owning scene
     /// keeps the actor alive. IntroDiscoverySprite.Step follows the goto;
     /// it never falls into the adjacent delete list at $CE53. The frame art
-    /// remains ROM-backed, while this constant-period loop needs no table.
+    /// is installed separately, while this constant-period loop is compiled.
     ///
     /// Issues #625 and #1006: native spawn order at $8B:BE3B..BE5C
     /// selects the five initial X words at $8B:BF23/$BF4D/$BF77/$BFB4/
@@ -113,8 +113,8 @@ internal static class CeresFlightActorDefinitions
     /// spritemap $9150 for ten handler calls, then repeat from $CC47 while
     /// the scene owns the actor. IntroDiscoverySprite.Step follows the
     /// goto, so it cannot run into the adjacent small-asteroid list $CC4F.
-    /// Keep the authored visual frame ROM-backed; no table is needed to
-    /// describe this constant-period loop.
+    /// Keep the authored frame in the installed visual catalog rather than
+    /// mixing it with this constant-period mechanics list.
     ///
     /// Issues #625 and #1012: row two's list at $8B:CC4F..CC56 has four
     /// words $000A, $90FE, $94BC, $CC4F in pinned NTSC J/U v1.0 ROM and
@@ -122,7 +122,7 @@ internal static class CeresFlightActorDefinitions
     /// spritemap $90FE for ten handler calls and jumps back to $CC4F.
     /// IntroDiscoverySprite.Step confines the cursor to that loop in both
     /// Ceres scenes; $CC57 is the neighboring vortex list. The exact period
-    /// needs no table, while the visual spritemap remains ROM-backed.
+    /// remains compiled mechanics, while the visual spritemap is installed.
     ///
     /// Issues #625 and #1013: row three's six-word list at $8B:CC57..CC62
     /// matches pinned NTSC J/U v1.0 ROM and bank_8B.asm: duration one /

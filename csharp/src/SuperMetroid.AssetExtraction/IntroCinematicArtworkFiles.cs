@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 18;
+    private const int FormatVersion = 19;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -463,18 +463,20 @@ public static class IntroCinematicArtworkFiles
             (string mapPath, byte[] map) = ReadSelected(CeresFlightArtworkFormat.MapFileName);
             (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFormat.ObjectFileName);
             (string palettePath, byte[] palette) = ReadSelected(CeresFlightPaletteFormat.FileName);
+            (string spritesPath, byte[] sprites) = ReadSelected(CeresFlightSpriteFormat.FileName);
             try
             {
                 return CeresFlightArtworkCatalog.Load(
                     new MemoryStream(mode7, writable: false),
                     new MemoryStream(map, writable: false),
                     new MemoryStream(objects, writable: false),
-                    new MemoryStream(palette, writable: false));
+                    new MemoryStream(palette, writable: false),
+                    new MemoryStream(sprites, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid Ceres flight artwork ({mode7Path}, {mapPath}, {objectPath}, {palettePath}): {error.Message}", error);
+                    $"Invalid Ceres flight artwork ({mode7Path}, {mapPath}, {objectPath}, {palettePath}, {spritesPath}): {error.Message}", error);
             }
         }
 
@@ -679,6 +681,7 @@ public static class IntroCinematicArtworkFiles
         CeresFlightArtworkFormat.MapFileName,
         CeresFlightArtworkFormat.ObjectFileName,
         CeresFlightPaletteFormat.FileName,
+        CeresFlightSpriteFormat.FileName,
         CeresDestructionArtworkFormat.CeresMapFileName,
         CeresDestructionArtworkFormat.ZebesMapFileName,
         CeresDestructionArtworkFormat.ZebesCharacterFileName,

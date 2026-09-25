@@ -991,12 +991,27 @@ internal static partial class Program
         bool blockIntroRinkas = false,
         bool blockIntroEggEffects = false,
         bool blockIntroDiscoveryActors = false,
-        bool blockIntroScientistSprites = false) : ISnesAddressSpace
+        bool blockIntroScientistSprites = false,
+        bool blockCeresFlightSprites = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
+            if (blockCeresFlightSprites)
+            {
+                foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
+                {
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                    {
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Ceres flight reread installed spritemap ${address:X6}.");
+                    }
+                }
+            }
             if (address is IntroCinematicRomData.Assets.BackgroundCharacters or
                 IntroCinematicRomData.Assets.BackgroundPageTilemaps or
                 IntroCinematicRomData.Assets.SamusHeadTilemap or

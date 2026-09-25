@@ -8,7 +8,14 @@ the same list; the vortex alternates its two one-frame spritemaps. Verification
 compares every instruction byte with the pinned ROM, runs all six actors for
 eighty frames against independent ROM-backed interpreters, then completes the
 production approach with those source ranges unreadable. Visual bank-$8C
-spritemap compositions remain separate presentation work for #543.
+spritemap compositions are separate presentation data for #543: all six are
+now installed as editable `ceres-flight-sprites.json`. The extractor checks
+each native OAM entry count and stock round-trip. Production approach rendering
+matches all six original frames (including negative-origin clipping) without
+reading the bank-$8C spritemaps; a one-part offset edit changes live OAM and
+visible pixels, restored scenes rebind it, malformed resources fail, and stock
+repair preserves the override. The Ceres destruction scene's other visual
+actors remain separate migration work.
 
 ## Title-card timing and sprite selectors (2026-09-25)
 

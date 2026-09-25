@@ -31,6 +31,7 @@ internal sealed class IntroCeresFlightState
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private byte[] tilemap;
+    [NonSerialized] private CeresFlightSpritePresentation? spriteArtwork;
     private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
@@ -55,6 +56,7 @@ internal sealed class IntroCeresFlightState
     public IntroCeresFlightState(ISnesAddressSpace bus, CeresFlightArtworkCatalog? artwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        spriteArtwork = artwork?.Sprites;
 
         byte[] characters = artwork?.Mode7Characters.ToArray() ?? RomDataReader.Decompress(bus,
             CeresFlightRomData.Assets.Mode7Characters,
@@ -91,6 +93,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtworkCatalog? artwork)
     {
+        spriteArtwork = artwork?.Sprites;
         if (artwork is null) return;
         tilemap = artwork.Mode7Maps.ToArray();
         vram.LoadMode7CharacterBytes(artwork.Mode7Characters.Span);
@@ -247,8 +250,9 @@ internal sealed class IntroCeresFlightState
         var oam = new OamBuffer();
         oam.BeginFrame();
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
-            foreach (IntroDiscoverySprite actor in rearViewActors) actor.Draw(bus, oam);
-        else stars.Draw(bus, oam);
+            foreach (IntroDiscoverySprite actor in rearViewActors)
+                actor.Draw(bus, oam, installedArt: spriteArtwork);
+        else stars.Draw(bus, oam, installedArt: spriteArtwork);
         oam.FinalizeFrame();
         return oam;
     }

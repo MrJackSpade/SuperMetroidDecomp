@@ -31,7 +31,7 @@ internal static partial class Program
                 CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount)),
             "installed Ceres palette preserves all 256 native colors");
 
-        var guard = new IntroArtworkSourceReadGuard(bus);
+        var guard = new IntroArtworkSourceReadGuard(bus, blockCeresFlightSprites: true);
         var native = new IntroCeresFlightState(bus);
         var installed = new IntroCeresFlightState(guard, stock);
         var phases = new HashSet<IntroCeresFlightPhase>();
@@ -59,7 +59,9 @@ internal static partial class Program
                 phases.Contains(IntroCeresFlightPhase.SpaceColonyTitle),
             "stock Ceres PNG/JSON art preserves front, rear and SPACE COLONY phases");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed flight never reads its cartridge art or palette sources");
+            "installed flight never reads its cartridge art, palette, or spritemap sources");
+
+        VerifyCeresFlightSpriteArtwork(installation, bus, stock, guard);
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string[] names =
@@ -127,7 +129,7 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Ceres artwork and debugger rebind never read cartridge art sources");
         VerifyCeresVisibleOverrides(installation, bus);
-        VerifyCeresFlightPaletteOverride(installation, guard, stock);
+        VerifyCeresFlightPaletteOverride(installation, new IntroArtworkSourceReadGuard(bus), stock);
 
         string invalidMap = Path.Combine(installation.IntroCinematicOverrideDirectory,
             CeresFlightArtworkFormat.MapFileName);

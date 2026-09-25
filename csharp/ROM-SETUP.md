@@ -147,7 +147,10 @@ explosion timing, and the page-two handoff remain compiled behavior.
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and
 `ceres-flight-mode7-maps.json` (32x24 front and rear views), plus
-`ceres-flight-palette.json` (all 256 native-precision RGB5 colors). Override these under
+`ceres-flight-palette.json` (all 256 native-precision RGB5 colors) and
+`ceres-flight-sprites.json` (the six star, asteroid, station, and vortex OAM frames).
+The sprite JSON exposes offsets, tile references, priority, flips, and optional
+palette overrides; it does not change actor paths or frame timing. Override these under
 the same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
 sheet and palette; the game's camera, scale, rotation, actor movement and letter timing
 remain code. Palette edits also rebind after loading a debugger state.

@@ -71,11 +71,23 @@ internal static class CeresFlightArtworkExtractor
             Colors = colors,
         });
         byte[] paletteFile = paletteJson.ToArray();
+        var spriteFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (CeresFlightSpriteFrameDefinition definition in CeresFlightSpriteDefinitions.Frames)
+            spriteFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+        using var spritesJson = new MemoryStream();
+        CeresFlightSpritePresentation.Write(spritesJson, new CeresFlightSpriteDocument
+        {
+            Version = CeresFlightSpriteFormat.Version,
+            Frames = spriteFrames,
+        });
+        byte[] spritesFile = spritesJson.ToArray();
         CeresFlightArtworkCatalog roundTrip = CeresFlightArtworkCatalog.Load(
             new MemoryStream(mode7Png, writable: false),
             new MemoryStream(mapFile, writable: false),
             new MemoryStream(objectPng, writable: false),
-            new MemoryStream(paletteFile, writable: false));
+            new MemoryStream(paletteFile, writable: false),
+            new MemoryStream(spritesFile, writable: false));
         if (!roundTrip.Mode7Characters.Span.SequenceEqual(characters) ||
             !roundTrip.Mode7Maps.Span.SequenceEqual(map) ||
             !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters) ||
@@ -87,6 +99,7 @@ internal static class CeresFlightArtworkExtractor
             [CeresFlightArtworkFormat.MapFileName] = mapFile,
             [CeresFlightArtworkFormat.ObjectFileName] = objectPng,
             [CeresFlightPaletteFormat.FileName] = paletteFile,
+            [CeresFlightSpriteFormat.FileName] = spritesFile,
         };
 
         byte[] Read(int address, int expected, string name)

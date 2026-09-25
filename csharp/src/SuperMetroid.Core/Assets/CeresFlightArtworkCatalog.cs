@@ -3,18 +3,21 @@ using System.Text.Json;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Editable character pixels and paired Mode-7 maps for the approach to Ceres.
+/// Editable character pixels, paired Mode-7 maps, and actor compositions for
+/// the approach to Ceres.
 /// Flight motion, DMA order and the SPACE COLONY letter script remain compiled logic.
 /// </summary>
 public sealed class CeresFlightArtworkCatalog
 {
     private CeresFlightArtworkCatalog(byte[] mode7Characters, byte[] mode7Maps,
-        byte[] objectCharacters, CeresFlightPalette palette)
+        byte[] objectCharacters, CeresFlightPalette palette,
+        CeresFlightSpritePresentation sprites)
     {
         Mode7Characters = mode7Characters;
         Mode7Maps = mode7Maps;
         ObjectCharacters = objectCharacters;
         Palette = palette;
+        Sprites = sprites;
     }
 
     public ReadOnlyMemory<byte> Mode7Characters { get; }
@@ -22,14 +25,16 @@ public sealed class CeresFlightArtworkCatalog
     public ReadOnlyMemory<byte> Mode7Maps { get; }
     public ReadOnlyMemory<byte> ObjectCharacters { get; }
     public CeresFlightPalette Palette { get; }
+    public CeresFlightSpritePresentation Sprites { get; }
 
     public static CeresFlightArtworkCatalog Load(Stream mode7Png, Stream mapJson,
-        Stream objectPng, Stream paletteJson)
+        Stream objectPng, Stream paletteJson, Stream spritesJson)
     {
         ArgumentNullException.ThrowIfNull(mode7Png);
         ArgumentNullException.ThrowIfNull(mapJson);
         ArgumentNullException.ThrowIfNull(objectPng);
         ArgumentNullException.ThrowIfNull(paletteJson);
+        ArgumentNullException.ThrowIfNull(spritesJson);
         IndexedPngImage mode7 = IndexedPng.Read(mode7Png,
             CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height);
         IndexedPngImage objects = IndexedPng.Read(objectPng,
@@ -52,7 +57,8 @@ public sealed class CeresFlightArtworkCatalog
             objectCharacters.Length != CeresFlightArtworkFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
         return new CeresFlightArtworkCatalog(characters, map, objectCharacters,
-            CeresFlightPalette.Load(paletteJson));
+            CeresFlightPalette.Load(paletteJson),
+            CeresFlightSpritePresentation.Load(spritesJson));
     }
 
     public static void WriteMap(Stream json, CeresFlightMapDocument document)

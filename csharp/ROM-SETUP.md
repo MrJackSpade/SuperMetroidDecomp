@@ -193,12 +193,15 @@ sheet also supplies the two suited reward variants. The waiting scene's ordered
 BG2 tile references are `credits-waiting-tilemap.json` in the same directory.
 `ending-cloud-sprites.json` contains the six editable atmospheric-cloud OAM
 compositions, including part offsets, tile references, flips, priority, and
-optional palette overrides. Cloud motion and one-frame animation loops remain code.
+optional palette overrides. `ending-explosion-sprites.json` contains the sixteen
+editable planet-damage, flash, lava, glow, starfield, silhouette, and afterglow
+OAM compositions. Their actor instruction lists, movement, and scene callbacks
+remain compiled game logic rather than artwork overrides.
 Two small cartridge tile uploads, `post-credits-tile-fragment-a.png` and
 `post-credits-tile-fragment-b.png`, are also installed as indexed PNGs. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2
 references in `post-credits-logo-map.json`; its six upload positions and timing
-are fixed game logic. Copy any indexed PNG or either JSON file to
+are fixed game logic. Copy any indexed PNG or JSON file to
 `overrides/ending-objects/` with the
 same filename to replace it without changing scene mechanics.
 The planet-explosion upload still overlays the four fragments after its main sheet,

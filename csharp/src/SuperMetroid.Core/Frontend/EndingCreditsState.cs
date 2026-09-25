@@ -825,7 +825,11 @@ internal sealed partial class EndingCreditsState
             if (wrapper is null) continue;
             StepEndingSpritePreInstruction(wrapper);
             wrapper.Sprite.Step(bus, (opcode, cursor) =>
-                HandleSpriteOpcode(wrapper, opcode, cursor));
+                HandleSpriteOpcode(wrapper, opcode, cursor),
+                instructionWord: objectArtwork is not null &&
+                    wrapper.Role is >= EndingSpriteRole.ExplodingZebes and
+                        <= EndingSpriteRole.ExplosionAfterglow
+                    ? EndingExplosionInstructionDefinitions.ReadWord : null);
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }

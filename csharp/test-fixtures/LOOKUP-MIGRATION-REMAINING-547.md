@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Zebes explosion actor lists and sprite maps (2026-09-25)
+
+The eight bank-$8B actor lists at `$EB0F..EB90` are a bounded, compiled
+65-word program. Every word and each actor's 500-frame cursor, chosen visual
+frame, pre-instruction, timer, and lifetime match the pinned cartridge. Their
+sixteen distinct bank-$8C OAM compositions are installed separately as
+`ending-explosion-sprites.json`. Stock OAM matches at normal and negative
+origins. The full installed ending reaches planet flyaway with both the actor
+list and sprite-map source ranges unreadable, preserving native scene pixels.
+An edited starfield changes live OAM and pixels; missing named art fails loudly.
+Other ending actor families remain in the migration inventory.
+
 ## Atmospheric ending cloud actor lists (2026-09-25)
 
 The six eight-byte bank-$8B cloud loops at `$ECED..ED1C` are compiled as a

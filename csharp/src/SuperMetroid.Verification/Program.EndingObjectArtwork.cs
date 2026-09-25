@@ -113,6 +113,7 @@ internal static partial class Program
                     $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM");
             }
         }
+        VerifyEndingExplosionActorArtwork(installation, bus, stock);
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -151,7 +152,9 @@ internal static partial class Program
                 phases.Contains(EndingCreditsPhase.FadeInZebesExplosion),
             "ending clouds and explosion assets were loaded in their actual scenes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed ending OBJ scenes never reread cloud instructions, sprite maps or character sources");
+            "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
+
+        VerifyEndingExplosionVisualOverride(installation, stock, guard);
 
         string cloudSpriteName = EndingCloudSpriteFormat.FileName;
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
@@ -340,7 +343,7 @@ internal static partial class Program
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending/credits art: six compiled cloud loops, six editable cloud OAM frames, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: compiled cloud and explosion actors, editable cloud/explosion OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -366,6 +369,15 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Ending cloud reread compiled instruction ${address:X6}.");
             }
+            if (address >= (int)new SnesAddress(0x8b,
+                    EndingExplosionInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b,
+                    EndingExplosionInstructionDefinitions.End))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Ending explosion reread compiled instruction ${address:X6}.");
+            }
             foreach (EndingCloudSpriteFrameDefinition frame in EndingCloudSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
@@ -375,6 +387,17 @@ internal static partial class Program
                     ForbiddenReadAttempts++;
                     throw new InvalidOperationException(
                         $"Ending cloud reread installed spritemap ${address:X6}.");
+                }
+            }
+            foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
+            {
+                int start = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Ending explosion reread installed spritemap ${address:X6}.");
                 }
             }
             if (address is EndingCreditsRomData.Assets.EscapeCloudCharacters or

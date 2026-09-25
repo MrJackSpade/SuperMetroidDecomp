@@ -24,7 +24,8 @@ public sealed class EndingObjectArtworkCatalog
         RoomCharacterAtlas suitlessSamus, RoomBackgroundTilemapAtlas waitingTilemap,
         RoomCharacterAtlas postCreditsFragmentA, RoomCharacterAtlas postCreditsFragmentB,
         RoomCharacterAtlas postShotLogoTiles, RoomBackgroundTilemapAtlas postShotLogoMap,
-        EndingCloudSpritePresentation cloudSprites)
+        EndingCloudSpritePresentation cloudSprites,
+        EndingExplosionSpritePresentation explosionSprites)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
@@ -37,6 +38,7 @@ public sealed class EndingObjectArtworkCatalog
         PostShotLogoTiles = postShotLogoTiles ?? throw new ArgumentNullException(nameof(postShotLogoTiles));
         PostShotLogoMap = postShotLogoMap ?? throw new ArgumentNullException(nameof(postShotLogoMap));
         CloudSprites = cloudSprites ?? throw new ArgumentNullException(nameof(cloudSprites));
+        ExplosionSprites = explosionSprites ?? throw new ArgumentNullException(nameof(explosionSprites));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
@@ -58,6 +60,8 @@ public sealed class EndingObjectArtworkCatalog
     public RoomCharacterAtlas Clouds { get; }
     /// <summary>Six editable atmospheric-cloud OAM compositions.</summary>
     public EndingCloudSpritePresentation CloudSprites { get; }
+    /// <summary>Sixteen editable Zebes-explosion OAM compositions.</summary>
+    public EndingExplosionSpritePresentation ExplosionSprites { get; }
     public RoomCharacterAtlas Explosion { get; }
     /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
     public RoomCharacterAtlas WaitingSamus { get; }
@@ -84,7 +88,7 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 6;
+    public const int ManifestVersion = 7;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";

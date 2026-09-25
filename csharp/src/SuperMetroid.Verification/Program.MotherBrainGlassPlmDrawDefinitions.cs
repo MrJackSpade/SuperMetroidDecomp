@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        VerifyMotherBrainGlassPlmProgram(rom);
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -91,10 +92,12 @@ internal static partial class Program
             unchecked((byte)(RoomPlmHeaders.MotherBrainGlass >> 8)),
             originX, originY, 0x00, 0x80, 0x00, 0x00,
         ]);
-        // Keep the native glass program's control path and replace only its first
-        // presentation operand, so every compiled layout is exercised by the real
-        // PLM interpreter at the cartridge-authored draw call site.
-        WriteWord(bus, 0x84d213, selected.Pointer);
+        // The production control list is compiled and immutable. Redirect the
+        // loaded glass slot to an isolated one-frame draw probe instead of
+        // mutating a cartridge operand that execution no longer reads.
+        const ushort probeList = 0xf100;
+        WriteWord(bus, 0x840000 | probeList, 1);
+        WriteWord(bus, 0x840000 | (probeList + 2), selected.Pointer);
         var guarded = new MotherBrainGlassDrawReadGuard(bus, lists);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x57 * 8] = 0x57;
@@ -112,6 +115,7 @@ internal static partial class Program
             $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
             $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
+        plms.SetSoleInstructionPointerForVerification(probeList);
         plms.Step(guarded, level, streamer, 0, 0, 0);
 
         int entryX = originX;

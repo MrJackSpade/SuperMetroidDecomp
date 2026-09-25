@@ -144,32 +144,32 @@ public sealed partial class RoomPlmSystem
         switch (instruction)
         {
             case RoomPlmInstructionCodes.InstallPreInstruction:
-                slot.PreInstruction = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                slot.PreInstruction = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
             case RoomPlmInstructionCodes.GotoIfAreaBossBitSet:
                 BossBits bossMask = BossBitMasks.FromCartridge(
-                    bus.ReadByte(Bank84(unchecked((ushort)(cursor + 2)))),
+                    ReadProgramByte(bus, unchecked((ushort)(cursor + 2))),
                     "Mother Brain glass area-boss branch");
-                ushort bossTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 3)));
+                ushort bossTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 3)));
                 slot.InstructionPointer = _motherBrainHasAreaBossBit?.Invoke(bossMask) == true
                     ? bossTarget
                     : unchecked((ushort)(cursor + 5));
                 return true;
 
             case RoomPlmInstructionCodes.GotoIfEventSet:
-                ushort eventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber namedEvent = ResolveMotherBrainGlassEvent(eventNumber);
-                ushort eventTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
+                ushort eventTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
                 slot.InstructionPointer = _hasEvent?.Invoke(namedEvent) == true
                     ? eventTarget
                     : unchecked((ushort)(cursor + 6));
                 return true;
 
             case RoomPlmInstructionCodes.GotoIfRoomArgumentLess:
-                ushort threshold = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
-                ushort retryTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
+                ushort threshold = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
+                ushort retryTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
                 slot.InstructionPointer = slot.RoomArgument < threshold
                     ? retryTarget
                     : unchecked((ushort)(cursor + 6));
@@ -181,7 +181,7 @@ public sealed partial class RoomPlmSystem
                 byte blockY = checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth));
                 for (int shard = 0; shard < 4; shard++)
                 {
-                    ushort parameter = ReadBank84Word(
+                    ushort parameter = ReadProgramWord(
                         bus,
                         unchecked((ushort)(cursor + 2 + shard * 2)));
                     _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
@@ -194,7 +194,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstructionCodes.SetEvent:
-                ushort setEventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                ushort setEventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber eventToSet = ResolveMotherBrainGlassEvent(setEventNumber);
                 (_setEvent ?? throw new InvalidOperationException(
                     "Mother Brain glass has no event writer."))(eventToSet);

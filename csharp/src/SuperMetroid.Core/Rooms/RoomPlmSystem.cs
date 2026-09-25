@@ -2019,6 +2019,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : NoobTubePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
@@ -2033,6 +2035,8 @@ public sealed partial class RoomPlmSystem
             : DownwardGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : NoobTubePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : bus.ReadByte(Bank84(address));
 

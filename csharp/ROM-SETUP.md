@@ -499,6 +499,16 @@ order. This does not alter cannon collision, projectile thresholds, or boss
 control-word writes. The unused diagonal orientations are not part of this
 resource. Invalid overrides fail; valid ones survive stock repair.
 
+Linked bomb-block and Samus-contact crumble-block restoration appearances
+are installed as `game/room-plm-linked-restores/linked-restores.json`.
+Copy it to `overrides/room-plm-linked-restores/linked-restores.json`, edit
+only `blocks` visual words (0..4095), then restart. Keep the six IDs:
+`bomb-horizontal`, `bomb-vertical`, `bomb-square`, `crumble-horizontal`,
+`crumble-vertical`, and `crumble-square`, with their existing two- or
+four-block counts. These choices change restored appearance, not the
+linked parent/child collision, respawn timer, or contact/bomb trigger.
+Malformed overrides fail; valid edits survive stock installation repair.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

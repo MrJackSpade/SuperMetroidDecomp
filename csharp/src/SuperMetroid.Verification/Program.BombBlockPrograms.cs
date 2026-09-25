@@ -125,6 +125,8 @@ internal static partial class Program
         }
 
         VerifyBombBlockVisualSeparation(rom, forbidden);
+        VerifyLinkedRestoreVisualInstallation(rom);
+        VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: true);
 
         Console.WriteLine($"Bomb-block PLMs: {wordCount} control words, {byteCount} sounds, {restoreCount} restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }

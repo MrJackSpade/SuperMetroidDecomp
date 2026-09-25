@@ -101,6 +101,7 @@ public static class GameAssetInstaller
             RoomPlmEscapeGateVisualFiles.ValidateStock(installation.RoomPlmEscapeGateVisualDirectory);
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(installation.RoomPlmBombTorizoHandVisualDirectory);
             RoomPlmDraygonCannonVisualFiles.ValidateStock(installation.RoomPlmDraygonCannonVisualDirectory);
+            RoomPlmLinkedRestoreVisualFiles.ValidateStock(installation.RoomPlmLinkedRestoreVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
@@ -288,6 +289,13 @@ public static class GameAssetInstaller
             RoomPlmDraygonCannonVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 draygonCannonVisuals, SupportedCartridge.Sha256);
             RoomPlmDraygonCannonVisualFiles.ValidateStock(draygonCannonVisuals);
+            progress?.Report("Extracting linked-block restoration visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string linkedRestoreVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName);
+            RoomPlmLinkedRestoreVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                linkedRestoreVisuals, SupportedCartridge.Sha256);
+            RoomPlmLinkedRestoreVisualFiles.ValidateStock(linkedRestoreVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

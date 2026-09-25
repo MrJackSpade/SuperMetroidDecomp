@@ -47,6 +47,15 @@ and left shield edits reach immediate or later-streamed tiles without changing
 collision. Both four-frame damaged loops execute with the source payloads
 unreadable. Unused diagonal cannon orientations remain outside this catalog.
 
+The six previously compiled linked bomb/contact-crumble restoration layouts
+now expose visual block choices in
+`room-plm-linked-restores/linked-restores.json`. The shared file codec
+checks native direction/count, full words, and signed offsets, validates
+stock and overrides, and preserves overrides on repair. Real bomb and
+Samus-contact respawn fixtures with program/draw source reads forbidden
+show edited restoration tiles immediately and after scrolling while the
+parent collision words remain unchanged.
+
 The mirrored three-component eye doors now use the contiguous $D81E..DA8B
 compiled instruction region (622 bytes). Both directions complete the real
 near-Samus activation, Super Missile opening, passive-component deletion,

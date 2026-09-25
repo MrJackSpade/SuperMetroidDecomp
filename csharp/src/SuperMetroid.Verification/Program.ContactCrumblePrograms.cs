@@ -123,6 +123,7 @@ internal static partial class Program
         }
 
         VerifyContactCrumbleVisualSeparation(rom, forbidden);
+        VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: false);
 
         Console.WriteLine($"Contact-crumble PLMs: {wordCount} control words, {byteCount} sound bytes, and {restoreCount} restoration lists match ROM; all eight programs run with source reads forbidden.");
     }

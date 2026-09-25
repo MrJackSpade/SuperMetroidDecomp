@@ -95,6 +95,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.DraygonCannonVisuals = value;
     }
 
+    /// <summary>Visual-only linked restoration resource; reattached after state restoration.</summary>
+    public RoomPlmLinkedRestoreVisualCatalog? RoomPlmLinkedRestoreVisuals
+    {
+        get => Plms.LinkedRestoreVisuals;
+        set => Plms.LinkedRestoreVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

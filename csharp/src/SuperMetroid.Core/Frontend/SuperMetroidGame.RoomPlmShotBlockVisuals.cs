@@ -17,6 +17,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? roomPlmBombTorizoHandVisuals;
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;
+    [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
 
     /// <summary>Binds installed shot-block visuals at startup and after state restoration.</summary>
@@ -109,6 +110,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmDraygonCannonVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmDraygonCannonVisuals = catalog;
+    }
+
+    /// <summary>Binds linked bomb/contact restore art at startup and after state restoration.</summary>
+    public void BindRoomPlmLinkedRestoreVisuals(RoomPlmLinkedRestoreVisualCatalog? catalog)
+    {
+        roomPlmLinkedRestoreVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmLinkedRestoreVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

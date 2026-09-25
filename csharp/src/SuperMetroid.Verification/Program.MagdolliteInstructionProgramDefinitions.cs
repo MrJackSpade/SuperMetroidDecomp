@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -54,27 +55,28 @@ internal static partial class Program
             MagdollitePart.TrackingOverlay,
             "pillar cap");
 
-        AssertEqual(MagdolliteInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Magdollite spritemap words remain cartridge reads");
         for (int index = 0;
              index < MagdolliteInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 MagdolliteInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Magdollite presentation $A8:{address:X4}");
+            AssertEqual(ReadMagdolliteInstructionWord(rom, 0xa80000 | address),
+                EnemySpritemapDefinitions.MagdolliteFrameAt(address),
+                $"compiled Magdollite presentation $A8:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled Magdollite mechanics bytes");
+            "production execution avoids compiled Magdollite mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(0xac9e),
             "Magdollite spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(0xae12),
             "adjacent Magdollite callback code is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.MagdolliteFrameAt(0xae12),
+            "adjacent Magdollite callback code is rejected as presentation");
 
         _ = ProbeMagdolliteInstructionMechanicsAllocation();
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -87,8 +89,8 @@ internal static partial class Program
             $"Magdollite instruction mechanics: " +
             $"{MagdolliteInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
             "seventeen complete head/pillar/hand programs, six real lava spawns, and " +
-            $"{MagdolliteInstructionProgramDefinitions.PresentationWordCount} live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            $"{MagdolliteInstructionProgramDefinitions.PresentationWordCount} compiled " +
+            "visual selections pass with both source classes forbidden.");
 
         void VerifyIdle(ushort program, string direction)
         {
@@ -218,38 +220,26 @@ internal static partial class Program
     private sealed class MagdolliteInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (MagdolliteInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MagdolliteInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Magdollite mechanics ${address:X6}.");
+                    $"Production read compiled Magdollite instruction byte ${address:X6}.");
             }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MagdolliteInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        MagdolliteInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
             return source.ReadByte(address);
         }
+
+        private static bool IsPresentationByte(int address) =>
+            (address & 0xff0000) == 0xa80000 &&
+            (MagdolliteInstructionProgramDefinitions.IsPresentationWord(
+                unchecked((ushort)address)) ||
+             MagdolliteInstructionProgramDefinitions.IsPresentationWord(
+                unchecked((ushort)(address - 1))));
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

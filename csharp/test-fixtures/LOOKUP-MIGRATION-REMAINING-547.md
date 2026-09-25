@@ -324,6 +324,17 @@ physical word. The multi-run bottom-row edit reaches immediate redraw and
 later streaming; stock hashes, malformed overrides, and stock replacement are
 covered. Other PLM families remain pending.
 
+## Magdollite visuals (2026-09-25)
+
+Magdollite's 53 bank-$A8 head, throwing-hand, and pillar visual operands now
+resolve from the compiled enemy-selector table. Their 29 distinct ordinary OAM
+compositions are installed in `enemy-compositions.json`. All seventeen native
+head/pillar/hand programs run with both mechanics and selector source bytes
+forbidden; the six actual lava spawns, wait flags, and slave visibility retain
+their compiled behavior. Every stock frame matches cartridge OAM at three
+origins, an edited head frame visibly moves, and version-twelve overrides keep
+their edits while gaining stock Magdollite frames. Other families remain.
+
 ## Fireflea visuals (2026-09-25)
 
 Fireflea's 52 interleaved bank-$A3 visual selectors now use the compiled

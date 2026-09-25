@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 12;
+    internal const int Version = 13;
+    internal const int PreMagdolliteVersion = 12;
+    internal const int PreMagdolliteFrameCount = 215;
     internal const int PreFirefleaVersion = 11;
     internal const int PreFirefleaFrameCount = 194;
     internal const int PreRipperVersion = 10;
@@ -40,6 +42,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte OwtchStokeBank = 0xa2;
     internal const byte RipperBank = 0xa2;
     internal const byte FirefleaBank = 0xa3;
+    internal const byte MagdolliteBank = 0xa8;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -263,6 +266,35 @@ internal static class EnemySpritemapDefinitions
         new(FirefleaBank, 0x8fd7, "fireflea_cycle_18"),
         new(FirefleaBank, 0x8fe8, "fireflea_cycle_19"),
         new(FirefleaBank, 0x8ff9, "fireflea_cycle_20"),
+        new(MagdolliteBank, 0xb448, "magdollite_left_idle_0"),
+        new(MagdolliteBank, 0xb459, "magdollite_left_idle_1"),
+        new(MagdolliteBank, 0xb46a, "magdollite_left_idle_2"),
+        new(MagdolliteBank, 0xb47b, "magdollite_left_throw_0"),
+        new(MagdolliteBank, 0xb48c, "magdollite_left_throw_1"),
+        new(MagdolliteBank, 0xb49d, "magdollite_left_throw_2"),
+        new(MagdolliteBank, 0xb4a9, "magdollite_left_throw_3"),
+        new(MagdolliteBank, 0xb4b5, "magdollite_pillar_cap"),
+        new(MagdolliteBank, 0xb4c1, "magdollite_left_submerge_0"),
+        new(MagdolliteBank, 0xb4cf, "magdollite_left_submerge_1"),
+        new(MagdolliteBank, 0xb4e0, "magdollite_left_submerge_2"),
+        new(MagdolliteBank, 0xb4f1, "magdollite_right_idle_0"),
+        new(MagdolliteBank, 0xb502, "magdollite_right_idle_1"),
+        new(MagdolliteBank, 0xb513, "magdollite_right_idle_2"),
+        new(MagdolliteBank, 0xb524, "magdollite_right_throw_0"),
+        new(MagdolliteBank, 0xb535, "magdollite_right_throw_1"),
+        new(MagdolliteBank, 0xb546, "magdollite_right_throw_2"),
+        new(MagdolliteBank, 0xb552, "magdollite_right_throw_3"),
+        new(MagdolliteBank, 0xb56a, "magdollite_right_submerge_0"),
+        new(MagdolliteBank, 0xb578, "magdollite_right_submerge_1"),
+        new(MagdolliteBank, 0xb589, "magdollite_right_submerge_2"),
+        new(MagdolliteBank, 0xb59a, "magdollite_pillar_phase_0"),
+        new(MagdolliteBank, 0xb5a1, "magdollite_pillar_phase_1"),
+        new(MagdolliteBank, 0xb5ad, "magdollite_pillar_phase_2"),
+        new(MagdolliteBank, 0xb5be, "magdollite_pillar_phase_3"),
+        new(MagdolliteBank, 0xb5d4, "magdollite_pillar_phase_4"),
+        new(MagdolliteBank, 0xb5ef, "magdollite_pillar_phase_5"),
+        new(MagdolliteBank, 0xb60f, "magdollite_pillar_phase_6"),
+        new(MagdolliteBank, 0xb634, "magdollite_pillar_phase_7"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -285,6 +317,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
+            RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
             RoomEnemySystem.BoulderDefinition => BoulderFrameAt(operandAddress),
             RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
             RoomEnemySystem.SkulteraDefinition => SkulteraFrameAt(operandAddress),
@@ -310,6 +343,7 @@ internal static class EnemySpritemapDefinitions
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
+            RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
             RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition or
             RoomEnemySystem.WaverDefinition or RoomEnemySystem.ZoaDefinition or
@@ -459,6 +493,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Fireflea visual operand $A3:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Magdollite's 53 head, throwing-hand, and pillar selectors at $A8:AC9E..AE0E.
+    /// Their attack callbacks, timing, and physical movement remain engine-owned.
+    /// </summary>
+    internal static ushort MagdolliteFrameAt(ushort operandAddress)
+    {
+        if (MagdolliteInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(MagdolliteBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Magdollite visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

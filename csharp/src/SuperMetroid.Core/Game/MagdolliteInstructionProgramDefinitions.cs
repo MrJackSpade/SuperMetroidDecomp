@@ -6,7 +6,7 @@ internal readonly record struct MagdolliteInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Magdollite's head, pillar, and hand programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap selectors are compiled separately from editable OAM frames.
 /// </summary>
 internal static class MagdolliteInstructionProgramDefinitions
 {
@@ -185,6 +185,10 @@ internal static class MagdolliteInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static MagdolliteInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>Whether an address is one of the 53 authored visual operands.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

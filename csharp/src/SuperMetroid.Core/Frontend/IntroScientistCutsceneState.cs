@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -89,7 +90,9 @@ internal sealed class IntroScientistCutsceneState
         baby.Step(bus, HandleInstruction, instructionWord);
     }
 
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam) => baby.Draw(bus, oam);
+    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+        IntroScientistSpritePresentation? installedArt = null) =>
+        baby.Draw(bus, oam, installedArt: installedArt);
 
     private ushort? HandleInstruction(ushort opcode, ushort argumentPointer)
     {

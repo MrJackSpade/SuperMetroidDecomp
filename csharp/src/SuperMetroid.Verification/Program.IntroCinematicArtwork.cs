@@ -81,6 +81,7 @@ internal static partial class Program
             VerifyIntroRinkaSpriteArtwork(bus, stock, installation);
             VerifyIntroEggEffectSpriteArtwork(bus, stock, installation);
             VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation);
+            VerifyIntroScientistSpriteArtwork(bus, stock, installation);
             VerifyIntroMotherBrainDemoInput(bus, stock);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
@@ -558,7 +559,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery-actor compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -989,7 +990,8 @@ internal static partial class Program
         bool blockIntroMotherBrainExplosions = false,
         bool blockIntroRinkas = false,
         bool blockIntroEggEffects = false,
-        bool blockIntroDiscoveryActors = false) : ISnesAddressSpace
+        bool blockIntroDiscoveryActors = false,
+        bool blockIntroScientistSprites = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -1141,6 +1143,19 @@ internal static partial class Program
                     throw new InvalidOperationException(
                         $"Cinematic reread intro discovery actor sprite ${address:X6}.");
                 }
+            }
+            int scientistSpriteStart = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroScientistSpriteDefinitions.Start);
+            int scientistSpriteEnd = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroScientistSpriteDefinitions.End);
+            if (blockIntroScientistSprites &&
+                address >= scientistSpriteStart && address < scientistSpriteEnd)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread intro scientist sprite ${address:X6}.");
             }
             int motherBrainDemoListStart = DemoInputRomData.BankBase |
                 IntroMotherBrainInputDefinitions.ListStart;

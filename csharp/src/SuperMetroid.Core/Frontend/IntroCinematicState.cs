@@ -1258,7 +1258,7 @@ public sealed partial class IntroCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        scientistCutscene!.Draw(bus, oam);
+        scientistCutscene!.Draw(bus, oam, characterArtwork?.ScientistSprites);
         oam.FinalizeFrame();
         return oam;
     }

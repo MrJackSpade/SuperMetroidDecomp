@@ -116,7 +116,12 @@ scene owners against independent ROM-backed actors frame by frame, checks
 each camera pan, baby position, selected visual frame and page handoff, and
 requires both actors to delete when the reverse-crossfade counter reaches
 zero. The production scenes cannot read the source lists. Their visual
-spritemaps remain separately editable-artwork work.
+spritemaps are now separately installed as editable
+`intro-scientist-baby-sprites.json`: ten consecutive OAM compositions at
+`$8C:8CCF..8D6E`. All frames match native OAM in on-screen and negative-origin
+clipping paths; a one-pixel art edit changes visible delivery-scene pixels,
+restored scenes rebind the current artwork, and the examination actor's live
+draw matches the cartridge with those source records unreadable.
 
 ## Additional room-PLM instruction control (2026-09-24)
 

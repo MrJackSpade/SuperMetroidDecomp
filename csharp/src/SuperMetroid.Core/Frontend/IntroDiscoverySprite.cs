@@ -95,10 +95,13 @@ internal sealed class IntroDiscoverySprite
     /// <summary>
     /// Advances one generic cinematic-sprite handler call. The callback handles only
     /// scene-specific opcodes and returns their next list cursor, or null when unhandled.
+    /// An owner may supply its compiled instruction-word reader; other scenes retain
+    /// the ROM-backed path until their own bounded lists have been migrated.
     /// </summary>
     public void Step(
         ISnesAddressSpace bus,
-        Func<ushort, ushort, ushort?>? specialInstruction = null)
+        Func<ushort, ushort, ushort?>? specialInstruction = null,
+        Func<ushort, ushort>? instructionWord = null)
     {
         if (!IsActive)
             return;
@@ -107,14 +110,17 @@ internal sealed class IntroDiscoverySprite
         if (instructionTimer != 0)
             return;
 
+        ushort Read(ushort pointer) => instructionWord is null
+            ? ReadWord(bus, pointer) : instructionWord(pointer);
+
         ushort cursor = InstructionPointer;
         while (true)
         {
-            ushort word = ReadWord(bus, cursor);
+            ushort word = Read(cursor);
             if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 instructionTimer = word;
-                SpriteMapPointer = ReadWord(bus, Add(cursor, 2));
+                SpriteMapPointer = Read(Add(cursor, 2));
                 InstructionPointer = Add(cursor, 4);
                 return;
             }
@@ -132,23 +138,23 @@ internal sealed class IntroDiscoverySprite
                     return;
 
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction:
-                    PreInstructionPointer = ReadWord(bus, Add(cursor, 2));
+                    PreInstructionPointer = Read(Add(cursor, 2));
                     cursor = Add(cursor, 4);
                     break;
 
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_Goto:
-                    cursor = ReadWord(bus, Add(cursor, 2));
+                    cursor = Read(Add(cursor, 2));
                     break;
 
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_DecrementTimerAndGoto:
                     GeneralTimer = unchecked((ushort)(GeneralTimer - 1));
                     cursor = GeneralTimer != 0
-                        ? ReadWord(bus, Add(cursor, 2))
+                        ? Read(Add(cursor, 2))
                         : Add(cursor, 4);
                     break;
 
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer:
-                    GeneralTimer = ReadWord(bus, Add(cursor, 2));
+                    GeneralTimer = Read(Add(cursor, 2));
                     cursor = Add(cursor, 4);
                     break;
 

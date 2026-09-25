@@ -40,6 +40,15 @@ flashback render no longer reads those twelve source records. Later cinematic
 actors may reuse some addresses, so the source-read guard is scoped to this
 scene rather than forbidding them globally.
 
+The intro Rinka and invisible two-wave spawner now compile their adjacent
+48-byte bank-$8B instruction programs at `$CDEB..CE1A`. The shared cinematic
+sprite interpreter accepts a compiled word reader for this owner only; other
+cinematic actors continue using their existing source until their lists are
+migrated. Verification compares every byte with the pinned ROM, then checks
+each spawn frame and the first Rinka's full animation loop with those source
+bytes unreadable. The three referenced Rinka visual spritemaps at `$8C:8C8D`,
+`$8C:8CA3`, and `$8C:8CB9` are still separate artwork work.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

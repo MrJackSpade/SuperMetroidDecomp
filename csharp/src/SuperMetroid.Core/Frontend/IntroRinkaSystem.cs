@@ -41,10 +41,12 @@ internal sealed class IntroRinkaSystem
                 continue;
 
             RunPreInstruction(rinka, samus, motherBrainExploding);
-            rinka.Step(bus, (opcode, next) => HandleRinkaInstruction(rinka, opcode, next));
+            rinka.Step(bus, (opcode, next) => HandleRinkaInstruction(rinka, opcode, next),
+                IntroRinkaInstructionDefinitions.ReadWord);
         }
 
-        spawner.Step(bus, HandleSpawnerInstruction);
+        spawner.Step(bus, HandleSpawnerInstruction,
+            IntroRinkaInstructionDefinitions.ReadWord);
     }
 
     /// <summary>Adds the currently selected cartridge spritemap for every live Rinka.</summary>

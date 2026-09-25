@@ -1,12 +1,22 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using System.Reflection;
 
 internal static partial class Program
 {
     private static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        for (int pointer = IntroRinkaInstructionDefinitions.StartPointer;
+             pointer < IntroRinkaInstructionDefinitions.EndPointer; pointer++)
+            AssertEqual(retail.ReadByte(IntroRinkaDefinitions.NativeBank | pointer),
+                IntroRinkaInstructionDefinitions.ReadByte((ushort)pointer),
+                $"intro Rinka instruction byte $8B:{pointer:X4}");
+        AssertThrows<InvalidDataException>(
+            () => IntroRinkaInstructionDefinitions.ReadWord(
+                IntroRinkaInstructionDefinitions.EndPointer),
+            "intro Rinka instruction reader rejects a cursor outside its two lists");
         IntroRinkaActorDefinition[] actors =
         [
             IntroRinkaDefinitions.RinkaActor,
@@ -48,8 +58,30 @@ internal static partial class Program
             XPosition = 0x0200,
             YPosition = 0x0100,
         };
+        var rinkas = (List<IntroDiscoverySprite>)typeof(IntroRinkaSystem)
+            .GetField("rinkas", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(system)!;
         for (int frame = 0; frame < 220; frame++)
+        {
             system.Step(guarded, samus, motherBrainExploding: false);
+            int expectedCount = frame < 74 ? 0 : frame < 202 ? 2 : 4;
+            AssertEqual(expectedCount, system.SpawnedCount,
+                $"intro Rinka two-wave spawn count at frame {frame}");
+            if (frame >= 75)
+            {
+                int relative = frame - 75;
+                ushort expectedSprite = relative < 30
+                    ? (ushort)(0x8c8d + relative / 10 * 0x16)
+                    : ((relative - 30) / 10 % 4) switch
+                    {
+                        0 or 2 => (ushort)0x8ca3,
+                        1 => (ushort)0x8c8d,
+                        _ => (ushort)0x8cb9,
+                    };
+                AssertEqual(expectedSprite, rinkas[0].SpriteMapPointer,
+                    $"intro first Rinka selects its native frame at call {frame}");
+            }
+        }
         AssertEqual(IntroRinkaDefinitions.RinkaCount, system.SpawnedCount,
             "intro Rinka spawner allocates both native waves");
         AssertEqual(IntroRinkaDefinitions.RinkaCount, system.ActiveCount,
@@ -60,10 +92,10 @@ internal static partial class Program
         AssertEqual(0, system.ActiveCount,
             "all intro Rinkas retire after Mother Brain begins exploding");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "intro Rinka production path never rereads compiled definitions or physical tables");
+            "intro Rinka production path never rereads compiled definitions, lists or physical tables");
 
         Console.WriteLine(
-            "  Intro Rinka definitions: six actor words and twelve physical words match; both spawn waves and cleanup are table-independent.");
+            "  Intro Rinka definitions: six actor, twelve physical and 48 instruction bytes match; both timed spawn waves, animation and cleanup are ROM-table independent.");
     }
 
     private static ushort ReadIntroRinkaWord(SuperMetroidAddressSpace bus, int address) =>
@@ -78,6 +110,7 @@ internal static partial class Program
         {
             bool forbidden =
                 address is >= 0x8bcf21 and < 0x8bcf2d or
+                >= 0x8bcdeb and < 0x8bce1b or
                 >= 0x8bb8b5 and < 0x8bb8c5 or
                 >= 0x8bb985 and < 0x8bb98d;
             if (forbidden)

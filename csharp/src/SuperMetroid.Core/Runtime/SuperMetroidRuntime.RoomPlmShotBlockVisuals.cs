@@ -39,6 +39,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.ColoredDoorVisuals = value;
     }
 
+    /// <summary>Visual-only grey-door and shared clear-cap resources; reattached after state restoration.</summary>
+    public RoomPlmGreyDoorVisualCatalog? RoomPlmGreyDoorVisuals
+    {
+        get => Plms.GreyDoorVisuals;
+        set => Plms.GreyDoorVisuals = value;
+    }
+
     /// <summary>Visual-only gate-block resources; reattached after debugger-state restoration.</summary>
     public RoomPlmDownwardGateVisualCatalog? RoomPlmDownwardGateVisuals
     {

@@ -79,6 +79,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmColoredDoorVisualCatalog LoadRoomPlmColoredDoorVisuals() =>
         RoomPlmColoredDoorVisualFiles.Load(RoomPlmColoredDoorVisualDirectory,
             RoomPlmColoredDoorVisualOverrideDirectory);
+    public string RoomPlmGreyDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName);
+    public string RoomPlmGreyDoorVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName);
+    /// <summary>Editable grey caps and shared clear frames; physical door rules stay compiled.</summary>
+    public RoomPlmGreyDoorVisualCatalog LoadRoomPlmGreyDoorVisuals() =>
+        RoomPlmGreyDoorVisualFiles.Load(RoomPlmGreyDoorVisualDirectory,
+            RoomPlmGreyDoorVisualOverrideDirectory);
     public string RoomPlmDownwardGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
     public string RoomPlmDownwardGateVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
     /// <summary>Editable gate-block art; activation, animation, and collision remain compiled.</summary>
@@ -140,11 +146,12 @@ public static class GameInstallationLayout
     public const string RoomPlmStationVisualDirectoryName = "room-plm-stations";
     public const string RoomPlmBlueDoorVisualDirectoryName = "room-plm-blue-doors";
     public const string RoomPlmColoredDoorVisualDirectoryName = "room-plm-colored-doors";
+    public const string RoomPlmGreyDoorVisualDirectoryName = "room-plm-grey-doors";
     public const string RoomPlmDownwardGateVisualDirectoryName = "room-plm-downward-gates";
     public const string RoomPlmCollectibleVisualDirectoryName = "room-plm-collectibles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 42;
+    public const int FormatVersion = 43;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

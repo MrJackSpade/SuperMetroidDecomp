@@ -36,6 +36,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmStationVisualCatalog? stationVisuals;
     [NonSerialized] private RoomPlmBlueDoorVisualCatalog? blueDoorVisuals;
     [NonSerialized] private RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals;
+    [NonSerialized] private RoomPlmGreyDoorVisualCatalog? greyDoorVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
 
@@ -72,6 +73,13 @@ public sealed partial class RoomPlmSystem
     {
         get => coloredDoorVisuals;
         set => coloredDoorVisuals = value;
+    }
+
+    /// <summary>Visual-only grey caps and shared clear frames supplied by installed content.</summary>
+    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals
+    {
+        get => greyDoorVisuals;
+        set => greyDoorVisuals = value;
     }
 
     /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
@@ -1731,6 +1739,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, coloredDoorVisuals: coloredDoorVisuals);
             return;
         }
+        if (GreyDoorPlmDrawDefinitions.TryGet(drawPointer, out var greyDoor))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, greyDoor, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false, greyDoorVisuals: greyDoorVisuals);
+            return;
+        }
         if (RoomPlmStationDrawDefinitions.TryGet(drawPointer, out var station))
         {
             DrawCompiledBlockInstruction(
@@ -1820,7 +1836,8 @@ public sealed partial class RoomPlmSystem
         RoomPlmStationVisualCatalog? customVisuals = null,
         RoomPlmDownwardGateVisualCatalog? gateVisuals = null,
         RoomPlmBlueDoorVisualCatalog? blueDoorVisuals = null,
-        RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals = null)
+        RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals = null,
+        RoomPlmGreyDoorVisualCatalog? greyDoorVisuals = null)
     {
         int entryX = originX;
         int entryY = originY;
@@ -1844,6 +1861,7 @@ public sealed partial class RoomPlmSystem
                     ?? gateVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? blueDoorVisuals?.GetWord(definition.Pointer, offset)
                     ?? coloredDoorVisuals?.GetWord(definition.Pointer, offset)
+                    ?? greyDoorVisuals?.GetWord(definition.Pointer, offset)
                     ?? new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, x, y,
                     physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);

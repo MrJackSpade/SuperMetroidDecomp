@@ -1,5 +1,21 @@
 # Remaining lookup migration inventory (#547)
 
+## Grey-door and shared-clear PLM draw lists (2026-09-24)
+
+The four ordinary grey-cap orientations have sixteen compiled physical draw
+lists. Four additional air/clear-cap lists are shared by blue, colored, and
+grey door programs, including Bomb Torizo's special closing list. Every
+direction word, block word, and terminator agrees with the pinned cartridge;
+all five resident grey-door headers load and perform their first draw with
+all twenty source payloads forbidden. The Bomb Torizo header selects the
+ordinary right-facing grey cap, not a unique artwork format. Visual override
+binding now lives in `room-plm-grey-doors/grey-doors.json`: all twenty visual
+block choices are separately editable. A changed Bomb Torizo cap appears in
+the immediate redraw and later camera streaming without changing physical
+level words. Stock extraction checks every native list, malformed overrides
+fail, and the override survives stock replacement. Eye doors and other room
+objects remain separate work.
+
 ## Colored-door PLM draw lists (2026-09-24)
 
 All forty-eight ordinary yellow, green, and red door-cap draw lists now have

@@ -382,8 +382,8 @@ internal static partial class Program
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 8)),
             RoomPlmInstructionCodes.Goto);
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 10)), initialList);
-        WriteOneBlockDraw(bus, closingDraw, 0xc123);
-        WriteOneBlockDraw(bus, lockedDraw, 0xc456);
+        // These two cartridge draw pointers are compiled definitions now. Keep the
+        // resident instruction stream synthetic, but verify its real four-block art.
 
         bus.WriteBytes(0x8f0000 | population,
         [
@@ -439,7 +439,7 @@ internal static partial class Program
             enemyDeathQuota: 0,
             controllerNewInput: 0,
             collectedItems: samus.CollectedItems);
-        AssertEqual(0xc123, level.GetCollisionBlock(doorX, doorY).LevelWord,
+        AssertEqual(0x0482, level.GetCollisionBlock(doorX, doorY).LevelWord,
             "collected Bombs admit the secondary list's closing draw");
 
         plms.Step(
@@ -453,7 +453,7 @@ internal static partial class Program
             "closing Goto hands the resident actor back to its grey-door family");
         AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
             "rejoined actor retains the cartridge first-list pointer");
-        AssertEqual(0xc456, level.GetCollisionBlock(doorX, doorY).LevelWord,
+        AssertEqual(0xc4ae, level.GetCollisionBlock(doorX, doorY).LevelWord,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.ActiveCount,
             "rejoined Bomb Torizo door remains resident for the battle condition");

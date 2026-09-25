@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
+        VerifyGreyDoorProgramDefinitions(rom);
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -85,10 +86,11 @@ internal static partial class Program
                 GreyDoorVisuals = header == RoomPlmHeaders.BombTorizoGreyDoor
                     ? edited : stock,
             };
+            var system = new Bank80SystemState();
             var guarded = new GreyDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-                    new SnesVram(), population, new Bank80SystemState(),
+                    new SnesVram(), population, system,
                     AreaId.Crateria, () => new SamusState(), () => false),
                 $"resident grey-door header ${header:X4} loads");
             ushort initial = ReadWord(rom, 0x840000 | (header + 2));
@@ -112,6 +114,65 @@ internal static partial class Program
                     level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],
                     "edited grey cap survives later camera streaming");
             }
+            else
+            {
+                var enteringDoor = new CartridgeDoorHeader(
+                    Pointer: 0,
+                    DestinationRoomPointer: 0,
+                    BitFlags: 0,
+                    Orientation: 5,
+                    PlmX: 4,
+                    PlmY: 4,
+                    DestinationScreenX: 0,
+                    DestinationScreenY: 0,
+                    SamusDistance: 0,
+                    SetupCodePointer: 0);
+                AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor,
+                        system),
+                    $"resident grey door ${header:X4} selects its closing list");
+                for (int frame = 0; frame < 20 &&
+                     plms.GreyDoors.Single().Phase == GreyDoorPhase.Closing; frame++)
+                    plms.Step(guarded, level, streamer, 0, 0, 0);
+                AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
+                    $"resident grey door ${header:X4} returns to locked owner");
+
+                // The default room argument selects the boss-defeated condition. A
+                // closed door must flash only after the cartridge event bit changes.
+                system.SetBossBits(AreaId.Crateria, BossBits.AreaBoss);
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+                AssertEqual(GreyDoorPhase.Flashing, plms.GreyDoors.Single().Phase,
+                    $"resident grey door ${header:X4} unlocks after boss event");
+                AssertTrue(plms.TryNotifyColoredDoorHit(origin,
+                        new SamusProjectileTypeWord(0)),
+                    $"resident grey door ${header:X4} accepts a beam hit");
+                plms.Step(guarded, level, streamer, 0, 0, 0);
+                AssertEqual(GreyDoorPhase.Opening, plms.GreyDoors.Single().Phase,
+                    $"resident grey door ${header:X4} enters opening list");
+                for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
+                    plms.Step(guarded, level, streamer, 0, 0, 0);
+                AssertEqual(0, plms.ActiveCount,
+                    $"resident grey door ${header:X4} completes and deletes");
+                AssertTrue(system.HasOpenedDoorBit(0),
+                    $"resident grey door ${header:X4} persists opened bit");
+                AssertEqual(0, guarded.ForbiddenReadAttempts,
+                    $"resident grey door ${header:X4} never rereads program or draw data");
+
+                var reopenedLevel = new RoomLevelData(width, width,
+                    new ushort[width * width], new byte[width * width],
+                    new ushort[width * width], blockDefinitions);
+                BackgroundTilemapStreamer reopenedStreamer =
+                    reopenedLevel.CreateBackgroundStreamer();
+                var reopened = new RoomPlmSystem { GreyDoorVisuals = stock };
+                AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
+                        reopenedStreamer, new SnesVram(), population, system,
+                        AreaId.Crateria, () => new SamusState(), () => false),
+                    $"opened grey door ${header:X4} reloads");
+                reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
+                AssertEqual(0, reopened.ActiveCount,
+                    $"opened grey door ${header:X4} converts to blue cap");
+                AssertEqual(0, guarded.ForbiddenReadAttempts,
+                    $"opened grey door ${header:X4} avoids program/draw ROM reads");
+            }
         }
         AssertThrows<InvalidDataException>(
             () => new RoomPlmGreyDoorVisualCatalog(entries.Skip(1)),
@@ -124,7 +185,35 @@ internal static partial class Program
         VerifySharedDoorClearVisual(rom, entries, lists);
         VerifyGreyDoorVisualInstallation(rom);
         Console.WriteLine(
-            "  Grey-door PLM draws: 20 native lists, five guarded residents, and editable stock/override appearance preserve collision.");
+            "  Grey doors: 420 compiled program bytes, four close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
+    }
+
+    private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
+    {
+        for (int address = GreyDoorPlmProgramDefinitions.FirstAddress;
+             address <= GreyDoorPlmProgramDefinitions.LastAddress; address++)
+        {
+            AssertTrue(GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(
+                    checked((ushort)address), out byte compiled),
+                $"grey-door program claims byte $84:{address:X4}");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"grey-door program byte $84:{address:X4} matches ROM");
+            if (address == GreyDoorPlmProgramDefinitions.LastAddress)
+                continue;
+            AssertTrue(GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(
+                    checked((ushort)address), out ushort compiledWord),
+                $"grey-door program claims word $84:{address:X4}");
+            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8);
+            AssertEqual(native, compiledWord,
+                $"grey-door program word $84:{address:X4} matches ROM");
+        }
+        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbe58, out _),
+            "ordinary grey-door program does not claim preceding condition table");
+        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(0xbffd, out _),
+            "ordinary grey-door program does not claim following yellow door");
+        AssertTrue(!GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(0xbffc, out _),
+            "ordinary grey-door program refuses a cross-family word");
     }
 
     private static void VerifySharedDoorClearVisual(
@@ -237,6 +326,12 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            if (address >= 0x84be59 && address <= 0x84bffc)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Resident grey door reread compiled instruction ${address:X6}.");
+            }
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             {
                 int first = 0x840000 | list.Pointer;

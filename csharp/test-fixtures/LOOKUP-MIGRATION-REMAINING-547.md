@@ -19,7 +19,14 @@ production-path fixtures exercise room-entry close, accepted projectile hits,
 the complete opening animation, persistence, and reload-to-blue conversion
 with both the program span and all 48 physical colored-cap draws unreadable.
 
-Grey/eye doors, gates, items, statues, and other room-object instruction programs
+The four ordinary grey-door streams at $BE59..BFFC (420 bytes) are compiled
+as well. Guarded fixtures run every orientation through entry closing,
+boss-condition unlock, flashing, one-hit opening, opened-bit persistence,
+and reload-to-blue conversion while blocking the program and all twenty
+physical grey/shared-clear draws. Bomb Torizo's special grey-door program
+at $BA4C remains separate cartridge-backed work.
+
+Bomb Torizo's special grey door, eye doors, gates, items, statues, and other room-object instruction programs
 still require the same migration. Their visual art and physical draw layouts
 are separate work from compiled control flow; these families alone do not make
 runtime gameplay ROM-free.

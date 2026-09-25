@@ -89,7 +89,7 @@ public sealed partial class RoomPlmSystem
             // Its PLM_BTS_Y opcode and single draw are observable immediately on reload.
             byte blueBts = unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)door.Orientation));
-            ushort drawPointer = ReadBank84Word(
+            ushort drawPointer = ReadProgramWord(
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
             level.SetBehavior(slot.BlockIndex, blueBts);
@@ -238,12 +238,12 @@ public sealed partial class RoomPlmSystem
         ApplyGreyDoorSetup(level, slot.BlockIndex);
 
         ushort initialList = slot.InstructionPointer;
-        ushort closedBlueList = ReadBank84Word(bus, unchecked((ushort)(initialList + 2)));
-        ushort activationList = ReadBank84Word(bus, unchecked((ushort)(initialList + 6)));
-        ushort closedGreyDraw = ReadBank84Word(bus, unchecked((ushort)(initialList + 12)));
-        ushort openTriggerList = ReadBank84Word(bus, unchecked((ushort)(activationList + 2)));
+        ushort closedBlueList = ReadProgramWord(bus, unchecked((ushort)(initialList + 2)));
+        ushort activationList = ReadProgramWord(bus, unchecked((ushort)(initialList + 6)));
+        ushort closedGreyDraw = ReadProgramWord(bus, unchecked((ushort)(initialList + 12)));
+        ushort openTriggerList = ReadProgramWord(bus, unchecked((ushort)(activationList + 2)));
         ushort flashList = unchecked((ushort)(activationList + 8));
-        ushort openingList = ReadBank84Word(bus, unchecked((ushort)(openTriggerList + 3)));
+        ushort openingList = ReadProgramWord(bus, unchecked((ushort)(openTriggerList + 3)));
         bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasOpenedDoorBit(slot.RoomArgument);
 

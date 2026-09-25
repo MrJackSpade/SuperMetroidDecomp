@@ -57,7 +57,7 @@ internal sealed class IntroEggParticle
             sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 0x0100));
         }
 
-        sprite.Step(bus);
+        sprite.Step(bus, instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
     public void Draw(ISnesAddressSpace bus, OamBuffer oam) => sprite.Draw(bus, oam);

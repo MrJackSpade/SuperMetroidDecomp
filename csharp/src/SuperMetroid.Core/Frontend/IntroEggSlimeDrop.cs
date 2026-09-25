@@ -64,7 +64,7 @@ internal sealed class IntroEggSlimeDrop
             }
         }
 
-        sprite.Step(bus);
+        sprite.Step(bus, instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
     public void Draw(ISnesAddressSpace bus, OamBuffer oam) => sprite.Draw(bus, oam);

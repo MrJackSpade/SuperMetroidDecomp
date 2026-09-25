@@ -54,6 +54,16 @@ changes live flashback pixels without moving either actor. The installed
 Rinka draw path no longer reads the three spritemap records, and rebind after
 restore selects the current artwork. Other cinematic actors remain separate.
 
+The six SR388 egg-shell fragments and the moving/impact slime drops now compile
+their reachable 74-byte bank-$8B instruction region at `$CD39..CD82`, plus the
+shared two-byte delete list at `$CE53`. Their shared interpreter uses the
+owner-supplied compiled reader; no other cinematic actor is redirected.
+Verification compares all 76 source bytes to the pinned ROM, checks each
+fragment's selected frame, runs all ten actors through their physical lifetime,
+and asserts every ten-frame slime-impact appearance and final deletion while
+the instruction ranges are unreadable. The eleven referenced bank-$8C visual
+spritemaps remain separate artwork work.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

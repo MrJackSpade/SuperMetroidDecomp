@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -65,10 +66,11 @@ internal sealed class EndingRewardJump
         body.Step(bus, Instruction, instructionWord);
     }
 
-    public OamBuffer Draw()
+    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null)
     {
         var oam = new OamBuffer(); oam.BeginFrame();
-        head?.Draw(bus, oam); body.Draw(bus, oam);
+        head?.Draw(bus, oam, installedArt: installedArt);
+        body.Draw(bus, oam, installedArt: installedArt);
         oam.FinalizeFrame(); return oam;
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -36,11 +37,12 @@ internal sealed class EndingRewardGesture
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
-    public OamBuffer Draw()
+    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null)
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        foreach (IntroDiscoverySprite actor in actors) actor.Draw(bus, oam);
+        foreach (IntroDiscoverySprite actor in actors)
+            actor.Draw(bus, oam, installedArt: installedArt);
         oam.FinalizeFrame();
         return oam;
     }

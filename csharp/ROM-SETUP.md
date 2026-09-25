@@ -200,6 +200,10 @@ remain compiled game logic rather than artwork overrides.
 `ending-completion-text-sprites.json` contains the 56 progressive operation,
 success, clear-time, digit, and colon OAM compositions. Editing these parts
 does not alter the cartridge-matched typewriter pacing or credits handoff.
+`ending-reward-sprites.json` contains the 37 suitless, helmetless, and armored
+Samus pose compositions used across the reward reveal, gesture, jump, landing,
+and shot. Their shared actor instructions and physical handoff remain compiled
+game logic.
 Two small cartridge tile uploads, `post-credits-tile-fragment-a.png` and
 `post-credits-tile-fragment-b.png`, are also installed as indexed PNGs. The
 final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2

@@ -139,8 +139,8 @@ internal sealed partial class EndingCreditsState
     // immutable packet consumer nor repeated rendering may advance sprite state.
     private OamBuffer PrepareSprites()
     {
-        if (rewardGesture is not null) return rewardGesture.Draw();
-        if (rewardJump is not null) return rewardJump.Draw();
+        if (rewardGesture is not null) return rewardGesture.Draw(objectArtwork?.RewardSprites);
+        if (rewardJump is not null) return rewardJump.Draw(objectArtwork?.RewardSprites);
         var oam = new OamBuffer();
         oam.BeginFrame();
         foreach (EndingSprite wrapper in sprites.OrderByDescending(actor => actor.NativeSlot))
@@ -152,6 +152,7 @@ internal sealed partial class EndingCreditsState
                     <= EndingSpriteRole.ExplosionAfterglow => objectArtwork?.ExplosionSprites,
                 >= EndingSpriteRole.OperationWasText and
                     <= EndingSpriteRole.ClearTimeDigit => objectArtwork?.CompletionTextSprites,
+                EndingSpriteRole.RewardSamus => objectArtwork?.RewardSprites,
                 _ => null,
             };
             wrapper.Sprite.Draw(bus, oam, installedArt: spriteArt);

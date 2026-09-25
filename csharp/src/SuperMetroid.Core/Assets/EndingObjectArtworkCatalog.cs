@@ -26,7 +26,8 @@ public sealed class EndingObjectArtworkCatalog
         RoomCharacterAtlas postShotLogoTiles, RoomBackgroundTilemapAtlas postShotLogoMap,
         EndingCloudSpritePresentation cloudSprites,
         EndingExplosionSpritePresentation explosionSprites,
-        EndingCompletionTextSpritePresentation completionTextSprites)
+        EndingCompletionTextSpritePresentation completionTextSprites,
+        EndingRewardSpritePresentation rewardSprites)
     {
         Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
         Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
@@ -42,6 +43,7 @@ public sealed class EndingObjectArtworkCatalog
         ExplosionSprites = explosionSprites ?? throw new ArgumentNullException(nameof(explosionSprites));
         CompletionTextSprites = completionTextSprites ??
             throw new ArgumentNullException(nameof(completionTextSprites));
+        RewardSprites = rewardSprites ?? throw new ArgumentNullException(nameof(rewardSprites));
         ArgumentNullException.ThrowIfNull(fragments);
         if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
             Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
@@ -67,6 +69,8 @@ public sealed class EndingObjectArtworkCatalog
     public EndingExplosionSpritePresentation ExplosionSprites { get; }
     /// <summary>Fifty-six editable completion-message and clear-time OAM compositions.</summary>
     public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
+    /// <summary>Thirty-seven editable post-credits Samus reward OAM compositions.</summary>
+    public EndingRewardSpritePresentation RewardSprites { get; }
     public RoomCharacterAtlas Explosion { get; }
     /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
     public RoomCharacterAtlas WaitingSamus { get; }
@@ -93,7 +97,7 @@ public sealed class EndingObjectArtworkCatalog
 /// <summary>File identities and exact native ending/credits transfer dimensions.</summary>
 public static class EndingObjectArtworkFormat
 {
-    public const int ManifestVersion = 8;
+    public const int ManifestVersion = 9;
     public const string ManifestFileName = "ending-object-artwork.json";
     public const string CloudFileName = "ending-cloud-characters.png";
     public const string ExplosionFileName = "ending-explosion-objects.png";

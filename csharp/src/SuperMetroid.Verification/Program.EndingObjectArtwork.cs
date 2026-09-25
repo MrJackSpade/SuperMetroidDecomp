@@ -117,6 +117,7 @@ internal static partial class Program
         VerifyEndingCompletionTextInstructions(bus);
         VerifyEndingCompletionTextSpriteArtwork(bus, stock);
         VerifyEndingRewardInstructions(bus);
+        VerifyEndingRewardSpriteArtwork(bus, stock);
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -161,6 +162,7 @@ internal static partial class Program
 
         VerifyEndingExplosionVisualOverride(installation, stock, guard);
         VerifyEndingCompletionTextVisualOverride(installation, stock, guard);
+        VerifyEndingRewardVisualOverride(installation, stock, guard);
 
         string cloudSpriteName = EndingCloudSpriteFormat.FileName;
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
@@ -349,7 +351,7 @@ internal static partial class Program
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);
         VerifyPostCreditsCharacterArtwork(repaired);
-        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text and reward actors, editable cloud/explosion/text OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text and reward actors, editable cloud/explosion/text/reward OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -434,6 +436,17 @@ internal static partial class Program
                     ForbiddenReadAttempts++;
                     throw new InvalidOperationException(
                         $"Ending completion text reread installed spritemap ${address:X6}.");
+                }
+            }
+            foreach (EndingRewardSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
+            {
+                int start = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Ending reward reread installed spritemap ${address:X6}.");
                 }
             }
             if (address is EndingCreditsRomData.Assets.EscapeCloudCharacters or

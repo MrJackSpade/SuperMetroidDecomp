@@ -9,8 +9,11 @@ and lifetime match the pinned ROM. The ending scene, gesture owner, and jump
 owner all use the same bounded program when installed artwork is active. The
 existing full post-credits verifier exercises suitless, helmetless, and armored
 reward routes through the shot with these source words unreadable, preserving
-the native phase progression, VRAM, palette, and visible pixels. The reward
-spritemap compositions remain a separate visual-artwork migration.
+the native phase progression, VRAM, palette, and visible pixels. Their 37
+bank-$8C spritemaps are installed separately as `ending-reward-sprites.json`:
+stock OAM matches at normal and negative origins, all three reward routes run
+without rereading these records, and a suitless-idle edit visibly changes the
+reveal without changing gesture/jump timing.
 
 ## Ending completion and clear-time actor lists (2026-09-25)
 

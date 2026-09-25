@@ -10,6 +10,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyBombTorizoHandPlm()
     {
+        VerifyBombTorizoHandProgramDefinitions();
         var bus = new TestAddressSpace();
         const ushort population = 0x9000;
         const int width = 16;
@@ -54,6 +55,7 @@ internal static partial class Program
         // authority without making this lifecycle test depend on retail block graphics.
         bus.WriteBytes(0x849877, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00]);
         bus.WriteBytes(0x84989d, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00]);
+        var guarded = new BombTorizoHandProgramReadGuard(bus);
 
         var level = new RoomLevelData(
             width,
@@ -67,7 +69,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem();
 
         AssertEqual(1, plms.LoadRoomPopulation(
-                bus,
+                guarded,
                 level,
                 streamer,
                 new SnesVram(),
@@ -83,25 +85,25 @@ internal static partial class Program
 
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
-        plms.Step(bus, level, streamer, 0, 0, 0);
-        plms.Step(bus, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, 0, 0, 0);
         for (int frame = 0; frame < 180; frame++)
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, 0, 0, 0);
         AssertTrue(plms.HasActiveHeader(0xd6ea),
             "hand remains resident while Samus lacks Bombs");
         AssertEqual(0, plms.VramWriteRequests.Count,
             "sleeping hand performs no premature DMA");
 
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.Bombs;
-        plms.Step(bus, level, streamer, 0, 0, 0); // D33B skips sleep, starts 120-frame wait.
+        plms.Step(guarded, level, streamer, 0, 0, 0); // D33B skips sleep, starts 120-frame wait.
         AssertTrue(plms.HasActiveHeader(0xd6ea),
             "Bombs wake starts authored delay without deleting hand");
 
         for (int frame = 0; frame < 119; frame++)
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, 0, 0, 0);
         AssertEqual(0, plms.VramWriteRequests.Count,
             "DMA waits for complete 120-frame post-pickup delay");
-        plms.Step(bus, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, 0, 0, 0);
         AssertEqual(1, plms.VramWriteRequests.Count,
             "120th frame emits one PLM VRAM write");
         AssertEqual(0x0400, plms.VramWriteRequests[0].SizeInBytes,
@@ -114,7 +116,7 @@ internal static partial class Program
         var parameters = new List<ushort>();
         for (int frame = 0; frame < 400 && plms.HasActiveHeader(0xd6ea); frame++)
         {
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, 0, 0, 0);
             parameters.AddRange(plms.BombTorizoStatueProjectileRequests.Select(
                 request => request.Parameter));
         }
@@ -135,7 +137,7 @@ internal static partial class Program
 
         var defeated = new RoomPlmSystem();
         AssertEqual(1, defeated.LoadRoomPopulation(
-                bus,
+                guarded,
                 level,
                 streamer,
                 new SnesVram(),
@@ -147,8 +149,57 @@ internal static partial class Program
             "single loader still parses defeated hand record before setup deletes it");
         AssertTrue(!defeated.HasActiveHeader(0xd6ea),
             "defeated setup exposes no transient hand header");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "complete hand lifecycle and defeated reload never reread program bytes");
 
         Console.WriteLine(
             "  Bomb Torizo hand: inventory gate, DMA, debris cadence, music, and deletion agree.");
+    }
+
+    private static void VerifyBombTorizoHandProgramDefinitions()
+    {
+        var rom = SuperMetroidAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        for (int address = BombTorizoHandPlmProgramDefinitions.FirstAddress;
+             address <= BombTorizoHandPlmProgramDefinitions.LastAddress; address++)
+        {
+            AssertTrue(BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(
+                checked((ushort)address), out byte compiled),
+                $"Bomb Torizo hand claims authored byte $84:{address:X4}");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+                $"Bomb Torizo hand program byte $84:{address:X4} matches ROM");
+            if (address == BombTorizoHandPlmProgramDefinitions.LastAddress)
+                continue;
+            AssertTrue(BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(
+                checked((ushort)address), out ushort compiledWord),
+                $"Bomb Torizo hand claims authored word $84:{address:X4}");
+            ushort native = (ushort)(rom.ReadByte(0x840000 | address) |
+                rom.ReadByte(0x840000 | (address + 1)) << 8);
+            AssertEqual(native, compiledWord,
+                $"Bomb Torizo hand program word $84:{address:X4} matches ROM");
+        }
+        AssertTrue(!BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(0xd3c6, out _),
+            "hand list refuses a word crossing into adjacent callback code");
+        AssertTrue(!BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(0xd3c7, out _),
+            "hand list does not claim the adjacent music callback code");
+    }
+
+    private sealed class BombTorizoHandProgramReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace
+    {
+        internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            if (address >= 0x84d368 && address <= 0x84d3c6)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Bomb Torizo hand reread compiled program byte ${address:X6}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

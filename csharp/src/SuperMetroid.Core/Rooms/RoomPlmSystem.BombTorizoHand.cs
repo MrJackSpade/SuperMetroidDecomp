@@ -128,10 +128,10 @@ public sealed partial class RoomPlmSystem
             {
                 // $87E5 consumes seven deliberately unaligned bytes after its opcode:
                 // u16 size, u16 source offset, u8 bank, then u16 encoded VRAM destination.
-                ushort size = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
-                ushort sourceOffset = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
-                byte sourceBank = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 6))));
-                ushort destination = ReadBank84Word(bus, unchecked((ushort)(cursor + 7)));
+                ushort size = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
+                ushort sourceOffset = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
+                byte sourceBank = ReadProgramByte(bus, unchecked((ushort)(cursor + 6)));
+                ushort destination = ReadProgramWord(bus, unchecked((ushort)(cursor + 7)));
                 _vramWriteRequests.Add(new PlmVramWriteRequest(
                     size,
                     (sourceBank << 16) | sourceOffset,
@@ -142,7 +142,7 @@ public sealed partial class RoomPlmSystem
 
             case RoomPlmInstructionCodes.SpawnTorizoStatueBreaking:
             {
-                ushort parameter = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                ushort parameter = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 _bombTorizoStatueProjectileRequests.Add(
                     new BombTorizoStatueProjectileRequest(
                         BombTorizoStatueBreakingDefinition,

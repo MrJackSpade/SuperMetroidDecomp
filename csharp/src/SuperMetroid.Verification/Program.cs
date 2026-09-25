@@ -932,6 +932,11 @@ if (args is ["--draygon-cannon-plm-program"])
     VerifyDraygonCannonPlmProgram();
     return 0;
 }
+if (args is ["--bomb-torizo-hand-plm-program"])
+{
+    VerifyBombTorizoHandPlm();
+    return 0;
+}
 if (args is ["--noob-tube-plm-draws"])
 {
     VerifyNoobTubePlmDrawDefinitions(

@@ -2023,6 +2023,8 @@ public sealed partial class RoomPlmSystem
                 ? value
             : DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
+            : BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
@@ -2041,6 +2043,8 @@ public sealed partial class RoomPlmSystem
             : MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
+                ? value
+            : BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
             : bus.ReadByte(Bank84(address));
 

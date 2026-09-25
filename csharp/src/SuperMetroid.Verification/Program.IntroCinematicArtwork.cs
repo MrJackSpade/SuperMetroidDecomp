@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
@@ -73,6 +74,7 @@ internal static partial class Program
             }
             VerifyIntroEyeArtwork(bus, stock, installation);
             VerifyIntroCaretSpriteArtwork(bus, stock, installation);
+            VerifyIntroMotherBrainCollision(bus, stock);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -756,6 +758,38 @@ internal static partial class Program
             "installed caret blink avoids cartridge instruction and visual reads");
     }
 
+    private static void VerifyIntroMotherBrainCollision(SuperMetroidAddressSpace bus,
+        IntroCinematicArtworkCatalog stock)
+    {
+        byte[] native = RomDataReader.ReadFixedBank(bus,
+            IntroCinematicRomData.Assets.MotherBrainLevelData,
+            IntroCinematicRomData.Flashback.MotherBrainLevelByteCount);
+        AssertTrue(IntroMotherBrainCollisionDefinitions.SourceBytes.SequenceEqual(native),
+            "compiled Mother Brain flashback physical level matches all 448 cartridge bytes");
+        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var state = new IntroCinematicState(guarded, characterArtwork: stock);
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
+            .Invoke(state, null);
+        typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
+            .Invoke(state, null);
+        AssertTrue(state.MotherBrainLevelData is not null &&
+                state.MotherBrainLevelData.AsSpan().SequenceEqual(native),
+            "flashback setup retains the exact native physical level without ROM reads");
+        var level = (RoomLevelData)typeof(IntroCinematicState)
+            .GetField("flashbackLevel", flags)!.GetValue(state)!;
+        for (int index = 0; index < level.ForegroundEntries.Length; index++)
+        {
+            ushort expected = index * sizeof(ushort) < native.Length
+                ? (ushort)(native[index * 2] | native[index * 2 + 1] << 8)
+                : (ushort)0;
+            AssertEqual(expected, level.ForegroundEntries.Span[index],
+                $"Mother Brain flashback collision block {index} preserves native level word");
+        }
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "flashback setup never rereads the physical level source");
+    }
+
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
@@ -800,6 +834,14 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread opening divider ${address:X6}.");
+            }
+            if (address >= IntroCinematicRomData.Assets.MotherBrainLevelData &&
+                address < IntroCinematicRomData.Assets.MotherBrainLevelData +
+                    IntroCinematicRomData.Flashback.MotherBrainLevelByteCount)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread Mother Brain collision source ${address:X6}.");
             }
             int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                 IntroEyeAnimationDefinitions.StartPointer);

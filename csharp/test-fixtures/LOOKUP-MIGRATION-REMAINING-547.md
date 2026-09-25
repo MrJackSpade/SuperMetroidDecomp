@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Intro Mother Brain physical flashback room (2026-09-25)
+
+The fixed 224-word level-data copy at `$8C:BEC3` is now compiled as a
+fourteen-row, 16-block physical layout. It is collision data, not the visible
+BG page and not a user-editable tilemap. Verification compares all 448 source
+bytes and all 256 resulting room foreground words (including 32 zero-filled
+tail blocks) with the pinned ROM, then runs the actual flashback setup while
+forbidding reads of the original source range. Other intro demo input and
+sprite/control streams still require separate ROM-free migration.
+
 ## Additional room-PLM instruction control (2026-09-24)
 
 Mother Brain's fake-death terrain mutation now uses compiled bank-$84 control

@@ -665,10 +665,7 @@ public sealed partial class IntroCinematicState
         // Retain the exact 224-word level-data copy as debugger-visible state. The later
         // $91:8784 demo movement/collision translation will consume this array; loading it
         // now proves the visual BG1 screen is not standing in for the collision contract.
-        MotherBrainLevelData = RomDataReader.ReadFixedBank(
-            bus,
-            IntroCinematicRomData.Assets.MotherBrainLevelData,
-            IntroCinematicRomData.Flashback.MotherBrainLevelByteCount);
+        MotherBrainLevelData = IntroMotherBrainCollisionDefinitions.CopySourceBytes();
         flashbackLevel = CreateMotherBrainLevel(MotherBrainLevelData);
         flashbackProjectiles.Reset();
         flashbackDemoInput = new DemoInputState();

@@ -27,6 +27,7 @@ internal sealed class IntroCinematicObjectSystem
     private ushort textInstructionTimer;
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
+    [NonSerialized] private bool useInstalledCaretInstructions;
     private ushort currentEyeFramePointer;
     private ushort currentEyePackedPosition;
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
@@ -58,6 +59,7 @@ internal sealed class IntroCinematicObjectSystem
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
         this.eyeArtwork = eyeArtwork;
+        useInstalledCaretInstructions = eyeArtwork is not null;
         if (textTilemap.Length != IntroCinematicRomData.Layers.TextTilemapWordCount)
             throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
     }
@@ -93,6 +95,7 @@ internal sealed class IntroCinematicObjectSystem
     public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
     {
         eyeArtwork = value;
+        useInstalledCaretInstructions = value is not null;
         if (value is not null &&
             IntroEyeAnimationDefinitions.TryFrameIndex(currentEyeFramePointer, out int index))
             CopyRectangleToPortrait(
@@ -687,9 +690,13 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidDataException($"Cinematic rectangle ({x},{y}) {width}x{height} leaves its 32x32 tilemap.");
     }
 
-    private ushort ReadBank8B(ushort pointer) => RomDataReader.ReadWordFixedBank(
-        bus,
-        IntroCinematicRomData.Banks.CinematicCode | pointer);
+    private ushort ReadBank8B(ushort pointer) =>
+        useInstalledCaretInstructions &&
+        IntroCaretInstructionDefinitions.TryReadWord(pointer, out ushort word)
+            ? word
+            : RomDataReader.ReadWordFixedBank(
+                bus,
+                IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private ushort ReadBank8C(ushort pointer) =>
         eyeArtwork is not null && IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)

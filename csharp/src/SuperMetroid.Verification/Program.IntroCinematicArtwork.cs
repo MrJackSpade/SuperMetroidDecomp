@@ -543,7 +543,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected caret sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye rectangles, caret compositions and full RGB5 palette; native parity, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye rectangles, one visible caret composition and full RGB5 palette; native parity, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -632,6 +632,12 @@ internal static partial class Program
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
+        for (int offset = IntroCaretInstructionDefinitions.StartPointer;
+             offset < IntroCaretInstructionDefinitions.EndPointer; offset++)
+            AssertEqual(bus.ReadByte((int)new SnesAddress(
+                    IntroCinematicRomData.Banks.CinematicCode >> 16, (ushort)offset)),
+                IntroCaretInstructionDefinitions.ReadByte((ushort)offset),
+                $"opening caret instruction byte {offset:X4} matches cartridge");
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
@@ -658,8 +664,40 @@ internal static partial class Program
             IntroCaretSpriteFormat.FileName);
         IntroCaretSpriteDocument document = JsonSerializer.Deserialize<IntroCaretSpriteDocument>(
             File.ReadAllBytes(caretPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        SpriteVisualPart part = document.Frames["caret-still"][0];
-        document.Frames["caret-still"][0] = part with { TileColumn = part.TileColumn + 1 };
+        AssertEqual(1, document.Frames.Count,
+            "caret asset excludes neighboring non-caret spritemaps");
+        var previousFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
+        {
+            [IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = document.Frames["caret-visible"],
+            [IntroCaretSpriteDefinitions.PreviousFrameNames[1]] = [],
+            [IntroCaretSpriteDefinitions.PreviousFrameNames[2]] = [],
+            [IntroCaretSpriteDefinitions.PreviousFrameNames[3]] = [],
+        };
+        using (var previousJson = new MemoryStream())
+        {
+            IntroCaretSpritePresentation.Write(previousJson, new IntroCaretSpriteDocument
+            {
+                Version = IntroCaretSpriteFormat.PreviousVersion,
+                Frames = previousFrames,
+            });
+            previousJson.Position = 0;
+            IntroCaretSpritePresentation previous = IntroCaretSpritePresentation.Load(previousJson);
+            var previousOam = new OamBuffer();
+            previousOam.BeginFrame();
+            previous.Draw(IntroCaretSpriteDefinitions.Still, previousOam,
+                originX, originY, paletteBits);
+            previousOam.FinalizeFrame();
+            var stockOam = new OamBuffer();
+            stockOam.BeginFrame();
+            stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, stockOam,
+                originX, originY, paletteBits);
+            stockOam.FinalizeFrame();
+            AssertTrue(previousOam.LowTable.SequenceEqual(stockOam.LowTable) &&
+                    previousOam.HighTable.SequenceEqual(stockOam.HighTable),
+                "prior four-frame override preserves its actual caret composition");
+        }
+        SpriteVisualPart part = document.Frames["caret-visible"][0];
+        document.Frames["caret-visible"][0] = part with { TileColumn = part.TileColumn + 1 };
         using var editedJson = new MemoryStream();
         IntroCaretSpritePresentation.Write(editedJson, document);
         editedJson.Position = 0;
@@ -697,6 +735,25 @@ internal static partial class Program
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
+
+        var nativeBlink = new IntroCinematicObjectSystem(bus, new SnesVram(), new ushort[1024]);
+        var installedBlink = new IntroCinematicObjectSystem(guarded, new SnesVram(),
+            new ushort[1024], eyeArtwork: stock.EyeFrames);
+        var setBlink = typeof(IntroCinematicObjectSystem).GetMethod("SetCaretBlinking", flags)!;
+        setBlink.Invoke(nativeBlink, null);
+        setBlink.Invoke(installedBlink, null);
+        for (int frame = 0; frame < 20; frame++)
+        {
+            nativeBlink.Step();
+            installedBlink.Step();
+            ushort expected = (frame / 5) % 2 == 0 ? IntroCaretSpriteDefinitions.Still : (ushort)0;
+            AssertEqual(expected, nativeBlink.SpriteMapPointer,
+                $"native caret blink selects visible/blank frame at frame {frame}");
+            AssertEqual(expected, installedBlink.SpriteMapPointer,
+                $"installed caret blink selects visible/blank frame at frame {frame}");
+        }
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed caret blink avoids cartridge instruction and visual reads");
     }
 
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
@@ -746,6 +803,17 @@ internal static partial class Program
             }
             int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                 IntroEyeAnimationDefinitions.StartPointer);
+            int caretScriptStart = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.CinematicCode >> 16,
+                IntroCaretInstructionDefinitions.StartPointer);
+            if (address >= caretScriptStart &&
+                address < caretScriptStart + IntroCaretInstructionDefinitions.EndPointer -
+                    IntroCaretInstructionDefinitions.StartPointer)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread caret instruction ${address:X6}.");
+            }
             int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                 IntroEyeAnimationDefinitions.FrameStartPointer);
             foreach (IntroCaretFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)

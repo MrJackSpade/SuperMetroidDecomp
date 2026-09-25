@@ -134,10 +134,11 @@ priority, or flips under `overrides/intro-cinematic/`. The cartridge's blink
 script, frame durations, and portrait placement remain compiled behavior; a
 restored illustrated page reapplies the active rectangle without restarting
 its blink timer.
-`intro-caret-sprites.json` contains the four ordered OAM compositions for the
-illustrated-page text caret. Sprite offsets, tile regions, priority, flips, and
-an optional fixed palette are editable. A null palette inherits the caret's
-live color. The cartridge's caret position and blink durations remain code.
+`intro-caret-sprites.json` contains the illustrated-page text caret's visible
+OAM composition. Its blink alternates this one frame with no sprite; the three
+nearby ROM spritemaps are not caret frames. Sprite offsets, tile regions,
+priority, flips, and an optional fixed palette are editable. A null palette
+inherits the caret's live color. Position and blink durations remain code.
 
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and

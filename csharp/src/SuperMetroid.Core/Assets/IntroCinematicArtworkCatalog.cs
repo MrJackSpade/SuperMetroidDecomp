@@ -68,7 +68,7 @@ public sealed class IntroCinematicArtworkCatalog
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>
     public IntroEyeTilemapPresentation EyeFrames { get; }
-    /// <summary>Four editable caret OAM frames, without their blink timing or position.</summary>
+    /// <summary>The one visible caret OAM frame, without its blink timing or position.</summary>
     public IntroCaretSpritePresentation CaretSprites { get; }
     /// <summary>Native-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }

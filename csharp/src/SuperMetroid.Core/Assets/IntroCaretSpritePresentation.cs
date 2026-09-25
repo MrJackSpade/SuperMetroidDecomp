@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable OAM composition of the intro caret, independent of its blink script.</summary>
+/// <summary>Editable visible OAM composition of the intro caret, independent of its blink script.</summary>
 public sealed class IntroCaretSpritePresentation
 {
     private readonly Dictionary<ushort, SpriteComposition> frames;
@@ -35,14 +35,23 @@ public sealed class IntroCaretSpritePresentation
             throw new InvalidDataException("Invalid opening caret composition JSON.", error);
         }
         ReadOnlySpan<IntroCaretFrameDefinition> definitions = IntroCaretSpriteDefinitions.Frames;
-        if (document.Version != IntroCaretSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
-            throw new InvalidDataException("Opening caret requires four named sprite frames.");
+        bool previousVersion = document.Version == IntroCaretSpriteFormat.PreviousVersion;
+        if (document.Frames is null ||
+            (previousVersion
+                ? document.Frames.Count != IntroCaretSpriteDefinitions.PreviousFrameNames.Length ||
+                    IntroCaretSpriteDefinitions.PreviousFrameNames.Any(name =>
+                        !document.Frames.TryGetValue(name, out SpriteVisualPart[]? parts) ||
+                        parts is null || parts.Length > IntroCaretSpriteDefinitions.MaximumParts)
+                : document.Version != IntroCaretSpriteFormat.Version ||
+                    document.Frames.Count != definitions.Length))
+            throw new InvalidDataException("Opening caret requires its one visible sprite frame.");
 
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (IntroCaretFrameDefinition definition in definitions)
         {
-            if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
+            string sourceName = previousVersion
+                ? IntroCaretSpriteDefinitions.PreviousFrameNames[0] : definition.Name;
+            if (!document.Frames.TryGetValue(sourceName, out SpriteVisualPart[]? visual) ||
                 visual is null || visual.Length > IntroCaretSpriteDefinitions.MaximumParts)
                 throw new InvalidDataException($"Opening caret frame {definition.Name} is missing or too large.");
             var compiled = new CompiledSpritePart[visual.Length];
@@ -92,6 +101,7 @@ public sealed record IntroCaretSpriteDocument
 /// <summary>Installed file identity and schema version for opening caret compositions.</summary>
 public static class IntroCaretSpriteFormat
 {
-    public const int Version = 1;
+    public const int Version = 2;
+    public const int PreviousVersion = 1;
     public const string FileName = "intro-caret-sprites.json";
 }

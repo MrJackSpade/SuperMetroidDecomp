@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 9;
+    private const int FormatVersion = 10;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -51,6 +51,7 @@ public static class IntroCinematicArtworkFiles
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WriteFinalLine();
+        WriteEyeFrames();
         WritePalette();
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
@@ -170,6 +171,62 @@ public static class IntroCinematicArtworkFiles
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
+
+        void WriteEyeFrames()
+        {
+            var frames = new IntroEyeTilemapFrame[IntroEyeTilemapFormat.FrameCount];
+            var native = new ushort[frames.Length][];
+            for (int frame = 0; frame < frames.Length; frame++)
+            {
+                ushort pointer = (ushort)(IntroEyeAnimationDefinitions.FrameStartPointer +
+                    frame * IntroEyeAnimationDefinitions.FrameStride);
+                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
+                ushort function = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+                if (function != CinematicCodePointers.IndirectInstruction_DrawToPortraitTilemap ||
+                    bus.ReadByte(source + 2) != IntroEyeTilemapFormat.Columns ||
+                    bus.ReadByte(source + 3) != IntroEyeTilemapFormat.Rows)
+                    throw new InvalidDataException($"Opening eye frame {frame} changed its native draw shape.");
+                native[frame] = new ushort[IntroEyeTilemapFormat.CellsPerFrame];
+                var cells = new RoomBackgroundTilemapCell[IntroEyeTilemapFormat.CellsPerFrame];
+                for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
+                {
+                    int wordSource = source + 4 + cellIndex * sizeof(ushort);
+                    var word = new SnesBgTilemapWord((ushort)(bus.ReadByte(wordSource) |
+                        bus.ReadByte(wordSource + 1) << 8));
+                    native[frame][cellIndex] = word.Raw;
+                    cells[cellIndex] = new RoomBackgroundTilemapCell
+                    {
+                        TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
+                        TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
+                        Palette = word.PaletteIndex,
+                        Priority = word.HasPriority,
+                        FlipX = word.FlipHorizontally,
+                        FlipY = word.FlipVertically,
+                    };
+                }
+                frames[frame] = new IntroEyeTilemapFrame
+                {
+                    Id = IntroEyeTilemapFormat.FrameId(frame),
+                    Cells = cells,
+                };
+            }
+            using var json = new MemoryStream();
+            IntroEyeTilemapPresentation.Write(json, new IntroEyeTilemapDocument
+            {
+                Version = IntroEyeTilemapFormat.Version,
+                Frames = frames,
+            });
+            byte[] encoded = json.ToArray();
+            IntroEyeTilemapPresentation roundTrip = IntroEyeTilemapPresentation.Load(
+                new MemoryStream(encoded, writable: false));
+            for (int frame = 0; frame < frames.Length; frame++)
+                if (!roundTrip.FrameWords(frame).SequenceEqual(native[frame]))
+                    throw new InvalidDataException($"Opening eye frame {frame} did not round-trip cartridge tile words.");
+            string name = IntroEyeTilemapFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
@@ -206,6 +263,7 @@ public static class IntroCinematicArtworkFiles
             LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
             LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName),
             LoadFinalLine(),
+            LoadEyeFrames(),
             LoadPalette(),
             LoadCeresFlight(),
             LoadCeresDestruction());
@@ -284,6 +342,19 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        IntroEyeTilemapPresentation LoadEyeFrames()
+        {
+            (string path, byte[] selected) = ReadSelected(IntroEyeTilemapFormat.FileName);
+            try
+            {
+                return IntroEyeTilemapPresentation.Load(new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid opening eye art {path}: {error.Message}", error);
+            }
+        }
+
         CeresDestructionArtworkCatalog LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
@@ -326,6 +397,7 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkFormat.PortraitTilemapFileName,
         IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
         IntroFinalLineTilemapFormat.FileName,
+        IntroEyeTilemapFormat.FileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFormat.FileName,

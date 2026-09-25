@@ -80,6 +80,8 @@ public sealed partial class IntroCinematicState
                 value.BackgroundCharacters.Transfer.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
                 value.PortraitTilemap.Span);
+            // The active eye rectangle overlays the base portrait after its VRAM upload.
+            objects?.BindEyeArtwork(value.EyeFrames);
             // $8B:A66F replaces the initial BG3 card with live typewriter words
             // when page one begins. Never overwrite that current state on restore.
             if (Phase < IntroCinematicPhase.WaitForPageOneMusicQueue)
@@ -95,6 +97,8 @@ public sealed partial class IntroCinematicState
             // overlap without reloading the beam palette over a restored scene palette.
             SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0);
         }
+        else
+            objects?.BindEyeArtwork(null);
     }
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
@@ -1459,7 +1463,8 @@ public sealed partial class IntroCinematicState
             vram,
             textTilemap,
             audio,
-            narrationPresentation);
+            narrationPresentation,
+            characterArtwork?.EyeFrames);
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.DiscoveryDataIndex));

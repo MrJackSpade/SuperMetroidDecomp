@@ -12,6 +12,7 @@ public sealed class IntroCinematicArtworkCatalog
         RoomBackgroundTilemapAtlas portraitTilemap,
         RoomBackgroundTilemapAtlas initialNarrationTilemap,
         IntroFinalLineTilemap finalLine,
+        IntroEyeTilemapPresentation eyeFrames,
         IntroCinematicPalette palette,
         CeresFlightArtworkCatalog ceresFlight,
         CeresDestructionArtworkCatalog ceresDestruction)
@@ -36,6 +37,7 @@ public sealed class IntroCinematicArtworkCatalog
         PortraitTilemap = RequirePage(portraitTilemap, "portrait");
         InitialNarrationTilemap = RequirePage(initialNarrationTilemap, "initial narration");
         FinalLine = finalLine ?? throw new ArgumentNullException(nameof(finalLine));
+        EyeFrames = eyeFrames ?? throw new ArgumentNullException(nameof(eyeFrames));
         Palette = palette ?? throw new ArgumentNullException(nameof(palette));
         CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
         CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
@@ -62,6 +64,8 @@ public sealed class IntroCinematicArtworkCatalog
     public ReadOnlyMemory<byte> InitialNarrationTilemap { get; }
     /// <summary>Four ornamental BG3 rows placed beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }
+    /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>
+    public IntroEyeTilemapPresentation EyeFrames { get; }
     /// <summary>Native-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>

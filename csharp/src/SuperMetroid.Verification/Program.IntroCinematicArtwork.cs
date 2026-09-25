@@ -51,6 +51,27 @@ internal static partial class Program
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
+            for (int offset = IntroEyeAnimationDefinitions.StartPointer;
+                 offset < IntroEyeAnimationDefinitions.EndPointer; offset++)
+                AssertEqual(bus.ReadByte((int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, (ushort)offset)),
+                    IntroEyeAnimationDefinitions.ReadByte((ushort)offset),
+                    $"opening eye timing byte {offset:X4} matches cartridge");
+            for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
+            {
+                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    (ushort)(IntroEyeAnimationDefinitions.FrameStartPointer +
+                        frame * IntroEyeAnimationDefinitions.FrameStride));
+                for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
+                {
+                    int wordSource = source + 4 + cell * sizeof(ushort);
+                    ushort nativeWord = (ushort)(bus.ReadByte(wordSource) |
+                        bus.ReadByte(wordSource + 1) << 8);
+                    AssertEqual(nativeWord, stock.EyeFrames.FrameWords(frame)[cell],
+                        $"opening eye frame {frame} cell {cell} matches cartridge");
+                }
+            }
+            VerifyIntroEyeArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -508,8 +529,14 @@ internal static partial class Program
             File.WriteAllBytes(invalidPage, [0]);
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro BG page fails instead of silently falling back");
+            File.Delete(invalidPage);
+            string invalidEye = Path.Combine(installation.IntroCinematicOverrideDirectory,
+                IntroEyeTilemapFormat.FileName);
+            File.WriteAllBytes(invalidEye, [0]);
+            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
+                "malformed selected opening eye frames fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven tilemaps and full RGB5 palette; VRAM/CGRAM parity, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, four eye rectangles and full RGB5 palette; VRAM/CGRAM parity, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -519,6 +546,80 @@ internal static partial class Program
                 throw new InvalidOperationException("Intro artwork test cleanup escaped the workspace temp directory.");
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    private static void VerifyIntroEyeArtwork(SuperMetroidAddressSpace bus,
+        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+    {
+        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var nativeVram = new SnesVram();
+        var installedVram = new SnesVram();
+        var native = new IntroCinematicObjectSystem(bus, nativeVram, new ushort[1024]);
+        var installed = new IntroCinematicObjectSystem(guarded, installedVram,
+            new ushort[1024], eyeArtwork: stock.EyeFrames);
+        native.Step();
+        installed.Step();
+        AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+            "installed opening eye frame draws the exact native portrait rectangle");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed opening eye script and frame do not reread ROM");
+
+        string eyePath = Path.Combine(installation.IntroCinematicDirectory,
+            IntroEyeTilemapFormat.FileName);
+        IntroEyeTilemapDocument document = JsonSerializer.Deserialize<IntroEyeTilemapDocument>(
+            File.ReadAllBytes(eyePath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var firstFrame = document.Frames[0];
+        var firstCell = firstFrame.Cells[0];
+        firstFrame.Cells[0] = firstCell with
+        {
+            TileColumn = (firstCell.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
+        };
+        using var editedJson = new MemoryStream();
+        IntroEyeTilemapPresentation.Write(editedJson, document);
+        editedJson.Position = 0;
+        IntroEyeTilemapPresentation edited = IntroEyeTilemapPresentation.Load(editedJson);
+        var timerField = typeof(IntroCinematicObjectSystem).GetField("eyeInstructionTimer",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var pointerField = typeof(IntroCinematicObjectSystem).GetField("eyeInstructionPointer",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ushort timer = (ushort)timerField.GetValue(installed)!;
+        ushort pointer = (ushort)pointerField.GetValue(installed)!;
+        installed.BindEyeArtwork(edited);
+        AssertEqual(timer, (ushort)timerField.GetValue(installed)!,
+            "eye art rebind preserves blink timer");
+        AssertEqual(pointer, (ushort)pointerField.GetValue(installed)!,
+            "eye art rebind preserves blink script position");
+        int packedPosition = IntroEyeAnimationDefinitions.ReadByte(
+            (ushort)(IntroEyeAnimationDefinitions.StartPointer + 2)) |
+            IntroEyeAnimationDefinitions.ReadByte(
+                (ushort)(IntroEyeAnimationDefinitions.StartPointer + 3)) << 8;
+        int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
+            (packedPosition >> 8) * IntroCinematicRomData.Layers.TilemapWidth +
+            (packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask);
+        AssertEqual(edited.FrameWords(0)[0], installedVram.ReadWord(destination),
+            "eye JSON edit reaches the active portrait tile");
+        installed.BindEyeArtwork(stock.EyeFrames);
+        AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+            "restoring stock eye art restores exact native VRAM without restarting script");
+
+        for (int frame = 0; frame < 160; frame++)
+        {
+            native.Step();
+            installed.Step();
+            AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+                $"installed normal eye blink preserves native VRAM at frame {frame}");
+        }
+        native.StartEnglishPageSix();
+        installed.StartEnglishPageSix();
+        for (int frame = 0; frame < 64; frame++)
+        {
+            native.Step();
+            installed.Step();
+            AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+                $"installed page-six eye blink preserves native VRAM at frame {frame}");
+        }
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed eye lists and all four frames avoid native source reads");
     }
 
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
@@ -565,6 +666,20 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread opening divider ${address:X6}.");
+            }
+            int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroEyeAnimationDefinitions.StartPointer);
+            int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroEyeAnimationDefinitions.FrameStartPointer);
+            if ((address >= eyeScriptStart &&
+                    address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -
+                        IntroEyeAnimationDefinitions.StartPointer) ||
+                (address >= eyeFrameStart &&
+                    address < eyeFrameStart + IntroEyeAnimationDefinitions.FrameCount *
+                        IntroEyeAnimationDefinitions.FrameStride))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException($"Cinematic reread opening eye source ${address:X6}.");
             }
             return source.ReadByte(address);
         }

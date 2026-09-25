@@ -128,6 +128,12 @@ beneath the illustrated text pages. Copy it to `overrides/intro-cinematic/` to
 edit tile positions, palette selections, priority, or flips. Live text, caret
 motion, and page timing stay in code; a restored illustrated page replaces only
 those four divider rows.
+`intro-samus-eye-frames.json` contains four ordered 3-by-2 BG2 tile rectangles
+for the portrait's blinking eye. Each cell can change its tile, palette,
+priority, or flips under `overrides/intro-cinematic/`. The cartridge's blink
+script, frame durations, and portrait placement remain compiled behavior; a
+restored illustrated page reapplies the active rectangle without restarting
+its blink timer.
 
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and

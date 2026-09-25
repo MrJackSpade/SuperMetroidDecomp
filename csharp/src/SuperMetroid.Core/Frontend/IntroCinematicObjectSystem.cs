@@ -26,6 +26,9 @@ internal sealed class IntroCinematicObjectSystem
     private ushort textInstructionPointer;
     private ushort textInstructionTimer;
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
+    private ushort currentEyeFramePointer;
+    private ushort currentEyePackedPosition;
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
     private IntroNarrationPageId? narrationPage;
     private int narrationCharacterIndex;
@@ -46,13 +49,15 @@ internal sealed class IntroCinematicObjectSystem
         SnesVram vram,
         ushort[] textTilemap,
         CartridgeAudioState? audio = null,
-        IntroNarrationPresentation? narrationPresentation = null)
+        IntroNarrationPresentation? narrationPresentation = null,
+        IntroEyeTilemapPresentation? eyeArtwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.vram = vram ?? throw new ArgumentNullException(nameof(vram));
         this.textTilemap = textTilemap ?? throw new ArgumentNullException(nameof(textTilemap));
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
+        this.eyeArtwork = eyeArtwork;
         if (textTilemap.Length != IntroCinematicRomData.Layers.TextTilemapWordCount)
             throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
     }
@@ -83,6 +88,20 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>Current native Y coordinate; $F8 deliberately hides it below the viewport.</summary>
     public ushort CaretY => caretY;
+
+    /// <summary>Reapply the active eye rectangle after restoring a state or changing art.</summary>
+    public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
+    {
+        eyeArtwork = value;
+        if (value is not null &&
+            IntroEyeAnimationDefinitions.TryFrameIndex(currentEyeFramePointer, out int index))
+            CopyRectangleToPortrait(
+                currentEyePackedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask,
+                currentEyePackedPosition >> 8,
+                IntroEyeAnimationDefinitions.FrameColumns,
+                IntroEyeAnimationDefinitions.FrameRows,
+                value.FrameWords(index));
+    }
 
     /// <summary>
     /// Implements <c>PlaceIntroTextCaretOffScreen</c> at $8B:ADE1. The retail game keeps
@@ -473,6 +492,21 @@ internal sealed class IntroCinematicObjectSystem
         ushort packedPosition,
         ushort dataPointer)
     {
+        if (IntroEyeAnimationDefinitions.TryFrameIndex(dataPointer, out int eyeFrame))
+        {
+            currentEyeFramePointer = dataPointer;
+            currentEyePackedPosition = packedPosition;
+            if (eyeArtwork is not null)
+            {
+                int x = packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask;
+                int y = packedPosition >> 8;
+                CopyRectangleToPortrait(x, y,
+                    IntroEyeAnimationDefinitions.FrameColumns,
+                    IntroEyeAnimationDefinitions.FrameRows,
+                    eyeArtwork.FrameWords(eyeFrame));
+                return;
+            }
+        }
         ushort drawFunction = ReadBank8C(dataPointer);
         if (drawFunction == CinematicCodePointers.IndirectInstruction_DoNothing)
             return;
@@ -612,6 +646,22 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    private void CopyRectangleToPortrait(int destinationX, int destinationY, int width, int height,
+        ReadOnlySpan<ushort> source)
+    {
+        ValidateRectangle(destinationX, destinationY, width, height);
+        if (source.Length != width * height)
+            throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
+        for (int row = 0; row < height; row++)
+        {
+            ushort destinationWord = (ushort)(
+                IntroCinematicRomData.Layers.PortraitTilemapWord +
+                (destinationY + row) * IntroCinematicRomData.Layers.TilemapWidth +
+                destinationX);
+            vram.ExecuteWordTransfer(source.Slice(row * width, width), destinationWord, 1);
+        }
+    }
+
     private void ResetCaret()
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
@@ -642,7 +692,9 @@ internal sealed class IntroCinematicObjectSystem
         IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private ushort ReadBank8C(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(
+        eyeArtwork is not null && IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
+            ? word
+            : RomDataReader.ReadWordFixedBank(
             bus,
             new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer));
 

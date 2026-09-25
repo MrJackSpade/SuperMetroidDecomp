@@ -16,9 +16,15 @@ internal readonly record struct EnemyExtendedDrawComponent(
 public sealed class EnemyExtendedFrameCatalog
 {
     private readonly Dictionary<int, EnemyExtendedDrawComponent[]> frames;
+    private readonly Dictionary<int, int> displayFrames;
 
     private EnemyExtendedFrameCatalog(
-        Dictionary<int, EnemyExtendedDrawComponent[]> frames) => this.frames = frames;
+        Dictionary<int, EnemyExtendedDrawComponent[]> frames,
+        Dictionary<int, int> displayFrames)
+    {
+        this.frames = frames;
+        this.displayFrames = displayFrames;
+    }
 
     internal bool TryGet(byte bank, ushort pointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
@@ -40,6 +46,20 @@ public sealed class EnemyExtendedFrameCatalog
         }
         components = default;
         return false;
+    }
+
+    /// <summary>Maps an immutable physical extended-frame identity to editable draw components.</summary>
+    internal bool TryGetDisplay(byte bank, ushort nativePointer,
+        out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
+    {
+        int identity = (bank << 16) | nativePointer;
+        if (displayFrames.TryGetValue(identity, out int selected) &&
+            frames.TryGetValue(selected, out EnemyExtendedDrawComponent[]? found))
+        {
+            components = found;
+            return true;
+        }
+        return TryGet(bank, nativePointer, out components);
     }
 
     /// <summary>
@@ -69,6 +89,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.FirstVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.WalkingFrameCount,
@@ -81,7 +104,7 @@ public sealed class EnemyExtendedFrameCatalog
             _ => -1,
         };
         bool legacyOverride = expectedCount >= 0 &&
-            expectedCount != EnemyExtendedFrameDefinitions.ExpectedFrameCount;
+            document.Version != EnemyExtendedFrameDefinitions.Version;
         if (expectedCount < 0 || document.Frames is null ||
             document.Frames.Count != expectedCount ||
             (legacyOverride && stockForLegacyOverride!.frames.Count !=
@@ -92,6 +115,7 @@ public sealed class EnemyExtendedFrameCatalog
             EnemyExtendedFrameDefinitions.Frames[..expectedCount];
 
         var frames = new Dictionary<int, EnemyExtendedDrawComponent[]>();
+        var identities = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (EnemyExtendedFrameDefinition definition in expected)
         {
             if (!document.Frames.TryGetValue(definition.Name,
@@ -123,14 +147,43 @@ public sealed class EnemyExtendedFrameCatalog
                     compiled))
                 throw new InvalidDataException(
                     $"Extended enemy frame {definition.Name} repeats a visual identity.");
+            identities.Add(definition.Name,
+                (definition.Bank << 16) | definition.Pointer);
+        }
+        var displayFrames = new Dictionary<int, int>();
+        if (!legacyOverride)
+        {
+            if (document.DisplayFrames is null ||
+                document.DisplayFrames.Count != identities.Count)
+                throw new InvalidDataException(
+                    "Extended enemy display bindings require every named frame.");
+            foreach ((string name, int identity) in identities)
+            {
+                if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
+                    selectedName is null ||
+                    !identities.TryGetValue(selectedName, out int selected) ||
+                    !SamePirateFamily(name, selectedName))
+                    throw new InvalidDataException(
+                        $"Extended enemy display binding {name} must select a frame of the same Pirate family.");
+                displayFrames.Add(identity, selected);
+            }
         }
         if (!legacyOverride)
-            return new EnemyExtendedFrameCatalog(frames);
+            return new EnemyExtendedFrameCatalog(frames, displayFrames);
         var merged = new Dictionary<int, EnemyExtendedDrawComponent[]>(
             stockForLegacyOverride!.frames);
         foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        return new EnemyExtendedFrameCatalog(merged);
+        return new EnemyExtendedFrameCatalog(merged,
+            new Dictionary<int, int>(stockForLegacyOverride.displayFrames));
+
+        static bool SamePirateFamily(string left, string right)
+        {
+            int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);
+            int rightEnd = right.IndexOf("_pirate_", StringComparison.Ordinal);
+            return leftEnd > 0 && rightEnd > 0 && left.AsSpan(0, leftEnd)
+                .SequenceEqual(right.AsSpan(0, rightEnd));
+        }
     }
 }
 
@@ -147,4 +200,6 @@ public sealed record EnemyExtendedFrameDocument
 {
     public required int Version { get; init; }
     public required Dictionary<string, EnemyExtendedVisualComponent[]> Frames { get; init; }
+    /// <summary>Visual-only frame selection; native timers and hitboxes remain fixed.</summary>
+    public Dictionary<string, string>? DisplayFrames { get; init; }
 }

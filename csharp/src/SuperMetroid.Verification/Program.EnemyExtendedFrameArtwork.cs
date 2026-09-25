@@ -248,6 +248,74 @@ internal static partial class Program
                     ninjaPointer, out _),
             "edited Ninja composition survives catalog reload");
 
+        var preBindings = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
+            Frames = document.Frames,
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            preBindings, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedBindings = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(movedNinja.LowTable.SequenceEqual(DrawExtended(
+                upgradedBindings, guard, ninjaPointer, 0x0040, 0x0080).LowTable),
+            "version-three extended override retains edited art and stock display bindings");
+
+        EnemyExtendedFrameDocument remapped =
+            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        const string sourceName = "walking_pirate_walk_left_0";
+        const string targetName = "walking_pirate_walk_left_1";
+        remapped.DisplayFrames![sourceName] = targetName;
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog swapped = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        ushort sourcePointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Single(frame => frame.Name == sourceName).Pointer;
+        ushort targetPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Single(frame => frame.Name == targetName).Pointer;
+        OamBuffer sourceOam = DrawExtended(stock, guard, sourcePointer,
+            0x0040, 0x0080);
+        OamBuffer targetOam = DrawExtended(stock, guard, targetPointer,
+            0x0040, 0x0080);
+        OamBuffer remappedOam = DrawExtended(swapped, guard, sourcePointer,
+            0x0040, 0x0080, slot =>
+            {
+                AssertEqual(sourcePointer, slot.SpritemapPointer,
+                    "Pirate visual binding retains the native hitbox-frame pointer");
+                AssertEqual((ushort)7, slot.InstructionTimer,
+                    "Pirate visual binding retains the instruction timer");
+            });
+        AssertTrue(!sourceOam.LowTable.SequenceEqual(targetOam.LowTable),
+            "Pirate remap fixture uses visibly distinct native frames");
+        AssertTrue(remappedOam.LowTable.SequenceEqual(targetOam.LowTable) &&
+                   remappedOam.HighTable.SequenceEqual(targetOam.HighTable),
+            "Pirate display binding changes live OAM without reading the source frame");
+        AssertEqual(GetTouchCallback(stock, guard, sourcePointer),
+            GetTouchCallback(swapped, guard, sourcePointer),
+            "Pirate display binding cannot move the compiled hitbox callback");
+        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .ExtendedFrames!.TryGetDisplay(EnemyExtendedFrameDefinitions.Bank,
+                    sourcePointer, out _),
+            "Pirate display binding survives reload");
+        remapped.DisplayFrames[sourceName] = "wall_pirate_climb_left_0";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "cross-family Pirate display binding fails loudly");
+        remapped.DisplayFrames.Remove(sourceName);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "missing Pirate display binding fails loudly");
+
         EnemyExtendedVisualComponent[] editedNinjaComponents = document.Frames[ninjaName];
         document.Frames.Remove(ninjaName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -288,13 +356,14 @@ internal static partial class Program
 
         Console.WriteLine(
             "Space Pirate extended art: 131 walking/wall/ninja frames match native OAM " +
-            "at three origins with visual ROM reads forbidden; three-family edits, " +
-            "compiled-hitbox isolation, v1/v2 override migration, reload, stock hash " +
-            "and invalid-resource checks pass.");
+            "at three origins with visual ROM reads forbidden; three-family edits and " +
+            "draw-only frame remaps preserve hitboxes/timers; v1/v2/v3 override " +
+            "migration, reload, stock hash and invalid-resource checks pass.");
     }
 
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog? art,
-        ISnesAddressSpace bus, ushort pointer, ushort x, ushort y)
+        ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
+        Action<RoomEnemySlot>? inspect = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
@@ -311,10 +380,12 @@ internal static partial class Program
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.SpritemapPointer = pointer;
+        slot.InstructionTimer = 7;
         slot.XPosition = x;
         slot.YPosition = y;
         var oam = new OamBuffer();
         enemies.DrawLayers(oam, 0, 0, 0, 0);
+        inspect?.Invoke(slot);
         return oam;
     }
 

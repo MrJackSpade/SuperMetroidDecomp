@@ -57,6 +57,9 @@ internal static class EnemyExtendedFrameFiles
             {
                 Version = EnemyExtendedFrameDefinitions.Version,
                 Frames = frames,
+                DisplayFrames = EnemyExtendedFrameDefinitions.Frames.ToArray()
+                    .ToDictionary(frame => frame.Name, frame => frame.Name,
+                        StringComparer.Ordinal),
             }, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

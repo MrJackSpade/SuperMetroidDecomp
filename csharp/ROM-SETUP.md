@@ -238,12 +238,15 @@ Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
 `overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
-OAM fields listed above. Component offsets move only the drawing; the native
-hitbox geometry and touch/shot callbacks remain engine-owned; walking, wall,
-and ninja Pirate collision records are compiled and unaffected by JSON edits. A valid
+OAM fields listed above. Its `displayFrames` table can remap any named visual
+frame to another frame of the same Pirate family, without changing the native
+instruction frame, duration, or hitbox. Component offsets move only the drawing;
+native hitbox geometry and touch/shot callbacks remain engine-owned. Walking,
+wall, and ninja Pirate collision records are compiled and unaffected by JSON edits. A valid
 version-one override retains its walking-Pirate edits while wall and ninja frames
 come from verified stock. A version-two override also retains wall edits and
-inherits the new ninja frames; make a version-three copy to edit ninja frames.
+inherits the new ninja frames. Version-three overrides retain all their art and
+inherit stock identity bindings; use a version-four copy to edit display bindings.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
 Other extended enemy families still use cartridge visual records until their

@@ -15,7 +15,8 @@ internal static class EnemyExtendedFrameDefinitions
 {
     internal const int FirstVersion = 1;
     internal const int PreviousVersion = 2;
-    internal const int Version = 3;
+    internal const int PreDisplayBindingsVersion = 3;
+    internal const int Version = 4;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;

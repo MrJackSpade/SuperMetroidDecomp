@@ -918,7 +918,7 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                if (TileArtwork?.ExtendedFrames?.TryGet(slot.Definition.Bank,
+                if (TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
                         slot.SpritemapPointer,
                         out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
                 {

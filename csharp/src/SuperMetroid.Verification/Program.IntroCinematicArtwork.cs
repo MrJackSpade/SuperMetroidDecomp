@@ -75,6 +75,7 @@ internal static partial class Program
             VerifyIntroEyeArtwork(bus, stock, installation);
             VerifyIntroCaretSpriteArtwork(bus, stock, installation);
             VerifyIntroMotherBrainCollision(bus, stock);
+            VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -544,8 +545,14 @@ internal static partial class Program
             File.WriteAllBytes(invalidCaret, [0]);
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected caret sprites fail instead of silently falling back");
+            File.Delete(invalidCaret);
+            string invalidMotherBrain = Path.Combine(installation.IntroCinematicOverrideDirectory,
+                IntroMotherBrainSpriteFormat.FileName);
+            File.WriteAllBytes(invalidMotherBrain, [0]);
+            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
+                "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye rectangles, one visible caret composition and full RGB5 palette; native parity, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -790,6 +797,91 @@ internal static partial class Program
             "flashback setup never rereads the physical level source");
     }
 
+    private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroidAddressSpace bus,
+        IntroCinematicArtworkCatalog stock, GameInstallation installation)
+    {
+        foreach (IntroMotherBrainSpriteFrameDefinition definition in
+            IntroMotherBrainSpriteDefinitions.Frames)
+        {
+            var native = new OamBuffer();
+            native.BeginFrame();
+            native.AddOnScreenSpritemap(bus,
+                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                    definition.Pointer),
+                IntroMotherBrainSpriteState.XPosition,
+                IntroMotherBrainSpriteState.YPosition,
+                IntroMotherBrainSpriteState.PaletteBits);
+            native.FinalizeFrame();
+            var installed = new OamBuffer();
+            installed.BeginFrame();
+            stock.MotherBrainSprites.Draw(definition.Pointer, installed,
+                IntroMotherBrainSpriteState.XPosition,
+                IntroMotherBrainSpriteState.YPosition,
+                IntroMotherBrainSpriteState.PaletteBits);
+            installed.FinalizeFrame();
+            AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
+                    installed.HighTable.SequenceEqual(native.HighTable) &&
+                    installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
+                $"intro Mother Brain {definition.Name} produces exact native OAM");
+        }
+
+        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
+        string name = IntroMotherBrainSpriteFormat.FileName;
+        IntroMotherBrainSpriteDocument document = JsonSerializer.Deserialize<IntroMotherBrainSpriteDocument>(
+            File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        document.Frames["mother-brain-frame-0"] = document.Frames["mother-brain-frame-0"]
+            .Select(part => part with { Palette = 0 }).ToArray();
+        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
+        using (var output = File.Create(overridePath))
+            IntroMotherBrainSpritePresentation.Write(output, document);
+        IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
+        var stockOam = new OamBuffer();
+        stockOam.BeginFrame();
+        stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, stockOam,
+            IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition,
+            IntroMotherBrainSpriteState.PaletteBits);
+        stockOam.FinalizeFrame();
+        var editedOam = new OamBuffer();
+        editedOam.BeginFrame();
+        edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, editedOam,
+            IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition,
+            IntroMotherBrainSpriteState.PaletteBits);
+        editedOam.FinalizeFrame();
+        AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&
+                editedOam.HighTable.SequenceEqual(stockOam.HighTable),
+            "intro Mother Brain palette edit changes OAM art but not sprite size or X high bits");
+        for (int part = 0; part < IntroMotherBrainSpriteDefinitions.StockPartCount; part++)
+            AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
+                    .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
+                $"intro Mother Brain palette edit preserves part {part} screen position");
+
+        var guarded = new IntroArtworkSourceReadGuard(bus);
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var stockState = new IntroCinematicState(guarded, characterArtwork: stock);
+        var editedState = new IntroCinematicState(guarded, characterArtwork: edited);
+        foreach (IntroCinematicState state in new[] { stockState, editedState })
+        {
+            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
+                .Invoke(state, null);
+            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
+                .Invoke(state, null);
+            ((IntroMotherBrainSpriteState)typeof(IntroCinematicState)
+                .GetField("flashbackMotherBrain", flags)!.GetValue(state)!).Step(guarded);
+        }
+        var render = typeof(IntroCinematicState).GetMethod("RenderMotherBrainFlashback", flags)!;
+        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
+        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        AssertTrue(!editedPixels.SequenceEqual(stockPixels),
+            "intro Mother Brain palette override changes visible production scene pixels");
+        stockState.BindCharacterArtwork(edited);
+        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+            "restored intro Mother Brain scene rebinds the selected visual composition");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed intro Mother Brain rendering avoids all three native spritemap records");
+        File.Delete(overridePath);
+    }
+
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
@@ -869,6 +961,19 @@ internal static partial class Program
                     throw new InvalidOperationException(
                         $"Cinematic reread caret composition ${address:X6}.");
                 }
+            }
+            int motherBrainSpriteStart = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroMotherBrainSpriteDefinitions.FrameZero);
+            int motherBrainSpriteEnd = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                (ushort)(IntroMotherBrainSpriteDefinitions.FrameTwo +
+                    2 + IntroMotherBrainSpriteDefinitions.StockPartCount * 5));
+            if (address >= motherBrainSpriteStart && address < motherBrainSpriteEnd)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread intro Mother Brain sprite ${address:X6}.");
             }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

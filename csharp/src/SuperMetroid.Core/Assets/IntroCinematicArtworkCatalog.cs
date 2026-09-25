@@ -14,6 +14,7 @@ public sealed class IntroCinematicArtworkCatalog
         IntroFinalLineTilemap finalLine,
         IntroEyeTilemapPresentation eyeFrames,
         IntroCaretSpritePresentation caretSprites,
+        IntroMotherBrainSpritePresentation motherBrainSprites,
         IntroCinematicPalette palette,
         CeresFlightArtworkCatalog ceresFlight,
         CeresDestructionArtworkCatalog ceresDestruction)
@@ -40,6 +41,7 @@ public sealed class IntroCinematicArtworkCatalog
         FinalLine = finalLine ?? throw new ArgumentNullException(nameof(finalLine));
         EyeFrames = eyeFrames ?? throw new ArgumentNullException(nameof(eyeFrames));
         CaretSprites = caretSprites ?? throw new ArgumentNullException(nameof(caretSprites));
+        MotherBrainSprites = motherBrainSprites ?? throw new ArgumentNullException(nameof(motherBrainSprites));
         Palette = palette ?? throw new ArgumentNullException(nameof(palette));
         CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
         CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
@@ -70,6 +72,8 @@ public sealed class IntroCinematicArtworkCatalog
     public IntroEyeTilemapPresentation EyeFrames { get; }
     /// <summary>The one visible caret OAM frame, without its blink timing or position.</summary>
     public IntroCaretSpritePresentation CaretSprites { get; }
+    /// <summary>Three editable intro Mother Brain OAM frames, independent of its program.</summary>
+    public IntroMotherBrainSpritePresentation MotherBrainSprites { get; }
     /// <summary>Native-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>

@@ -1179,14 +1179,21 @@ public sealed partial class IntroCinematicState
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
-            oam.AddOnScreenSpritemap(
-                bus,
-                (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps,
-                    flashbackMotherBrain.SpriteMapPointer),
-                IntroMotherBrainSpriteState.XPosition,
-                IntroMotherBrainSpriteState.YPosition,
-                IntroMotherBrainSpriteState.PaletteBits);
+            if (characterArtwork is not null)
+                characterArtwork.MotherBrainSprites.Draw(
+                    flashbackMotherBrain.SpriteMapPointer, oam,
+                    IntroMotherBrainSpriteState.XPosition,
+                    IntroMotherBrainSpriteState.YPosition,
+                    IntroMotherBrainSpriteState.PaletteBits);
+            else
+                oam.AddOnScreenSpritemap(
+                    bus,
+                    (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps,
+                        flashbackMotherBrain.SpriteMapPointer),
+                    IntroMotherBrainSpriteState.XPosition,
+                    IntroMotherBrainSpriteState.YPosition,
+                    IntroMotherBrainSpriteState.PaletteBits);
         }
         oam.FinalizeFrame();
 

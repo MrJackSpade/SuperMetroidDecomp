@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 12;
+    private const int FormatVersion = 13;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -53,6 +53,7 @@ public static class IntroCinematicArtworkFiles
         WriteFinalLine();
         WriteEyeFrames();
         WriteCaretSprites();
+        WriteMotherBrainSprites();
         WritePalette();
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
@@ -233,39 +234,8 @@ public static class IntroCinematicArtworkFiles
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
             foreach (IntroCaretFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
-            {
-                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer);
-                int count = bus.ReadByte(source) | bus.ReadByte(source + 1) << 8;
-                if (count != definition.StockPartCount)
-                    throw new InvalidDataException(
-                        $"Opening caret frame {definition.Name} has {count} OAM parts, expected {definition.StockPartCount}.");
-                var parts = new SpriteVisualPart[count];
-                for (int index = 0; index < count; index++)
-                {
-                    int entry = source + 2 + index * 5;
-                    var x = new SnesSpritemapXWord((ushort)(bus.ReadByte(entry) |
-                        bus.ReadByte(entry + 1) << 8));
-                    byte y = bus.ReadByte(entry + 2);
-                    var attributes = new SnesObjAttributeWord((ushort)(bus.ReadByte(entry + 3) |
-                        bus.ReadByte(entry + 4) << 8));
-                    parts[index] = new SpriteVisualPart
-                    {
-                        OffsetX = x.SignedOffset,
-                        OffsetY = unchecked((sbyte)y),
-                        TileColumn = attributes.TileNumber % IntroCaretSpriteDefinitions.TileColumns,
-                        TileRow = attributes.TileNumber / IntroCaretSpriteDefinitions.TileColumns,
-                        Size = x.IsLarge ? 16 : 8,
-                        Priority = attributes.Priority,
-                        // The native on-screen loader replaces the source palette with the
-                        // caret owner's live palette. Null preserves that inheritance.
-                        Palette = null,
-                        FlipX = attributes.FlipHorizontally,
-                        FlipY = attributes.FlipVertically,
-                    };
-                }
-                frames.Add(definition.Name, parts);
-            }
+                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
+                    definition.Pointer, definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroCaretSpritePresentation.Write(json, new IntroCaretSpriteDocument
             {
@@ -274,6 +244,27 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroCaretSpriteFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
+
+        void WriteMotherBrainSprites()
+        {
+            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+            foreach (IntroMotherBrainSpriteFrameDefinition definition in
+                IntroMotherBrainSpriteDefinitions.Frames)
+                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
+                    definition.Pointer, IntroMotherBrainSpriteDefinitions.StockPartCount,
+                    definition.Name));
+            using var json = new MemoryStream();
+            IntroMotherBrainSpritePresentation.Write(json, new IntroMotherBrainSpriteDocument
+            {
+                Version = IntroMotherBrainSpriteFormat.Version,
+                Frames = frames,
+            });
+            byte[] encoded = json.ToArray();
+            string name = IntroMotherBrainSpriteFormat.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
@@ -316,6 +307,7 @@ public static class IntroCinematicArtworkFiles
             LoadFinalLine(),
             LoadEyeFrames(),
             LoadCaretSprites(),
+            LoadMotherBrainSprites(),
             LoadPalette(),
             LoadCeresFlight(),
             LoadCeresDestruction());
@@ -420,6 +412,21 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        IntroMotherBrainSpritePresentation LoadMotherBrainSprites()
+        {
+            (string path, byte[] selected) = ReadSelected(IntroMotherBrainSpriteFormat.FileName);
+            try
+            {
+                return IntroMotherBrainSpritePresentation.Load(
+                    new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid intro Mother Brain sprites {path}: {error.Message}", error);
+            }
+        }
+
         CeresDestructionArtworkCatalog LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
@@ -464,6 +471,7 @@ public static class IntroCinematicArtworkFiles
         IntroFinalLineTilemapFormat.FileName,
         IntroEyeTilemapFormat.FileName,
         IntroCaretSpriteFormat.FileName,
+        IntroMotherBrainSpriteFormat.FileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFormat.FileName,

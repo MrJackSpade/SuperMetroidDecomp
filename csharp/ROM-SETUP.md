@@ -139,6 +139,10 @@ OAM composition. Its blink alternates this one frame with no sprite; the three
 nearby ROM spritemaps are not caret frames. Sprite offsets, tile regions,
 priority, flips, and an optional fixed palette are editable. A null palette
 inherits the caret's live color. Position and blink durations remain code.
+`intro-mother-brain-sprites.json` contains the three nine-part Mother Brain
+frames used in the opening flashback. Their OAM offsets, tile references,
+priority, flips, and optional palette are editable; missile damage, hitboxes,
+explosion timing, and the page-two handoff remain compiled behavior.
 
 The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
 `ceres-flight-object-characters.png` (256x128 indexed), and

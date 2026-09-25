@@ -11,6 +11,7 @@ internal static partial class Program
     static void VerifyBombTorizoHandPlm()
     {
         VerifyBombTorizoHandProgramDefinitions();
+        VerifyBombTorizoHandVisualInstallation();
         var bus = new TestAddressSpace();
         const ushort population = 0x9000;
         const int width = 16;
@@ -51,22 +52,29 @@ internal static partial class Program
             0xbc, 0x86,
         ]);
 
-        // Minimal valid one-block draw records let the common DrawPLM decoder remain the
-        // authority without making this lifecycle test depend on retail block graphics.
-        bus.WriteBytes(0x849877, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00]);
-        bus.WriteBytes(0x84989d, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00]);
+        // Both physical draw payloads are compiled. They deliberately remain absent
+        // from the synthetic bus so a fallback to the old decoder cannot pass.
         var guarded = new BombTorizoHandProgramReadGuard(bus);
 
+        var blockDefinitions = new byte[0x400 * 8];
+        blockDefinitions[0x53 * 8] = 0x53;
         var level = new RoomLevelData(
             width,
             height,
             new ushort[width * height],
             new byte[width * height],
             new ushort[width * height],
-            new byte[8]);
+            blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
         var plms = new RoomPlmSystem();
+        var editedVisuals = new RoomPlmBombTorizoHandVisualCatalog(
+        [
+            new("intact", [0x0053, 0x0066, 0x0064, 0x0045,
+                0x0046, 0x0047, 0x0048, 0x0049]),
+            new("cleared", Enumerable.Repeat((ushort)0x00ff, 16).ToArray()),
+        ]);
+        plms.BombTorizoHandVisuals = editedVisuals;
 
         AssertEqual(1, plms.LoadRoomPopulation(
                 guarded,
@@ -86,6 +94,21 @@ internal static partial class Program
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
         plms.Step(guarded, level, streamer, 0, 0, 0);
+        int handOrigin = level.GetBlockIndex(13, 11);
+        AssertEqual((ushort)0x8065,
+            level.GetCollisionBlockByIndex(handOrigin).LevelWord,
+            "edited Bomb Torizo hand keeps the cartridge's physical level word");
+        AssertEqual((ushort)0x0053,
+            plms.TilemapUpdates[0].TopRow[0],
+            "edited hand reaches the immediate tilemap update");
+        AssertEqual((ushort)0x0053,
+            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
+                handOrigin, 0).TopRow[0],
+            "edited hand survives later background streaming");
+        AssertEqual((ushort)0x8064, level.GetCollisionBlock(12, 11).LevelWord,
+            "multi-run hand geometry retains the second native run");
+        AssertEqual((ushort)0x8049, level.GetCollisionBlock(14, 12).LevelWord,
+            "multi-run hand geometry retains the fourth native run");
         plms.Step(guarded, level, streamer, 0, 0, 0);
         for (int frame = 0; frame < 180; frame++)
             plms.Step(guarded, level, streamer, 0, 0, 0);
@@ -126,6 +149,9 @@ internal static partial class Program
             "hand fragment parameters preserve cartridge order");
         AssertTrue(!plms.HasActiveHeader(0xd6ea),
             "final delete removes header seen by Torizo AI");
+        AssertEqual((ushort)0x00ff,
+            level.GetCollisionBlockByIndex(handOrigin).LevelWord,
+            "five-run cleared hand removes its physical origin block");
         AssertTrue(plms.BombTorizoHandWasDeleted,
             "hand deletion remains debugger-visible");
         AssertEqual(1, plms.MusicRequests.Count,
@@ -150,7 +176,7 @@ internal static partial class Program
         AssertTrue(!defeated.HasActiveHeader(0xd6ea),
             "defeated setup exposes no transient hand header");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "complete hand lifecycle and defeated reload never reread program bytes");
+            "complete hand lifecycle and defeated reload never reread program or draw bytes");
 
         Console.WriteLine(
             "  Bomb Torizo hand: inventory gate, DMA, debris cadence, music, and deletion agree.");
@@ -191,7 +217,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= 0x84d368 && address <= 0x84d3c6)
+            if (address is >= 0x84d368 and <= 0x84d3c6 or
+                >= 0x849877 and <= 0x8498d0)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

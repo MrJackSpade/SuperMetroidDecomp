@@ -81,6 +81,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.EscapeGateVisuals = value;
     }
 
+    /// <summary>Visual-only Bomb Torizo hand resource; reattached after state restoration.</summary>
+    public RoomPlmBombTorizoHandVisualCatalog? RoomPlmBombTorizoHandVisuals
+    {
+        get => Plms.BombTorizoHandVisuals;
+        set => Plms.BombTorizoHandVisuals = value;
+    }
+
     /// <summary>Visual-only collectible resources; reattached after debugger-state restoration.</summary>
     public RoomPlmCollectibleVisualCatalog? RoomPlmCollectibleVisuals
     {

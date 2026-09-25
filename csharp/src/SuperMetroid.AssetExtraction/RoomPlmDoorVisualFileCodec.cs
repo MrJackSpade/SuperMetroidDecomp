@@ -92,7 +92,9 @@ internal static class RoomPlmDoorVisualFileCodec
                  definitions.OrderBy(item => item.Pointer))
         {
             ushort pointer = draw.Pointer;
-            if (draw.Runs.Length is < 1 or > 4)
+            // Bomb Torizo's cleared-hand image has five native rows. Keep a
+            // bounded structural guard, but do not reject that valid layout.
+            if (draw.Runs.Length is < 1 or > 8)
                 throw new InvalidDataException(
                     $"Compiled {family} draw ${pointer:X4} has an invalid run count.");
             var blocks = new List<ushort>();

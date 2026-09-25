@@ -99,6 +99,7 @@ public static class GameAssetInstaller
             RoomPlmNoobTubeVisualFiles.ValidateStock(installation.RoomPlmNoobTubeVisualDirectory);
             RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
             RoomPlmEscapeGateVisualFiles.ValidateStock(installation.RoomPlmEscapeGateVisualDirectory);
+            RoomPlmBombTorizoHandVisualFiles.ValidateStock(installation.RoomPlmBombTorizoHandVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
             RoomSkyTilemapArtworkFiles.ValidateStock(installation.RoomBackgroundTilemapDirectory);
@@ -272,6 +273,13 @@ public static class GameAssetInstaller
             RoomPlmEscapeGateVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 escapeGateVisuals, SupportedCartridge.Sha256);
             RoomPlmEscapeGateVisualFiles.ValidateStock(escapeGateVisuals);
+            progress?.Report("Extracting Bomb Torizo hand visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string bombTorizoHandVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmBombTorizoHandVisualDirectoryName);
+            RoomPlmBombTorizoHandVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                bombTorizoHandVisuals, SupportedCartridge.Sha256);
+            RoomPlmBombTorizoHandVisualFiles.ValidateStock(bombTorizoHandVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

@@ -29,6 +29,15 @@ The intervening Bombs-test callback is machine code, not instruction data.
 Its guarded fixture runs both sides of the Bombs gate, Torizo-defeat unlock,
 opening, persistence, and reload-to-blue conversion.
 
+Bomb Torizo's resident hand now also uses compiled physical draws at
+$84:9877 and $84:989D (four and five runs). Extraction checks every authored
+run word and offset against the pinned ROM. The real PLM lifecycle executes
+with both draw payloads unreadable; an edited visual word reaches immediate
+and streamed tilemaps without altering the physical level word. All eight
+intact-hand and sixteen cleared-hand visible blocks are editable in
+`room-plm-bomb-torizo-hand/bomb-torizo-hand.json`, with strict stock and
+override validation.
+
 The mirrored three-component eye doors now use the contiguous $D81E..DA8B
 compiled instruction region (622 bytes). Both directions complete the real
 near-Samus activation, Super Missile opening, passive-component deletion,

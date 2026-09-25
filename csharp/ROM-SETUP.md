@@ -481,6 +481,15 @@ room's combined CRE/area definitions; the cartridge's collision, closing
 timing, and door-transition handoff remain compiled mechanics. Malformed
 overrides fail loudly, and a valid override survives stock installation repair.
 
+Bomb Torizo's resident hand PLM appearances are installed as
+`game/room-plm-bomb-torizo-hand/bomb-torizo-hand.json`. Copy that file to
+`overrides/room-plm-bomb-torizo-hand/bomb-torizo-hand.json` and edit only
+`blocks` visual words (0..4095), then restart. Keep both `intact` (eight
+blocks in native run order) and `cleared` (sixteen blocks). The authored
+geometry, collision words, Bombs gate, debris timing, and music are not
+editable through this file. Invalid files fail loudly; valid overrides survive
+stock installation repair.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

@@ -14,6 +14,9 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(stock.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
+        AssertEqual(EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
+            "display-binding schema retains the existing native frame identities");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
@@ -589,6 +592,68 @@ internal static partial class Program
             "legacy override retains edited Boyon composition");
         AssertTrue(stockSkultera.LowTable.SequenceEqual(legacySkultera.LowTable),
             "legacy override gains stock Skultera composition");
+        var preBindings = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreDisplayBindingsVersion,
+            Frames = document.Frames,
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            preBindings, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedBindings = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertEqual(editedOam.LowTable[0],
+            DrawEnemy(upgradedBindings, new FrameReadGuard(rom), framePointer,
+                RoomEnemySystem.BoyonDefinition).LowTable[0],
+            "version-thirteen art override retains edits with stock display bindings");
+
+        // A binding may change only the presentation frame. The native pointer,
+        // instruction timer, and AI timer must remain untouched by drawing.
+        EnemySpritemapDocument remapped = JsonSerializer.Deserialize<EnemySpritemapDocument>(
+            original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        remapped.DisplayFrames!["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog swappedArt = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer nativeFirst = DrawEnemy(stock, new FrameReadGuard(rom), 0x88da,
+            RoomEnemySystem.BoyonDefinition);
+        OamBuffer nativeSecond = DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+            RoomEnemySystem.BoyonDefinition);
+        OamBuffer displayedSecond = DrawEnemy(swappedArt, new FrameReadGuard(rom),
+            0x88da, RoomEnemySystem.BoyonDefinition, slot =>
+            {
+                AssertEqual((ushort)0x88da, slot.SpritemapPointer,
+                    "display override retains native collision frame pointer");
+                AssertEqual((ushort)7, slot.InstructionTimer,
+                    "display override does not move an instruction frame boundary");
+                AssertEqual((ushort)9, slot.Timer,
+                    "display override does not move an enemy AI timer");
+            });
+        AssertTrue(!nativeFirst.LowTable.SequenceEqual(nativeSecond.LowTable),
+            "selected Boyon test frames are visually distinct");
+        AssertTrue(nativeSecond.LowTable.SequenceEqual(displayedSecond.LowTable) &&
+                   nativeSecond.HighTable.SequenceEqual(displayedSecond.HighTable),
+            "authored frame binding changes live OAM without a ROM visual read");
+        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .Spritemaps!.TryGetDisplay(EnemySpritemapDefinitions.BoyonBank,
+                    0x88da, out _),
+            "display override survives a catalog reload");
+        remapped.DisplayFrames["boyon_idle_0"] = "magdollite_left_idle_0";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "cross-bank display binding fails loudly");
+        remapped.DisplayFrames.Remove("boyon_idle_0");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "missing display binding fails loudly");
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1,\"frames\":{}}");
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
@@ -599,7 +664,8 @@ internal static partial class Program
             "malformed enemy composition override fails loudly");
 
         static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,
-            ISnesAddressSpace guard, ushort pointer, ushort definition)
+            ISnesAddressSpace guard, ushort pointer, ushort definition,
+            Action<RoomEnemySlot>? inspect = null)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -634,10 +700,13 @@ internal static partial class Program
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
             slot.SpritemapPointer = pointer;
+            slot.InstructionTimer = 7;
+            slot.Timer = 9;
             slot.XPosition = 0x0040;
             slot.YPosition = 0x0080;
             var oam = new OamBuffer();
             enemies.DrawLayers(oam, 0, 0, 0, 0);
+            inspect?.Invoke(slot);
             return oam;
         }
     }

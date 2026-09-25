@@ -23,6 +23,9 @@ internal static class EnemySpritemapFiles
         {
             Version = EnemySpritemapDefinitions.Version,
             Frames = frames,
+            DisplayFrames = EnemySpritemapDefinitions.Frames.ToArray()
+                .ToDictionary(frame => frame.Name, frame => frame.Name,
+                    StringComparer.Ordinal),
         }, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

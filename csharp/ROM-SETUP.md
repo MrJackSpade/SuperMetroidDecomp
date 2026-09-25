@@ -221,13 +221,19 @@ the three Ripper variants, Fireflea, and Magdollite visual frames.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
-`flipX`, or `flipY`. Frame timing and selection, enemy hitboxes, movement, and
-damage remain engine-owned. The stock JSON is hash-checked; malformed overrides
+`flipX`, or `flipY`. The `displayFrames` table may also bind each named native
+frame to a different named frame in the same bank, letting an artist rearrange
+the visible sequence without moving its native frame boundaries. For example,
+setting `"boyon_idle_0": "boyon_idle_1"` displays the second Boyon composition
+whenever the first is selected by gameplay. Native frame duration, collision
+selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
+JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-twelve overrides remain valid:
+Existing version-four through version-thirteen overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Save a current version-thirteen copy to edit Magdollite frames.
+content and new visual bindings default to the stock identity selections. Save a
+current version-fourteen copy to edit Magdollite frames or display bindings.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
 `overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains

@@ -8,14 +8,37 @@ namespace SuperMetroid.Core.Assets;
 public sealed class EnemySpritemapCatalog
 {
     private readonly Dictionary<int, EnemySpritemapPart[]> frames;
+    private readonly Dictionary<int, int> displayFrames;
 
-    private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapPart[]> frames) =>
+    private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapPart[]> frames,
+        Dictionary<int, int> displayFrames)
+    {
         this.frames = frames;
+        this.displayFrames = displayFrames;
+    }
 
     /// <summary>Returns a known installed frame; an unrelated enemy may still use its ROM path.</summary>
     public bool TryGet(byte bank, ushort pointer, out ReadOnlyMemory<EnemySpritemapPart> parts)
     {
         if (frames.TryGetValue((bank << 16) | pointer, out EnemySpritemapPart[]? found))
+        {
+            parts = found;
+            return true;
+        }
+        parts = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Resolves an editable presentation binding without changing the native frame pointer
+    /// retained by enemy AI, hitbox selection, or instruction timing.
+    /// </summary>
+    public bool TryGetDisplay(byte bank, ushort nativePointer,
+        out ReadOnlyMemory<EnemySpritemapPart> parts)
+    {
+        int identity = (bank << 16) | nativePointer;
+        if (displayFrames.TryGetValue(identity, out int selected) &&
+            frames.TryGetValue(selected, out EnemySpritemapPart[]? found))
         {
             parts = found;
             return true;
@@ -50,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreDisplayBindingsVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
             EnemySpritemapDefinitions.PreMagdolliteVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreMagdolliteFrameCount,
             EnemySpritemapDefinitions.PreFirefleaVersion when stockForLegacyOverride is not null =>
@@ -72,7 +97,7 @@ public sealed class EnemySpritemapCatalog
             _ => -1,
         };
         bool legacyOverride = expectedCount >= 0 &&
-            expectedCount != EnemySpritemapDefinitions.Frames.Length;
+            document.Version != EnemySpritemapDefinitions.Version;
         ReadOnlySpan<EnemySpritemapDefinition> expected = expectedCount >= 0
             ? EnemySpritemapDefinitions.Frames[..expectedCount]
             : [];
@@ -84,6 +109,7 @@ public sealed class EnemySpritemapCatalog
                 "Enemy compositions require the current version and every named frame.");
 
         var frames = new Dictionary<int, EnemySpritemapPart[]>();
+        var identities = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition frame in expected)
         {
             if (!document.Frames.TryGetValue(frame.Name, out SpriteVisualPart[]? visual) ||
@@ -94,13 +120,35 @@ public sealed class EnemySpritemapCatalog
             if (!frames.TryAdd((frame.Bank << 16) | frame.Pointer, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
+            identities.Add(frame.Name, (frame.Bank << 16) | frame.Pointer);
+        }
+        var displayFrames = new Dictionary<int, int>();
+        if (!legacyOverride)
+        {
+            if (document.DisplayFrames is null ||
+                document.DisplayFrames.Count != identities.Count)
+                throw new InvalidDataException(
+                    "Enemy display bindings require every named native frame.");
+            foreach ((string name, int identity) in identities)
+            {
+                if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
+                    selectedName is null ||
+                    !identities.TryGetValue(selectedName, out int selected) ||
+                    (identity >> 16) != (selected >> 16))
+                    throw new InvalidDataException(
+                        $"Enemy display binding {name} must select a named frame in the same bank.");
+                displayFrames.Add(identity, selected);
+            }
         }
         if (!legacyOverride)
-            return new EnemySpritemapCatalog(frames);
+            return new EnemySpritemapCatalog(frames, displayFrames);
         var merged = new Dictionary<int, EnemySpritemapPart[]>(stockForLegacyOverride!.frames);
         foreach ((int identity, EnemySpritemapPart[] parts) in frames)
             merged[identity] = parts;
-        return new EnemySpritemapCatalog(merged);
+        // Earlier user overrides contained only art. Preserve their edits and the
+        // verified stock identity bindings rather than guessing an animation remap.
+        return new EnemySpritemapCatalog(merged,
+            new Dictionary<int, int>(stockForLegacyOverride.displayFrames));
     }
 
     /// <summary>Compiles ordinary OAM pieces shared by plain and extended enemy frames.</summary>
@@ -158,4 +206,6 @@ public sealed record EnemySpritemapDocument
 {
     public required int Version { get; init; }
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
+    /// <summary>Visual-only native-frame-to-displayed-frame bindings; never AI timing.</summary>
+    public Dictionary<string, string>? DisplayFrames { get; init; }
 }

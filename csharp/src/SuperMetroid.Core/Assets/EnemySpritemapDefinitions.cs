@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 13;
+    internal const int Version = 14;
+    internal const int PreDisplayBindingsVersion = 13;
+    internal const int PreDisplayBindingsFrameCount = 244;
     internal const int PreMagdolliteVersion = 12;
     internal const int PreMagdolliteFrameCount = 215;
     internal const int PreFirefleaVersion = 11;

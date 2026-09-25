@@ -156,7 +156,7 @@ internal sealed class IntroCeresFlightState
             IntroCeresFlightPhase.FadeOut)
             StepRearViewActors();
         else if (Phase != IntroCeresFlightPhase.Finished)
-            stars.Step(bus);
+            stars.Step(bus, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
     }
 
     public Rgba32[] Render()
@@ -420,7 +420,7 @@ internal sealed class IntroCeresFlightState
                 AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
             else
                 AddSignedX(actor, definition.HorizontalDelta);
-            actor.Step(bus);
+            actor.Step(bus, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
         }
     }
 

@@ -42,7 +42,8 @@ internal static class CeresFlightActorDefinitions
 
     /// <summary>
     /// Returns the five actors spawned in native order by <c>$8B:BE3B-$8B:BE5C</c>.
-    /// Their lists remain ROM-backed; constructor metadata and physical motion do not.
+    /// Their instruction lists use the separate compiled Ceres-flight catalog;
+    /// visual spritemaps remain cartridge-backed until their art is installed.
     /// </summary>
     /// <remarks>
     /// Issues #625 and #1005: row zero selects the large-asteroid list at

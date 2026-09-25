@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Ceres approach actor instruction lists (2026-09-25)
+
+The five authored lists used by the front stars and all five rear-view actors
+now have a bounded 44-byte compiled bank-$8B program. Both star objects share
+the same list; the vortex alternates its two one-frame spritemaps. Verification
+compares every instruction byte with the pinned ROM, runs all six actors for
+eighty frames against independent ROM-backed interpreters, then completes the
+production approach with those source ranges unreadable. Visual bank-$8C
+spritemap compositions remain separate presentation work for #543.
+
 ## Title-card timing and sprite selectors (2026-09-25)
 
 The four fixed title-card lists and adjacent logo pointer at `$8B:A03D..A0C8`

@@ -62,16 +62,63 @@ internal static partial class Program
                 CeresFlightActorDefinitions.RearViewActorCount),
             "Ceres rear-view actor definition boundary");
 
+        VerifyProgram(CeresFlightSpriteInstructionDefinitions.RearClusterStart,
+            CeresFlightSpriteInstructionDefinitions.RearClusterEnd);
+        VerifyProgram(CeresFlightSpriteInstructionDefinitions.StarsStart,
+            CeresFlightSpriteInstructionDefinitions.StarsEnd);
+        VerifyProgram(CeresFlightSpriteInstructionDefinitions.LargeAsteroidStart,
+            CeresFlightSpriteInstructionDefinitions.LargeAsteroidEnd);
+        AssertThrows<InvalidDataException>(() =>
+            CeresFlightSpriteInstructionDefinitions.ReadWord(
+                CeresFlightSpriteInstructionDefinitions.RearClusterEnd - 1),
+            "Ceres flight instruction reader cannot cross into the next actor list");
+        AssertThrows<InvalidDataException>(() =>
+            CeresFlightSpriteInstructionDefinitions.ReadWord(
+                CeresFlightSpriteInstructionDefinitions.StarsEnd),
+            "Ceres flight instruction reader cannot enter the adjacent explosion list");
+
+        VerifyList(front, "front stars");
+        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
+            VerifyList(CeresFlightActorDefinitions.RearViewActor(index), $"rear actor {index}");
+
         var guard = new CeresFlightActorDefinitionReadGuard(retail);
         var state = new IntroCeresFlightState(guard);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
         AssertTrue(state.Finished, "Ceres approach completes through production actor paths");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "Ceres approach never rereads compiled actor definitions");
+            "Ceres approach never rereads compiled actor definitions or animation lists");
 
         Console.WriteLine(
-            "  Ceres flight actors: 43 native words and the complete production approach pass with constructor, callback and physical motion metadata reads forbidden.");
+            "  Ceres flight actors: 43 metadata words and 44 instruction bytes match ROM; all six lists and the complete production approach pass with source reads forbidden.");
+
+        void VerifyProgram(ushort start, ushort end)
+        {
+            for (int pointer = start; pointer < end; pointer++)
+                AssertEqual(retail.ReadByte(CeresFlightActorDefinitions.NativeBank | pointer),
+                    CeresFlightSpriteInstructionDefinitions.ReadByte((ushort)pointer),
+                    $"Ceres flight instruction byte $8B:{pointer:X4}");
+        }
+
+        void VerifyList(CeresFlightActorDefinition definition, string name)
+        {
+            var native = new IntroDiscoverySprite(definition.X, definition.Y,
+                definition.Attributes, definition.InstructionList);
+            var compiled = new IntroDiscoverySprite(definition.X, definition.Y,
+                definition.Attributes, definition.InstructionList);
+            for (int frame = 0; frame < 80; frame++)
+            {
+                native.Step(retail);
+                compiled.Step(retail, instructionWord:
+                    CeresFlightSpriteInstructionDefinitions.ReadWord);
+                AssertEqual(native.InstructionPointer, compiled.InstructionPointer,
+                    $"{name} instruction cursor at frame {frame}");
+                AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer,
+                    $"{name} visual frame at frame {frame}");
+                AssertEqual(native.IsActive, compiled.IsActive,
+                    $"{name} lifetime at frame {frame}");
+            }
+        }
 
         static void VerifyActor(
             SuperMetroidAddressSpace source,
@@ -158,6 +205,9 @@ internal static partial class Program
                 >= 0x8bbfba and < 0x8bbfbc or
                 >= 0x8bbfc0 and < 0x8bbfc2 or
                 >= 0x8bbfcb and < 0x8bbfcd or
+                >= 0x8bcc47 and < 0x8bcc63 or
+                >= 0x8bcda3 and < 0x8bcdab or
+                >= 0x8bce4b and < 0x8bce53 or
                 >= 0x8bce85 and < 0x8bce97 or
                 >= 0x8bcf0f and < 0x8bcf15 or
                 >= 0x8bcf39 and < 0x8bcf3f;

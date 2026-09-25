@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Retail room PLM populations (2026-09-24)
+
+All 284 distinct bank-$8F PLM populations selected by the 323 compiled room
+states are now application-owned placement definitions (941 six-byte records
+plus their terminators). Generation requires the pinned ROM SHA-256. Every
+compiled byte is checked against that ROM, and a representative nonempty
+population loads through the real sequential allocator with its source range
+unreadable while matching native slot state. Runtime retail loads use the
+compiled records; synthetic-room tests retain their explicit address-space
+path. Setup and instruction programs still have separate ROM dependencies.
+
 ## N00b-tube PLM physical draws (2026-09-24)
 
 The seven n00b-tube draw payloads are now compiled physical definitions, from

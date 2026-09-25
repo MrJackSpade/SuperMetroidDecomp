@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using System.Buffers.Binary;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Cartridge-authentic construction of bank-$84 room PLMs from a bank-$8F population.
+/// Cartridge-authentic construction of bank-$84 room PLMs from compiled retail
+/// bank-$8F placements or an explicitly supplied synthetic population.
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
@@ -40,10 +42,11 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
-    /// Parses one zero-terminated room population exactly once, in increasing ROM-record
+    /// Parses one zero-terminated room population exactly once, in increasing source-record
     /// order. Each record is allocated before its setup routine runs, matching
     /// <c>Spawn_Room_PLM</c> at <c>$84:846A</c>. A setup may immediately delete its slot;
-    /// the next record can consequently reuse that same highest native slot.
+    /// the next record can consequently reuse that same highest native slot. Retail
+    /// room loads select the compiled records; constructed rooms keep the bus path.
     /// </summary>
     public int LoadRoomPopulation(
         ISnesAddressSpace bus,
@@ -64,7 +67,8 @@ public sealed partial class RoomPlmSystem
         Action<ushort>? setEarthquakeType = null,
         Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null,
         Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null,
-        Action<ushort>? disableDraygonCannon = null)
+        Action<ushort>? disableDraygonCannon = null,
+        bool useCompiledRetailPopulation = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -100,11 +104,22 @@ public sealed partial class RoomPlmSystem
         _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
         _disableDraygonCannon = disableDraygonCannon;
 
+        ReadOnlyMemory<byte> compiledPopulation = useCompiledRetailPopulation
+            ? RoomPlmPopulationDefinitions.Get(populationPointer)
+            : default;
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
         for (int recordIndex = 0; recordIndex < 256; recordIndex++)
         {
-            ushort header = ReadBank8fWord(bus, cursor);
+            int compiledOffset = recordIndex * 6;
+            if (useCompiledRetailPopulation &&
+                compiledOffset > compiledPopulation.Length - 2)
+                throw new InvalidDataException(
+                    $"Compiled room PLM population $8F:{populationPointer:X4} ends without a terminator.");
+            ushort header = useCompiledRetailPopulation
+                ? BinaryPrimitives.ReadUInt16LittleEndian(
+                    compiledPopulation.Span.Slice(compiledOffset))
+                : ReadBank8fWord(bus, cursor);
             if (header == 0)
                 return spawnedRecordCount;
 
@@ -113,9 +128,16 @@ public sealed partial class RoomPlmSystem
                 RecordIndex: recordIndex,
                 RecordPointer: cursor,
                 HeaderPointer: header,
-                BlockX: bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 2)))),
-                BlockY: bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 3)))),
-                RoomArgument: ReadBank8fWord(bus, unchecked((ushort)(cursor + 4))));
+                BlockX: useCompiledRetailPopulation
+                    ? compiledPopulation.Span[compiledOffset + 2]
+                    : bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 2)))),
+                BlockY: useCompiledRetailPopulation
+                    ? compiledPopulation.Span[compiledOffset + 3]
+                    : bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 3)))),
+                RoomArgument: useCompiledRetailPopulation
+                    ? BinaryPrimitives.ReadUInt16LittleEndian(
+                        compiledPopulation.Span.Slice(compiledOffset + 4))
+                    : ReadBank8fWord(bus, unchecked((ushort)(cursor + 4))));
             cursor = unchecked((ushort)(cursor + 6));
 
             int blockIndex;

@@ -452,6 +452,11 @@ compiled. The active room's tile definitions supply the actual art. Stock
 data is hash-checked, invalid overrides fail loudly, and valid overrides
 survive stock repair.
 
+Room-object placement records are compiled application definitions, not
+editable art. All retail room PLM populations are selected without rereading
+their bank-$8F source records; visual files above can replace appearance but
+do not change which objects spawn or their collision/progression behavior.
+
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to
 `overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`

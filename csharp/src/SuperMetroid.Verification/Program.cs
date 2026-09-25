@@ -1068,6 +1068,12 @@ if (args is ["--magic-number-audit"])
     VerifyProductionMagicNumberAudit();
     return 0;
 }
+if (args is ["--room-plm-populations"])
+{
+    VerifyCompiledRoomPlmPopulationDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--explored-map-packing-definitions"])
 {
     VerifyExploredMapPackingDefinitions();
@@ -2509,6 +2515,8 @@ VerifyRoomScrollPlms();
 VerifyRoomPlmHeaderCatalog();
 VerifyRoomPlmInstructionListCatalog();
 VerifySequentialRoomPlmPopulationLoader();
+VerifyCompiledRoomPlmPopulationDefinitions(
+    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyNoobTubePlm();
 VerifyDownwardGatePlms();
 VerifyEyeDoorPlms();

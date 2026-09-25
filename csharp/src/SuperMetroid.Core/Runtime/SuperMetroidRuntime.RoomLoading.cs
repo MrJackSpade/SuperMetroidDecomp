@@ -873,7 +873,8 @@ public sealed partial class SuperMetroidRuntime
                     request,
                     LevelData.WidthInBlocks,
                     System),
-            disableDraygonCannon: Enemies.DisableDraygonCannon);
+            disableDraygonCannon: Enemies.DisableDraygonCannon,
+            useCompiledRetailPopulation: true);
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
         // exist and before enemy initialization/initial viewport construction. Several of

@@ -143,7 +143,7 @@ public sealed partial class RoomPlmSystem
             system.HasRoomChozoBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
             ? LoadDynamicCollectibleGraphics(
-                bus, level, streamer, vram, slot.HeaderPointer,
+                bus, level, streamer, vram, kind, slot.HeaderPointer,
                 useCompiledRetailPopulation)
             : -1;
 
@@ -227,42 +227,62 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         SnesVram vram,
+        InWorldCollectibleKind kind,
         ushort header,
         bool useCompiledRetailPopulation)
     {
-        ushort instructionList = useCompiledRetailPopulation
-            ? RoomPlmHeaderDefinitions.Get(header).InitialInstruction
-            : ReadBank84Word(bus, unchecked((ushort)(header + 2)));
-        ushort opcode = ReadBank84Word(bus, instructionList);
-        if (opcode != RoomPlmInstructionCodes.LoadItemGraphics)
+        ReadOnlyMemory<byte> graphics;
+        ReadOnlyMemory<byte> paletteOffsets;
+        if (useCompiledRetailPopulation)
         {
-            throw new InvalidDataException(
-                $"Collectible header $84:{header:X4} begins with ${opcode:X4}, not item-GFX load $8764.");
+            // Retail's three presentation lists all upload the same tiles and palette
+            // offsets for a kind. The generated catalog proves that identity against
+            // the pinned cartridge; gameplay never needs to reread these ROM bytes.
+            RoomPlmDynamicCollectibleGraphic definition =
+                RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
+            graphics = definition.Tiles;
+            paletteOffsets = definition.PaletteOffsets;
+        }
+        else
+        {
+            // Constructed rooms deliberately retain their supplied bank-$84/$89
+            // instructions so synthetic PLM fixtures can author new item graphics.
+            ushort instructionList = ReadBank84Word(
+                bus, unchecked((ushort)(header + 2)));
+            ushort opcode = ReadBank84Word(bus, instructionList);
+            if (opcode != RoomPlmInstructionCodes.LoadItemGraphics)
+            {
+                throw new InvalidDataException(
+                    $"Collectible header $84:{header:X4} begins with ${opcode:X4}, not item-GFX load $8764.");
+            }
+            ushort graphicsPointer = ReadBank84Word(
+                bus, unchecked((ushort)(instructionList + 2)));
+            var suppliedGraphics = new byte[0x100];
+            for (int index = 0; index < suppliedGraphics.Length; index++)
+            {
+                suppliedGraphics[index] = bus.ReadByte(
+                    0x890000 | unchecked((ushort)(graphicsPointer + index)));
+            }
+            var suppliedPalettes = new byte[8];
+            for (int child = 0; child < suppliedPalettes.Length; child++)
+                suppliedPalettes[child] = bus.ReadByte(
+                    Bank84(unchecked((ushort)(instructionList + 4 + child))));
+            graphics = suppliedGraphics;
+            paletteOffsets = suppliedPalettes;
         }
 
         int graphicsSlot = _nextCollectibleGraphicsSlot;
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
-        ushort graphicsPointer = ReadBank84Word(
-            bus,
-            unchecked((ushort)(instructionList + 2)));
 
-        // The source is exactly $100 raw bytes in bank $89: two 16x16 animation frames,
-        // four 4bpp tiles apiece. Word-addressed SNES VRAM destinations become byte
-        // offsets in SnesVram.
-        var graphics = new byte[0x100];
-        for (int index = 0; index < graphics.Length; index++)
-        {
-            graphics[index] = bus.ReadByte(
-                0x890000 | unchecked((ushort)(graphicsPointer + index)));
-        }
-        vram.LoadBytes(DynamicVramFirstByte + graphicsSlot * 0x100, graphics);
+        // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
+        // Word-addressed SNES VRAM destinations become byte offsets in SnesVram.
+        vram.LoadBytes(DynamicVramFirstByte + graphicsSlot * 0x100, graphics.Span);
 
         int startingTileNumber = 0x03e0 + graphicsSlot * 8;
         int firstDefinitionWord = DynamicBlockDefinitionFirstWord + graphicsSlot * 8;
         for (int child = 0; child < 8; child++)
         {
-            byte palette = bus.ReadByte(
-                Bank84(unchecked((ushort)(instructionList + 4 + child))));
+            byte palette = paletteOffsets.Span[child];
             ushort tilemapWord = unchecked((ushort)(
                 startingTileNumber + child + (palette << 10)));
             level.SetBlockDefinitionWord(firstDefinitionWord + child, tilemapWord);

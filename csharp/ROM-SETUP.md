@@ -461,8 +461,12 @@ The 70 referenced PLM setup/initial-list header pairs are compiled too;
 the 173 retail scroll-trigger mutation programs are compiled as well. Their
 room-scroll cell writes remain gameplay behavior, never an editable visual
 override. Constructed test-room populations can still supply their own
-bank-$8F scroll programs. Other PLM instruction-program ROM dependencies
-remain to be migrated.
+bank-$8F scroll programs. The 17 dynamically uploaded permanent-item kinds
+also use compiled character bytes and palette offsets rather than reading
+bank $89 and their initial bank-$84 instruction lists during retail loads.
+Constructed rooms can still supply their own item graphics on the bus. These
+tile uploads are compiled definitions, not yet PNG override assets; other PLM
+instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
 `game/room-plm-downward-gates/downward-gates.json`. Copy that file to

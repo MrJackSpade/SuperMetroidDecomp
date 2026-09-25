@@ -145,6 +145,18 @@ resource codec checks all native row counts and signed offsets, hashes the
 stock content, rejects malformed overrides, and preserves valid overrides
 through repair. Broader PLM programs remain separate work.
 
+## Dynamic permanent-item graphics (2026-09-25)
+
+All 17 item kinds that execute bank-$84 instruction `$8764` have one shared
+256-byte bank-$89 4bpp upload and eight bank-$84 palette offsets across their
+exposed, Chozo-orb, and shot-block presentations. A pinned-ROM generator
+verifies those three presentation lists agree and compiles one definition per
+kind. The verifier compares every byte to the cartridge and loads the retail
+Bombs Chozo-orb population while forbidding reads of all compiled tile and
+palette sources. Synthetic-room item lists remain bus-supplied. The compiled
+tiles are not yet installed as editable PNGs, and the remaining PLM programs
+still need migration.
+
 ## Mother Brain glass PLM physical draws (2026-09-24)
 
 Eleven cartridge-authored glass draw lists now have compiled physical records,

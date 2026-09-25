@@ -14,6 +14,16 @@ public sealed class SpriteComposition
             oam.AddOnScreenSpritePart(part.X, part.Y,
                 part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, x, y);
     }
+
+    /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
+    public void DrawOffScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    {
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        foreach (var part in parts)
+            oam.AddOffScreenSpritePart(part.X, part.Y,
+                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes,
+                x, y);
+    }
 }
 
 /// <summary>Runtime PPU representation compiled from authored offsets, regions, size and color selection.</summary>

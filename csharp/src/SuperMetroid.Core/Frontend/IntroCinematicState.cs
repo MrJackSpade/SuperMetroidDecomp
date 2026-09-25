@@ -1172,7 +1172,7 @@ public sealed partial class IntroCinematicState
             flashbackProjectiles.DrawLiveProjectiles(bus, oam, 0, 0, nmiFrameCounter, ProjectileCompositions);
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
-            flashbackRinkas?.Draw(bus, oam);
+            flashbackRinkas?.Draw(bus, oam, characterArtwork?.RinkaSprites);
         }
         flashbackMotherBrainExplosions?.Draw(bus, oam,
             characterArtwork?.MotherBrainExplosionSprites);

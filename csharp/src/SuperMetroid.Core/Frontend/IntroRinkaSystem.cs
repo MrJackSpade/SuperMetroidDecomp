@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -49,11 +50,27 @@ internal sealed class IntroRinkaSystem
             IntroRinkaInstructionDefinitions.ReadWord);
     }
 
-    /// <summary>Adds the currently selected cartridge spritemap for every live Rinka.</summary>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam)
+    /// <summary>Adds each visible Rinka with native origin clipping and insertion order.</summary>
+    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+        IntroRinkaSpritePresentation? installedArt = null)
     {
         foreach (IntroDiscoverySprite rinka in rinkas)
-            rinka.Draw(bus, oam);
+        {
+            if (installedArt is null)
+            {
+                rinka.Draw(bus, oam);
+                continue;
+            }
+            if (!rinka.IsActive || rinka.SpriteMapPointer == 0)
+                continue;
+            ushort y = rinka.YPosition;
+            if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >=
+                CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
+                continue;
+            installedArt.Draw(rinka.SpriteMapPointer, oam, rinka.XPosition, y,
+                rinka.PaletteBits,
+                originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
+        }
     }
 
     private ushort? HandleSpawnerInstruction(ushort opcode, ushort next)

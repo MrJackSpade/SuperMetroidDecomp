@@ -16,6 +16,7 @@ public sealed class IntroCinematicArtworkCatalog
         IntroCaretSpritePresentation caretSprites,
         IntroMotherBrainSpritePresentation motherBrainSprites,
         IntroMotherBrainExplosionSpritePresentation motherBrainExplosionSprites,
+        IntroRinkaSpritePresentation rinkaSprites,
         IntroCinematicPalette palette,
         CeresFlightArtworkCatalog ceresFlight,
         CeresDestructionArtworkCatalog ceresDestruction)
@@ -45,6 +46,7 @@ public sealed class IntroCinematicArtworkCatalog
         MotherBrainSprites = motherBrainSprites ?? throw new ArgumentNullException(nameof(motherBrainSprites));
         MotherBrainExplosionSprites = motherBrainExplosionSprites ??
             throw new ArgumentNullException(nameof(motherBrainExplosionSprites));
+        RinkaSprites = rinkaSprites ?? throw new ArgumentNullException(nameof(rinkaSprites));
         Palette = palette ?? throw new ArgumentNullException(nameof(palette));
         CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
         CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
@@ -79,6 +81,8 @@ public sealed class IntroCinematicArtworkCatalog
     public IntroMotherBrainSpritePresentation MotherBrainSprites { get; }
     /// <summary>Twelve editable fourth-hit explosion frames, independent of actor timing.</summary>
     public IntroMotherBrainExplosionSpritePresentation MotherBrainExplosionSprites { get; }
+    /// <summary>Three editable Rinka frames used by the intro Mother Brain scene.</summary>
+    public IntroRinkaSpritePresentation RinkaSprites { get; }
     /// <summary>Native-precision colors loaded before the first narration card.</summary>
     public IntroCinematicPalette Palette { get; }
     /// <summary>Mode-7 and OBJ visual streams used after the narration fades to Ceres.</summary>

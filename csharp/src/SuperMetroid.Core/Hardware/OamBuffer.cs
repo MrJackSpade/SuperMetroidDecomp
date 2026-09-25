@@ -103,6 +103,11 @@ public sealed class OamBuffer
         SnesObjAttributeWord attributes, ushort originX, ushort originY)
         => AppendGenericSprite(xOffset, yOffset, attributes, originX, originY, originIsOnScreen: true);
 
+    /// <summary>Draws a compiled visual part with $81:8853's reversed vertical-wrap branch.</summary>
+    public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+        SnesObjAttributeWord attributes, ushort originX, ushort originY)
+        => AppendGenericSprite(xOffset, yOffset, attributes, originX, originY, originIsOnScreen: false);
+
     private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
         SnesObjAttributeWord finalAttributes, ushort originX, ushort originY, bool originIsOnScreen)
     {

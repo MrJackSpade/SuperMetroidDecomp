@@ -47,7 +47,12 @@ cinematic actors continue using their existing source until their lists are
 migrated. Verification compares every byte with the pinned ROM, then checks
 each spawn frame and the first Rinka's full animation loop with those source
 bytes unreadable. The three referenced Rinka visual spritemaps at `$8C:8C8D`,
-`$8C:8CA3`, and `$8C:8CB9` are still separate artwork work.
+`$8C:8CA3`, and `$8C:8CB9` are now extracted separately as editable
+`intro-rinka-sprites.json`. Every four-part frame matches the cartridge's OAM
+in both on-screen and negative-origin clipping paths; a selected override
+changes live flashback pixels without moving either actor. The installed
+Rinka draw path no longer reads the three spritemap records, and rebind after
+restore selects the current artwork. Other cinematic actors remain separate.
 
 ## Additional room-PLM instruction control (2026-09-24)
 

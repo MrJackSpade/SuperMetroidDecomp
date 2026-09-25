@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
-    private const int FormatVersion = 14;
+    private const int FormatVersion = 15;
 
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -55,6 +55,7 @@ public static class IntroCinematicArtworkFiles
         WriteCaretSprites();
         WriteMotherBrainSprites();
         WriteMotherBrainExplosionSprites();
+        WriteRinkaSprites();
         WritePalette();
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
@@ -292,6 +293,27 @@ public static class IntroCinematicArtworkFiles
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
+
+        void WriteRinkaSprites()
+        {
+            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+            foreach (IntroRinkaSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
+                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
+                    definition.Pointer, IntroRinkaSpriteDefinitions.StockPartCount,
+                    definition.Name));
+            using var json = new MemoryStream();
+            IntroRinkaSpritePresentation.Write(json, new IntroRinkaSpriteDocument
+            {
+                Version = IntroRinkaSpriteFormat.Version,
+                Frames = frames,
+            });
+            byte[] encoded = json.ToArray();
+            string name = IntroRinkaSpriteFormat.FileName;
+            using (var output = new FileStream(Path.Combine(directory, name),
+                FileMode.CreateNew, FileAccess.Write))
+                output.Write(encoded);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
     }
 
     /// <summary>Checks every stock hash before selecting independently editable PNGs.</summary>
@@ -332,6 +354,7 @@ public static class IntroCinematicArtworkFiles
             LoadCaretSprites(),
             LoadMotherBrainSprites(),
             LoadMotherBrainExplosionSprites(),
+            LoadRinkaSprites(),
             LoadPalette(),
             LoadCeresFlight(),
             LoadCeresDestruction());
@@ -467,6 +490,21 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
+        IntroRinkaSpritePresentation LoadRinkaSprites()
+        {
+            (string path, byte[] selected) = ReadSelected(IntroRinkaSpriteFormat.FileName);
+            try
+            {
+                return IntroRinkaSpritePresentation.Load(
+                    new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid intro Rinka sprites {path}: {error.Message}",
+                    error);
+            }
+        }
+
         CeresDestructionArtworkCatalog LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
@@ -513,6 +551,7 @@ public static class IntroCinematicArtworkFiles
         IntroCaretSpriteFormat.FileName,
         IntroMotherBrainSpriteFormat.FileName,
         IntroMotherBrainExplosionSpriteFormat.FileName,
+        IntroRinkaSpriteFormat.FileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFormat.FileName,

@@ -77,6 +77,7 @@ internal static partial class Program
             VerifyIntroMotherBrainCollision(bus, stock);
             VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation);
             VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation);
+            VerifyIntroRinkaSpriteArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -553,7 +554,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -981,7 +982,8 @@ internal static partial class Program
     }
 
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source,
-        bool blockIntroMotherBrainExplosions = false) : ISnesAddressSpace
+        bool blockIntroMotherBrainExplosions = false,
+        bool blockIntroRinkas = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -1086,6 +1088,17 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread intro Mother Brain explosion sprite ${address:X6}.");
+            }
+            int rinkaSpriteStart = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.First);
+            int rinkaSpriteEnd = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.End);
+            if (blockIntroRinkas &&
+                address >= rinkaSpriteStart && address < rinkaSpriteEnd)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread intro Rinka sprite ${address:X6}.");
             }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

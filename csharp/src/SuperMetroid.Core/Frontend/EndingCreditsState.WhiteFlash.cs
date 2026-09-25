@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
@@ -12,9 +14,10 @@ internal sealed partial class EndingCreditsState
         postShot = null;
         // E48A restores the shooting palette and selects BG1SC=$4E: the final
         // text map is two screens tall, not the credits' single-screen map.
-        cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.PostCreditsPalette
-            + EndingPostShotDefinitions.ShootingPaletteStart * sizeof(ushort),
-            EndingPostShotDefinitions.PaletteColors, EndingPostShotDefinitions.ShootingPaletteStart);
+        LoadStaticPalette(EndingPaletteId.PostCredits,
+            EndingPostShotDefinitions.ShootingPaletteStart,
+            EndingPostShotDefinitions.PaletteColors,
+            EndingPostShotDefinitions.ShootingPaletteStart);
         postCreditsUploadWord = EndingPostShotDefinitions.FinalTextTilemapWord;
         postCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         postCreditsVerticalScroll = 0;

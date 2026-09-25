@@ -416,7 +416,7 @@ internal sealed partial class EndingCreditsState
 
     private void SetupEscapeSceneA()
     {
-        cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.EscapePalette);
+        LoadStaticPalette(EndingPaletteId.Escape, 0, 256, 0);
         LoadMode7(EndingMode7SceneId.EscapeA);
         LoadEscapeCloudCharacters();
         sprites.Clear();
@@ -461,10 +461,8 @@ internal sealed partial class EndingCreditsState
     {
         LoadMode7(EndingMode7SceneId.PlanetExplosion);
         LoadEndingObjectCharacters();
-        cgram.LoadFromBus(
-            bus,
-            EndingCreditsRomData.Assets.ExplosionPalette +
-                EndingCreditsRomData.Rendering.PaletteSecondHalfOffset,
+        LoadStaticPalette(EndingPaletteId.Explosion,
+            EndingCreditsRomData.Rendering.PaletteHalfBytes,
             EndingCreditsRomData.Rendering.PaletteHalfBytes,
             EndingCreditsRomData.Rendering.PaletteHalfBytes);
         sprites.Clear();
@@ -548,10 +546,8 @@ internal sealed partial class EndingCreditsState
     {
         // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
         // function 129 for sixty calls. Preserve colors zero through three as native does.
-        cgram.LoadFromBus(
-            bus,
-            EndingCreditsRomData.Assets.PostCreditsPalette +
-                EndingCreditsRomData.Rendering.PostCreditsPaletteSourceOffset,
+        LoadStaticPalette(EndingPaletteId.PostCredits,
+            EndingCreditsRomData.Rendering.PostCreditsPaletteDestination,
             EndingCreditsRomData.Rendering.PostCreditsPaletteBytes,
             EndingCreditsRomData.Rendering.PostCreditsPaletteDestination);
         brightness = 0;
@@ -720,11 +716,8 @@ internal sealed partial class EndingCreditsState
         if (creditsAssetsLoaded)
             return;
 
-        cgram.LoadFromBus(
-            bus,
-            EndingCreditsRomData.Assets.CreditsPalette,
-            EndingCreditsRomData.Rendering.PaletteHalfBytes,
-            0);
+        LoadStaticPalette(EndingPaletteId.Credits, 0,
+            EndingCreditsRomData.Rendering.PaletteHalfBytes, 0);
         ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
         RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
@@ -1071,7 +1064,7 @@ internal sealed partial class EndingCreditsState
         }
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
         {
-            cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.FinalGunshipPalette, 16, 80);
+            LoadStaticPalette(EndingPaletteId.FinalGunship, 0, 16, 80);
             SpawnSprite(
                 EndingCreditsRomData.Sprites.OperationWasText,
                 EndingSpriteRole.OperationWasText);

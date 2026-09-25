@@ -168,7 +168,14 @@ are fixed game logic. Copy any indexed PNG or either JSON file to
 same filename to replace it without changing scene mechanics.
 The planet-explosion upload still overlays the four fragments after its main sheet,
 then restores the already-installed ending font over the overlapping font region.
-Sprite placement, animation scripts, palettes and scene timing remain compiled code.
+Sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
+
+Five ending color images are installed as native-precision RGB5 JSON under
+`game/ending-palettes/`: escape, explosion, credits, post-credits, and the final
+gunship. Copy a same-named file under `overrides/ending-palettes/` to edit it
+without changing the cartridge's partial CGRAM copy ranges, fade cadence, or
+palette-FX programs. The stock files are hash-checked; malformed overrides fail
+loudly instead of silently reverting to stock.
 
 ## Room-character PNG overrides
 

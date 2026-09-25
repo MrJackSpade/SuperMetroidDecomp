@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -28,8 +28,7 @@ internal sealed partial class EndingCreditsState
         // in 8.8 precision; composing takes only its high byte, preserving truncation.
         for (int index = start; index < start + count; index++)
         {
-            ushort target = RomDataReader.ReadWordFixedBank(bus,
-                EndingCreditsRomData.Assets.PostCreditsPalette + index * sizeof(ushort));
+            ushort target = StaticPaletteColor(EndingPaletteId.PostCredits, index);
             int red = ((target & 31) << 3) * step;
             int green = ((target >> 5 & 31) << 3) * step;
             int blue = ((target >> 10 & 31) << 3) * step;

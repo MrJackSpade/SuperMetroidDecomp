@@ -33,6 +33,11 @@ public sealed record GameInstallation(string Root)
     public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
     public EndingObjectArtworkCatalog LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
+    public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
+    /// <summary>Ending color edits survive replacement of the stock installation.</summary>
+    public string EndingPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingPaletteDirectoryName);
+    public EndingPaletteCatalog LoadEndingPalettes() =>
+        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
     /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
     public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
     public RoomCharacterAtlasCatalog LoadRoomCharacters() =>
@@ -242,6 +247,7 @@ public static class GameInstallationLayout
     public const string IntroCinematicDirectoryName = "intro-cinematic";
     public const string EndingMode7DirectoryName = "ending-mode7";
     public const string EndingObjectDirectoryName = "ending-objects";
+    public const string EndingPaletteDirectoryName = "ending-palettes";
     public const string RoomPaletteDirectoryName = "room-palettes";
     public const string RoomMetatileDirectoryName = "room-blocks";
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";

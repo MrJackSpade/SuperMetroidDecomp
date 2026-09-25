@@ -31,7 +31,7 @@ internal sealed partial class EndingCreditsState
         PrepareFlyawayStreams();
         // Func117 restores the BG half before disabling BG1. OBJ VRAM and palettes
         // remain live while Func118 replaces the two Mode-7 lanes over sixteen NMIs.
-        cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.ExplosionPalette, 128);
+        LoadStaticPalette(EndingPaletteId.Explosion, 0, 128, 0);
     }
 
     private void PrepareFlyawayStreams()

@@ -73,6 +73,7 @@ internal static partial class Program
             VerifyEndingFlyawayArtwork(installation);
             VerifyEndingMode7Artwork(installation);
             VerifyEndingObjectArtwork(installation);
+            VerifyEndingPaletteArtwork(installation);
 
             string[] names =
             [

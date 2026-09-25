@@ -218,9 +218,12 @@ The planet-explosion upload still overlays the four fragments after its main she
 then restores the already-installed ending font over the overlapping font region.
 Other sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
 
-Five ending color images are installed as native-precision RGB5 JSON under
-`game/ending-palettes/`: escape, explosion, credits, post-credits, and the final
-gunship. Copy a same-named file under `overrides/ending-palettes/` to edit it
+Seven ending color images are installed as native-precision RGB5 JSON under
+`game/ending-palettes/`: escape, explosion, credits, post-credits, final
+gunship, final-logo initial colors, and the logo's sixteen two-palette
+crossfade steps. In `ending-logo-crossfade-palette.json`, colors are ordered
+by step, then OBJ palette, then sixteen colors. Copy a same-named file under
+`overrides/ending-palettes/` to edit it
 without changing the cartridge's partial CGRAM copy ranges, fade cadence, or
 palette-FX programs. The stock files are hash-checked; malformed overrides fail
 loudly instead of silently reverting to stock.

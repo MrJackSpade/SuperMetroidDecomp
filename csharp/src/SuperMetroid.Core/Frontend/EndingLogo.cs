@@ -12,14 +12,17 @@ internal sealed class EndingLogo
     private readonly IntroDiscoverySprite[] actors = new IntroDiscoverySprite[4];
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
     private readonly bool[] settled = new bool[2];
+    [NonSerialized] private EndingPaletteCatalog? paletteArtwork;
     public bool CrossfadeStarted { get; private set; }
     public int PaletteStep { get; private set; }
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
-    public EndingLogo(ISnesAddressSpace bus, SnesCgram cgram, Action landed)
+    public EndingLogo(ISnesAddressSpace bus, SnesCgram cgram, Action landed,
+        EndingPaletteCatalog? paletteArtwork = null)
     {
         this.bus = bus;
         this.landed = landed;
+        this.paletteArtwork = paletteArtwork;
         for (int i = 0; i < actors.Length; i++)
         {
             var origin = EndingLogoDefinitions.Origin(i);
@@ -32,8 +35,14 @@ internal sealed class EndingLogo
             actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
         }
         for (int i = 0; i < 16; i++) cgram.SetColor(16 + i, 0);
-        cgram.LoadFromBus(bus, EndingLogoDefinitions.InitialPalette, 16, 240);
+        if (paletteArtwork is { } artwork)
+            artwork[EndingPaletteId.LogoInitial].LoadTo(cgram, 0, 16, 240);
+        else
+            cgram.LoadFromBus(bus, EndingLogoDefinitions.InitialPalette, 16, 240);
     }
+
+    /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
+    public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
 
     public void Step(SnesCgram cgram, Func<ushort, ushort>? instructionWord = null)
     {
@@ -47,7 +56,12 @@ internal sealed class EndingLogo
                 int pointer = EndingLogoPalettePointerDefinitions.Source(PaletteStep, palette);
                 for (int i = 15; i >= 0; i--)
                     cgram.SetColor((palette == 0 ? 16 : 240) + i,
-                        RomDataReader.ReadWordFixedBank(bus, (IntroCinematicRomData.Banks.Spritemaps << 16) | (pointer - (15 - i) * 2)));
+                        paletteArtwork is { } artwork
+                            ? artwork[EndingPaletteId.LogoCrossfade].Color(
+                                (PaletteStep * 2 + palette) * 16 + i)
+                            : RomDataReader.ReadWordFixedBank(bus,
+                                (IntroCinematicRomData.Banks.Spritemaps << 16) |
+                                (pointer - (15 - i) * 2)));
             }
             if (++PaletteStep == EndingLogoDefinitions.PaletteSteps) return;
         }

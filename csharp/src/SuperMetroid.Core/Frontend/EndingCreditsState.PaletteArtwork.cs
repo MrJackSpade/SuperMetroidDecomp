@@ -13,7 +13,11 @@ internal sealed partial class EndingCreditsState
     /// completed native fade or palette-FX step. Future native palette transfers and
     /// target-color reads use the newly selected resource.
     /// </summary>
-    internal void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
+    internal void BindPaletteArtwork(EndingPaletteCatalog? value)
+    {
+        paletteArtwork = value;
+        endingLogo?.BindPaletteArtwork(value);
+    }
 
     private void LoadStaticPalette(EndingPaletteId id, int sourceColor, int count,
         int destinationColor)

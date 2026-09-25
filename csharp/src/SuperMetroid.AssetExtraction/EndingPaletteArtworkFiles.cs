@@ -4,13 +4,14 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs native ending colors as independently replaceable RGB5 JSON files.</summary>
 public static class EndingPaletteArtworkFiles
 {
-    private const int ManifestVersion = 1;
+    private const int ManifestVersion = 2;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
@@ -23,8 +24,7 @@ public static class EndingPaletteArtworkFiles
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
             int count = EndingPaletteDefinitions.ColorCount(id);
-            byte[] native = RomDataReader.ReadFixedBank(bus,
-                EndingPaletteDefinitions.SourceAddress(id), count * sizeof(ushort));
+            byte[] native = ReadNativePalette(bus, id, count);
             var colors = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
@@ -90,7 +90,8 @@ public static class EndingPaletteArtworkFiles
 
         return new EndingPaletteCatalog(LoadOne(EndingPaletteId.Escape),
             LoadOne(EndingPaletteId.PostCredits), LoadOne(EndingPaletteId.Credits),
-            LoadOne(EndingPaletteId.Explosion), LoadOne(EndingPaletteId.FinalGunship));
+            LoadOne(EndingPaletteId.Explosion), LoadOne(EndingPaletteId.FinalGunship),
+            LoadOne(EndingPaletteId.LogoInitial), LoadOne(EndingPaletteId.LogoCrossfade));
 
         EndingPalette LoadOne(EndingPaletteId id)
         {
@@ -119,6 +120,33 @@ public static class EndingPaletteArtworkFiles
     }
 
     public static void ValidateStock(string directory) => _ = Load(directory, null);
+
+    /// <summary>
+    /// $8B:E58A copies each logo fade palette backwards from its selected $8C pointer.
+    /// Flatten the native destination order as [step][OBJ palette][color], keeping the
+    /// pointer table and copy direction in code while making every color replaceable.
+    /// </summary>
+    internal static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id,
+        int count)
+    {
+        if (id != EndingPaletteId.LogoCrossfade)
+            return RomDataReader.ReadFixedBank(bus,
+                EndingPaletteDefinitions.SourceAddress(id), count * sizeof(ushort));
+
+        var native = new byte[count * sizeof(ushort)];
+        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
+        for (int palette = 0; palette < 2; palette++)
+        for (int color = 0; color < 16; color++)
+        {
+            int pointer = EndingLogoPalettePointerDefinitions.Source(step, palette);
+            ushort word = RomDataReader.ReadWordFixedBank(bus,
+                0x8c0000 | (pointer - (15 - color) * sizeof(ushort)));
+            int index = (step * 2 + palette) * 16 + color;
+            BinaryPrimitives.WriteUInt16LittleEndian(
+                native.AsSpan(index * sizeof(ushort)), word);
+        }
+        return native;
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

@@ -37,7 +37,8 @@ internal sealed partial class EndingCreditsState
         rewardJump = null;
         sprites.Clear();
         endingLogo = new EndingLogo(bus, cgram,
-            () => paletteFx.SpawnDefinition(bus, EndingLogoDefinitions.LandingPaletteFx, 0));
+            () => paletteFx.SpawnDefinition(bus, EndingLogoDefinitions.LandingPaletteFx, 0),
+            paletteArtwork);
         Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 

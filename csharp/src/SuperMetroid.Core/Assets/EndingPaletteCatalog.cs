@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Mutually exclusive native static color images selected by the ending coroutine.</summary>
+/// <summary>Independent native color resources selected by the ending coroutine.</summary>
 public enum EndingPaletteId
 {
     Escape,
@@ -13,6 +13,8 @@ public enum EndingPaletteId
     Credits,
     Explosion,
     FinalGunship,
+    LogoInitial,
+    LogoCrossfade,
 }
 
 /// <summary>One exact BGR555 color image, independently editable as RGB5 JSON.</summary>
@@ -91,15 +93,17 @@ public sealed record EndingPaletteDocument
     public required PaletteRgb5[] Colors { get; init; }
 }
 
-/// <summary>The five independent static color images used by ending/credits setup code.</summary>
+/// <summary>Independent static and animated color resources used by the ending.</summary>
 public sealed class EndingPaletteCatalog
 {
     private readonly EndingPalette[] palettes;
 
     public EndingPaletteCatalog(EndingPalette escape, EndingPalette postCredits,
-        EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship)
+        EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship,
+        EndingPalette logoInitial, EndingPalette logoCrossfade)
     {
-        palettes = [escape, postCredits, credits, explosion, finalGunship];
+        palettes = [escape, postCredits, credits, explosion, finalGunship,
+            logoInitial, logoCrossfade];
     }
 
     public EndingPalette this[EndingPaletteId id] => palettes[(int)id];
@@ -108,6 +112,8 @@ public sealed class EndingPaletteCatalog
 /// <summary>Native source addresses, exact sizes, and file identities for ending colors.</summary>
 public static class EndingPaletteDefinitions
 {
+    // The document shape is unchanged; only the installation manifest gains files.
+    // Keeping version one lets existing player-authored palette overrides survive.
     public const int Version = 1;
     public const string ManifestFileName = "ending-palettes-manifest.json";
 
@@ -118,6 +124,7 @@ public static class EndingPaletteDefinitions
         EndingPaletteId.Credits => EndingCreditsRomData.Assets.CreditsPalette,
         EndingPaletteId.Explosion => EndingCreditsRomData.Assets.ExplosionPalette,
         EndingPaletteId.FinalGunship => EndingCreditsRomData.Assets.FinalGunshipPalette,
+        EndingPaletteId.LogoInitial => EndingLogoDefinitions.InitialPalette,
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
@@ -126,6 +133,8 @@ public static class EndingPaletteDefinitions
         EndingPaletteId.Escape or EndingPaletteId.PostCredits or EndingPaletteId.Credits or
             EndingPaletteId.Explosion => SnesCgram.ColorCount,
         EndingPaletteId.FinalGunship => 16,
+        EndingPaletteId.LogoInitial => 16,
+        EndingPaletteId.LogoCrossfade => EndingLogoDefinitions.PaletteSteps * 2 * 16,
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
@@ -136,6 +145,8 @@ public static class EndingPaletteDefinitions
         EndingPaletteId.Credits => "ending-credits-palette.json",
         EndingPaletteId.Explosion => "ending-explosion-palette.json",
         EndingPaletteId.FinalGunship => "ending-final-gunship-palette.json",
+        EndingPaletteId.LogoInitial => "ending-logo-initial-palette.json",
+        EndingPaletteId.LogoCrossfade => "ending-logo-crossfade-palette.json",
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 }

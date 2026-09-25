@@ -15,9 +15,8 @@ internal static partial class Program
         var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
-            byte[] native = RomDataReader.ReadFixedBank(nativeBus,
-                EndingPaletteDefinitions.SourceAddress(id),
-                EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort));
+            byte[] native = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus, id,
+                EndingPaletteDefinitions.ColorCount(id));
             AssertTrue(stock[id].Transfer.Span.SequenceEqual(native),
                 $"installed ending {id} palette preserves every cartridge color byte");
         }
@@ -70,7 +69,8 @@ internal static partial class Program
             AssertTrue(reached.Contains(phase),
                 $"ending palette parity exercises {phase}");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
-            "installed ending never rereads the five static palette ROM ranges");
+            "installed ending never rereads static or logo palette ROM colors");
+        VerifyEndingLogoPaletteArtwork(stock, nativeBus, guardedBus);
 
         Directory.CreateDirectory(installation.EndingPaletteOverrideDirectory);
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
@@ -117,9 +117,30 @@ internal static partial class Program
                         stockState.CaptureRenderSnapshot().Memory.Vram),
                     "edited escape palette reaches the active CGRAM image");
             }
+            if (id is EndingPaletteId.LogoInitial or EndingPaletteId.LogoCrossfade)
+            {
+                var stockCgram = new SnesCgram();
+                var editedCgram = new SnesCgram();
+                var stockLogo = new EndingLogo(guardedBus, stockCgram, () => { }, stock);
+                var editedLogo = new EndingLogo(guardedBus, editedCgram, () => { }, edited);
+                if (id == EndingPaletteId.LogoCrossfade)
+                {
+                    for (int frame = 0; frame < 300 && stockLogo.PaletteStep == 0; frame++)
+                    {
+                        stockLogo.Step(stockCgram, EndingLogoInstructionDefinitions.ReadWord);
+                        editedLogo.Step(editedCgram, EndingLogoInstructionDefinitions.ReadWord);
+                    }
+                    AssertEqual(1, stockLogo.PaletteStep,
+                        "logo override fixture reaches its first palette transfer");
+                }
+                AssertTrue(!stockCgram.Colors.SequenceEqual(editedCgram.Colors) &&
+                    stockLogo.Draw().LowTable.SequenceEqual(editedLogo.Draw().LowTable),
+                    $"edited {id} color changes logo CGRAM without changing actors");
+            }
             File.Delete(overridePath);
         }
         VerifyVisibleCreditsPaletteOverride(installation, guardedBus, nativeBus);
+        VerifyVisibleLogoPaletteOverride(installation, guardedBus, nativeBus);
 
         string invalidPath = Path.Combine(installation.EndingPaletteOverrideDirectory,
             EndingPaletteDefinitions.FileName(EndingPaletteId.Escape));
@@ -152,7 +173,31 @@ internal static partial class Program
                 .SequenceEqual(stock[EndingPaletteId.Credits].Transfer.Span),
             "stock palette repair preserves the external override and restores native credits colors");
         File.Delete(invalidPath);
-        Console.WriteLine("Ending palettes: five native images, full ending CGRAM parity, isolated overrides and strict failures pass.");
+        Console.WriteLine("Ending palettes: seven native images, complete logo fade, full ending CGRAM parity, isolated overrides and strict failures pass.");
+    }
+
+    private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
+        ISnesAddressSpace nativeBus, EndingPaletteSourceReadGuard guardedBus)
+    {
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
+        var nativeLogo = new EndingLogo(nativeBus, nativeCgram, () => { });
+        var installedLogo = new EndingLogo(guardedBus, installedCgram, () => { }, stock);
+        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            "installed initial logo palette matches cartridge CGRAM");
+        for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
+        {
+            nativeLogo.Step(nativeCgram);
+            installedLogo.Step(installedCgram, EndingLogoInstructionDefinitions.ReadWord);
+            AssertEqual(nativeLogo.PaletteStep, installedLogo.PaletteStep,
+                $"installed logo crossfade step {frame}");
+            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                $"installed logo palette matches every native frame {frame}");
+        }
+        AssertTrue(nativeLogo.Completed && installedLogo.Completed,
+            "both logo palettes complete the same sixteen-step fade");
+        AssertEqual(0, guardedBus.ForbiddenReadAttempts,
+            "installed logo never reads either native palette color source");
     }
 
     private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation,
@@ -203,13 +248,63 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation,
+        ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
+    {
+        string name = EndingPaletteDefinitions.FileName(EndingPaletteId.LogoCrossfade);
+        string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
+        EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
+            File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory, name)),
+            MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Stock ending logo fade palette is empty.");
+        for (int index = 0; index < document.Colors.Length; index++)
+            document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
+        using (var output = File.Create(overridePath))
+            EndingPalette.Write(output, EndingPaletteId.LogoCrossfade, document);
+        EndingPaletteCatalog edited = installation.LoadEndingPalettes();
+        var editedAudio = new CartridgeAudioState();
+        var stockAudio = new CartridgeAudioState();
+        var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
+        var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
+        editedState.BindPaletteArtwork(edited);
+        CreditsPresentation credits = installation.LoadMaps().StaffCredits;
+        editedState.BindStaffCredits(credits);
+        stockState.BindStaffCredits(credits);
+        bool visibleDifference = false;
+        for (int frame = 0; frame < 60_000 &&
+            stockState.Phase != EndingCreditsPhase.ItemPercentage; frame++)
+        {
+            editedState.Step();
+            stockState.Step();
+            editedAudio.AdvanceFrame(guardedBus, default);
+            stockAudio.AdvanceFrame(nativeBus, default);
+            if (stockState.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
+                continue;
+            LayeredRenderSnapshot changed = editedState.CaptureRenderSnapshot();
+            LayeredRenderSnapshot original = stockState.CaptureRenderSnapshot();
+            AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
+                "logo fade color edit does not alter graphics VRAM");
+            if (!SoftwareLayeredSnapshotRenderer.Render(changed).AsSpan().SequenceEqual(
+                    SoftwareLayeredSnapshotRenderer.Render(original)))
+            {
+                visibleDifference = true;
+                break;
+            }
+        }
+        AssertTrue(visibleDifference,
+            "edited logo crossfade changes visible ending pixels without changing VRAM");
+        File.Delete(overridePath);
+    }
+
     private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         private static readonly (EndingPaletteId Id, int Start, int End)[] Ranges =
             Enum.GetValues<EndingPaletteId>()
+                .Where(id => id != EndingPaletteId.LogoCrossfade)
                 .Select(id => (id, EndingPaletteDefinitions.SourceAddress(id),
                     EndingPaletteDefinitions.SourceAddress(id) +
                     EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort)))
+                .Append((EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
                 .ToArray();
 
         public int ForbiddenReadAttempts { get; private set; }

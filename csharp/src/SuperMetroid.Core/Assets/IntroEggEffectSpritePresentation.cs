@@ -3,58 +3,62 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
-public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresentation
+/// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
+public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePresentation
 {
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
-    private IntroRinkaSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    private IntroEggEffectSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException($"Intro Rinka frame $8C:{pointer:X4} is not installed.");
+            throw new InvalidDataException(
+                $"Intro egg effect frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
             frame.DrawOnScreen(oam, x, y, paletteBits);
         else
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
-    public static IntroRinkaSpritePresentation Load(Stream json)
+    public static IntroEggEffectSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
-        IntroRinkaSpriteDocument document;
+        IntroEggEffectSpriteDocument document;
         try
         {
             using JsonDocument parsed = JsonDocument.Parse(json);
             EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<IntroRinkaSpriteDocument>(
+            document = parsed.RootElement.Deserialize<IntroEggEffectSpriteDocument>(
                 MapPresentationFormat.JsonOptions) ??
-                throw new InvalidDataException("Intro Rinka sprite JSON is null.");
+                throw new InvalidDataException("Intro egg effect sprite JSON is null.");
         }
         catch (JsonException error)
         {
-            throw new InvalidDataException("Invalid intro Rinka sprite JSON.", error);
+            throw new InvalidDataException("Invalid intro egg effect sprite JSON.", error);
         }
-        ReadOnlySpan<IntroRinkaSpriteFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
-        if (document.Version != IntroRinkaSpriteFormat.Version ||
+        ReadOnlySpan<IntroEggEffectSpriteFrameDefinition> definitions =
+            IntroEggEffectSpriteDefinitions.Frames;
+        if (document.Version != IntroEggEffectSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Length)
-            throw new InvalidDataException("Intro Rinkas require three named visual frames.");
+            throw new InvalidDataException(
+                "Intro egg effects require eleven named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroRinkaSpriteFrameDefinition definition in definitions)
+        foreach (IntroEggEffectSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
-                throw new InvalidDataException($"Intro Rinka frame {definition.Name} is missing.");
+                throw new InvalidDataException(
+                    $"Intro egg effect frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
                 IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
-        return new IntroRinkaSpritePresentation(frames);
+        return new IntroEggEffectSpritePresentation(frames);
     }
 
-    public static void Write(Stream json, IntroRinkaSpriteDocument document)
+    public static void Write(Stream json, IntroEggEffectSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
@@ -64,15 +68,15 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
     }
 }
 
-public sealed record IntroRinkaSpriteDocument
+public sealed record IntroEggEffectSpriteDocument
 {
     public required int Version { get; init; }
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
-/// <summary>Installed visual resource for the three intro Rinka frames.</summary>
-public static class IntroRinkaSpriteFormat
+/// <summary>Installed file identity for the eleven SR388 egg-effect frames.</summary>
+public static class IntroEggEffectSpriteFormat
 {
     public const int Version = 1;
-    public const string FileName = "intro-rinka-sprites.json";
+    public const string FileName = "intro-egg-effect-sprites.json";
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -60,7 +61,9 @@ internal sealed class IntroEggParticle
         sprite.Step(bus, instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam) => sprite.Draw(bus, oam);
+    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+        IntroEggEffectSpritePresentation? installedArt = null) =>
+        sprite.Draw(bus, oam, installedArt: installedArt);
 
     private static void AddSixteenSixteenVelocity(
         IntroDiscoverySprite sprite,

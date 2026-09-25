@@ -78,6 +78,7 @@ internal static partial class Program
             VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation);
             VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation);
             VerifyIntroRinkaSpriteArtwork(bus, stock, installation);
+            VerifyIntroEggEffectSpriteArtwork(bus, stock, installation);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -554,7 +555,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
         }
         finally
         {
@@ -983,7 +984,8 @@ internal static partial class Program
 
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source,
         bool blockIntroMotherBrainExplosions = false,
-        bool blockIntroRinkas = false) : ISnesAddressSpace
+        bool blockIntroRinkas = false,
+        bool blockIntroEggEffects = false) : ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -1099,6 +1101,19 @@ internal static partial class Program
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread intro Rinka sprite ${address:X6}.");
+            }
+            int eggEffectSpriteStart = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroEggEffectSpriteDefinitions.Start);
+            int eggEffectSpriteEnd = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                IntroEggEffectSpriteDefinitions.End);
+            if (blockIntroEggEffects &&
+                address >= eggEffectSpriteStart && address < eggEffectSpriteEnd)
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Cinematic reread intro egg effect sprite ${address:X6}.");
             }
             if ((address >= eyeScriptStart &&
                     address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

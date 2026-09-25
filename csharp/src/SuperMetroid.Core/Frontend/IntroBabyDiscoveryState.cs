@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -109,16 +110,17 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Step(bus);
     }
 
-    public void DrawActors(OamBuffer oam)
+    public void DrawActors(OamBuffer oam,
+        IntroEggEffectSpritePresentation? eggEffectArt = null)
     {
         // IntroSamusDisplayFlag=+1 makes cinematic objects enter OAM before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.
         egg.Draw(bus, oam);
         confusedBaby.Draw(bus, oam);
         foreach (IntroEggParticle particle in eggParticles)
-            particle.Draw(bus, oam);
+            particle.Draw(bus, oam, eggEffectArt);
         foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
-            slimeDrop.Draw(bus, oam);
+            slimeDrop.Draw(bus, oam, eggEffectArt);
     }
 
     private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)

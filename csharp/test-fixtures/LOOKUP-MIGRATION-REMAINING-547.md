@@ -61,8 +61,17 @@ owner-supplied compiled reader; no other cinematic actor is redirected.
 Verification compares all 76 source bytes to the pinned ROM, checks each
 fragment's selected frame, runs all ten actors through their physical lifetime,
 and asserts every ten-frame slime-impact appearance and final deletion while
-the instruction ranges are unreadable. The eleven referenced bank-$8C visual
-spritemaps remain separate artwork work.
+the instruction ranges are unreadable.
+
+Those eleven consecutive one-part spritemaps at `$8C:8F7E..8FCA` are now
+separately extracted as editable `intro-egg-effect-sprites.json`. The shared
+cinematic sprite renderer accepts a visual-only presentation, preserving its
+on-screen and negative-origin clipping branches for both these effects and
+the earlier Rinkas. Verification compares every installed frame and live
+fragment against native OAM, exercises slime-impact drawing with source reads
+blocked, and confirms a palette edit changes visible SR388 discovery pixels
+without moving the particle. Restored scenes rebind the current art; malformed
+resources fail rather than falling back to ROM data.
 
 ## Additional room-PLM instruction control (2026-09-24)
 

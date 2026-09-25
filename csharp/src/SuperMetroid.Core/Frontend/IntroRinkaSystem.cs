@@ -55,22 +55,7 @@ internal sealed class IntroRinkaSystem
         IntroRinkaSpritePresentation? installedArt = null)
     {
         foreach (IntroDiscoverySprite rinka in rinkas)
-        {
-            if (installedArt is null)
-            {
-                rinka.Draw(bus, oam);
-                continue;
-            }
-            if (!rinka.IsActive || rinka.SpriteMapPointer == 0)
-                continue;
-            ushort y = rinka.YPosition;
-            if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >=
-                CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
-                continue;
-            installedArt.Draw(rinka.SpriteMapPointer, oam, rinka.XPosition, y,
-                rinka.PaletteBits,
-                originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
-        }
+            rinka.Draw(bus, oam, installedArt: installedArt);
     }
 
     private ushort? HandleSpawnerInstruction(ushort opcode, ushort next)

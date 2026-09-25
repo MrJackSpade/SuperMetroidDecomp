@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -54,25 +55,20 @@ internal static partial class Program
         {
             slot.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            ushort operand = FirefleaInstructionProgramDefinitions.PresentationWordAddress(
+                call % FirefleaInstructionProgramDefinitions.FrameCount);
+            ushort native = ReadFirefleaInstructionWord(rom, operand);
+            AssertEqual(native, EnemySpritemapDefinitions.FirefleaFrameAt(operand),
+                $"compiled Fireflea visual selector $A3:{operand:X4}");
+            AssertEqual(native, slot.SpritemapPointer,
+                $"Fireflea production frame {call} matches cartridge selection");
         }
         AssertEqual(unchecked((ushort)(FirefleaInstructionProgramDefinitions.Loop + 4)),
             slot.CurrentInstruction,
             "Fireflea completes all 52 frames and loops to the first frame");
 
-        AssertEqual(FirefleaInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Fireflea spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < FirefleaInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                FirefleaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Fireflea presentation word $A3:{address:X4}");
-        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Fireflea mechanics byte");
+            "production execution avoids compiled Fireflea mechanics and visual bytes");
 
         AssertThrows<InvalidDataException>(
             () => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(
@@ -82,6 +78,10 @@ internal static partial class Program
             () => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(
                 FirefleaInstructionProgramDefinitions.AdjacentUnusedData),
             "adjacent unused Fireflea data is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.FirefleaFrameAt(
+                FirefleaInstructionProgramDefinitions.AdjacentUnusedData),
+            "adjacent unused Fireflea data is rejected as presentation");
 
         _ = ProbeFirefleaInstructionMechanicsAllocation();
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -92,7 +92,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Fireflea instruction mechanics: 54 compiled words, the complete 52-frame " +
-            "loop, and 52 live spritemap reads pass with mechanics bytes forbidden.");
+            "loop, and 52 exact frame selections pass with mechanics and visual source bytes forbidden.");
     }
 
     private static int ProbeFirefleaInstructionMechanicsAllocation()
@@ -118,36 +118,26 @@ internal static partial class Program
     private sealed class FirefleaInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (FirefleaInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (FirefleaInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+                IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Production read compiled Fireflea mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FirefleaInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        FirefleaInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
+                    $"Production read compiled Fireflea instruction byte ${address:X6}.");
             }
             return source.ReadByte(address);
         }
+
+        private static bool IsPresentationByte(int address) =>
+            (address & 0xff0000) == 0xa30000 &&
+            (FirefleaInstructionProgramDefinitions.IsPresentationWord(
+                unchecked((ushort)address)) ||
+             FirefleaInstructionProgramDefinitions.IsPresentationWord(
+                unchecked((ushort)(address - 1))));
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

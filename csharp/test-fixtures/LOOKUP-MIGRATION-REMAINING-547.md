@@ -326,6 +326,14 @@ covered. Other PLM families remain pending.
 
 ## GRipper, Ripper II, and Ripper visuals (2026-09-24)
 
+Fireflea's 52 interleaved bank-$A3 visual selectors now use the compiled
+enemy-selector table, and their 21 distinct three-part OAM compositions are
+installed in `enemy-compositions.json`. The complete production animation
+matches every cartridge frame selection with both mechanics and selector source
+bytes forbidden. Stock OAM at three origins, visible edited Y placement, and
+version-eleven override migration are verified. Its timing, motion, darkness
+effect, and collision remain engine-owned. Other enemy families are pending.
+
 The three bank-$A2 Ripper variants select twelve distinct moving frames through
 twenty-four fixed visual operands. The GRipper/Ripper II frozen facings add two
 directly selected OAM frames. All fourteen are editable in

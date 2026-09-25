@@ -217,7 +217,7 @@ retain its old pixels until the next room load.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,
-and the three Ripper variants' visual frames.
+the three Ripper variants, and Fireflea visual frames.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
@@ -225,9 +225,9 @@ parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palet
 damage remain engine-owned. The stock JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-ten overrides remain valid:
+Existing version-four through version-eleven overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Save a current version-eleven copy to edit Ripper frames.
+content. Save a current version-twelve copy to edit Fireflea frames.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
 `overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains

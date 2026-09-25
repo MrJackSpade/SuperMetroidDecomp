@@ -7,7 +7,7 @@ internal readonly record struct FirefleaInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing and loop control for Fireflea's single 52-frame program. The interleaved
-/// spritemap operands remain live cartridge presentation data.
+/// spritemap selectors are compiled separately from their editable OAM compositions.
 /// </summary>
 internal static class FirefleaInstructionProgramDefinitions
 {
@@ -24,6 +24,12 @@ internal static class FirefleaInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static FirefleaInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>Whether an address is one of the 52 authored visual operands.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        address >= Loop + 2 &&
+        address <= Loop + (FrameCount - 1) * 4 + 2 &&
+        (address - Loop - 2) % 4 == 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

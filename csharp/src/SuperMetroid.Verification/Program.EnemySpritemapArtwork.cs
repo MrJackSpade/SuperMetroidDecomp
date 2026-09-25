@@ -75,6 +75,8 @@ internal static partial class Program
                                                                                     ? RoomEnemySystem.GRipperDefinition
                                                                                     : frame.Name.StartsWith("ripper_", StringComparison.Ordinal)
                                                                                         ? RoomEnemySystem.RipperDefinition
+                                                                                        : frame.Name.StartsWith("fireflea_", StringComparison.Ordinal)
+                                                                                            ? RoomEnemySystem.FirefleaDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
             nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
@@ -155,6 +157,11 @@ internal static partial class Program
             SpriteVisualPart part = document.Frames[frameName][0];
             document.Frames[frameName][0] = part with { OffsetY = part.OffsetY + 1 };
         }
+        SpriteVisualPart firefleaPart = document.Frames["fireflea_cycle_0"][0];
+        document.Frames["fireflea_cycle_0"][0] = firefleaPart with
+        {
+            OffsetY = firefleaPart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -327,10 +334,44 @@ internal static partial class Program
             RoomEnemySystem.GRipperDefinition);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
+        ushort firefleaPointer = EnemySpritemapDefinitions.FirefleaFrameAt(
+            FirefleaInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockFireflea = DrawEnemy(stock, new FrameReadGuard(rom),
+            firefleaPointer, RoomEnemySystem.FirefleaDefinition);
+        OamBuffer editedFireflea = DrawEnemy(edited, new FrameReadGuard(rom),
+            firefleaPointer, RoomEnemySystem.FirefleaDefinition);
+        AssertEqual(unchecked((byte)(stockFireflea.LowTable[1] + 1)),
+            editedFireflea.LowTable[1],
+            "authored Fireflea Y offset changes live room OAM");
+        AssertEqual(stockFireflea.LowTable[0], editedFireflea.LowTable[0],
+            "Fireflea visual edit leaves X position unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preRipperFrames = document.Frames
+        var preFirefleaFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("fireflea_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreFirefleaFrameCount,
+            preFirefleaFrames.Count, "pre-Fireflea composition schema frame count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreFirefleaVersion,
+                Frames = preFirefleaFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preFirefleaUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer upgradedFireflea = DrawEnemy(preFirefleaUpgraded,
+            new FrameReadGuard(rom), firefleaPointer, RoomEnemySystem.FirefleaDefinition);
+        AssertTrue(stockFireflea.LowTable.SequenceEqual(upgradedFireflea.LowTable),
+            "version-eleven override gains stock Fireflea composition");
+        OamBuffer retainedRipper = DrawEnemy(preFirefleaUpgraded,
+            new FrameReadGuard(rom), 0xe54b, RoomEnemySystem.RipperDefinition);
+        OamBuffer editedRipper = DrawEnemy(edited,
+            new FrameReadGuard(rom), 0xe54b, RoomEnemySystem.RipperDefinition);
+        AssertEqual(editedRipper.LowTable[1], retainedRipper.LowTable[1],
+            "version-eleven override retains edited Ripper composition");
+        var preRipperFrames = preFirefleaFrames
             .Where(pair => !pair.Key.StartsWith("ripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRipperFrameCount,
@@ -543,6 +584,7 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.AtomicBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
+                          definition == RoomEnemySystem.FirefleaDefinition ||
                           definition == RoomEnemySystem.ZoaDefinition ||
                           definition == RoomEnemySystem.MetareeDefinition ||
                           definition == RoomEnemySystem.SkreeDefinition
@@ -579,7 +621,8 @@ internal static partial class Program
                 >= 0xa2a589 and < 0xa2a59e or
                 >= 0xa28aca and < 0xa28b60 or
                 >= 0xa2e3c5 and < 0xa2e457 or
-                >= 0xa2e527 and < 0xa2e56f)
+                >= 0xa2e527 and < 0xa2e56f or
+                >= 0xa38ea5 and < 0xa3900a)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

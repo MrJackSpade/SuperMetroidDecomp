@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 11;
+    internal const int Version = 12;
+    internal const int PreFirefleaVersion = 11;
+    internal const int PreFirefleaFrameCount = 194;
     internal const int PreRipperVersion = 10;
     internal const int PreRipperFrameCount = 180;
     internal const int PreOwtchStokeVersion = 9;
@@ -37,6 +39,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte KraidNailBank = 0xa7;
     internal const byte OwtchStokeBank = 0xa2;
     internal const byte RipperBank = 0xa2;
+    internal const byte FirefleaBank = 0xa3;
     internal const byte BoulderBank = 0xa6;
     internal const byte AtomicBank = 0xa8;
     internal const int MaximumParts = 128;
@@ -239,6 +242,27 @@ internal static class EnemySpritemapDefinitions
         new(RipperBank, 0xe54b, "ripper_right_0"),
         new(RipperBank, 0xe557, "ripper_right_1"),
         new(RipperBank, 0xe563, "ripper_right_2"),
+        new(FirefleaBank, 0x8ea5, "fireflea_cycle_0"),
+        new(FirefleaBank, 0x8eb6, "fireflea_cycle_1"),
+        new(FirefleaBank, 0x8ec7, "fireflea_cycle_2"),
+        new(FirefleaBank, 0x8ed8, "fireflea_cycle_3"),
+        new(FirefleaBank, 0x8ee9, "fireflea_cycle_4"),
+        new(FirefleaBank, 0x8efa, "fireflea_cycle_5"),
+        new(FirefleaBank, 0x8f0b, "fireflea_cycle_6"),
+        new(FirefleaBank, 0x8f1c, "fireflea_cycle_7"),
+        new(FirefleaBank, 0x8f2d, "fireflea_cycle_8"),
+        new(FirefleaBank, 0x8f3e, "fireflea_cycle_9"),
+        new(FirefleaBank, 0x8f4f, "fireflea_cycle_10"),
+        new(FirefleaBank, 0x8f60, "fireflea_cycle_11"),
+        new(FirefleaBank, 0x8f71, "fireflea_cycle_12"),
+        new(FirefleaBank, 0x8f82, "fireflea_cycle_13"),
+        new(FirefleaBank, 0x8f93, "fireflea_cycle_14"),
+        new(FirefleaBank, 0x8fa4, "fireflea_cycle_15"),
+        new(FirefleaBank, 0x8fb5, "fireflea_cycle_16"),
+        new(FirefleaBank, 0x8fc6, "fireflea_cycle_17"),
+        new(FirefleaBank, 0x8fd7, "fireflea_cycle_18"),
+        new(FirefleaBank, 0x8fe8, "fireflea_cycle_19"),
+        new(FirefleaBank, 0x8ff9, "fireflea_cycle_20"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -260,6 +284,7 @@ internal static class EnemySpritemapDefinitions
         {
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
+            RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.BoulderDefinition => BoulderFrameAt(operandAddress),
             RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
             RoomEnemySystem.SkulteraDefinition => SkulteraFrameAt(operandAddress),
@@ -284,7 +309,8 @@ internal static class EnemySpritemapDefinitions
             _ => 0,
         };
         return enemyDefinition is RoomEnemySystem.BoyonDefinition or
-            RoomEnemySystem.CacatacDefinition or RoomEnemySystem.BoulderDefinition or
+            RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
+            RoomEnemySystem.BoulderDefinition or
             RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition or
             RoomEnemySystem.WaverDefinition or RoomEnemySystem.ZoaDefinition or
             RoomEnemySystem.MetareeDefinition or RoomEnemySystem.SkreeDefinition or
@@ -419,6 +445,20 @@ internal static class EnemySpritemapDefinitions
             _ => throw new InvalidDataException(
                 $"Cacatac visual operand $A2:{operandAddress:X4} is not compiled."),
         };
+    }
+
+    /// <summary>
+    /// Fireflea's 52 interleaved frame selectors at $A3:8C31..8CFD. The 2/1-frame
+    /// cadence and loop instruction remain compiled mechanics, not visual assets.
+    /// </summary>
+    internal static ushort FirefleaFrameAt(ushort operandAddress)
+    {
+        if (FirefleaInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(FirefleaBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Fireflea visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

@@ -916,6 +916,11 @@ if (args is ["--speed-booster-visuals"])
     VerifySpeedBoosterVisuals();
     return 0;
 }
+if (args is ["--maridia-elevatube-visuals"])
+{
+    VerifyMaridiaElevatubeVisuals();
+    return 0;
+}
 if (args is ["--door-closing-definitions"])
 {
     VerifyDoorClosingPlmDefinitions(
@@ -2547,6 +2552,7 @@ VerifyMaridiaElevatubePlm();
 VerifyCompiledTourianAccessPlmPrograms();
 VerifyTourianAccessVisuals();
 VerifySpeedBoosterVisuals();
+VerifyMaridiaElevatubeVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

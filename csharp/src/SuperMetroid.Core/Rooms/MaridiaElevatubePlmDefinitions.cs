@@ -20,6 +20,28 @@ internal static class MaridiaElevatubePlmDefinitions
                 new(1, new ushort[] { 0x8180 }, 0, 0),
             });
 
+    internal const string VisualId = "elevatube-block";
+
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws =>
+        [Draw];
+
+    internal static string DrawVisualId(ushort pointer) => pointer == DrawPointer
+        ? VisualId
+        : throw new InvalidDataException(
+            $"Maridia elevatube draw ${pointer:X4} has no visual ID.");
+
+    internal static bool TryGetDrawByVisualId(string id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    {
+        if (string.Equals(id, VisualId, StringComparison.Ordinal))
+        {
+            draw = Draw;
+            return true;
+        }
+        draw = default;
+        return false;
+    }
+
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch

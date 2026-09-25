@@ -553,6 +553,12 @@ The bomb-revealed Speed Booster block uses
 one-frame reveal timing remain compiled. Invalid edits fail validation;
 valid overrides survive stock repair.
 
+The Maridia elevatube's one-block PLM appearance is installed at
+`game/room-plm-maridia-elevatube/maridia-elevatube.json`. Copy it to
+`overrides/room-plm-maridia-elevatube/maridia-elevatube.json` and edit the
+`elevatube-block` entry's `blocks` word (0..4095). The sixteen-frame hold,
+physical block, sound, and deletion remain compiled and unchanged.
+
 Permanent collectible PLM appearances are installed as
 `game/room-plm-collectibles/collectibles.json`. Copy it to
 `overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`

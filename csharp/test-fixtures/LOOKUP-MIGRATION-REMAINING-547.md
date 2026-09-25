@@ -2,6 +2,13 @@
 
 ## Additional room-PLM instruction control (2026-09-24)
 
+Maridia's hardcoded elevatube PLM now selects its visible block from
+`room-plm-maridia-elevatube/maridia-elevatube.json`. The production PLM runs
+with program/draw source bytes unreadable, preserves its physical word and
+sixteen-frame sound/deletion sequence, and shows an edited tile both immediately
+and after camera streaming. The stock file is ROM-checked and manifested;
+malformed overrides fail and valid ones survive stock replacement.
+
 The bomb-special Speed Booster reveal's single compiled physical draw now has
 an installed editable visual word in `room-plm-speed-booster/speed-booster.json`.
 The production bomb-reveal PLM applies an edited tile immediately and during

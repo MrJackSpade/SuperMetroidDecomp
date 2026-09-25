@@ -21,6 +21,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
     [NonSerialized] private RoomPlmTourianAccessVisualCatalog? roomPlmTourianAccessVisuals;
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
+    [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
@@ -142,6 +143,14 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmSpeedBoosterVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmSpeedBoosterVisuals = catalog;
+    }
+
+    /// <summary>Binds the installed Maridia elevatube tile after startup or state restoration.</summary>
+    public void BindRoomPlmMaridiaElevatubeVisuals(
+        RoomPlmMaridiaElevatubeVisualCatalog? catalog)
+    {
+        roomPlmMaridiaElevatubeVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmMaridiaElevatubeVisuals = catalog;
     }
 
     /// <summary>Binds installed collectible art at startup and after state restoration.</summary>

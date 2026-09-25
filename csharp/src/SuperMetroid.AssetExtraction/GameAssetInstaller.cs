@@ -105,6 +105,7 @@ public static class GameAssetInstaller
             RoomPlmLinkedRestoreVisualFiles.ValidateStock(installation.RoomPlmLinkedRestoreVisualDirectory);
             RoomPlmTourianAccessVisualFiles.ValidateStock(installation.RoomPlmTourianAccessVisualDirectory);
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(installation.RoomPlmSpeedBoosterVisualDirectory);
+            RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(installation.RoomPlmMaridiaElevatubeVisualDirectory);
             RoomPlmCollectibleVisualFiles.ValidateStock(installation.RoomPlmCollectibleVisualDirectory);
             RoomPlmDynamicCollectibleArtFiles.ValidateStock(installation.RoomPlmDynamicCollectibleArtDirectory);
             XrayRevealVisualFiles.ValidateStock(installation.XrayRevealVisualDirectory);
@@ -321,6 +322,13 @@ public static class GameAssetInstaller
             RoomPlmSpeedBoosterVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 speedBoosterVisuals, SupportedCartridge.Sha256);
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(speedBoosterVisuals);
+            progress?.Report("Extracting Maridia elevatube visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string maridiaElevatubeVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmMaridiaElevatubeVisualDirectoryName);
+            RoomPlmMaridiaElevatubeVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                maridiaElevatubeVisuals, SupportedCartridge.Sha256);
+            RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(maridiaElevatubeVisuals);
             progress?.Report("Extracting collectible PLM visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string collectibleVisuals = Path.Combine(staging,

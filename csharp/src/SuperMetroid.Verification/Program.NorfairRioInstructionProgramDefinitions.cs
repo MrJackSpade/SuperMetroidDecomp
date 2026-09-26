@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -90,17 +91,17 @@ internal static partial class Program
 
         VerifyNorfairRioInitializerSelections(guard, flags);
 
-        AssertEqual(NorfairRioInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Norfair Rio spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Norfair Rio presentation selectors are compiled, not ROM reads");
         for (int index = 0;
              index < NorfairRioInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 NorfairRioInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Norfair Rio presentation word $A2:{address:X4}");
+            AssertEqual(ReadNorfairRioInstructionWord(rom, address),
+                EnemySpritemapDefinitions.NorfairRioFrameAt(address),
+                $"compiled Norfair Rio selector $A2:{address:X4} matches ROM");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Norfair Rio mechanics byte");
@@ -123,7 +124,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Norfair Rio instruction mechanics: 65 compiled words, all seven parent/" +
-            "flame programs, eleven callbacks, and 34 live spritemap reads pass.");
+            "flame programs, eleven callbacks, and 34 compiled spritemap selectors pass.");
     }
 
     private static void VerifyNorfairRioInitializerSelections(
@@ -160,9 +161,10 @@ internal static partial class Program
         NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
             ISnesAddressSpace bus,
             BindingFlags flags,
-            ushort entry)
+            ushort entry,
+            EnemyTileArtworkCatalog? art = null)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRioDefinition;
@@ -211,8 +213,8 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class NorfairRioInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+    private sealed class NorfairRioInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -237,6 +239,10 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                            throw new InvalidOperationException(
+                                $"Installed Norfair Rio read visual selector " +
+                                $"$A2:{presentation:X4}.");
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

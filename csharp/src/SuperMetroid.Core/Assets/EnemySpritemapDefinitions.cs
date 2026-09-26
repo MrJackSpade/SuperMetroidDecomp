@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 18;
+    internal const int Version = 19;
+    internal const int PreNorfairRioVersion = 18;
+    internal const int PreNorfairRioFrameCount = 288;
     internal const int PreLowerNorfairRioVersion = 17;
     internal const int PreLowerNorfairRioFrameCount = 270;
     internal const int PreRioVersion = 16;
@@ -44,6 +46,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte BoyonBank = 0xa2;
     internal const byte RioBank = 0xa2;
     internal const byte LowerNorfairRioBank = 0xa2;
+    internal const byte NorfairRioBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -360,6 +363,26 @@ internal static class EnemySpritemapDefinitions
         new(LowerNorfairRioBank, 0xca07, "lower_norfair_rio_ca07"),
         new(LowerNorfairRioBank, 0xca13, "lower_norfair_rio_ca13"),
         new(LowerNorfairRioBank, 0xca1f, "lower_norfair_rio_ca1f"),
+        new(NorfairRioBank, 0xc427, "norfair_rio_c427"),
+        new(NorfairRioBank, 0xc442, "norfair_rio_c442"),
+        new(NorfairRioBank, 0xc45d, "norfair_rio_c45d"),
+        new(NorfairRioBank, 0xc493, "norfair_rio_c493"),
+        new(NorfairRioBank, 0xc49f, "norfair_rio_c49f"),
+        new(NorfairRioBank, 0xc4ab, "norfair_rio_c4ab"),
+        new(NorfairRioBank, 0xc4b7, "norfair_rio_c4b7"),
+        new(NorfairRioBank, 0xc4d2, "norfair_rio_c4d2"),
+        new(NorfairRioBank, 0xc4ed, "norfair_rio_c4ed"),
+        new(NorfairRioBank, 0xc508, "norfair_rio_c508"),
+        new(NorfairRioBank, 0xc523, "norfair_rio_c523"),
+        new(NorfairRioBank, 0xc534, "norfair_rio_c534"),
+        new(NorfairRioBank, 0xc54f, "norfair_rio_c54f"),
+        new(NorfairRioBank, 0xc56a, "norfair_rio_c56a"),
+        new(NorfairRioBank, 0xc585, "norfair_rio_c585"),
+        new(NorfairRioBank, 0xc5a0, "norfair_rio_c5a0"),
+        new(NorfairRioBank, 0xc5bb, "norfair_rio_c5bb"),
+        new(NorfairRioBank, 0xc5d6, "norfair_rio_c5d6"),
+        new(NorfairRioBank, 0xc5e2, "norfair_rio_c5e2"),
+        new(NorfairRioBank, 0xc5ee, "norfair_rio_c5ee"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -385,6 +408,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
+            RoomEnemySystem.NorfairRioDefinition => NorfairRioFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -416,6 +440,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
+            RoomEnemySystem.NorfairRioDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -462,6 +487,21 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Lower Norfair Rio visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Geruta's thirty-four fixed presentation operands at $A2:C0F5..C1B1
+    /// select twenty extracted parent/flame OAM compositions. Swoop
+    /// callbacks, durations, follower offsets, and hitboxes stay compiled.
+    /// </summary>
+    internal static ushort NorfairRioFrameAt(ushort operandAddress)
+    {
+        if (NorfairRioInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(NorfairRioBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Norfair Rio visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

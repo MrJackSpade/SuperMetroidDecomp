@@ -438,8 +438,8 @@ Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,
 the three Ripper variants, Fireflea, Magdollite, Ceres door visual frames
 (including the Ridley-room private overlay), the Ceres Baby's three poses,
-Rio's eight idle/swoop compositions, and Lower Norfair Rio's eighteen
-parent/flame compositions.
+Rio's eight idle/swoop compositions, Lower Norfair Rio's eighteen parent/flame
+compositions, and Norfair Rio's twenty parent/flame compositions.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
@@ -452,11 +452,11 @@ selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
 JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-seventeen overrides remain valid:
+Existing version-four through version-eighteen overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Version-fourteen through version-seventeen overrides also retain their edited
+content. Version-fourteen through version-eighteen overrides also retain their edited
 `displayFrames` bindings; earlier versions inherit stock identity selections. Save a
-current version-eighteen copy to edit Lower Norfair Rio frames or display bindings.
+current version-nineteen copy to edit Norfair Rio frames or display bindings.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
 `game/maps/ceres-ridley-colors.json`; copy that file to
 `overrides/maps/ceres-ridley-colors.json` to edit colors. Its `baby` rows

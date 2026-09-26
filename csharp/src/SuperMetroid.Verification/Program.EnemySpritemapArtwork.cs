@@ -27,8 +27,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount,
             "Rio adds its eight distinct OAM compositions");
         AssertEqual(EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount + 18,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreNorfairRioFrameCount,
             "Lower Norfair Rio adds its eighteen parent and flame compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreNorfairRioFrameCount + 20,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Norfair Rio adds its twenty parent and flame compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -108,6 +111,46 @@ internal static partial class Program
         }
         AssertEqual(0, lowerRioGuard.ObservedPresentationWords.Count,
             "installed Lower Norfair Rio programs never read ROM visual selectors");
+        for (int index = 0;
+             index < NorfairRioInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = NorfairRioInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.NorfairRioDefinition, operand, out ushort frame),
+                $"Norfair Rio presentation operand $A2:{operand:X4} is compiled");
+            AssertEqual(ReadNorfairRioInstructionWord(rom, operand), frame,
+                $"Norfair Rio selector $A2:{operand:X4} matches the cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.NorfairRioFrameAt(
+                NorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions),
+            "Norfair Rio rejects adjacent movement data as presentation");
+        var norfairRioGuard = new NorfairRioInstructionReadGuard(
+            rom, forbidPresentation: true);
+        MethodInfo norfairRioProcess = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
+        foreach ((ushort entry, int calls) in new (ushort, int)[]
+                 {
+                     (NorfairRioInstructionProgramDefinitions.Idle, 5),
+                     (NorfairRioInstructionProgramDefinitions.StartDescending, 7),
+                     (NorfairRioInstructionProgramDefinitions.Descending, 5),
+                     (NorfairRioInstructionProgramDefinitions.StartAscending, 9),
+                     (NorfairRioInstructionProgramDefinitions.Ascending, 5),
+                     (NorfairRioInstructionProgramDefinitions.FlamesAscending, 5),
+                     (NorfairRioInstructionProgramDefinitions.FlamesDescending, 5),
+                 })
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
+                NewNorfairRioInstructionSystem(norfairRioGuard, flags, entry, stock);
+            object?[] arguments =
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            RunNorfairRioInstructionFrames(
+                norfairRioProcess, enemies, arguments, slot, calls);
+        }
+        AssertEqual(0, norfairRioGuard.ObservedPresentationWords.Count,
+            "installed Norfair Rio programs never read ROM visual selectors");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -133,6 +176,8 @@ internal static partial class Program
             var room = DrawEnemy(stock, new FrameReadGuard(rom), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
+                    : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.LowerNorfairRioDefinition
                     : frame.Name.StartsWith("rio_", StringComparison.Ordinal)
@@ -287,6 +332,11 @@ internal static partial class Program
         document.Frames["lower_norfair_rio_c8bd"][0] = lowerRioPart with
         {
             OffsetY = lowerRioPart.OffsetY + 1,
+        };
+        SpriteVisualPart norfairRioPart = document.Frames["norfair_rio_c442"][0];
+        document.Frames["norfair_rio_c442"][0] = norfairRioPart with
+        {
+            OffsetY = norfairRioPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -529,16 +579,57 @@ internal static partial class Program
             "authored Lower Norfair Rio Y offset changes installed room OAM");
         AssertEqual(stockLowerRio.LowTable[0], editedLowerRio.LowTable[0],
             "Lower Norfair Rio visual edit leaves physical X unchanged");
+        ushort norfairRioPointer = EnemySpritemapDefinitions.NorfairRioFrameAt(
+            NorfairRioInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockNorfairRio = DrawEnemy(stock, new FrameReadGuard(rom),
+            norfairRioPointer, RoomEnemySystem.NorfairRioDefinition);
+        OamBuffer editedNorfairRio = DrawEnemy(edited, new FrameReadGuard(rom),
+            norfairRioPointer, RoomEnemySystem.NorfairRioDefinition);
+        AssertEqual(unchecked((byte)(stockNorfairRio.LowTable[1] + 1)),
+            editedNorfairRio.LowTable[1],
+            "authored Norfair Rio Y offset changes installed room OAM");
+        AssertEqual(stockNorfairRio.LowTable[0], editedNorfairRio.LowTable[0],
+            "Norfair Rio visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preNorfairRioFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreNorfairRioFrameCount,
+            preNorfairRioFrames.Count, "pre-Norfair-Rio composition schema frame count");
+        var preNorfairRioBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preNorfairRioBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreNorfairRioVersion,
+                Frames = preNorfairRioFrames,
+                DisplayFrames = preNorfairRioBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preNorfairRioUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer priorNorfairRioEraRemap = DrawEnemy(preNorfairRioUpgraded,
+            new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
+        OamBuffer priorNorfairRioEraSelected = DrawEnemy(stock,
+            new FrameReadGuard(rom), 0x88e1, RoomEnemySystem.BoyonDefinition);
+        AssertTrue(priorNorfairRioEraSelected.LowTable.SequenceEqual(
+                priorNorfairRioEraRemap.LowTable),
+            "version-eighteen override retains its display binding");
+        AssertTrue(preNorfairRioUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.NorfairRioBank, norfairRioPointer, out _),
+            "version-eighteen override gains stock Norfair Rio artwork");
         var preLowerRioFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount,
             preLowerRioFrames.Count, "pre-Lower-Norfair-Rio composition schema frame count");
         var preLowerRioBindings = document.DisplayFrames!
-            .Where(pair => !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preLowerRioBindings["boyon_idle_0"] = "boyon_idle_1";
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -562,13 +653,15 @@ internal static partial class Program
             "version-seventeen override gains stock Lower Norfair Rio artwork");
         var preRioFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal))
+                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRioFrameCount,
             preRioFrames.Count, "pre-Rio composition schema frame count");
         var preRioBindings = document.DisplayFrames!
             .Where(pair => !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal))
+                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preRioBindings["boyon_idle_0"] = "boyon_idle_1";
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -592,14 +685,16 @@ internal static partial class Program
         var preCeresBabyFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal))
+                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreCeresBabyFrameCount,
             preCeresBabyFrames.Count, "pre-Ceres-Baby composition schema frame count");
         var preCeresBabyBindings = document.DisplayFrames!
             .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal))
+                !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preCeresBabyBindings["ceres_door_right_hold"] =
             "ceres_door_right_transition_0";

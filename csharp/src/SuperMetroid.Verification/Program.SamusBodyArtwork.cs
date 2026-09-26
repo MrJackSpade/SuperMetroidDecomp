@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
+        VerifySamusArmCannonArtwork(bus, stock);
         int definitions = 0;
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
@@ -385,7 +386,43 @@ internal static partial class Program
         using (var output = File.Create(deathTileOverride))
             IndexedPng.Write(output, deathTileImage.Width, deathTileImage.Height,
                 editedDeathPixels, deathTileImage.Palette);
+        string armJsonOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
+            SamusArmCannonArtworkFormat.JsonFileName);
+        JsonNode armDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)))!;
+        ushort armPosePointer = stock.ArmCannon.PoseDrawingData(SamusPoseIds.FacingRightNormalPose);
+        byte armSelector = stock.ArmCannon.ReadDrawingByte(armPosePointer);
+        ushort armXAddress = unchecked((ushort)(armPosePointer +
+            ((armSelector & 0x80) != 0 ? 4 : 2)));
+        int armXIndex = armXAddress - SamusArmCannonArtworkFormat.DrawingDataStart;
+        int stockArmX = armDocument["drawingData"]![armXIndex]!.GetValue<int>();
+        armDocument["drawingData"]![armXIndex] = (stockArmX + 1) & 255;
+        File.WriteAllText(armJsonOverride, armDocument.ToJsonString());
+        string armPngOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
+            SamusArmCannonArtworkFormat.TileFileName);
+        IndexedPngImage armImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
+            Path.Combine(installation.SamusBodyDirectory,
+                SamusArmCannonArtworkFormat.TileFileName)), writable: false),
+            SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8);
+        byte[] armPixels = (byte[])armImage.Pixels.Clone();
+        armPixels[0] = (byte)((armPixels[0] + 1) & 15);
+        using (var output = File.Create(armPngOverride))
+            IndexedPng.Write(output, armImage.Width, armImage.Height, armPixels,
+                armImage.Palette);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
+        AssertTrue(stock.ArmCannon.ReadDrawingByte(armXAddress) !=
+                replacement.ArmCannon.ReadDrawingByte(armXAddress),
+            "edited arm-cannon JSON changes a pose OAM X offset");
+        AssertTrue(stock.ArmCannon.TryResolveTile(
+                SamusRenderingRomData.Banks.CharacterData |
+                    SamusArmCannonArtworkFormat.TileSourcePointers[0], 32,
+                out var stockArmTile) &&
+            replacement.ArmCannon.TryResolveTile(
+                SamusRenderingRomData.Banks.CharacterData |
+                    SamusArmCannonArtworkFormat.TileSourcePointers[0], 32,
+                out var editedArmTile) &&
+            !stockArmTile.Span.SequenceEqual(editedArmTile.Span),
+            "edited arm-cannon indexed PNG changes the production DMA character");
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
@@ -535,6 +572,87 @@ internal static partial class Program
         document["topPointers"]![0] = stock.TopSetPointers[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
+    }
+
+    private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
+        SamusBodyArtworkCatalog body)
+    {
+        SamusArmCannonArtworkCatalog armCannon = body.ArmCannon;
+        for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
+        {
+            int source = SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2;
+            ushort native = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            AssertEqual(native, armCannon.PoseDrawingData(pose),
+                $"arm-cannon pose {pose:X2} drawing pointer");
+        }
+        for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
+            AssertEqual(bus.ReadByte(SamusRenderingRomData.Banks.Movement |
+                    (SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
+                armCannon.ReadDrawingByte((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
+                $"arm-cannon drawing byte {offset:X3}");
+        for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
+        {
+            int attrAddress = SamusRenderingRomData.ArmCannon.SpriteAttributes + direction * 2;
+            AssertEqual((ushort)(bus.ReadByte(attrAddress) | bus.ReadByte(attrAddress + 1) << 8),
+                armCannon.SpriteAttributes(direction), $"arm-cannon direction {direction} OAM");
+            int listAddress = SamusRenderingRomData.ArmCannon.TileListPointers + direction * 2;
+            int list = bus.ReadByte(listAddress) | bus.ReadByte(listAddress + 1) << 8;
+            for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
+            {
+                int word = SamusRenderingRomData.Banks.Movement | (list + frame * 2);
+                AssertEqual((ushort)(bus.ReadByte(word) | bus.ReadByte(word + 1) << 8),
+                    armCannon.TileSource(direction, frame),
+                    $"arm-cannon direction {direction} frame {frame} tile source");
+            }
+        }
+        foreach (ushort pointer in SamusArmCannonArtworkFormat.TileSourcePointers)
+        {
+            int source = SamusRenderingRomData.Banks.CharacterData | pointer;
+            AssertTrue(armCannon.TryResolveTile(source,
+                SamusRenderingRomData.ArmCannon.TileUploadByteCount, out var tile),
+                $"arm-cannon character ${source:X6} installed");
+            for (int offset = 0; offset < tile.Length; offset++)
+                AssertEqual(bus.ReadByte(source + offset), tile.Span[offset],
+                    $"arm-cannon character ${source:X6} byte {offset:X2}");
+        }
+
+        var nativeSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            AnimationFrame = 0, XPosition = 128, YPosition = 128, SelectedHudItem = 1,
+        };
+        var installedSamus = new SamusState
+        {
+            Pose = nativeSamus.Pose, AnimationFrame = nativeSamus.AnimationFrame,
+            XPosition = nativeSamus.XPosition, YPosition = nativeSamus.YPosition,
+            SelectedHudItem = nativeSamus.SelectedHudItem,
+        };
+        installedSamus.ArmCannon.Artwork = armCannon;
+        installedSamus.TileTransfers.BindArtwork(body);
+        for (int frame = 0; frame < 4; frame++)
+        {
+            SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(bus, nativeSamus);
+            SamusArmCannonUpdateResult installed = installedSamus.ArmCannon.Update(
+                new FrontendCartridgeReadGuard(bus), installedSamus);
+            AssertEqual(native, installed, $"installed arm-cannon update frame {frame}");
+        }
+        var nativeOam = new OamBuffer();
+        var installedOam = new OamBuffer();
+        nativeOam.BeginFrame();
+        installedOam.BeginFrame();
+        var nativeWrites = new VramWriteQueue();
+        var installedWrites = new VramWriteQueue();
+        SamusArmCannonDrawResult nativeDraw = nativeSamus.ArmCannon.Draw(bus,
+            nativeOam, nativeWrites, nativeSamus, 0, 0, 0);
+        SamusArmCannonDrawResult installedDraw = installedSamus.ArmCannon.Draw(
+            new FrontendCartridgeReadGuard(bus), installedOam, installedWrites,
+            installedSamus, 0, 0, 0);
+        AssertEqual(nativeDraw, installedDraw, "installed arm-cannon pose, OAM and DMA selection");
+        AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable),
+            "installed arm-cannon cover writes identical visible OAM");
+        AssertTrue(nativeWrites.Entries.SequenceEqual(installedWrites.Entries),
+            "installed arm-cannon cover queues the native tile DMA");
+        Console.WriteLine("Arm-cannon artwork: 253 pose pointers, drawing bytes, ten direction selectors and twelve PNG tiles match retail; guarded cover OAM and DMA parity pass.");
     }
 
     private sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :

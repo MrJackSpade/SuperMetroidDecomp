@@ -118,7 +118,18 @@ internal static partial class Program
             {
                 AssertTrue(motherBrainFrame >= 0,
                     "intro reached its game-state handoff after Mother Brain flashback");
-                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity frames through game-state handoff; all cartridge reads guarded.");
+                for (int gameplayFrame = 0; gameplayFrame < 30; gameplayFrame++)
+                {
+                    FrontendFrame expectedGameplay = native.Step(0);
+                    FrontendFrame actualGameplay = installed.Step(0);
+                    AssertEqual(expectedGameplay.GameState, actualGameplay.GameState,
+                        $"installed post-intro game state frame {gameplayFrame}");
+                    AssertEqual(expectedGameplay.Phase, actualGameplay.Phase,
+                        $"installed post-intro phase frame {gameplayFrame}");
+                    AssertTrue(actualGameplay.Pixels.AsSpan().SequenceEqual(expectedGameplay.Pixels),
+                        $"installed post-intro pixels frame {gameplayFrame}");
+                }
+                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus 30 post-handoff frames; all cartridge reads guarded.");
                 return;
             }
             if (actual.GameState != SuperMetroidGameState.IntroCinematic)

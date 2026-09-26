@@ -45,6 +45,9 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Editable tile characters uploaded during the five death-explosion phases.</summary>
     public SamusDeathTileAtlas DeathTiles { get; }
 
+    /// <summary>Editable pose placement and cover characters for the independent arm-cannon OBJ.</summary>
+    public SamusArmCannonArtworkCatalog ArmCannon { get; }
+
     public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
         ushort[] posePointers, sbyte[] graphicsYOffsets,
         SamusBodyFrameSelection[] frames,
@@ -52,6 +55,7 @@ public sealed class SamusBodyArtworkCatalog
         SamusSpritemapArtworkCatalog spritemaps, SamusAtmosphericArtworkCatalog atmosphere,
         SamusDeathPaletteArtworkCatalog deathPalettes,
         SamusDeathTileAtlas deathTiles,
+        SamusArmCannonArtworkCatalog armCannon,
         ushort[] landingYOffsets,
         sbyte[] postureYOffsets, sbyte[] drainedYOffsets)
     {
@@ -66,6 +70,7 @@ public sealed class SamusBodyArtworkCatalog
         ArgumentNullException.ThrowIfNull(atmosphere);
         ArgumentNullException.ThrowIfNull(deathPalettes);
         ArgumentNullException.ThrowIfNull(deathTiles);
+        ArgumentNullException.ThrowIfNull(armCannon);
         ArgumentNullException.ThrowIfNull(landingYOffsets);
         ArgumentNullException.ThrowIfNull(postureYOffsets);
         ArgumentNullException.ThrowIfNull(drainedYOffsets);
@@ -92,6 +97,7 @@ public sealed class SamusBodyArtworkCatalog
         Atmosphere = atmosphere;
         DeathPalettes = deathPalettes;
         DeathTiles = deathTiles;
+        ArmCannon = armCannon;
         this.top = CloneAndValidate(topPointers, top);
         this.bottom = CloneAndValidate(bottomPointers, bottom);
         IndexDefinitions(true, this.top);

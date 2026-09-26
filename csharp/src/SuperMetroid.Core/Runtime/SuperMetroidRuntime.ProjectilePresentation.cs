@@ -24,6 +24,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
         }
         if (SamusBodyArt?.DeathTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
+        if (SamusBodyArt?.ArmCannon.TryResolveTile(sourceAddress, byteCount, out data) == true)
+            return true;
         if (Enemies.TileArtwork?.GunshipLiftoff?.TryResolve(
                 sourceAddress, byteCount, out data) == true)
             return true;

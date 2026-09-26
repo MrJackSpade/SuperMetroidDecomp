@@ -14,6 +14,7 @@ public sealed partial class SuperMetroidRuntime
         {
             samusBodyArt = value;
             Samus?.TileTransfers.BindArtwork(value);
+            if (Samus is not null) Samus.ArmCannon.Artwork = value?.ArmCannon;
         }
     }
 }

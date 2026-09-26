@@ -79,6 +79,10 @@ internal static class FuneNamiheInstructionProgramDefinitions
     internal static FuneNamiheInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
 
+    /// <summary>Whether an operand in the eight native lists owns a visual frame pointer.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
+
     /// <summary>Returns one fixed control word or rejects pointers outside all eight lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {

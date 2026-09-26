@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 27;
+    internal const int Version = 28;
+    internal const int PreFuneNamiheVersion = 27;
+    internal const int PreFuneNamiheFrameCount = 431;
     internal const int PreSbugVersion = 26;
     internal const int PreSbugFrameCount = 407;
     internal const int PreHZoomerVersion = 25;
@@ -71,6 +73,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte ChootBank = 0xa2;
     internal const byte HZoomerBank = 0xa3;
     internal const byte SbugBank = 0xa3;
+    internal const byte FuneNamiheBank = 0xa8;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -530,6 +533,28 @@ internal static class EnemySpritemapDefinitions
         new(SbugBank, 0xa710, "sbug_down_right_0"),
         new(SbugBank, 0xa717, "sbug_down_right_1"),
         new(SbugBank, 0xa71e, "sbug_down_right_2"),
+        new(FuneNamiheBank, 0x93f9, "fune_left_idle"),
+        new(FuneNamiheBank, 0x9423, "fune_left_active_0"),
+        new(FuneNamiheBank, 0x944d, "fune_left_active_1"),
+        new(FuneNamiheBank, 0x9477, "fune_left_active_2"),
+        new(FuneNamiheBank, 0x94a1, "fune_left_active_3"),
+        new(FuneNamiheBank, 0x94cb, "fune_right_idle"),
+        new(FuneNamiheBank, 0x94f5, "fune_right_active_0"),
+        new(FuneNamiheBank, 0x951f, "fune_right_active_1"),
+        new(FuneNamiheBank, 0x9549, "fune_right_active_2"),
+        new(FuneNamiheBank, 0x9573, "fune_right_active_3"),
+        new(FuneNamiheBank, 0x97b4, "namihe_left_idle"),
+        new(FuneNamiheBank, 0x97de, "namihe_left_active_0"),
+        new(FuneNamiheBank, 0x9808, "namihe_left_active_1"),
+        new(FuneNamiheBank, 0x9832, "namihe_left_active_2"),
+        new(FuneNamiheBank, 0x985c, "namihe_left_active_3"),
+        new(FuneNamiheBank, 0x9886, "namihe_left_active_4"),
+        new(FuneNamiheBank, 0x98b0, "namihe_right_idle"),
+        new(FuneNamiheBank, 0x98da, "namihe_right_active_0"),
+        new(FuneNamiheBank, 0x9904, "namihe_right_active_1"),
+        new(FuneNamiheBank, 0x992e, "namihe_right_active_2"),
+        new(FuneNamiheBank, 0x9958, "namihe_right_active_3"),
+        new(FuneNamiheBank, 0x9982, "namihe_right_active_4"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -569,6 +594,9 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.HZoomerDefinition => HZoomerFrameAt(operandAddress),
             RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition =>
                 SbugFrameAt(operandAddress),
+            FuneNamiheDefinitions.FuneEnemyDefinition or
+                FuneNamiheDefinitions.NamiheEnemyDefinition =>
+                FuneNamiheFrameAt(operandAddress),
             RoomEnemySystem.ZeelaDefinition or
                 RoomEnemySystem.SovaDefinition or
                 RoomEnemySystem.ZoomerDefinition or
@@ -618,6 +646,8 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.ChootDefinition or
             RoomEnemySystem.HZoomerDefinition or
             RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition or
+            FuneNamiheDefinitions.FuneEnemyDefinition or
+            FuneNamiheDefinitions.NamiheEnemyDefinition or
             RoomEnemySystem.ZeelaDefinition or
             RoomEnemySystem.SovaDefinition or
             RoomEnemySystem.ZoomerDefinition or
@@ -638,6 +668,17 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition or
             RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition or
             RoomEnemySystem.RipperDefinition;
+    }
+
+    /// <summary>Reads only the 38 Fune/Namihe presentation operands from their eight native programs.</summary>
+    internal static ushort FuneNamiheFrameAt(ushort operandAddress)
+    {
+        if (FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(FuneNamiheBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

@@ -250,8 +250,30 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreSbugFrameCount,
             "HZoomer adds five frames in each of four surface orientations");
         AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount + 24,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreFuneNamiheFrameCount,
             "Sbug adds three distinct frames in each of eight facing directions");
+        AssertEqual(EnemySpritemapDefinitions.PreFuneNamiheFrameCount + 22,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Fune/Namihe add all left/right idle and active OAM frames");
+        for (int index = 0;
+             index < FuneNamiheInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort operand = FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort definition = operand < FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
+                ? FuneNamiheDefinitions.FuneEnemyDefinition
+                : FuneNamiheDefinitions.NamiheEnemyDefinition;
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
+                rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    definition, operand, out ushort selected),
+                $"Fune/Namihe visual selector $A8:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Fune/Namihe visual selector $A8:{operand:X4} matches cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.FuneNamiheFrameAt(
+                FuneNamiheInstructionProgramDefinitions.FuneIdleRight),
+            "Fune/Namihe rejects adjacent mechanics as presentation");
         for (int index = 0; index <
              SbugInstructionProgramDefinitions.PresentationWordCount; index++)
         {
@@ -397,6 +419,8 @@ internal static partial class Program
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");
+            AssertTrue(stock.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                $"installed enemy frame {frame.Name} has a display binding");
             foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
                      new (ushort, ushort, ushort, ushort)[]
                      {
@@ -415,7 +439,7 @@ internal static partial class Program
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed {frame.Name} OAM matches native at {x:X4},{y:X4}");
             }
-            var room = DrawEnemy(stock, new FrameReadGuard(rom), frame.Pointer,
+            var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
@@ -446,6 +470,10 @@ internal static partial class Program
                         ? RoomEnemySystem.HZoomerDefinition
                     : frame.Name.StartsWith("sbug_", StringComparison.Ordinal)
                         ? RoomEnemySystem.SbugDefinition
+                    : frame.Name.StartsWith("fune_", StringComparison.Ordinal)
+                        ? FuneNamiheDefinitions.FuneEnemyDefinition
+                    : frame.Name.StartsWith("namihe_", StringComparison.Ordinal)
+                        ? FuneNamiheDefinitions.NamiheEnemyDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -642,6 +670,11 @@ internal static partial class Program
         {
             OffsetY = sbugPart.OffsetY + 1,
         };
+        SpriteVisualPart funePart = document.Frames["fune_right_idle"][0];
+        document.Frames["fune_right_idle"][0] = funePart with
+        {
+            OffsetY = funePart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -649,6 +682,15 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        OamBuffer stockFune = DrawEnemy(stock, new FrameReadGuard(rom),
+            0x94cb, FuneNamiheDefinitions.FuneEnemyDefinition);
+        OamBuffer editedFune = DrawEnemy(edited, new FrameReadGuard(rom),
+            0x94cb, FuneNamiheDefinitions.FuneEnemyDefinition);
+        AssertEqual(unchecked((byte)(stockFune.LowTable[1] + 1)),
+            editedFune.LowTable[1],
+            "editable Fune idle OAM offset changes the displayed enemy frame");
+        AssertEqual(stockFune.LowTable[0], editedFune.LowTable[0],
+            "Fune visual edit does not change physical X position");
         ushort framePointer = EnemySpritemapDefinitions.BoyonFrameAt(0x86ad);
         var stockOam = DrawEnemy(stock, new FrameReadGuard(rom), framePointer,
             RoomEnemySystem.BoyonDefinition);
@@ -1009,8 +1051,38 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preFuneFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("namihe_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreFuneNamiheFrameCount,
+            preFuneFrames.Count, "pre-Fune/Namihe composition schema frame count");
+        var preFuneBindings = document.DisplayFrames!
+            .Where(pair => preFuneFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreFuneNamiheVersion,
+                Frames = preFuneFrames,
+                DisplayFrames = preFuneBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preFuneUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer inheritedFune = DrawEnemy(preFuneUpgraded,
+            new FrameReadGuard(rom), 0x94cb,
+            FuneNamiheDefinitions.FuneEnemyDefinition);
+        AssertTrue(inheritedFune.LowTable.SequenceEqual(stockFune.LowTable),
+            "version-twenty-seven override inherits stock Fune OAM without ROM reads");
+        AssertTrue(DrawEnemy(preFuneUpgraded, new FrameReadGuard(rom), 0x88da,
+                RoomEnemySystem.BoyonDefinition).LowTable
+            .SequenceEqual(DrawEnemy(edited, new FrameReadGuard(rom), 0x88da,
+                RoomEnemySystem.BoyonDefinition).LowTable),
+            "version-twenty-seven override retains existing Boyon edits");
         var preSbugFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("sbug_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("namihe_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount,
             preSbugFrames.Count, "pre-Sbug composition schema frame count");
@@ -1037,7 +1109,9 @@ internal static partial class Program
             "version-twenty-six override retains edited display binding");
         var preHZoomerFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("hzoomer_", StringComparison.Ordinal) &&
-                           !pair.Key.StartsWith("sbug_", StringComparison.Ordinal))
+                           !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("namihe_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount,
             preHZoomerFrames.Count, "pre-HZoomer composition schema frame count");
@@ -1724,6 +1798,9 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.AtomicBank
                     : definition == RoomEnemySystem.MagdolliteDefinition
                         ? EnemySpritemapDefinitions.MagdolliteBank
+                    : definition is FuneNamiheDefinitions.FuneEnemyDefinition or
+                        FuneNamiheDefinitions.NamiheEnemyDefinition
+                        ? EnemySpritemapDefinitions.FuneNamiheBank
                     : definition == RoomEnemySystem.BullDefinition
                         ? EnemySpritemapDefinitions.BullBank
                     : definition == RoomEnemySystem.AlcoonDefinition
@@ -1767,7 +1844,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class FrameReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FrameReadGuard(ISnesAddressSpace source,
+        string? frameName = null) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
@@ -1801,9 +1879,11 @@ internal static partial class Program
                 >= 0xa8bed3 and < 0xa8c143 or
                 >= 0xa3aee3 and < 0xa3b390 or
                 >= 0xa2e146 and < 0xa2e180 or
-                >= 0xa3e2e8 and < 0xa3e580)
+                >= 0xa3e2e8 and < 0xa3e580 or
+                >= 0xa893f9 and < 0xa8959d or
+                >= 0xa897b4 and < 0xa899ac)
                 throw new InvalidOperationException(
-                    $"Installed enemy draw read native visual byte ${address:X6}.");
+                    $"Installed enemy draw for {frameName ?? "an unnamed frame"} read native visual byte ${address:X6}.");
             return source.ReadByte(address);
         }
 

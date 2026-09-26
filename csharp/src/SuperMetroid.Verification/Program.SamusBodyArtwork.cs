@@ -413,6 +413,7 @@ internal static partial class Program
         AssertTrue(stock.ArmCannon.ReadDrawingByte(armXAddress) !=
                 replacement.ArmCannon.ReadDrawingByte(armXAddress),
             "edited arm-cannon JSON changes a pose OAM X offset");
+        ReadOnlyMemory<byte> editedArmTile = default;
         AssertTrue(stock.ArmCannon.TryResolveTile(
                 SamusRenderingRomData.Banks.CharacterData |
                     SamusArmCannonArtworkFormat.TileSourcePointers[0], 32,
@@ -420,7 +421,7 @@ internal static partial class Program
             replacement.ArmCannon.TryResolveTile(
                 SamusRenderingRomData.Banks.CharacterData |
                     SamusArmCannonArtworkFormat.TileSourcePointers[0], 32,
-                out var editedArmTile) &&
+                out editedArmTile) &&
             !stockArmTile.Span.SequenceEqual(editedArmTile.Span),
             "edited arm-cannon indexed PNG changes the production DMA character");
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
@@ -571,6 +572,23 @@ internal static partial class Program
             "Samus body override cannot change native set-pointer identity");
         document["topPointers"]![0] = stock.TopSetPointers[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
+        // Installation repair must replace only the damaged stock copy. Player artwork
+        // lives outside the atomically replaced content directory and must remain selected.
+        string stockArmPath = Path.Combine(installation.SamusBodyDirectory,
+            SamusArmCannonArtworkFormat.TileFileName);
+        byte[] originalArmStock = File.ReadAllBytes(stockArmPath);
+        File.WriteAllBytes(stockArmPath, [0]);
+        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
+            ?? throw new InvalidOperationException("Samus test installation disappeared during repair.");
+        AssertTrue(File.ReadAllBytes(stockArmPath).AsSpan().SequenceEqual(originalArmStock),
+            "repair restores the hash-checked stock arm-cannon PNG");
+        SamusArmCannonArtworkCatalog reboundArm = repaired.LoadSamusBodyArt().ArmCannon;
+        AssertTrue(reboundArm.ReadDrawingByte(armXAddress) != stock.ArmCannon.ReadDrawingByte(armXAddress),
+            "repair preserves edited arm-cannon placement JSON");
+        AssertTrue(reboundArm.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
+                SamusArmCannonArtworkFormat.TileSourcePointers[0], 32, out var reboundArmTile) &&
+            reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
+            "repair preserves edited arm-cannon PNG pixels");
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 

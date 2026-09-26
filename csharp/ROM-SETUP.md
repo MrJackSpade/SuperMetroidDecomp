@@ -135,6 +135,16 @@ an override does not conceal a damaged installation.
 native upload order. Each transfer occupies four 64-pixel-wide tile rows (32
 characters), for a 64x160 image. Copy it to `overrides/samus-body/` to reskin the
 explosion without changing transfer timing or VRAM destinations.
+`samus-arm-cannon-tiles.png` is a 96x8 indexed sheet of the twelve 8x8 cover
+characters. Copy it to `overrides/samus-body/` to recolor or redraw the opening
+cannon cover. `samus-arm-cannon.json` in the same directory contains the 253
+pose drawing pointers, signed placement bytes, ten direction-specific OAM
+attributes, and frame-to-tile selections. Copy it to the override directory
+to adjust the cover's visual placement or frame appearance; keep its table
+sizes and references within the supplied drawing-data and tile ranges. Neither
+file changes the HUD selection, cover opening/closing cadence, projectile
+origin, damage, or equipment behavior. Stock JSON and PNG hashes are checked
+independently before overrides load.
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

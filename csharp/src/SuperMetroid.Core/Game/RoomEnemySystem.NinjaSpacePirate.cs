@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -180,10 +181,16 @@ public sealed partial class RoomEnemySystem
         state.Function = NinjaSpacePirateFunction.NoOperation;
         state.SpawnY = slot.YPosition;
 
-        // The final sixteen target-palette colors are common ninja-Pirate colors copied from
-        // `$B2:8727`. In this runtime CGRAM is the visible palette target, so the transfer is
-        // performed directly while retaining the cartridge source and destination indexes.
-        _cgram!.LoadFromBus(_bus!, 0xb28727, colorCount: 16, destinationIndex: 240);
+        // Native copies the gold non-ninja Pirate's color image, not this actor's initial
+        // room-graphics palette. Share that installed image so the same authored edit
+        // affects both consumers without changing the ninja's animation or slot state.
+        if (TileArtwork is { } artwork)
+            artwork.LoadPaletteTo(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition,
+                _cgram!, NinjaSpacePiratePaletteDefinitions.TargetColor);
+        else
+            _cgram!.LoadFromBus(_bus!, NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
+                colorCount: EnemyPaletteSheet.ColorCount,
+                destinationIndex: NinjaSpacePiratePaletteDefinitions.TargetColor);
     }
 
     /// <summary>Dispatches the literal function installed in native variable A.</summary>

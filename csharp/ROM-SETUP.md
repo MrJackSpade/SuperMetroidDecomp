@@ -340,6 +340,10 @@ health, and AI are unchanged by these tile/color edits. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
+Ninja Space Pirates also copy the shared gold-Pirate colors from
+`enemy-F413-colors.json` into OBJ palette seven when initialized; edit that file
+to change the target colors without changing their behavior.
+
 Magdollite's separate four-frame OBJ color cycle is in
 `game/enemy-tiles/magdollite-palette-cycle.json`; copy it to
 `overrides/enemy-tiles/` to edit its four RGB5 colors per frame. The cartridge's

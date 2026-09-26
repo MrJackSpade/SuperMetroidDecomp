@@ -20,7 +20,7 @@ internal static partial class Program
             GameplayBasePaletteFiles.Extract(native, paletteDirectory, SupportedCartridge.Sha256);
             GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Load(paletteDirectory, null);
             for (int offset = 0; offset < StandardObjectArtworkFormat.TransferByteCount; offset++)
-                AssertEqual(native.ReadByte(StandardObjectArtworkFormat.SourceAddress + offset),
+                AssertEqual(native.ReadByte(StandardObjectArtworkAddresses.Source + offset),
                     baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
 
             var guard = new FrontendCartridgeReadGuard(
@@ -28,7 +28,7 @@ internal static partial class Program
             var runtime = new SuperMetroidRuntime(guard, initialPaletteArt: palettes)
                 { StandardObjectArt = baseline };
             runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
-                StandardObjectArtworkFormat.SourceAddress,
+                StandardObjectArtworkAddresses.Source,
                 StandardObjectArtworkFormat.EncodedVramDestination);
             runtime.VramWrites.DrainTo(runtime.Vram, guard, runtime);
             AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
@@ -54,7 +54,7 @@ internal static partial class Program
             var editedRuntime = new SuperMetroidRuntime(guard, initialPaletteArt: palettes)
                 { StandardObjectArt = edited };
             editedRuntime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
-                StandardObjectArtworkFormat.SourceAddress,
+                StandardObjectArtworkAddresses.Source,
                 StandardObjectArtworkFormat.EncodedVramDestination);
             editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, guard, editedRuntime);
             AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,

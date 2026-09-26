@@ -47,7 +47,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        bool legacyOverride = document.Version is 1 or 2 && stock is not null;
+        bool legacyOverride = document.Version is 1 or 2 or 3 && stock is not null;
         int expectedFrames = document.Version == 1 && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.Frames.Length;
@@ -72,10 +72,27 @@ public sealed class EnemyProjectileSpritemapCatalog
                     $"Enemy-projectile composition {name} is missing.");
             compiled[pointer] = CompileParts(name, visual);
         }
-        if (!legacyOverride)
+        if (document.Version == 3 && legacyOverride)
+        {
+            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
+                EnemyProjectileInstructionMechanicsDefinitions.VisualFrames;
+            if (document.ProgramFrames is null ||
+                document.ProgramFrames.Count != oldDefinitions.Length)
+                throw new InvalidDataException(
+                    "Version-three enemy-projectile program frames have the wrong count.");
+            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
+            {
+                if (!document.ProgramFrames.TryGetValue(frame.Name,
+                        out SpriteVisualPart[]? visual) || visual is null)
+                    throw new InvalidDataException(
+                        $"Version-three enemy-projectile frame {frame.Name} is missing.");
+                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
+            }
+        }
+        else if (!legacyOverride)
         {
             ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions =
-                EnemyProjectileInstructionMechanicsDefinitions.VisualFrames;
+                EnemyProjectilePresentationFrameDefinitions.All;
             if (document.ProgramFrames is null || document.ProgramFrames.Count != definitions.Length)
                 throw new InvalidDataException(
                     "Enemy-projectile program frames have the wrong count.");
@@ -146,7 +163,7 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 3;
+    public const int Version = 4;
     public const string FileName = "enemy-projectile-compositions.json";
     public const int LegacyFrameCount = 3;
     public const int MaximumParts = 128;

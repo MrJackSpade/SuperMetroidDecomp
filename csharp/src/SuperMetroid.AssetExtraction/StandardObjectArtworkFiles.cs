@@ -15,7 +15,7 @@ public static class StandardObjectArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        byte[] native = RomDataReader.ReadFixedBank(bus, StandardObjectArtworkFormat.SourceAddress,
+        byte[] native = RomDataReader.ReadFixedBank(bus, StandardObjectArtworkAddresses.Source,
             StandardObjectArtworkFormat.TransferByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out int width, out int height);

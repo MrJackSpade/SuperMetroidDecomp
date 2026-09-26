@@ -16,7 +16,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
             return true;
         }
         if (StandardObjectArt is not null &&
-            sourceAddress == StandardObjectArtworkFormat.SourceAddress &&
+            sourceAddress == StandardObjectArtworkAddresses.Source &&
             byteCount == StandardObjectArtworkFormat.TransferByteCount)
         {
             data = StandardObjectArt.Transfer;

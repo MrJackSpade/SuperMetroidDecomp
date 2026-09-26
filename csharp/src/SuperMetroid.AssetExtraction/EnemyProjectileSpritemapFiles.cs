@@ -15,7 +15,7 @@ internal static class EnemyProjectileSpritemapFiles
             frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
         var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach (EnemyProjectilePresentationFrameDefinition frame in
-                 EnemyProjectileInstructionMechanicsDefinitions.VisualFrames)
+                 EnemyProjectilePresentationFrameDefinitions.All)
         {
             ushort pointer = unchecked((ushort)(
                 bus.ReadByte(0x860000 | frame.OperandAddress) |

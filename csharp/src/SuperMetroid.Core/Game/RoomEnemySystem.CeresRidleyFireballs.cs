@@ -643,7 +643,7 @@ public sealed partial class RoomEnemySystem
                 oam.AddEnemySpritemap(
                     programArtwork.GetProgramFrame(projectile.PresentationOperandAddress).Span,
                     screenX, screenY,
-                    unchecked((ushort)(projectile.GraphicsIndex & 0xff00)),
+                    new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                     unchecked((byte)projectile.GraphicsIndex),
                     clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
             }
@@ -652,7 +652,7 @@ public sealed partial class RoomEnemySystem
             {
                 oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
                     screenX, screenY,
-                    unchecked((ushort)(projectile.GraphicsIndex & 0xff00)),
+                    new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                     unchecked((byte)projectile.GraphicsIndex),
                     clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
             }
@@ -1480,15 +1480,7 @@ public sealed partial class RoomEnemySystem
                     throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
                 projectile.InstructionTimer = word;
                 ushort visualOperand = unchecked((ushort)(cursor + 2));
-                bool installedSharedFrame = TileArtwork?.ProjectileSpritemaps is not null &&
-                    EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(visualOperand);
-                projectile.PresentationOperandAddress = installedSharedFrame ? visualOperand : (ushort)0;
-                projectile.SpritemapPointer = installedSharedFrame
-                    ? (ushort)0x8000
-                    : SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
-                      TileArtwork?.ProjectileSpritemaps is not null
-                        ? SkreeMetareeParticleVisualDefinitions.Resolve(visualOperand)
-                        : ReadWord(_bus!, 0x860000 | visualOperand);
+                SetEnemyProjectileVisualOperand(projectile, visualOperand);
                 projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return;
             }
@@ -1721,9 +1713,8 @@ public sealed partial class RoomEnemySystem
                     projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
                         ? projectile.Variable1
                         : unchecked((ushort)(0x0100 - projectile.Variable1));
-                    projectile.SpritemapPointer = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor +
+                    SetEnemyProjectileVisualOperand(projectile,
+                        unchecked((ushort)(cursor +
                             ((_currentEnemyProjectileFrame8 & 1) != 0 ? 2 : 4))));
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 6));
                     projectile.InstructionTimer = 1;
@@ -1732,9 +1723,8 @@ public sealed partial class RoomEnemySystem
                     projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
                         ? projectile.Variable1
                         : NoobTubeProjectileRomData.HiddenXPosition;
-                    projectile.SpritemapPointer = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    SetEnemyProjectileVisualOperand(projectile,
+                        unchecked((ushort)(cursor + 2)));
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
                     projectile.InstructionTimer = 1;
                     return;
@@ -1968,6 +1958,30 @@ public sealed partial class RoomEnemySystem
 
         throw new InvalidDataException(
             "Enemy projectile list did not reach a timed frame within 24 operations.");
+    }
+
+    /// <summary>
+    /// Applies a visual-only bank-$86 operand without promoting its bank-$8D pointer to
+    /// gameplay data. The placeholder map preserves a drawable native slot; OAM resolves
+    /// the exact installed operand on the corresponding draw pass.
+    /// </summary>
+    private void SetEnemyProjectileVisualOperand(RoomEnemyProjectileSlot projectile,
+        ushort operandAddress)
+    {
+        if (TileArtwork?.ProjectileSpritemaps is not null &&
+            EnemyProjectilePresentationFrameDefinitions.Contains(operandAddress))
+        {
+            projectile.PresentationOperandAddress = operandAddress;
+            projectile.SpritemapPointer = 0x8000;
+            return;
+        }
+
+        projectile.PresentationOperandAddress = 0;
+        projectile.SpritemapPointer =
+            TileArtwork?.ProjectileSpritemaps is not null &&
+            SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind)
+                ? SkreeMetareeParticleVisualDefinitions.Resolve(operandAddress)
+                : ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | operandAddress);
     }
 
     private static ushort ReadEnemyProjectileInstructionMechanicsWord(

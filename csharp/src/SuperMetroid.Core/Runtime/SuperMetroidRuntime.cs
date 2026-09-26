@@ -775,7 +775,7 @@ public sealed partial class SuperMetroidRuntime
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
         VramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
-            sourceAddress: StandardObjectArtworkFormat.SourceAddress,
+            sourceAddress: StandardObjectArtworkAddresses.Source,
             encodedVramDestination: StandardObjectArtworkFormat.EncodedVramDestination);
         TrailArtwork?.Tiles?.QueueTo(VramWrites);
 

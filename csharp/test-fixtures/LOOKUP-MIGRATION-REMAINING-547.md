@@ -1569,10 +1569,13 @@ programs. The generic dust selector and Mother Brain initializers share the same
 definitions, so their instruction identities cannot drift.
 
 The ordinary room-projectile interpreter now selects the shared-program visual frames from
-the installed version-three `enemy-projectile-compositions.json` when artwork is bound.
+the installed version-four `enemy-projectile-compositions.json` when artwork is bound.
+The same pipeline now covers 641 catalogued visual operands in total, including nineteen
+further translated projectile families such as Ceres Ridley, Phantoon, Crocomire, Draygon and n00b-tube
+shard flicker instructions.
 Extraction follows each bank-$86 visual operand to its bank-$8D OAM parts; production
-frame selection and drawing then avoid both ROM reads. Version-one/two overrides inherit
-the newly extracted frames from verified stock. The separate legacy
+frame selection and drawing then avoid both ROM reads. Version-one/two/three overrides
+retain prior edits and inherit newly extracted frames from verified stock. The separate legacy
 `MotherBrainEnemyProjectileSystem` diagnostic implementation still reads its own visual
 operands and OAM parts, and other projectile instruction families remain outside this
 slice. Mechanics lookups are bounded by exact

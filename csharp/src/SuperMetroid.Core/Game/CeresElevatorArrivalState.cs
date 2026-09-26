@@ -193,7 +193,7 @@ public sealed class CeresElevatorArrivalState
         if (projectileSpritemaps is { } installed)
             oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
                 screenX, screenY,
-                unchecked((ushort)(projectile.GraphicsIndex & 0xff00)),
+                new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
                 clipVerticalWrap: true,
                 originYIsOnScreen: (screenY & 0xff00) == 0);

@@ -48,8 +48,6 @@ internal static class EnemyRomTablePointers
     /// <summary>Chozo-statue palette and motion tables in bank $AA.</summary>
     public static class ChozoStatue
     {
-        /// <summary>Sixteen statue palette words at $AA:E2DD (32 bytes).</summary>
-        public const int PaletteWords = 0xaae2dd;
         /// <summary>Thirty-two signed statue movement velocities at $AA:E630 (64 bytes).</summary>
         public const int CarryVelocityWords = 0xaae630;
         /// <summary>Thirty-two carried-Samus X offsets at $AA:E670 (64 bytes).</summary>

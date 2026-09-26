@@ -27,6 +27,7 @@ internal static partial class Program
             VerifyInstalledCrocomireColors(bus, directory, stock);
             VerifyInstalledDraygonColors(bus, directory, stock);
             VerifyInstalledPhantoonColors(bus, directory, stock);
+            VerifyInstalledChozoAndTubeColors(bus, directory, stock);
             VerifyInstalledCeresDoorVisuals(bus, directory, stock);
             VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock);
             VerifyInstalledKraidBackground(bus, directory, stock);

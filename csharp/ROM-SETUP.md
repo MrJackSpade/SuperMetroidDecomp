@@ -366,6 +366,10 @@ Phantoon's eight health palettes, fade-out target and 112-color Wrecked Ship
 power-on target are in `game/enemy-tiles/phantoon-colors.json`, also overridable
 through `overrides/enemy-tiles/`. Health-band selection, interpolation, hurt
 timing and boss/death transitions stay in code.
+The Wrecked Ship and Lower Norfair Chozo statue palette pairs, plus the
+n00b-tube crack palette pair, are in
+`game/enemy-tiles/chozo-and-tube-colors.json`. They share the same override
+directory; statue variant, tube behavior and PLM placement remain compiled.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

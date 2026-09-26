@@ -145,12 +145,16 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void InitializeN00bTubeCracks()
     {
-        for (int color = 0; color < 32; color++)
+        if (TileArtwork?.ChozoAndTubeColors is { } colors)
         {
-            _cgram!.SetColor(
-                144 + color,
-                ReadWord(_bus!, EnemyRomTablePointers.ChozoStatue.PaletteWords + color * 2));
+            colors.ApplyTubeCracks(_cgram!);
+            return;
         }
+        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            _cgram!.SetColor(
+                ChozoAndTubeColorRomData.Destination + color,
+                ReadWord(_bus!, ChozoAndTubeColorRomData.TubeCracksSource +
+                    color * sizeof(ushort)));
     }
 
     /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
@@ -189,7 +193,7 @@ public sealed partial class RoomEnemySystem
         {
             statue.CurrentInstruction =
                 ChozoStatueInstructionProgramDefinitions.WreckedShipInitial;
-            LoadChozoStatuePalette(rowNineSource: 0xaae31d, rowTenSource: 0xaae33d);
+            LoadChozoStatuePalette(wreckedShip: true);
             PublishHardcodedChozoPlm(ChozoStatuePlmRomData.WreckedShipHand, blockX: 0x4a, blockY: 0x17);
             PublishHardcodedChozoPlm(ChozoStatuePlmRomData.BlockSlopeAccess, blockX: 0x17, blockY: 0x1d);
         }
@@ -197,18 +201,25 @@ public sealed partial class RoomEnemySystem
         {
             statue.CurrentInstruction =
                 ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial;
-            LoadChozoStatuePalette(rowNineSource: 0xaae35d, rowTenSource: 0xaae37d);
+            LoadChozoStatuePalette(wreckedShip: false);
             PublishHardcodedChozoPlm(ChozoStatuePlmRomData.LowerNorfairHand, blockX: 0x0c, blockY: 0x1d);
         }
     }
 
-    private void LoadChozoStatuePalette(int rowNineSource, int rowTenSource)
+    private void LoadChozoStatuePalette(bool wreckedShip)
     {
-        for (int color = 0; color < 16; color++)
+        if (TileArtwork?.ChozoAndTubeColors is { } colors)
         {
-            _cgram!.SetColor(144 + color, ReadWord(_bus!, rowNineSource + color * 2));
-            _cgram.SetColor(160 + color, ReadWord(_bus!, rowTenSource + color * 2));
+            if (wreckedShip) colors.ApplyWreckedShip(_cgram!);
+            else colors.ApplyLowerNorfair(_cgram!);
+            return;
         }
+        int source = wreckedShip
+            ? ChozoAndTubeColorRomData.WreckedShipSource
+            : ChozoAndTubeColorRomData.LowerNorfairSource;
+        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            _cgram!.SetColor(ChozoAndTubeColorRomData.Destination + color,
+                ReadWord(_bus!, source + color * sizeof(ushort)));
     }
 
     /// <summary>

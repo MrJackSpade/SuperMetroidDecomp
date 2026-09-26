@@ -137,6 +137,7 @@ internal static partial class Program
                 VerifyFrontendRomFreeCeresRidleyRoom(native, installed);
                 VerifyFrontendRomFreeLandingSite(native, installed);
                 VerifyFrontendRomFreeParlor(native, installed);
+                VerifyFrontendRomFreeWestOcean(native, installed);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -311,6 +312,35 @@ internal static partial class Program
                 $"installed Parlor pixels at frame {frame}");
         }
         Console.WriteLine("Frontend ROM-free Parlor room: 90 native-parity frames with all cartridge reads guarded.");
+    }
+
+    /// <summary>
+    /// Directly enter the ocean-sky room after the preceding room fixtures. This
+    /// exercises the other native scrolling-sky callback through the installed
+    /// frontend and NMI rather than checking its queued transfers in isolation.
+    /// </summary>
+    private static void VerifyFrontendRomFreeWestOcean(
+        SuperMetroidGame native, SuperMetroidGame installed)
+    {
+        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.WestOcean);
+        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.WestOcean);
+        for (int frame = 0; frame < 90; frame++)
+        {
+            FrontendFrame expected = native.Step(0);
+            FrontendFrame actual = installed.Step(0);
+            AssertEqual(RoomHeaderPointers.WestOcean,
+                installed.GameplayActiveRoomPointer,
+                $"installed West Ocean fixture remains in one room at frame {frame}");
+            AssertEqual(expected.GameState, actual.GameState,
+                $"installed West Ocean game state at frame {frame}");
+            AssertEqual(expected.Phase, actual.Phase,
+                $"installed West Ocean phase at frame {frame}");
+            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                $"installed West Ocean pixels at frame {frame}");
+        }
+        Console.WriteLine("Frontend ROM-free West Ocean room: 90 native-parity frames with all cartridge reads guarded.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

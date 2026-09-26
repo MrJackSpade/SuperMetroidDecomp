@@ -7,7 +7,8 @@ internal readonly record struct AlcoonFireballInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Alcoon's four-frame fireball animation loop.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands are visual identities in the installed
+/// enemy-projectile artwork catalog; mechanics remain compiled here.
 /// </summary>
 internal static class AlcoonFireballInstructionProgramDefinitions
 {

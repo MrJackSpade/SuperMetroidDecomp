@@ -471,13 +471,14 @@ and inherit the alarm rows. Copy a current version-three file to edit the
 sixteen `alarm` rows; their cadence and wrap remain engine behavior.
 The separate `enemy-projectile-compositions.json` contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
-translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon and
-other enemy-projectile families. Copy it to `overrides/enemy-tiles/` to edit visual parts
+translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon,
+Alcoon fireballs and other enemy-projectile families. Copy it to
+`overrides/enemy-tiles/` to edit visual parts
 without changing projectile timing, damage, motion, or collision. The
 `programFrames` names identify bank-$86 animation lists and frame numbers; only
-their drawing is editable. Existing version-one through version-three overrides
+their drawing is editable. Existing version-one through version-four overrides
 keep their earlier edited frames, while new program frames come from hash-checked
-stock. Use a current version-four copy to edit the expanded program frames.
+stock. Use a current version-five copy to edit the expanded program frames.
 The five `gunship-liftoff-N-tiles.png` files in `game/enemy-tiles/` contain the
 gunship's takeoff character uploads. Copy an individual PNG to
 `overrides/enemy-tiles/` to replace its indexed 4-bpp pixels. The five upload

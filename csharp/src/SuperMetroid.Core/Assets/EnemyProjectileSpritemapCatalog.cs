@@ -47,7 +47,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        bool legacyOverride = document.Version is 1 or 2 or 3 && stock is not null;
+        bool legacyOverride = document.Version is 1 or 2 or 3 or 4 && stock is not null;
         int expectedFrames = document.Version == 1 && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.Frames.Length;
@@ -89,6 +89,26 @@ public sealed class EnemyProjectileSpritemapCatalog
                 compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
             }
         }
+        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreAlcoonVersion &&
+                 legacyOverride)
+        {
+            EnemyProjectilePresentationFrameDefinition[] oldDefinitions =
+                EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                    .Where(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
+                    .ToArray();
+            if (document.ProgramFrames is null ||
+                document.ProgramFrames.Count != oldDefinitions.Length)
+                throw new InvalidDataException(
+                    "Version-four enemy-projectile program frames have the wrong count.");
+            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
+            {
+                if (!document.ProgramFrames.TryGetValue(frame.Name,
+                        out SpriteVisualPart[]? visual) || visual is null)
+                    throw new InvalidDataException(
+                        $"Version-four enemy-projectile frame {frame.Name} is missing.");
+                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
+            }
+        }
         else if (!legacyOverride)
         {
             ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions =
@@ -106,6 +126,19 @@ public sealed class EnemyProjectileSpritemapCatalog
             }
         }
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
+    }
+
+    private static bool IsAlcoonFireballOperand(ushort operandAddress)
+    {
+        for (int index = 0;
+             index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            if (operandAddress == AlcoonFireballInstructionProgramDefinitions
+                    .PresentationWordAddress(index))
+                return true;
+        }
+        return false;
     }
 
     private static EnemySpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)
@@ -163,7 +196,8 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 4;
+    public const int Version = 5;
+    public const int PreAlcoonVersion = 4;
     public const string FileName = "enemy-projectile-compositions.json";
     public const int LegacyFrameCount = 3;
     public const int MaximumParts = 128;

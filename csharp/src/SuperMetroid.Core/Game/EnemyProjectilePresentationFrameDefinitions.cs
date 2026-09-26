@@ -73,6 +73,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "yapping_maw", YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount,
             YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "alcoon_fireball", AlcoonFireballInstructionProgramDefinitions.PresentationWordCount,
+            AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress);
 
         return frames.OrderBy(entry => entry.Key)
             .Select(entry => new EnemyProjectilePresentationFrameDefinition(entry.Key, entry.Value))

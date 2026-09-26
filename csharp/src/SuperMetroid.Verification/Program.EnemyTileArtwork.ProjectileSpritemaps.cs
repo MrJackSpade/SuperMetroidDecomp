@@ -67,6 +67,23 @@ internal static partial class Program
             nativeCeres.LowTable.SequenceEqual(installedCeres.LowTable) &&
             nativeCeres.HighTable.SequenceEqual(installedCeres.HighTable),
             "Ceres Ridley fireball uses installed OAM without visual ROM reads");
+        for (int index = 0;
+             index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = AlcoonFireballInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            OamBuffer nativeAlcoon = DrawProgramFrame(null, operand, bus,
+                RoomEnemyProjectileKind.AlcoonFireball);
+            OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.AlcoonFireball);
+            AssertTrue(nativeAlcoon.NextByteOffset > 0 &&
+                nativeAlcoon.NextByteOffset == installedAlcoon.NextByteOffset &&
+                nativeAlcoon.LowTable.SequenceEqual(installedAlcoon.LowTable) &&
+                nativeAlcoon.HighTable.SequenceEqual(installedAlcoon.HighTable),
+                $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads");
+        }
         OamBuffer nativeShard = DrawNoobTubeShard(null, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             new EnemyProjectileVisualReadGuard(bus));
@@ -114,6 +131,12 @@ internal static partial class Program
             .Single(frame => frame.OperandAddress == ceresOperand).Name;
         SpriteVisualPart[] ceres = document.ProgramFrames[ceresFrameName];
         ceres[0] = ceres[0] with { OffsetX = ceres[0].OffsetX + 1 };
+        ushort alcoonOperand = AlcoonFireballInstructionProgramDefinitions
+            .PresentationWordAddress(0);
+        string alcoonFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+            .Single(frame => frame.OperandAddress == alcoonOperand).Name;
+        SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
+        alcoon[0] = alcoon[0] with { OffsetX = alcoon[0].OffsetX + 1 };
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
@@ -145,6 +168,13 @@ internal static partial class Program
                     new EnemyProjectileVisualReadGuard(bus),
                     RoomEnemyProjectileKind.CeresRidleyFireball).LowTable),
             "edited Ceres Ridley frame changes production OAM without a ROM visual read");
+        AssertTrue(!DrawProgramFrame(stock, alcoonOperand,
+                    new EnemyProjectileVisualReadGuard(bus),
+                    RoomEnemyProjectileKind.AlcoonFireball).LowTable
+                .SequenceEqual(DrawProgramFrame(editedArt, alcoonOperand,
+                    new EnemyProjectileVisualReadGuard(bus),
+                    RoomEnemyProjectileKind.AlcoonFireball).LowTable),
+            "edited Alcoon fireball frame changes production OAM without a ROM visual read");
         var incompleteCurrent = document.Frames
             .Where(entry => entry.Key != "skree_debris")
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -240,9 +270,41 @@ internal static partial class Program
                 RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
             .SequenceEqual(installedCeres.LowTable),
             "version-three overrides inherit newly extracted Ceres Ridley frames");
+        var alcoonOperands = Enumerable.Range(0,
+                AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)
+            .Select(AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress)
+            .ToHashSet();
+        var versionFourFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+            .Where(frame => !alcoonOperands.Contains(frame.OperandAddress))
+            .ToDictionary(frame => frame.Name,
+                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+        byte[] versionFourJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = EnemyProjectileSpritemapDefinitions.PreAlcoonVersion,
+                Frames = document.Frames,
+                ProgramFrames = versionFourFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        File.WriteAllBytes(Path.Combine(overrides,
+            EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
+        EnemyTileArtworkCatalog migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
+        AssertTrue(DrawProgramFrame(migratedV4, ceresOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
+            .SequenceEqual(DrawProgramFrame(editedArt, ceresOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.CeresRidleyFireball).LowTable),
+            "version-four overrides retain their edited projectile frames");
+        AssertTrue(DrawProgramFrame(migratedV4, alcoonOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.AlcoonFireball).LowTable
+            .SequenceEqual(DrawProgramFrame(stock, alcoonOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.AlcoonFireball).LowTable),
+            "version-four overrides inherit newly extracted Alcoon fireball frames");
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameDefinitions.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws, editable frames, and v1-v3 migrations pass.");
+            "match native OAM; installed draws, editable frames, and v1-v4 migrations pass.");
 
         void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
         {

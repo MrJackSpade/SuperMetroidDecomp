@@ -324,7 +324,17 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         try { titleGradient = TitleGradientPresentation.Load(new MemoryStream(Select(TitleGradientFormat.FileName, stock.TitleGradient))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid title gradient in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         RoomPaletteFxPresentation roomPaletteFx;
-        try { roomPaletteFx = RoomPaletteFxPresentation.Load(new MemoryStream(Select(RoomPaletteFxPresentationFormat.FileName, stock.RoomPaletteFx))); }
+        try
+        {
+            // Version-seventeen overrides predate the Samus-in-heat rows. Preserve
+            // their edits while inheriting only those new rows from current stock.
+            RoomPaletteFxPresentation currentStock = RoomPaletteFxPresentation.Load(
+                new MemoryStream(stock.RoomPaletteFx));
+            AppendFramed(stock.RoomPaletteFx);
+            roomPaletteFx = RoomPaletteFxPresentation.Load(
+                new MemoryStream(Select(RoomPaletteFxPresentationFormat.FileName,
+                    stock.RoomPaletteFx)), currentStock);
+        }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid room palette effects in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         MotherBrainHealthPalettePresentation motherBrainHealthPalette;
         try { motherBrainHealthPalette = MotherBrainHealthPalettePresentation.Load(new MemoryStream(Select(MotherBrainHealthPaletteFormat.FileName, stock.MotherBrainHealthPalette))); }

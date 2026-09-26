@@ -15,6 +15,9 @@ internal static class RoomPaletteFxPresentationExtractor
         RoomPaletteFxPresentation.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
+            SamusHeatPowerSuit = ExtractHeat(PaletteFxHeatSuit.Power),
+            SamusHeatVariaSuit = ExtractHeat(PaletteFxHeatSuit.Varia),
+            SamusHeatGravitySuit = ExtractHeat(PaletteFxHeatSuit.Gravity),
             NorfairForegroundAndHeatPhase = ExtractNorfair(
                 NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase),
             NorfairForegroundPalette4 = ExtractNorfair(
@@ -155,6 +158,16 @@ internal static class RoomPaletteFxPresentationExtractor
                 BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer),
         });
         return json.ToArray();
+
+        PaletteRgb5[][] ExtractHeat(PaletteFxHeatSuit suit)
+        {
+            PaletteFxHeatProgramDefinition definition =
+                PaletteFxHeatProgramMechanicsDefinitions.All.Single(item => item.Suit == suit);
+            return ExtractFrames(definition.Frames.Count,
+                PaletteFxHeatProgramDefinition.ColorsPerFrame,
+                (frame, index) => unchecked((ushort)(
+                    definition.Frames[frame].FirstColorPointer + index * sizeof(ushort))));
+        }
 
         PaletteRgb5[][] ExtractNorfair(NorfairEnvironmentalPaletteOwner owner)
         {

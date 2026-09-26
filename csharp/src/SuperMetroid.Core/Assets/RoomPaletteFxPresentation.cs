@@ -18,7 +18,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     public bool TryReadColor(ushort pointer, out ushort color) =>
         colors.TryGetValue(pointer, out color);
 
-    public static RoomPaletteFxPresentation Load(Stream json)
+    public static RoomPaletteFxPresentation Load(Stream json,
+        RoomPaletteFxPresentation? previousVersionFallback = null)
     {
         RoomPaletteFxPresentationDocument document;
         try
@@ -33,7 +34,9 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             throw new InvalidDataException("Invalid room palette-FX presentation JSON.", error);
         }
 
-        if (document.Version != RoomPaletteFxPresentationFormat.Version)
+        if (document.Version != RoomPaletteFxPresentationFormat.Version &&
+            !(document.Version == RoomPaletteFxPresentationFormat.PreviousVersion &&
+              previousVersionFallback is not null))
         {
             throw new InvalidDataException(
                 $"Room palette-FX presentation requires version " +
@@ -41,6 +44,38 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         }
 
         var colors = new Dictionary<ushort, ushort>();
+        foreach (PaletteFxHeatProgramDefinition definition in
+                 PaletteFxHeatProgramMechanicsDefinitions.All)
+        {
+            PaletteRgb5[][]? frames = definition.Suit switch
+            {
+                PaletteFxHeatSuit.Power => document.SamusHeatPowerSuit,
+                PaletteFxHeatSuit.Varia => document.SamusHeatVariaSuit,
+                PaletteFxHeatSuit.Gravity => document.SamusHeatGravitySuit,
+                _ => throw new InvalidDataException($"Unsupported heat suit {definition.Suit}."),
+            };
+            ushort ColorPointer(int frame, int index) => unchecked((ushort)(
+                definition.Frames[frame].FirstColorPointer + index * sizeof(ushort)));
+            if (document.Version == RoomPaletteFxPresentationFormat.PreviousVersion)
+            {
+                // A v17 player override predates these three color families. Keep
+                // all its existing edits and inherit only the newly extracted
+                // Samus-in-heat rows from the verified current stock catalog.
+                for (int frame = 0; frame < definition.Frames.Count; frame++)
+                for (int index = 0; index < PaletteFxHeatProgramDefinition.ColorsPerFrame; index++)
+                {
+                    ushort pointer = ColorPointer(frame, index);
+                    if (!previousVersionFallback!.TryReadColor(pointer, out ushort stockColor))
+                        throw new InvalidDataException(
+                            $"Current stock is missing {definition.Suit} heat color $8D:{pointer:X4}.");
+                    colors.Add(pointer, stockColor);
+                }
+            }
+            else
+                ValidateAndCompile($"Samus {definition.Suit} suit in heat", frames,
+                    definition.Frames.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame,
+                    ColorPointer, colors);
+        }
         foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
                  NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -483,6 +518,12 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 public sealed record RoomPaletteFxPresentationDocument
 {
     public required int Version { get; init; }
+    /// <summary>Sixteen native phases of Samus's Power Suit palette in heat.</summary>
+    public PaletteRgb5[][]? SamusHeatPowerSuit { get; init; }
+    /// <summary>Sixteen native phases of Samus's Varia Suit palette in heat.</summary>
+    public PaletteRgb5[][]? SamusHeatVariaSuit { get; init; }
+    /// <summary>Sixteen native phases of Samus's Gravity Suit palette in heat.</summary>
+    public PaletteRgb5[][]? SamusHeatGravitySuit { get; init; }
     public required PaletteRgb5[][] NorfairForegroundAndHeatPhase { get; init; }
     public required PaletteRgb5[][] NorfairForegroundPalette4 { get; init; }
     public required PaletteRgb5[][] NorfairForegroundPalette5 { get; init; }
@@ -536,5 +577,6 @@ public sealed record RoomPaletteFxPresentationDocument
 public static class RoomPaletteFxPresentationFormat
 {
     public const string FileName = "room-palette-effects.json";
-    public const int Version = 17;
+    public const int PreviousVersion = 17;
+    public const int Version = 18;
 }

@@ -69,6 +69,8 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed Norfair palette loops avoid cartridge color reads");
 
+        VerifyExtractedSamusHeatPaletteFxPresentation(bus, presentation);
+
         VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation);
         VerifyExtractedWreckedShipPaletteFxPresentation(bus, presentation);
         VerifyInstalledPaletteFxFamily(
@@ -359,10 +361,63 @@ internal static partial class Program
             BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [BeaconPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
             BeaconPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
-        VerifyRoomPaletteFxPresentationValidation(extracted);
+        VerifyRoomPaletteFxPresentationValidation(extracted, bus);
         Console.WriteLine(
-            "  Room palette presentation: 4388 editable palette colors match ROM; " +
-            "fifty-two installed programs match native execution without color-source reads.");
+            "  Room palette presentation: 5108 editable palette colors match ROM; " +
+            "fifty-five installed programs match native execution without color-source reads.");
+    }
+
+    private static void VerifyExtractedSamusHeatPaletteFxPresentation(
+        ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
+    {
+        foreach (PaletteFxHeatProgramDefinition definition in
+                 PaletteFxHeatProgramMechanicsDefinitions.All)
+        {
+            var forbidden = new HashSet<int>();
+            foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+            for (int index = 0; index < PaletteFxHeatProgramDefinition.ColorsPerFrame; index++)
+            {
+                ushort pointer = unchecked((ushort)(frame.FirstColorPointer +
+                    index * sizeof(ushort)));
+                ushort nativeColor = RomDataReader.ReadWordFixedBank(bus,
+                    RoomFxRomData.Banks.PaletteFx | pointer);
+                AssertTrue(presentation.TryReadColor(pointer, out ushort installedColor),
+                    $"installed {definition.Suit} heat color resolves $8D:{pointer:X4}");
+                AssertEqual(nativeColor, installedColor,
+                    $"installed {definition.Suit} heat color matches cartridge $8D:{pointer:X4}");
+                forbidden.Add(RoomFxRomData.Banks.PaletteFx | pointer);
+                forbidden.Add(RoomFxRomData.Banks.PaletteFx | unchecked((ushort)(pointer + 1)));
+            }
+            AssertEqual(definition.Frames.Count *
+                PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort),
+                forbidden.Count, $"{definition.Suit} heat colors have distinct source bytes");
+
+            var guard = new TitlePresentationReadBus(bus, forbidden, forbidReads: true);
+            var native = new RoomPaletteFxSystem();
+            var installed = new RoomPaletteFxSystem();
+            installed.BindPresentationColors(presentation);
+            ushort equipment = definition.Suit switch
+            {
+                PaletteFxHeatSuit.Power => 0,
+                PaletteFxHeatSuit.Varia => (ushort)SamusEquipmentFlags.VariaSuit,
+                PaletteFxHeatSuit.Gravity => (ushort)SamusEquipmentFlags.GravitySuit,
+                _ => throw new InvalidOperationException(),
+            };
+            native.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat, equipment);
+            installed.SpawnDefinition(guard, RoomPaletteFxDefinitions.SamusInHeat, equipment);
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
+            int steps = 1 + definition.Frames.Sum(frame => frame.Duration);
+            for (int step = 0; step <= steps; step++)
+            {
+                native.Step(bus, nativeCgram, 0, equipment, false, false);
+                installed.Step(guard, installedCgram, 0, equipment, false, false);
+                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                    $"installed {definition.Suit} heat CGRAM matches native frame {step}");
+            }
+            AssertEqual(0, guard.ForbiddenReadAttempts,
+                $"installed {definition.Suit} heat cycle never rereads color ROM");
+        }
     }
 
     private static void VerifyInstalledPaletteFxFamily(
@@ -530,7 +585,8 @@ internal static partial class Program
             "installed Maridia palette loops avoid cartridge color reads");
     }
 
-    private static void VerifyRoomPaletteFxPresentationValidation(byte[] extracted)
+    private static void VerifyRoomPaletteFxPresentationValidation(
+        byte[] extracted, ISnesAddressSpace bus)
     {
         RoomPaletteFxPresentationDocument document =
             JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
@@ -548,6 +604,94 @@ internal static partial class Program
         document = document with { Version = version + 1 };
         Reject("room palette-FX rejects unsupported schema version");
         document = document with { Version = version };
+
+        PaletteRgb5[][]? powerHeat = document.SamusHeatPowerSuit;
+        document = document with { SamusHeatPowerSuit = null };
+        Reject("room palette-FX rejects missing Power Suit heat colors");
+        document = document with { SamusHeatPowerSuit = powerHeat };
+
+        PaletteRgb5[][]? variaHeat = document.SamusHeatVariaSuit;
+        document = document with { SamusHeatVariaSuit = variaHeat![..^1] };
+        Reject("room palette-FX rejects incomplete Varia Suit heat cycle");
+        document = document with { SamusHeatVariaSuit = variaHeat };
+
+        PaletteRgb5? gravityColor = document.SamusHeatGravitySuit![0][0];
+        document.SamusHeatGravitySuit[0][0] = gravityColor! with { Blue = 32 };
+        Reject("room palette-FX rejects invalid Gravity Suit heat color");
+        document.SamusHeatGravitySuit[0][0] = gravityColor!;
+
+        // Current stock supplies only the new heat family to a version-seventeen
+        // override. Its existing environmental edit must survive unchanged.
+        RoomPaletteFxPresentation currentStock = RoomPaletteFxPresentation.Load(
+            new MemoryStream(extracted, writable: false));
+        PaletteRgb5 legacyOriginal = document.NorfairForegroundPalette4[0][0];
+        PaletteRgb5 legacyEdit = legacyOriginal with
+        {
+            Red = (legacyOriginal.Red + 1) & 31,
+        };
+        document.NorfairForegroundPalette4[0][0] = legacyEdit;
+        RoomPaletteFxPresentationDocument legacyDocument = document with
+        {
+            Version = RoomPaletteFxPresentationFormat.PreviousVersion,
+            SamusHeatPowerSuit = null,
+            SamusHeatVariaSuit = null,
+            SamusHeatGravitySuit = null,
+        };
+        byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(
+            legacyDocument, MapPresentationFormat.JsonOptions);
+        AssertThrows<InvalidDataException>(
+            () => RoomPaletteFxPresentation.Load(
+                new MemoryStream(legacyBytes, writable: false)),
+            "old room palette-FX override requires current stock for new heat rows");
+        RoomPaletteFxPresentation migrated = RoomPaletteFxPresentation.Load(
+            new MemoryStream(legacyBytes, writable: false), currentStock);
+        ushort legacyPointer = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All
+            .Single(item => item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundPalette4)
+            .ColorPointer(0, 0);
+        AssertTrue(migrated.TryReadColor(legacyPointer, out ushort preserved),
+            "old Norfair override keeps its original color owner");
+        AssertEqual((ushort)(legacyEdit.Red | legacyEdit.Green << 5 |
+            legacyEdit.Blue << 10), preserved,
+            "old Norfair override retains its edited environmental color");
+        ushort heatPointer = PaletteFxHeatProgramMechanicsDefinitions.All[0]
+            .Frames[0].FirstColorPointer;
+        AssertTrue(currentStock.TryReadColor(heatPointer, out ushort stockHeat),
+            "current stock contains the new heat color family");
+        AssertTrue(migrated.TryReadColor(heatPointer, out ushort inheritedHeat),
+            "old override inherits the new heat color family from stock");
+        AssertEqual(stockHeat, inheritedHeat,
+            "old override inherits exact current stock heat color");
+        document.NorfairForegroundPalette4[0][0] = legacyOriginal;
+
+        PaletteRgb5 heatOriginal = document.SamusHeatPowerSuit![0][0];
+        document.SamusHeatPowerSuit[0][0] = heatOriginal with
+        {
+            Red = (heatOriginal.Red + 1) & 31,
+        };
+        RoomPaletteFxPresentation editedHeat = RoomPaletteFxPresentation.Load(
+            new MemoryStream(Json(), writable: false));
+        var stockOwner = new RoomPaletteFxSystem();
+        var editedOwner = new RoomPaletteFxSystem();
+        stockOwner.BindPresentationColors(currentStock);
+        editedOwner.BindPresentationColors(editedHeat);
+        stockOwner.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat,
+            equippedItems: 0);
+        editedOwner.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat,
+            equippedItems: 0);
+        // The same native control stream selects both color sources. Only the
+        // visible CGRAM word should change, not phase or sound side effects.
+        var stockCgram = new SnesCgram();
+        var editedCgram = new SnesCgram();
+        stockOwner.Step(bus, stockCgram, 0, 0, false, false);
+        editedOwner.Step(bus, editedCgram, 0, 0, false, false);
+        AssertTrue(!stockCgram.Colors.SequenceEqual(editedCgram.Colors),
+            "editing Samus's Power Suit heat color changes visible CGRAM");
+        AssertEqual(stockOwner.SamusInHeatPaletteIndex,
+            editedOwner.SamusInHeatPaletteIndex,
+            "heat color override preserves native phase");
+        AssertTrue(stockOwner.SoundRequests.SequenceEqual(editedOwner.SoundRequests),
+            "heat color override preserves native sound requests");
+        document.SamusHeatPowerSuit[0][0] = heatOriginal;
 
         PaletteRgb5[][] heat = document.NorfairForegroundAndHeatPhase;
         document = document with { NorfairForegroundAndHeatPhase = heat[..^1] };
@@ -778,8 +922,8 @@ internal static partial class Program
         document.BeaconFlashing[0] = beaconFrame;
 
         string unknownField = Encoding.UTF8.GetString(extracted).Replace(
-            "\"version\": 17",
-            "\"version\": 17,\n  \"nativeAddress\": 9240718",
+            $"\"version\": {RoomPaletteFxPresentationFormat.Version}",
+            $"\"version\": {RoomPaletteFxPresentationFormat.Version},\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(

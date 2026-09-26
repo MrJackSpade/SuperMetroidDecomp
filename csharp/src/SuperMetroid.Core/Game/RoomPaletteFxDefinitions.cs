@@ -22,6 +22,8 @@ internal static class RoomPaletteFxDefinitions
     internal const ushort RoomDefinitionsBegin = 0xf745;
     /// <summary>$8D:F7A5, final definition in the contiguous room-effect group.</summary>
     internal const ushort RoomDefinitionsEnd = 0xf7a5;
+    /// <summary>$8D:F761, Norfair Samus-in-heat palette-FX owner selected by area lists.</summary>
+    internal const ushort SamusInHeat = 0xf761;
     /// <summary>$8D:FFC9, first definition in the contiguous Tourian escape group.</summary>
     internal const ushort TourianDefinitionsBegin = 0xffc9;
     /// <summary>$8D:FFED, final definition in the contiguous Tourian escape group.</summary>

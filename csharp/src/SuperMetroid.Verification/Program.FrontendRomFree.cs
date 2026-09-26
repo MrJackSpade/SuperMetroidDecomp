@@ -156,12 +156,16 @@ internal static partial class Program
         AssertTrue(installed.GameplayMovementEnabled,
             "ROM-free input fixture enables Samus movement");
         ushort initialX = installed.GameplaySamusX;
+        ushort? initialRoom = installed.GameplayActiveRoomPointer;
         bool fired = false;
-        for (int frame = 0; frame < 100; frame++)
+        bool firedDuringSustainedInput = false;
+        int verifiedFrames = 0;
+        for (int frame = 0; frame < 400; frame++)
         {
             ushort input = frame < 24 ? (ushort)SnesButton.Right :
                 frame == 25 ? (ushort)SnesButton.X :
-                frame is >= 40 and < 60 ? (ushort)(SnesButton.A | SnesButton.Left) : (ushort)0;
+                frame is >= 40 and < 60 ? (ushort)(SnesButton.A | SnesButton.Left) :
+                frame >= 60 ? (ushort)(SnesButton.Right | SnesButton.X) : (ushort)0;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
             AssertEqual(expected.GameState, actual.GameState,
@@ -198,11 +202,22 @@ internal static partial class Program
                     $"first VRAM diff={firstVram}, first OAM diff={firstOam}.");
             }
             fired |= installed.GameplayLastFiredProjectileSlot is not null;
+            firedDuringSustainedInput |= frame >= 60 &&
+                installed.GameplayLastFiredProjectileSlot is not null;
+            verifiedFrames++;
+            // Keep this controller fixture within the first room boundary. A
+            // later room belongs to its own focused installed-runtime check.
+            if (initialRoom is not null &&
+                installed.GameplayActiveRoomPointer is ushort currentRoom &&
+                currentRoom != initialRoom)
+                break;
         }
         AssertTrue(installed.GameplaySamusX != initialX,
             "ROM-free Ceres input moves Samus in world space");
         AssertTrue(fired, "ROM-free Ceres input produces a beam shot");
-        Console.WriteLine("Frontend ROM-free Ceres input: 100 direction and firing frames match stock pixels without cartridge reads.");
+        AssertTrue(firedDuringSustainedInput,
+            "ROM-free Ceres input produces a beam shot during sustained movement");
+        Console.WriteLine($"Frontend ROM-free Ceres input: {verifiedFrames} direction and firing frames through at most one room boundary match stock pixels without cartridge reads.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

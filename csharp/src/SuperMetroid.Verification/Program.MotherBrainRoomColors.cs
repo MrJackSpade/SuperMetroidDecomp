@@ -20,6 +20,7 @@ internal static partial class Program
         Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
         AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
+        VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors);
         var nativeState = new MotherBrainEnemyState(native.Slots[0])
         {
             RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
@@ -74,6 +75,9 @@ internal static partial class Program
         document.PhaseTwoRearLeg[0] = Change(document.PhaseTwoRearLeg[0]);
         document.InitialGlassShard![0] = Change(document.InitialGlassShard[0]);
         document.InitialTubeProjectile![0] = Change(document.InitialTubeProjectile[0]);
+        document.RecoveryLights![0][0] = Change(document.RecoveryLights[0][0]);
+        document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination] =
+            Change(document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination]);
         using (var file = File.Create(replacement))
             MotherBrainRoomColorPresentation.Write(file, document);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
@@ -93,6 +97,7 @@ internal static partial class Program
         AssertEdited("SetupMotherBrainPhaseTwoGraphics", original, edited,
             MotherBrainRoomColorRomData.PhaseTwoAttackColor, 2);
         AssertRoomEntryEdited(original, edited);
+        AssertRecoveryLightsEdited(original, edited);
 
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
@@ -109,11 +114,36 @@ internal static partial class Program
             {
                 InitialGlassShard = document.InitialGlassShard!.Take(14).ToArray(),
             }, MapPresentationFormat.JsonOptions))), "reject truncated room-entry glass colors");
+        AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                RecoveryLights = document.RecoveryLights!.Take(6).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject truncated room-light recovery sequence");
+        byte[] previousVersion = JsonSerializer.SerializeToUtf8Bytes(document with
+        {
+            Version = MotherBrainRoomColorFormat.PreRecoveryLightsVersion,
+            RecoveryLights = null,
+        }, MapPresentationFormat.JsonOptions);
+        File.WriteAllBytes(replacement, previousVersion);
+        AreaMapPresentationCatalog migratedV2 = AreaMapPresentationCatalog.Load(stock, overrides);
+        var migratedRecovery = new SnesCgram();
+        var originalRecovery = new SnesCgram();
+        migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery, 0);
+        original.MotherBrainRoomColors.ApplyRecoveryLights(originalRecovery, 0);
+        AssertTrue(migratedRecovery.Colors.SequenceEqual(originalRecovery.Colors),
+            "version-two override inherits new recovery-light colors from stock");
+        var migratedV2Entry = new SnesCgram();
+        var originalV2Entry = new SnesCgram();
+        migratedV2.MotherBrainRoomColors.ApplyRoomEntry(migratedV2Entry);
+        original.MotherBrainRoomColors.ApplyRoomEntry(originalV2Entry);
+        AssertTrue(!migratedV2Entry.Colors.SequenceEqual(originalV2Entry.Colors),
+            "version-two override keeps its edited room-entry colors");
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
         {
             Version = MotherBrainRoomColorFormat.PreRoomEntryVersion,
             InitialGlassShard = null,
             InitialTubeProjectile = null,
+            RecoveryLights = null,
         }, MapPresentationFormat.JsonOptions);
         File.WriteAllBytes(replacement, legacy);
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
@@ -139,13 +169,73 @@ internal static partial class Program
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity, AreaMapPresentationCatalog.Load(stock, overrides)
             .ContentIdentity, "removing Mother Brain room override restores stock identity");
-        Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey and phase-two palettes match native CGRAM; ROM-free production paths, isolated edits, legacy override and strict validation pass.");
+        Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light palettes match native CGRAM; ROM-free production paths, isolated edits, legacy overrides and strict validation pass.");
 
         static PaletteRgb5 Change(PaletteRgb5 color) => color with
         {
             Red = color.Red == 31 ? 30 : color.Red + 1,
         };
     }
+
+    private static void VerifyMotherBrainRecoveryLights(ISnesAddressSpace rom,
+        MotherBrainRoomColorPresentation installed)
+    {
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
+        Seed(nativeCgram);
+        Seed(installedCgram);
+        var native = CreateEnemy(rom, nativeCgram, null);
+        var runtime = CreateEnemy(new PaletteReadForbiddenBus(), installedCgram, installed);
+        MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
+        for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
+        {
+            var request = RecoveryRequest(frame);
+            apply.Invoke(native, [request]);
+            apply.Invoke(runtime, [request]);
+            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                $"installed Mother Brain recovery-light frame {frame} matches full native CGRAM");
+        }
+        var invalid = RecoveryRequest(0) with { SourceAddress = 0 };
+        try
+        {
+            apply.Invoke(runtime, [invalid]);
+            throw new InvalidOperationException("Malformed Mother Brain recovery-light source was accepted.");
+        }
+        catch (TargetInvocationException error) when (error.InnerException is InvalidDataException)
+        {
+            // Reject malformed requests before touching installed colors or the bus.
+        }
+    }
+
+    private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
+        AreaMapPresentationCatalog edited)
+    {
+        var stockCgram = new SnesCgram();
+        var editedCgram = new SnesCgram();
+        var stock = CreateEnemy(new PaletteReadForbiddenBus(), stockCgram,
+            original.MotherBrainRoomColors);
+        var replacement = CreateEnemy(new PaletteReadForbiddenBus(), editedCgram,
+            edited.MotherBrainRoomColors);
+        MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
+        var request = RecoveryRequest(0);
+        apply.Invoke(stock, [request]);
+        apply.Invoke(replacement, [request]);
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor],
+            "first recovery-light slice edit reaches live CGRAM");
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsSecondColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsSecondColor],
+            "second recovery-light slice edit reaches live CGRAM");
+        AssertEqual(2, stockCgram.Colors.ToArray().Zip(editedCgram.Colors.ToArray())
+            .Count(pair => pair.First != pair.Second),
+            "recovery-light edits change only two selected CGRAM words");
+    }
+
+    private static MotherBrainBackgroundPaletteTransferRequest RecoveryRequest(ushort frame) =>
+        new(frame, (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
+            (ushort)(MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort)),
+            (ushort)(MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort)),
+            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination);
 
     private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)

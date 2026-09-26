@@ -40,4 +40,21 @@ public static class MotherBrainRoomColorRomData
 
     /// <summary>Both room-entry palettes omit transparent color zero and copy fifteen colors.</summary>
     public const int InitialColors = 15;
+
+    /// <summary>Seven phase-three room-light images, selected after the Baby cutscene.</summary>
+    public const int RecoveryLightsFrames = 7;
+    /// <summary>Each $AD:F3D3-minus-index image is two fourteen-color source slices.</summary>
+    public const int RecoveryLightsColorsPerDestination = 14;
+    /// <summary>The room-light source rows descend by $38 bytes in bank $AD.</summary>
+    public const int RecoveryLightsFirstSource = 0xadf3d3;
+    public const int RecoveryLightsByteStride = 0x38;
+    /// <summary>First room-light slice begins at CGRAM byte offset $0062.</summary>
+    public const int RecoveryLightsFirstColor = 0x0062 / sizeof(ushort);
+    /// <summary>Second room-light slice begins at CGRAM byte offset $00A2.</summary>
+    public const int RecoveryLightsSecondColor = 0x00a2 / sizeof(ushort);
+
+    public static int RecoveryLightsSource(int index) =>
+        (uint)index < RecoveryLightsFrames
+            ? RecoveryLightsFirstSource - index * RecoveryLightsByteStride
+            : throw new ArgumentOutOfRangeException(nameof(index));
 }

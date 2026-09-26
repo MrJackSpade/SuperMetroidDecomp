@@ -37,6 +37,10 @@ internal static class MotherBrainRoomColorExtractor
                 MotherBrainRoomColorRomData.InitialColors),
             InitialTubeProjectile = ReadColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource,
                 MotherBrainRoomColorRomData.InitialColors),
+            RecoveryLights = Enumerable.Range(0, MotherBrainRoomColorRomData.RecoveryLightsFrames)
+                .Select(frame => ReadColors(MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
+                    MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2))
+                .ToArray(),
         });
         return json.ToArray();
 

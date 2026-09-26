@@ -13,10 +13,12 @@ public sealed class MotherBrainRoomColorPresentation
     private readonly ushort[] phaseTwoRearLeg;
     private readonly ushort[] initialGlassShard;
     private readonly ushort[] initialTubeProjectile;
+    private readonly ushort[][] recoveryLights;
 
     private MotherBrainRoomColorPresentation(ushort[][] flash, ushort[] finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
-        ushort[] initialGlassShard, ushort[] initialTubeProjectile)
+        ushort[] initialGlassShard, ushort[] initialTubeProjectile,
+        ushort[][] recoveryLights)
     {
         this.flash = flash;
         this.finalRoom = finalRoom;
@@ -24,6 +26,7 @@ public sealed class MotherBrainRoomColorPresentation
         this.phaseTwoRearLeg = phaseTwoRearLeg;
         this.initialGlassShard = initialGlassShard;
         this.initialTubeProjectile = initialTubeProjectile;
+        this.recoveryLights = recoveryLights;
     }
 
     /// <summary>Applies a color row selected by the compiled $A9:D046 timing program.</summary>
@@ -64,6 +67,23 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
+    /// <summary>Applies one room-light image after the Baby Metroid cutscene.</summary>
+    public void ApplyRecoveryLights(SnesCgram cgram, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        if ((uint)frame >= recoveryLights.Length)
+            throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
+        ushort[] colors = recoveryLights[frame];
+        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination;
+             index++)
+        {
+            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index,
+                colors[index]);
+            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index,
+                colors[MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination + index]);
+        }
+    }
+
     private static void ApplyRoom(SnesCgram cgram, ushort[] colors)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -90,8 +110,10 @@ public sealed class MotherBrainRoomColorPresentation
         {
             throw new InvalidDataException("Invalid Mother Brain room-color JSON.", error);
         }
-        if ((document.Version != MotherBrainRoomColorFormat.Version &&
-             !(document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion && currentStock is not null)) ||
+        bool previousWithStock = currentStock is not null &&
+            document.Version is MotherBrainRoomColorFormat.PreRoomEntryVersion or
+                MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
+        if ((document.Version != MotherBrainRoomColorFormat.Version && !previousWithStock) ||
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
@@ -112,7 +134,22 @@ public sealed class MotherBrainRoomColorPresentation
             document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
                 ? currentStock!.initialTubeProjectile
                 : Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
-                    "room-entry tube projectile"));
+                    "room-entry tube projectile"),
+            document.Version < MotherBrainRoomColorFormat.Version
+                ? currentStock!.recoveryLights
+                : CompileRecoveryLights(document.RecoveryLights));
+    }
+
+    private static ushort[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
+    {
+        if (frames is null || frames.Length != MotherBrainRoomColorRomData.RecoveryLightsFrames)
+            throw new InvalidDataException("Mother Brain room-light recovery requires seven frames.");
+        var compiled = new ushort[frames.Length][];
+        for (int frame = 0; frame < frames.Length; frame++)
+            compiled[frame] = Compile(frames[frame],
+                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2,
+                $"room-light recovery frame {frame}");
+        return compiled;
     }
 
     private static ushort[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
@@ -148,11 +185,13 @@ public sealed record MotherBrainRoomColorDocument
     public required PaletteRgb5[] PhaseTwoRearLeg { get; init; }
     public PaletteRgb5[]? InitialGlassShard { get; init; }
     public PaletteRgb5[]? InitialTubeProjectile { get; init; }
+    public PaletteRgb5[][]? RecoveryLights { get; init; }
 }
 
 public static class MotherBrainRoomColorFormat
 {
     public const string FileName = "mother-brain-room-colors.json";
-    public const int Version = 2;
+    public const int Version = 3;
     public const int PreRoomEntryVersion = 1;
+    public const int PreRecoveryLightsVersion = 2;
 }

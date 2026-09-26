@@ -210,19 +210,37 @@ public sealed partial class RoomEnemySystem
             ApplyMotherBrainRainbowTileTransfer(attackTiles);
 
         if (step.BackgroundPaletteTransfer is { } roomPalette)
+            LoadMotherBrainRecoveryLights(roomPalette);
+    }
+
+    private void LoadMotherBrainRecoveryLights(
+        MotherBrainBackgroundPaletteTransferRequest request)
+    {
+        if (request.PaletteIndex >= MotherBrainRoomColorRomData.RecoveryLightsFrames ||
+            request.SourceAddress != (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(
+                request.PaletteIndex) ||
+            request.FirstDestinationColorIndex !=
+                MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort) ||
+            request.SecondDestinationColorIndex !=
+                MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort) ||
+            request.ColorsPerDestination !=
+                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination)
+            throw new InvalidDataException(
+                $"Mother Brain recovery-light request {request.PaletteIndex} has a non-native transfer layout.");
+
+        if (MotherBrainRoomColors is { } colors)
         {
-            _cgram!.LoadFromBus(
-                _bus!,
-                unchecked((int)roomPalette.SourceAddress),
-                roomPalette.ColorsPerDestination,
-                roomPalette.FirstDestinationColorIndex / 2);
-            _cgram.LoadFromBus(
-                _bus!,
-                unchecked((int)(roomPalette.SourceAddress +
-                    roomPalette.ColorsPerDestination * 2u)),
-                roomPalette.ColorsPerDestination,
-                roomPalette.SecondDestinationColorIndex / 2);
+            colors.ApplyRecoveryLights(_cgram!, request.PaletteIndex);
+            return;
         }
+        int source = MotherBrainRoomColorRomData.RecoveryLightsSource(request.PaletteIndex);
+        _cgram!.LoadFromBus(_bus!, source,
+            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination,
+            MotherBrainRoomColorRomData.RecoveryLightsFirstColor);
+        _cgram.LoadFromBus(_bus!, source +
+            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * sizeof(ushort),
+            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination,
+            MotherBrainRoomColorRomData.RecoveryLightsSecondColor);
     }
 
     private void LoadBabyMetroidCutsceneFadePalette(

@@ -601,7 +601,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 76;
+    public const int Version = 77;
     /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
     public const int SharedResourceCount = 61;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>

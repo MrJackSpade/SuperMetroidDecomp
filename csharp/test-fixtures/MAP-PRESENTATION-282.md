@@ -1490,7 +1490,10 @@ sprite palettes. The flash rows each carry two twelve-color source slices;
 the second slice intentionally feeds two CGRAM destinations.
 `initialGlassShard` and `initialTubeProjectile` each carry fifteen room-entry
 sprite colors. Version-one overrides retain existing edits and receive these
-new fields from verified current stock. The bytecode durations and branch,
+new fields from verified current stock. `recoveryLights` contains seven
+two-slice images selected during the Baby cutscene's phase-three room-light
+restoration; version-one and version-two overrides inherit those new colors
+from current stock. The bytecode durations and branch,
 terminal phase handoff, and CGRAM destination indices
 remain compiled. Cartridge-backed verification compares all production flash
 frames, final room copy, and phase-two setup against full native CGRAM, forbids

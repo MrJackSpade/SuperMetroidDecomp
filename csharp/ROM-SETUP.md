@@ -305,7 +305,10 @@ is displayed in two CGRAM destinations. `phaseTwoAttack` and
 `phaseTwoRearLeg` each contain fifteen nontransparent sprite colors.
 `initialGlassShard` and `initialTubeProjectile` contain the two fifteen-color
 room-entry sprite palettes. Version-one overrides keep their existing edits and
-inherit these new colors from current stock content. Copy this file to
+inherit these new colors from current stock content. `recoveryLights` contains
+seven two-slice room-light images shown after the Baby Metroid cutscene;
+version-one and version-two overrides inherit that new family from current
+stock while preserving their edits. Copy this file to
 `overrides/maps/` to recolor those effects. The cartridge bytecode, flash
 cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 

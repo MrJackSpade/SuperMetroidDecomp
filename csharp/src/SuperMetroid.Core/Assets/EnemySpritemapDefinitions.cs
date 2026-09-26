@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 19;
+    internal const int Version = 20;
+    internal const int PrePuyoVersion = 19;
+    internal const int PrePuyoFrameCount = 308;
     internal const int PreNorfairRioVersion = 18;
     internal const int PreNorfairRioFrameCount = 288;
     internal const int PreLowerNorfairRioVersion = 17;
@@ -47,6 +49,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte RioBank = 0xa2;
     internal const byte LowerNorfairRioBank = 0xa2;
     internal const byte NorfairRioBank = 0xa2;
+    internal const byte PuyoBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -383,6 +386,14 @@ internal static class EnemySpritemapDefinitions
         new(NorfairRioBank, 0xc5d6, "norfair_rio_c5d6"),
         new(NorfairRioBank, 0xc5e2, "norfair_rio_c5e2"),
         new(NorfairRioBank, 0xc5ee, "norfair_rio_c5ee"),
+        new(PuyoBank, 0x9df6, "puyo_ground_0"),
+        new(PuyoBank, 0x9e02, "puyo_ground_1"),
+        new(PuyoBank, 0x9e0e, "puyo_ground_2"),
+        new(PuyoBank, 0x9e1a, "puyo_air_0"),
+        new(PuyoBank, 0x9e26, "puyo_air_1"),
+        new(PuyoBank, 0x9e37, "puyo_air_2"),
+        new(PuyoBank, 0x9e4d, "puyo_air_3"),
+        new(PuyoBank, 0x9e5e, "puyo_air_4"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -409,6 +420,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
             RoomEnemySystem.NorfairRioDefinition => NorfairRioFrameAt(operandAddress),
+            RoomEnemySystem.PuyoDefinition => PuyoFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -441,6 +453,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or
+            RoomEnemySystem.PuyoDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -502,6 +515,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Norfair Rio visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Puyo's seventeen presentation operands at $A2:99AF..9A03 select eight
+    /// editable OAM compositions; hop timing and movement remain compiled.
+    /// </summary>
+    internal static ushort PuyoFrameAt(ushort operandAddress)
+    {
+        if (PuyoInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(PuyoBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Puyo visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

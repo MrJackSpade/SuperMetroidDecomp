@@ -41,7 +41,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new PuyoInstructionReadGuard(rom);
+        var guard = new PuyoInstructionReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -77,9 +77,8 @@ internal static partial class Program
                 $"Puyo airborne pose $A2:{program:X4} reaches terminal sleep");
         }
 
-        AssertEqual(PuyoInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Puyo spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all Puyo spritemap operands select compiled presentation frames");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Puyo mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -100,7 +99,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Puyo instruction mechanics: 28 compiled words, all three grounded loops, " +
-            "all five airborne poses, and 17 live spritemap reads pass with mechanics " +
+            "all five airborne poses, and 17 compiled visual selectors pass with mechanics " +
             "bytes forbidden.");
     }
 
@@ -139,7 +138,7 @@ internal static partial class Program
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class PuyoInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -165,6 +164,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                            throw new InvalidOperationException(
+                                $"Installed Puyo read cartridge visual selector $A2:{presentation:X4}.");
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

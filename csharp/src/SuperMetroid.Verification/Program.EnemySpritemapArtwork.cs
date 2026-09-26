@@ -7,6 +7,55 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyInstalledPuyoInstructionFrames(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
+        BindingFlags flags)
+    {
+        for (int index = 0;
+             index < PuyoInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = PuyoInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.PuyoDefinition, operand, out ushort frame),
+                $"Puyo visual operand $A2:{operand:X4} is compiled");
+            AssertEqual(ReadPuyoInstructionWord(rom, operand), frame,
+                $"Puyo frame selector $A2:{operand:X4} matches the pinned cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.PuyoFrameAt(
+                PuyoInstructionProgramDefinitions.FirstAdjacentDefinition),
+            "Puyo rejects adjacent hop definitions as presentation operands");
+
+        var guard = new PuyoInstructionReadGuard(rom, forbidPresentation: true);
+        var enemies = new RoomEnemySystem { TileArtwork = stock };
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+        RoomEnemySlot puyo = enemies.Slots[0];
+        puyo.EnemyDefinitionPointer = RoomEnemySystem.PuyoDefinition;
+        puyo.Definition = default(RoomEnemyDefinition) with
+            { Bank = EnemySpritemapDefinitions.PuyoBank };
+        typeof(RoomEnemySystem).GetMethod("InitializePuyo", flags)!
+            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(puyo);
+        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
+        object?[] arguments =
+            [puyo, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+        foreach (ushort program in PuyoGroundedInstructionPrograms)
+        {
+            puyo.CurrentInstruction = program;
+            ExecutePuyoInstructionCalls(enemies, process, arguments, puyo, 5);
+        }
+        foreach (ushort program in PuyoAirborneInstructionPrograms)
+        {
+            puyo.CurrentInstruction = program;
+            ExecutePuyoInstructionCalls(enemies, process, arguments, puyo, 2);
+        }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "installed Puyo programs read no cartridge visual selectors");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "installed Puyo programs retain compiled timing and control words");
+    }
+
     private static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -30,8 +79,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreNorfairRioFrameCount,
             "Lower Norfair Rio adds its eighteen parent and flame compositions");
         AssertEqual(EnemySpritemapDefinitions.PreNorfairRioFrameCount + 20,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PrePuyoFrameCount,
             "Norfair Rio adds its twenty parent and flame compositions");
+        AssertEqual(EnemySpritemapDefinitions.PrePuyoFrameCount + 8,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Puyo adds its eight distinct ground and airborne compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -151,6 +203,7 @@ internal static partial class Program
         }
         AssertEqual(0, norfairRioGuard.ObservedPresentationWords.Count,
             "installed Norfair Rio programs never read ROM visual selectors");
+        VerifyInstalledPuyoInstructionFrames(rom, stock, flags);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -182,6 +235,8 @@ internal static partial class Program
                         ? RoomEnemySystem.LowerNorfairRioDefinition
                     : frame.Name.StartsWith("rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.RioDefinition
+                    : frame.Name.StartsWith("puyo_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.PuyoDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -337,6 +392,11 @@ internal static partial class Program
         document.Frames["norfair_rio_c442"][0] = norfairRioPart with
         {
             OffsetY = norfairRioPart.OffsetY + 1,
+        };
+        SpriteVisualPart puyoPart = document.Frames["puyo_ground_0"][0];
+        document.Frames["puyo_ground_0"][0] = puyoPart with
+        {
+            OffsetY = puyoPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -590,15 +650,50 @@ internal static partial class Program
             "authored Norfair Rio Y offset changes installed room OAM");
         AssertEqual(stockNorfairRio.LowTable[0], editedNorfairRio.LowTable[0],
             "Norfair Rio visual edit leaves physical X unchanged");
+        ushort puyoPointer = EnemySpritemapDefinitions.PuyoFrameAt(
+            PuyoInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockPuyo = DrawEnemy(stock, new FrameReadGuard(rom),
+            puyoPointer, RoomEnemySystem.PuyoDefinition);
+        OamBuffer editedPuyo = DrawEnemy(edited, new FrameReadGuard(rom),
+            puyoPointer, RoomEnemySystem.PuyoDefinition);
+        AssertEqual(unchecked((byte)(stockPuyo.LowTable[1] + 1)),
+            editedPuyo.LowTable[1],
+            "authored Puyo Y offset changes installed room OAM");
+        AssertEqual(stockPuyo.LowTable[0], editedPuyo.LowTable[0],
+            "Puyo visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preNorfairRioFrames = document.Frames
+        var prePuyoFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("puyo_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PrePuyoFrameCount,
+            prePuyoFrames.Count, "pre-Puyo composition schema frame count");
+        var prePuyoBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("puyo_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PrePuyoVersion,
+                Frames = prePuyoFrames,
+                DisplayFrames = prePuyoBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog prePuyoUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer retainedPrePuyoEdit = DrawEnemy(prePuyoUpgraded,
+            new FrameReadGuard(rom), framePointer, RoomEnemySystem.BoyonDefinition);
+        AssertEqual(editedOam.LowTable[1], retainedPrePuyoEdit.LowTable[1],
+            "version-nineteen override retains an edited older enemy frame");
+        AssertTrue(prePuyoUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.PuyoBank, puyoPointer, out _),
+            "version-nineteen override gains stock Puyo artwork");
+        var preNorfairRioFrames = prePuyoFrames
             .Where(pair => !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreNorfairRioFrameCount,
             preNorfairRioFrames.Count, "pre-Norfair-Rio composition schema frame count");
-        var preNorfairRioBindings = document.DisplayFrames!
+        var preNorfairRioBindings = prePuyoBindings
             .Where(pair => !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preNorfairRioBindings["boyon_idle_0"] = "boyon_idle_1";
@@ -621,13 +716,13 @@ internal static partial class Program
         AssertTrue(preNorfairRioUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.NorfairRioBank, norfairRioPointer, out _),
             "version-eighteen override gains stock Norfair Rio artwork");
-        var preLowerRioFrames = document.Frames
+        var preLowerRioFrames = prePuyoFrames
             .Where(pair => !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount,
             preLowerRioFrames.Count, "pre-Lower-Norfair-Rio composition schema frame count");
-        var preLowerRioBindings = document.DisplayFrames!
+        var preLowerRioBindings = prePuyoBindings
             .Where(pair => !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -651,14 +746,14 @@ internal static partial class Program
         AssertTrue(preLowerRioUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.LowerNorfairRioBank, lowerRioPointer, out _),
             "version-seventeen override gains stock Lower Norfair Rio artwork");
-        var preRioFrames = document.Frames
+        var preRioFrames = prePuyoFrames
             .Where(pair => !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRioFrameCount,
             preRioFrames.Count, "pre-Rio composition schema frame count");
-        var preRioBindings = document.DisplayFrames!
+        var preRioBindings = prePuyoBindings
             .Where(pair => !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_rio_", StringComparison.Ordinal))
@@ -682,7 +777,7 @@ internal static partial class Program
         AssertTrue(preRioUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.RioBank, rioPointer, out _),
             "version-sixteen override gains stock Rio artwork");
-        var preCeresBabyFrames = document.Frames
+        var preCeresBabyFrames = prePuyoFrames
             .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&
@@ -690,7 +785,7 @@ internal static partial class Program
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreCeresBabyFrameCount,
             preCeresBabyFrames.Count, "pre-Ceres-Baby composition schema frame count");
-        var preCeresBabyBindings = document.DisplayFrames!
+        var preCeresBabyBindings = prePuyoBindings
             .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("rio_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("lower_norfair_rio_", StringComparison.Ordinal) &&

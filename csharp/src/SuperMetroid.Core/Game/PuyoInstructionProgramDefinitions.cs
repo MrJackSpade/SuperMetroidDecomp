@@ -4,7 +4,7 @@ internal readonly record struct PuyoInstructionMechanicsWord(ushort Address, ush
 
 /// <summary>
 /// Compiled engine-control words for Puyo's three grounded loops and five airborne pose
-/// programs. Their interleaved spritemap operands remain live cartridge presentation data.
+/// programs. Their interleaved spritemap operands select installed presentation frames.
 /// </summary>
 internal static class PuyoInstructionProgramDefinitions
 {
@@ -65,6 +65,9 @@ internal static class PuyoInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static PuyoInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

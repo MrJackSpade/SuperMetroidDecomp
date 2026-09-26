@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Puyo visual frames (2026-09-26)
+
+Puyo's eight distinct ground and airborne OAM compositions are installed as
+named `enemy-compositions.json` frames. Its seventeen bank-$A2 visual operands
+select those frames from the compiled selector catalog; the three grounded
+loops, five airborne pose programs, and hop mechanics retain their compiled
+engine-owned timing. The actual instruction processor runs every list with
+both mechanics and visual source words unreadable, while stock OAM parity,
+an edited live frame, override reload, and version-nineteen migration pass.
+
 ## Final assembling-logo actor lists (2026-09-25)
 
 The four bank-$8B upper/lower S and wrapping-circle lists at `$EE5D..EE9A`

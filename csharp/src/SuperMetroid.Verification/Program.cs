@@ -77,6 +77,11 @@ if (args is ["--samus-gun-extended"])
     VerifySamusGunExtendedMovement();
     return 0;
 }
+if (args is ["--samus-grounded-reversal"])
+{
+    VerifySamusGroundedReversal();
+    return 0;
+}
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

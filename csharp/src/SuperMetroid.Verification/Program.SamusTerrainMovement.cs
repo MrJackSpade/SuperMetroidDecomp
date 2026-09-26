@@ -936,11 +936,9 @@ static void VerifySamusGroundedReversal()
     {
         WritePoseDefinition(bus, sourcePose, definition);
 
-        // A ten-tick frame-zero stream is sufficient after `$F8` installs the standing
-        // destination. No later target animation frame is observed by this focused test.
-        ushort streamAddress = (ushort)(0xc200 + sourcePose * 2);
-        WriteTestWord(bus, 0x91b010 + sourcePose * 2, streamAddress);
-        bus.WriteByte(0x910000 + streamAddress, 0x0a);
+        // Frame-zero delay belongs to the compiled native animation table. Do not
+        // install a synthetic pointer or delay: those bus writes no longer affect
+        // production pose transitions and would disguise a stale expectation.
     }
 
     // Each turn definition also comes directly from bank $91. `$FA` and `$FC` are the
@@ -960,20 +958,23 @@ static void VerifySamusGroundedReversal()
 
     // NTSC uses three two-tick art frames for every aimed grounded turn. `$F8` then
     // installs the corresponding opposite-facing standing-aim pose shown in this table.
-    (byte SourcePose, byte GenericTurn, byte SelectedTurn, byte Destination)[] aimedTurnCases =
+    // The pinned cartridge gives straight-up poses a $02 frame-zero delay at
+    // $91:B222 and diagonal poses a $10 delay at $91:B2B4.
+    (byte SourcePose, byte GenericTurn, byte SelectedTurn, byte Destination,
+        byte DestinationDelay)[] aimedTurnCases =
     [
         (SamusPoseIds.StandingAimUpRightPose, SamusPoseIds.TurningRightToLeftPose,
-            SamusPoseIds.TurningRightToLeftAimUpPose, SamusPoseIds.StandingAimUpLeftPose),
+            SamusPoseIds.TurningRightToLeftAimUpPose, SamusPoseIds.StandingAimUpLeftPose, 2),
         (SamusPoseIds.StandingAimUpLeftPose, SamusPoseIds.TurningLeftToRightPose,
-            SamusPoseIds.TurningLeftToRightAimUpPose, SamusPoseIds.StandingAimUpRightPose),
+            SamusPoseIds.TurningLeftToRightAimUpPose, SamusPoseIds.StandingAimUpRightPose, 2),
         (SamusPoseIds.StandingAimDiagonalUpRightPose, SamusPoseIds.TurningRightToLeftPose,
-            SamusPoseIds.TurningRightToLeftAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpLeftPose),
+            SamusPoseIds.TurningRightToLeftAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpLeftPose, 16),
         (SamusPoseIds.StandingAimDiagonalUpLeftPose, SamusPoseIds.TurningLeftToRightPose,
-            SamusPoseIds.TurningLeftToRightAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpRightPose),
+            SamusPoseIds.TurningLeftToRightAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpRightPose, 16),
         (SamusPoseIds.StandingAimDiagonalDownRightPose, SamusPoseIds.TurningRightToLeftPose,
-            SamusPoseIds.TurningRightToLeftAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownLeftPose),
+            SamusPoseIds.TurningRightToLeftAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownLeftPose, 16),
         (SamusPoseIds.StandingAimDiagonalDownLeftPose, SamusPoseIds.TurningLeftToRightPose,
-            SamusPoseIds.TurningLeftToRightAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownRightPose),
+            SamusPoseIds.TurningLeftToRightAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownRightPose, 16),
     ];
 
     // Real standing/turn poses have radius 21, unlike the compact radius-five fixture used
@@ -1034,7 +1035,8 @@ static void VerifySamusGroundedReversal()
         AssertTrue(aimedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
         AssertEqual(0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
-        AssertEqual(10, aimedTurn.AnimationFrameTimer, $"aimed turn target timer case {caseIndex}");
+        AssertEqual(testCase.DestinationDelay, aimedTurn.AnimationFrameTimer,
+            $"aimed turn uses the native standing-aim delay case {caseIndex}");
     }
 
     // Crouched aim turns are the deliberate type-$17 oddity in this family. Give that

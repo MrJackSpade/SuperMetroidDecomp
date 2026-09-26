@@ -50,6 +50,7 @@ internal static partial class Program
         Paint(document.EyeFade[15]);
         Paint(document.BodyFade[0]);
         Paint(document.Health[0]);
+        Paint(document.Health[1]);
         Paint(document.Health[2]);
         Paint(document.RetreatBg);
         Paint(document.RetreatShared);
@@ -131,6 +132,7 @@ internal static partial class Program
                 color => edited.CeresRidleyColors.ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
+        VerifyNorfairHealthPalette();
         slot.EnemyDefinitionPointer = 0xe13f;
         RidleyEnemyState activeRidley = enemies.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
@@ -186,7 +188,79 @@ internal static partial class Program
         AssertEqual(original.ContentIdentity,
             AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory).ContentIdentity,
             "removing Ceres Ridley override restores stock identity");
-        Console.WriteLine("Ceres Ridley colors: 381 native words, initialization/64 eye steps/16 body rows/health thresholds/retreat and four Baby rows, ROM guard and stock repair pass.");
+        Console.WriteLine("Ceres/Ridley colors: 381 native words, Ceres initialization/fades/retreat/Baby, Norfair health thresholds, ROM guard and stock repair pass.");
+
+        void VerifyNorfairHealthPalette()
+        {
+            // Drive the real Norfair palette callback at both sides of every
+            // health threshold. The native fallback supplies full-CGRAM parity;
+            // the guarded installed path proves no copied ROM colors are read.
+            var nativeEnemy = new RoomEnemySystem();
+            var stockEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
+            var editedEnemy = new RoomEnemySystem { CeresRidleyColors = edited.CeresRidleyColors };
+            var nativeCgram = new SnesCgram();
+            var stockCgram = new SnesCgram();
+            var editedCgram = new SnesCgram();
+            foreach ((RoomEnemySystem owner, ISnesAddressSpace addressSpace, SnesCgram palette)
+                in new (RoomEnemySystem, ISnesAddressSpace, SnesCgram)[]
+                {
+                    (nativeEnemy, rom, nativeCgram),
+                    (stockEnemy, guarded, stockCgram),
+                    (editedEnemy, guarded, editedCgram),
+                })
+            {
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(owner, addressSpace);
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(owner, palette);
+            }
+            var callback = typeof(RoomEnemySystem)
+                .GetMethod("UpdateNorfairRidleyHealthPalette", flags)!;
+            var nativeTick = callback.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(nativeEnemy);
+            var stockTick = callback.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(stockEnemy);
+            var editedTick = callback.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(editedEnemy);
+            RoomEnemySlot nativeSlot = nativeEnemy.Slots[0];
+            RoomEnemySlot stockSlot = stockEnemy.Slots[0];
+            RoomEnemySlot editedSlot = editedEnemy.Slots[0];
+            var nativeState = new RidleyEnemyState();
+            var stockState = new RidleyEnemyState();
+            var editedState = new RidleyEnemyState();
+            foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799, 0 })
+            {
+                nativeSlot.Health = stockSlot.Health = editedSlot.Health = health;
+                ushort[] before = editedCgram.Colors.ToArray();
+                nativeTick(nativeSlot, nativeState);
+                stockTick(stockSlot, stockState);
+                editedTick(editedSlot, editedState);
+                ushort stage = health switch
+                {
+                    < 1800 => 3,
+                    < 5400 => 2,
+                    < 9000 => 1,
+                    _ => 0,
+                };
+                AssertEqual(stage, nativeState.HealthStage,
+                    $"native Norfair Ridley health {health} stage");
+                AssertEqual(stage, stockState.HealthStage,
+                    $"stock Norfair Ridley health {health} stage");
+                AssertEqual(stage, editedState.HealthStage,
+                    $"edited Norfair Ridley health {health} stage");
+                for (int color = 0; color < SnesCgram.ColorCount; color++)
+                {
+                    AssertEqual(nativeCgram.Colors[color], stockCgram.Colors[color],
+                        $"stock Norfair Ridley health {health} CGRAM {color}");
+                    ushort expected = stage != 0 &&
+                        color >= CeresRidleyPaletteRomData.HealthCgramIndex &&
+                        color < CeresRidleyPaletteRomData.HealthCgramIndex +
+                            CeresRidleyPaletteRomData.HealthColorCount
+                        ? edited.CeresRidleyColors.ResolveHealth(
+                            stage - 1, color - CeresRidleyPaletteRomData.HealthCgramIndex)
+                        : before[color];
+                    AssertEqual(expected, editedCgram.Colors[color],
+                        $"edited Norfair Ridley health {health} CGRAM {color}");
+                }
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
+                "Norfair Ridley installed health colors avoid their original ROM rows");
+        }
 
         void Check(int source, int count, Func<int, ushort> resolve)
         {

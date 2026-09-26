@@ -32,7 +32,7 @@ public static class CeresRidleyPaletteRomData
     public const int BodyFadeBgCgramIndex = 0x122 / 2;
     public const int BodyFadeObjCgramIndex = 0x1e2 / 2;
 
-    /// <summary>Three fourteen-color health shades at $A6:E46A; native combat selects rows zero or two.</summary>
+    /// <summary>Three fourteen-color health shades at $A6:E46A, shared by Ceres and Norfair Ridley.</summary>
     public const int HealthColors = 0xa6e46a;
     public const int HealthRowCount = 3;
     public const int HealthColorCount = 14;

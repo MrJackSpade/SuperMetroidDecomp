@@ -901,12 +901,18 @@ public sealed partial class RoomEnemySystem
         if (state.HealthStage == 0)
             return;
 
-        _cgram!.LoadFromBus(
-            _bus!,
-            EnemyRomTablePointers.Ridley.HealthPaletteWords +
-            (state.HealthStage - 1) * 28,
-            colorCount: 14,
-            destinationIndex: 0x01e2 / 2);
+        // Norfair and Ceres select the same authored $A6:E46A health rows. Keep
+        // Norfair's health thresholds here, but use the installed palette so
+        // editing that one asset updates both encounters consistently.
+        int row = state.HealthStage - 1;
+        if (CeresRidleyColors is { } healthColors)
+            healthColors.ApplyHealth(_cgram!, row);
+        else
+            _cgram!.LoadFromBus(_bus!,
+                CeresRidleyPaletteRomData.HealthColors +
+                row * CeresRidleyPaletteRomData.HealthColorCount * sizeof(ushort),
+                CeresRidleyPaletteRomData.HealthColorCount,
+                CeresRidleyPaletteRomData.HealthCgramIndex);
     }
 
     private RidleyEnemyState RequireRidley(RoomEnemySlot slot)

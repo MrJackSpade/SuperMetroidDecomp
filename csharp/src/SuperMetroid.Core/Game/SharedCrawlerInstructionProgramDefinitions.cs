@@ -7,7 +7,8 @@ internal readonly record struct SharedCrawlerInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words shared by Zeela, Sova, Zoomer, and Stone Zoomer. The
-/// twenty interleaved spritemap operands remain live cartridge presentation data.
+/// twenty interleaved spritemap operands select the same installed compositions
+/// used by the Wrecked Ship HZoomer.
 /// </summary>
 internal static class SharedCrawlerInstructionProgramDefinitions
 {
@@ -61,6 +62,8 @@ internal static class SharedCrawlerInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static SharedCrawlerInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

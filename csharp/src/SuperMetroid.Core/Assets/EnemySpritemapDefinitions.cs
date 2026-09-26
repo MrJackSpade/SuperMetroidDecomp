@@ -540,6 +540,11 @@ internal static class EnemySpritemapDefinitions
                 RoomEnemySystem.LargeDessgeegaDefinition => HopperFrameAt(operandAddress),
             RoomEnemySystem.ChootDefinition => ChootFrameAt(operandAddress),
             RoomEnemySystem.HZoomerDefinition => HZoomerFrameAt(operandAddress),
+            RoomEnemySystem.ZeelaDefinition or
+                RoomEnemySystem.SovaDefinition or
+                RoomEnemySystem.ZoomerDefinition or
+                RoomEnemySystem.StoneZoomerDefinition =>
+                SharedCrawlerFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -583,6 +588,10 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.LargeDessgeegaDefinition or
             RoomEnemySystem.ChootDefinition or
             RoomEnemySystem.HZoomerDefinition or
+            RoomEnemySystem.ZeelaDefinition or
+            RoomEnemySystem.SovaDefinition or
+            RoomEnemySystem.ZoomerDefinition or
+            RoomEnemySystem.StoneZoomerDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -744,6 +753,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"HZoomer visual operand $A3:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// The twenty <c>$A3:E262-E2C6</c> shared-crawler visual operands select
+    /// the same bank-$A3 compositions as HZoomer's four surface loops.
+    /// </summary>
+    internal static ushort SharedCrawlerFrameAt(ushort operandAddress)
+    {
+        if (SharedCrawlerInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(HZoomerBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Shared-crawler visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

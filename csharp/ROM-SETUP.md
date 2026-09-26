@@ -445,7 +445,8 @@ Alcoon's eighteen left/right walking, firing, and airborne compositions, plus
 Beetom's twenty-two crawling, hopping, and draining compositions, and the
 Sidehopper/Dessgeega family's twenty-four floor/ceiling compositions (including
 the large and Tourian Sidehopper variants), plus Choot's four idle/jump/fall
-compositions, plus HZoomer's twenty surface-orientation poses.
+compositions, plus twenty surface-orientation poses shared by HZoomer, Zeela,
+Sova, Zoomer, and Stone Zoomer.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,

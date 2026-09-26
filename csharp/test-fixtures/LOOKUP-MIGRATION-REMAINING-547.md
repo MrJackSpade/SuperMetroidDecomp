@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Shared crawler visual selectors (2026-09-26)
+
+Zeela, Sova, Zoomer, and Stone Zoomer use twenty visual operands that point to
+the exact same twenty compositions as HZoomer. Their four native orientation
+programs now select the installed artwork without duplicating resources.
+All twenty selectors match the pinned cartridge, and all sixteen
+definition/orientation combinations run with visual reads forbidden. A live
+art edit affects all four definitions while leaving their compiled movement
+function and instruction-timing handoffs unchanged. This extends the HZoomer
+artwork migration without changing the asset schema.
+
 ## HZoomer visual frames (2026-09-26)
 
 The Wrecked Ship orange Zoomer's twenty visual operands now select twenty
@@ -8,8 +19,8 @@ The four real instruction loops retain compiled movement callbacks and timing
 while visual-selector reads are forbidden. Every selector and native OAM
 composition matches the pinned cartridge, a live artwork edit changes only
 rendered Y, and version-twenty-five overrides retain their older Choot edit
-and binding while inheriting the new HZoomer frames. Other crawler families
-remain outside this slice.
+and binding while inheriting the new HZoomer frames. The shared-crawler
+selector integration is documented above.
 
 ## Choot visual frames (2026-09-26)
 

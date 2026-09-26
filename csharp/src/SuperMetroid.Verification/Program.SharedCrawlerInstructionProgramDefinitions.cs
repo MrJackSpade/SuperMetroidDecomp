@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ internal static partial class Program
     }
 
     private static void VerifySharedCrawlerInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
@@ -34,13 +35,14 @@ internal static partial class Program
             RoomEnemySystem.ZoomerDefinition,
             RoomEnemySystem.StoneZoomerDefinition,
         ];
-        var guard = new SharedCrawlerInstructionReadGuard(rom);
+        var guard = new SharedCrawlerInstructionReadGuard(
+            rom, forbidPresentation: true);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (ushort enemyDefinition in enemyDefinitions)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = enemyDefinition;
@@ -66,18 +68,8 @@ internal static partial class Program
                 $"shared crawler ${enemyDefinition:X4}/{orientation} loops all five frames");
         }
 
-        AssertEqual(SharedCrawlerInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all shared-crawler spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < SharedCrawlerInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                SharedCrawlerInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads shared-crawler presentation word $A3:{address:X4}");
-        }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all shared-crawler loops avoid cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled shared-crawler mechanics byte");
 
@@ -97,10 +89,11 @@ internal static partial class Program
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
             "warmed shared-crawler mechanics lookups allocate no per-frame storage");
 
-        Console.WriteLine(
-            "Shared-crawler instruction mechanics: thirty-six compiled words, four enemy " +
-            "definitions across every surface loop, and twenty live spritemap reads pass " +
-            "with mechanics bytes forbidden.");
+        Console.WriteLine(artwork is null
+            ? "Shared-crawler instruction mechanics: thirty-six compiled words, four enemy " +
+              "definitions across every surface loop, and twenty compiled visual selectors."
+            : "Installed shared crawlers: four definitions across four surface loops " +
+              "execute without cartridge visual-selector reads.");
     }
 
     private static void ExecuteSharedCrawlerProgram(
@@ -138,7 +131,8 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SharedCrawlerInstructionReadGuard(ISnesAddressSpace source) :
+    private sealed class SharedCrawlerInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
@@ -164,6 +158,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                        {
+                            ForbiddenReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"Shared crawler read visual-selector byte ${address:X6}.");
+                        }
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

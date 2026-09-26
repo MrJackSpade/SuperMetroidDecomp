@@ -375,6 +375,7 @@ internal static partial class Program
         VerifyInstalledHopperInstructionFrames(rom, stock);
         VerifyInstalledChootInstructionFrames(rom, stock);
         VerifyInstalledHZoomerInstructionFrames(rom, stock);
+        VerifyInstalledSharedCrawlerFrames(rom, stock);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -947,6 +948,25 @@ internal static partial class Program
         AssertEqual(stockHZoomer.LowTable[0], editedHZoomer.LowTable[0],
             "HZoomer visual edit leaves physical X unchanged");
         VerifyHZoomerInstructionProgramDefinitions(rom, edited);
+        foreach (ushort definition in new ushort[]
+                 {
+                     RoomEnemySystem.ZeelaDefinition,
+                     RoomEnemySystem.SovaDefinition,
+                     RoomEnemySystem.ZoomerDefinition,
+                     RoomEnemySystem.StoneZoomerDefinition,
+                 })
+        {
+            OamBuffer stockCrawler = DrawEnemy(stock, new FrameReadGuard(rom),
+                hzoomerPointer, definition);
+            OamBuffer editedCrawler = DrawEnemy(edited, new FrameReadGuard(rom),
+                hzoomerPointer, definition);
+            AssertEqual(unchecked((byte)(stockCrawler.LowTable[1] + 1)),
+                editedCrawler.LowTable[1],
+                $"shared crawler ${definition:X4} uses the edited visual Y offset");
+            AssertEqual(stockCrawler.LowTable[0], editedCrawler.LowTable[0],
+                $"shared crawler ${definition:X4} retains physical X");
+        }
+        VerifySharedCrawlerInstructionProgramDefinitions(rom, edited);
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
@@ -1652,7 +1672,11 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.HopperBank
                     : definition == RoomEnemySystem.ChootDefinition
                         ? EnemySpritemapDefinitions.ChootBank
-                    : definition == RoomEnemySystem.HZoomerDefinition
+                    : definition is RoomEnemySystem.HZoomerDefinition or
+                        RoomEnemySystem.ZeelaDefinition or
+                        RoomEnemySystem.SovaDefinition or
+                        RoomEnemySystem.ZoomerDefinition or
+                        RoomEnemySystem.StoneZoomerDefinition
                         ? EnemySpritemapDefinitions.HZoomerBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||

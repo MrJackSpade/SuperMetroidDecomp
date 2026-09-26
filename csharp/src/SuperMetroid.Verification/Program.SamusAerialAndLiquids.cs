@@ -116,8 +116,9 @@ static void VerifySamusAerialMovement()
     AssertEqual(75, samus.YPosition, "landing radius expansion keeps feet fixed");
     AssertEqual(0, samus.Kinematics.YDirection, "landing clears vertical direction");
 
-    // Four ticks plus two ticks reach $F8 at byte index two; its operand returns to $01.
-    for (int tick = 0; tick < 6; tick++)
+    // The compiled retail $A4 stream is 05,02,F8,01. Five plus two ticks
+    // reach $F8 at byte index two; its operand returns to $01.
+    for (int tick = 0; tick < 7; tick++)
         samus.AnimateNoFx(bus);
     AssertEqual(0xf8, samus.LastAnimationDelayCommand!.Value, "landing reaches F8");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "landing F8 transition applies");

@@ -80,15 +80,31 @@ internal static partial class Program
                 RoomSkyTilemapFormat.TotalByteCount - 0x20,
                 RoomFxRomData.ScrollingSky.TilemapRowByteCount, out _),
             "sky catalog rejects a row extending past the installed pages");
+        foreach (RoomMainCallback callback in new[]
+                 {
+                     RoomMainCallback.ScrollingSkyLand,
+                     RoomMainCallback.ScrollingSkyOcean,
+                 })
         for (int cameraY = 0; cameraY <= 0x04f0; cameraY++)
         {
             var queued = new VramWriteQueue();
-            new ScrollingSkyState().ProcessFrame((ushort)cameraY, false, queued);
+            new ScrollingSkyState().ProcessFrame((ushort)cameraY, false, queued, callback);
             foreach (VramWriteEntry transfer in queued.Entries)
+            {
+                // Ocean's wrapped top-of-room pointer deliberately selects the
+                // low-half bank-$8A WRAM mirror, not an editable ROM sky page.
+                // That transfer must remain live bus data at NMI time.
+                if ((transfer.SourceAddress & 0xffff) < LoRomExpansionReadMap.WorkRamMirrorEnd)
+                {
+                    AssertTrue(callback == RoomMainCallback.ScrollingSkyOcean && cameraY < 16,
+                        $"only ocean's wrapped top row may stream live WRAM (${transfer.SourceAddress:X6})");
+                    continue;
+                }
                 AssertTrue(stock.TryResolve(transfer.SourceAddress, transfer.SizeInBytes,
                         out _),
-                    $"scrolling-sky camera Y=${cameraY:X4} transfer " +
+                    $"scrolling-sky {callback} camera Y=${cameraY:X4} transfer " +
                     $"${transfer.SourceAddress:X6}+${transfer.SizeInBytes:X} has installed artwork");
+            }
         }
         var guard = new SkyPageReadGuard(bus);
         LandingSiteEntryState entry = LandingSiteEntryState.LoadLandingCutscene(bus);
@@ -177,6 +193,29 @@ internal static partial class Program
             AssertTrue(nativeEdgeVram.Bytes.SequenceEqual(installedEdgeVram.Bytes),
                 $"camera Y=${cameraY:X4} preserves native sky-row overread and wrap parity");
         }
+        foreach (ushort cameraY in new ushort[] { 0x0000, 0x0100, 0x0300, 0x04f0 })
+        {
+            var nativeOceanRows = new VramWriteQueue();
+            var installedOceanRows = new VramWriteQueue();
+            new ScrollingSkyState().ProcessFrame(cameraY, false, nativeOceanRows,
+                RoomMainCallback.ScrollingSkyOcean);
+            new ScrollingSkyState().ProcessFrame(cameraY, false, installedOceanRows,
+                RoomMainCallback.ScrollingSkyOcean);
+            VramWriteEntry wrappedRow = nativeOceanRows.Entries[0];
+            if (cameraY == 0)
+                bus.WriteByte(0x7e0000 | (wrappedRow.SourceAddress & 0xffff), 0x5a);
+            var nativeOceanVram = new SnesVram();
+            var installedOceanVram = new SnesVram();
+            nativeOceanRows.DrainTo(nativeOceanVram, bus);
+            installedOceanRows.DrainTo(installedOceanVram, guard,
+                new SkyPageProvider(stock));
+            AssertTrue(nativeOceanVram.Bytes.SequenceEqual(installedOceanVram.Bytes),
+                $"ocean camera Y=${cameraY:X4} uses installed sky rows and live wrapped WRAM with exact native NMI output");
+            if (cameraY == 0)
+                AssertEqual((byte)0x5a,
+                    installedOceanVram.Bytes[(wrappedRow.EncodedVramDestination & 0x7fff) * 2],
+                    "ocean top row DMA reads live WRAM mirror instead of a compiled sky page");
+        }
 
         var editedQueue = new VramWriteQueue();
         new ScrollingSkyState().ProcessFrame(0x0300, false, editedQueue);
@@ -198,8 +237,8 @@ internal static partial class Program
         AssertTrue(editedRowVram.ReadWord(firstRow.EncodedVramDestination) !=
                 nativeRowVram.ReadWord(firstRow.EncodedVramDestination),
             "editing a sky page changes the visible queued row at its native destination");
-        Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; door and " +
-            "per-frame NMI transfers use installed art, and an edit reaches the queued row.");
+        Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
+            "per-frame NMI transfers use installed art and native wrapped WRAM, and an edit reaches the queued row.");
     }
 
     private sealed class SkyPageReadGuard(ISnesAddressSpace source,

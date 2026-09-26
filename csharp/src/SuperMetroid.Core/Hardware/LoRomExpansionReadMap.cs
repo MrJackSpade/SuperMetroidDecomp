@@ -7,6 +7,8 @@ internal static class LoRomExpansionReadMap
     public const int MirrorBankMask = 0x7f;
     /// <summary>First non-system bank after the $00-$3F expansion windows.</summary>
     public const int SystemBankLimit = 0x40;
+    /// <summary>Banks $00-$3F/$80-$BF mirror the first 8 KiB of bank-$7E WRAM through $1FFF.</summary>
+    public const int WorkRamMirrorEnd = 0x2000;
     /// <summary>Start of the unconnected $6000-$7FFF cartridge expansion window.</summary>
     public const int ExpansionStart = 0x6000;
     /// <summary>ROM drives the data bus beginning at $8000 in system banks.</summary>

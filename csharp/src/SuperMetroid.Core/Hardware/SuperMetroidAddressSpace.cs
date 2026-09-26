@@ -119,7 +119,7 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
             return _workRam[(bank - 0x7e) * 0x10000 + offset];
         }
 
-        if (IsSystemBank(bank) && offset < 0x2000)
+        if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
         {
             // Banks $00-$3F and $80-$BF mirror the first 8 KiB of bank-$7E WRAM. Most bank
             // $80 routines use this direct-page/absolute mirror for shared engine state.
@@ -169,7 +169,7 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
             return;
         }
 
-        if (IsSystemBank(bank) && offset < 0x2000)
+        if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
         {
             _workRam[offset] = value;
             return;

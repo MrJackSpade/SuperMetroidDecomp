@@ -1284,6 +1284,10 @@ static void VerifySamusAtmosphericEffects()
     };
     runner.RefreshCollisionRadii(bus);
     runner.InitializeAnimation(bus, initialFrame: 2);
+    // The native foot-contact gate checks the final tick of this frame. The
+    // compiled running stream initializes frame two at two ticks, so stage its
+    // final tick explicitly instead of relying on the old synthetic ROM delay.
+    runner.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 1);
     runner.HorizontalSpeed.SpeedBoostCounter = 0x0400;
     runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
     AssertEqual(7, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,

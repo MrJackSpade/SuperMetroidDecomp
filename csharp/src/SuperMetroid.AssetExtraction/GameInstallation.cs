@@ -21,6 +21,11 @@ public sealed record GameInstallation(string Root)
     public string GameplayBasePaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.GameplayBasePaletteDirectoryName);
     public GameplayBasePaletteCatalog LoadGameplayBasePalettes() =>
         GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
+    public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
+    /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
+    public string StandardObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.StandardObjectDirectoryName);
+    public RoomCharacterAtlas LoadStandardObjects() =>
+        StandardObjectArtworkFiles.Load(StandardObjectDirectory, StandardObjectOverrideDirectory);
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     public string RoomCharacterDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
@@ -252,6 +257,7 @@ public static class GameInstallationLayout
     public const string AudioDirectoryName = "audio";
     public const string MapDirectoryName = "maps";
     public const string GameplayBasePaletteDirectoryName = "gameplay-palettes";
+    public const string StandardObjectDirectoryName = "standard-objects";
     public const string ProjectileDirectoryName = "projectiles";
     public const string EnemyTileDirectoryName = "enemy-tiles";
     public const string RoomCharacterDirectoryName = "room-characters";
@@ -291,7 +297,7 @@ public static class GameInstallationLayout
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 70;
+    public const int FormatVersion = 71;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

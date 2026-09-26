@@ -79,6 +79,7 @@ public static class GameAssetInstaller
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
             GameplayBasePaletteFiles.ValidateStock(installation.GameplayBasePaletteDirectory);
+            StandardObjectArtworkFiles.ValidateStock(installation.StandardObjectDirectory);
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             EnemyTileArtworkFiles.ValidateStock(installation.EnemyTileDirectory);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
@@ -154,6 +155,13 @@ public static class GameAssetInstaller
             GameplayBasePaletteFiles.Extract(new SuperMetroidAddressSpace(rom),
                 gameplayPalettes, SupportedCartridge.Sha256);
             GameplayBasePaletteFiles.ValidateStock(gameplayPalettes);
+            progress?.Report("Extracting standard sprite artwork...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string standardObjects = Path.Combine(staging,
+                GameInstallationLayout.StandardObjectDirectoryName);
+            StandardObjectArtworkFiles.Extract(new SuperMetroidAddressSpace(rom),
+                standardObjects, SupportedCartridge.Sha256);
+            StandardObjectArtworkFiles.ValidateStock(standardObjects);
             progress?.Report("Extracting projectile compositions...");
             cancellationToken.ThrowIfCancellationRequested();
             ProjectilePresentationFiles.Extract(new SuperMetroidAddressSpace(rom),

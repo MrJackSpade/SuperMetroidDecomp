@@ -24,6 +24,7 @@ internal static partial class Program
         var installed = new SuperMetroidGame(guardedBus);
         installed.BindMapPresentation(installation.LoadMaps());
         installed.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
+        installed.BindStandardObjectArt(installation.LoadStandardObjects());
         installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
         installed.BindSamusBodyArt(installation.LoadSamusBodyArt());
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();

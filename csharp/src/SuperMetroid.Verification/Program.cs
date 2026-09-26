@@ -1732,6 +1732,11 @@ if (args is ["--gameplay-base-palettes", var gameplayPaletteRom])
     VerifyGameplayBasePalettes(gameplayPaletteRom);
     return 0;
 }
+if (args is ["--standard-object-artwork", var standardObjectRom])
+{
+    VerifyStandardObjectArtwork(standardObjectRom);
+    return 0;
+}
 if (args is ["--room-character-installation", var roomCharacterRom])
 {
     VerifyRoomArtworkInstallation(roomCharacterRom);

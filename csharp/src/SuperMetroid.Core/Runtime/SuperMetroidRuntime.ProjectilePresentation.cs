@@ -8,6 +8,13 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
+        if (StandardObjectArt is not null &&
+            sourceAddress == StandardObjectArtworkFormat.SourceAddress &&
+            byteCount == StandardObjectArtworkFormat.TransferByteCount)
+        {
+            data = StandardObjectArt.Transfer;
+            return true;
+        }
         if (SamusBodyArt?.DeathTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (Enemies.TileArtwork?.GunshipLiftoff?.TryResolve(
@@ -23,6 +30,9 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     // Host content is rebound after restoring a graph; saved state must not freeze
     // an old user override into the simulation. Only composition emission uses this.
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
+    /// <summary>Complete installed standard OBJ sheet used by the queued gameplay DMA.</summary>
+    [field: NonSerialized]
+    public RoomCharacterAtlas? StandardObjectArt { get; set; }
     [NonSerialized] private ProjectileFrameBindingCatalog? projectileFrameBindings;
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>

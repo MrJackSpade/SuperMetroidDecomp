@@ -234,6 +234,8 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindMapPresentation(mapPresentation);
         gameplayBasePalettes = installation?.LoadGameplayBasePalettes();
         game.BindGameplayBasePalettes(gameplayBasePalettes);
+        standardObjectArt = installation?.LoadStandardObjects();
+        game.BindStandardObjectArt(standardObjectArt);
         introCinematicArt = installation?.LoadIntroCinematicArt();
         game.BindIntroCinematicArt(introCinematicArt);
         samusBodyArt = installation?.LoadSamusBodyArt();
@@ -411,6 +413,7 @@ public sealed partial class PlayableGameControl : UserControl
         game = loaded.Game;
         game.BindMapPresentation(mapPresentation);
         game.BindGameplayBasePalettes(gameplayBasePalettes);
+        game.BindStandardObjectArt(standardObjectArt);
         game.BindIntroCinematicArt(introCinematicArt);
         game.BindSamusBodyArt(samusBodyArt);
         game.BindEndingMode7Art(endingMode7Art);

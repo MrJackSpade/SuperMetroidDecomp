@@ -774,7 +774,9 @@ public sealed partial class SuperMetroidRuntime
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
-        VramWrites.Enqueue(sizeInBytes: 0x2e00, sourceAddress: 0x9ad200, encodedVramDestination: 0x6000);
+        VramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
+            sourceAddress: StandardObjectArtworkFormat.SourceAddress,
+            encodedVramDestination: StandardObjectArtworkFormat.EncodedVramDestination);
         TrailArtwork?.Tiles?.QueueTo(VramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The

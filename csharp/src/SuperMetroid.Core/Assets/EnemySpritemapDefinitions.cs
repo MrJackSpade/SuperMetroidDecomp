@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 15;
+    internal const int Version = 16;
+    internal const int PreCeresBabyVersion = 15;
+    internal const int PreCeresBabyFrameCount = 259;
     internal const int PreCeresDoorVersion = 14;
     internal const int PreCeresDoorFrameCount = 244;
     internal const int PreDisplayBindingsVersion = 13;
@@ -317,6 +319,15 @@ internal static class EnemySpritemapDefinitions
         new(CeresDoorInstructionProgramDefinitions.Bank,
             CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
             "ceres_door_ridley_private_overlay"),
+        new(CeresBabyInstructionProgramDefinitions.Bank,
+            CeresBabyInstructionProgramDefinitions.HorizontalFrame,
+            "ceres_baby_horizontal"),
+        new(CeresBabyInstructionProgramDefinitions.Bank,
+            CeresBabyInstructionProgramDefinitions.RoundFrame,
+            "ceres_baby_round"),
+        new(CeresBabyInstructionProgramDefinitions.Bank,
+            CeresBabyInstructionProgramDefinitions.VerticalFrame,
+            "ceres_baby_vertical"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

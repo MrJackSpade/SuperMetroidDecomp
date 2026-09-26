@@ -73,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreCeresBabyVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreCeresBabyFrameCount,
             EnemySpritemapDefinitions.PreCeresDoorVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreCeresDoorFrameCount,
             EnemySpritemapDefinitions.PreDisplayBindingsVersion when stockForLegacyOverride is not null =>
@@ -125,11 +127,12 @@ public sealed class EnemySpritemapCatalog
             identities.Add(frame.Name, (frame.Bank << 16) | frame.Pointer);
         }
         var displayFrames = new Dictionary<int, int>();
-        // Version fourteen already had editable display bindings. Keep those
-        // user choices when the newly added Ceres frames are supplied by stock;
+        // Versions fourteen and fifteen already had editable display bindings. Keep
+        // those user choices when newly added Ceres frames are supplied by stock;
         // older versions had only art and inherit all stock bindings.
         bool hasAuthoredBindings = !legacyOverride ||
-            document.Version == EnemySpritemapDefinitions.PreCeresDoorVersion;
+            document.Version is EnemySpritemapDefinitions.PreCeresDoorVersion or
+                EnemySpritemapDefinitions.PreCeresBabyVersion;
         if (hasAuthoredBindings)
         {
             if (document.DisplayFrames is null ||

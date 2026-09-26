@@ -448,10 +448,10 @@ public sealed partial class RoomEnemySystem
             ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
             if (babySpritemap != 0)
             {
-                oam.AddEnemySpritemap(
-                    _bus!,
-                    bank: 0xa6,
-                    babySpritemap,
+                DrawEnemySpritemap(
+                    oam,
+                    bank: CeresBabyInstructionProgramDefinitions.Bank,
+                    pointer: babySpritemap,
                     unchecked((ushort)(state.BabyXPosition - cameraX)),
                     unchecked((ushort)(state.BabyYPosition - cameraY)),
                     paletteBits: 0,
@@ -509,9 +509,9 @@ public sealed partial class RoomEnemySystem
 
                 state.BabyInstruction = cursor;
                 state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
-                state.BabyCurrentSpritemap = ReadWord(
-                    _bus!,
-                    0xa60000 | unchecked((ushort)(cursor + 2)));
+                state.BabyCurrentSpritemap =
+                    CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
+                        unchecked((ushort)(cursor + 2)));
                 return state.BabyCurrentSpritemap;
             }
 

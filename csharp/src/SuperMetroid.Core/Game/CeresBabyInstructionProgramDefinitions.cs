@@ -10,18 +10,26 @@ internal readonly record struct CeresBabyInstructionMechanicsWord(
 /// </summary>
 /// <remarks>
 /// Callback identities, branch targets, and frame durations determine animation cadence
-/// and control flow. Palette and spritemap operands remain live cartridge presentation
-/// reads so replacement artwork does not become fixed engine data.
+/// and control flow. Fixed spritemap selectors are compiled; palette operands remain
+/// live until their color data is migrated to editable presentation assets.
 /// </remarks>
 internal static class CeresBabyInstructionProgramDefinitions
 {
+    /// <summary>Bank $A6 owns the Ceres Baby's private draw program and OAM frames.</summary>
+    internal const byte Bank = 0xa6;
+    /// <summary>The horizontal-squish Baby OAM frame at $A6:BFFD.</summary>
+    internal const ushort HorizontalFrame = 0xbffd;
+    /// <summary>The round Baby OAM frame at $A6:C018.</summary>
+    internal const ushort RoundFrame = 0xc018;
+    /// <summary>The vertical-squish Baby OAM frame at $A6:C033.</summary>
+    internal const ushort VerticalFrame = 0xc033;
     /// <summary>
     /// <c>InstList_BabyMetroidCutscene_0</c> at $A6:BF31-$A6:BF58.
     /// The $BFF2 conditional at $BF31 and again at $BF45 targets
     /// <see cref="ExpressiveLoop"/> when Baby's vertical velocity is nonzero.
     /// Each conditional precedes four frames: the duration word at
     /// $BF35 + 4*i or $BF49 + 4*i is exactly $000A for i = 0..3.
-    /// Each duration is followed by a live spritemap pointer. If neither
+    /// Each duration is followed by a compiled spritemap selector. If neither
     /// conditional branches, the eight frames fall through to $BF59.
     /// </summary>
     internal const ushort Initial = 0xbf31;
@@ -32,7 +40,7 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// <see cref="Initial"/> on stationary odd RNG. For frame i = 0..11,
     /// $BF5D + 8*i is palette callback $BFE1 and the duration at
     /// $BF61 + 8*i is exactly 2 + abs(i - 4) ticks. Each is followed by a
-    /// live palette or spritemap operand. A final $BFE1 at $BFBD updates
+    /// palette or spritemap operand. A final $BFE1 at $BFBD updates
     /// the palette; $BFF2 at $BFC1 loops to $BF59 while moving, otherwise
     /// $BFF8 at $BFC5 returns to $BF31.
     /// </summary>
@@ -41,12 +49,12 @@ internal static class CeresBabyInstructionProgramDefinitions
     private static readonly CeresBabyInstructionMechanicsWord[] Words = CreateWords();
 
     /// <summary>
-    /// Live palette and spritemap operand addresses in the two draw programs.
+    /// Palette and spritemap operand addresses in the two draw programs.
     /// In <see cref="Initial"/>, each of the two four-frame groups has
     /// spritemap operands at $BF37 + 4*i or $BF4B + 4*i for i = 0..3.
     /// Both groups store the same {$BFFD, $C018, $C033, $C018} pose sequence;
-    /// the three distinct pointers advance by $001B. Presentation stays live
-    /// cartridge data rather than compiled mechanics.
+    /// the three distinct pointers advance by $001B. These selectors are
+    /// compiled while their editable OAM compositions remain separate assets.
     /// In <see cref="ExpressiveLoop"/>, palette operand i = 0..11 is at
     /// $BF5F + 8*i and points to $E20F + $001E*q, where q follows
     /// {0, 1, 2, 1} repeated three times. Each palette block contains
@@ -72,6 +80,51 @@ internal static class CeresBabyInstructionProgramDefinitions
         Words[index];
 
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal const int SpritemapOperandCount = 20;
+
+    /// <summary>Enumerates the eight initial and twelve expressive pose operands.</summary>
+    internal static ushort SpritemapOperandAddress(int index) => index switch
+    {
+        >= 0 and < 4 => unchecked((ushort)(0xbf37 + index * 4)),
+        >= 4 and < 8 => unchecked((ushort)(0xbf4b + (index - 4) * 4)),
+        >= 8 and < SpritemapOperandCount =>
+            unchecked((ushort)(0xbf63 + (index - 8) * 8)),
+        _ => throw new ArgumentOutOfRangeException(nameof(index), index,
+            "Ceres Baby has exactly twenty authored spritemap operands."),
+    };
+
+    /// <summary>Returns a fixed visual identity without reading bank-$A6 ROM.</summary>
+    internal static ushort ReadSpritemapOperand(ushort address)
+    {
+        for (int index = 0; index < SpritemapOperandCount; index++)
+        {
+            if (SpritemapOperandAddress(index) != address)
+                continue;
+            return (index & 3) switch
+            {
+                0 => HorizontalFrame,
+                1 or 3 => RoundFrame,
+                _ => VerticalFrame,
+            };
+        }
+        throw new InvalidDataException(
+            $"Ceres Baby spritemap operand $A6:{address:X4} is not compiled.");
+    }
+
+    internal static bool IsCompiledSpritemapByte(int address)
+    {
+        if ((address & 0xff0000) != 0xa60000)
+            return false;
+        ushort bankAddress = unchecked((ushort)address);
+        for (int index = 0; index < SpritemapOperandCount; index++)
+        {
+            ushort operand = SpritemapOperandAddress(index);
+            if (bankAddress == operand || bankAddress == unchecked((ushort)(operand + 1)))
+                return true;
+        }
+        return false;
+    }
 
     /// <summary>
     /// Reads one compiled control word and rejects presentation or adjacent code addresses.

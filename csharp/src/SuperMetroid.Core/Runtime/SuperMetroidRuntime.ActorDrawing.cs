@@ -276,7 +276,8 @@ public sealed partial class SuperMetroidRuntime
                     Camera.XPosition,
                     Camera.YPosition,
                     Samus.LiquidPhysics.FxYPosition,
-                    SamusBodyArt?.Spritemaps);
+                    SamusBodyArt?.Spritemaps,
+                    SamusBodyArt?.Atmosphere);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses

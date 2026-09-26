@@ -153,6 +153,29 @@ internal static partial class Program
                 nativeEffectOam.HighTable.SequenceEqual(installedEffectOam.HighTable),
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
         }
+        foreach (byte type in new byte[] { 1, 4, 6, 7 })
+        for (byte frame = 0; frame < SamusMovementRomData.Environment.DirectAtmosphericFrameCount; frame++)
+        {
+            var nativeEffects = new SamusAtmosphericEffectsState();
+            var installedEffects = new SamusAtmosphericEffectsState();
+            nativeEffects.SetSlot(0, type, frame, 2, 128, 128);
+            installedEffects.SetSlot(0, type, frame, 2, 128, 128);
+            var nativeEffectOam = new OamBuffer();
+            var installedEffectOam = new OamBuffer();
+            nativeEffectOam.BeginFrame();
+            installedEffectOam.BeginFrame();
+            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128);
+            installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, 0, 0, 128,
+                stock.Spritemaps, stock.Atmosphere);
+            AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
+                nativeEffectOam.LowTable.SequenceEqual(installedEffectOam.LowTable) &&
+                nativeEffectOam.HighTable.SequenceEqual(installedEffectOam.HighTable) &&
+                nativeEffects.Slots[0].FrameAndType == installedEffects.Slots[0].FrameAndType &&
+                nativeEffects.Slots[0].AnimationTimer == installedEffects.Slots[0].AnimationTimer,
+                $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
+        }
+        AssertTrue(!stock.Atmosphere.TryResolve(2, 0, out _),
+            "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState
         {
             Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128, YPosition = 128,
@@ -233,6 +256,13 @@ internal static partial class Program
         byte originalLandingYOffset = (byte)document["landingYOffsets"]![0]!.GetValue<int>();
         document["landingYOffsets"]![0] = originalLandingYOffset + 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
+        string atmosphereOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
+            SamusAtmosphericArtworkFiles.ArtworkFileName);
+        JsonNode atmosphereDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusAtmosphericArtworkFiles.ArtworkFileName)))!;
+        int originalAttribute = atmosphereDocument["typeOne"]![0]!.GetValue<int>();
+        atmosphereDocument["typeOne"]![0] = originalAttribute + 1;
+        File.WriteAllText(atmosphereOverride, atmosphereDocument.ToJsonString());
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
@@ -264,6 +294,21 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockSplashOam.LowTable[0] + 1)),
             editedSplashOam.LowTable[0],
             "edited water-entry spritemap reaches the production atmospheric owner");
+        var stockDirect = new SamusAtmosphericEffectsState();
+        var editedDirect = new SamusAtmosphericEffectsState();
+        stockDirect.SetSlot(0, 1, 0, 2, 128, 128);
+        editedDirect.SetSlot(0, 1, 0, 2, 128, 128);
+        var stockDirectOam = new OamBuffer();
+        var editedDirectOam = new OamBuffer();
+        stockDirectOam.BeginFrame();
+        editedDirectOam.BeginFrame();
+        stockDirect.UpdateAndDraw(guardedBus, stockDirectOam, 0, 0, 128,
+            stock.Spritemaps, stock.Atmosphere);
+        editedDirect.UpdateAndDraw(guardedBus, editedDirectOam, 0, 0, 128,
+            replacement.Spritemaps, replacement.Atmosphere);
+        AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
+            editedDirectOam.LowTable[2],
+            "edited atmospheric small-OBJ attribute reaches the production OAM byte");
         var stockDeathOam = new OamBuffer();
         var editedDeathOam = new OamBuffer();
         stockDeathOam.BeginFrame();

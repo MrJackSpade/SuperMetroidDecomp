@@ -84,6 +84,7 @@ public static class SamusBodyArtworkFiles
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
             spritemapPointers, spritemaps, landingYOffsets, postureYOffsets,
             drainedYOffsets, hashes);
+        SamusAtmosphericArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         // Constructing the catalog catches missing/invalid references before publication.
         _ = BuildCatalog(directory, manifest, null);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -182,9 +183,11 @@ public static class SamusBodyArtworkFiles
             manifest, false);
         var spritemaps = new SamusSpritemapArtworkCatalog(manifest.SpritemapTopBases,
             manifest.SpritemapBottomBases, manifest.SpritemapPointers, manifest.Spritemaps);
+        SamusAtmosphericArtworkCatalog atmosphere = SamusAtmosphericArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
         return new SamusBodyArtworkCatalog(manifest.TopPointers, manifest.BottomPointers,
             manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom,
-            spritemaps, manifest.LandingYOffsets, manifest.PostureYOffsets,
+            spritemaps, atmosphere, manifest.LandingYOffsets, manifest.PostureYOffsets,
             manifest.DrainedYOffsets);
     }
 

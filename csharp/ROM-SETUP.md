@@ -113,6 +113,11 @@ pose's upper/lower indexed OAM frame. `landingYOffsets`, `postureYOffsets`, and
 their movement or collision. Keep the stock provenance hashes, definition
 counts, set pointers, source addresses, and `spritemapPointers`/record identities.
 Zero spritemap pointers are native mutable-memory references, not blank frames.
+`samus-atmosphere.json` in the same directory exposes the four-frame direct
+small-OBJ attribute lists for atmospheric type one and the list shared by types
+four, six, and seven. Copy it to `overrides/samus-body/` to edit those visual
+attributes. Type two has a zero cartridge pointer and remains a mutable-memory
+read rather than an extracted asset; effect timing and slot motion stay compiled.
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

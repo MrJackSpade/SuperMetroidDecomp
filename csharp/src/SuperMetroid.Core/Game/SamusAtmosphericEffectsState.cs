@@ -81,7 +81,8 @@ public sealed class SamusAtmosphericEffectsState
         ushort cameraX,
         ushort cameraY,
         ushort fxYPosition,
-        SamusSpritemapArtworkCatalog? artwork = null)
+        SamusSpritemapArtworkCatalog? artwork = null,
+        SamusAtmosphericArtworkCatalog? directArtwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -127,7 +128,7 @@ public sealed class SamusAtmosphericEffectsState
             {
                 case 1:
                 case 2:
-                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY);
+                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY, directArtwork);
                     break;
 
                 case 3:
@@ -144,7 +145,7 @@ public sealed class SamusAtmosphericEffectsState
                         ? unchecked((ushort)(slot.XPosition - 1))
                         : unchecked((ushort)(slot.XPosition + 1));
                     slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
-                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY);
+                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY, directArtwork);
                     break;
 
                 case 5:
@@ -154,7 +155,7 @@ public sealed class SamusAtmosphericEffectsState
                 case 6:
                 case 7:
                     slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
-                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY);
+                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY, directArtwork);
                     break;
 
                 default:
@@ -171,7 +172,8 @@ public sealed class SamusAtmosphericEffectsState
         SamusAtmosphericEffectSlot slot,
         byte type,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        SamusAtmosphericArtworkCatalog? directArtwork)
     {
         short screenX = unchecked((short)(slot.XPosition - cameraX - 4));
         short screenY = unchecked((short)(slot.YPosition - cameraY - 4));
@@ -180,13 +182,15 @@ public sealed class SamusAtmosphericEffectsState
 
         // `$90:8BFF` is a pointer table. Type two's retail pointer is literally zero; do
         // not silently alias it to type one if a debugger deliberately creates that slot.
-        ushort attributeList = ReadWord(
-            bus,
-            SamusMovementRomData.Environment.AtmosphericSpriteAttributeListPointers + type * 2);
-        ushort attributes = ReadWord(
-            bus,
-            SamusMovementRomData.Banks.Movement |
-                unchecked((ushort)(attributeList + slot.AnimationFrame * 2)));
+        ushort attributes;
+        if (directArtwork is null || !directArtwork.TryResolve(type, slot.AnimationFrame, out attributes))
+        {
+            ushort attributeList = ReadWord(bus,
+                SamusMovementRomData.Environment.AtmosphericSpriteAttributeListPointers + type * 2);
+            attributes = ReadWord(bus,
+                SamusMovementRomData.Banks.Movement |
+                    unchecked((ushort)(attributeList + slot.AnimationFrame * 2)));
+        }
         oam.AddRawSmallSprite(unchecked((ushort)screenX), unchecked((ushort)screenY), attributes);
     }
 

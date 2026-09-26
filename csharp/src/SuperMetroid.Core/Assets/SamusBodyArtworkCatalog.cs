@@ -36,11 +36,15 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
     public SamusSpritemapArtworkCatalog Spritemaps { get; }
 
+    /// <summary>Editable direct small-OBJ attributes for Samus's atmospheric effects.</summary>
+    public SamusAtmosphericArtworkCatalog Atmosphere { get; }
+
     public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
         ushort[] posePointers, sbyte[] graphicsYOffsets,
         SamusBodyFrameSelection[] frames,
         SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom,
-        SamusSpritemapArtworkCatalog spritemaps, ushort[] landingYOffsets,
+        SamusSpritemapArtworkCatalog spritemaps, SamusAtmosphericArtworkCatalog atmosphere,
+        ushort[] landingYOffsets,
         sbyte[] postureYOffsets, sbyte[] drainedYOffsets)
     {
         ArgumentNullException.ThrowIfNull(topPointers);
@@ -51,6 +55,7 @@ public sealed class SamusBodyArtworkCatalog
         ArgumentNullException.ThrowIfNull(top);
         ArgumentNullException.ThrowIfNull(bottom);
         ArgumentNullException.ThrowIfNull(spritemaps);
+        ArgumentNullException.ThrowIfNull(atmosphere);
         ArgumentNullException.ThrowIfNull(landingYOffsets);
         ArgumentNullException.ThrowIfNull(postureYOffsets);
         ArgumentNullException.ThrowIfNull(drainedYOffsets);
@@ -74,6 +79,7 @@ public sealed class SamusBodyArtworkCatalog
         this.drainedYOffsets = (sbyte[])drainedYOffsets.Clone();
         this.frames = (SamusBodyFrameSelection[])frames.Clone();
         Spritemaps = spritemaps;
+        Atmosphere = atmosphere;
         this.top = CloneAndValidate(topPointers, top);
         this.bottom = CloneAndValidate(bottomPointers, bottom);
         IndexDefinitions(true, this.top);

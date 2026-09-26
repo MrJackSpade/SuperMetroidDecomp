@@ -154,6 +154,15 @@ public static class SamusMovementRomData
     {
         /// <summary>Direct OAM attribute-list pointers indexed by atmospheric-effect type.</summary>
         public const int AtmosphericSpriteAttributeListPointers = 0x908bff;
+
+        /// <summary>Four words per authored direct small-OBJ effect list at $90:8C0F/$90:8C17.</summary>
+        public const int DirectAtmosphericFrameCount = 4;
+
+        /// <summary>Retail type-one direct small-OBJ attribute list at $90:8C0F.</summary>
+        public const ushort TypeOneAtmosphericAttributes = 0x8c0f;
+
+        /// <summary>Retail shared type-four/six/seven attribute list at $90:8C17.</summary>
+        public const ushort SharedAtmosphericAttributes = 0x8c17;
     }
 
     /// <summary>Bank-$94 slope response and alignment tables shared by movement/collision.</summary>

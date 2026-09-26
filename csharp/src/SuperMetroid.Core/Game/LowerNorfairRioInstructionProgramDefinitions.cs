@@ -7,7 +7,7 @@ internal readonly record struct LowerNorfairRioInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing, private callbacks, and loop control for Lower Norfair Rio parent and
-/// flame programs. Interleaved spritemap operands remain live cartridge presentation data.
+/// flame programs. Interleaved spritemap operands select extracted presentation frames.
 /// </summary>
 internal static class LowerNorfairRioInstructionProgramDefinitions
 {
@@ -37,6 +37,17 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
     internal static LowerNorfairRioInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal static bool IsPresentationWord(ushort address)
+    {
+        for (int index = 0; index < PresentationWords.Length; index++)
+        {
+            if (PresentationWords[index] == address)
+                return true;
+        }
+
+        return false;
+    }
 
     /// <summary>Returns fixed Lower Norfair Rio control or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

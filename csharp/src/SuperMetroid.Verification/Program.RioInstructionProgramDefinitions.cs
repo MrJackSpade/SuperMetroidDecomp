@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -93,9 +94,17 @@ internal static partial class Program
         AssertTrue(state.AnimationFinished,
             "swoop cooldown publishes animation completion");
 
-        AssertEqual(RioInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Rio spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Rio presentation selectors are compiled, not ROM reads");
+        for (int index = 0;
+             index < RioInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address = RioInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertEqual(ReadRioInstructionWord(rom, address),
+                EnemySpritemapDefinitions.RioFrameAt(address),
+                $"compiled Rio selector $A2:{address:X4} matches ROM");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Rio mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -117,7 +126,7 @@ internal static partial class Program
         Console.WriteLine(
             "Rio instruction mechanics: thirty-two compiled words, the real initializer, " +
             "idle fallthrough/return, both swoop phases, cooldown completion, and twenty-four " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
     private static void ExecuteRioProgram(

@@ -31,7 +31,8 @@ public sealed class EnemyTileArtworkCatalog
         ChozoAndTubeColorCatalog? chozoAndTubeColors = null,
         SporeSpawnColorCatalog? sporeSpawnColors = null,
         DachoraColorCatalog? dachoraColors = null,
-        ShitroidColorCatalog? shitroidColors = null)
+        ShitroidColorCatalog? shitroidColors = null,
+        BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -74,6 +75,7 @@ public sealed class EnemyTileArtworkCatalog
         SporeSpawnColors = sporeSpawnColors;
         DachoraColors = dachoraColors;
         ShitroidColors = shitroidColors;
+        BabyMetroidCutsceneColors = babyMetroidCutsceneColors;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -127,6 +129,9 @@ public sealed class EnemyTileArtworkCatalog
     /// <summary>Editable live-Shitroid normal-cycle and target sprite colors.</summary>
     public ShitroidColorCatalog? ShitroidColors { get; }
 
+    /// <summary>Editable initial and fade-to-black colors for the Mother Brain cutscene Baby.</summary>
+    public BabyMetroidCutsceneColorCatalog? BabyMetroidCutsceneColors { get; }
+
     /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
@@ -163,7 +168,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 32;
+    public const int Version = 33;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

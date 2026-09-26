@@ -197,6 +197,10 @@ public static class EnemyTileArtworkFiles
         byte[] shitroidColors = ShitroidColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, ShitroidColorFormat.FileName),
             shitroidColors);
+        byte[] babyMetroidCutsceneColors =
+            BabyMetroidCutsceneColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory,
+            BabyMetroidCutsceneColorFormat.FileName), babyMetroidCutsceneColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -221,7 +225,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(chozoAndTubeColors)),
             Convert.ToHexString(SHA256.HashData(sporeSpawnColors)),
             Convert.ToHexString(SHA256.HashData(dachoraColors)),
-            Convert.ToHexString(SHA256.HashData(shitroidColors)));
+            Convert.ToHexString(SHA256.HashData(shitroidColors)),
+            Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -271,7 +276,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.ChozoAndTubeColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.SporeSpawnColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.DachoraColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.ShitroidColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.ShitroidColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.BabyMetroidCutsceneColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -637,12 +643,28 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Shitroid colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        BabyMetroidCutsceneColorCatalog babyMetroidCutsceneColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(
+                BabyMetroidCutsceneColorFormat.FileName,
+                manifest.BabyMetroidCutsceneColorsSha256);
+            babyMetroidCutsceneColors = BabyMetroidCutsceneColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid cutscene Baby colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
             dmaSources, projectileSpritemaps, magdollitePaletteCycle,
             workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
-            chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors);
+            chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
+            babyMetroidCutsceneColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -832,7 +854,8 @@ public static class EnemyTileArtworkFiles
         string ChozoAndTubeColorsSha256,
         string SporeSpawnColorsSha256,
         string DachoraColorsSha256,
-        string ShitroidColorsSha256);
+        string ShitroidColorsSha256,
+        string BabyMetroidCutsceneColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

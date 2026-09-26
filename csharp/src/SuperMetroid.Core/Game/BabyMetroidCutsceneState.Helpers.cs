@@ -81,9 +81,9 @@ public sealed partial class BabyMetroidCutsceneState
         FadeToBlackPaletteIndex = nextIndex;
         paletteTransfer = new BabyMetroidPaletteTransferRequest(
             PaletteIndex: nextIndex,
-            SourceAddress: unchecked((uint)(0xade8f0 + nextIndex * 0x1c)),
-            DestinationColorIndex: 0x01e2,
-            ColorCount: 0x000e);
+            SourceAddress: unchecked((uint)BabyMetroidCutsceneColorRomData.FadeSource(nextIndex)),
+            DestinationColorIndex: BabyMetroidCutsceneColorRomData.DestinationByteIndex,
+            ColorCount: BabyMetroidCutsceneColorRomData.FadeColorCount);
         return false;
     }
 

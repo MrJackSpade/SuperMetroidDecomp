@@ -381,8 +381,11 @@ The live Shitroid encounter's eight four-color normal-cycle frames and three
 sixteen-color initialization targets (sidehopper, Shitroid, and dead sidehopper)
 are in `game/enemy-tiles/shitroid-colors.json`. They can be overridden in
 `overrides/enemy-tiles/`; native palette timing and target destinations remain
-compiled. The opening cutscene Baby Metroid's separate death fade is not part
-of this file.
+compiled. The Mother Brain cutscene Baby Metroid's initial fifteen colors and
+six fade-to-black frames are separate in
+`game/enemy-tiles/baby-metroid-cutscene-colors.json`, with the same override
+directory. The cutscene state machine still selects each fade frame and controls
+its timing; this JSON contains only the colors.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

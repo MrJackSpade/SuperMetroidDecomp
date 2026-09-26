@@ -11,9 +11,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int MotherBrainBabyMetroidInitialPalette = 0xa994d4;
-    private const int MotherBrainBabyMetroidPaletteByteDestination = 0x01e2;
-
     /// <summary>Ports <c>$A9:BE1B-$BE27</c> through the generic one-part allocator.</summary>
     private void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
@@ -77,11 +74,21 @@ public sealed partial class RoomEnemySystem
 
         // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
         // skipped at source `$94D2+2`, preserving the room's transparent backdrop entry.
-        _cgram!.LoadFromBus(
-            _bus!,
-            MotherBrainBabyMetroidInitialPalette,
-            colorCount: 15,
-            destinationIndex: MotherBrainBabyMetroidPaletteByteDestination / 2);
+        LoadBabyMetroidCutsceneInitialPalette();
+    }
+
+    private void LoadBabyMetroidCutsceneInitialPalette()
+    {
+        int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
+        if (TileArtwork?.BabyMetroidCutsceneColors is { } colors)
+        {
+            for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount;
+                 color++)
+                _cgram!.SetColor(destination + color, colors.InitialColor(color));
+            return;
+        }
+        _cgram!.LoadFromBus(_bus!, BabyMetroidCutsceneColorRomData.InitialSource,
+            BabyMetroidCutsceneColorRomData.InitialColorCount, destination);
     }
 
     /// <summary>Runs one physical Baby main-AI call at <c>$A9:C779</c>.</summary>
@@ -197,13 +204,7 @@ public sealed partial class RoomEnemySystem
         }
 
         if (step.BabyPaletteTransfer is { } palette)
-        {
-            _cgram!.LoadFromBus(
-                _bus!,
-                unchecked((int)palette.SourceAddress),
-                palette.ColorCount,
-                palette.DestinationColorIndex / 2);
-        }
+            LoadBabyMetroidCutsceneFadePalette(palette);
 
         if (step.AttackTileTransfer is { } attackTiles)
             ApplyMotherBrainRainbowTileTransfer(attackTiles);
@@ -222,6 +223,29 @@ public sealed partial class RoomEnemySystem
                 roomPalette.ColorsPerDestination,
                 roomPalette.SecondDestinationColorIndex / 2);
         }
+    }
+
+    private void LoadBabyMetroidCutsceneFadePalette(
+        BabyMetroidPaletteTransferRequest palette)
+    {
+        int expectedSource = BabyMetroidCutsceneColorRomData.FadeSource(
+            palette.PaletteIndex);
+        if (palette.SourceAddress != expectedSource ||
+            palette.DestinationColorIndex !=
+                BabyMetroidCutsceneColorRomData.DestinationByteIndex ||
+            palette.ColorCount != BabyMetroidCutsceneColorRomData.FadeColorCount)
+            throw new InvalidDataException(
+                $"Cutscene Baby fade {palette.PaletteIndex} has a non-native transfer layout.");
+
+        int destination = palette.DestinationColorIndex / 2;
+        if (TileArtwork?.BabyMetroidCutsceneColors is { } colors)
+        {
+            for (int color = 0; color < palette.ColorCount; color++)
+                _cgram!.SetColor(destination + color,
+                    colors.FadeColor(palette.PaletteIndex, color));
+            return;
+        }
+        _cgram!.LoadFromBus(_bus!, expectedSource, palette.ColorCount, destination);
     }
 
     /// <summary>Baby private opcodes `$CFB4/$CFCA` are same-bank direct gotos.</summary>

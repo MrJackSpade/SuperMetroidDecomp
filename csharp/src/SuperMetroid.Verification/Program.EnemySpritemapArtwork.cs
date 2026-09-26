@@ -247,8 +247,25 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreHZoomerFrameCount,
             "Choot adds four idle, jumping, and falling compositions");
         AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount + 20,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreSbugFrameCount,
             "HZoomer adds five frames in each of four surface orientations");
+        AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount + 24,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Sbug adds three distinct frames in each of eight facing directions");
+        for (int index = 0; index <
+             SbugInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort operand = SbugInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
+                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertEqual(native, EnemySpritemapDefinitions.SbugFrameAt(operand),
+                $"Sbug visual selector $A3:{operand:X4} matches native");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.SbugFrameAt(
+                SbugInstructionProgramDefinitions.UpLeft),
+            "Sbug rejects an adjacent mechanics operand as presentation");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -427,6 +444,8 @@ internal static partial class Program
                         ? RoomEnemySystem.ChootDefinition
                     : frame.Name.StartsWith("hzoomer_", StringComparison.Ordinal)
                         ? RoomEnemySystem.HZoomerDefinition
+                    : frame.Name.StartsWith("sbug_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.SbugDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -617,6 +636,11 @@ internal static partial class Program
         document.Frames["hzoomer_upside_right_0"][0] = hzoomerPart with
         {
             OffsetY = hzoomerPart.OffsetY + 1,
+        };
+        SpriteVisualPart sbugPart = document.Frames["sbug_right_0"][0];
+        document.Frames["sbug_right_0"][0] = sbugPart with
+        {
+            OffsetY = sbugPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -947,6 +971,21 @@ internal static partial class Program
             "authored HZoomer Y offset changes installed room OAM");
         AssertEqual(stockHZoomer.LowTable[0], editedHZoomer.LowTable[0],
             "HZoomer visual edit leaves physical X unchanged");
+        ushort sbugPointer = EnemySpritemapDefinitions.SbugFrameAt(
+            SbugInstructionProgramDefinitions.PresentationWordAddress(0));
+        foreach (ushort definition in new ushort[]
+                 { RoomEnemySystem.SbugDefinition, RoomEnemySystem.Sbug2Definition })
+        {
+            OamBuffer stockSbug = DrawEnemy(stock, new FrameReadGuard(rom),
+                sbugPointer, definition);
+            OamBuffer editedSbug = DrawEnemy(edited, new FrameReadGuard(rom),
+                sbugPointer, definition);
+            AssertEqual(unchecked((byte)(stockSbug.LowTable[1] + 1)),
+                editedSbug.LowTable[1],
+                $"authored Sbug Y offset changes installed enemy ${definition:X4}");
+            AssertEqual(stockSbug.LowTable[0], editedSbug.LowTable[0],
+                $"Sbug visual edit leaves enemy ${definition:X4} physical X unchanged");
+        }
         VerifyHZoomerInstructionProgramDefinitions(rom, edited);
         foreach (ushort definition in new ushort[]
                  {
@@ -970,8 +1009,35 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preSbugFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("sbug_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount,
+            preSbugFrames.Count, "pre-Sbug composition schema frame count");
+        var preSbugBindings = document.DisplayFrames!
+            .Where(pair => preSbugFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preSbugBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreSbugVersion,
+                Frames = preSbugFrames,
+                DisplayFrames = preSbugBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preSbugUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(preSbugUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.SbugBank, sbugPointer, out _),
+            "version-twenty-six override inherits stock Sbug artwork");
+        AssertTrue(DrawEnemy(preSbugUpgraded, new FrameReadGuard(rom),
+                0x88da, RoomEnemySystem.BoyonDefinition).LowTable
+            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom),
+                0x88e1, RoomEnemySystem.BoyonDefinition).LowTable),
+            "version-twenty-six override retains edited display binding");
         var preHZoomerFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("hzoomer_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("hzoomer_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("sbug_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount,
             preHZoomerFrames.Count, "pre-HZoomer composition schema frame count");
@@ -1678,6 +1744,9 @@ internal static partial class Program
                         RoomEnemySystem.ZoomerDefinition or
                         RoomEnemySystem.StoneZoomerDefinition
                         ? EnemySpritemapDefinitions.HZoomerBank
+                    : definition is RoomEnemySystem.SbugDefinition or
+                        RoomEnemySystem.Sbug2Definition
+                        ? EnemySpritemapDefinitions.SbugBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||

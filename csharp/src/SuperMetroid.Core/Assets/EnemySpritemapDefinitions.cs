@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 26;
+    internal const int Version = 27;
+    internal const int PreSbugVersion = 26;
+    internal const int PreSbugFrameCount = 407;
     internal const int PreHZoomerVersion = 25;
     internal const int PreHZoomerFrameCount = 387;
     internal const int PreChootVersion = 24;
@@ -68,6 +70,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte HopperBank = 0xa3;
     internal const byte ChootBank = 0xa2;
     internal const byte HZoomerBank = 0xa3;
+    internal const byte SbugBank = 0xa3;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -503,6 +506,30 @@ internal static class EnemySpritemapDefinitions
         new(HZoomerBank, 0xe314, "hzoomer_upside_up_2"),
         new(HZoomerBank, 0xe32a, "hzoomer_upside_up_3"),
         new(HZoomerBank, 0xe340, "hzoomer_upside_up_4"),
+        new(SbugBank, 0xa67d, "sbug_right_0"),
+        new(SbugBank, 0xa684, "sbug_right_1"),
+        new(SbugBank, 0xa68b, "sbug_right_2"),
+        new(SbugBank, 0xa692, "sbug_up_right_0"),
+        new(SbugBank, 0xa699, "sbug_up_right_1"),
+        new(SbugBank, 0xa6a0, "sbug_up_right_2"),
+        new(SbugBank, 0xa6a7, "sbug_up_0"),
+        new(SbugBank, 0xa6ae, "sbug_up_1"),
+        new(SbugBank, 0xa6b5, "sbug_up_2"),
+        new(SbugBank, 0xa6bc, "sbug_up_left_0"),
+        new(SbugBank, 0xa6c3, "sbug_up_left_1"),
+        new(SbugBank, 0xa6ca, "sbug_up_left_2"),
+        new(SbugBank, 0xa6d1, "sbug_left_0"),
+        new(SbugBank, 0xa6d8, "sbug_left_1"),
+        new(SbugBank, 0xa6df, "sbug_left_2"),
+        new(SbugBank, 0xa6e6, "sbug_down_left_0"),
+        new(SbugBank, 0xa6ed, "sbug_down_left_1"),
+        new(SbugBank, 0xa6f4, "sbug_down_left_2"),
+        new(SbugBank, 0xa6fb, "sbug_down_0"),
+        new(SbugBank, 0xa702, "sbug_down_1"),
+        new(SbugBank, 0xa709, "sbug_down_2"),
+        new(SbugBank, 0xa710, "sbug_down_right_0"),
+        new(SbugBank, 0xa717, "sbug_down_right_1"),
+        new(SbugBank, 0xa71e, "sbug_down_right_2"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -540,6 +567,8 @@ internal static class EnemySpritemapDefinitions
                 RoomEnemySystem.LargeDessgeegaDefinition => HopperFrameAt(operandAddress),
             RoomEnemySystem.ChootDefinition => ChootFrameAt(operandAddress),
             RoomEnemySystem.HZoomerDefinition => HZoomerFrameAt(operandAddress),
+            RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition =>
+                SbugFrameAt(operandAddress),
             RoomEnemySystem.ZeelaDefinition or
                 RoomEnemySystem.SovaDefinition or
                 RoomEnemySystem.ZoomerDefinition or
@@ -588,6 +617,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.LargeDessgeegaDefinition or
             RoomEnemySystem.ChootDefinition or
             RoomEnemySystem.HZoomerDefinition or
+            RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition or
             RoomEnemySystem.ZeelaDefinition or
             RoomEnemySystem.SovaDefinition or
             RoomEnemySystem.ZoomerDefinition or
@@ -753,6 +783,28 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"HZoomer visual operand $A3:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Sbug's 32 visual operands in eight four-frame direction loops select
+    /// 24 distinct OAM compositions; the compiled bank-$A3 instruction program
+    /// owns cadence and goto commands, not the editable sprite resource.
+    /// </summary>
+    internal static ushort SbugFrameAt(ushort operandAddress)
+    {
+        for (int index = 0; index <
+             SbugInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            if (SbugInstructionProgramDefinitions.PresentationWordAddress(index) !=
+                operandAddress)
+                continue;
+            if (CompiledEnemyVisualSelectors.TryGet(SbugBank, operandAddress,
+                    out ushort frame))
+                return frame;
+            break;
+        }
+        throw new InvalidDataException(
+            $"Sbug visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

@@ -34,6 +34,7 @@ internal static partial class Program
         installed.BindRoomPaletteArt(installation.LoadRoomPalettes());
         installed.BindRoomMetatileArt(installation.LoadRoomMetatiles());
         installed.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
+        installed.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
         installed.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         installed.BindBeamArtwork(projectiles.BeamTiles);
@@ -135,6 +136,7 @@ internal static partial class Program
                 VerifyFrontendRomFreeCeresInput(native, installed);
                 VerifyFrontendRomFreeCeresRidleyRoom(native, installed);
                 VerifyFrontendRomFreeLandingSite(native, installed);
+                VerifyFrontendRomFreeParlor(native, installed);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -280,6 +282,35 @@ internal static partial class Program
                 $"installed Landing Site pixels at frame {frame}");
         }
         Console.WriteLine("Frontend ROM-free Landing Site room: 90 native-parity frames with all cartridge reads guarded.");
+    }
+
+    /// <summary>
+    /// The default Parlor room state exercises an ordinary multi-screen interior
+    /// after the sky and Ceres fixtures. Direct entry avoids depending on an
+    /// incoming door transition while keeping all stepped frames in one room.
+    /// </summary>
+    private static void VerifyFrontendRomFreeParlor(
+        SuperMetroidGame native, SuperMetroidGame installed)
+    {
+        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.ParlorAndAlcatraz);
+        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.ParlorAndAlcatraz);
+        for (int frame = 0; frame < 90; frame++)
+        {
+            FrontendFrame expected = native.Step(0);
+            FrontendFrame actual = installed.Step(0);
+            AssertEqual(RoomHeaderPointers.ParlorAndAlcatraz,
+                installed.GameplayActiveRoomPointer,
+                $"installed Parlor fixture remains in one room at frame {frame}");
+            AssertEqual(expected.GameState, actual.GameState,
+                $"installed Parlor game state at frame {frame}");
+            AssertEqual(expected.Phase, actual.Phase,
+                $"installed Parlor phase at frame {frame}");
+            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                $"installed Parlor pixels at frame {frame}");
+        }
+        Console.WriteLine("Frontend ROM-free Parlor room: 90 native-parity frames with all cartridge reads guarded.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

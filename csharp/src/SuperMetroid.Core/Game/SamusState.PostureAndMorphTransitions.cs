@@ -458,7 +458,7 @@ public sealed partial class SamusState
         // All ordinary ball poses point at `$91:B378`. Native writes $8000 to the new-frame
         // selector, causing `$91:FB5C` to return without changing frame OR timer. Assert the
         // table identity instead of depending on that retail-data fact silently.
-        int targetDelayList = ResolveAnimationDelayList(bus);
+        int targetDelayList = ResolveAnimationDelayList();
         if (previousDelayList != targetDelayList)
         {
             throw new InvalidDataException(

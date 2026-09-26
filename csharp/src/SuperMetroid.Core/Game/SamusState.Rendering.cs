@@ -97,7 +97,7 @@ public sealed partial class SamusState
         // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
         // Gravity Suit takes the ordinary speed-divisor path.
         AnimationFrameBuffer = LiquidPhysics.DeterminePoseChangeAnimationBuffer(this);
-        AnimationDelayListAddress = ResolveAnimationDelayList(bus);
+        AnimationDelayListAddress = ResolveAnimationDelayList();
         byte initialDelay = ReadAnimationByte(bus, AnimationFrame);
         if ((initialDelay & 0x80) != 0)
         {
@@ -132,7 +132,7 @@ public sealed partial class SamusState
         Pose = pose;
         if (refreshRadius)
             RefreshCollisionRadii(bus);
-        AnimationDelayListAddress = ResolveAnimationDelayList(bus);
+        AnimationDelayListAddress = ResolveAnimationDelayList();
         AnimationFrame = frame;
         AnimationFrameTimer = timer;
         LastAnimationDelayCommand = null;
@@ -448,7 +448,7 @@ public sealed partial class SamusState
 
     private void EnsureAnimationInitialized(ISnesAddressSpace bus)
     {
-        int expectedList = ResolveAnimationDelayList(bus);
+        int expectedList = ResolveAnimationDelayList();
         if (AnimationDelayListAddress != expectedList)
         {
             throw new InvalidOperationException(
@@ -456,16 +456,15 @@ public sealed partial class SamusState
         }
     }
 
-    private int ResolveAnimationDelayList(ISnesAddressSpace bus)
+    private int ResolveAnimationDelayList()
     {
-        ushort pointer = ReadWord(
-            bus,
-            AddWithinBank(SamusMovementRomData.Poses.AnimationDelayListPointers, Pose * 2));
+        ushort pointer = SamusAnimationDelayDefinitions.PointerForPose(Pose);
         return SamusMovementRomData.Banks.Pose | pointer;
     }
 
     private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
-        bus.ReadByte(AddWithinBank(AnimationDelayListAddress, byteIndex));
+        SamusAnimationDelayDefinitions.ReadAnimationByte(bus,
+            unchecked((ushort)AnimationDelayListAddress), byteIndex);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.

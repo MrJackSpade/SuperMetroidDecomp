@@ -152,6 +152,11 @@ internal static partial class Program
                     "Blue Brinstar elevator");
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.EastTunnel, "Maridia east tunnel");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.CrateriaSaveStation, "Crateria save station");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.LowerNorfairMainHall,
+                    "Lower Norfair main hall");
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }

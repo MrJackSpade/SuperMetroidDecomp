@@ -386,6 +386,10 @@ six fade-to-black frames are separate in
 `game/enemy-tiles/baby-metroid-cutscene-colors.json`, with the same override
 directory. The cutscene state machine still selects each fade frame and controls
 its timing; this JSON contains only the colors.
+Botwoon's eight health-band sprite palettes are in
+`game/enemy-tiles/botwoon-colors.json`, also overridable through
+`overrides/enemy-tiles/`. The initial enemy palette remains in the ordinary
+enemy color sheet; health thresholds and band progression stay compiled.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

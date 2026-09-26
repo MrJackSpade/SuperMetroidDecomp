@@ -2,12 +2,19 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Fixed health-band policy and cartridge presentation addresses for Botwoon's palette
-/// handler. Color words remain ROM-backed; only the phase/threshold decision is compiled.
+/// handler. The eight authored color images are independently extractable visual assets.
 /// </summary>
 internal static class BotwoonHealthPaletteDefinitions
 {
     /// <summary><c>BotwoonHealthBasedPalettes</c> at $B3:971B: eight 16-color records.</summary>
     public const int NativePaletteAddress = 0xb3971b;
+
+    /// <summary>Eight complete sixteen-color palette images at $B3:971B-$981A.</summary>
+    public const int PaletteCount = 8;
+    public const int ColorsPerPalette = 16;
+
+    /// <summary>Retail Botwoon writes sprite palette seven, CGRAM colors $F0-$FF.</summary>
+    public const int DestinationColor = 240;
 
     /// <summary><c>BotwoonHealthThresholdsForPaletteChange</c> at $B3:981B.</summary>
     public const int NativeThresholdAddress = 0xb3981b;

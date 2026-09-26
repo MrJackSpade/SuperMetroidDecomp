@@ -753,10 +753,25 @@ public sealed partial class RoomEnemySystem
             return;
 
         int source = BotwoonHealthPaletteDefinitions.NativePaletteAddress +
-            16 * state.PalettePhaseByteOffset;
+            BotwoonHealthPaletteDefinitions.ColorsPerPalette *
+            state.PalettePhaseByteOffset;
         int destinationColor = state.PaletteDestinationByteOffset >> 1;
         int colorCount = 256 - destinationColor;
-        _cgram!.LoadFromBus(_bus!, source, colorCount, destinationColor);
+        if (TileArtwork?.BotwoonColors is { } colors)
+        {
+            // The retail actor owns OBJ palette seven. A restored/non-retail offset
+            // would copy past this authored image into adjacent ROM data; do not
+            // silently substitute a different visual result for that state.
+            if (destinationColor != BotwoonHealthPaletteDefinitions.DestinationColor ||
+                colorCount != BotwoonHealthPaletteDefinitions.ColorsPerPalette)
+                throw new InvalidDataException(
+                    $"Botwoon palette destination {destinationColor} is outside the retail sprite palette.");
+            int band = state.PalettePhaseByteOffset / sizeof(ushort);
+            for (int color = 0; color < colorCount; color++)
+                _cgram!.SetColor(destinationColor + color,
+                    colors.HealthColor(band, color));
+        }
+        else _cgram!.LoadFromBus(_bus!, source, colorCount, destinationColor);
         state.PalettePhaseByteOffset = unchecked((ushort)(state.PalettePhaseByteOffset + 2));
     }
 

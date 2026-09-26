@@ -201,6 +201,9 @@ public static class EnemyTileArtworkFiles
             BabyMetroidCutsceneColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory,
             BabyMetroidCutsceneColorFormat.FileName), babyMetroidCutsceneColors);
+        byte[] botwoonColors = BotwoonColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, BotwoonColorFormat.FileName),
+            botwoonColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -226,7 +229,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(sporeSpawnColors)),
             Convert.ToHexString(SHA256.HashData(dachoraColors)),
             Convert.ToHexString(SHA256.HashData(shitroidColors)),
-            Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)));
+            Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)),
+            Convert.ToHexString(SHA256.HashData(botwoonColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -277,7 +281,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.SporeSpawnColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.DachoraColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.ShitroidColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.BabyMetroidCutsceneColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.BabyMetroidCutsceneColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.BotwoonColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -658,13 +663,27 @@ public static class EnemyTileArtworkFiles
                 $"Invalid cutscene Baby colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        BotwoonColorCatalog botwoonColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(BotwoonColorFormat.FileName,
+                manifest.BotwoonColorsSha256);
+            botwoonColors = BotwoonColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Botwoon colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
             dmaSources, projectileSpritemaps, magdollitePaletteCycle,
             workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
             chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
-            babyMetroidCutsceneColors);
+            babyMetroidCutsceneColors, botwoonColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -855,7 +874,8 @@ public static class EnemyTileArtworkFiles
         string SporeSpawnColorsSha256,
         string DachoraColorsSha256,
         string ShitroidColorsSha256,
-        string BabyMetroidCutsceneColorsSha256);
+        string BabyMetroidCutsceneColorsSha256,
+        string BotwoonColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

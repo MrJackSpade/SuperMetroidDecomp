@@ -1629,13 +1629,17 @@ per-frame storage.
 
 The Ceres Baby draw interpreter's private `$A6:BF31-$BFC7` program is split by ownership
 in `CeresBabyInstructionProgramDefinitions`. Forty-three fixed callback, branch-target,
-and duration words are compiled mechanics. Thirty-three interleaved palette and spritemap
-operands remain live presentation reads.
+and duration words are compiled mechanics. Its twenty spritemap selectors and thirteen
+palette selectors are now separately compiled; the OAM compositions and RGB5 rows are
+editable installed presentation assets.
 
-The production interpreter completes the entire two-list animation loop with all mechanics
-bytes forbidden and every presentation operand observed. Focused cases also exercise the
+The production interpreter completes the entire two-list animation loop with source
+mechanics and presentation-selector reads forbidden. Focused cases also exercise the
 stationary 50% random branch and the moving branch. Invalid restored pointers cannot enter
-the adjacent native callback code, and warmed mechanics lookups allocate no storage.
+the adjacent native callback code, and warmed mechanics lookups allocate no storage. The
+global enemy sprite-selector inventory counts only the twenty OAM operands; all thirteen
+palette operands are explicitly excluded from its generated sprite-pointer catalog and
+verified through the separate palette owner.
 
 ## Rinka instruction mechanics
 

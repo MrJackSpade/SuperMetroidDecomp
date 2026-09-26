@@ -109,14 +109,54 @@ internal static partial class Program
             }
             families.Add((type.Name, familyOrdinary, familySpecial));
         }
+        // Ceres Baby deliberately split its old mixed presentation list into
+        // independently typed OAM and palette operands. Only the former belong
+        // in this sprite-pointer catalog; the thirteen palette addresses must
+        // never be interpreted as enemy spritemaps.
+        discovered++;
+        catalogs++;
+        for (int index = 0;
+             index < CeresBabyInstructionProgramDefinitions.SpritemapOperandCount;
+             index++)
+        {
+            ushort address = CeresBabyInstructionProgramDefinitions
+                .SpritemapOperandAddress(index);
+            int source = (CeresBabyInstructionProgramDefinitions.Bank << 16) | address;
+            ushort pointer = CeresBabyInstructionProgramDefinitions
+                .ReadSpritemapOperand(address);
+            AssertEqual(ReadWord(rom, source), pointer,
+                $"Ceres Baby sprite selector ${source:X6} matches its typed owner");
+            int frameAddress =
+                (CeresBabyInstructionProgramDefinitions.Bank << 16) | pointer;
+            ushort partCount = ReadWord(rom, frameAddress);
+            AssertTrue(partCount is > 0 and <= 128 &&
+                    pointer + 2 + partCount * 5 <= 0x10000,
+                $"Ceres Baby selector ${source:X6} targets an ordinary OAM frame");
+            if (!keyed.TryAdd(source, pointer))
+                throw new InvalidDataException(
+                    $"Ceres Baby sprite selector ${source:X6} overlaps another owner.");
+            operands++;
+            ordinary++;
+        }
+        families.Add((nameof(CeresBabyInstructionProgramDefinitions),
+            CeresBabyInstructionProgramDefinitions.SpritemapOperandCount, 0));
         Console.WriteLine(
             $"Discovered={discovered}, catalogs={catalogs}, " +
             $"mapped families={families.Count}, " +
             $"operands={operands}, unique addresses={keyed.Count}, " +
             $"plausible OAM={ordinary}, nonstandard={special}.");
+        if (keyed.Count != CompiledEnemyVisualSelectors.Count)
+        {
+            for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
+            {
+                CompiledEnemyVisualSelector entry = CompiledEnemyVisualSelectors.At(index);
+                if (!keyed.ContainsKey(entry.Address))
+                    Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
+            }
+        }
         AssertEqual(138, discovered, "instruction catalogs with visual operands");
-        AssertEqual(4162, operands, "counted native visual-operand occurrences");
-        AssertEqual(4161, keyed.Count, "distinct native visual-operand addresses");
+        AssertEqual(4149, operands, "counted native sprite-selector occurrences");
+        AssertEqual(4148, keyed.Count, "distinct native sprite-selector addresses");
         if (generateCatalog)
             GenerateCompiledEnemyVisualSelectorCatalog(keyed);
         else
@@ -152,7 +192,7 @@ internal static partial class Program
     {
         var rom = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(4161, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(4148, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
         int previousAddress = -1;
         for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
@@ -175,8 +215,18 @@ internal static partial class Program
         }
         AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x80, 0x8000, out _),
             "uncatalogued visual selector is not invented");
+        for (int index = 0;
+             index < CeresBabyInstructionProgramDefinitions.PaletteOperandCount;
+             index++)
+        {
+            ushort address = CeresBabyInstructionProgramDefinitions
+                .PaletteOperandAddress(index);
+            AssertTrue(!CompiledEnemyVisualSelectors.TryGet(
+                    CeresBabyInstructionProgramDefinitions.Bank, address, out _),
+                $"Ceres Baby palette operand $A6:{address:X4} is not a sprite selector");
+        }
         Console.WriteLine(
-            "Compiled enemy visuals: 4,161 distinct fixed selectors match the cartridge; " +
+            "Compiled enemy visuals: 4,148 distinct sprite selectors match the cartridge; " +
             "sorted lookup and unknown-key rejection pass.");
     }
 

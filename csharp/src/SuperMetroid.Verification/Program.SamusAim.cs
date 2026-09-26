@@ -736,7 +736,10 @@ static void VerifySamusGunExtendedMovement()
     AssertEqual(21, falling.Kinematics.YRadius, "firing landing expands to standing radius");
     AssertEqual(0u, falling.Kinematics.VerticalSpeedFixed, "firing landing clears Y speed");
     AssertEqual(0u, falling.HorizontalSpeed.BaseFixed, "firing landing clears X speed");
-    falling.AnimateNoFx(bus);
+    // $E6 shares the native 05,02,F8,01 landing program: its F8 command
+    // follows seven animation ticks, independent of held-Shot selection.
+    for (int tick = 0; tick < 7; tick++)
+        falling.AnimateNoFx(bus);
     AssertEqual(0xf8, falling.LastAnimationDelayCommand!.Value, "$E6 reaches F8 command");
     AssertTrue(falling.ApplyPendingVerifiedAnimationTransition(bus), "$E6 F8 transition applies");
     AssertEqual(0x01, falling.Pose, "$E6 returns to standing right");

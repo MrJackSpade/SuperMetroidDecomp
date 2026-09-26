@@ -39,11 +39,15 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Editable direct small-OBJ attributes for Samus's atmospheric effects.</summary>
     public SamusAtmosphericArtworkCatalog Atmosphere { get; }
 
+    /// <summary>Editable fatal-damage suit, suitless, and whiteout colors.</summary>
+    public SamusDeathPaletteArtworkCatalog DeathPalettes { get; }
+
     public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
         ushort[] posePointers, sbyte[] graphicsYOffsets,
         SamusBodyFrameSelection[] frames,
         SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom,
         SamusSpritemapArtworkCatalog spritemaps, SamusAtmosphericArtworkCatalog atmosphere,
+        SamusDeathPaletteArtworkCatalog deathPalettes,
         ushort[] landingYOffsets,
         sbyte[] postureYOffsets, sbyte[] drainedYOffsets)
     {
@@ -56,6 +60,7 @@ public sealed class SamusBodyArtworkCatalog
         ArgumentNullException.ThrowIfNull(bottom);
         ArgumentNullException.ThrowIfNull(spritemaps);
         ArgumentNullException.ThrowIfNull(atmosphere);
+        ArgumentNullException.ThrowIfNull(deathPalettes);
         ArgumentNullException.ThrowIfNull(landingYOffsets);
         ArgumentNullException.ThrowIfNull(postureYOffsets);
         ArgumentNullException.ThrowIfNull(drainedYOffsets);
@@ -80,6 +85,7 @@ public sealed class SamusBodyArtworkCatalog
         this.frames = (SamusBodyFrameSelection[])frames.Clone();
         Spritemaps = spritemaps;
         Atmosphere = atmosphere;
+        DeathPalettes = deathPalettes;
         this.top = CloneAndValidate(topPointers, top);
         this.bottom = CloneAndValidate(bottomPointers, bottom);
         IndexDefinitions(true, this.top);

@@ -139,7 +139,8 @@ public sealed class SamusDeathSequenceState
         ISnesAddressSpace bus,
         SamusState samus,
         SnesCgram cgram,
-        VramWriteQueue vramWrites)
+        VramWriteQueue vramWrites,
+        SamusDeathPaletteArtworkCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -178,7 +179,7 @@ public sealed class SamusDeathSequenceState
                     // `$9B:B498` loads palette pair zero, queues the fifth/final graphics
                     // segment, resets the reused counters, and immediately draws explosion
                     // spritemap zero in this very same game-state-17 call.
-                    WritePalettePair(bus, samus, cgram, paletteIndex: 0);
+                    WritePalettePair(bus, samus, cgram, paletteIndex: 0, artwork);
                     paletteChanged = true;
                     QueueSegment(vramWrites, segmentIndex: 4);
                     AnimationTimer =
@@ -192,7 +193,8 @@ public sealed class SamusDeathSequenceState
                         cgram,
                         applyWhiteoutFirst: false,
                         ref paletteChanged,
-                        ref whiteoutChanged);
+                        ref whiteoutChanged,
+                        artwork);
                 }
                 else
                 {
@@ -209,7 +211,7 @@ public sealed class SamusDeathSequenceState
                             AnimationIndex = 0;
                             AnimationTimer = 3;
                         }
-                        WritePalettePair(bus, samus, cgram, AnimationIndex);
+                        WritePalettePair(bus, samus, cgram, AnimationIndex, artwork);
                         paletteChanged = true;
                     }
                     drawPose = true;
@@ -223,7 +225,8 @@ public sealed class SamusDeathSequenceState
                     cgram,
                     applyWhiteoutFirst: true,
                     ref paletteChanged,
-                    ref whiteoutChanged);
+                    ref whiteoutChanged,
+                    artwork);
                 break;
 
             case SamusDeathSequencePhase.Complete:
@@ -268,10 +271,11 @@ public sealed class SamusDeathSequenceState
         SnesCgram cgram,
         bool applyWhiteoutFirst,
         ref bool paletteChanged,
-        ref bool whiteoutChanged)
+        ref bool whiteoutChanged,
+        SamusDeathPaletteArtworkCatalog? artwork)
     {
         if (applyWhiteoutFirst)
-            whiteoutChanged = ApplyWhiteout(bus, cgram);
+            whiteoutChanged = ApplyWhiteout(bus, cgram, artwork);
 
         AnimationTimer = unchecked((ushort)(AnimationTimer - 1));
         if (AnimationTimer != 0 && (AnimationTimer & 0x8000) == 0)
@@ -283,28 +287,29 @@ public sealed class SamusDeathSequenceState
             // The terminal call writes shade 21 (`$7FFF`) across every non-Samus/non-
             // suitless palette and returns one without drawing a tenth explosion frame.
             AnimationCounter = 0x0015;
-            whiteoutChanged = ApplyWhiteout(bus, cgram);
+            whiteoutChanged = ApplyWhiteout(bus, cgram, artwork);
             Phase = SamusDeathSequencePhase.Complete;
             return false;
         }
 
         AnimationTimer =
             SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex);
-        ushort paletteIndex = ReadExplosionPaletteIndex(bus, AnimationIndex);
-        WritePalettePair(bus, samus, cgram, paletteIndex);
+        ushort paletteIndex = artwork?.ExplosionPaletteIndex(AnimationIndex) ??
+            ReadExplosionPaletteIndex(bus, AnimationIndex);
+        WritePalettePair(bus, samus, cgram, paletteIndex, artwork);
         paletteChanged = true;
         return true;
     }
 
-    private bool ApplyWhiteout(ISnesAddressSpace bus, SnesCgram cgram)
+    private bool ApplyWhiteout(ISnesAddressSpace bus, SnesCgram cgram,
+        SamusDeathPaletteArtworkCatalog? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
         // frame remains over the original room even though game state `$18` has begun.
         if (AnimationIndex == 0)
             return false;
 
-        ushort shade = ReadWord(
-            bus,
+        ushort shade = artwork?.WhiteoutColor(AnimationCounter) ?? ReadWord(bus,
             SamusPaletteRomData.Death.WhiteoutShades + AnimationCounter * sizeof(ushort));
         for (int color = 0; color < SamusPaletteRomData.Common.SamusObjPaletteStart; color++)
             cgram.SetColor(color, shade);
@@ -326,12 +331,24 @@ public sealed class SamusDeathSequenceState
         ISnesAddressSpace bus,
         SamusState samus,
         SnesCgram cgram,
-        ushort paletteIndex)
+        ushort paletteIndex,
+        SamusDeathPaletteArtworkCatalog? artwork)
     {
         // SuitPaletteIndex is 0/2/4. Multiplying it by ten skips each twenty-byte pointer
         // family (ten little-endian pointers) and exactly reproduces `$9B:B5D1-$B5E6`.
         ushort suitIndex = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? (ushort)4 :
             samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? (ushort)2 : (ushort)0;
+        if (artwork is not null)
+        {
+            for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
+            {
+                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color,
+                    artwork.SuitedColor(suitIndex / 2, paletteIndex, color));
+                cgram.SetColor(SamusPaletteRomData.Common.SuitlessObjPaletteStart + color,
+                    artwork.SuitlessColor(paletteIndex, color));
+            }
+            return;
+        }
         ushort suitPointer = ReadWord(
             bus,
             SamusPaletteRomData.Death.SuitPointers +

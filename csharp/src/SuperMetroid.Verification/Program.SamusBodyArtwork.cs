@@ -199,6 +199,87 @@ internal static partial class Program
             nativeDeathOam.LowTable.SequenceEqual(installedDeathOam.LowTable) &&
             nativeDeathOam.HighTable.SequenceEqual(installedDeathOam.HighTable),
             "death explosion uses installed Samus OAM art with native parity");
+        for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
+        for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
+        {
+            int pointerAt = SamusPaletteRomData.Death.SuitPointers +
+                (suit * SamusPaletteRomData.Death.PaletteCount + palette) * sizeof(ushort);
+            ushort suitPointer = (ushort)(bus.ReadByte(pointerAt) | bus.ReadByte(pointerAt + 1) << 8);
+            int suitlessAt = SamusPaletteRomData.Death.SuitlessPointers + palette * sizeof(ushort);
+            ushort suitlessPointer = (ushort)(bus.ReadByte(suitlessAt) |
+                bus.ReadByte(suitlessAt + 1) << 8);
+            for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
+            {
+                int suitedAt = SamusPaletteRomData.Banks.Palette | suitPointer + color * 2;
+                int suitlessColorAt = SamusPaletteRomData.Banks.Palette | suitlessPointer + color * 2;
+                AssertEqual((ushort)(bus.ReadByte(suitedAt) | bus.ReadByte(suitedAt + 1) << 8),
+                    stock.DeathPalettes.SuitedColor(suit, palette, color),
+                    $"death suit {suit} palette {palette} color {color}");
+                AssertEqual((ushort)(bus.ReadByte(suitlessColorAt) |
+                    bus.ReadByte(suitlessColorAt + 1) << 8),
+                    stock.DeathPalettes.SuitlessColor(palette, color),
+                    $"death suitless palette {palette} color {color}");
+            }
+        }
+        for (int shade = 0; shade < SamusPaletteRomData.Death.WhiteoutShadeCount; shade++)
+        {
+            int at = SamusPaletteRomData.Death.WhiteoutShades + shade * sizeof(ushort);
+            AssertEqual((ushort)(bus.ReadByte(at) | bus.ReadByte(at + 1) << 8),
+                stock.DeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
+        }
+        for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.RecordCount; frame++)
+            AssertEqual(bus.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices +
+                frame * 2 + 1), stock.DeathPalettes.ExplosionPaletteIndex(frame),
+                $"death explosion frame {frame} visual palette selector");
+        for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
+        {
+            ushort equipment = suit switch
+            {
+                1 => (ushort)SamusEquipmentFlags.VariaSuit,
+                2 => (ushort)SamusEquipmentFlags.GravitySuit,
+                _ => 0,
+            };
+            var nativeSamus = new SamusState
+            {
+                Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128,
+                YPosition = 128, EquippedItems = equipment,
+            };
+            var installedSamus = new SamusState
+            {
+                Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128,
+                YPosition = 128, EquippedItems = equipment,
+            };
+            nativeSamus.DeathSequence.Begin(bus, nativeSamus, 0, 0);
+            installedSamus.DeathSequence.Begin(bus, installedSamus, 0, 0);
+            var nativeColors = new SnesCgram();
+            var installedColors = new SnesCgram();
+            var nativeWrites = new VramWriteQueue();
+            var installedWrites = new VramWriteQueue();
+            // Preflash still animates Samus's death pose. Begin comparison when
+            // palette ownership passes to the independent bank-$9B sequence.
+            for (int frame = 0; frame < 16; frame++)
+            {
+                nativeSamus.DeathSequence.Step(bus, nativeSamus, nativeColors, nativeWrites);
+                installedSamus.DeathSequence.Step(bus, installedSamus, installedColors,
+                    installedWrites, stock.DeathPalettes);
+            }
+            for (int frame = 0; frame < 240; frame++)
+            {
+                SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
+                    bus, nativeSamus, nativeColors, nativeWrites);
+                SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
+                    guardedBus, installedSamus, installedColors, installedWrites,
+                    stock.DeathPalettes);
+                AssertTrue(nativeColors.Colors.SequenceEqual(installedColors.Colors) &&
+                    nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
+                    nativeStep.TimerAfterStep == installedStep.TimerAfterStep &&
+                    nativeStep.CounterAfterStep == installedStep.CounterAfterStep,
+                    $"death suit {suit} frame {frame} native/installed colors and timing");
+                if (nativeStep.Completed)
+                    break;
+                AssertTrue(frame < 239, $"death suit {suit} terminates within 240 frames");
+            }
+        }
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             var nativeTransfer = new SamusTileTransferState();
@@ -263,6 +344,13 @@ internal static partial class Program
         int originalAttribute = atmosphereDocument["typeOne"]![0]!.GetValue<int>();
         atmosphereDocument["typeOne"]![0] = originalAttribute + 1;
         File.WriteAllText(atmosphereOverride, atmosphereDocument.ToJsonString());
+        string deathOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
+            SamusDeathPaletteArtworkFiles.ArtworkFileName);
+        JsonNode deathDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusDeathPaletteArtworkFiles.ArtworkFileName)))!;
+        int originalDeathColor = deathDocument["suited"]![0]![0]![0]!.GetValue<int>();
+        deathDocument["suited"]![0]![0]![0] = originalDeathColor + 1;
+        File.WriteAllText(deathOverride, deathDocument.ToJsonString());
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
@@ -309,6 +397,22 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
             editedDirectOam.LowTable[2],
             "edited atmospheric small-OBJ attribute reaches the production OAM byte");
+        var editedDeathSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+        };
+        editedDeathSamus.DeathSequence.Begin(bus, editedDeathSamus, 0, 0);
+        var editedDeathColors = new SnesCgram();
+        var editedDeathWrites = new VramWriteQueue();
+        for (int frame = 0; frame < 16; frame++)
+            editedDeathSamus.DeathSequence.Step(bus, editedDeathSamus,
+                editedDeathColors, editedDeathWrites, replacement.DeathPalettes);
+        for (int frame = 0; frame < 60; frame++)
+            editedDeathSamus.DeathSequence.Step(guardedBus, editedDeathSamus,
+                editedDeathColors, editedDeathWrites, replacement.DeathPalettes);
+        AssertEqual((ushort)(originalDeathColor + 1),
+            editedDeathColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart],
+            "edited death suit color reaches the production CGRAM write");
         var stockDeathOam = new OamBuffer();
         var editedDeathOam = new OamBuffer();
         stockDeathOam.BeginFrame();

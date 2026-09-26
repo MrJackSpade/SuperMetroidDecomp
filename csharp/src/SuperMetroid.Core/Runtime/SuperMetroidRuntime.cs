@@ -1214,7 +1214,8 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             Samus,
             Cgram,
-            VramWrites);
+            VramWrites,
+            SamusBodyArt?.DeathPalettes);
         if (LastDeathSequenceStep.Value.DrawPose)
         {
             LastSamusBodyDrawn = Samus.Draw(
@@ -2845,7 +2846,8 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Samus,
                     Cgram,
-                    VramWrites);
+                    VramWrites,
+                    SamusBodyArt?.DeathPalettes);
             }
             else if (!stationaryScriptControlAtFrameStart && !suitOwnsSamus)
             {

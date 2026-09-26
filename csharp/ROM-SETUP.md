@@ -118,6 +118,12 @@ small-OBJ attribute lists for atmospheric type one and the list shared by types
 four, six, and seven. Copy it to `overrides/samus-body/` to edit those visual
 attributes. Type two has a zero cartridge pointer and remains a mutable-memory
 read rather than an extracted asset; effect timing and slot motion stay compiled.
+`samus-death-palettes.json` exposes the three suited and one suitless ten-palette
+death sequences, the 22 whiteout colors, and the nine visual palette selections.
+Copy it to `overrides/samus-body/` to change fatal-damage colors; the death phases,
+frame durations, and collision remain compiled. Colors are packed SNES RGB5 words
+from 0 through 32767. Stock JSON files have separately verified provenance hashes;
+an override does not conceal a damaged installation.
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

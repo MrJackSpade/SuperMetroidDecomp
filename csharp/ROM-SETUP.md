@@ -403,6 +403,12 @@ Zebetite's eight-frame, two-color Tourian pulse is in
 `game/enemy-tiles/zebetite-colors.json`; copy it to `overrides/enemy-tiles/`
 to edit the RGB5 colors. Its physical-slot-zero counter, eight-frame wrap,
 and palette destination remain engine behavior.
+Lower Norfair Ridley's initial OBJ colors and fifteen arena-reveal BG color
+rows are in `game/enemy-tiles/norfair-ridley-colors.json`. Copy that file to
+`overrides/enemy-tiles/` to change the RGB5 colors. The reveal's three-call
+cadence, zero-terminator handoff, and liquid-motion trigger remain engine
+behavior. Ridley's health-shade rows are shared with Ceres in
+`game/maps/ceres-ridley-colors.json`.
 
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the

@@ -210,6 +210,9 @@ public static class EnemyTileArtworkFiles
         byte[] zebetiteColors = ZebetiteColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, ZebetiteColorFormat.FileName),
             zebetiteColors);
+        byte[] norfairRidleyColors = NorfairRidleyColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, NorfairRidleyColorFormat.FileName),
+            norfairRidleyColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -238,7 +241,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)),
             Convert.ToHexString(SHA256.HashData(botwoonColors)),
             Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)),
-            Convert.ToHexString(SHA256.HashData(zebetiteColors)));
+            Convert.ToHexString(SHA256.HashData(zebetiteColors)),
+            Convert.ToHexString(SHA256.HashData(norfairRidleyColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -292,7 +296,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.BabyMetroidCutsceneColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.BotwoonColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainDeathColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.ZebetiteColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.ZebetiteColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.NorfairRidleyColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -716,6 +721,20 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Zebetite colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        NorfairRidleyColorCatalog norfairRidleyColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(NorfairRidleyColorFormat.FileName,
+                manifest.NorfairRidleyColorsSha256);
+            norfairRidleyColors = NorfairRidleyColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Norfair Ridley colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
@@ -723,7 +742,7 @@ public static class EnemyTileArtworkFiles
             workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
             chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
             babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
-            zebetiteColors);
+            zebetiteColors, norfairRidleyColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -917,7 +936,8 @@ public static class EnemyTileArtworkFiles
         string BabyMetroidCutsceneColorsSha256,
         string BotwoonColorsSha256,
         string MotherBrainDeathColorsSha256,
-        string ZebetiteColorsSha256);
+        string ZebetiteColorsSha256,
+        string NorfairRidleyColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

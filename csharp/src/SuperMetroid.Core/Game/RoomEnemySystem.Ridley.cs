@@ -89,15 +89,17 @@ public sealed partial class RoomEnemySystem
         // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
-        _cgram!.LoadFromBus(
-            _bus!,
-            EnemyRomTablePointers.Ridley.InitialPaletteWords,
-            colorCount: 32,
-            destinationIndex: 0x140 / 2);
+        if (TileArtwork?.NorfairRidleyColors is { } initialColors)
+            initialColors.ApplyInitial(_cgram!);
+        else
+            _cgram!.LoadFromBus(_bus!,
+                NorfairRidleyPaletteRomData.InitialColors,
+                NorfairRidleyPaletteRomData.InitialColorCount,
+                NorfairRidleyPaletteRomData.InitialCgramIndex);
         for (int color = 113; color <= 127; color++)
-            _cgram.SetColor(color, 0);
+            _cgram!.SetColor(color, 0);
         for (int color = 241; color <= 255; color++)
-            _cgram.SetColor(color, 0);
+            _cgram!.SetColor(color, 0);
     }
 
     /// <summary>
@@ -391,20 +393,29 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.FunctionTimer = 2;
-        ushort sourcePointer = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.RevealPaletteSourcePointers +
-            state.FadePaletteOffset * 2);
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
-        if (sourcePointer != 0)
+        ushort row = state.FadePaletteOffset;
+        bool hasPalette;
+        if (TileArtwork?.NorfairRidleyColors is { } colors)
         {
-            _cgram!.LoadFromBus(
-                _bus!,
-                0xa60000 | sourcePointer,
-                colorCount: 14,
-                destinationIndex: 0x00e2 / 2);
-            return;
+            if (row > NorfairRidleyPaletteRomData.RevealRowCount)
+                throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
+            hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
+            if (hasPalette)
+                colors.ApplyReveal(_cgram!, row);
         }
+        else
+        {
+            ushort sourcePointer = ReadWord(_bus!,
+                NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
+            hasPalette = sourcePointer != 0;
+            if (hasPalette)
+                _cgram!.LoadFromBus(_bus!, 0xa60000 | sourcePointer,
+                    NorfairRidleyPaletteRomData.RevealColorCount,
+                    NorfairRidleyPaletteRomData.RevealCgramIndex);
+        }
+        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
+        if (hasPalette)
+            return;
 
         PublishRidleyLiquidMotion(state, RidleyLiquidRomData.BattleHeight,
             RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);

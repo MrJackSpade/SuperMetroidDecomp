@@ -24,6 +24,7 @@ internal static partial class Program
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
             VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock);
             VerifyInstalledZebetiteColors(bus, directory, stock);
+            VerifyInstalledNorfairRidleyColors(bus, directory, stock);
             VerifyInstalledMagdollitePaletteCycle(bus, directory, stock);
             VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock);
             VerifyInstalledCrocomireColors(bus, directory, stock);

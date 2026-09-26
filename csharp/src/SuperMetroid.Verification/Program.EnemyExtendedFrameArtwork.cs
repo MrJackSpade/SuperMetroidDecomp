@@ -54,15 +54,20 @@ internal static partial class Program
                          (0x0000, 0x0000),
                      })
             {
-                OamBuffer native = DrawExtended(null, rom, frame.Pointer, x, y);
-                OamBuffer installed = DrawExtended(stock, guard,
-                    frame.Pointer, x, y);
+                OamBuffer native = DrawExtendedForBank(null, rom,
+                    frame.Bank, frame.Pointer, x, y);
+                OamBuffer installed = DrawExtendedForBank(stock, guard,
+                    frame.Bank, frame.Pointer, x, y);
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
                            native.HighTable.SequenceEqual(installed.HighTable) &&
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed extended {frame.Name} matches native OAM at {x:X4},{y:X4}");
             }
         }
+        AssertEqual(EnemyExtendedFrameDefinitions.RidleyFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Bank == 0xa6),
+            "all Ceres/Lower Norfair Ridley body frames are installed");
 
         string fileName = EnemyExtendedFrameDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
@@ -76,6 +81,29 @@ internal static partial class Program
         EnemyExtendedFrameDocument document =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        const string ridleyName = "ridley_body_E983";
+        EnemyExtendedVisualComponent ridleyFirst = document.Frames[ridleyName][0];
+        document.Frames[ridleyName][0] = ridleyFirst with
+        {
+            OffsetX = ridleyFirst.OffsetX + 1,
+        };
+        string ridleyOverrideDirectory = Path.Combine(stockDirectory,
+            "ridley-composition-overrides");
+        Directory.CreateDirectory(ridleyOverrideDirectory);
+        File.WriteAllBytes(Path.Combine(ridleyOverrideDirectory,
+            EnemyExtendedFrameDefinitions.FileName),
+            JsonSerializer.SerializeToUtf8Bytes(document, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog editedRidley = EnemyTileArtworkFiles.Load(
+            stockDirectory, ridleyOverrideDirectory);
+        OamBuffer stockRidley = DrawExtendedForBank(stock, guard,
+            0xa6, 0xe983, 0x0040, 0x0080);
+        OamBuffer movedRidley = DrawExtendedForBank(editedRidley, guard,
+            0xa6, 0xe983, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockRidley.LowTable[0] + 1)),
+            movedRidley.LowTable[0],
+            "editable Ridley body component moves live OAM by one pixel");
+        document.Frames[ridleyName][0] = ridleyFirst;
         const string editedName = "walking_pirate_walk_left_0";
         EnemyExtendedVisualComponent first = document.Frames[editedName][0];
         document.Frames[editedName][0] = first with
@@ -182,8 +210,9 @@ internal static partial class Program
         var versionTwoDocument = new EnemyExtendedFrameDocument
         {
             Version = EnemyExtendedFrameDefinitions.PreviousVersion,
-            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
-                "ninja_pirate_", StringComparison.Ordinal)).ToDictionary(
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("ninja_pirate_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -251,7 +280,9 @@ internal static partial class Program
         var preBindings = new EnemyExtendedFrameDocument
         {
             Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
-            Frames = document.Frames,
+            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
+                "ridley_body_", StringComparison.Ordinal)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             preBindings, new JsonSerializerOptions
@@ -261,6 +292,39 @@ internal static partial class Program
         AssertTrue(movedNinja.LowTable.SequenceEqual(DrawExtended(
                 upgradedBindings, guard, ninjaPointer, 0x0040, 0x0080).LowTable),
             "version-three extended override retains edited art and stock display bindings");
+
+        // The previous current schema had all Pirate art and editable display
+        // bindings but no Ridley body. Preserve both types of player edit when
+        // filling its new Ridley identities from verified stock.
+        var versionFour = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion,
+            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
+                "ridley_body_", StringComparison.Ordinal)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        const string sourceNameForLegacyBinding = "walking_pirate_walk_left_0";
+        const string targetNameForLegacyBinding = "walking_pirate_walk_left_1";
+        versionFour.DisplayFrames[sourceNameForLegacyBinding] = targetNameForLegacyBinding;
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionFour, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionFour = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        ushort legacySourcePointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Single(frame => frame.Name == sourceNameForLegacyBinding).Pointer;
+        ushort legacyTargetPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Single(frame => frame.Name == targetNameForLegacyBinding).Pointer;
+        AssertTrue(DrawExtended(upgradedVersionFour, guard, legacySourcePointer,
+                0x0040, 0x0080).LowTable.SequenceEqual(DrawExtended(stock, guard,
+                legacyTargetPointer, 0x0040, 0x0080).LowTable),
+            "version-four visual binding survives Ridley-frame migration");
+        AssertTrue(upgradedVersionFour.ExtendedFrames!.TryGet(0xa6, 0xe983, out _),
+            "version-four override inherits stock Ridley body art");
 
         EnemyExtendedFrameDocument remapped =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -355,14 +419,22 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Space Pirate extended art: 131 walking/wall/ninja frames match native OAM " +
+            "Extended enemy art: 131 Pirate and 11 Ridley frames match native OAM " +
             "at three origins with visual ROM reads forbidden; three-family edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1/v2/v3 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v4 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog? art,
         ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
+        Action<RoomEnemySlot>? inspect = null)
+    {
+        return DrawExtendedForBank(art, bus, EnemyExtendedFrameDefinitions.Bank,
+            pointer, x, y, inspect);
+    }
+
+    private static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
+        ISnesAddressSpace bus, byte bank, ushort pointer, ushort x, ushort y,
         Action<RoomEnemySlot>? inspect = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -372,10 +444,13 @@ internal static partial class Program
             .GetField("_drawQueues", flags)!.GetValue(enemies)!;
         queues[0].Add(0);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = PirateDefinitionForFrame(pointer);
+        // A non-Ridley definition lets the focused OAM comparison isolate the
+        // extended body from Ridley's separately drawn tail and wings.
+        slot.EnemyDefinitionPointer = bank == EnemyExtendedFrameDefinitions.Bank
+            ? PirateDefinitionForFrame(pointer) : (ushort)0;
         slot.Definition = default(RoomEnemyDefinition) with
         {
-            Bank = EnemyExtendedFrameDefinitions.Bank,
+            Bank = bank,
         };
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);

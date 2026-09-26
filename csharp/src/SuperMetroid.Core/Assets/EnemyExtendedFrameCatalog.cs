@@ -64,8 +64,8 @@ public sealed class EnemyExtendedFrameCatalog
 
     /// <summary>
     /// Validates named frames and compiles visual-only OAM pieces. A complete
-    /// current stock catalog lets version-one/two overrides retain their edits
-    /// while newly introduced frame families come from verified stock.
+    /// current stock catalog lets older overrides retain their edits while newly
+    /// introduced frame families come from verified stock.
     /// </summary>
     public static EnemyExtendedFrameCatalog Load(Stream json,
         EnemyExtendedFrameCatalog? stockForLegacyOverride = null)
@@ -91,7 +91,10 @@ public sealed class EnemyExtendedFrameCatalog
         {
             EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion
                 when stockForLegacyOverride is not null =>
-                EnemyExtendedFrameDefinitions.ExpectedFrameCount,
+                EnemyExtendedFrameDefinitions.PirateFrameCount,
+            EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PirateFrameCount,
             EnemyExtendedFrameDefinitions.FirstVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.WalkingFrameCount,
@@ -162,9 +165,9 @@ public sealed class EnemyExtendedFrameCatalog
                 if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
                     selectedName is null ||
                     !identities.TryGetValue(selectedName, out int selected) ||
-                    !SamePirateFamily(name, selectedName))
+                    !SameFrameFamily(name, selectedName))
                     throw new InvalidDataException(
-                        $"Extended enemy display binding {name} must select a frame of the same Pirate family.");
+                        $"Extended enemy display binding {name} must select a frame of the same enemy family.");
                 displayFrames.Add(identity, selected);
             }
         }
@@ -174,11 +177,30 @@ public sealed class EnemyExtendedFrameCatalog
             stockForLegacyOverride!.frames);
         foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        return new EnemyExtendedFrameCatalog(merged,
-            new Dictionary<int, int>(stockForLegacyOverride.displayFrames));
-
-        static bool SamePirateFamily(string left, string right)
+        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
+        if (document.Version == EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion)
         {
+            if (document.DisplayFrames is null ||
+                document.DisplayFrames.Count != identities.Count)
+                throw new InvalidDataException(
+                    "Version-four extended enemy display bindings require every Pirate frame.");
+            foreach ((string name, int identity) in identities)
+            {
+                if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
+                    selectedName is null ||
+                    !identities.TryGetValue(selectedName, out int selected) ||
+                    !SameFrameFamily(name, selectedName))
+                    throw new InvalidDataException(
+                        $"Version-four extended enemy display binding {name} is invalid.");
+                mergedBindings[identity] = selected;
+            }
+        }
+        return new EnemyExtendedFrameCatalog(merged, mergedBindings);
+
+        static bool SameFrameFamily(string left, string right)
+        {
+            if (left.StartsWith("ridley_body_", StringComparison.Ordinal))
+                return right.StartsWith("ridley_body_", StringComparison.Ordinal);
             int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);
             int rightEnd = right.IndexOf("_pirate_", StringComparison.Ordinal);
             return leftEnd > 0 && rightEnd > 0 && left.AsSpan(0, leftEnd)

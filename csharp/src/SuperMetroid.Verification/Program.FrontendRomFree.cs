@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
@@ -131,6 +132,7 @@ internal static partial class Program
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeCeresInput(native, installed);
+                VerifyFrontendRomFreeCeresRidleyRoom(native, installed);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -218,6 +220,35 @@ internal static partial class Program
         AssertTrue(firedDuringSustainedInput,
             "ROM-free Ceres input produces a beam shot during sustained movement");
         Console.WriteLine($"Frontend ROM-free Ceres input: {verifiedFrames} direction and firing frames through at most one room boundary match stock pixels without cartridge reads.");
+    }
+
+    /// <summary>
+    /// Start a separate guarded room fixture after the bounded Ceres input test.
+    /// Direct loading is valid here because this room has no incoming door setup
+    /// dependency; the fixture never drives input across a room boundary.
+    /// </summary>
+    private static void VerifyFrontendRomFreeCeresRidleyRoom(
+        SuperMetroidGame native, SuperMetroidGame installed)
+    {
+        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.CeresRidleyRoom);
+        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.CeresRidleyRoom);
+        for (int frame = 0; frame < 90; frame++)
+        {
+            FrontendFrame expected = native.Step(0);
+            FrontendFrame actual = installed.Step(0);
+            AssertEqual(RoomHeaderPointers.CeresRidleyRoom,
+                installed.GameplayActiveRoomPointer,
+                $"installed Ceres Ridley fixture remains in one room at frame {frame}");
+            AssertEqual(expected.GameState, actual.GameState,
+                $"installed Ceres Ridley game state at frame {frame}");
+            AssertEqual(expected.Phase, actual.Phase,
+                $"installed Ceres Ridley phase at frame {frame}");
+            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                $"installed Ceres Ridley pixels at frame {frame}");
+        }
+        Console.WriteLine("Frontend ROM-free Ceres Ridley room: 90 native-parity frames with all cartridge reads guarded.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

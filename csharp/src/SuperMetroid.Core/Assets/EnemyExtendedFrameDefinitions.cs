@@ -7,8 +7,8 @@ internal readonly record struct EnemyExtendedFrameDefinition(
     byte Bank, ushort Pointer, string Name);
 
 /// <summary>
-/// Named visual identities for ordinary walking, wall, and ninja Pirate composite
-/// frames. The selectors come from compiled instruction catalogs; component
+/// Named visual identities for Pirate and Ridley composite frames. The Pirate
+/// selectors come from compiled instruction catalogs; component
 /// hitbox pointers remain gameplay-owned and are absent from the asset.
 /// </summary>
 internal static class EnemyExtendedFrameDefinitions
@@ -16,15 +16,28 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int FirstVersion = 1;
     internal const int PreviousVersion = 2;
     internal const int PreDisplayBindingsVersion = 3;
-    internal const int Version = 4;
+    internal const int PirateDisplayBindingsVersion = 4;
+    internal const int Version = 5;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
     internal const int WalkingFrameCount = 37;
     internal const int WallFrameCount = 18;
     internal const int NinjaFrameCount = 76;
-    internal const int ExpectedFrameCount =
+    internal const int RidleyFrameCount = 11;
+    internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
+    internal const int ExpectedFrameCount =
+        PirateFrameCount + RidleyFrameCount;
+
+    // Distinct extended body frames selected by Ridley's bank-$A6 instruction
+    // programs at $A6:E53E-$E824. These physical identities cover the Ceres
+    // and Lower Norfair body poses; collision pointers stay in engine data.
+    private static readonly ushort[] RidleyBodyPointers =
+    [
+        0xe983, 0xe9a5, 0xe9c7, 0xe9e9, 0xea0b, 0xea2d,
+        0xea4f, 0xea71, 0xea93, 0xeab5, 0xead7,
+    ];
 
     private static readonly string[] WalkingNames =
     [
@@ -133,9 +146,14 @@ internal static class EnemyExtendedFrameDefinitions
                 $"ninja_pirate_{pointer:X4}"));
             ninjaCount++;
         }
-        if (ninjaCount != NinjaFrameCount || frames.Count != ExpectedFrameCount)
+        if (ninjaCount != NinjaFrameCount || frames.Count != PirateFrameCount)
             throw new InvalidDataException(
                 $"Ninja Pirate has {ninjaCount} distinct frames; expected {NinjaFrameCount}.");
+        if (RidleyBodyPointers.Length != RidleyFrameCount)
+            throw new InvalidDataException("Ridley extended-body frame count changed.");
+        foreach (ushort pointer in RidleyBodyPointers)
+            frames.Add(new EnemyExtendedFrameDefinition(0xa6, pointer,
+                $"ridley_body_{pointer:X4}"));
         return frames.ToArray();
     }
 }

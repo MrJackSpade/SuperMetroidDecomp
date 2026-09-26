@@ -34,13 +34,7 @@ public sealed partial class RoomEnemySystem
                 ? state.Body.Properties.With(EnemyProperties.Invisible)
                 : state.Body.Properties.Without(EnemyProperties.Invisible);
             if (step.PaletteRequested)
-            {
-                int source = DeathPaletteSource(MotherBrainDeathRomData.BodyFadeTable, sequence.GreyTransitionCounter - 1);
-                _cgram!.LoadFromBus(_bus!, source, MotherBrainDeathRomData.BodyColorCount, MotherBrainDeathRomData.BodyColors);
-                _cgram.LoadFromBus(_bus!, source, MotherBrainDeathRomData.BodyColorCount, MotherBrainDeathRomData.BrainColors);
-                _cgram.LoadFromBus(_bus!, source + MotherBrainDeathRomData.BodyColorCount * 2,
-                    MotherBrainDeathRomData.BodyColorCount, MotherBrainDeathRomData.LegColors);
-            }
+                LoadMotherBrainDeathBodyFade(sequence.GreyTransitionCounter - 1);
         }
         if (sequence.EnemyBg2TilemapClearRequested && !state.DeathBg2Cleared)
         {
@@ -64,8 +58,7 @@ public sealed partial class RoomEnemySystem
             state.Head.YPosition = sequence.BrainYPosition;
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey && step.PaletteRequested)
-            _cgram!.LoadFromBus(_bus!, DeathPaletteSource(MotherBrainDeathRomData.CorpseFadeTable,
-                sequence.GreyTransitionCounter - 1), MotherBrainDeathRomData.CorpseColorCount, MotherBrainDeathRomData.CorpseColors);
+            LoadMotherBrainDeathCorpseFade(sequence.GreyTransitionCounter - 1);
         foreach (var transfer in step.CorpseRottingVramTransfers) ApplyMotherBrainRainbowTileTransfer(transfer);
         foreach (var dust in step.CorpseDustRequests)
         {
@@ -88,8 +81,7 @@ public sealed partial class RoomEnemySystem
             state.Bg2XScroll = state.Bg2YScroll = 0;
         }
         if (step.ExplodedDoorPaletteRequested)
-            _cgram!.LoadFromBus(_bus!, MotherBrainDeathRomData.DoorPalette,
-                MotherBrainDeathRomData.BodyColorCount, MotherBrainDeathRomData.BrainColors);
+            LoadMotherBrainDeathDoorPalette();
         if (step.EscapeDoorExplosion is { } doorDust)
         {
             SpawnRoomGraphicsDustExplosion(doorDust.XPosition, doorDust.YPosition, doorDust.ProjectileParameter);
@@ -114,6 +106,59 @@ public sealed partial class RoomEnemySystem
             EarthquakeType = sequence.EarthquakeType;
             EarthquakeTimer = sequence.EarthquakeTimer;
         }
+    }
+
+    private void LoadMotherBrainDeathBodyFade(int frame)
+    {
+        if (TileArtwork?.MotherBrainDeathColors is { } colors)
+        {
+            for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
+            {
+                ushort shared = colors.BodyColor(frame, color);
+                _cgram!.SetColor(MotherBrainDeathRomData.BodyColors + color, shared);
+                _cgram.SetColor(MotherBrainDeathRomData.BrainColors + color, shared);
+                _cgram.SetColor(MotherBrainDeathRomData.LegColors + color,
+                    colors.LegColor(frame, color));
+            }
+            return;
+        }
+        int source = DeathPaletteSource(MotherBrainDeathRomData.BodyFadeTable, frame);
+        _cgram!.LoadFromBus(_bus!, source, MotherBrainDeathRomData.BodyColorCount,
+            MotherBrainDeathRomData.BodyColors);
+        _cgram.LoadFromBus(_bus!, source, MotherBrainDeathRomData.BodyColorCount,
+            MotherBrainDeathRomData.BrainColors);
+        _cgram.LoadFromBus(_bus!, source + MotherBrainDeathRomData.BodyColorCount *
+            sizeof(ushort), MotherBrainDeathRomData.BodyColorCount,
+            MotherBrainDeathRomData.LegColors);
+    }
+
+    private void LoadMotherBrainDeathCorpseFade(int frame)
+    {
+        if (TileArtwork?.MotherBrainDeathColors is { } colors)
+        {
+            for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
+                _cgram!.SetColor(MotherBrainDeathRomData.CorpseColors + color,
+                    colors.CorpseColor(frame, color));
+            return;
+        }
+        _cgram!.LoadFromBus(_bus!, DeathPaletteSource(
+                MotherBrainDeathRomData.CorpseFadeTable, frame),
+            MotherBrainDeathRomData.CorpseColorCount,
+            MotherBrainDeathRomData.CorpseColors);
+    }
+
+    private void LoadMotherBrainDeathDoorPalette()
+    {
+        if (TileArtwork?.MotherBrainDeathColors is { } colors)
+        {
+            for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
+                _cgram!.SetColor(MotherBrainDeathRomData.BrainColors + color,
+                    colors.ExplodedDoorColor(color));
+            return;
+        }
+        _cgram!.LoadFromBus(_bus!, MotherBrainDeathRomData.DoorPalette,
+            MotherBrainDeathRomData.BodyColorCount,
+            MotherBrainDeathRomData.BrainColors);
     }
 
     private int DeathPaletteSource(int table, int index)

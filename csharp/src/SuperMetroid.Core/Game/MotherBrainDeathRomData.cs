@@ -5,8 +5,14 @@ public static class MotherBrainDeathRomData
 {
     /// <summary>$AD:E9E8 pointer table, fourteen-color body fades followed by a null word.</summary>
     public const int BodyFadeTable = 0xade9e8;
+    /// <summary>$AD:EA0A, first of sixteen contiguous 28-color body/leg fade images.</summary>
+    public const int FirstBodyFadeSource = 0xadea0a;
+    public const int BodyFadeFrameCount = 16;
     /// <summary>$AD:F107 pointer table, fifteen-color decapitated-head fades followed by null.</summary>
     public const int CorpseFadeTable = 0xadf107;
+    /// <summary>$AD:F119, first of eight contiguous fifteen-color corpse-head images.</summary>
+    public const int FirstCorpseFadeSource = 0xadf119;
+    public const int CorpseFadeFrameCount = 8;
     /// <summary>Bank $AD contains both pointed-to death palette sequences.</summary>
     public const int PaletteBank = 0xad0000;
     /// <summary>$A9:AF77 copies the live brain colors beginning at CGRAM entry 145.</summary>
@@ -37,6 +43,16 @@ public static class MotherBrainDeathRomData
     public const byte EscapeMusicTrack = 7;
     /// <summary>$A9:9534 fourteen colors installed for the exploded escape door.</summary>
     public const int DoorPalette = 0xa99534;
+
+    public static int BodyFadeSource(int frame) =>
+        (uint)frame < BodyFadeFrameCount
+            ? FirstBodyFadeSource + frame * BodyColorCount * 2 * sizeof(ushort)
+            : throw new ArgumentOutOfRangeException(nameof(frame));
+
+    public static int CorpseFadeSource(int frame) =>
+        (uint)frame < CorpseFadeFrameCount
+            ? FirstCorpseFadeSource + frame * CorpseColorCount * sizeof(ushort)
+            : throw new ArgumentOutOfRangeException(nameof(frame));
     /// <summary>$86:CB21, eight fragments emitted when the escape door opens.</summary>
     public const ushort DoorFragmentDefinition = 0xcb21;
     /// <summary>$86:C9D2, fragment drag, gravity, and thirty-three-call lifetime.</summary>

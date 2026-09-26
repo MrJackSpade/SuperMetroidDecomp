@@ -390,6 +390,11 @@ Botwoon's eight health-band sprite palettes are in
 `game/enemy-tiles/botwoon-colors.json`, also overridable through
 `overrides/enemy-tiles/`. The initial enemy palette remains in the ordinary
 enemy color sheet; health thresholds and band progression stay compiled.
+Mother Brain's sixteen paired body/leg death-fade frames, eight corpse-head
+fade frames, and exploded-door palette are in
+`game/enemy-tiles/mother-brain-death-colors.json`. Override that file under
+`overrides/enemy-tiles/`; death-phase timing, counter selection, and collision
+remain compiled behavior.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

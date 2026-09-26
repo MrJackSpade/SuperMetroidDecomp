@@ -12,18 +12,21 @@ public sealed class CeresRidleyColorCatalog
     private readonly ushort[][] eyeFade;
     private readonly ushort[][] bodyFade;
     private readonly ushort[][] health;
+    private readonly ushort[][] alarm;
     private readonly ushort[] retreatBg;
     private readonly ushort[] retreatShared;
     private readonly ushort[][] baby;
 
     private CeresRidleyColorCatalog(ushort[] start, ushort[][] eyeFade,
-        ushort[][] bodyFade, ushort[][] health, ushort[] retreatBg, ushort[] retreatShared,
+        ushort[][] bodyFade, ushort[][] health, ushort[][] alarm,
+        ushort[] retreatBg, ushort[] retreatShared,
         ushort[][] baby)
     {
         this.start = start;
         this.eyeFade = eyeFade;
         this.bodyFade = bodyFade;
         this.health = health;
+        this.alarm = alarm;
         this.retreatBg = retreatBg;
         this.retreatShared = retreatShared;
         this.baby = baby;
@@ -40,6 +43,7 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveEyeFade(int row, int color) => Get(eyeFade, row, color);
     public ushort ResolveBodyFade(int row, int color) => Get(bodyFade, row, color);
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
+    public ushort ResolveAlarm(int row, int color) => Get(alarm, row, color);
     public ushort ResolveRetreatBg(int color) => Get(retreatBg, color);
     public ushort ResolveRetreatShared(int color) => Get(retreatShared, color);
     public ushort ResolveBaby(int row, int color) => Get(baby, row, color);
@@ -59,6 +63,9 @@ public sealed class CeresRidleyColorCatalog
 
     public void ApplyHealth(SnesCgram cgram, int row) =>
         Apply(cgram, Get(health, row), CeresRidleyPaletteRomData.HealthCgramIndex);
+
+    public void ApplyAlarm(SnesCgram cgram, int row) =>
+        Apply(cgram, Get(alarm, row), CeresRidleyPaletteRomData.AlarmCgramIndex);
 
     public void ApplyRetreat(SnesCgram cgram)
     {
@@ -87,7 +94,8 @@ public sealed class CeresRidleyColorCatalog
             throw new InvalidDataException("Invalid Ceres Ridley color JSON.", error);
         }
         if (document.Version != CeresRidleyColorFormat.Version &&
-            !(document.Version == CeresRidleyColorFormat.PreBabyVersion &&
+            !(document.Version is CeresRidleyColorFormat.PreBabyVersion or
+                CeresRidleyColorFormat.PreAlarmVersion &&
               stockForLegacyOverride is not null))
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         return new(Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"),
@@ -97,6 +105,10 @@ public sealed class CeresRidleyColorCatalog
                 CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade"),
             CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
                 CeresRidleyPaletteRomData.HealthColorCount, "health"),
+            document.Version < CeresRidleyColorFormat.Version
+                ? stockForLegacyOverride!.alarm
+                : CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
+                    CeresRidleyPaletteRomData.AlarmColorCount, "alarm"),
             Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"),
             Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
                 "retreat shared"),
@@ -186,6 +198,7 @@ public sealed record CeresRidleyColorDocument
     public required PaletteRgb5[][] EyeFade { get; init; }
     public required PaletteRgb5[][] BodyFade { get; init; }
     public required PaletteRgb5[][] Health { get; init; }
+    public PaletteRgb5[][]? Alarm { get; init; }
     public required PaletteRgb5[] RetreatBg { get; init; }
     public required PaletteRgb5[] RetreatShared { get; init; }
     public PaletteRgb5[][]? Baby { get; init; }
@@ -194,6 +207,7 @@ public sealed record CeresRidleyColorDocument
 public static class CeresRidleyColorFormat
 {
     public const string FileName = "ceres-ridley-colors.json";
-    public const int Version = 2;
+    public const int Version = 3;
     public const int PreBabyVersion = 1;
+    public const int PreAlarmVersion = 2;
 }

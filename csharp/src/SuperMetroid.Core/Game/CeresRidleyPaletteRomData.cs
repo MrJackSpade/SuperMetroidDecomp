@@ -40,6 +40,12 @@ public static class CeresRidleyPaletteRomData
     public const int HealthLateRow = 2;
     public const int HealthCgramIndex = 0x1e2 / 2;
 
+    /// <summary>Sixteen three-color Ceres self-destruct alarm frames at $A6:C1DF.</summary>
+    public const int AlarmColors = 0xa6c1df;
+    public const int AlarmRowCount = 16;
+    public const int AlarmColorCount = 3;
+    public const int AlarmCgramIndex = 97;
+
     /// <summary>Retreat BG colors one through fifteen at $A6:A9E3.</summary>
     public const int RetreatBgColors = 0xa6a9e3;
     public const int RetreatBgColorCount = 15;

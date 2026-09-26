@@ -435,11 +435,13 @@ version-sixteen copy to edit Ceres Baby frames or display bindings.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
 `game/maps/ceres-ridley-colors.json`; copy that file to
 `overrides/maps/ceres-ridley-colors.json` to edit colors. Its `baby` rows
-are separate from the Ridley start/fade/health/retreat colors. The draw
+are separate from the Ridley start/fade/health/alarm/retreat colors. The draw
 program still chooses rows using the cartridge's animation cadence; palette
 edits do not change movement, collisions, or timing. Existing version-one
-Ceres Ridley color overrides retain their edits and inherit the Baby rows
-from verified stock. Copy a current version-two file to edit those rows.
+Ceres Ridley color overrides retain their edits and inherit the Baby and
+alarm rows from verified stock. Version-two overrides retain their Baby edits
+and inherit the alarm rows. Copy a current version-three file to edit the
+sixteen `alarm` rows; their cadence and wrap remain engine behavior.
 The separate `enemy-projectile-compositions.json` contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
 translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon and

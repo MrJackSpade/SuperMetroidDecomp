@@ -260,7 +260,13 @@ public sealed partial class RoomEnemySystem
 
         state.CeresEscapePaletteFrame = unchecked((ushort)(
             (state.CeresEscapePaletteFrame + 1) & 0x000f));
-        int source = 0xa6c1df + state.CeresEscapePaletteFrame * 6;
-        _cgram!.LoadFromBus(_bus!, source, colorCount: 3, destinationIndex: 97);
+        if (CeresRidleyColors is { } colors)
+            colors.ApplyAlarm(_cgram!, state.CeresEscapePaletteFrame);
+        else
+            _cgram!.LoadFromBus(_bus!,
+                CeresRidleyPaletteRomData.AlarmColors +
+                state.CeresEscapePaletteFrame * CeresRidleyPaletteRomData.AlarmColorCount * sizeof(ushort),
+                CeresRidleyPaletteRomData.AlarmColorCount,
+                CeresRidleyPaletteRomData.AlarmCgramIndex);
     }
 }

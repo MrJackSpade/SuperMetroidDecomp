@@ -67,6 +67,19 @@ internal static partial class Program
                 $"scrolling-sky page {page} roundtrips every native BG word");
         }
         var stock = new RoomSkyTilemapCatalog(pages);
+        AssertThrows<InvalidDataException>(
+            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 2,
+                0x20, out _),
+            "sky catalog rejects a truncated row inside an installed page");
+        AssertThrows<InvalidDataException>(
+            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 1,
+                RoomFxRomData.ScrollingSky.TilemapRowByteCount, out _),
+            "sky catalog rejects a byte-unaligned row inside an installed page");
+        AssertThrows<InvalidDataException>(
+            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress +
+                RoomSkyTilemapFormat.TotalByteCount - 0x20,
+                RoomFxRomData.ScrollingSky.TilemapRowByteCount, out _),
+            "sky catalog rejects a row extending past the installed pages");
         for (int cameraY = 0; cameraY <= 0x04f0; cameraY++)
         {
             var queued = new VramWriteQueue();

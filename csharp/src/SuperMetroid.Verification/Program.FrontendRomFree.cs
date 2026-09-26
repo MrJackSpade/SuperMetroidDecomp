@@ -34,6 +34,7 @@ internal static partial class Program
         installed.BindRoomPaletteArt(installation.LoadRoomPalettes());
         installed.BindRoomMetatileArt(installation.LoadRoomMetatiles());
         installed.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
+        installed.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         installed.BindBeamArtwork(projectiles.BeamTiles);
         installed.BindProjectileCompositions(projectiles.Catalog);
@@ -133,6 +134,7 @@ internal static partial class Program
                 }
                 VerifyFrontendRomFreeCeresInput(native, installed);
                 VerifyFrontendRomFreeCeresRidleyRoom(native, installed);
+                VerifyFrontendRomFreeLandingSite(native, installed);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -249,6 +251,35 @@ internal static partial class Program
                 $"installed Ceres Ridley pixels at frame {frame}");
         }
         Console.WriteLine("Frontend ROM-free Ceres Ridley room: 90 native-parity frames with all cartridge reads guarded.");
+    }
+
+    /// <summary>
+    /// Independently enter the large, sky-scrolling landing room. This keeps
+    /// the controller test within one room while exercising a different area,
+    /// tileset, FX population, and the outdoor background presentation path.
+    /// </summary>
+    private static void VerifyFrontendRomFreeLandingSite(
+        SuperMetroidGame native, SuperMetroidGame installed)
+    {
+        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.LandingSite);
+        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+            RoomHeaderPointers.LandingSite);
+        for (int frame = 0; frame < 90; frame++)
+        {
+            FrontendFrame expected = native.Step(0);
+            FrontendFrame actual = installed.Step(0);
+            AssertEqual(RoomHeaderPointers.LandingSite,
+                installed.GameplayActiveRoomPointer,
+                $"installed Landing Site fixture remains in one room at frame {frame}");
+            AssertEqual(expected.GameState, actual.GameState,
+                $"installed Landing Site game state at frame {frame}");
+            AssertEqual(expected.Phase, actual.Phase,
+                $"installed Landing Site phase at frame {frame}");
+            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                $"installed Landing Site pixels at frame {frame}");
+        }
+        Console.WriteLine("Frontend ROM-free Landing Site room: 90 native-parity frames with all cartridge reads guarded.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

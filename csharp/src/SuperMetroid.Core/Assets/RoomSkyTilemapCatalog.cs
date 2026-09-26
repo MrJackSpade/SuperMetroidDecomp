@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -32,13 +33,17 @@ public sealed class RoomSkyTilemapCatalog : IRomArtworkSource
             data = default;
             return false;
         }
-        // Both native background upload owners transfer complete, aligned sky
-        // pages. Accepting an arbitrary short slice would let a damaged command
-        // appear valid merely because its source begins inside an installed page.
-        if (offset % RoomSkyTilemapFormat.PageByteCount != 0 ||
-            byteCount != RoomSkyTilemapFormat.PageByteCount)
+        // Room setup uploads whole pages; the bank-$88 scrolling-sky main
+        // routine subsequently streams four 64-byte rows per frame. Its native
+        // top-of-room pointer overread can start mid-page (e.g. $8A:B526), so
+        // demanding page alignment here incorrectly falls through to ROM DMA.
+        bool wholePage = offset % RoomSkyTilemapFormat.PageByteCount == 0 &&
+            byteCount == RoomSkyTilemapFormat.PageByteCount;
+        bool scrollingRow = (sourceAddress & 1) == 0 &&
+            byteCount == RoomFxRomData.ScrollingSky.TilemapRowByteCount;
+        if ((!wholePage && !scrollingRow) || offset + byteCount > pages.Length)
             throw new InvalidDataException(
-                $"Scrolling-sky transfer ${sourceAddress:X6}+${byteCount:X} is not one aligned page.");
+                $"Scrolling-sky transfer ${sourceAddress:X6}+${byteCount:X} is neither an aligned page nor a complete scrolling row.");
         data = pages.AsMemory(offset, byteCount);
         return true;
     }

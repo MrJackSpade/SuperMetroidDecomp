@@ -343,7 +343,15 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain rainbow palette in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         MotherBrainRoomColorPresentation motherBrainRoomColors;
-        try { motherBrainRoomColors = MotherBrainRoomColorPresentation.Load(new MemoryStream(Select(MotherBrainRoomColorFormat.FileName, stock.MotherBrainRoomColors))); }
+        try
+        {
+            var currentStock = MotherBrainRoomColorPresentation.Load(
+                new MemoryStream(stock.MotherBrainRoomColors));
+            AppendFramed(stock.MotherBrainRoomColors);
+            motherBrainRoomColors = MotherBrainRoomColorPresentation.Load(
+                new MemoryStream(Select(MotherBrainRoomColorFormat.FileName,
+                    stock.MotherBrainRoomColors)), currentStock);
+        }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain room colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles;
         try { roomFxAnimatedTiles = RoomFxAnimatedTileAtlas.Load(new MemoryStream(Select(RoomFxAnimatedTileAtlasFormat.FileName, stock.RoomFxAnimatedTiles))); }
@@ -593,7 +601,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 75;
+    public const int Version = 76;
     /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
     public const int SharedResourceCount = 61;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>

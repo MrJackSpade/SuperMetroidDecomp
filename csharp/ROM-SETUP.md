@@ -302,9 +302,12 @@ Mother Brain's separate fake-death room colors are installed as
 `game/maps/mother-brain-room-colors.json`. Its fourteen `flash` rows and
 `finalRoom` row each contain two twelve-color source slices; the second slice
 is displayed in two CGRAM destinations. `phaseTwoAttack` and
-`phaseTwoRearLeg` each contain fifteen nontransparent sprite colors. Copy this
-file to `overrides/maps/` to recolor those effects. The cartridge bytecode,
-flash cadence, phase handoff, and CGRAM copy destinations remain engine logic.
+`phaseTwoRearLeg` each contain fifteen nontransparent sprite colors.
+`initialGlassShard` and `initialTubeProjectile` contain the two fifteen-color
+room-entry sprite palettes. Version-one overrides keep their existing edits and
+inherit these new colors from current stock content. Copy this file to
+`overrides/maps/` to recolor those effects. The cartridge bytecode, flash
+cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
 ## Room-character PNG overrides
 

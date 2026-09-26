@@ -1487,8 +1487,11 @@ identity restore.
 `mother-brain-room-colors.json` separately exposes fourteen timed fake-death
 room flashes, the final grey room colors, and the two fifteen-color phase-two
 sprite palettes. The flash rows each carry two twelve-color source slices;
-the second slice intentionally feeds two CGRAM destinations. The bytecode
-durations and branch, terminal phase handoff, and CGRAM destination indices
+the second slice intentionally feeds two CGRAM destinations.
+`initialGlassShard` and `initialTubeProjectile` each carry fifteen room-entry
+sprite colors. Version-one overrides retain existing edits and receive these
+new fields from verified current stock. The bytecode durations and branch,
+terminal phase handoff, and CGRAM destination indices
 remain compiled. Cartridge-backed verification compares all production flash
 frames, final room copy, and phase-two setup against full native CGRAM, forbids
 installed-ROM color reads, and checks isolated edits, state parity, and malformed

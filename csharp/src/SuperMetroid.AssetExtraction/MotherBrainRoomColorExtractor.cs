@@ -33,6 +33,10 @@ internal static class MotherBrainRoomColorExtractor
                 MotherBrainRoomColorRomData.PhaseTwoColors),
             PhaseTwoRearLeg = ReadColors(MotherBrainRoomColorRomData.PhaseTwoRearLegSource,
                 MotherBrainRoomColorRomData.PhaseTwoColors),
+            InitialGlassShard = ReadColors(MotherBrainRoomColorRomData.InitialGlassShardSource,
+                MotherBrainRoomColorRomData.InitialColors),
+            InitialTubeProjectile = ReadColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource,
+                MotherBrainRoomColorRomData.InitialColors),
         });
         return json.ToArray();
 

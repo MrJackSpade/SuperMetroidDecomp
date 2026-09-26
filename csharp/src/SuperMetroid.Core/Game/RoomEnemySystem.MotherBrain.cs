@@ -18,8 +18,6 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainBlankBg2Tile = 0x0338;
     private const ushort MotherBrainBg2VramBase = 0x4800;
     private const int MotherBrainBg2WordCount = 0x0800;
-    private const int MotherBrainGlassShardPalette = 0xa99514;
-    private const int MotherBrainTubeProjectilePalette = 0xa994f4;
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
 
     private MotherBrainEnemyState? _motherBrain;
@@ -61,16 +59,7 @@ public sealed partial class RoomEnemySystem
         // Both source labels include transparent color zero. `$A9:86B3/$86C0` deliberately
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
         // ranges used by glass shards and tube projectiles.
-        _cgram!.LoadFromBus(
-            _bus!,
-            MotherBrainGlassShardPalette,
-            colorCount: 15,
-            destinationIndex: 0x0162 / 2);
-        _cgram.LoadFromBus(
-            _bus!,
-            MotherBrainTubeProjectilePalette,
-            colorCount: 15,
-            destinationIndex: 0x01e2 / 2);
+        LoadMotherBrainRoomEntryColors();
 
         _motherBrain = new MotherBrainEnemyState(body)
         {
@@ -84,6 +73,21 @@ public sealed partial class RoomEnemySystem
         };
         _motherBrain.RecordInitialTurretRequests();
         SpawnMotherBrainInitialTurrets();
+    }
+
+    private void LoadMotherBrainRoomEntryColors()
+    {
+        if (MotherBrainRoomColors is { } colors)
+        {
+            colors.ApplyRoomEntry(_cgram!);
+            return;
+        }
+        _cgram!.LoadFromBus(_bus!, MotherBrainRoomColorRomData.InitialGlassShardSource,
+            MotherBrainRoomColorRomData.InitialColors,
+            MotherBrainRoomColorRomData.InitialGlassShardColor);
+        _cgram.LoadFromBus(_bus!, MotherBrainRoomColorRomData.InitialTubeProjectileSource,
+            MotherBrainRoomColorRomData.InitialColors,
+            MotherBrainRoomColorRomData.InitialTubeProjectileColor);
     }
 
     /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>

@@ -11,14 +11,19 @@ public sealed class MotherBrainRoomColorPresentation
     private readonly ushort[] finalRoom;
     private readonly ushort[] phaseTwoAttack;
     private readonly ushort[] phaseTwoRearLeg;
+    private readonly ushort[] initialGlassShard;
+    private readonly ushort[] initialTubeProjectile;
 
     private MotherBrainRoomColorPresentation(ushort[][] flash, ushort[] finalRoom,
-        ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg)
+        ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
+        ushort[] initialGlassShard, ushort[] initialTubeProjectile)
     {
         this.flash = flash;
         this.finalRoom = finalRoom;
         this.phaseTwoAttack = phaseTwoAttack;
         this.phaseTwoRearLeg = phaseTwoRearLeg;
+        this.initialGlassShard = initialGlassShard;
+        this.initialTubeProjectile = initialTubeProjectile;
     }
 
     /// <summary>Applies a color row selected by the compiled $A9:D046 timing program.</summary>
@@ -46,6 +51,19 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
+    /// <summary>Installs room-entry glass-shard and tube-projectile sprite colors.</summary>
+    public void ApplyRoomEntry(SnesCgram cgram)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
+        {
+            cgram.SetColor(MotherBrainRoomColorRomData.InitialGlassShardColor + index,
+                initialGlassShard[index]);
+            cgram.SetColor(MotherBrainRoomColorRomData.InitialTubeProjectileColor + index,
+                initialTubeProjectile[index]);
+        }
+    }
+
     private static void ApplyRoom(SnesCgram cgram, ushort[] colors)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -58,7 +76,8 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
-    public static MotherBrainRoomColorPresentation Load(Stream json)
+    public static MotherBrainRoomColorPresentation Load(Stream json,
+        MotherBrainRoomColorPresentation? currentStock = null)
     {
         MotherBrainRoomColorDocument document;
         try
@@ -71,7 +90,8 @@ public sealed class MotherBrainRoomColorPresentation
         {
             throw new InvalidDataException("Invalid Mother Brain room-color JSON.", error);
         }
-        if (document.Version != MotherBrainRoomColorFormat.Version ||
+        if ((document.Version != MotherBrainRoomColorFormat.Version &&
+             !(document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion && currentStock is not null)) ||
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
@@ -84,7 +104,15 @@ public sealed class MotherBrainRoomColorPresentation
             Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two attack"),
             Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
-                "phase-two rear leg"));
+                "phase-two rear leg"),
+            document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
+                ? currentStock!.initialGlassShard
+                : Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
+                    "room-entry glass shard"),
+            document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
+                ? currentStock!.initialTubeProjectile
+                : Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
+                    "room-entry tube projectile"));
     }
 
     private static ushort[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
@@ -118,10 +146,13 @@ public sealed record MotherBrainRoomColorDocument
     public required PaletteRgb5[] FinalRoom { get; init; }
     public required PaletteRgb5[] PhaseTwoAttack { get; init; }
     public required PaletteRgb5[] PhaseTwoRearLeg { get; init; }
+    public PaletteRgb5[]? InitialGlassShard { get; init; }
+    public PaletteRgb5[]? InitialTubeProjectile { get; init; }
 }
 
 public static class MotherBrainRoomColorFormat
 {
     public const string FileName = "mother-brain-room-colors.json";
-    public const int Version = 1;
+    public const int Version = 2;
+    public const int PreRoomEntryVersion = 1;
 }

@@ -16,6 +16,10 @@ internal static partial class Program
         var native = CreateEnemy(rom, nativeCgram, null);
         var installed = CreateEnemy(new PaletteReadForbiddenBus(), installedCgram,
             original.MotherBrainRoomColors);
+        Method("LoadMotherBrainRoomEntryColors").Invoke(native, null);
+        Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
+        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
         var nativeState = new MotherBrainEnemyState(native.Slots[0])
         {
             RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
@@ -68,6 +72,8 @@ internal static partial class Program
             Change(document.FinalRoom[MotherBrainRoomColorRomData.SliceColors]);
         document.PhaseTwoAttack[0] = Change(document.PhaseTwoAttack[0]);
         document.PhaseTwoRearLeg[0] = Change(document.PhaseTwoRearLeg[0]);
+        document.InitialGlassShard![0] = Change(document.InitialGlassShard[0]);
+        document.InitialTubeProjectile![0] = Change(document.InitialTubeProjectile[0]);
         using (var file = File.Create(replacement))
             MotherBrainRoomColorPresentation.Write(file, document);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
@@ -86,6 +92,7 @@ internal static partial class Program
             MotherBrainRoomColorRomData.SecondColor, 2);
         AssertEdited("SetupMotherBrainPhaseTwoGraphics", original, edited,
             MotherBrainRoomColorRomData.PhaseTwoAttackColor, 2);
+        AssertRoomEntryEdited(original, edited);
 
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
@@ -97,6 +104,33 @@ internal static partial class Program
             {
                 PhaseTwoAttack = document.PhaseTwoAttack.Take(14).ToArray(),
             }, MapPresentationFormat.JsonOptions))), "reject truncated phase-two attack colors");
+        AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                InitialGlassShard = document.InitialGlassShard!.Take(14).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject truncated room-entry glass colors");
+        byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
+        {
+            Version = MotherBrainRoomColorFormat.PreRoomEntryVersion,
+            InitialGlassShard = null,
+            InitialTubeProjectile = null,
+        }, MapPresentationFormat.JsonOptions);
+        File.WriteAllBytes(replacement, legacy);
+        AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
+        var migratedFlash = new SnesCgram();
+        var originalFlash = new SnesCgram();
+        migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash,
+            MotherBrainRoomPaletteProgramDefinitions.FlashStart);
+        original.MotherBrainRoomColors.ApplyFlash(originalFlash,
+            MotherBrainRoomPaletteProgramDefinitions.FlashStart);
+        AssertTrue(!migratedFlash.Colors.SequenceEqual(originalFlash.Colors),
+            "version-one room-color override retains its existing flash edit");
+        var migratedEntry = new SnesCgram();
+        var originalEntry = new SnesCgram();
+        migrated.MotherBrainRoomColors.ApplyRoomEntry(migratedEntry);
+        original.MotherBrainRoomColors.ApplyRoomEntry(originalEntry);
+        AssertTrue(migratedEntry.Colors.SequenceEqual(originalEntry.Colors),
+            "version-one room-color override inherits only the new room-entry colors from verified stock");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
             "corrupt Mother Brain room override fails loudly");
@@ -105,12 +139,34 @@ internal static partial class Program
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity, AreaMapPresentationCatalog.Load(stock, overrides)
             .ContentIdentity, "removing Mother Brain room override restores stock identity");
-        Console.WriteLine("Mother Brain room colors: 14 flash frames, final grey and two phase-two palettes match native CGRAM; ROM-free production paths, isolated edits, state parity and strict validation pass.");
+        Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey and phase-two palettes match native CGRAM; ROM-free production paths, isolated edits, legacy override and strict validation pass.");
 
         static PaletteRgb5 Change(PaletteRgb5 color) => color with
         {
             Red = color.Red == 31 ? 30 : color.Red + 1,
         };
+    }
+
+    private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
+        AreaMapPresentationCatalog edited)
+    {
+        var stockCgram = new SnesCgram();
+        var editedCgram = new SnesCgram();
+        var stockEnemy = CreateEnemy(new PaletteReadForbiddenBus(), stockCgram,
+            original.MotherBrainRoomColors);
+        var editedEnemy = CreateEnemy(new PaletteReadForbiddenBus(), editedCgram,
+            edited.MotherBrainRoomColors);
+        Method("LoadMotherBrainRoomEntryColors").Invoke(stockEnemy, null);
+        Method("LoadMotherBrainRoomEntryColors").Invoke(editedEnemy, null);
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor],
+            "room-entry glass edit reaches the production color copy");
+        AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialTubeProjectileColor] !=
+            editedCgram.Colors[MotherBrainRoomColorRomData.InitialTubeProjectileColor],
+            "room-entry tube edit reaches the production color copy");
+        AssertEqual(2, stockCgram.Colors.ToArray().Zip(editedCgram.Colors.ToArray())
+            .Count(pair => pair.First != pair.Second),
+            "room-entry edits change only the two selected CGRAM colors");
     }
 
     private static void AssertEdited(string methodName, AreaMapPresentationCatalog original,

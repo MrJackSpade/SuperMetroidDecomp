@@ -27,4 +27,17 @@ public static class MotherBrainRoomColorRomData
     public const int PhaseTwoRearLegColor = 0x0162 / sizeof(ushort);
     /// <summary>Both phase-two setup palettes have fifteen nontransparent colors.</summary>
     public const int PhaseTwoColors = 15;
+
+    /// <summary>Mother Brain body initialization copies glass-shard colors from $A9:9514.</summary>
+    public const int InitialGlassShardSource = 0xa99514;
+    /// <summary>Glass-shard colors initially occupy CGRAM byte offset $0162.</summary>
+    public const int InitialGlassShardColor = 0x0162 / sizeof(ushort);
+
+    /// <summary>Mother Brain body initialization copies tube-projectile colors from $A9:94F4.</summary>
+    public const int InitialTubeProjectileSource = 0xa994f4;
+    /// <summary>Tube-projectile colors initially occupy CGRAM byte offset $01E2.</summary>
+    public const int InitialTubeProjectileColor = 0x01e2 / sizeof(ushort);
+
+    /// <summary>Both room-entry palettes omit transparent color zero and copy fifteen colors.</summary>
+    public const int InitialColors = 15;
 }

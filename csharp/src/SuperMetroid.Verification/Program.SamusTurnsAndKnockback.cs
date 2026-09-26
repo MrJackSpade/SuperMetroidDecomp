@@ -42,11 +42,13 @@ static void VerifySamusAerialTurnsAndWallJump()
     {
         byte source = SamusPoseIds.TurningLeftToRightPose;
         WritePoseDefinition(bus, source, [4, 14, 0xff, 0xfb, 8, 0, 21, 0]);
-        WriteTestWord(bus, 0x91b010 + source * 2, 0xc100);
-        bus.WriteBytes(0x91c100, [1, 0xf8, SamusPoseIds.FacingRightNormalPose]);
+        // Retail pose $26 has 02,02,02,F8,01. Its compiled pointer and
+        // command stream are immutable gameplay definitions, so drive the six
+        // native ticks that reach F8 instead of rewriting fake-bus ROM bytes.
         var endpoint = new SamusState { Pose = source, InputLocked = locked };
         endpoint.InitializeAnimation(bus);
-        endpoint.AnimateNoFx(bus, prospectiveInputPose: selected);
+        for (int tick = 0; tick < 6; tick++)
+            endpoint.AnimateNoFx(bus, prospectiveInputPose: selected);
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseIds.MovingRightNormalPose;
         AssertEqual(jumpWins ? (ushort?)null : SamusPoseIds.FacingRightNormalPose,
             endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
@@ -178,10 +180,9 @@ static void VerifySamusAerialTurnsAndWallJump()
         byte direction = left ? (byte)4 : (byte)8;
         WritePoseDefinition(bus, source, [direction, falling ? (byte)24 : (byte)23, 0xff, 0xfb, 8, 0, 19, 0]);
         WritePoseDefinition(bus, target, [direction, falling ? (byte)6 : (byte)2, 0xff, 2, 8, 0, 19, 0]);
-        WriteTestWord(bus, 0x91b010 + source * 2, 0xc100);
-        WriteTestWord(bus, 0x91b010 + target * 2, 0xc110);
-        bus.WriteBytes(0x91c100, [1, 0xf8, target]);
-        bus.WriteBytes(0x91c110, [3]);
+        // All four retail turn streams have three two-tick frames followed
+        // by F8 and the corresponding jump/fall target. The compiled delay
+        // definitions supersede fake-bus ROM writes here too.
         var endpoint = new SamusState { Pose = source, XPosition = 128, YPosition = 96 };
         endpoint.RefreshCollisionRadii(bus);
         endpoint.InitializeAnimation(bus);
@@ -189,7 +190,8 @@ static void VerifySamusAerialTurnsAndWallJump()
         endpoint.HorizontalSpeed.AccelerationMode = 1;
         endpoint.HorizontalSpeed.ExtraRunSpeed = (ushort)(extra >> 16);
         endpoint.HorizontalSpeed.ExtraRunSubspeed = (ushort)extra;
-        endpoint.AnimateNoFx(bus);
+        for (int tick = 0; tick < 6; tick++)
+            endpoint.AnimateNoFx(bus);
         AssertTrue(endpoint.ApplyPendingVerifiedAnimationTransition(bus), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? 0 : 2, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
@@ -210,11 +212,11 @@ static void VerifySamusAerialTurnsAndWallJump()
         lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8);
         lavaEndpoint.RefreshCollisionRadii(bus);
         lavaEndpoint.InitializeAnimation(bus);
-        lavaEndpoint.SetAnimationFrameFromSpecialHandler(0, 1);
+        lavaEndpoint.SetAnimationFrameFromSpecialHandler(2, 1);
         lavaEndpoint.AnimateNoFx(bus, nmiFrameCounter: 1);
         AssertTrue(lavaEndpoint.ApplyPendingVerifiedAnimationTransition(bus), "lava turn consumes command three");
-        AssertEqual(7, lavaEndpoint.AnimationFrameTimer,
-            "command three adds live lava buffer after target delay plus pose-change buffer (3+2+2)");
+        AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer,
+            "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
     }
 
     // Ordinary spin art, wall-jump art, and both dry launch table pairs.
@@ -372,7 +374,9 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6), eligible.LiquidPhysics.SoundRequests.Single(),
         "ordinary wall trigger queues library-three sound five max six");
-    for (int tick = 0; tick < 8; tick++)
+    // Pose $83's native stream starts 05,05,FB,03; the FB branch occurs
+    // after ten ticks, not the old synthetic eight-tick delay.
+    for (int tick = 0; tick < 10; tick++)
         eligible.AnimateNoFx(bus);
     AssertEqual(0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
     AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");

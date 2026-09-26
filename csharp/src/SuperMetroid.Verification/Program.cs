@@ -52,6 +52,11 @@ if (args is ["--samus-atmospheric-effects"])
     VerifySamusAtmosphericEffects();
     return 0;
 }
+if (args is ["--samus-aerial-turns-walljump"])
+{
+    VerifySamusAerialTurnsAndWallJump();
+    return 0;
+}
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

@@ -147,6 +147,11 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.GreenBrinstarMainShaft,
                     "Green Brinstar main shaft");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.BlueBrinstarElevatorRoom,
+                    "Blue Brinstar elevator");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.EastTunnel, "Maridia east tunnel");
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }

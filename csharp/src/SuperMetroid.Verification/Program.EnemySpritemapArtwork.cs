@@ -256,8 +256,28 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreKamerFrameCount,
             "Fune/Namihe add all left/right idle and active OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreKamerFrameCount + 4,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreElevatorFrameCount,
             "Kamer platform adds its four native OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreElevatorFrameCount + 2,
+            EnemySpritemapDefinitions.Frames.Length,
+            "elevator adds its two native OAM frames");
+        for (int index = 0; index < ElevatorInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = ElevatorInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
+                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.ElevatorDefinition, operand, out ushort selected),
+                $"elevator visual selector $A3:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"elevator visual selector $A3:{operand:X4} matches cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.ElevatorFrameAt(
+                ElevatorInstructionProgramDefinitions.Loop),
+            "elevator rejects adjacent instruction mechanics as presentation");
         for (int index = 0; index < 4; index++)
         {
             ushort operand = VerticalShutterInstructionProgramDefinitions
@@ -496,6 +516,8 @@ internal static partial class Program
                         ? FuneNamiheDefinitions.NamiheEnemyDefinition
                     : frame.Name.StartsWith("kamer_platform_", StringComparison.Ordinal)
                         ? RoomEnemySystem.KamerVerticalPlatformDefinition
+                    : frame.Name.StartsWith("elevator_platform_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.ElevatorDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -702,6 +724,11 @@ internal static partial class Program
         {
             OffsetY = kamerPart.OffsetY + 1,
         };
+        SpriteVisualPart elevatorPart = document.Frames["elevator_platform_0"][0];
+        document.Frames["elevator_platform_0"][0] = elevatorPart with
+        {
+            OffsetY = elevatorPart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -727,6 +754,15 @@ internal static partial class Program
             "editable Kamer platform OAM offset changes its displayed frame");
         AssertEqual(stockKamer.LowTable[0], editedKamer.LowTable[0],
             "Kamer visual edit leaves its physical X position unchanged");
+        OamBuffer stockElevator = DrawEnemy(stock, new FrameReadGuard(rom),
+            0x962f, RoomEnemySystem.ElevatorDefinition);
+        OamBuffer editedElevator = DrawEnemy(edited, new FrameReadGuard(rom),
+            0x962f, RoomEnemySystem.ElevatorDefinition);
+        AssertEqual(unchecked((byte)(stockElevator.LowTable[1] + 1)),
+            editedElevator.LowTable[1],
+            "editable elevator OAM offset changes its displayed frame");
+        AssertEqual(stockElevator.LowTable[0], editedElevator.LowTable[0],
+            "elevator visual edit leaves its physical X position unchanged");
         ushort framePointer = EnemySpritemapDefinitions.BoyonFrameAt(0x86ad);
         var stockOam = DrawEnemy(stock, new FrameReadGuard(rom), framePointer,
             RoomEnemySystem.BoyonDefinition);
@@ -1087,8 +1123,31 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preElevatorFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreElevatorFrameCount,
+            preElevatorFrames.Count, "pre-elevator composition schema frame count");
+        var preElevatorBindings = document.DisplayFrames!
+            .Where(pair => preElevatorFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreElevatorVersion,
+                Frames = preElevatorFrames,
+                DisplayFrames = preElevatorBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preElevatorUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(DrawEnemy(preElevatorUpgraded, new FrameReadGuard(rom), 0x962f,
+                RoomEnemySystem.ElevatorDefinition).LowTable
+            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x962f,
+                RoomEnemySystem.ElevatorDefinition).LowTable),
+            "version-twenty-nine override inherits stock elevator OAM without ROM reads");
         var preKamerFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreKamerFrameCount,
             preKamerFrames.Count, "pre-Kamer composition schema frame count");
@@ -1112,7 +1171,8 @@ internal static partial class Program
         var preFuneFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("namihe_", StringComparison.Ordinal) &&
-                           !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal))
+                           !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreFuneNamiheFrameCount,
             preFuneFrames.Count, "pre-Fune/Namihe composition schema frame count");
@@ -1142,7 +1202,8 @@ internal static partial class Program
             .Where(pair => !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("namihe_", StringComparison.Ordinal) &&
-                           !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal))
+                           !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount,
             preSbugFrames.Count, "pre-Sbug composition schema frame count");
@@ -1172,7 +1233,8 @@ internal static partial class Program
                            !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("namihe_", StringComparison.Ordinal) &&
-                           !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal))
+                           !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount,
             preHZoomerFrames.Count, "pre-HZoomer composition schema frame count");
@@ -1885,7 +1947,8 @@ internal static partial class Program
                     : definition is RoomEnemySystem.SbugDefinition or
                         RoomEnemySystem.Sbug2Definition
                         ? EnemySpritemapDefinitions.SbugBank
-                        : definition == RoomEnemySystem.SkulteraDefinition ||
+                        : definition == RoomEnemySystem.ElevatorDefinition ||
+                          definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||
                           definition == RoomEnemySystem.ZoaDefinition ||
@@ -1943,7 +2006,8 @@ internal static partial class Program
                 >= 0xa3e2e8 and < 0xa3e580 or
                 >= 0xa893f9 and < 0xa8959d or
                 >= 0xa897b4 and < 0xa899ac or
-                >= 0xa2f468 and < 0xa2f498)
+                >= 0xa2f468 and < 0xa2f498 or
+                >= 0xa3962f and < 0xa3965b)
                 throw new InvalidOperationException(
                     $"Installed enemy draw for {frameName ?? "an unnamed frame"} read native visual byte ${address:X6}.");
             return source.ReadByte(address);

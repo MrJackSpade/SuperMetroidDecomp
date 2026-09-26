@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 29;
+    internal const int Version = 30;
+    internal const int PreElevatorVersion = 29;
+    internal const int PreElevatorFrameCount = 457;
     internal const int PreKamerVersion = 28;
     internal const int PreKamerFrameCount = 453;
     internal const int PreFuneNamiheVersion = 27;
@@ -77,6 +79,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte SbugBank = 0xa3;
     internal const byte FuneNamiheBank = 0xa8;
     internal const byte KamerPlatformBank = 0xa2;
+    internal const byte ElevatorBank = 0xa3;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -562,6 +565,8 @@ internal static class EnemySpritemapDefinitions
         new(KamerPlatformBank, 0xf474, "kamer_platform_1"),
         new(KamerPlatformBank, 0xf480, "kamer_platform_2"),
         new(KamerPlatformBank, 0xf48c, "kamer_platform_3"),
+        new(ElevatorBank, 0x962f, "elevator_platform_0"),
+        new(ElevatorBank, 0x9645, "elevator_platform_1"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -606,6 +611,7 @@ internal static class EnemySpritemapDefinitions
                 FuneNamiheFrameAt(operandAddress),
             RoomEnemySystem.KamerVerticalPlatformDefinition =>
                 KamerPlatformFrameAt(operandAddress),
+            RoomEnemySystem.ElevatorDefinition => ElevatorFrameAt(operandAddress),
             RoomEnemySystem.ZeelaDefinition or
                 RoomEnemySystem.SovaDefinition or
                 RoomEnemySystem.ZoomerDefinition or
@@ -658,6 +664,7 @@ internal static class EnemySpritemapDefinitions
             FuneNamiheDefinitions.FuneEnemyDefinition or
             FuneNamiheDefinitions.NamiheEnemyDefinition or
             RoomEnemySystem.KamerVerticalPlatformDefinition or
+            RoomEnemySystem.ElevatorDefinition or
             RoomEnemySystem.ZeelaDefinition or
             RoomEnemySystem.SovaDefinition or
             RoomEnemySystem.ZoomerDefinition or
@@ -700,6 +707,17 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>The two visual operands in the native $A3:94D6 elevator loop.</summary>
+    internal static ushort ElevatorFrameAt(ushort operandAddress)
+    {
+        if (operandAddress is (0x94d8 or 0x94dc) &&
+            CompiledEnemyVisualSelectors.TryGet(ElevatorBank,
+                operandAddress, out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

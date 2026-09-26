@@ -1727,6 +1727,11 @@ if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
     VerifyIntroCinematicArtwork(introBackgroundRom);
     return 0;
 }
+if (args is ["--gameplay-base-palettes", var gameplayPaletteRom])
+{
+    VerifyGameplayBasePalettes(gameplayPaletteRom);
+    return 0;
+}
 if (args is ["--room-character-installation", var roomCharacterRom])
 {
     VerifyRoomArtworkInstallation(roomCharacterRom);

@@ -1011,6 +1011,14 @@ public sealed partial class SuperMetroidRuntime
     /// </remarks>
     private void LoadGameplaySpritePalettes()
     {
+        if (InitialPaletteArt is not null)
+        {
+            InitialPaletteArt.LoadCommonSprites(Cgram,
+                RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
+            InitialPaletteArt.LoadEnemyProjectileSprites(Cgram,
+                RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+            return;
+        }
         Cgram.LoadFromBus(
             _addressSpace,
             RoomLoadingRomData.CommonGameplaySpritePalette,

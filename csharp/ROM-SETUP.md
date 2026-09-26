@@ -58,6 +58,9 @@ Within either platform's application-data root:
   their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
+- `game/gameplay-palettes/gameplay-base-palettes.json`: the 256-color initial CGRAM
+  image and 16 common sprite colors restored on room entry. Copy the JSON to
+  `overrides/gameplay-palettes/` to edit it without altering stock content.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.

@@ -1341,7 +1341,8 @@ public sealed partial class SuperMetroidGame
             playerInvincibilityEnabled: gameOptions.Invincibility,
             infiniteAmmoEnabled: gameOptions.InfiniteAmmo,
             mapRevealMode: gameOptions.MapReveal,
-            preventEscapeTimeout: gameOptions.PreventEscapeTimeout);
+            preventEscapeTimeout: gameOptions.PreventEscapeTimeout,
+            initialPaletteArt: gameplayBasePalettes);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);

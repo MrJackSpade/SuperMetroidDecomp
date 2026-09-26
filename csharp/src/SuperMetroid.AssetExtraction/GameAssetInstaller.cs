@@ -78,6 +78,7 @@ public static class GameAssetInstaller
             // This verifies hashes and opens every generated stream and waveform, not just the receipt.
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
+            GameplayBasePaletteFiles.ValidateStock(installation.GameplayBasePaletteDirectory);
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             EnemyTileArtworkFiles.ValidateStock(installation.EnemyTileDirectory);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
@@ -146,6 +147,13 @@ public static class GameAssetInstaller
             MapPresentationExtractor.Extract(new SuperMetroidAddressSpace(rom), maps,
                 SupportedCartridge.Sha256, cancellationToken);
             AreaMapPresentationCatalog.ValidateStock(maps);
+            progress?.Report("Extracting gameplay base palettes...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string gameplayPalettes = Path.Combine(staging,
+                GameInstallationLayout.GameplayBasePaletteDirectoryName);
+            GameplayBasePaletteFiles.Extract(new SuperMetroidAddressSpace(rom),
+                gameplayPalettes, SupportedCartridge.Sha256);
+            GameplayBasePaletteFiles.ValidateStock(gameplayPalettes);
             progress?.Report("Extracting projectile compositions...");
             cancellationToken.ThrowIfCancellationRequested();
             ProjectilePresentationFiles.Extract(new SuperMetroidAddressSpace(rom),

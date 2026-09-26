@@ -19,6 +19,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly bool installedSession;
     private readonly ExtractedAudioAssetCatalog assets;
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
+    private readonly SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? gameplayBasePalettes;
     private readonly SuperMetroid.Core.Assets.IntroCinematicArtworkCatalog? introCinematicArt;
     private readonly SuperMetroid.Core.Assets.SamusBodyArtworkCatalog? samusBodyArt;
     private readonly SuperMetroid.Core.Assets.EndingMode7ArtworkCatalog? endingMode7Art;
@@ -79,6 +80,9 @@ internal sealed class AndroidSessionData : IDisposable
         // ordinary installed Android sessions require the installed map catalog.
         maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
+        gameplayBasePalettes = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadGameplayBasePalettes() : null;
+        Game.BindGameplayBasePalettes(gameplayBasePalettes);
         introCinematicArt = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadIntroCinematicArt() : null;
         Game.BindIntroCinematicArt(introCinematicArt);
@@ -273,6 +277,7 @@ internal sealed class AndroidSessionData : IDisposable
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
+        Game.BindGameplayBasePalettes(gameplayBasePalettes);
         Game.BindIntroCinematicArt(introCinematicArt);
         Game.BindSamusBodyArt(samusBodyArt);
         Game.BindEndingMode7Art(endingMode7Art);

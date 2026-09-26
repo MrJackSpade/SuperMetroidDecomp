@@ -404,8 +404,14 @@ internal static partial class Program
             Path.Combine(installation.SamusBodyDirectory,
                 SamusArmCannonArtworkFormat.TileFileName)), writable: false),
             SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8);
+        ushort selectedArmTileSource = stock.ArmCannon.TileSource(armSelector & 0x7f, 3);
+        int selectedArmTileIndex = Array.IndexOf(
+            SamusArmCannonArtworkFormat.TileSourcePointers, selectedArmTileSource);
+        AssertTrue(selectedArmTileIndex >= 0,
+            "standing Samus's fully open cover selects an extracted tile");
         byte[] armPixels = (byte[])armImage.Pixels.Clone();
-        armPixels[0] = (byte)((armPixels[0] + 1) & 15);
+        int selectedArmPixel = selectedArmTileIndex * 8;
+        armPixels[selectedArmPixel] = (byte)((armPixels[selectedArmPixel] + 1) & 15);
         using (var output = File.Create(armPngOverride))
             IndexedPng.Write(output, armImage.Width, armImage.Height, armPixels,
                 armImage.Palette);
@@ -416,14 +422,56 @@ internal static partial class Program
         ReadOnlyMemory<byte> editedArmTile = default;
         AssertTrue(stock.ArmCannon.TryResolveTile(
                 SamusRenderingRomData.Banks.CharacterData |
-                    SamusArmCannonArtworkFormat.TileSourcePointers[0], 32,
+                    selectedArmTileSource, 32,
                 out var stockArmTile) &&
             replacement.ArmCannon.TryResolveTile(
                 SamusRenderingRomData.Banks.CharacterData |
-                    SamusArmCannonArtworkFormat.TileSourcePointers[0], 32,
+                    selectedArmTileSource, 32,
                 out editedArmTile) &&
             !stockArmTile.Span.SequenceEqual(editedArmTile.Span),
             "edited arm-cannon indexed PNG changes the production DMA character");
+        var originalArmSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 128, YPosition = 128, SelectedHudItem = 1,
+        };
+        var editedArmSamus = new SamusState
+        {
+            Pose = originalArmSamus.Pose, XPosition = originalArmSamus.XPosition,
+            YPosition = originalArmSamus.YPosition, SelectedHudItem = originalArmSamus.SelectedHudItem,
+        };
+        originalArmSamus.TileTransfers.BindArtwork(stock);
+        editedArmSamus.TileTransfers.BindArtwork(replacement);
+        originalArmSamus.ArmCannon.Artwork = stock.ArmCannon;
+        editedArmSamus.ArmCannon.Artwork = replacement.ArmCannon;
+        for (int frame = 0; frame < 4; frame++)
+        {
+            originalArmSamus.ArmCannon.Update(guardedBus, originalArmSamus);
+            editedArmSamus.ArmCannon.Update(guardedBus, editedArmSamus);
+        }
+        var originalArmOam = new OamBuffer();
+        var editedArmOam = new OamBuffer();
+        originalArmOam.BeginFrame();
+        editedArmOam.BeginFrame();
+        var originalArmWrites = new VramWriteQueue();
+        var editedArmWrites = new VramWriteQueue();
+        SamusArmCannonDrawResult originalArmDraw = originalArmSamus.ArmCannon.Draw(
+            guardedBus, originalArmOam, originalArmWrites, originalArmSamus, 0, 0, 0);
+        SamusArmCannonDrawResult editedArmDraw = editedArmSamus.ArmCannon.Draw(
+            guardedBus, editedArmOam, editedArmWrites, editedArmSamus, 0, 0, 0);
+        AssertTrue(originalArmDraw.SpriteWritten && editedArmDraw.SpriteWritten,
+            "stock and edited covers both emit a visible OBJ");
+        int originalSignedX = unchecked((sbyte)stockArmX);
+        int editedSignedX = unchecked((sbyte)((stockArmX + 1) & 255));
+        AssertEqual((short)(originalArmDraw.ScreenX + editedSignedX - originalSignedX),
+            editedArmDraw.ScreenX,
+            "edited arm-cannon pose offset moves the production OBJ on screen");
+        AssertEqual((ushort)editedArmDraw.ScreenX, editedArmOam.GetEntry(0).X,
+            "edited cover coordinate reaches the actual OAM entry");
+        AssertEqual(selectedArmTileSource, editedArmDraw.TileSource,
+            "edited cannon PNG belongs to the displayed cover frame");
+        AssertTrue(originalArmWrites.Entries.SequenceEqual(editedArmWrites.Entries),
+            "cosmetic cover edits leave native tile-upload ordering and destination unchanged");
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
@@ -586,7 +634,7 @@ internal static partial class Program
         AssertTrue(reboundArm.ReadDrawingByte(armXAddress) != stock.ArmCannon.ReadDrawingByte(armXAddress),
             "repair preserves edited arm-cannon placement JSON");
         AssertTrue(reboundArm.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
-                SamusArmCannonArtworkFormat.TileSourcePointers[0], 32, out var reboundArmTile) &&
+                selectedArmTileSource, 32, out var reboundArmTile) &&
             reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
             "repair preserves edited arm-cannon PNG pixels");
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");

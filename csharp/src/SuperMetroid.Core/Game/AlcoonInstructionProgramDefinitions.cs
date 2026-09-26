@@ -6,7 +6,7 @@ internal readonly record struct AlcoonInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Alcoon's walking, fire-volley, and airborne
-/// programs. Their interleaved spritemap operands remain live cartridge presentation data.
+/// programs. Their interleaved spritemap operands select installed presentation frames.
 /// </summary>
 internal static class AlcoonInstructionProgramDefinitions
 {
@@ -96,6 +96,8 @@ internal static class AlcoonInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static AlcoonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

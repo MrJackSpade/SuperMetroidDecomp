@@ -7,6 +7,26 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyInstalledAlcoonInstructionFrames(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    {
+        for (int index = 0;
+             index < AlcoonInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = AlcoonInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.AlcoonDefinition, operand, out ushort frame),
+                $"Alcoon visual operand $A8:{operand:X4} is compiled");
+            AssertEqual(ReadAlcoonInstructionWord(rom, operand), frame,
+                $"Alcoon frame selector $A8:{operand:X4} matches the pinned cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.AlcoonFrameAt(0xdcc7),
+            "Alcoon rejects adjacent control data as presentation");
+        VerifyAlcoonInstructionProgramDefinitions(rom, stock);
+    }
+
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
         BindingFlags flags)
@@ -139,8 +159,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreBullFrameCount,
             "Puyo adds its eight distinct ground and airborne compositions");
         AssertEqual(EnemySpritemapDefinitions.PreBullFrameCount + 3,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreAlcoonFrameCount,
             "Bull adds its three distinct normal and immune-shot compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreAlcoonFrameCount + 18,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Alcoon adds eighteen left/right walking, firing, and airborne compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -262,6 +285,7 @@ internal static partial class Program
             "installed Norfair Rio programs never read ROM visual selectors");
         VerifyInstalledPuyoInstructionFrames(rom, stock, flags);
         VerifyInstalledBullInstructionFrames(rom, stock, flags);
+        VerifyInstalledAlcoonInstructionFrames(rom, stock);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -297,6 +321,8 @@ internal static partial class Program
                         ? RoomEnemySystem.PuyoDefinition
                     : frame.Name.StartsWith("bull_", StringComparison.Ordinal)
                         ? RoomEnemySystem.BullDefinition
+                    : frame.Name.StartsWith("alcoon_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.AlcoonDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -462,6 +488,11 @@ internal static partial class Program
         document.Frames["bull_idle_0"][0] = bullPart with
         {
             OffsetY = bullPart.OffsetY + 1,
+        };
+        SpriteVisualPart alcoonPart = document.Frames["alcoon_left_walk_0"][0];
+        document.Frames["alcoon_left_walk_0"][0] = alcoonPart with
+        {
+            OffsetY = alcoonPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -737,15 +768,50 @@ internal static partial class Program
             "authored Bull Y offset changes installed room OAM");
         AssertEqual(stockBull.LowTable[0], editedBull.LowTable[0],
             "Bull visual edit leaves physical X unchanged");
+        ushort alcoonPointer = EnemySpritemapDefinitions.AlcoonFrameAt(
+            AlcoonInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockAlcoon = DrawEnemy(stock, new FrameReadGuard(rom),
+            alcoonPointer, RoomEnemySystem.AlcoonDefinition);
+        OamBuffer editedAlcoon = DrawEnemy(edited, new FrameReadGuard(rom),
+            alcoonPointer, RoomEnemySystem.AlcoonDefinition);
+        AssertEqual(unchecked((byte)(stockAlcoon.LowTable[1] + 1)),
+            editedAlcoon.LowTable[1],
+            "authored Alcoon Y offset changes installed room OAM");
+        AssertEqual(stockAlcoon.LowTable[0], editedAlcoon.LowTable[0],
+            "Alcoon visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preBullFrames = document.Frames
+        var preAlcoonFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("alcoon_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreAlcoonFrameCount,
+            preAlcoonFrames.Count, "pre-Alcoon composition schema frame count");
+        var preAlcoonBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("alcoon_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreAlcoonVersion,
+                Frames = preAlcoonFrames,
+                DisplayFrames = preAlcoonBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preAlcoonUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer retainedPreAlcoonEdit = DrawEnemy(preAlcoonUpgraded,
+            new FrameReadGuard(rom), bullPointer, RoomEnemySystem.BullDefinition);
+        AssertEqual(editedBull.LowTable[1], retainedPreAlcoonEdit.LowTable[1],
+            "version-twenty-one override retains an edited Bull frame");
+        AssertTrue(preAlcoonUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.AlcoonBank, alcoonPointer, out _),
+            "version-twenty-one override gains stock Alcoon artwork");
+        var preBullFrames = preAlcoonFrames
             .Where(pair => !pair.Key.StartsWith("bull_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreBullFrameCount,
             preBullFrames.Count, "pre-Bull composition schema frame count");
-        var preBullBindings = document.DisplayFrames!
+        var preBullBindings = preAlcoonBindings
             .Where(pair => !pair.Key.StartsWith("bull_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1283,6 +1349,8 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.MagdolliteBank
                     : definition == RoomEnemySystem.BullDefinition
                         ? EnemySpritemapDefinitions.BullBank
+                    : definition == RoomEnemySystem.AlcoonDefinition
+                        ? EnemySpritemapDefinitions.AlcoonBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||
@@ -1332,7 +1400,8 @@ internal static partial class Program
                 >= 0xa6a329 and < 0xa6a353 or
                 >= 0xa6bffd and < 0xa6c04e or
                 >= 0xa29df6 and < 0xa29e80 or
-                >= 0xa8db76 and < 0xa8dbb8)
+                >= 0xa8db76 and < 0xa8dbb8 or
+                >= 0xa8dfa2 and < 0xa8e214)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

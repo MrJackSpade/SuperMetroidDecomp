@@ -1,5 +1,14 @@
 # Remaining lookup migration inventory (#547)
 
+## Alcoon visual frames (2026-09-26)
+
+Alcoon's 44 left/right walking, fire-volley, and airborne visual operands now
+select eighteen named, editable OAM compositions. All selector words match the
+pinned ROM, and the stock compositions match native OAM. The real room actor
+continues through both fire directions with instruction-control and visual
+source bytes unreadable; a live frame edit and version-twenty-one override
+migration pass. Movement, fireball callbacks, and timing remain engine-owned.
+
 ## Bull visual frames (2026-09-26)
 
 Bull's normal and immune-shot loops now select three named, editable OAM

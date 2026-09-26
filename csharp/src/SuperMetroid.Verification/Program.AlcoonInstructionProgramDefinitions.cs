@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -13,7 +14,7 @@ internal static partial class Program
     }
 
     private static void VerifyAlcoonInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
     {
         for (int index = 0;
              index < AlcoonInstructionProgramDefinitions.MechanicsWordCount;
@@ -26,14 +27,14 @@ internal static partial class Program
                 $"Alcoon mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new AlcoonInstructionReadGuard(rom);
+        var guard = new AlcoonInstructionReadGuard(rom, forbidPresentation: true);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(rom, AlcoonInstructionAuditRoom);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = installedArt };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,
@@ -61,13 +62,22 @@ internal static partial class Program
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;
+        var selectedPresentationOperands = new HashSet<ushort>();
         for (int frame = 0; frame < 4_096 &&
-             (guard.ObservedPresentationWords.Count < 42 ||
+             (installedArt is not null || selectedPresentationOperands.Count < 42 ||
               !sawLeftFireball || !sawRightFireball); frame++)
         {
             int maximumX = Math.Max(0, room.WidthInScreens * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.XPosition - 128, 0, maximumX));
             enemies.StepFrame(cameraX, 0, false, samus, level: assets.LevelData);
+            foreach (RoomEnemySlot slot in enemies.Slots)
+            {
+                if (slot.EnemyDefinitionPointer != RoomEnemySystem.AlcoonDefinition)
+                    continue;
+                ushort selectedOperand = unchecked((ushort)(slot.CurrentInstruction - 2));
+                if (AlcoonInstructionProgramDefinitions.IsPresentationWord(selectedOperand))
+                    selectedPresentationOperands.Add(selectedOperand);
+            }
 
             samus.XPosition = unchecked((ushort)(actor.XPosition +
                 (unchecked((short)state.XVelocity) < 0 ? -32 : 32)));
@@ -83,11 +93,18 @@ internal static partial class Program
 
         AssertTrue(sawLeftFireball && sawRightFireball,
             "real Alcoon programs execute fire callbacks in both facings");
-        AssertEqual(42, guard.ObservedPresentationWords.Count,
-            "all reachable Alcoon spritemap operands remain cartridge reads");
-        AssertTrue(!guard.ObservedPresentationWords.Contains(0xdc49) &&
-                   !guard.ObservedPresentationWords.Contains(0xdcb9),
+        string missedOperands = string.Join(", ", Enumerable.Range(0,
+                AlcoonInstructionProgramDefinitions.PresentationWordCount)
+            .Select(AlcoonInstructionProgramDefinitions.PresentationWordAddress)
+            .Where(address => !selectedPresentationOperands.Contains(address))
+            .Select(address => $"$A8:{address:X4}"));
+        AssertEqual(42, selectedPresentationOperands.Count,
+            $"real Alcoon visits every reachable presentation operand; missing={missedOperands}");
+        AssertTrue(!selectedPresentationOperands.Contains(0xdc49) &&
+                   !selectedPresentationOperands.Contains(0xdcb9),
             "native start-walking callbacks skip the two trailing unreachable frames");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Alcoon reads no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Alcoon mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -104,10 +121,12 @@ internal static partial class Program
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
             "warmed Alcoon mechanics lookups allocate no per-frame storage");
 
-        Console.WriteLine(
-            "Alcoon instruction mechanics: 68 compiled words, all ten authored programs, " +
-            "42 reachable live spritemap reads, both fire directions, and native callback " +
-            "handoffs pass with mechanics bytes forbidden.");
+        Console.WriteLine(installedArt is null
+            ? "Alcoon instruction mechanics: 68 compiled words, all ten authored programs, " +
+              "42 reachable visual operands, both fire directions, and native callback " +
+              "handoffs pass with mechanics bytes forbidden."
+            : "Installed Alcoon: real-room movement and both fire directions pass " +
+              "with mechanics and visual source bytes forbidden.");
     }
 
     private static int ProbeAlcoonInstructionMechanicsAllocation()
@@ -141,7 +160,7 @@ internal static partial class Program
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class AlcoonInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -167,6 +186,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                            throw new InvalidOperationException(
+                                $"Installed Alcoon read cartridge visual selector $A8:{presentation:X4}.");
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

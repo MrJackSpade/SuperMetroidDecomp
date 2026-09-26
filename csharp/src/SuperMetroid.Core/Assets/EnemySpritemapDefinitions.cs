@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 21;
+    internal const int Version = 22;
+    internal const int PreAlcoonVersion = 21;
+    internal const int PreAlcoonFrameCount = 319;
     internal const int PreBullVersion = 20;
     internal const int PreBullFrameCount = 316;
     internal const int PrePuyoVersion = 19;
@@ -53,6 +55,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte NorfairRioBank = 0xa2;
     internal const byte PuyoBank = 0xa2;
     internal const byte BullBank = 0xa8;
+    internal const byte AlcoonBank = 0xa8;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -400,6 +403,24 @@ internal static class EnemySpritemapDefinitions
         new(BullBank, 0xdb76, "bull_idle_0"),
         new(BullBank, 0xdb8c, "bull_idle_1"),
         new(BullBank, 0xdba2, "bull_idle_2"),
+        new(AlcoonBank, 0xdfa2, "alcoon_left_walk_0"),
+        new(AlcoonBank, 0xdfc2, "alcoon_left_walk_1"),
+        new(AlcoonBank, 0xdfe2, "alcoon_left_walk_2"),
+        new(AlcoonBank, 0xe007, "alcoon_left_walk_3"),
+        new(AlcoonBank, 0xe027, "alcoon_left_fire_0"),
+        new(AlcoonBank, 0xe047, "alcoon_left_fire_1"),
+        new(AlcoonBank, 0xe06c, "alcoon_left_fire_2"),
+        new(AlcoonBank, 0xe09b, "alcoon_left_fire_3"),
+        new(AlcoonBank, 0xe0bb, "alcoon_left_air_up"),
+        new(AlcoonBank, 0xe0db, "alcoon_right_walk_0"),
+        new(AlcoonBank, 0xe0fb, "alcoon_right_walk_1"),
+        new(AlcoonBank, 0xe11b, "alcoon_right_walk_2"),
+        new(AlcoonBank, 0xe140, "alcoon_right_walk_3"),
+        new(AlcoonBank, 0xe160, "alcoon_right_fire_0"),
+        new(AlcoonBank, 0xe180, "alcoon_right_fire_1"),
+        new(AlcoonBank, 0xe1a5, "alcoon_right_fire_2"),
+        new(AlcoonBank, 0xe1d4, "alcoon_right_fire_3"),
+        new(AlcoonBank, 0xe1f4, "alcoon_right_air_up"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -428,6 +449,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.NorfairRioDefinition => NorfairRioFrameAt(operandAddress),
             RoomEnemySystem.PuyoDefinition => PuyoFrameAt(operandAddress),
             RoomEnemySystem.BullDefinition => BullFrameAt(operandAddress),
+            RoomEnemySystem.AlcoonDefinition => AlcoonFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -462,6 +484,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.NorfairRioDefinition or
             RoomEnemySystem.PuyoDefinition or
             RoomEnemySystem.BullDefinition or
+            RoomEnemySystem.AlcoonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -551,6 +574,21 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Bull visual operand $A8:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Alcoon's 44 left/right walking, fire-volley, and airborne visual operands
+    /// at $A8:DBEB..DCC3 select eighteen editable OAM compositions. Movement,
+    /// fireball callbacks, and instruction timing remain compiled gameplay rules.
+    /// </summary>
+    internal static ushort AlcoonFrameAt(ushort operandAddress)
+    {
+        if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(AlcoonBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Alcoon visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

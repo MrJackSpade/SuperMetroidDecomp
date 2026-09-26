@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
@@ -46,6 +46,11 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
 
+    private CeresDoorVisualCatalog? SelectedCeresDoorVisual => TileArtwork is null
+        ? null
+        : TileArtwork.CeresDoorVisual ?? throw new InvalidDataException(
+            "Installed enemy artwork lacks the Ceres-door visual catalog.");
+
     /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for every retail population variant.</summary>
     private void InitializeCeresDoor(RoomEnemySlot slot)
     {
@@ -74,24 +79,47 @@ public sealed partial class RoomEnemySystem
             // The source register used bank $B0 with a 16-bit address that increments
             // independently of the bank byte. Materialize that exact DMA source slice,
             // then use SnesVram's range-checked consecutive transfer primitive.
-            byte[] tileBytes = new byte[0x0400];
-            for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                tileBytes[byteIndex] = _bus!.ReadByte(
-                    (int)new SnesAddress(0xb0, unchecked((ushort)(0xc400 + byteIndex))));
-            _vram!.LoadBytes(0xe000, tileBytes);
+            if (SelectedCeresDoorVisual is { } visual)
+                visual.LoadTiles(_vram!);
+            else
+            {
+                byte[] tileBytes = new byte[CeresDoorVisualRomData.TileByteCount];
+                for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
+                    tileBytes[byteIndex] = _bus!.ReadByte(
+                        CeresDoorVisualRomData.TileSource + byteIndex);
+                _vram!.LoadBytes(CeresDoorVisualRomData.TileVramDestination, tileBytes);
+            }
         }
 
         if (CeresStatus == 0 && variant == 3)
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.
-            _cgram!.LoadFromBus(_bus!, 0xa6f4ee, colorCount: 15, destinationIndex: 0x142 / 2);
+            if (SelectedCeresDoorVisual is { } visual)
+                visual.LoadNormalColors(_cgram!, CeresDoorVisualRomData.NormalTargetColor);
+            else
+                _cgram!.LoadFromBus(_bus!, CeresDoorVisualRomData.NormalColors,
+                    colorCount: CeresDoorVisualRomData.SetupColorCount,
+                    destinationIndex: CeresDoorVisualRomData.NormalTargetColor);
             return;
         }
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        int source = CeresStatus != 0 ? 0xa6f50e : 0xa6f4ee;
-        _cgram!.LoadFromBus(_bus!, source, colorCount: 15, destinationIndex: 0x1e2 / 2);
+        if (SelectedCeresDoorVisual is { } selected)
+        {
+            if (CeresStatus != 0)
+                selected.LoadEscapeColors(_cgram!, CeresDoorVisualRomData.ActiveTargetColor);
+            else
+                selected.LoadNormalColors(_cgram!, CeresDoorVisualRomData.ActiveTargetColor);
+        }
+        else
+        {
+            int source = CeresStatus != 0
+                ? CeresDoorVisualRomData.EscapeColors : CeresDoorVisualRomData.NormalColors;
+            _cgram!.LoadFromBus(_bus!, source,
+                colorCount: CeresDoorVisualRomData.SetupColorCount,
+                destinationIndex: CeresDoorVisualRomData.ActiveTargetColor);
+        }
     }
 
     /// <summary>Dispatches the function word stored in Ceres-door variable A ($0FA8).</summary>
@@ -226,15 +254,23 @@ public sealed partial class RoomEnemySystem
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed tile platform
         // frozen on whichever frame happened to be present at deletion.
-        ushort transferPointer = ReadWord(
-            _bus!, EnemyRomTablePointers.Ceres.DoorTransferPointers + (frame & 2));
-        ApplyMode7TransferList(transferPointer);
+        if (SelectedCeresDoorVisual is { } selected)
+            selected.LoadMode7DoorFrame(_vram!, (frame & 2) >> 1);
+        else
+        {
+            ushort transferPointer = ReadWord(
+                _bus!, EnemyRomTablePointers.Ceres.DoorTransferPointers + (frame & 2));
+            ApplyMode7TransferList(transferPointer);
+        }
 
-        ushort sourcePointer = unchecked((ushort)(2 * (frame & 0x0038) - 0x078f));
-        _cgram!.LoadFromBus(
-            _bus!,
-            0xa60000 | sourcePointer,
-            colorCount: 6,
-            destinationIndex: 0x52 / 2);
+        int colorRow = (frame & 0x0038) >> 3;
+        if (SelectedCeresDoorVisual is { } visual)
+            visual.LoadAnimationColors(_cgram!, colorRow);
+        else
+            _cgram!.LoadFromBus(_bus!,
+                CeresDoorVisualRomData.AnimationColors +
+                    colorRow * CeresDoorVisualRomData.AnimationRowByteStride,
+                colorCount: CeresDoorVisualRomData.AnimationColorCount,
+                destinationIndex: CeresDoorVisualRomData.AnimationTargetColor);
     }
 }

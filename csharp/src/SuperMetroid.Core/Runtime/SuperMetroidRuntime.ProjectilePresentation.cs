@@ -27,6 +27,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
         if (Enemies.TileArtwork?.GunshipLiftoff?.TryResolve(
                 sourceAddress, byteCount, out data) == true)
             return true;
+        if (Enemies.TileArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (RoomSkyTilemapArt is not null)

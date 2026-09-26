@@ -10,6 +10,7 @@ public sealed class EnemyTileArtworkCatalog
 {
     private readonly Dictionary<ushort, RoomCharacterAtlas> sheets;
     private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
+    private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
 
     public EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
         IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
@@ -18,7 +19,9 @@ public sealed class EnemyTileArtworkCatalog
         EnemyExtendedFrameCatalog? extendedFrames = null,
         KraidBackgroundArtwork? kraidBackground = null,
         KraidColorCatalog? kraidColors = null,
-        GunshipLiftoffArtworkCatalog? gunshipLiftoff = null)
+        GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
+        CeresDoorVisualCatalog? ceresDoorVisual = null,
+        IReadOnlyDictionary<ushort, int>? dmaSources = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -26,12 +29,31 @@ public sealed class EnemyTileArtworkCatalog
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
         this.sheets = new Dictionary<ushort, RoomCharacterAtlas>(sheets);
         this.palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
+        byDmaSource = new Dictionary<(int, int), RoomCharacterAtlas>();
+        if (dmaSources is not null)
+        {
+            foreach ((ushort pointer, int sourceAddress) in dmaSources)
+            {
+                if (!this.sheets.TryGetValue(pointer, out RoomCharacterAtlas? atlas))
+                    throw new InvalidDataException(
+                        $"Enemy ${pointer:X4} DMA source has no installed sheet.");
+                var key = (sourceAddress, atlas.Transfer.Length);
+                if (byDmaSource.TryGetValue(key, out RoomCharacterAtlas? existing))
+                {
+                    if (!existing.Transfer.Span.SequenceEqual(atlas.Transfer.Span))
+                        throw new InvalidDataException(
+                            $"Enemy DMA source ${sourceAddress:X6} has conflicting installed sheets.");
+                }
+                else byDmaSource.Add(key, atlas);
+            }
+        }
         CrocomireMelting = crocomireMelting;
         Spritemaps = spritemaps;
         ExtendedFrames = extendedFrames;
         KraidBackground = kraidBackground;
         KraidColors = kraidColors;
         GunshipLiftoff = gunshipLiftoff;
+        CeresDoorVisual = ceresDoorVisual;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -51,6 +73,21 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }
+
+    /// <summary>Ceres-door actor's special tile transfer and RGB5 rows.</summary>
+    public CeresDoorVisualCatalog? CeresDoorVisual { get; }
+
+    /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
+    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    {
+        if (byDmaSource.TryGetValue((sourceAddress, byteCount), out RoomCharacterAtlas? atlas))
+        {
+            data = atlas.Transfer;
+            return true;
+        }
+        data = default;
+        return false;
+    }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
     public void LoadTo(ushort definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
@@ -76,7 +113,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 19;
+    public const int Version = 20;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

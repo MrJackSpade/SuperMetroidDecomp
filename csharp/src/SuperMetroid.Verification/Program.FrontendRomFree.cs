@@ -25,6 +25,7 @@ internal static partial class Program
         installed.BindMapPresentation(installation.LoadMaps());
         installed.BindCompiledRoomFxRecords(true);
         installed.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
+        installed.BindEnemyTileArtwork(installation.LoadEnemyTiles());
         installed.BindStandardObjectArt(installation.LoadStandardObjects());
         installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
         installed.BindSamusBodyArt(installation.LoadSamusBodyArt());

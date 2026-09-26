@@ -165,6 +165,8 @@ public static class EnemyTileArtworkFiles
             KraidBackgroundArtworkFormat.RoomBackgroundFileName), kraidRoomBackground);
         byte[] kraidColors = ExtractKraidColors(bus);
         File.WriteAllBytes(Path.Combine(directory, KraidColorFormat.FileName), kraidColors);
+        (string ceresDoorTilesHash, string ceresDoorColorsHash) =
+            CeresDoorVisualFiles.Extract(bus, directory);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -178,7 +180,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(lowerKraid)),
             kraidHeadHashes,
             Convert.ToHexString(SHA256.HashData(kraidRoomBackground)),
-            Convert.ToHexString(SHA256.HashData(kraidColors)));
+            Convert.ToHexString(SHA256.HashData(kraidColors)),
+            ceresDoorTilesHash, ceresDoorColorsHash);
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -216,7 +219,9 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
             manifest.KraidHeadsSha256 is null ||
             string.IsNullOrWhiteSpace(manifest.KraidRoomBackgroundSha256) ||
-            string.IsNullOrWhiteSpace(manifest.KraidColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.KraidColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CeresDoorTilesSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CeresDoorColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -227,8 +232,14 @@ public static class EnemyTileArtworkFiles
 
         var sheets = new Dictionary<ushort, RoomCharacterAtlas>();
         var palettes = new Dictionary<ushort, EnemyPaletteSheet>();
+        var dmaSources = new Dictionary<ushort, int>();
         foreach ((ushort definitionPointer, EnemyTileFileEntry entry) in manifest.Entries)
         {
+            RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
+            if (entry.NativeByteCount != (definition.TileDataSize & 0x7fff))
+                throw new InvalidDataException(
+                    $"Enemy ${definitionPointer:X4} manifest DMA size differs from retail.");
+            dmaSources.Add(definitionPointer, definition.TileDataAddress);
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
             string fileName = EnemyTileArtworkFormat.FileName(definitionPointer);
             string stockPath = Path.Combine(stockDirectory, fileName);
@@ -418,9 +429,23 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 $"Invalid Kraid color file {KraidColorFormat.FileName}: {error.Message}", error);
         }
+        CeresDoorVisualCatalog ceresDoorVisual;
+        try
+        {
+            ceresDoorVisual = CeresDoorVisualFiles.Load(
+                ReadStockOrOverride(CeresDoorVisualFormat.TilesFileName,
+                    manifest.CeresDoorTilesSha256),
+                ReadStockOrOverride(CeresDoorVisualFormat.ColorsFileName,
+                    manifest.CeresDoorColorsSha256));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException("Invalid installed Ceres-door visuals.", error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
-                kraidHeads, roomBackground), kraidColors, gunshipLiftoff);
+                kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
+            dmaSources);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -598,7 +623,9 @@ public static class EnemyTileArtworkFiles
         string KraidUpperSha256, string KraidLowerSha256,
         Dictionary<ushort, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,
-        string KraidColorsSha256);
+        string KraidColorsSha256,
+        string CeresDoorTilesSha256,
+        string CeresDoorColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

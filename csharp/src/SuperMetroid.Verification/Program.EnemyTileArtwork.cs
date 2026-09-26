@@ -22,6 +22,7 @@ internal static partial class Program
         {
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
+            VerifyInstalledCeresDoorVisuals(bus, directory, stock);
             VerifyInstalledKraidBackground(bus, directory, stock);
             VerifyInstalledKraidColors(bus, directory, stock);
             VerifyInstalledEnemySpritemaps(bus, directory, stock);
@@ -59,6 +60,9 @@ internal static partial class Program
                 RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 byte[] native = RomDataReader.ReadFixedBank(bus, definition.TileDataAddress, byteCount);
+                AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
+                        out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
+                    $"enemy ${pointer:X4} queued VRAM DMA resolves its installed PNG");
                 var vram = new SnesVram();
                 stock.LoadTo(pointer, byteCount, vram, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),

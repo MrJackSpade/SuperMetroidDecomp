@@ -2595,6 +2595,18 @@ public sealed partial class RoomEnemySystem
         if (EnemySpritemapDefinitions.TryFrameAt(
                 slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
             return frame;
+        // A complete installed enemy presentation carries the fixed selector catalog
+        // for every authored instruction frame. Constructed/native fixtures without it
+        // retain their live bus operands so mutable diagnostic streams still work.
+        if (TileArtwork?.Spritemaps is not null)
+        {
+            if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
+                    operandAddress, out ushort installedSelector))
+                return installedSelector;
+            throw new InvalidDataException(
+                $"Installed enemy ${slot.EnemyDefinitionPointer:X4} has no compiled visual selector " +
+                $"${slot.Definition.Bank:X2}:{operandAddress:X4}.");
+        }
         // Space Pirate frame operands are fixed definitions. Keep
         // the selected spritemap payload on the ordinary artwork path below;
         // only this instruction-stream pointer read has been compiled.

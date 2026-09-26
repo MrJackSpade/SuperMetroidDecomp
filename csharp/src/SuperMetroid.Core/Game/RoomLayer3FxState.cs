@@ -124,7 +124,8 @@ public sealed class RoomLayer3FxState
         ushort fxPointer,
         ushort doorPointer,
         ushort randomNumber,
-        ushort roomHeaderPointer = 0)
+        ushort roomHeaderPointer = 0,
+        bool useCompiledRecords = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -149,44 +150,38 @@ public sealed class RoomLayer3FxState
         if (fxPointer == 0)
             return;
 
-        ushort record = RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer);
+        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        ushort record = fxRecords.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
 
-        BaseYPosition = RoomFxRomData.ReadRecordWord(
-            bus,
+        BaseYPosition = fxRecords.ReadWord(
             record,
             RoomFxRomData.Record.BaseYPositionOffset);
-        TargetYPosition = RoomFxRomData.ReadRecordWord(
-            bus,
+        TargetYPosition = fxRecords.ReadWord(
             record,
             RoomFxRomData.Record.TargetYPositionOffset);
-        PackedYVelocity = RoomFxRomData.ReadRecordWord(
-            bus,
+        PackedYVelocity = fxRecords.ReadWord(
             record,
             RoomFxRomData.Record.YVelocityOffset);
-        Timer = RoomFxRomData.ReadRecordByte(
-            bus,
+        Timer = fxRecords.ReadByte(
             record,
             RoomFxRomData.Record.TimerOffset);
-        LiquidOptions = RoomFxRomData.ReadRecordByte(
-            bus,
+        LiquidOptions = fxRecords.ReadByte(
             record,
             RoomFxRomData.Record.LiquidOptionsOffset);
         CurrentYPosition = BaseYPosition;
 
         Type = RoomFxTypes.FromCartridge(
-            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset),
+            fxRecords.ReadByte(record, RoomFxRomData.Record.TypeOffset),
             $"bank-$83 FX record ${record:X4}");
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
-            RoomFxRomData.ReadRecordByte(
-                bus,
+            fxRecords.ReadByte(
                 record,
                 RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset),
             $"bank-$83 FX record ${record:X4}");
         animatedTiles.Load(bus, Type);
-        byte paletteBlend = RoomFxRomData.ReadRecordByte(
-            bus,
+        byte paletteBlend = fxRecords.ReadByte(
             record,
             RoomFxRomData.Record.PaletteBlendOffset);
         ApplyPaletteBlend(bus, cgram, paletteBlend);
@@ -420,19 +415,21 @@ public sealed class RoomLayer3FxState
     /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal LayerBlendingConfiguration ApplyEntry(ISnesAddressSpace bus, SnesCgram cgram, ushort record)
+    internal LayerBlendingConfiguration ApplyEntry(ISnesAddressSpace bus, SnesCgram cgram,
+        ushort record, bool useCompiledRecords = false)
     {
-        BaseYPosition = RoomFxRomData.ReadRecordWord(bus, record, RoomFxRomData.Record.BaseYPositionOffset);
-        TargetYPosition = RoomFxRomData.ReadRecordWord(bus, record, RoomFxRomData.Record.TargetYPositionOffset);
-        PackedYVelocity = RoomFxRomData.ReadRecordWord(bus, record, RoomFxRomData.Record.YVelocityOffset);
-        Timer = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TimerOffset);
-        LiquidOptions = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.LiquidOptionsOffset);
+        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        BaseYPosition = fxRecords.ReadWord(record, RoomFxRomData.Record.BaseYPositionOffset);
+        TargetYPosition = fxRecords.ReadWord(record, RoomFxRomData.Record.TargetYPositionOffset);
+        PackedYVelocity = fxRecords.ReadWord(record, RoomFxRomData.Record.YVelocityOffset);
+        Timer = fxRecords.ReadByte(record, RoomFxRomData.Record.TimerOffset);
+        LiquidOptions = fxRecords.ReadByte(record, RoomFxRomData.Record.LiquidOptionsOffset);
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
-            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset), "LoadFxEntry");
-        byte blend = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.PaletteBlendOffset);
+            fxRecords.ReadByte(record, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset), "LoadFxEntry");
+        byte blend = fxRecords.ReadByte(record, RoomFxRomData.Record.PaletteBlendOffset);
         ApplyPaletteBlend(bus, cgram, blend);
         return LayerBlendingConfigurations.FromCartridge(
-            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset), "LoadFxEntry");
+            fxRecords.ReadByte(record, RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset), "LoadFxEntry");
     }
 
     private void ApplyPaletteBlend(ISnesAddressSpace bus, SnesCgram cgram, byte selection)

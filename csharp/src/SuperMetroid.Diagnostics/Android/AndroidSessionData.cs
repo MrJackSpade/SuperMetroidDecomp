@@ -81,6 +81,7 @@ internal sealed class AndroidSessionData : IDisposable
         // ordinary installed Android sessions require the installed map catalog.
         maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
+        Game.BindCompiledRoomFxRecords(installedSession);
         gameplayBasePalettes = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadGameplayBasePalettes() : null;
         Game.BindGameplayBasePalettes(gameplayBasePalettes);
@@ -281,6 +282,7 @@ internal sealed class AndroidSessionData : IDisposable
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
+        Game.BindCompiledRoomFxRecords(installedSession);
         Game.BindGameplayBasePalettes(gameplayBasePalettes);
         Game.BindStandardObjectArt(standardObjectArt);
         Game.BindIntroCinematicArt(introCinematicArt);

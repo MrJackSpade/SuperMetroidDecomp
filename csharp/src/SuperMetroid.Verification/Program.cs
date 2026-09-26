@@ -118,6 +118,16 @@ if (args is ["--room-fx-retail-inventory"])
     VerifyRetailRoomFxInventory();
     return 0;
 }
+if (args is ["--generate-room-fx-records", var roomFxGeneratorRom])
+{
+    GenerateRoomFxRecordDefinitions(roomFxGeneratorRom);
+    return 0;
+}
+if (args is ["--room-fx-record-definitions", var roomFxDefinitionsRom])
+{
+    VerifyRoomFxRecordDefinitions(roomFxDefinitionsRom);
+    return 0;
+}
 if (args is ["--enemy-projectile-instruction-mechanics"])
 {
     VerifyEnemyProjectileInstructionMechanicsDefinitions();

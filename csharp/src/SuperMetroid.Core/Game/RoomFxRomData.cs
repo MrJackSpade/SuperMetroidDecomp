@@ -377,9 +377,12 @@ public static class RoomFxRomData
     public static ushort SelectRecord(
         ISnesAddressSpace bus,
         ushort fxPointer,
-        ushort doorPointer)
+        ushort doorPointer,
+        bool useCompiledRecords = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        if (useCompiledRecords)
+            return RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
         ushort record = fxPointer;
         for (int guard = 0; guard < 256; guard++)
         {
@@ -398,21 +401,27 @@ public static class RoomFxRomData
     }
 
     /// <summary>Reads one byte from a selected bank-$83 FX record.</summary>
-    public static byte ReadRecordByte(ISnesAddressSpace bus, ushort record, int fieldOffset)
+    public static byte ReadRecordByte(ISnesAddressSpace bus, ushort record, int fieldOffset,
+        bool useCompiledRecords = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)fieldOffset >= Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
+        if (useCompiledRecords)
+            return RoomFxRecordDefinitions.Get(record).ReadByte(fieldOffset);
         return bus.ReadByte(
             Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
     }
 
     /// <summary>Reads one little-endian word from a selected bank-$83 FX record.</summary>
-    public static ushort ReadRecordWord(ISnesAddressSpace bus, ushort record, int fieldOffset)
+    public static ushort ReadRecordWord(ISnesAddressSpace bus, ushort record, int fieldOffset,
+        bool useCompiledRecords = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)fieldOffset > Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
+        if (useCompiledRecords)
+            return RoomFxRecordDefinitions.Get(record).ReadWord(fieldOffset);
         return RomDataReader.ReadWordFixedBank(
             bus,
             Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));

@@ -110,7 +110,8 @@ public sealed class RoomPaletteFxSystem
         ushort doorPointer,
         AreaId area,
         ushort equippedItems,
-        bool areaMiniBossDefeated)
+        bool areaMiniBossDefeated,
+        bool useCompiledRecords = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         foreach (PaletteFxSlot slot in slots)
@@ -122,15 +123,14 @@ public sealed class RoomPaletteFxSystem
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        ushort record = RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer);
+        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        ushort record = fxRecords.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
 
         // FxDef offsets $0D/$0E are independent palette-FX and animtile bitsets. Reading
         // only the former is deliberate; a separate bank-$87 owner must consume the latter.
-        byte paletteFxBits = RoomFxRomData.ReadRecordByte(
-            bus,
-            record,
+        byte paletteFxBits = fxRecords.ReadByte(record,
             RoomFxRomData.Record.PaletteFxBitsetOffset);
         if (paletteFxBits == 0)
             return;

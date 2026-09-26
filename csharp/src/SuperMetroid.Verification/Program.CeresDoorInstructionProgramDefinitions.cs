@@ -27,6 +27,19 @@ internal static partial class Program
                 ReadCeresDoorInstructionWord(rom, 0xa60000 | definition.Address),
                 $"Ceres door instruction mechanics word $A6:{definition.Address:X4}");
         }
+        for (int index = 0;
+             index < CeresDoorInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                CeresDoorInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertEqual(CeresDoorInstructionProgramDefinitions.PresentationWordFrame(index),
+                ReadCeresDoorInstructionWord(rom, 0xa60000 | address),
+                $"Ceres door visual selector $A6:{address:X4}");
+            AssertEqual(CeresDoorInstructionProgramDefinitions.PresentationWordFrame(index),
+                CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(address),
+                $"compiled Ceres door visual selector $A6:{address:X4}");
+        }
 
         var guard = new CeresDoorInstructionProgramReadGuard(rom);
         bool bossDefeated = false;
@@ -89,20 +102,8 @@ internal static partial class Program
             preEscapeSlot.CurrentInstruction,
             "pre-escape invisible wall branches into the normal left-door program");
 
-        AssertEqual(CeresDoorInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Ceres door spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < CeresDoorInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                CeresDoorInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Ceres door presentation $A6:{address:X4}");
-        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Ceres door mechanics byte");
+            "production execution avoids every compiled Ceres door mechanics and selector byte");
 
         AssertThrows<InvalidDataException>(
             () => CeresDoorInstructionProgramDefinitions.ReadMechanicsWord(0xf540),
@@ -110,6 +111,12 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => CeresDoorInstructionProgramDefinitions.ReadMechanicsWord(0xf63e),
             "adjacent Ceres door callback code is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(0xf53e),
+            "interleaved Ceres door duration is rejected as a visual selector");
+        AssertThrows<InvalidDataException>(
+            () => CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(0xf63e),
+            "adjacent Ceres door callback code is rejected as a visual selector");
 
         _ = ProbeCeresDoorInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
@@ -120,7 +127,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres door instruction mechanics: ninety-seven compiled words, all seven " +
-            "variants and thirty-three live spritemap reads pass with mechanics bytes forbidden.");
+            "variants and thirty-three compiled visual selectors pass with ROM reads forbidden.");
 
         void ExerciseOrdinaryDoor(ushort program, bool facingRight)
         {
@@ -170,7 +177,8 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
                 .SetValue(enemies, isBossDefeated);
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = 0xe23f;
+            slot.EnemyDefinitionPointer =
+                CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.XPosition = 0x0080;
             slot.YPosition = 0x0080;
@@ -226,7 +234,6 @@ internal static partial class Program
     private sealed class CeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -250,8 +257,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled Ceres door visual selector byte ${address:X6}.");
                     }
                 }
             }

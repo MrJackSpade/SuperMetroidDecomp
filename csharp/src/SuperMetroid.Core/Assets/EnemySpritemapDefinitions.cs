@@ -316,6 +316,8 @@ internal static class EnemySpritemapDefinitions
     {
         frame = enemyDefinition switch
         {
+            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer =>
+                CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
@@ -343,7 +345,9 @@ internal static class EnemySpritemapDefinitions
                 RipperVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             _ => 0,
         };
-        return enemyDefinition is RoomEnemySystem.BoyonDefinition or
+        return enemyDefinition is
+            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
+            RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or

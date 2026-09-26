@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CeresDoorDefinition = 0xe23f;
 
     private static readonly ushort[] CeresRidleyWingAnimationDeltas =
         [0x000c, 0x000e, 0x0010, 0x0012, 0x001c, 0x0020, 0x0028, 0x0030];
@@ -468,7 +467,9 @@ public sealed partial class RoomEnemySystem
         // this fixed overlay after the Baby. This is a native cross-slot draw hook, not a
         // replacement for the door actor's own instruction interpreter.
         RoomEnemySlot door = _slots[1];
-        if (door.EnemyDefinitionPointer == CeresDoorDefinition && door.VariableB != 0)
+        if (door.EnemyDefinitionPointer ==
+                CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer &&
+            door.VariableB != 0)
         {
             // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
             // second, cartridge-authored quake adjustment at `$A6:A2F2-$A314`. Its `Y`
@@ -581,9 +582,10 @@ public sealed partial class RoomEnemySystem
         if (slotIndex < 0)
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
-        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, CeresDoorDefinition);
+        RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!,
+            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
         RoomEnemyPopulationRecord population = new(
-            CeresDoorDefinition,
+            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer,
             xPosition,
             YPosition: 0x007f,
             InitializationParameter: 0,

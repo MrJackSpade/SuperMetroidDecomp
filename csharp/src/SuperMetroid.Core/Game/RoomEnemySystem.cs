@@ -3682,7 +3682,7 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == FakeKraidDefinition)
             return FakeKraidInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == CeresDoorDefinition)
+        if (slot.EnemyDefinitionPointer == CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer)
             return CeresDoorInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == YardDefinition)

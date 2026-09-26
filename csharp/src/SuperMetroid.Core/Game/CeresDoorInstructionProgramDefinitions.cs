@@ -6,11 +6,13 @@ internal readonly record struct CeresDoorInstructionMechanicsWord(
     ushort Value);
 
 /// <summary>
-/// Compiled engine-control words for all seven Ceres door/control-actor variants.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Compiled engine-control and visual-selector words for all seven Ceres
+/// door/control-actor variants. Spritemap payloads remain separate artwork.
 /// </summary>
 internal static class CeresDoorInstructionProgramDefinitions
 {
+    /// <summary><c>Enemy_CeresDoor</c>, the bank-$A6 enemy definition at $A6:E23F.</summary>
+    internal const ushort EnemyDefinitionPointer = 0xe23f;
     /// <summary>
     /// <c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at
     /// $A6:F53A-$A6:F56B. An intangible/invisible $0002 frame at $F53E
@@ -234,7 +236,7 @@ internal static class CeresDoorInstructionProgramDefinitions
     ];
 
     /// <summary>
-    /// Live spritemap operand addresses across the seven Ceres door variants.
+    /// Stock spritemap selectors across the seven Ceres door variants.
     /// The Ridley-room right-door program uses $F540, $F548, $F54C,
     /// $F550, $F554, $F55A, and $F560, storing respectively $FAA7,
     /// $FAA7, $FA87, $FA67, $FA3D, $FA13, and $FA13 in the pinned ROM.
@@ -244,33 +246,60 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// closed holds and $FAA7 for its open hold. Its four close-transition
     /// operands at $F58A + 4*i are {$FAA7, $FA87, $FA67, $FA3D}; its four
     /// open-transition operands at $F5A8 + 4*i are exactly that sequence
-    /// reversed, for i = 0..3. Both transitions keep live ROM pointers.
+    /// reversed, for i = 0..3.
     /// The left-door close-transition operands at $F5DC + 4*i are
     /// {$F9F3, $F9D3, $F9B3, $F989}; the open-transition operands at
     /// $F5FA + 4*i reverse them. Each of these eight pointers is the
     /// corresponding right-door transition pointer minus $00B4. The
     /// left-door holds are authored separately: initial $FA13 and
     /// open/closed $F95F, outside that offset rule.
-    /// The four single-frame control-actor variants have one live pointer
+    /// The four single-frame control-actor variants have one pointer
     /// each: variant 2 at $F614 stores $F921, variant 4 at $F624 stores
     /// $F95F, variant 5 at $F62E stores $FACE, and variant 6 at $F638
     /// stores $FB2F. The $F95F pose is shared with the left-door holds;
     /// the remaining visual identities are authored per variant.
     /// </summary>
-    private static readonly ushort[] PresentationWords =
+    private static readonly (ushort Address, ushort Frame)[] PresentationWords =
     [
-        0xf540, 0xf548, 0xf54c, 0xf550, 0xf554, 0xf55a, 0xf560,
-        0xf572, 0xf57a, 0xf58a, 0xf58e, 0xf592, 0xf596, 0xf59e,
-        0xf5a8, 0xf5ac, 0xf5b0, 0xf5b4,
-        0xf5c4, 0xf5cc, 0xf5dc, 0xf5e0, 0xf5e4, 0xf5e8, 0xf5f0,
-        0xf5fa, 0xf5fe, 0xf602, 0xf606,
-        0xf614, 0xf624, 0xf62e, 0xf638,
+        (0xf540, 0xfaa7), (0xf548, 0xfaa7), (0xf54c, 0xfa87),
+        (0xf550, 0xfa67), (0xf554, 0xfa3d), (0xf55a, 0xfa13),
+        (0xf560, 0xfa13), (0xf572, 0xfa13), (0xf57a, 0xfaa7),
+        (0xf58a, 0xfaa7), (0xf58e, 0xfa87), (0xf592, 0xfa67),
+        (0xf596, 0xfa3d), (0xf59e, 0xfa13), (0xf5a8, 0xfa3d),
+        (0xf5ac, 0xfa67), (0xf5b0, 0xfa87), (0xf5b4, 0xfaa7),
+        (0xf5c4, 0xfa13), (0xf5cc, 0xf95f), (0xf5dc, 0xf9f3),
+        (0xf5e0, 0xf9d3), (0xf5e4, 0xf9b3), (0xf5e8, 0xf989),
+        (0xf5f0, 0xf95f), (0xf5fa, 0xf989), (0xf5fe, 0xf9b3),
+        (0xf602, 0xf9d3), (0xf606, 0xf9f3), (0xf614, 0xf921),
+        (0xf624, 0xf95f), (0xf62e, 0xface), (0xf638, 0xfb2f),
     ];
 
     internal static int MechanicsWordCount => Words.Length;
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static CeresDoorInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index) => PresentationWords[index].Address;
+    internal static ushort PresentationWordFrame(int index) => PresentationWords[index].Frame;
+
+    /// <summary>Returns the authored spritemap selector at a bank-$A6 operand.</summary>
+    internal static ushort ReadPresentationFrame(ushort address)
+    {
+        int low = 0;
+        int high = PresentationWords.Length - 1;
+        while (low <= high)
+        {
+            int middle = low + ((high - low) >> 1);
+            var candidate = PresentationWords[middle];
+            if (candidate.Address == address)
+                return candidate.Frame;
+            if (candidate.Address < address)
+                low = middle + 1;
+            else
+                high = middle - 1;
+        }
+
+        throw new InvalidDataException(
+            $"Ceres door visual operand $A6:{address:X4} is not compiled.");
+    }
 
     /// <summary>Returns fixed Ceres door control or rejects pointers outside the authored programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

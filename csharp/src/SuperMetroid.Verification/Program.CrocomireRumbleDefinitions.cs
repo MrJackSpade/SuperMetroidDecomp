@@ -1,4 +1,6 @@
 using System.Reflection;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -46,7 +48,15 @@ internal static partial class Program
 
         var guarded = new CrocomireRumbleReadGuard(rom);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = new RoomEnemySystem();
+        CrocomireColorCatalog colors = CrocomireColorCatalog.Load(
+            new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = new EnemyTileArtworkCatalog(
+                new Dictionary<ushort, RoomCharacterAtlas>(),
+                new Dictionary<ushort, EnemyPaletteSheet>(), crocomireColors: colors),
+        };
+        var cgram = new SnesCgram();
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
@@ -60,7 +70,7 @@ internal static partial class Program
             StepCounter = 4,
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
         MethodInfo runRumble = typeof(RoomEnemySystem).GetMethod(
             "RunCrocomireWallRumble",
@@ -101,6 +111,10 @@ internal static partial class Program
             "Crocomire rumble production terminator handoff");
         AssertEqual((ushort)0x8080, death.RumbleYOffset,
             "Crocomire rumble production terminator Y marker");
+        for (int color = 0; color < CrocomirePaletteRomData.WallSpikesCount; color++)
+            AssertEqual(colors.ResolveWallSpikes(color),
+                cgram.Colors[CrocomirePaletteRomData.WallSpikesDestination + color],
+                $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(
             $"Crocomire rumble definitions: all 32 native words and {frames} exact production frames pass with the source stream forbidden.");
@@ -157,9 +171,12 @@ internal static partial class Program
         : ISnesAddressSpace
     {
         public byte ReadByte(int address) =>
-            address is >= 0xa498ca and < 0xa4990a
+            address is >= 0xa498ca and < 0xa4990a ||
+                address >= CrocomirePaletteRomData.FightBodySource &&
+                address < CrocomirePaletteRomData.WallSpikesSource +
+                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)
                 ? throw new InvalidOperationException(
-                    $"Crocomire rumble attempted migrated stream read ${address:X6}.")
+                    $"Crocomire rumble attempted migrated data read ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

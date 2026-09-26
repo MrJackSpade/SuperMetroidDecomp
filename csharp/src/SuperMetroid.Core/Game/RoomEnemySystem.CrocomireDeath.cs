@@ -413,7 +413,12 @@ public sealed partial class RoomEnemySystem
         {
             death.RumbleYOffset = 0x8080;
             state.StepCounter = 0x0080;
-            _cgram!.LoadFromBus(_bus!, 0xa4b91d, colorCount: 16, destinationIndex: 176);
+            if (TileArtwork?.CrocomireColors is { } wallSpikeColors)
+                wallSpikeColors.ApplyWallSpikes(_cgram!);
+            else
+                _cgram!.LoadFromBus(_bus!, CrocomirePaletteRomData.WallSpikesSource,
+                    CrocomirePaletteRomData.WallSpikesCount,
+                    CrocomirePaletteRomData.WallSpikesDestination);
             state.DeathSequenceIndex += 2;
             return;
         }
@@ -466,7 +471,12 @@ public sealed partial class RoomEnemySystem
             body,
             CrocomireInstructionProgramDefinitions.SkeletonFallsApart);
         body.PaletteIndex = 0;
-        _cgram!.LoadFromBus(_bus!, 0xa4b8fd, colorCount: 16, destinationIndex: 144);
+        if (TileArtwork?.CrocomireColors is { } skeletonColors)
+            skeletonColors.ApplySkeletonArm(_cgram!);
+        else
+            _cgram!.LoadFromBus(_bus!, CrocomirePaletteRomData.SkeletonArmSource,
+                CrocomirePaletteRomData.SkeletonArmCount,
+                CrocomirePaletteRomData.SkeletonArmDestination);
 
         foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
             projectile.Clear();

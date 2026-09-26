@@ -87,8 +87,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort CrocomireBridgeThreshold = 0x0640;
     private const ushort CrocomireSpikeWallThreshold = 0x0300;
-    private const int CrocomireFightPaletteSource = 0xa4b89d;
-
     private CrocomireEnemyState? _crocomire;
     private CrocomireDeathState? _crocomireDeath;
     private readonly List<CrocomirePlmRequest> _crocomirePlmRequests = new();
@@ -185,8 +183,17 @@ public sealed partial class RoomEnemySystem
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare
         // the exact target image produced by the cartridge.
-        _cgram!.LoadFromBus(_bus!, 0xa4b8bd, colorCount: 17, destinationIndex: 160);
-        _cgram.LoadFromBus(_bus!, 0xa4b8dd, colorCount: 17, destinationIndex: 208);
+        if (TileArtwork?.CrocomireColors is { } colors)
+            colors.ApplyInitial(_cgram!);
+        else
+        {
+            _cgram!.LoadFromBus(_bus!, CrocomirePaletteRomData.InitialWallSource,
+                CrocomirePaletteRomData.InitialWallCount,
+                CrocomirePaletteRomData.InitialWallDestination);
+            _cgram.LoadFromBus(_bus!, CrocomirePaletteRomData.InitialProjectileSource,
+                CrocomirePaletteRomData.InitialProjectileCount,
+                CrocomirePaletteRomData.InitialProjectileDestination);
+        }
     }
 
     /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>
@@ -306,13 +313,15 @@ public sealed partial class RoomEnemySystem
     private void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
         bool white = body.FlashTimer != 0 && (_randomEnemyCounter & 2) != 0;
-        for (int color = 0; color < 8; color++)
+        if (!white && TileArtwork?.CrocomireColors is { } colors)
         {
-            ushort value = white
-                ? (ushort)0x7fff
-                : ReadWord(_bus!, CrocomireFightPaletteSource + color * 2);
-            _cgram!.SetColor(112 + color, value);
+            colors.ApplyFightBody(_cgram!);
+            return;
         }
+        for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
+            _cgram!.SetColor(CrocomirePaletteRomData.FightBodyDestination + color,
+                white ? (ushort)0x7fff : ReadWord(_bus!,
+                    CrocomirePaletteRomData.FightBodySource + color * sizeof(ushort)));
     }
 
     private static void InstallCrocomireInstructionList(RoomEnemySlot slot, ushort pointer)

@@ -350,6 +350,13 @@ Work Robot's six four-color records are similarly editable in
 `game/enemy-tiles/work-robot-palette-cycle.json`, copied to the same overrides
 directory. Its 64/16-tick durations, record wrap, and powered/unpowered state
 remain compiled; only the RGB5 words are replaceable.
+Crocomire's fight-body restore, initial wall and projectile transfers,
+skeleton-arm transfer, and wall-spike transfer are in
+`game/enemy-tiles/crocomire-colors.json`; copy it to `overrides/enemy-tiles/`
+to edit those RGB5 images. The two initial transfers intentionally contain
+seventeen words each, including one word across the next palette boundary.
+The white hurt-flash decision, bridge and death phase timing, collision, and
+room progression stay in code.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

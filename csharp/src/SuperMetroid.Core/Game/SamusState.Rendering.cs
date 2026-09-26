@@ -595,11 +595,11 @@ public sealed partial class SamusState
             SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1Y));
         }
 
-        ushort topBase = ReadWord(
-            bus,
-            AddWithinBank(SamusRenderingRomData.Body.TopSpritemapBaseIndices, Pose * 2));
+        var spritemaps = TileTransfers.Artwork?.Spritemaps;
+        ushort topBase = spritemaps is not null ? spritemaps.TopBase(Pose) : ReadWord(
+            bus, AddWithinBank(SamusRenderingRomData.Body.TopSpritemapBaseIndices, Pose * 2));
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
-        oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
+        oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition, spritemaps);
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -676,11 +676,11 @@ public sealed partial class SamusState
         BottomSpritemapIndex = 0;
         if (drawBottom)
         {
-            ushort bottomBase = ReadWord(
-                bus,
-                AddWithinBank(SamusRenderingRomData.Body.BottomSpritemapBaseIndices, Pose * 2));
+            ushort bottomBase = spritemaps is not null ? spritemaps.BottomBase(Pose) : ReadWord(
+                bus, AddWithinBank(SamusRenderingRomData.Body.BottomSpritemapBaseIndices, Pose * 2));
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
-            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
+            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition,
+                spritemaps);
         }
 
         // Native Samus_Draw always performs this selection after its conditional OAM work.
@@ -853,9 +853,11 @@ public sealed partial class SamusState
             return;
 
         ushort screenX = unchecked((ushort)(echoX - layer1X));
-        oam.AddSamusSpritemap(bus, TopSpritemapIndex, screenX, unchecked((ushort)screenY));
+        oam.AddSamusSpritemap(bus, TopSpritemapIndex, screenX, unchecked((ushort)screenY),
+            TileTransfers.Artwork?.Spritemaps);
         if (BottomSpritemapIndex != 0)
-            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, screenX, unchecked((ushort)screenY));
+            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, screenX, unchecked((ushort)screenY),
+                TileTransfers.Artwork?.Spritemaps);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

@@ -66,6 +66,57 @@ internal static partial class Program
         }
         AssertEqual(435, definitions, "complete Samus body DMA definition count");
 
+        SamusSpritemapArtworkCatalog sprites = stock.Spritemaps;
+        for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
+        {
+            int topAddress = SamusSpritemapArtworkCatalog.TopBaseAddress + pose * 2;
+            int bottomAddress = SamusSpritemapArtworkCatalog.BottomBaseAddress + pose * 2;
+            AssertEqual((ushort)(bus.ReadByte(topAddress) | bus.ReadByte(topAddress + 1) << 8),
+                sprites.TopBase((byte)pose), $"Samus pose {pose:X2} top OAM base");
+            AssertEqual((ushort)(bus.ReadByte(bottomAddress) | bus.ReadByte(bottomAddress + 1) << 8),
+                sprites.BottomBase((byte)pose), $"Samus pose {pose:X2} bottom OAM base");
+        }
+        var spritemapGuard = new FrontendCartridgeReadGuard(bus);
+        int nonzeroSpritemaps = 0;
+        for (int index = 0; index < SamusSpritemapArtworkCatalog.PointerCount; index++)
+        {
+            int tableAddress = SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2;
+            ushort pointer = (ushort)(bus.ReadByte(tableAddress) | bus.ReadByte(tableAddress + 1) << 8);
+            AssertEqual(pointer, sprites.Pointers[index], $"Samus OAM pointer index {index}");
+            if (!sprites.TryGet((ushort)index, out SamusSpritemapDefinition? record))
+            {
+                AssertEqual((ushort)0, pointer, $"Samus OAM index {index} mutable-memory pointer");
+                continue;
+            }
+            nonzeroSpritemaps++;
+            AssertEqual(pointer, record!.Pointer, $"Samus OAM index {index} record identity");
+            int address = 0x920000 | pointer;
+            AssertEqual((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8),
+                (ushort)record.Parts.Length, $"Samus OAM record ${pointer:X4} part count");
+            for (int part = 0; part < record.Parts.Length; part++)
+            {
+                int at = address + 2 + part * 5;
+                AssertEqual((ushort)(bus.ReadByte(at) | bus.ReadByte(at + 1) << 8),
+                    record.Parts[part].X, $"Samus OAM ${pointer:X4} part {part} X/size");
+                AssertEqual(bus.ReadByte(at + 2), record.Parts[part].Y,
+                    $"Samus OAM ${pointer:X4} part {part} Y");
+                AssertEqual((ushort)(bus.ReadByte(at + 3) | bus.ReadByte(at + 4) << 8),
+                    record.Parts[part].Attributes,
+                    $"Samus OAM ${pointer:X4} part {part} attributes");
+            }
+            var nativeOam = new OamBuffer();
+            var installedOam = new OamBuffer();
+            nativeOam.BeginFrame();
+            installedOam.BeginFrame();
+            nativeOam.AddSamusSpritemap(bus, (ushort)index, 127, 131);
+            installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, 127, 131, sprites);
+            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
+                nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                nativeOam.NextByteOffset == installedOam.NextByteOffset,
+                $"Samus OAM index {index} installed/native staging parity");
+        }
+        AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
+
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's
         // initial frame, including all flashback/normal-gameplay pose identities.
@@ -108,12 +159,29 @@ internal static partial class Program
         document["frames"]![0]!["topPosition"] = originalPosition == 0 ? 1 : 0;
         sbyte originalYOffset = (sbyte)document["graphicsYOffsets"]![1]!.GetValue<int>();
         document["graphicsYOffsets"]![1] = originalYOffset + 1;
+        ushort poseOnePointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(0x01)];
+        JsonNode poseOneRecord = document["spritemaps"]!.AsArray().First(entry =>
+            entry!["pointer"]!.GetValue<int>() == poseOnePointer)!;
+        int originalPartX = poseOneRecord["parts"]![0]!["x"]!.GetValue<int>();
+        poseOneRecord["parts"]![0]!["x"] = originalPartX + 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
             "Samus body JSON override changes a visual frame selector");
+        var stockSpritemapOam = new OamBuffer();
+        var editedSpritemapOam = new OamBuffer();
+        stockSpritemapOam.BeginFrame();
+        editedSpritemapOam.BeginFrame();
+        ushort poseOneIndex = stock.Spritemaps.TopBase(0x01);
+        stockSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, 128, 128,
+            stock.Spritemaps);
+        editedSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, 128, 128,
+            replacement.Spritemaps);
+        AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
+            editedSpritemapOam.LowTable[0],
+            "edited Samus spritemap part changes production OAM X by one pixel");
         var editedSamus = new SamusState { Pose = 0x01 };
         editedSamus.TileTransfers.BindArtwork(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
@@ -127,8 +195,8 @@ internal static partial class Program
         var editedOam = new OamBuffer();
         stockOam.BeginFrame();
         editedOam.BeginFrame();
-        stockSamus.Draw(bus, stockOam, layer1X: 0, layer1Y: 0);
-        editedSamus.Draw(bus, editedOam, layer1X: 0, layer1Y: 0);
+        stockSamus.Draw(guardedBus, stockOam, layer1X: 0, layer1Y: 0);
+        editedSamus.Draw(guardedBus, editedOam, layer1X: 0, layer1Y: 0);
         AssertEqual(unchecked((ushort)(stockSamus.SpritemapYPosition - 1)),
             editedSamus.SpritemapYPosition,
             "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
@@ -161,6 +229,6 @@ internal static partial class Program
             "Samus body override cannot change native set-pointer identity");
         document["topPointers"]![0] = stock.TopSetPointers[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
-        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs match retail; PNG/JSON overrides load.");
+        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices match retail; PNG/JSON overrides load.");
     }
 }

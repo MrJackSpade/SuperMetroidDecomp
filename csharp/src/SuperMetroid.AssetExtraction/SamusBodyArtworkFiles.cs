@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class SamusBodyArtworkFiles
 {
     public const string ManifestFileName = "samus-body.json";
-    private const int FormatVersion = 2;
+    private const int FormatVersion = 3;
     private const int TileWidth = 64;
     private const int DefinitionHeight = 16;
     private const int DefinitionEndExclusive = 0xD7D3;
@@ -58,9 +58,19 @@ public static class SamusBodyArtworkFiles
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
+        ushort[] spritemapTopBases = ReadPointers(bus,
+            SamusSpritemapArtworkCatalog.TopBaseAddress, SamusBodyArtworkCatalog.PoseCount);
+        ushort[] spritemapBottomBases = ReadPointers(bus,
+            SamusSpritemapArtworkCatalog.BottomBaseAddress, SamusBodyArtworkCatalog.PoseCount);
+        ushort[] spritemapPointers = ReadPointers(bus,
+            SamusSpritemapArtworkCatalog.PointerTableAddress, SamusSpritemapArtworkCatalog.PointerCount);
+        SamusSpritemapDefinition[] spritemaps = spritemapPointers.Distinct()
+            .Where(pointer => pointer != 0).OrderBy(pointer => pointer)
+            .Select(pointer => ReadSpritemap(bus, pointer)).ToArray();
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topPointers, bottomPointers, posePointers, graphicsYOffsets,
-            frames, top, bottom, hashes);
+            frames, top, bottom, spritemapTopBases, spritemapBottomBases,
+            spritemapPointers, spritemaps, hashes);
         // Constructing the catalog catches missing/invalid references before publication.
         _ = BuildCatalog(directory, manifest, null);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -96,6 +106,10 @@ public static class SamusBodyArtworkFiles
         for (int position = 0; position < stock.Bottom[set].Length; position++)
             if (selected.Bottom[set][position].SourceAddress != stock.Bottom[set][position].SourceAddress)
                 throw new InvalidDataException("Samus body override changes a native bottom source identity.");
+        if (!selected.SpritemapPointers.AsSpan().SequenceEqual(stock.SpritemapPointers) ||
+            selected.Spritemaps.Length != stock.Spritemaps.Length ||
+            selected.Spritemaps.Where((entry, i) => entry.Pointer != stock.Spritemaps[i].Pointer).Any())
+            throw new InvalidDataException("Samus body override changes native spritemap identities.");
         return BuildCatalog(stockDirectory, selected, overrideDirectory);
     }
 
@@ -153,8 +167,10 @@ public static class SamusBodyArtworkFiles
             manifest, true);
         SamusBodyTileDefinition[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
             manifest, false);
+        var spritemaps = new SamusSpritemapArtworkCatalog(manifest.SpritemapTopBases,
+            manifest.SpritemapBottomBases, manifest.SpritemapPointers, manifest.Spritemaps);
         return new SamusBodyArtworkCatalog(manifest.TopPointers, manifest.BottomPointers,
-            manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom);
+            manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom, spritemaps);
     }
 
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
@@ -205,6 +221,8 @@ public static class SamusBodyArtworkFiles
             manifest.BottomPointers is null || manifest.PosePointers is null ||
             manifest.GraphicsYOffsets is null ||
             manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
+            manifest.SpritemapTopBases is null || manifest.SpritemapBottomBases is null ||
+            manifest.SpritemapPointers is null || manifest.Spritemaps is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodyArtworkCatalog.TopSetCount ||
             manifest.Bottom.Length != SamusBodyArtworkCatalog.BottomSetCount ||
             manifest.GraphicsYOffsets.Length != SamusBodyArtworkCatalog.PoseCount ||
@@ -229,6 +247,22 @@ public static class SamusBodyArtworkFiles
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
         Enumerable.Range(0, count).Select(i => ReadWord(bus, start + i * 2)).ToArray();
 
+    private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
+    {
+        int address = 0x920000 | pointer;
+        ushort count = ReadWord(bus, address);
+        if (pointer < 0x90ED || count > 128 || pointer + 2 + count * 5 > 0x10000)
+            throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
+        var parts = new SamusSpritePart[count];
+        for (int i = 0; i < count; i++)
+        {
+            int part = address + 2 + i * 5;
+            parts[i] = new SamusSpritePart(ReadWord(bus, part), bus.ReadByte(part + 2),
+                ReadWord(bus, part + 3));
+        }
+        return new SamusSpritemapDefinition(pointer, parts);
+    }
+
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -239,7 +273,9 @@ public static class SamusBodyArtworkFiles
         ushort[] TopPointers, ushort[] BottomPointers, ushort[] PosePointers,
         sbyte[] GraphicsYOffsets,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
-        DefinitionEntry[][] Bottom, Dictionary<string, string> Hashes);
+        DefinitionEntry[][] Bottom, ushort[] SpritemapTopBases,
+        ushort[] SpritemapBottomBases, ushort[] SpritemapPointers,
+        SamusSpritemapDefinition[] Spritemaps, Dictionary<string, string> Hashes);
 
     private sealed record DefinitionEntry(int SourceAddress, ushort FirstSize, ushort SecondSize);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Hardware;
@@ -157,9 +158,18 @@ public sealed class OamBuffer
         ISnesAddressSpace bus,
         ushort spritemapIndex,
         ushort originX,
-        ushort originY)
+        ushort originY,
+        SamusSpritemapArtworkCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
+
+        if (artwork is not null && artwork.TryGet(spritemapIndex, out SamusSpritemapDefinition? definition))
+        {
+            foreach (SamusSpritePart part in definition!.Parts)
+                AddSamusPart(new SnesSpritemapXWord(part.X), part.Y,
+                    part.Attributes, originX, originY);
+            return;
+        }
 
         // $81:89B8 doubles A because every table element is a 16-bit pointer. The table
         // and pointed-to records both live in bank $92, so 16-bit address arithmetic wraps
@@ -183,30 +193,28 @@ public sealed class OamBuffer
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
-            // The 65C816 adds the complete encoded X word, including the size bit and any
-            // irrelevant high bits produced by old art tools. Only X bit 8 reaches high
-            // OAM; bit 15 of the original offset independently chooses the large OBJ size.
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-            byte calculatedY = unchecked((byte)(originY + encodedYOffset));
-
-            int spriteIndex = NextByteOffset >> 2;
-            int lowOffset = NextByteOffset;
-            _lowTable[lowOffset] = (byte)calculatedX;
-            _lowTable[lowOffset + 1] = calculatedY;
-
-            // Unlike $81:879F, $81:8A1A performs no $F1FF mask and no caller palette OR.
-            // Pose spritemaps carry their complete tile/palette/priority/flip attributes.
-            WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
-            SetHighTablePair(
-                spriteIndex,
-                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
-
-            // Native OAMStack is a nine-bit byte offset and therefore wraps after $1FC.
-            // Normal gameplay stays below that limit, but retaining the mask makes the
-            // behavior inspectable instead of replacing it with a host collection limit.
-            NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+            AddSamusPart(encodedXOffset, encodedYOffset, attributes, originX, originY);
             entryAddress = AddWithinBank(entryAddress, 5);
         }
+    }
+
+    private void AddSamusPart(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
+        ushort attributes, ushort originX, ushort originY)
+    {
+        // The 65C816 adds the complete encoded X word, including size and old art-tool
+        // bits. Only X bit 8 reaches high OAM; bit 15 independently chooses OBJ size.
+        ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
+        byte calculatedY = unchecked((byte)(originY + encodedYOffset));
+        int spriteIndex = NextByteOffset >> 2;
+        int lowOffset = NextByteOffset;
+        _lowTable[lowOffset] = (byte)calculatedX;
+        _lowTable[lowOffset + 1] = calculatedY;
+        // Unlike generic spritemaps, Samus parts retain their authored palette/priority.
+        WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
+        SetHighTablePair(spriteIndex,
+            SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
+        // Native OAMStack is a nine-bit byte offset and wraps after $1FC.
+        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
 
     /// <summary>

@@ -105,9 +105,12 @@ require their input directories. Keep all ROMs and generated game resources out 
 frames. Each native transfer definition occupies a 64x16-pixel strip in its set's
 PNG; unused cells must remain palette index zero. Copy a PNG to the same filename
 under `overrides/samus-body/` to change its pixels. Copy `samus-body.json` there
-to change visual pose/frame selectors, signed per-pose graphics Y offsets, or the
-two split VRAM transfer sizes; keep
-the stock provenance hashes, definition counts, set pointers, and source addresses.
+to change visual pose/frame selectors, signed per-pose graphics Y offsets, the
+two split VRAM transfer sizes, or the `spritemaps` array's OAM part offsets and
+attributes. The `spritemapTopBases` and `spritemapBottomBases` arrays select each
+pose's upper/lower indexed OAM frame. Keep the stock provenance hashes, definition
+counts, set pointers, source addresses, and `spritemapPointers`/record identities.
+Zero spritemap pointers are native mutable-memory references, not blank frames.
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

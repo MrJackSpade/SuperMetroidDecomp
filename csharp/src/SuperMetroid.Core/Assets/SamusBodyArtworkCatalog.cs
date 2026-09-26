@@ -28,10 +28,14 @@ public sealed class SamusBodyArtworkCatalog
     private readonly SamusBodyTileDefinition[][] bottom;
     private readonly Dictionary<int, SamusBodyTileDefinition> definitionsByAddress = [];
 
+    /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
+    public SamusSpritemapArtworkCatalog Spritemaps { get; }
+
     public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
         ushort[] posePointers, sbyte[] graphicsYOffsets,
         SamusBodyFrameSelection[] frames,
-        SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom)
+        SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom,
+        SamusSpritemapArtworkCatalog spritemaps)
     {
         ArgumentNullException.ThrowIfNull(topPointers);
         ArgumentNullException.ThrowIfNull(bottomPointers);
@@ -40,6 +44,7 @@ public sealed class SamusBodyArtworkCatalog
         ArgumentNullException.ThrowIfNull(frames);
         ArgumentNullException.ThrowIfNull(top);
         ArgumentNullException.ThrowIfNull(bottom);
+        ArgumentNullException.ThrowIfNull(spritemaps);
         if (topPointers.Length != TopSetCount || bottomPointers.Length != BottomSetCount ||
             posePointers.Length != PoseCount || graphicsYOffsets.Length != PoseCount ||
             frames.Length != FrameCount ||
@@ -51,6 +56,7 @@ public sealed class SamusBodyArtworkCatalog
         this.posePointers = (ushort[])posePointers.Clone();
         this.graphicsYOffsets = (sbyte[])graphicsYOffsets.Clone();
         this.frames = (SamusBodyFrameSelection[])frames.Clone();
+        Spritemaps = spritemaps;
         this.top = CloneAndValidate(topPointers, top);
         this.bottom = CloneAndValidate(bottomPointers, bottom);
         IndexDefinitions(true, this.top);

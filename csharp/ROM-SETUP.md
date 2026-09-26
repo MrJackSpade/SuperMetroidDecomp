@@ -895,8 +895,11 @@ file is hash-checked, and edits are included in recorded content identity.
 Trail appearance uses `projectile-trails.json` in the same stock/override
 directories. Copy the complete file before editing tile row/column, palette,
 priority or flips. Timing and trail movement are intentionally not editable.
-This selects existing trail graphics; separate trail PNG replacement is not yet
-supported. The Mother Brain intro flashback shares the selected projectile,
+This selects existing trail graphics. To replace their pixels, copy
+`game/projectiles/projectile-trails.png` to `overrides/projectiles/` and edit
+its 96x8 indexed 4-bpp image. The first eight tiles are ice/wave trails and
+the last four are missile/Super Missile trails; their two VRAM destinations
+stay fixed. The Mother Brain intro flashback shares the selected projectile,
 explosion and trail compositions, including after loading a debugger state.
 
 Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed in
@@ -904,6 +907,13 @@ Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed i
 combination's artwork. Keep its 64x8 indexed format and pixel indices 0 through 15.
 PNG palette colors are diagnostic: gameplay uses the separately selected beam palette.
 These sheets do not replace missile, bomb, trail, flare or Grapple artwork.
+Missile and bomb pixels are part of the shared
+`game/standard-objects/standard-object-characters.png` sheet; trail pixels use
+the separate PNG above, while Grapple endpoint/segment pixels use
+`game/projectiles/grapple-tiles.png`. Copy either PNG to its matching
+`overrides/` directory to replace it. Charge-flare and Grapple sprite
+compositions and their visual placement rules are separately editable JSON in
+`game/projectiles/`; these edits do not alter projectile collision or motion.
 
 Copy `game/projectiles/beam-palettes.json` to `overrides/projectiles/beam-palettes.json`
 to edit ordinary beam colors. Keep all twelve selections and sixteen colors per

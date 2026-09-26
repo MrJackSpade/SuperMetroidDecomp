@@ -340,6 +340,12 @@ health, and AI are unchanged by these tile/color edits. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
+Magdollite's separate four-frame OBJ color cycle is in
+`game/enemy-tiles/magdollite-palette-cycle.json`; copy it to
+`overrides/enemy-tiles/` to edit its four RGB5 colors per frame. The cartridge's
+eight-tick cadence, frame order, and selected OBJ palette slot stay in code.
+The installed game uses this asset for the cycle rather than reading its
+colors from the ROM during play.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

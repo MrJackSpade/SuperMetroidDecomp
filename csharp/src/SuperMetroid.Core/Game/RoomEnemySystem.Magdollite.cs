@@ -109,8 +109,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MagdolliteTouchAi = EnemyAiCodePointers.BankA8.MagdolliteTouch;
     internal const ushort MagdolliteShotAi = EnemyAiCodePointers.BankA8.MagdolliteShot;
 
-    private const int MagdollitePaletteTable = 0xa8ac1c;
-
     private readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[MaximumEnemyCount];
     private ushort _magdollitePaletteAnimationTimer;
@@ -625,11 +623,24 @@ public sealed partial class RoomEnemySystem
         _magdollitePaletteAnimationTimer = 8;
         _magdollitePaletteAnimationIndex = unchecked((ushort)(
             _magdollitePaletteAnimationIndex + 1));
-        int paletteFrame = _magdollitePaletteAnimationIndex & 3;
-        int source = MagdollitePaletteTable + paletteFrame * 32 + 9 * 2;
-        int destination = (_magdollitePaletteBaseByteOffset >> 1) + 9;
-        for (int color = 0; color < 4; color++)
-            _cgram!.SetColor(destination + color, ReadWord(_bus!, source + color * 2));
+        int paletteFrame = _magdollitePaletteAnimationIndex &
+            (MagdollitePaletteRomData.FrameCount - 1);
+        int destination = (_magdollitePaletteBaseByteOffset >> 1) +
+            MagdollitePaletteRomData.FirstAnimatedColor;
+        if (TileArtwork?.MagdollitePaletteCycle is { } installedCycle)
+        {
+            installedCycle.ApplyFrame(_cgram!, paletteFrame, destination);
+            return;
+        }
+
+        // Constructed fixtures without installed artwork still use the native
+        // source. A normal game installation always binds the extracted cycle.
+        int source = MagdollitePaletteRomData.Source +
+            (paletteFrame * MagdollitePaletteRomData.SourceColorsPerFrame +
+             MagdollitePaletteRomData.FirstAnimatedColor) * sizeof(ushort);
+        for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
+            _cgram!.SetColor(destination + color,
+                ReadWord(_bus!, source + color * sizeof(ushort)));
     }
 
     /// <summary>

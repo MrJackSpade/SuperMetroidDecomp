@@ -43,6 +43,19 @@ public static class GameAssetInstaller
         return IsComplete(installation) ? installation : ExtractAndPublish(installation, rom, cancellationToken, progress);
     }
 
+    /// <summary>
+    /// Opens a complete extracted-content installation without requiring the private ROM copy.
+    /// This validates presentation assets and their source-revision receipt only; it does not
+    /// imply that the current ROM-backed gameplay hosts can start without a cartridge.
+    /// </summary>
+    public static GameInstallation? TryOpenExtractedContent(string root)
+    {
+        var installation = new GameInstallation(Path.GetFullPath(root));
+        using FileStream gate = Lock(installation.Root);
+        RecoverInterruptedPublish(installation);
+        return IsExtractedContentComplete(installation) ? installation : null;
+    }
+
     private static GameInstallation InstallValidated(byte[] rom, string root,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
@@ -63,11 +76,13 @@ public static class GameAssetInstaller
         return ExtractAndPublish(installation, rom, cancellationToken, progress);
     }
 
-    private static bool IsComplete(GameInstallation installation)
+    private static bool IsComplete(GameInstallation installation) =>
+        File.Exists(installation.RomPath) && IsExtractedContentComplete(installation);
+
+    private static bool IsExtractedContentComplete(GameInstallation installation)
     {
         try
         {
-            if (!File.Exists(installation.RomPath)) return false;
             var receipt = JsonSerializer.Deserialize<InstallationReceipt>(
                 File.ReadAllText(Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName)));
             if (receipt is null || receipt.FormatVersion != GameInstallationLayout.FormatVersion ||

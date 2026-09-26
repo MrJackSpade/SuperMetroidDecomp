@@ -42,6 +42,22 @@ try
     GameInstallation installed = GameAssetInstaller.Install(input, root);
     Check(File.ReadAllBytes(input).AsSpan().SequenceEqual(headered), "original selected ROM is preserved");
     Check(File.ReadAllBytes(installed.RomPath).AsSpan().SequenceEqual(rom), "installed ROM strips only the copier header");
+    Check(GameAssetInstaller.TryOpenExtractedContent(root) is not null,
+        "complete extracted content is recognized with its source-revision receipt");
+    string heldRom = Path.Combine(temporary, "temporarily-held-installed-rom.smc");
+    File.Move(installed.RomPath, heldRom);
+    try
+    {
+        GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(root);
+        Check(romFreeContent is not null && romFreeContent.LoadAudio().CanonicalSampleCount == 112,
+            "installed presentation assets remain usable without the private ROM copy");
+        Check(GameAssetInstaller.EnsureInstalled(root) is null,
+            "ROM-backed gameplay startup still refuses an installation without its ROM");
+    }
+    finally
+    {
+        File.Move(heldRom, installed.RomPath);
+    }
     var catalog = ExtractedAudioAssetCatalog.Load(installed.AudioDirectory);
     Check(catalog.CanonicalSampleCount == 112 && catalog.SourceMappingCount == 935, "all canonical samples and source aliases extracted");
     Console.WriteLine($"PASS installed runtime resources: {catalog.CanonicalSampleCount} WAV samples, {catalog.SourceMappingCount} aliases.");
@@ -87,6 +103,8 @@ try
     string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
     byte[] waveBefore = File.ReadAllBytes(waveform);
     File.WriteAllBytes(waveform, "broken wave"u8.ToArray());
+    Check(GameAssetInstaller.TryOpenExtractedContent(root) is null,
+        "a damaged extracted asset is not mistaken for valid ROM-free content");
     File.Delete(input);
     Check(GameAssetInstaller.EnsureInstalled(root) is not null, "repair works after the original selected document is gone");
     Check(File.ReadAllBytes(waveform).AsSpan().SequenceEqual(waveBefore), "damaged waveform is regenerated exactly");

@@ -22,9 +22,13 @@ internal static partial class Program
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             VerifySamusAnimationDelayDefinitions(bus, sourceRom);
-            VerifySamusBodyArtwork(bus, installation);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            // The body-art override verifier intentionally edits this installation's
+            // pose-$09 PNG. Compare the guarded frontend with retail *before* those
+            // visual-only overrides are selected; otherwise movement correctly shows
+            // the edit and falsely fails stock pixel parity.
             VerifyFrontendRomFreeStartup(installation, sourceRom);
+            VerifySamusBodyArtwork(bus, installation);
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),

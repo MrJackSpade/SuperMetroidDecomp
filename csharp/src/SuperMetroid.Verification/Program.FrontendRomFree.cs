@@ -130,6 +130,7 @@ internal static partial class Program
                     AssertTrue(actualGameplay.Pixels.AsSpan().SequenceEqual(expectedGameplay.Pixels),
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
+                VerifyFrontendRomFreeCeresInput(native, installed);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -141,6 +142,67 @@ internal static partial class Program
         }
         throw new InvalidOperationException(
             $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrameMetadata.Phase}.");
+    }
+
+    /// <summary>
+    /// Exercise actual Samus movement and a beam shot after the cinematic handoff.
+    /// A neutral-only window cannot expose projectile/pose presentation reads.
+    /// </summary>
+    private static void VerifyFrontendRomFreeCeresInput(SuperMetroidGame native,
+        SuperMetroidGame installed)
+    {
+        AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
+            "ROM-free input fixture reaches playable Ceres");
+        AssertTrue(installed.GameplayMovementEnabled,
+            "ROM-free input fixture enables Samus movement");
+        ushort initialX = installed.GameplaySamusX;
+        bool fired = false;
+        for (int frame = 0; frame < 100; frame++)
+        {
+            ushort input = frame < 24 ? (ushort)SnesButton.Right :
+                frame == 25 ? (ushort)SnesButton.X :
+                frame is >= 40 and < 60 ? (ushort)(SnesButton.A | SnesButton.Left) : (ushort)0;
+            FrontendFrame expected = native.Step(input);
+            FrontendFrame actual = installed.Step(input);
+            AssertEqual(expected.GameState, actual.GameState,
+                $"installed Ceres input state frame {frame}");
+            AssertEqual(expected.Phase, actual.Phase,
+                $"installed Ceres input phase frame {frame}");
+            if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
+            {
+                int first = 0;
+                while (actual.Pixels[first].Equals(expected.Pixels[first]))
+                    first++;
+                var nativeSamus = native.RuntimeForVerification!.Samus!;
+                var installedSamus = installed.RuntimeForVerification!.Samus!;
+                int firstVram = 0;
+                ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification.Vram.Bytes;
+                ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification.Vram.Bytes;
+                while (firstVram < nativeVram.Length && nativeVram[firstVram] == installedVram[firstVram])
+                    firstVram++;
+                int firstOam = 0;
+                ReadOnlySpan<byte> nativeOam = native.RuntimeForVerification.DisplayedOam.LowTable;
+                ReadOnlySpan<byte> installedOam = installed.RuntimeForVerification.DisplayedOam.LowTable;
+                while (firstOam < nativeOam.Length && nativeOam[firstOam] == installedOam[firstOam])
+                    firstOam++;
+                throw new InvalidOperationException(
+                    $"Installed Ceres input pixels differ at frame {frame}, pixel " +
+                    $"({first % FrontendFrame.Width},{first / FrontendFrame.Width}): " +
+                    $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
+                    $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
+                    $"pose ${native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
+                    $"top {nativeSamus.TopSpritemapIndex}/bottom {nativeSamus.BottomSpritemapIndex}, installed=" +
+                    $"({installed.GameplaySamusX},{installed.GameplaySamusY}) " +
+                    $"pose ${installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
+                    $"top {installedSamus.TopSpritemapIndex}/bottom {installedSamus.BottomSpritemapIndex}; " +
+                    $"first VRAM diff={firstVram}, first OAM diff={firstOam}.");
+            }
+            fired |= installed.GameplayLastFiredProjectileSlot is not null;
+        }
+        AssertTrue(installed.GameplaySamusX != initialX,
+            "ROM-free Ceres input moves Samus in world space");
+        AssertTrue(fired, "ROM-free Ceres input produces a beam shot");
+        Console.WriteLine("Frontend ROM-free Ceres input: 100 direction and firing frames match stock pixels without cartridge reads.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

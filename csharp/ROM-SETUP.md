@@ -105,7 +105,8 @@ require their input directories. Keep all ROMs and generated game resources out 
 frames. Each native transfer definition occupies a 64x16-pixel strip in its set's
 PNG; unused cells must remain palette index zero. Copy a PNG to the same filename
 under `overrides/samus-body/` to change its pixels. Copy `samus-body.json` there
-to change visual pose/frame selectors or the two split VRAM transfer sizes; keep
+to change visual pose/frame selectors, signed per-pose graphics Y offsets, or the
+two split VRAM transfer sizes; keep
 the stock provenance hashes, definition counts, set pointers, and source addresses.
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change

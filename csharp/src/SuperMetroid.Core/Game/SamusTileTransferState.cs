@@ -17,6 +17,8 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusTileTransferState
 {
     [NonSerialized] private SamusBodyArtworkCatalog? artwork;
+    /// <summary>Currently bound external visual presentation; never part of save state.</summary>
+    public SamusBodyArtworkCatalog? Artwork => artwork;
 
     /// <summary>Rebind installed visual data without replacing pending native DMA state.</summary>
     public void BindArtwork(SamusBodyArtworkCatalog? value) => artwork = value;

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class SamusBodyArtworkFiles
 {
     public const string ManifestFileName = "samus-body.json";
-    private const int FormatVersion = 1;
+    private const int FormatVersion = 2;
     private const int TileWidth = 64;
     private const int DefinitionHeight = 16;
     private const int DefinitionEndExclusive = 0xD7D3;
@@ -41,6 +41,11 @@ public static class SamusBodyArtworkFiles
         ushort[] posePointers = ReadPointers(bus,
             SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers,
             SamusBodyArtworkCatalog.PoseCount);
+        sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
+            .Select(pose => unchecked((sbyte)bus.ReadByte(
+                SamusMovementRomData.Poses.Definitions +
+                pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)))
+            .ToArray();
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         for (int index = 0; index < frames.Length; index++)
         {
@@ -54,7 +59,8 @@ public static class SamusBodyArtworkFiles
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
-            topPointers, bottomPointers, posePointers, frames, top, bottom, hashes);
+            topPointers, bottomPointers, posePointers, graphicsYOffsets,
+            frames, top, bottom, hashes);
         // Constructing the catalog catches missing/invalid references before publication.
         _ = BuildCatalog(directory, manifest, null);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -148,7 +154,7 @@ public static class SamusBodyArtworkFiles
         SamusBodyTileDefinition[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
             manifest, false);
         return new SamusBodyArtworkCatalog(manifest.TopPointers, manifest.BottomPointers,
-            manifest.PosePointers, manifest.Frames, top, bottom);
+            manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom);
     }
 
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
@@ -197,9 +203,11 @@ public static class SamusBodyArtworkFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) || manifest.TopPointers is null ||
             manifest.BottomPointers is null || manifest.PosePointers is null ||
+            manifest.GraphicsYOffsets is null ||
             manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodyArtworkCatalog.TopSetCount ||
             manifest.Bottom.Length != SamusBodyArtworkCatalog.BottomSetCount ||
+            manifest.GraphicsYOffsets.Length != SamusBodyArtworkCatalog.PoseCount ||
             manifest.Top.Any(set => set is null || set.Length == 0) ||
             manifest.Bottom.Any(set => set is null || set.Length == 0))
             throw new InvalidDataException("Samus body manifest does not match this installation.");
@@ -229,6 +237,7 @@ public static class SamusBodyArtworkFiles
 
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         ushort[] TopPointers, ushort[] BottomPointers, ushort[] PosePointers,
+        sbyte[] GraphicsYOffsets,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
         DefinitionEntry[][] Bottom, Dictionary<string, string> Hashes);
 

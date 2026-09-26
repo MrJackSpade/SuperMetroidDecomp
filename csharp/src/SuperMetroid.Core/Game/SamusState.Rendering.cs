@@ -501,9 +501,6 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
 
-        int poseDefinition = AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            Pose * SamusMovementRomData.Poses.DefinitionByteCount);
         SamusMovementType movementType = ReadMovementType(bus);
 
         // `$90:85E2-$90:85FC` applies invincibility flicker to the body spritemaps, not to
@@ -535,7 +532,7 @@ public sealed partial class SamusState
 
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
-        sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
+        sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
         SpritemapXPosition = unchecked((ushort)(renderX - layer1X));
         if (movementType == SamusMovementType.Standing &&
             Pose is SamusPoseIds.ForwardFacingPowerSuitPose or SamusPoseIds.ForwardFacingSuitedPose &&
@@ -847,10 +844,7 @@ public sealed partial class SamusState
         if (echoX == 0)
             return;
 
-        int poseDefinition = AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            Pose * SamusMovementRomData.Poses.DefinitionByteCount);
-        sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
+        sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
         short screenY = unchecked((short)(echoY - graphicsYOffset - layer1Y));
 
         // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,

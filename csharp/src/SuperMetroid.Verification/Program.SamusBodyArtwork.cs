@@ -16,6 +16,10 @@ internal static partial class Program
             int address = 0x92D94E + pose * 2;
             ushort native = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
             AssertEqual(native, stock.PosePointers[pose], $"Samus body pose pointer {pose:X2}");
+            int graphicsAddress = SamusMovementRomData.Poses.Definitions +
+                pose * SamusMovementRomData.Poses.DefinitionByteCount + 4;
+            AssertEqual(unchecked((sbyte)bus.ReadByte(graphicsAddress)),
+                stock.GraphicsYOffset((byte)pose), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodyArtworkCatalog.FrameCount; index++)
         {
@@ -102,12 +106,35 @@ internal static partial class Program
             installation.SamusBodyDirectory, SamusBodyArtworkFiles.ManifestFileName)))!;
         byte originalPosition = (byte)document["frames"]![0]!["topPosition"]!.GetValue<int>();
         document["frames"]![0]!["topPosition"] = originalPosition == 0 ? 1 : 0;
+        sbyte originalYOffset = (sbyte)document["graphicsYOffsets"]![1]!.GetValue<int>();
+        document["graphicsYOffsets"]![1] = originalYOffset + 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
             "Samus body JSON override changes a visual frame selector");
+        var editedSamus = new SamusState { Pose = 0x01 };
+        editedSamus.TileTransfers.BindArtwork(replacement);
+        AssertEqual((sbyte)(originalYOffset + 1),
+            editedSamus.ReadGraphicsYOffset(guardedBus),
+            "edited Samus visual Y offset is used without a cartridge read");
+        var stockSamus = new SamusState { Pose = 0x01, XPosition = 128, YPosition = 128 };
+        stockSamus.TileTransfers.BindArtwork(stock);
+        editedSamus.XPosition = stockSamus.XPosition;
+        editedSamus.YPosition = stockSamus.YPosition;
+        var stockOam = new OamBuffer();
+        var editedOam = new OamBuffer();
+        stockOam.BeginFrame();
+        editedOam.BeginFrame();
+        stockSamus.Draw(bus, stockOam, layer1X: 0, layer1Y: 0);
+        editedSamus.Draw(bus, editedOam, layer1X: 0, layer1Y: 0);
+        AssertEqual(unchecked((ushort)(stockSamus.SpritemapYPosition - 1)),
+            editedSamus.SpritemapYPosition,
+            "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
+        AssertEqual(unchecked((byte)originalYOffset),
+            SamusPoseProjectileOriginDefinitions.ReadYOffset(0x01),
+            "editing Samus art never changes the compiled projectile collision correction");
         var originalSelector = new SamusTileTransferState();
         var editedSelector = new SamusTileTransferState();
         originalSelector.BindArtwork(stock);

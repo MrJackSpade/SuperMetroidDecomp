@@ -22,29 +22,34 @@ public sealed class SamusBodyArtworkCatalog
     private readonly ushort[] topPointers;
     private readonly ushort[] bottomPointers;
     private readonly ushort[] posePointers;
+    private readonly sbyte[] graphicsYOffsets;
     private readonly SamusBodyFrameSelection[] frames;
     private readonly SamusBodyTileDefinition[][] top;
     private readonly SamusBodyTileDefinition[][] bottom;
     private readonly Dictionary<int, SamusBodyTileDefinition> definitionsByAddress = [];
 
     public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
-        ushort[] posePointers, SamusBodyFrameSelection[] frames,
+        ushort[] posePointers, sbyte[] graphicsYOffsets,
+        SamusBodyFrameSelection[] frames,
         SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom)
     {
         ArgumentNullException.ThrowIfNull(topPointers);
         ArgumentNullException.ThrowIfNull(bottomPointers);
         ArgumentNullException.ThrowIfNull(posePointers);
+        ArgumentNullException.ThrowIfNull(graphicsYOffsets);
         ArgumentNullException.ThrowIfNull(frames);
         ArgumentNullException.ThrowIfNull(top);
         ArgumentNullException.ThrowIfNull(bottom);
         if (topPointers.Length != TopSetCount || bottomPointers.Length != BottomSetCount ||
-            posePointers.Length != PoseCount || frames.Length != FrameCount ||
+            posePointers.Length != PoseCount || graphicsYOffsets.Length != PoseCount ||
+            frames.Length != FrameCount ||
             top.Length != TopSetCount || bottom.Length != BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
 
         this.topPointers = (ushort[])topPointers.Clone();
         this.bottomPointers = (ushort[])bottomPointers.Clone();
         this.posePointers = (ushort[])posePointers.Clone();
+        this.graphicsYOffsets = (sbyte[])graphicsYOffsets.Clone();
         this.frames = (SamusBodyFrameSelection[])frames.Clone();
         this.top = CloneAndValidate(topPointers, top);
         this.bottom = CloneAndValidate(bottomPointers, bottom);
@@ -63,6 +68,11 @@ public sealed class SamusBodyArtworkCatalog
     public ReadOnlySpan<ushort> TopSetPointers => topPointers;
     public ReadOnlySpan<ushort> BottomSetPointers => bottomPointers;
     public ReadOnlySpan<ushort> PosePointers => posePointers;
+    public ReadOnlySpan<sbyte> GraphicsYOffsets => graphicsYOffsets;
+    /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
+    public sbyte GraphicsYOffset(byte pose) =>
+        pose < PoseCount ? graphicsYOffsets[pose] :
+            throw new InvalidDataException($"Pose ${pose:X2} has no authored graphics Y offset.");
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
     public IReadOnlyList<SamusBodyTileDefinition> TopSet(int set) => top[set];
     public IReadOnlyList<SamusBodyTileDefinition> BottomSet(int set) => bottom[set];

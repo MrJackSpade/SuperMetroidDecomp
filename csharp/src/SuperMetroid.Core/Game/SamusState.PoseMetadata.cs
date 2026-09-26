@@ -141,7 +141,8 @@ public sealed partial class SamusState
     public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return unchecked((sbyte)bus.ReadByte(AddWithinBank(
+        return TileTransfers.Artwork?.GraphicsYOffset(Pose) ??
+            unchecked((sbyte)bus.ReadByte(AddWithinBank(
             SamusMovementRomData.Poses.Definitions,
             Pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)));
     }

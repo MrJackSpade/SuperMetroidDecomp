@@ -33,7 +33,6 @@ public sealed partial class SamusProjectileSystem
     public const int TrailSlotCount = 18;
 
     private const int PoseDirectionOffset = 3;
-    private const int PoseYOffsetOffset = 4;
     // `$93:83FF` is only the pointer-table entry that names the beam-explosion DATA
     // record (`$8679`). KillProjectileInner does not install that address. Its assembly
     // reads the instruction-list pointer stored two bytes into the data record, at

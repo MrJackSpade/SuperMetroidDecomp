@@ -165,7 +165,7 @@ public sealed partial class SamusProjectileSystem
         var visualOffset = placement?.Resolve(running, direction & 0x0f);
         short xOffset = visualOffset?.X ?? unchecked((short)ReadWord(bus, xTable + directionOffset));
         short yOffset = visualOffset?.Y ?? unchecked((short)ReadWord(bus, yTable + directionOffset));
-        byte poseYOffset = ReadPoseByte(bus, samus.Pose, PoseYOffsetOffset);
+        byte poseYOffset = unchecked((byte)samus.ReadGraphicsYOffset(bus));
 
         // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the
         // body renderer. Only Samus's center is transformed; the pose-selected muzzle
@@ -201,11 +201,6 @@ public sealed partial class SamusProjectileSystem
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
     }
-
-    private static byte ReadPoseByte(ISnesAddressSpace bus, byte pose, int fieldOffset) =>
-        bus.ReadByte(
-            SamusMovementRomData.Poses.Definitions +
-            pose * SamusMovementRomData.Poses.DefinitionByteCount + fieldOffset);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8)));

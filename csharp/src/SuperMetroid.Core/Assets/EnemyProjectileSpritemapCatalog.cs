@@ -18,7 +18,8 @@ public sealed class EnemyProjectileSpritemapCatalog
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no composition at $8D:{pointer:X4}.");
 
-    public static EnemyProjectileSpritemapCatalog Load(Stream json)
+    public static EnemyProjectileSpritemapCatalog Load(Stream json,
+        EnemyProjectileSpritemapCatalog? stock = null)
     {
         ArgumentNullException.ThrowIfNull(json);
         EnemyProjectileSpritemapDocument document;
@@ -33,13 +34,21 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        if (document.Version != EnemyProjectileSpritemapDefinitions.Version ||
-            document.Frames is null ||
-            document.Frames.Count != EnemyProjectileSpritemapDefinitions.Frames.Length)
+        bool legacyOverride = document.Version == 1 && stock is not null;
+        int expectedFrames = legacyOverride
+            ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
+            : EnemyProjectileSpritemapDefinitions.Frames.Length;
+        if ((!legacyOverride && document.Version != EnemyProjectileSpritemapDefinitions.Version) ||
+            document.Frames is null || document.Frames.Count != expectedFrames)
             throw new InvalidDataException(
                 "Enemy-projectile compositions have the wrong version or frame count.");
-        var compiled = new Dictionary<ushort, EnemySpritemapPart[]>();
-        foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
+        // Version-one overrides edited only the three Ceres elevator frames. Retain
+        // those parts and take newly extracted debris frames from hash-checked stock.
+        var compiled = stock is not null && legacyOverride
+            ? new Dictionary<ushort, EnemySpritemapPart[]>(stock.frames)
+            : new Dictionary<ushort, EnemySpritemapPart[]>();
+        foreach ((ushort pointer, string name) in
+                 EnemyProjectileSpritemapDefinitions.Frames.Take(expectedFrames))
         {
             if (!document.Frames.TryGetValue(name, out SpriteVisualPart[]? visual) ||
                 visual is null || visual.Length > EnemyProjectileSpritemapDefinitions.MaximumParts)
@@ -67,7 +76,7 @@ public sealed class EnemyProjectileSpritemapCatalog
                             part.TileColumn,
                         part.Palette.Value, part.Priority, flips));
             }
-            compiled.Add(pointer, parts);
+            compiled[pointer] = parts;
         }
         return new EnemyProjectileSpritemapCatalog(compiled);
     }
@@ -96,17 +105,20 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 1;
+    public const int Version = 2;
     public const string FileName = "enemy-projectile-compositions.json";
+    public const int LegacyFrameCount = 3;
     public const int MaximumParts = 128;
     public const int TileColumns = 16;
     public const int TileRows = 64;
 
-    /// <summary>The two pad frames and stationary concealer selected by $86:A28D-A29D.</summary>
+    /// <summary>Ceres arrival frames and Skree/Metaree debris selected by their bank-$86 programs.</summary>
     internal static readonly (ushort Pointer, string Name)[] Frames =
     [
         (0xb1ba, "ceres_elevator_pad_0"),
         (0xb1d0, "ceres_elevator_pad_1"),
         (0x846d, "ceres_elevator_platform"),
+        (SkreeMetareeParticleVisualDefinitions.SkreeComposition, "skree_debris"),
+        (SkreeMetareeParticleVisualDefinitions.MetareeComposition, "metaree_debris"),
     ];
 }

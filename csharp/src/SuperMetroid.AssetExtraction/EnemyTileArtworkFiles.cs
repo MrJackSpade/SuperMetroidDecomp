@@ -339,11 +339,16 @@ public static class EnemyTileArtworkFiles
         EnemyProjectileSpritemapCatalog projectileSpritemaps;
         try
         {
+            string stockPath = Path.Combine(stockDirectory,
+                EnemyProjectileSpritemapDefinitions.FileName);
             byte[] selected = ReadStockOrOverride(
                 EnemyProjectileSpritemapDefinitions.FileName,
                 manifest.EnemyProjectileCompositionsSha256);
+            EnemyProjectileSpritemapCatalog stockProjectiles =
+                EnemyProjectileSpritemapCatalog.Load(
+                    new MemoryStream(File.ReadAllBytes(stockPath), writable: false));
             projectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(
-                new MemoryStream(selected, writable: false));
+                new MemoryStream(selected, writable: false), stockProjectiles);
         }
         catch (InvalidDataException error)
         {

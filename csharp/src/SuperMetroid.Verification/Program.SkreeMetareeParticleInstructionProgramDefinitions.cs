@@ -90,7 +90,7 @@ internal static partial class Program
         AssertEqual(
             SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount,
             guard.ObservedPresentationWords.Count,
-            "both live Skree/Metaree particle spritemap operands remain cartridge reads");
+            "diagnostic fallback reads both Skree/Metaree particle spritemap operands");
         for (int index = 0;
              index < SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -120,7 +120,7 @@ internal static partial class Program
         Console.WriteLine(
             "Skree/Metaree particle instruction mechanics: six compiled words, all " +
             "eight real burst owners, two complete loops, shared shot deletion, and " +
-            "both live spritemap reads pass with mechanics bytes forbidden.");
+            "both diagnostic spritemap reads pass with mechanics bytes forbidden.");
 
         void RunCompleteLoops(
             IEnumerable<RoomEnemyProjectileSlot> projectiles,

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -37,6 +38,24 @@ internal static partial class Program
                 $"installed $8D:{pointer:X4} OAM pixels, wrapping, tile base and palette");
         }
 
+        foreach ((ushort operand, ushort pointer) in new[]
+                 {
+                     (SkreeMetareeParticleVisualDefinitions.SkreeOperand,
+                         SkreeMetareeParticleVisualDefinitions.SkreeComposition),
+                     (SkreeMetareeParticleVisualDefinitions.MetareeOperand,
+                         SkreeMetareeParticleVisualDefinitions.MetareeComposition),
+                 })
+        {
+            ushort nativePointer = unchecked((ushort)(
+                bus.ReadByte(0x860000 | operand) |
+                bus.ReadByte(0x860000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertEqual(nativePointer, SkreeMetareeParticleVisualDefinitions.Resolve(operand),
+                $"particle visual operand $86:{operand:X4} matches the pinned cartridge");
+            AssertEqual(nativePointer, pointer,
+                $"particle visual operand $86:{operand:X4} selects its editable composition");
+        }
+        VerifyBurstVisuals(stock);
+
         var nativeSamus = new SamusState { XPosition = 0x0080, YPosition = 0 };
         var installedSamus = new SamusState { XPosition = 0x0080, YPosition = 0 };
         var nativeArrival = new CeresElevatorArrivalState(bus, nativeSamus);
@@ -66,11 +85,13 @@ internal static partial class Program
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         SpriteVisualPart[] pad = document.Frames["ceres_elevator_pad_0"];
         pad[0] = pad[0] with { OffsetX = pad[0].OffsetX + 1 };
+        SpriteVisualPart[] skree = document.Frames["skree_debris"];
+        skree[0] = skree[0] with { OffsetX = skree[0].OffsetX + 1 };
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
-        EnemyProjectileSpritemapCatalog edited = EnemyTileArtworkFiles.Load(
-            directory, overrides).ProjectileSpritemaps!;
+        EnemyTileArtworkCatalog editedArt = EnemyTileArtworkFiles.Load(directory, overrides);
+        EnemyProjectileSpritemapCatalog edited = editedArt.ProjectileSpritemaps!;
         var originalOam = new OamBuffer();
         var editedOam = new OamBuffer();
         originalOam.BeginFrame();
@@ -81,6 +102,100 @@ internal static partial class Program
             0x0080, 0x0004, 0, 0, clipVerticalWrap: true);
         AssertEqual((byte)(originalOam.LowTable[0] + 1), editedOam.LowTable[0],
             "enemy-projectile composition override moves the live Ceres pad OAM part");
+        OamBuffer stockBurst = DrawBurst(stock,
+            SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus);
+        OamBuffer editedBurst = DrawBurst(editedArt,
+            SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus);
+        AssertTrue(!stockBurst.LowTable.SequenceEqual(editedBurst.LowTable),
+            "edited Skree debris composition changes production burst OAM");
+        var incompleteCurrent = document.Frames
+            .Where(entry => entry.Key != "skree_debris")
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        byte[] invalidCurrentJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = EnemyProjectileSpritemapDefinitions.Version,
+                Frames = incompleteCurrent,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        AssertThrows<InvalidDataException>(
+            () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidCurrentJson),
+                installed),
+            "current projectile compositions cannot silently omit Skree debris");
+
+        var legacyFrames = document.Frames
+            .Where(entry => entry.Key.StartsWith("ceres_elevator_", StringComparison.Ordinal))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = 1,
+                Frames = legacyFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        AssertThrows<InvalidDataException>(
+            () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(legacyJson)),
+            "a partial version-one composition cannot stand alone as stock content");
+        File.WriteAllBytes(Path.Combine(overrides,
+            EnemyProjectileSpritemapDefinitions.FileName), legacyJson);
+        EnemyTileArtworkCatalog migrated = EnemyTileArtworkFiles.Load(directory, overrides);
+        AssertTrue(DrawBurst(migrated,
+                SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus)
+            .LowTable.SequenceEqual(stockBurst.LowTable),
+            "version-one Ceres override inherits stock Skree debris composition");
+        var migratedPad = new OamBuffer();
+        migratedPad.BeginFrame();
+        migratedPad.AddEnemySpritemap(migrated.ProjectileSpritemaps!.Get(0xb1ba).Span,
+            0x0080, 0x0004, 0, 0, clipVerticalWrap: true);
+        AssertEqual(editedOam.LowTable[0], migratedPad.LowTable[0],
+            "version-one Ceres composition edit survives the version-two catalog upgrade");
+
+        void VerifyBurstVisuals(EnemyTileArtworkCatalog artwork)
+        {
+            foreach (ushort program in new[]
+                     {
+                         SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+                         SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+                     })
+            {
+                OamBuffer native = DrawBurst(null, program, bus);
+                OamBuffer installedBurst = DrawBurst(artwork, program,
+                    new EnemyProjectileVisualReadGuard(bus));
+                AssertTrue(native.NextByteOffset > 0 &&
+                    native.NextByteOffset == installedBurst.NextByteOffset &&
+                    native.LowTable.SequenceEqual(installedBurst.LowTable) &&
+                    native.HighTable.SequenceEqual(installedBurst.HighTable),
+                    $"installed Skree/Metaree burst ${program:X4} draws stock OAM without visual ROM reads");
+            }
+        }
+
+        static OamBuffer DrawBurst(EnemyTileArtworkCatalog? artwork, ushort program,
+            ISnesAddressSpace source)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
+            string producer = program == SkreeMetareeParticleInstructionProgramDefinitions.Skree
+                ? "SpawnSkreeParticleBurst" : "SpawnMetareeParticleBurst";
+            var spawn = typeof(RoomEnemySystem).GetMethod(producer, flags)!
+                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+            var process = typeof(RoomEnemySystem).GetMethod(
+                "ProcessEnemyProjectileInstructions", flags)!;
+            var enemy = new RoomEnemySlot(0)
+            {
+                XPosition = 128, YPosition = 96,
+                VramTilesIndex = 0x0200, PaletteIndex = 0x0c00,
+            };
+            spawn(enemy);
+            foreach (RoomEnemyProjectileSlot particle in enemies.EnemyProjectiles
+                         .Where(particle => particle.IsActive))
+            {
+                particle.InstructionTimer = 1;
+                process.Invoke(enemies, [particle, new SamusState(), (ushort)0, (ushort)0]);
+            }
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            enemies.DrawEnemyProjectiles(oam, cameraX: 0, cameraY: 0);
+            return oam;
+        }
     }
 
     private sealed class EnemyProjectileVisualReadGuard(ISnesAddressSpace source)
@@ -88,9 +203,15 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
-            if ((address & 0xff0000) == 0x8d0000)
+            ushort low = unchecked((ushort)address);
+            if ((address & 0xff0000) == 0x8d0000 ||
+                (address & 0xff0000) == 0x860000 &&
+                (low is SkreeMetareeParticleVisualDefinitions.SkreeOperand or
+                    SkreeMetareeParticleVisualDefinitions.MetareeOperand ||
+                 low == SkreeMetareeParticleVisualDefinitions.SkreeOperand + 1 ||
+                 low == SkreeMetareeParticleVisualDefinitions.MetareeOperand + 1))
                 throw new InvalidOperationException(
-                    $"Installed enemy projectile reread $8D:{address & 0xffff:X4}.");
+                    $"Installed enemy projectile reread visual byte ${address:X6}.");
             return source.ReadByte(address);
         }
 

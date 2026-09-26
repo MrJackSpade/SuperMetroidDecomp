@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -630,13 +631,25 @@ public sealed partial class RoomEnemySystem
             if (((screenX + 128) & 0xfe00) != 0 || ((screenY + 128) & 0xfe00) != 0)
                 continue;
 
-            oam.AddEnemyProjectileSpritemap(
-                _bus!,
-                projectile.SpritemapPointer,
-                screenX,
-                screenY,
-                projectile.GraphicsIndex,
-                originYIsOnScreen: (screenY >> 8) == 0);
+            if (SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
+                TileArtwork?.ProjectileSpritemaps is { } installed)
+            {
+                oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
+                    screenX, screenY,
+                    unchecked((ushort)(projectile.GraphicsIndex & 0xff00)),
+                    unchecked((byte)projectile.GraphicsIndex),
+                    clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
+            }
+            else
+            {
+                oam.AddEnemyProjectileSpritemap(
+                    _bus!,
+                    projectile.SpritemapPointer,
+                    screenX,
+                    screenY,
+                    projectile.GraphicsIndex,
+                    originYIsOnScreen: (screenY >> 8) == 0);
+            }
         }
     }
 
@@ -1450,9 +1463,12 @@ public sealed partial class RoomEnemySystem
                 if (word == 0)
                     throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
                 projectile.InstructionTimer = word;
-                projectile.SpritemapPointer = ReadWord(
-                    _bus!,
-                    0x860000 | unchecked((ushort)(cursor + 2)));
+                ushort visualOperand = unchecked((ushort)(cursor + 2));
+                projectile.SpritemapPointer =
+                    SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
+                    TileArtwork?.ProjectileSpritemaps is not null
+                        ? SkreeMetareeParticleVisualDefinitions.Resolve(visualOperand)
+                        : ReadWord(_bus!, 0x860000 | visualOperand);
                 projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return;
             }

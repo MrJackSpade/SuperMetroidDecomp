@@ -7,7 +7,9 @@ internal readonly record struct SkreeMetareeParticleInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the visually distinct Skree and Metaree death-particle programs.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands are visual identities: diagnostic sessions
+/// still read the cartridge, while installed sessions select the matching editable
+/// compositions through <see cref="SuperMetroid.Core.Assets.SkreeMetareeParticleVisualDefinitions"/>.
 /// </summary>
 internal static class SkreeMetareeParticleInstructionProgramDefinitions
 {

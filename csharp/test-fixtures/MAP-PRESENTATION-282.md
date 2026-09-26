@@ -1471,14 +1471,28 @@ malformed arrays, and confirms override removal restores content identity.
 eight to-grey drain frames, eight from-grey revival frames, and the normal
 body/rear-leg restoration pair. The grey frames each include the trailing RGB5
 word that the cartridge publishes to WRAM `$017C`; revival still copies only
-thirteen body/brain colors, preserving its two existing tail colors. The native
-phase transitions, ten-entry loop cursor, CGRAM destinations, and copy lengths
+thirteen body/brain colors, preserving its two existing tail colors.
+`fakeDeathToGrey` field adds eight three-color brain-only fake-death descent
+frames. Its ascent uses the first three brain colors of `fromGrey` without
+copying that frame's other colors or WRAM tail. Version-two user overrides
+preserve their edits and inherit this new field from verified current stock.
+The native phase transitions, ten-entry loop cursor, CGRAM destinations, and copy lengths
 remain compiled behavior. Copy the stock file to
 `overrides/maps/mother-brain-rainbow-palette.json` to recolor these frames.
 Stock verification checks every frame against the cartridge's CGRAM and trailing
 WRAM output with runtime ROM reads forbidden, then checks independent rainbow,
 drain, drain-tail, revival, and normal edits, strict schema validation, and
 identity restore.
+
+`mother-brain-room-colors.json` separately exposes fourteen timed fake-death
+room flashes, the final grey room colors, and the two fifteen-color phase-two
+sprite palettes. The flash rows each carry two twelve-color source slices;
+the second slice intentionally feeds two CGRAM destinations. The bytecode
+durations and branch, terminal phase handoff, and CGRAM destination indices
+remain compiled. Cartridge-backed verification compares all production flash
+frames, final room copy, and phase-two setup against full native CGRAM, forbids
+installed-ROM color reads, and checks isolated edits, state parity, and malformed
+resources.
 
 ## Editable title artwork (#549)
 

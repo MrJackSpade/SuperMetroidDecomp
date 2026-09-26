@@ -272,6 +272,11 @@ public sealed partial class RoomEnemySystem
 
     private void ApplyMotherBrainRoomPalette(ushort timedEntryPointer)
     {
+        if (MotherBrainRoomColors is { } colors)
+        {
+            colors.ApplyFlash(_cgram!, timedEntryPointer);
+            return;
+        }
         ushort source = ReadWord(
             _bus!,
             0xa90000 | unchecked((ushort)(timedEntryPointer + 2)));
@@ -293,7 +298,10 @@ public sealed partial class RoomEnemySystem
     {
         state.RoomPaletteInstructionPointer = 0;
         state.RoomPaletteInstructionTimer = 0;
-        CopyMotherBrainRoomPalette(MotherBrainRoomPaletteProgramDefinitions.FinalPalette);
+        if (MotherBrainRoomColors is { } colors)
+            colors.ApplyFinal(_cgram!);
+        else
+            CopyMotherBrainRoomPalette(MotherBrainRoomPaletteProgramDefinitions.FinalPalette);
     }
 
     private void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
@@ -683,8 +691,17 @@ public sealed partial class RoomEnemySystem
     {
         // `$A9:8D11` installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
-        _cgram!.LoadFromBus(_bus!, 0xa994b4, colorCount: 15, destinationIndex: 0x0142 / 2);
-        _cgram.LoadFromBus(_bus!, 0xa99494, colorCount: 15, destinationIndex: 0x0162 / 2);
+        if (MotherBrainRoomColors is { } colors)
+            colors.ApplyPhaseTwoInitial(_cgram!);
+        else
+        {
+            _cgram!.LoadFromBus(_bus!, MotherBrainRoomColorRomData.PhaseTwoAttackSource,
+                MotherBrainRoomColorRomData.PhaseTwoColors,
+                MotherBrainRoomColorRomData.PhaseTwoAttackColor);
+            _cgram.LoadFromBus(_bus!, MotherBrainRoomColorRomData.PhaseTwoRearLegSource,
+                MotherBrainRoomColorRomData.PhaseTwoColors,
+                MotherBrainRoomColorRomData.PhaseTwoRearLegColor);
+        }
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
     }

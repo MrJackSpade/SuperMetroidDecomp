@@ -291,8 +291,20 @@ Mother Brain's rainbow and drained-phase colors are installed as
 `game/maps/mother-brain-rainbow-palette.json`. Copy it to the same filename under
 `overrides/maps/` to edit the body, brain, and leg palettes. `beamInitial` is the
 first rainbow-beam HDMA color; `beamCycle` contains its 38 subsequent RGB5 colors.
+`fakeDeathToGrey` contains eight three-color frames for the fake-death descent;
+the ascent reuses the first three brain colors of each `fromGrey` frame. A
+version-two override retains its existing edits and receives the new descent
+frames from current stock content.
 The signed loop terminator, beam window geometry, and attack timing remain engine
 logic. A debugger-state load rebinds the current color resource.
+
+Mother Brain's separate fake-death room colors are installed as
+`game/maps/mother-brain-room-colors.json`. Its fourteen `flash` rows and
+`finalRoom` row each contain two twelve-color source slices; the second slice
+is displayed in two CGRAM destinations. `phaseTwoAttack` and
+`phaseTwoRearLeg` each contain fifteen nontransparent sprite colors. Copy this
+file to `overrides/maps/` to recolor those effects. The cartridge bytecode,
+flash cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
 ## Room-character PNG overrides
 

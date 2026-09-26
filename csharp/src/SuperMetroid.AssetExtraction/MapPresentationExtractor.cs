@@ -250,6 +250,11 @@ public static class MapPresentationExtractor
             file.Write(motherBrainRainbowBytes);
         hashes.Add(MotherBrainRainbowPaletteFormat.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRainbowBytes)));
+        byte[] motherBrainRoomColorBytes = MotherBrainRoomColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, MotherBrainRoomColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(motherBrainRoomColorBytes);
+        hashes.Add(MotherBrainRoomColorFormat.FileName,
+            Convert.ToHexString(SHA256.HashData(motherBrainRoomColorBytes)));
         byte[] roomFxAnimatedTileBytes = RoomFxAnimatedTileAtlasExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, RoomFxAnimatedTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(roomFxAnimatedTileBytes);

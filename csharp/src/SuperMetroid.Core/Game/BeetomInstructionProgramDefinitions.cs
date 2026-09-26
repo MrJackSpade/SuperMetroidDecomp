@@ -6,7 +6,8 @@ internal readonly record struct BeetomInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Beetom's crawling, hopping, and draining programs.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands select installed Beetom artwork;
+/// crawling, hopping, draining, and their timing remain compiled here.
 /// </summary>
 internal static class BeetomInstructionProgramDefinitions
 {
@@ -89,6 +90,9 @@ internal static class BeetomInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static BeetomInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

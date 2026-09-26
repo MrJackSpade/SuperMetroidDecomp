@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 22;
+    internal const int Version = 23;
+    internal const int PreBeetomVersion = 22;
+    internal const int PreBeetomFrameCount = 337;
     internal const int PreAlcoonVersion = 21;
     internal const int PreAlcoonFrameCount = 319;
     internal const int PreBullVersion = 20;
@@ -56,6 +58,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte PuyoBank = 0xa2;
     internal const byte BullBank = 0xa8;
     internal const byte AlcoonBank = 0xa8;
+    internal const byte BeetomBank = 0xa8;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -421,6 +424,28 @@ internal static class EnemySpritemapDefinitions
         new(AlcoonBank, 0xe1a5, "alcoon_right_fire_2"),
         new(AlcoonBank, 0xe1d4, "alcoon_right_fire_3"),
         new(AlcoonBank, 0xe1f4, "alcoon_right_air_up"),
+        new(BeetomBank, 0xbed3, "beetom_left_crawl_0"),
+        new(BeetomBank, 0xbeee, "beetom_left_crawl_1"),
+        new(BeetomBank, 0xbf09, "beetom_left_crawl_2"),
+        new(BeetomBank, 0xbf24, "beetom_left_hop_0"),
+        new(BeetomBank, 0xbf3f, "beetom_left_hop_1"),
+        new(BeetomBank, 0xbf5a, "beetom_left_drain_0"),
+        new(BeetomBank, 0xbf75, "beetom_left_drain_1"),
+        new(BeetomBank, 0xbf90, "beetom_left_drain_2"),
+        new(BeetomBank, 0xbfab, "beetom_left_drain_3"),
+        new(BeetomBank, 0xbfcb, "beetom_left_drain_4"),
+        new(BeetomBank, 0xbfeb, "beetom_left_drain_5"),
+        new(BeetomBank, 0xc00b, "beetom_right_crawl_0"),
+        new(BeetomBank, 0xc026, "beetom_right_crawl_1"),
+        new(BeetomBank, 0xc041, "beetom_right_crawl_2"),
+        new(BeetomBank, 0xc05c, "beetom_right_hop_0"),
+        new(BeetomBank, 0xc077, "beetom_right_hop_1"),
+        new(BeetomBank, 0xc092, "beetom_right_drain_0"),
+        new(BeetomBank, 0xc0ad, "beetom_right_drain_1"),
+        new(BeetomBank, 0xc0c8, "beetom_right_drain_2"),
+        new(BeetomBank, 0xc0e3, "beetom_right_drain_3"),
+        new(BeetomBank, 0xc103, "beetom_right_drain_4"),
+        new(BeetomBank, 0xc123, "beetom_right_drain_5"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -450,6 +475,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.PuyoDefinition => PuyoFrameAt(operandAddress),
             RoomEnemySystem.BullDefinition => BullFrameAt(operandAddress),
             RoomEnemySystem.AlcoonDefinition => AlcoonFrameAt(operandAddress),
+            RoomEnemySystem.BeetomDefinition => BeetomFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -485,6 +511,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.PuyoDefinition or
             RoomEnemySystem.BullDefinition or
             RoomEnemySystem.AlcoonDefinition or
+            RoomEnemySystem.BeetomDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -589,6 +616,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Alcoon visual operand $A8:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Beetom's thirty-two crawl, hop, and drain operands select twenty-two
+    /// editable compositions; physical attachment and drain cadence stay compiled.
+    /// </summary>
+    internal static ushort BeetomFrameAt(ushort operandAddress)
+    {
+        if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(BeetomBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

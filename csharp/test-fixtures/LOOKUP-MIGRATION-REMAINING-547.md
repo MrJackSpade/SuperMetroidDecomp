@@ -1,5 +1,14 @@
 # Remaining lookup migration inventory (#547)
 
+## Beetom visual frames (2026-09-26)
+
+All 32 Beetom crawling, hopping, and draining visual operands now select 22
+named, editable OAM compositions. The installed six-program verification keeps
+the compiled command timing and movement handoffs while forbidding every
+cartridge visual-selector read. Stock OAM matches at three origins, a live
+frame edit changes only presentation, and version-twenty-two overrides inherit
+the new frames without losing earlier edits. Other enemy families remain open.
+
 ## Alcoon visual frames (2026-09-26)
 
 Alcoon's 44 left/right walking, fire-volley, and airborne visual operands now

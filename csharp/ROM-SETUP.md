@@ -441,7 +441,8 @@ the three Ripper variants, Fireflea, Magdollite, Ceres door visual frames
 Rio's eight idle/swoop compositions, Lower Norfair Rio's eighteen parent/flame
 compositions, Norfair Rio's twenty parent/flame compositions, Puyo's eight
 ground/airborne compositions, Bull's three idle/immune-shot compositions, and
-Alcoon's eighteen left/right walking, firing, and airborne compositions.
+Alcoon's eighteen left/right walking, firing, and airborne compositions, plus
+Beetom's twenty-two crawling, hopping, and draining compositions.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
@@ -454,11 +455,11 @@ selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
 JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-twenty-one overrides remain valid:
+Existing version-four through version-twenty-two overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Version-fourteen through version-twenty-one overrides also retain their edited
+content. Version-fourteen through version-twenty-two overrides also retain their edited
 `displayFrames` bindings; earlier versions inherit stock identity selections. Save a
-current version-twenty-two copy to edit Alcoon frames or display bindings.
+current version-twenty-three copy to edit Beetom frames or display bindings.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
 `game/maps/ceres-ridley-colors.json`; copy that file to
 `overrides/maps/ceres-ridley-colors.json` to edit colors. Its `baby` rows

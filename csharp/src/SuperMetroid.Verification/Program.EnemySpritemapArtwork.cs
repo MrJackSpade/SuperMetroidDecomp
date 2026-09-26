@@ -27,6 +27,26 @@ internal static partial class Program
         VerifyAlcoonInstructionProgramDefinitions(rom, stock);
     }
 
+    private static void VerifyInstalledBeetomInstructionFrames(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    {
+        for (int index = 0;
+             index < BeetomInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = BeetomInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.BeetomDefinition, operand, out ushort frame),
+                $"Beetom visual operand $A8:{operand:X4} is compiled");
+            AssertEqual(ReadBeetomInstructionWord(rom, operand), frame,
+                $"Beetom selector $A8:{operand:X4} matches the pinned cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.BeetomFrameAt(0xb6c0),
+            "Beetom rejects the adjacent unused hop program as presentation");
+        VerifyBeetomInstructionProgramDefinitions(rom, stock);
+    }
+
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
         BindingFlags flags)
@@ -162,8 +182,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreAlcoonFrameCount,
             "Bull adds its three distinct normal and immune-shot compositions");
         AssertEqual(EnemySpritemapDefinitions.PreAlcoonFrameCount + 18,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreBeetomFrameCount,
             "Alcoon adds eighteen left/right walking, firing, and airborne compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreBeetomFrameCount + 22,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Beetom adds twenty-two distinct crawl, hop, and drain compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -286,6 +309,7 @@ internal static partial class Program
         VerifyInstalledPuyoInstructionFrames(rom, stock, flags);
         VerifyInstalledBullInstructionFrames(rom, stock, flags);
         VerifyInstalledAlcoonInstructionFrames(rom, stock);
+        VerifyInstalledBeetomInstructionFrames(rom, stock);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -323,6 +347,8 @@ internal static partial class Program
                         ? RoomEnemySystem.BullDefinition
                     : frame.Name.StartsWith("alcoon_", StringComparison.Ordinal)
                         ? RoomEnemySystem.AlcoonDefinition
+                    : frame.Name.StartsWith("beetom_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.BeetomDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -493,6 +519,11 @@ internal static partial class Program
         document.Frames["alcoon_left_walk_0"][0] = alcoonPart with
         {
             OffsetY = alcoonPart.OffsetY + 1,
+        };
+        SpriteVisualPart beetomPart = document.Frames["beetom_left_crawl_0"][0];
+        document.Frames["beetom_left_crawl_0"][0] = beetomPart with
+        {
+            OffsetY = beetomPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -779,15 +810,56 @@ internal static partial class Program
             "authored Alcoon Y offset changes installed room OAM");
         AssertEqual(stockAlcoon.LowTable[0], editedAlcoon.LowTable[0],
             "Alcoon visual edit leaves physical X unchanged");
+        ushort beetomPointer = EnemySpritemapDefinitions.BeetomFrameAt(
+            BeetomInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockBeetom = DrawEnemy(stock, new FrameReadGuard(rom),
+            beetomPointer, RoomEnemySystem.BeetomDefinition);
+        OamBuffer editedBeetom = DrawEnemy(edited, new FrameReadGuard(rom),
+            beetomPointer, RoomEnemySystem.BeetomDefinition);
+        AssertEqual(unchecked((byte)(stockBeetom.LowTable[1] + 1)),
+            editedBeetom.LowTable[1],
+            "authored Beetom Y offset changes installed room OAM");
+        AssertEqual(stockBeetom.LowTable[0], editedBeetom.LowTable[0],
+            "Beetom visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preAlcoonFrames = document.Frames
+        var preBeetomFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("beetom_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreBeetomFrameCount,
+            preBeetomFrames.Count, "pre-Beetom composition schema frame count");
+        var preBeetomBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("beetom_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preBeetomBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreBeetomVersion,
+                Frames = preBeetomFrames,
+                DisplayFrames = preBeetomBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preBeetomUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer retainedPreBeetomEdit = DrawEnemy(preBeetomUpgraded,
+            new FrameReadGuard(rom), alcoonPointer, RoomEnemySystem.AlcoonDefinition);
+        AssertEqual(editedAlcoon.LowTable[1], retainedPreBeetomEdit.LowTable[1],
+            "version-twenty-two override retains an edited Alcoon frame");
+        AssertTrue(DrawEnemy(preBeetomUpgraded, new FrameReadGuard(rom), 0x88da,
+                RoomEnemySystem.BoyonDefinition).LowTable
+            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+                RoomEnemySystem.BoyonDefinition).LowTable),
+            "version-twenty-two override retains its edited display binding");
+        AssertTrue(preBeetomUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.BeetomBank, beetomPointer, out _),
+            "version-twenty-two override gains stock Beetom artwork");
+        var preAlcoonFrames = preBeetomFrames
             .Where(pair => !pair.Key.StartsWith("alcoon_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreAlcoonFrameCount,
             preAlcoonFrames.Count, "pre-Alcoon composition schema frame count");
-        var preAlcoonBindings = document.DisplayFrames!
+        var preAlcoonBindings = preBeetomBindings
             .Where(pair => !pair.Key.StartsWith("alcoon_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1351,6 +1423,8 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.BullBank
                     : definition == RoomEnemySystem.AlcoonDefinition
                         ? EnemySpritemapDefinitions.AlcoonBank
+                    : definition == RoomEnemySystem.BeetomDefinition
+                        ? EnemySpritemapDefinitions.BeetomBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||
@@ -1401,7 +1475,8 @@ internal static partial class Program
                 >= 0xa6bffd and < 0xa6c04e or
                 >= 0xa29df6 and < 0xa29e80 or
                 >= 0xa8db76 and < 0xa8dbb8 or
-                >= 0xa8dfa2 and < 0xa8e214)
+                >= 0xa8dfa2 and < 0xa8e214 or
+                >= 0xa8bed3 and < 0xa8c143)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

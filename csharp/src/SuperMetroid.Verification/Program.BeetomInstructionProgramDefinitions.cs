@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ internal static partial class Program
     }
 
     private static void VerifyBeetomInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
@@ -26,8 +27,8 @@ internal static partial class Program
                 $"Beetom mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new BeetomInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var guard = new BeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_setRandomNumber", flags)!.SetValue(
@@ -122,9 +123,8 @@ internal static partial class Program
             BeetomInstructionProgramDefinitions.DrainingRightLoop,
             callsThroughGoto: 9);
 
-        AssertEqual(BeetomInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Beetom spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Beetom programs read no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Beetom mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -141,9 +141,11 @@ internal static partial class Program
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
             "warmed Beetom mechanics lookups allocate no per-frame storage");
 
-        Console.WriteLine(
-            "Beetom instruction mechanics: 48 compiled words, all six production " +
-            "programs, and 32 live spritemap reads pass with mechanics bytes forbidden.");
+        Console.WriteLine(artwork is null
+            ? "Beetom instruction mechanics: 48 compiled words, all six production " +
+              "programs, and 32 compiled visual selectors pass with mechanics bytes forbidden."
+            : "Installed Beetom: all six crawl, hop, and drain programs retain " +
+              "mechanics while visual-selector reads are forbidden.");
     }
 
     private static void StartBeetomHop(
@@ -220,7 +222,7 @@ internal static partial class Program
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class BeetomInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -246,6 +248,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                        {
+                            ForbiddenReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"Installed Beetom read visual-selector byte ${address:X6}.");
+                        }
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

@@ -73,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreBeetomVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreBeetomFrameCount,
             EnemySpritemapDefinitions.PreAlcoonVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreAlcoonFrameCount,
             EnemySpritemapDefinitions.PreBullVersion when stockForLegacyOverride is not null =>
@@ -145,6 +147,7 @@ public sealed class EnemySpritemapCatalog
         bool hasAuthoredBindings = !legacyOverride ||
             document.Version is EnemySpritemapDefinitions.PreCeresDoorVersion or
                 EnemySpritemapDefinitions.PreAlcoonVersion or
+                EnemySpritemapDefinitions.PreBeetomVersion or
                 EnemySpritemapDefinitions.PreBullVersion or
                 EnemySpritemapDefinitions.PrePuyoVersion or
                 EnemySpritemapDefinitions.PreCeresBabyVersion or

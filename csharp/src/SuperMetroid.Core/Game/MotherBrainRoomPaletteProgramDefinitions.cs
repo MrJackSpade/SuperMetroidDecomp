@@ -19,12 +19,6 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>The final grey room palette at $A9:D082.</summary>
     public const ushort FinalPalette = 0xd082;
 
-    /// <summary>Fake-death grey-fade palette pointer table at $AD:ED8A.</summary>
-    public const ushort GrayFadePointerTable = 0xed8a;
-
-    /// <summary>Native bank $AD for fake-death palette pointers and color payloads.</summary>
-    public const int GrayFadePaletteBank = 0xad0000;
-
     private static readonly MotherBrainRoomPaletteMechanicsWord[] Words =
     [
         new(0xd046, 0x0002), new(0xd04a, 0x0002), new(0xd04e, 0x0002),

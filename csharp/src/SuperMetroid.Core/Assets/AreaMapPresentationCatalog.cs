@@ -329,7 +329,17 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         try { motherBrainHealthPalette = MotherBrainHealthPalettePresentation.Load(new MemoryStream(Select(MotherBrainHealthPaletteFormat.FileName, stock.MotherBrainHealthPalette))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain health palette in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         MotherBrainRainbowPalettePresentation motherBrainRainbowPalette;
-        try { motherBrainRainbowPalette = MotherBrainRainbowPalettePresentation.Load(new MemoryStream(Select(MotherBrainRainbowPaletteFormat.FileName, stock.MotherBrainRainbowPalette))); }
+        try
+        {
+            // A version-two user override predates the fake-death rows. Preserve its edits
+            // and fill only that new color family from verified, current stock content.
+            var currentStock = MotherBrainRainbowPalettePresentation.Load(
+                new MemoryStream(stock.MotherBrainRainbowPalette));
+            AppendFramed(stock.MotherBrainRainbowPalette);
+            motherBrainRainbowPalette = MotherBrainRainbowPalettePresentation.Load(
+                new MemoryStream(Select(MotherBrainRainbowPaletteFormat.FileName,
+                    stock.MotherBrainRainbowPalette)), currentStock);
+        }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain rainbow palette in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles;
         try { roomFxAnimatedTiles = RoomFxAnimatedTileAtlas.Load(new MemoryStream(Select(RoomFxAnimatedTileAtlasFormat.FileName, stock.RoomFxAnimatedTiles))); }
@@ -575,7 +585,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 73;
+    public const int Version = 74;
     /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
     public const int SharedResourceCount = 60;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>

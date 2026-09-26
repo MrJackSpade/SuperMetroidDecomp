@@ -10,16 +10,19 @@ public sealed class MotherBrainRainbowPalettePresentation
     private readonly PaletteFrame[] rainbow;
     private readonly PaletteFrame[] toGrey;
     private readonly PaletteFrame[] fromGrey;
+    private readonly ushort[][] fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
     private readonly ushort[] beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
-        PaletteFrame[] fromGrey, PaletteFrame normal, ushort beamInitial, ushort[] beamCycle)
+        PaletteFrame[] fromGrey, ushort[][] fakeDeathToGrey, PaletteFrame normal,
+        ushort beamInitial, ushort[] beamCycle)
     {
         this.rainbow = rainbow;
         this.toGrey = toGrey;
         this.fromGrey = fromGrey;
+        this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         this.beamInitial = beamInitial;
         this.beamCycle = beamCycle;
@@ -56,6 +59,30 @@ public sealed class MotherBrainRainbowPalettePresentation
     public void ApplyFromGrey(ISnesAddressSpace bus, SnesCgram cgram, int frame) =>
         ApplyGrey(bus, cgram, fromGrey, frame);
 
+    /// <summary>Changes only the three brain colors during the fake-death descent.</summary>
+    public void ApplyFakeDeathToGrey(SnesCgram cgram, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        if ((uint)frame >= fakeDeathToGrey.Length)
+            throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
+        ApplyBrainColors(cgram, fakeDeathToGrey[frame]);
+    }
+
+    /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
+    public void ApplyFakeDeathFromGrey(SnesCgram cgram, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        if ((uint)frame >= fromGrey.Length)
+            throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
+        ApplyBrainColors(cgram, fromGrey[frame].Body);
+    }
+
+    private static void ApplyBrainColors(SnesCgram cgram, ushort[] colors)
+    {
+        for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
+            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color, colors[color]);
+    }
+
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -89,7 +116,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             cgram.SetColor(legDestination + color, selected.BackLegs[color]);
     }
 
-    public static MotherBrainRainbowPalettePresentation Load(Stream json)
+    public static MotherBrainRainbowPalettePresentation Load(Stream json,
+        MotherBrainRainbowPalettePresentation? currentStock = null)
     {
         MotherBrainRainbowPaletteDocument document;
         try
@@ -102,7 +130,8 @@ public sealed class MotherBrainRainbowPalettePresentation
         {
             throw new InvalidDataException("Invalid Mother Brain rainbow palette JSON.", error);
         }
-        if (document.Version != MotherBrainRainbowPaletteFormat.Version)
+        if (document.Version != MotherBrainRainbowPaletteFormat.Version &&
+            !(document.Version == MotherBrainRainbowPaletteFormat.PreFakeDeathVersion && currentStock is not null))
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
         return new(
             CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
@@ -114,11 +143,25 @@ public sealed class MotherBrainRainbowPalettePresentation
             CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.RevivalColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, true, nameof(document.FromGrey)),
+            document.Version == MotherBrainRainbowPaletteFormat.PreFakeDeathVersion
+                ? currentStock!.fakeDeathToGrey
+                : CompileFakeDeathFrames(document.FakeDeathToGrey),
             CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, false, nameof(document.Normal))[0],
             CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
             CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
                 nameof(document.BeamCycle)));
+    }
+
+    private static ushort[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
+    {
+        if (source is null || source.Length != MotherBrainFakeDeathPaletteRomData.FrameCount)
+            throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
+        var frames = new ushort[source.Length][];
+        for (int frame = 0; frame < source.Length; frame++)
+            frames[frame] = CompileColors(source[frame],
+                MotherBrainFakeDeathPaletteRomData.ColorCount, $"fake-death frame {frame}");
+        return frames;
     }
 
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
@@ -174,6 +217,7 @@ public sealed record MotherBrainRainbowPaletteDocument
     public required MotherBrainRainbowPaletteFrameDocument[] Rainbow { get; init; }
     public required MotherBrainRainbowPaletteFrameDocument[] ToGrey { get; init; }
     public required MotherBrainRainbowPaletteFrameDocument[] FromGrey { get; init; }
+    public PaletteRgb5[][]? FakeDeathToGrey { get; init; }
     public required MotherBrainRainbowPaletteFrameDocument Normal { get; init; }
     public required PaletteRgb5 BeamInitial { get; init; }
     public required PaletteRgb5[] BeamCycle { get; init; }
@@ -189,7 +233,8 @@ public sealed record MotherBrainRainbowPaletteFrameDocument
 public static class MotherBrainRainbowPaletteFormat
 {
     public const string FileName = "mother-brain-rainbow-palette.json";
-    public const int Version = 2;
+    public const int Version = 3;
+    public const int PreFakeDeathVersion = 2;
     public const int RainbowFrameCount = 10;
     public const int GreyFrameCount = 8;
     /// <summary>38 sampled BGR555 words before the signed bank-$88 loop terminator.</summary>

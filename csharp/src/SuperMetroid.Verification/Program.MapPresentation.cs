@@ -230,6 +230,7 @@ internal static partial class Program
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
+        VerifyMotherBrainFakeDeathPalette(bus, original.MotherBrainRainbowPalette);
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
         {
             var native = new SnesCgram();
@@ -344,6 +345,16 @@ internal static partial class Program
         };
         PaletteRgb5 revive = document.FromGrey[0].BackLegs[0];
         document.FromGrey[0].BackLegs[0] = revive with { Green = revive.Green == 31 ? 30 : revive.Green + 1 };
+        PaletteRgb5 fakeDeath = document.FakeDeathToGrey![0][0];
+        document.FakeDeathToGrey[0][0] = fakeDeath with
+        {
+            Red = fakeDeath.Red == 31 ? 30 : fakeDeath.Red + 1,
+        };
+        PaletteRgb5 fakeDeathRevival = document.FromGrey[0].Body[0];
+        document.FromGrey[0].Body[0] = fakeDeathRevival with
+        {
+            Blue = fakeDeathRevival.Blue == 31 ? 30 : fakeDeathRevival.Blue + 1,
+        };
         PaletteRgb5 normal = document.Normal.Body[0];
         document.Normal.Body[0] = normal with { Red = normal.Red == 31 ? 30 : normal.Red + 1 };
         document = document with
@@ -396,6 +407,21 @@ internal static partial class Program
         AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
             editedOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor],
             "revival override reaches the native rear-leg destination");
+        foreach (bool toGrey in new[] { true, false })
+        {
+            var stockFade = CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette, toGrey);
+            var editedFade = CaptureFakeDeathPaletteFrame(runtime.Enemies.MotherBrainRainbowColors, toGrey);
+            AssertTrue(stockFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor] !=
+                editedFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor],
+                "fake-death edited color reaches the production fade path");
+            AssertEqual(1, stockFade.Colors.Zip(editedFade.Colors).Count(pair =>
+                pair.First != pair.Second),
+                "fake-death edit changes only one CGRAM word");
+            AssertEqual(stockFade.FunctionTimer, editedFade.FunctionTimer,
+                "fake-death edit preserves native frame timer");
+            AssertEqual(stockFade.Function, editedFade.Function,
+                "fake-death edit preserves native phase selection");
+        }
         stockOutput.Clear();
         editedOutput.Clear();
         original.MotherBrainRainbowPalette.ApplyNormal(stockOutput);
@@ -445,10 +471,31 @@ internal static partial class Program
             {
                 BeamCycle = document.BeamCycle.Take(37).ToArray(),
             }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain beam color cycle");
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
+            {
+                FakeDeathToGrey = document.FakeDeathToGrey!.Take(7).ToArray(),
+            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain fake-death grey fade");
+        // Older override documents remain loadable after stock regeneration, with only
+        // the newly introduced fake-death colors supplied by the current stock file.
+        byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
+        {
+            Version = MotherBrainRainbowPaletteFormat.PreFakeDeathVersion,
+            FakeDeathToGrey = null,
+        }, MapPresentationFormat.JsonOptions);
+        File.WriteAllBytes(replacement, legacy);
+        AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(migrated.MotherBrainRainbowPalette.BeamInitialColor !=
+            original.MotherBrainRainbowPalette.BeamInitialColor,
+            "version-two Mother Brain override preserves the existing edited beam color");
+        AssertTrue(CaptureFakeDeathPaletteFrame(migrated.MotherBrainRainbowPalette, toGrey: true)
+            .Colors.SequenceEqual(CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette,
+                toGrey: true).Colors),
+            "version-two override inherits the new fake-death colors from verified stock");
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity, AreaMapPresentationCatalog.Load(stock, overrides).ContentIdentity,
             "removing Mother Brain rainbow override restores installed-content identity");
-        Console.WriteLine("Mother Brain rainbow palette: 10 body, 38 HDMA beam, 16 grey, and normal native colors; ROM-free beam/copies, live edits and strict validation pass.");
+        Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
     }
 
     private static void VerifyMotherBrainHealthPaletteOverride(

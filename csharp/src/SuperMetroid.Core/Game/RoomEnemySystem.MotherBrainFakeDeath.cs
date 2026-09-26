@@ -185,11 +185,7 @@ public sealed partial class RoomEnemySystem
         {
             state.FunctionTimer = 8;
             ushort step = state.GrayFadeIndex++;
-            ushort palettePointer = ReadWord(
-                _bus!,
-                MotherBrainRoomPaletteProgramDefinitions.GrayFadePaletteBank | unchecked((ushort)(
-                    MotherBrainRoomPaletteProgramDefinitions.GrayFadePointerTable + step * 2)));
-            if (palettePointer == 0)
+            if (step == MotherBrainFakeDeathPaletteRomData.FrameCount)
             {
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentCollapseTubes;
             }
@@ -198,11 +194,18 @@ public sealed partial class RoomEnemySystem
                 // Fake-death fade replaces colors 145..147 only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
                 // `$AD:ED5A` does.
-                _cgram!.LoadFromBus(
-                    _bus!,
-                    MotherBrainRoomPaletteProgramDefinitions.GrayFadePaletteBank | palettePointer,
-                    colorCount: 3,
-                    destinationIndex: 0x0122 / 2);
+                if (MotherBrainRainbowColors is { } colors)
+                    colors.ApplyFakeDeathToGrey(_cgram!, step);
+                else
+                {
+                    ushort palettePointer = ReadWord(_bus!, unchecked(
+                        MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable + step * sizeof(ushort)));
+                    if (palettePointer == 0)
+                        throw new InvalidDataException("Mother Brain fake-death fade ended before its eighth frame.");
+                    _cgram!.LoadFromBus(_bus!, MotherBrainRainbowPaletteRomData.SourceBank | palettePointer,
+                        MotherBrainFakeDeathPaletteRomData.ColorCount,
+                        MotherBrainFakeDeathPaletteRomData.BrainColor);
+                }
             }
         }
 

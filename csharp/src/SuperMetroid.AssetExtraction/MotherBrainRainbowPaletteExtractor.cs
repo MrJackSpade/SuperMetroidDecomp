@@ -26,6 +26,7 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.RevivalColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, true),
+            FakeDeathToGrey = ReadFakeDeathToGrey(),
             Normal = ReadFrame(MotherBrainRainbowPaletteRomData.NormalBrainSource,
                 MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, false,
@@ -51,6 +52,25 @@ internal static class MotherBrainRainbowPaletteExtractor
             if (ReadWord(table + frames * sizeof(ushort)) != 0)
                 throw new InvalidDataException($"Mother Brain palette table ${table:X6} lacks its native terminator.");
             return values;
+        }
+
+        PaletteRgb5[][] ReadFakeDeathToGrey()
+        {
+            var frames = new PaletteRgb5[MotherBrainFakeDeathPaletteRomData.FrameCount][];
+            for (int frame = 0; frame < frames.Length; frame++)
+            {
+                int address = MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
+                    frame * sizeof(ushort);
+                ushort pointer = ReadWord(address);
+                if (pointer == 0)
+                    throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
+                frames[frame] = ReadColors(MotherBrainRainbowPaletteRomData.SourceBank | pointer,
+                    MotherBrainFakeDeathPaletteRomData.ColorCount);
+            }
+            if (ReadWord(MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
+                frames.Length * sizeof(ushort)) != 0)
+                throw new InvalidDataException("Mother Brain fake-death fade lacks its native terminator.");
+            return frames;
         }
 
         MotherBrainRainbowPaletteFrameDocument ReadFrame(int source, int bodyCount,

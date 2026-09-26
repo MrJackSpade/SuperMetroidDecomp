@@ -12,7 +12,6 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainCrouchedInstruction = 0x9a02;
     private const ushort MotherBrainSlowUncrouchInstruction = 0x99aa;
     private const ushort MotherBrainStretchingHeadInstruction = 0x9b7f;
-    private const ushort MotherBrainFromGrayPalettePointerTable = 0xed9c;
     private const ushort MotherBrainNeutralPhaseTwoHeadInstruction = 0x9c87;
     private const ushort MotherBrainFourOnionRingsInstruction = 0x9d3d;
     private const ushort MotherBrainBombPhaseTwoHeadInstruction = 0x9ecc;
@@ -381,17 +380,21 @@ public sealed partial class RoomEnemySystem
 
         state.FunctionTimer = 4;
         ushort paletteStep = state.GrayTransitionCounter++;
-        ushort source = ReadWord(
-            _bus!,
-            0xad0000 | unchecked((ushort)(MotherBrainFromGrayPalettePointerTable + paletteStep * 2)));
-        if (source != 0)
+        if (paletteStep < MotherBrainFakeDeathPaletteRomData.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            _cgram!.LoadFromBus(
-                _bus!,
-                0xad0000 | source,
-                colorCount: 3,
-                destinationIndex: 0x0122 / 2);
+            if (MotherBrainRainbowColors is { } colors)
+                colors.ApplyFakeDeathFromGrey(_cgram!, paletteStep);
+            else
+            {
+                ushort source = ReadWord(_bus!, MotherBrainFakeDeathPaletteRomData.FromGreyPointerTable +
+                    paletteStep * sizeof(ushort));
+                if (source == 0)
+                    throw new InvalidDataException("Mother Brain fake-death revival ended before its eighth frame.");
+                _cgram!.LoadFromBus(_bus!, MotherBrainRainbowPaletteRomData.SourceBank | source,
+                    MotherBrainFakeDeathPaletteRomData.ColorCount,
+                    MotherBrainFakeDeathPaletteRomData.BrainColor);
+            }
             return;
         }
 

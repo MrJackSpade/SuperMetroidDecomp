@@ -86,6 +86,7 @@ public static class SamusBodyArtworkFiles
             drainedYOffsets, hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusDeathPaletteArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
+        SamusDeathTileArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         // Constructing the catalog catches missing/invalid references before publication.
         _ = BuildCatalog(directory, manifest, null);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -188,9 +189,12 @@ public static class SamusBodyArtworkFiles
             stockDirectory, overrideDirectory);
         SamusDeathPaletteArtworkCatalog deathPalettes = SamusDeathPaletteArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
         return new SamusBodyArtworkCatalog(manifest.TopPointers, manifest.BottomPointers,
             manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom,
-            spritemaps, atmosphere, deathPalettes, manifest.LandingYOffsets, manifest.PostureYOffsets,
+            spritemaps, atmosphere, deathPalettes, deathTiles,
+            manifest.LandingYOffsets, manifest.PostureYOffsets,
             manifest.DrainedYOffsets);
     }
 

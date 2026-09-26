@@ -199,6 +199,29 @@ internal static partial class Program
             nativeDeathOam.LowTable.SequenceEqual(installedDeathOam.LowTable) &&
             nativeDeathOam.HighTable.SequenceEqual(installedDeathOam.HighTable),
             "death explosion uses installed Samus OAM art with native parity");
+        foreach (SamusDeathTileSegment segment in SamusSpecialSequenceRomData.Death.TileSegments)
+        {
+            AssertTrue(stock.DeathTiles.TryResolve(segment.SourceAddress,
+                SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
+                out ReadOnlyMemory<byte> installedSegment),
+                $"death tile segment ${segment.SourceAddress:X6} is installed");
+            for (int offset = 0; offset < installedSegment.Length; offset++)
+                AssertEqual(bus.ReadByte(segment.SourceAddress + offset), installedSegment.Span[offset],
+                    $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
+            var nativeQueue = new VramWriteQueue();
+            var installedQueue = new VramWriteQueue();
+            nativeQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
+                segment.SourceAddress, segment.EncodedVramDestination);
+            installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
+                segment.SourceAddress, segment.EncodedVramDestination);
+            var nativeDeathVram = new SnesVram();
+            var installedDeathVram = new SnesVram();
+            nativeQueue.DrainTo(nativeDeathVram, bus);
+            installedQueue.DrainTo(installedDeathVram, guardedBus,
+                new DeathTileAssetProvider(stock.DeathTiles));
+            AssertTrue(nativeDeathVram.Bytes.SequenceEqual(installedDeathVram.Bytes),
+                $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
+        }
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
         for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
         {
@@ -351,6 +374,17 @@ internal static partial class Program
         int originalDeathColor = deathDocument["suited"]![0]![0]![0]!.GetValue<int>();
         deathDocument["suited"]![0]![0]![0] = originalDeathColor + 1;
         File.WriteAllText(deathOverride, deathDocument.ToJsonString());
+        string deathTileOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
+            SamusDeathTileAtlasFormat.ArtworkFileName);
+        IndexedPngImage deathTileImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
+            Path.Combine(installation.SamusBodyDirectory,
+                SamusDeathTileAtlasFormat.ArtworkFileName)), writable: false),
+            SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
+        byte[] editedDeathPixels = (byte[])deathTileImage.Pixels.Clone();
+        editedDeathPixels[0] = (byte)((editedDeathPixels[0] + 1) & 15);
+        using (var output = File.Create(deathTileOverride))
+            IndexedPng.Write(output, deathTileImage.Width, deathTileImage.Height,
+                editedDeathPixels, deathTileImage.Palette);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
             "Samus body PNG override changes compiled tile bytes");
@@ -413,6 +447,21 @@ internal static partial class Program
         AssertEqual((ushort)(originalDeathColor + 1),
             editedDeathColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart],
             "edited death suit color reaches the production CGRAM write");
+        SamusDeathTileSegment firstDeathSegment = SamusSpecialSequenceRomData.Death.TileSegments[0];
+        var stockDeathTransfer = new VramWriteQueue();
+        var editedDeathTransfer = new VramWriteQueue();
+        stockDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
+            firstDeathSegment.SourceAddress, firstDeathSegment.EncodedVramDestination);
+        editedDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
+            firstDeathSegment.SourceAddress, firstDeathSegment.EncodedVramDestination);
+        var stockDeathTilesVram = new SnesVram();
+        var editedDeathTilesVram = new SnesVram();
+        stockDeathTransfer.DrainTo(stockDeathTilesVram, guardedBus,
+            new DeathTileAssetProvider(stock.DeathTiles));
+        editedDeathTransfer.DrainTo(editedDeathTilesVram, guardedBus,
+            new DeathTileAssetProvider(replacement.DeathTiles));
+        AssertTrue(!stockDeathTilesVram.Bytes.SequenceEqual(editedDeathTilesVram.Bytes),
+            "edited death explosion PNG reaches the queued production VRAM transfer");
         var stockDeathOam = new OamBuffer();
         var editedDeathOam = new OamBuffer();
         stockDeathOam.BeginFrame();
@@ -486,5 +535,15 @@ internal static partial class Program
         document["topPointers"]![0] = stock.TopSetPointers[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
+    }
+
+    private sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
+        IVramAssetProvider, IRomArtworkSource
+    {
+        public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
+            tiles.TryResolve(sourceAddress, byteCount, out data);
+
+        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+            throw new InvalidOperationException($"Death-tile fixture did not queue typed asset {asset}.");
     }
 }

@@ -124,6 +124,10 @@ Copy it to `overrides/samus-body/` to change fatal-damage colors; the death phas
 frame durations, and collision remain compiled. Colors are packed SNES RGB5 words
 from 0 through 32767. Stock JSON files have separately verified provenance hashes;
 an override does not conceal a damaged installation.
+`samus-death-explosion.png` holds the five 4-bpp death graphics transfers in
+native upload order. Each transfer occupies four 64-pixel-wide tile rows (32
+characters), for a 64x160 image. Copy it to `overrides/samus-body/` to reskin the
+explosion without changing transfer timing or VRAM destinations.
 Replacements are validated on
 load, and installed stock is checked independently. These files do not change
 pose timing, movement, collision, or equipment. The same installed artwork is

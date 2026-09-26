@@ -8,6 +8,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
+        if (SamusBodyArt?.DeathTiles.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         if (Enemies.TileArtwork?.GunshipLiftoff?.TryResolve(
                 sourceAddress, byteCount, out data) == true)
             return true;

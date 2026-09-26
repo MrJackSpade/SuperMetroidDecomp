@@ -21,7 +21,12 @@ public sealed partial class SuperMetroidGame
     public void BindEnemyTileArtwork(EnemyTileArtworkCatalog? catalog)
     {
         enemyTileArtwork = catalog;
-        if (runtime is not null) runtime.Enemies.TileArtwork = catalog;
+        if (runtime is not null)
+        {
+            runtime.Enemies.TileArtwork = catalog;
+            runtime.CeresElevatorArrival?.BindProjectileSpritemaps(
+                catalog?.ProjectileSpritemaps);
+        }
     }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private ChargeFlarePlacementCatalog? chargeFlarePlacement;

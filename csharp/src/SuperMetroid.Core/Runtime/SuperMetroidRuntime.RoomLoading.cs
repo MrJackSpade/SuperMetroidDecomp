@@ -1410,7 +1410,8 @@ public sealed partial class SuperMetroidRuntime
         // enemy word here previously recolored the level-data concealer teal.
         CeresElevatorArrival = new CeresElevatorArrivalState(
             _addressSpace,
-            Samus);
+            Samus,
+            Enemies.TileArtwork?.ProjectileSpritemaps);
 
         // The locked Ceres-start frame handler still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving

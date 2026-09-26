@@ -21,7 +21,8 @@ public sealed class EnemyTileArtworkCatalog
         KraidColorCatalog? kraidColors = null,
         GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
         CeresDoorVisualCatalog? ceresDoorVisual = null,
-        IReadOnlyDictionary<ushort, int>? dmaSources = null)
+        IReadOnlyDictionary<ushort, int>? dmaSources = null,
+        EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -54,6 +55,7 @@ public sealed class EnemyTileArtworkCatalog
         KraidColors = kraidColors;
         GunshipLiftoff = gunshipLiftoff;
         CeresDoorVisual = ceresDoorVisual;
+        ProjectileSpritemaps = projectileSpritemaps;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -76,6 +78,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Ceres-door actor's special tile transfer and RGB5 rows.</summary>
     public CeresDoorVisualCatalog? CeresDoorVisual { get; }
+
+    /// <summary>Installed bank-$8D projectile compositions; null for constructed fixtures.</summary>
+    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; }
 
     /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
@@ -113,7 +118,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 20;
+    public const int Version = 21;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

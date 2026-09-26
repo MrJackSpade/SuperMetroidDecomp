@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -18,14 +19,17 @@ public sealed class CeresElevatorArrivalState
     private readonly ISnesAddressSpace bus;
     private readonly CeresElevatorProjectile pad;
     private readonly CeresElevatorProjectile platform;
+    [NonSerialized] private EnemyProjectileSpritemapCatalog? projectileSpritemaps;
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
     public CeresElevatorArrivalState(
         ISnesAddressSpace bus,
-        SamusState samus)
+        SamusState samus,
+        EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         ArgumentNullException.ThrowIfNull(samus);
+        this.projectileSpritemaps = projectileSpritemaps;
 
         // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
         // initializer then clears it, so both actors use room-loaded OBJ tiles and the
@@ -51,6 +55,10 @@ public sealed class CeresElevatorArrivalState
 
     /// <summary>Current stationary-platform Y word, exposed for debugger inspection.</summary>
     public ushort PlatformYPosition => platform.YPosition;
+
+    /// <summary>Rebinds installed compositions after a debugger-state restore.</summary>
+    public void BindProjectileSpritemaps(EnemyProjectileSpritemapCatalog? catalog) =>
+        projectileSpritemaps = catalog;
 
     /// <summary>
     /// Executes <c>EprojRunAll</c>'s relative order for the two freshly spawned slots.
@@ -182,13 +190,21 @@ public sealed class CeresElevatorArrivalState
             return;
         }
 
-        oam.AddEnemyProjectileSpritemap(
-            bus,
-            projectile.SpritemapPointer,
-            screenX,
-            screenY,
-            projectile.GraphicsIndex,
-            originYIsOnScreen: (screenY & 0xff00) == 0);
+        if (projectileSpritemaps is { } installed)
+            oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
+                screenX, screenY,
+                unchecked((ushort)(projectile.GraphicsIndex & 0xff00)),
+                unchecked((byte)projectile.GraphicsIndex),
+                clipVerticalWrap: true,
+                originYIsOnScreen: (screenY & 0xff00) == 0);
+        else
+            oam.AddEnemyProjectileSpritemap(
+                bus,
+                projectile.SpritemapPointer,
+                screenX,
+                screenY,
+                projectile.GraphicsIndex,
+                originYIsOnScreen: (screenY & 0xff00) == 0);
     }
 
     private sealed class CeresElevatorProjectile

@@ -23,6 +23,7 @@ internal static partial class Program
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
             VerifyInstalledCeresDoorVisuals(bus, directory, stock);
+            VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock);
             VerifyInstalledKraidBackground(bus, directory, stock);
             VerifyInstalledKraidColors(bus, directory, stock);
             VerifyInstalledEnemySpritemaps(bus, directory, stock);

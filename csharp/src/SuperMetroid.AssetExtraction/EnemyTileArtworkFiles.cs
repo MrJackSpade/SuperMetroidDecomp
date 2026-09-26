@@ -113,6 +113,9 @@ public static class EnemyTileArtworkFiles
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
             spritemapJson);
+        byte[] projectileSpritemapJson = EnemyProjectileSpritemapFiles.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory,
+            EnemyProjectileSpritemapDefinitions.FileName), projectileSpritemapJson);
         byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
@@ -174,6 +177,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(firstMeltTilemap)),
             Convert.ToHexString(SHA256.HashData(secondMeltTilemap)),
             Convert.ToHexString(SHA256.HashData(spritemapJson)),
+            Convert.ToHexString(SHA256.HashData(projectileSpritemapJson)),
             Convert.ToHexString(SHA256.HashData(extendedJson)),
             gunshipLiftoffHashes,
             Convert.ToHexString(SHA256.HashData(upperKraid)),
@@ -211,6 +215,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.EnemyProjectileCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
             manifest.GunshipLiftoffSha256 is null ||
             manifest.GunshipLiftoffSha256.Count !=
@@ -331,6 +336,20 @@ public static class EnemyTileArtworkFiles
                 $"Invalid enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        EnemyProjectileSpritemapCatalog projectileSpritemaps;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(
+                EnemyProjectileSpritemapDefinitions.FileName,
+                manifest.EnemyProjectileCompositionsSha256);
+            projectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                "Invalid installed enemy-projectile compositions.", error);
+        }
         byte[] extendedJson = ReadStockOrOverride(
             EnemyExtendedFrameDefinitions.FileName,
             manifest.EnemyExtendedCompositionsSha256);
@@ -445,7 +464,7 @@ public static class EnemyTileArtworkFiles
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
-            dmaSources);
+            dmaSources, projectileSpritemaps);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -618,7 +637,8 @@ public static class EnemyTileArtworkFiles
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
-        string EnemyCompositionsSha256, string EnemyExtendedCompositionsSha256,
+        string EnemyCompositionsSha256, string EnemyProjectileCompositionsSha256,
+        string EnemyExtendedCompositionsSha256,
         Dictionary<int, string> GunshipLiftoffSha256,
         string KraidUpperSha256, string KraidLowerSha256,
         Dictionary<ushort, string> KraidHeadsSha256,

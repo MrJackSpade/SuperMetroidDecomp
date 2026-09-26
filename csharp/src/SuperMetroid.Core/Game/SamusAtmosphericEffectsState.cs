@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -79,7 +80,8 @@ public sealed class SamusAtmosphericEffectsState
         OamBuffer oam,
         ushort cameraX,
         ushort cameraY,
-        ushort fxYPosition)
+        ushort fxYPosition,
+        SamusSpritemapArtworkCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -132,7 +134,7 @@ public sealed class SamusAtmosphericEffectsState
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.YPosition = fxYPosition;
-                    DrawSamusTableSpritemap(bus, oam, slot, 0x018f, cameraX, cameraY);
+                    DrawSamusTableSpritemap(bus, oam, slot, 0x018f, cameraX, cameraY, artwork);
                     break;
 
                 case 4:
@@ -146,7 +148,7 @@ public sealed class SamusAtmosphericEffectsState
                     break;
 
                 case 5:
-                    DrawSamusTableSpritemap(bus, oam, slot, 0x0186, cameraX, cameraY);
+                    DrawSamusTableSpritemap(bus, oam, slot, 0x0186, cameraX, cameraY, artwork);
                     break;
 
                 case 6:
@@ -194,7 +196,8 @@ public sealed class SamusAtmosphericEffectsState
         SamusAtmosphericEffectSlot slot,
         ushort firstSpritemap,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        SamusSpritemapArtworkCatalog? artwork)
     {
         ushort screenX = unchecked((ushort)(slot.XPosition - cameraX));
         ushort screenY = unchecked((ushort)(slot.YPosition - cameraY));
@@ -208,7 +211,8 @@ public sealed class SamusAtmosphericEffectsState
             bus,
             unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
             screenX,
-            screenY);
+            screenY,
+            artwork);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

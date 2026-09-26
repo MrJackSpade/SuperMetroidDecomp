@@ -132,6 +132,50 @@ internal static partial class Program
         // without even reading one cartridge byte. This covers every authored pose's
         // initial frame, including all flashback/normal-gameplay pose identities.
         var guardedBus = new FrontendCartridgeReadGuard(bus);
+        // These two production owners call the same indexed bank-$92 OAM routine as
+        // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
+        // their binding from the generic catalog's all-index byte-parity test.
+        foreach (byte type in new byte[] { 3, 5 })
+        {
+            var nativeEffects = new SamusAtmosphericEffectsState();
+            var installedEffects = new SamusAtmosphericEffectsState();
+            nativeEffects.SetSlot(0, type, 0, 2, 128, 128);
+            installedEffects.SetSlot(0, type, 0, 2, 128, 128);
+            var nativeEffectOam = new OamBuffer();
+            var installedEffectOam = new OamBuffer();
+            nativeEffectOam.BeginFrame();
+            installedEffectOam.BeginFrame();
+            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128);
+            installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, 0, 0, 128,
+                stock.Spritemaps);
+            AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
+                nativeEffectOam.LowTable.SequenceEqual(installedEffectOam.LowTable) &&
+                nativeEffectOam.HighTable.SequenceEqual(installedEffectOam.HighTable),
+                $"atmospheric type {type} uses installed Samus OAM art with native parity");
+        }
+        var deathSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+        };
+        deathSamus.DeathSequence.Begin(bus, deathSamus, layer1X: 0, layer1Y: 0);
+        var deathCgram = new SnesCgram();
+        var deathWrites = new VramWriteQueue();
+        for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
+            frame++)
+        {
+            AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
+            deathSamus.DeathSequence.Step(bus, deathSamus, deathCgram, deathWrites);
+        }
+        var nativeDeathOam = new OamBuffer();
+        var installedDeathOam = new OamBuffer();
+        nativeDeathOam.BeginFrame();
+        installedDeathOam.BeginFrame();
+        deathSamus.DeathSequence.DrawExplosion(bus, nativeDeathOam);
+        deathSamus.DeathSequence.DrawExplosion(guardedBus, installedDeathOam, stock.Spritemaps);
+        AssertTrue(nativeDeathOam.NextByteOffset > 0 &&
+            nativeDeathOam.LowTable.SequenceEqual(installedDeathOam.LowTable) &&
+            nativeDeathOam.HighTable.SequenceEqual(installedDeathOam.HighTable),
+            "death explosion uses installed Samus OAM art with native parity");
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             var nativeTransfer = new SamusTileTransferState();
@@ -175,6 +219,17 @@ internal static partial class Program
             entry!["pointer"]!.GetValue<int>() == poseOnePointer)!;
         int originalPartX = poseOneRecord["parts"]![0]!["x"]!.GetValue<int>();
         poseOneRecord["parts"]![0]!["x"] = originalPartX + 1;
+        foreach (ushort ownerPointer in new ushort[]
+        {
+            stock.Spritemaps.Pointers[0x018F],
+            stock.Spritemaps.Pointers[deathSamus.DeathSequence.ExplosionSpritemapIndex!.Value],
+        })
+        {
+            JsonNode ownerRecord = document["spritemaps"]!.AsArray().First(entry =>
+                entry!["pointer"]!.GetValue<int>() == ownerPointer)!;
+            ownerRecord["parts"]![0]!["x"] =
+                ownerRecord["parts"]![0]!["x"]!.GetValue<int>() + 1;
+        }
         byte originalLandingYOffset = (byte)document["landingYOffsets"]![0]!.GetValue<int>();
         document["landingYOffsets"]![0] = originalLandingYOffset + 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
@@ -195,6 +250,30 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
             editedSpritemapOam.LowTable[0],
             "edited Samus spritemap part changes production OAM X by one pixel");
+        var stockSplash = new SamusAtmosphericEffectsState();
+        var editedSplash = new SamusAtmosphericEffectsState();
+        stockSplash.SetSlot(0, 3, 0, 2, 128, 128);
+        editedSplash.SetSlot(0, 3, 0, 2, 128, 128);
+        var stockSplashOam = new OamBuffer();
+        var editedSplashOam = new OamBuffer();
+        stockSplashOam.BeginFrame();
+        editedSplashOam.BeginFrame();
+        stockSplash.UpdateAndDraw(guardedBus, stockSplashOam, 0, 0, 128, stock.Spritemaps);
+        editedSplash.UpdateAndDraw(guardedBus, editedSplashOam, 0, 0, 128,
+            replacement.Spritemaps);
+        AssertEqual(unchecked((byte)(stockSplashOam.LowTable[0] + 1)),
+            editedSplashOam.LowTable[0],
+            "edited water-entry spritemap reaches the production atmospheric owner");
+        var stockDeathOam = new OamBuffer();
+        var editedDeathOam = new OamBuffer();
+        stockDeathOam.BeginFrame();
+        editedDeathOam.BeginFrame();
+        deathSamus.DeathSequence.DrawExplosion(guardedBus, stockDeathOam, stock.Spritemaps);
+        deathSamus.DeathSequence.DrawExplosion(guardedBus, editedDeathOam,
+            replacement.Spritemaps);
+        AssertEqual(unchecked((byte)(stockDeathOam.LowTable[0] + 1)),
+            editedDeathOam.LowTable[0],
+            "edited death explosion spritemap reaches the production sequence owner");
         var stockLandingSamus = new SamusState
         {
             Pose = SamusPoseIds.NormalLandingRightPose, XPosition = 128, YPosition = 128,

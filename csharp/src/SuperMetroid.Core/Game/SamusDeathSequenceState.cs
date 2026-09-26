@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -251,13 +252,14 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>Emits `$92:EDBE`'s one right/left explosion spritemap at captured screen position.</summary>
-    public void DrawExplosion(ISnesAddressSpace bus, OamBuffer oam)
+    public void DrawExplosion(ISnesAddressSpace bus, OamBuffer oam,
+        SamusSpritemapArtworkCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
         if (ExplosionSpritemapIndex is not ushort spritemap)
             return;
-        oam.AddSamusSpritemap(bus, spritemap, ScreenX, ScreenY);
+        oam.AddSamusSpritemap(bus, spritemap, ScreenX, ScreenY, artwork);
     }
 
     private bool StepSuitExplosion(

@@ -1226,7 +1226,7 @@ public sealed partial class SuperMetroidRuntime
         }
         else if (LastDeathSequenceStep.Value.DrawExplosion)
         {
-            Samus.DeathSequence.DrawExplosion(_addressSpace, Oam);
+            Samus.DeathSequence.DrawExplosion(_addressSpace, Oam, SamusBodyArt?.Spritemaps);
         }
         Oam.FinalizeFrame();
         return LastDeathSequenceStep.Value;

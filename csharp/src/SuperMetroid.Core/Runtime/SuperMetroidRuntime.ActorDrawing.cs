@@ -168,7 +168,7 @@ public sealed partial class SuperMetroidRuntime
                     mode7Transform: ActiveSamusMode7Transform);
             }
             else if (LastDeathSequenceStep is { DrawExplosion: true })
-                Samus.DeathSequence.DrawExplosion(_addressSpace, Oam);
+                Samus.DeathSequence.DrawExplosion(_addressSpace, Oam, SamusBodyArt?.Spritemaps);
         }
         else
         {
@@ -275,7 +275,8 @@ public sealed partial class SuperMetroidRuntime
                     Oam,
                     Camera.XPosition,
                     Camera.YPosition,
-                    Samus.LiquidPhysics.FxYPosition);
+                    Samus.LiquidPhysics.FxYPosition,
+                    SamusBodyArt?.Spritemaps);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses

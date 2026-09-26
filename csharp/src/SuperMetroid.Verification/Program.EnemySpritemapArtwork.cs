@@ -14,9 +14,12 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(stock.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
-        AssertEqual(EnemySpritemapDefinitions.Frames.Length,
+        AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount,
             EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
-            "display-binding schema retains the existing native frame identities");
+            "Ceres-door expansion retains the previous display-binding identities");
+        AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount + 15,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Ceres door adds its thirteen selected poses, initial pose, and private overlay");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
@@ -80,7 +83,9 @@ internal static partial class Program
                                                                                         ? RoomEnemySystem.RipperDefinition
                                                                                         : frame.Name.StartsWith("fireflea_", StringComparison.Ordinal)
                                                                                             ? RoomEnemySystem.FirefleaDefinition
-                                                                                            : frame.Name.StartsWith("magdollite_", StringComparison.Ordinal)
+                                                                : frame.Name.StartsWith("ceres_door_", StringComparison.Ordinal)
+                                                                    ? CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer
+                                                                : frame.Name.StartsWith("magdollite_", StringComparison.Ordinal)
                                                                                                 ? RoomEnemySystem.MagdolliteDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
@@ -172,6 +177,11 @@ internal static partial class Program
         {
             OffsetY = magdollitePart.OffsetY + 1,
         };
+        SpriteVisualPart ceresDoorPart = document.Frames["ceres_door_right_hold"][0];
+        document.Frames["ceres_door_right_hold"][0] = ceresDoorPart with
+        {
+            OffsetY = ceresDoorPart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -190,6 +200,22 @@ internal static partial class Program
             editedOam.LowTable[2], "authored Boyon tile changes live room OAM");
         AssertEqual(stockOam.LowTable[1], editedOam.LowTable[1],
             "visual override leaves Boyon Y unchanged");
+        OamBuffer stockCeresDoor = DrawEnemy(stock, new FrameReadGuard(rom),
+            0xfa13, CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+        OamBuffer editedCeresDoor = DrawEnemy(edited, new FrameReadGuard(rom),
+            0xfa13, CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer,
+            slot =>
+            {
+                AssertEqual((ushort)0xfa13, slot.SpritemapPointer,
+                    "Ceres door art edit retains the native selected pose");
+                AssertEqual((ushort)7, slot.InstructionTimer,
+                    "Ceres door art edit preserves instruction timing");
+            });
+        AssertEqual(unchecked((byte)(stockCeresDoor.LowTable[1] + 1)),
+            editedCeresDoor.LowTable[1],
+            "authored Ceres door Y offset changes live room OAM");
+        AssertEqual(stockCeresDoor.LowTable[0], editedCeresDoor.LowTable[0],
+            "Ceres door visual edit leaves physical X unchanged");
         ushort cacatacPointer = EnemySpritemapDefinitions.CacatacFrameAt(0x9e8e);
         var stockCacatac = DrawEnemy(stock, new FrameReadGuard(rom),
             cacatacPointer, RoomEnemySystem.CacatacDefinition);
@@ -369,7 +395,50 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preMagdolliteFrames = document.Frames
+        var preCeresDoorFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("ceres_door_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount,
+            preCeresDoorFrames.Count, "pre-Ceres-door composition schema frame count");
+        var preCeresDoorBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("ceres_door_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preCeresDoorBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreCeresDoorVersion,
+                Frames = preCeresDoorFrames,
+                DisplayFrames = preCeresDoorBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preCeresDoorUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer priorRemap = DrawEnemy(preCeresDoorUpgraded, new FrameReadGuard(rom),
+            0x88da, RoomEnemySystem.BoyonDefinition);
+        OamBuffer priorSelected = DrawEnemy(stock, new FrameReadGuard(rom),
+            0x88e1, RoomEnemySystem.BoyonDefinition);
+        AssertTrue(priorSelected.LowTable.SequenceEqual(priorRemap.LowTable),
+            "version-fourteen override retains its edited display binding");
+        OamBuffer priorEditedCacatac = DrawEnemy(preCeresDoorUpgraded,
+            new FrameReadGuard(rom), cacatacPointer, RoomEnemySystem.CacatacDefinition);
+        AssertTrue(editedCacatac.LowTable.SequenceEqual(priorEditedCacatac.LowTable),
+            "version-fourteen override also retains its edited frame parts");
+        AssertTrue(preCeresDoorUpgraded.Spritemaps!.TryGet(
+                CeresDoorInstructionProgramDefinitions.Bank, 0xfa13, out _),
+            "version-fourteen override gains stock Ceres door artwork");
+        preCeresDoorBindings.Remove("boyon_idle_0");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreCeresDoorVersion,
+                Frames = preCeresDoorFrames,
+                DisplayFrames = preCeresDoorBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "version-fourteen override rejects a missing authored display binding");
+
+        var preMagdolliteFrames = preCeresDoorFrames
             .Where(pair => !pair.Key.StartsWith("magdollite_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMagdolliteFrameCount,
@@ -595,7 +664,7 @@ internal static partial class Program
         var preBindings = new EnemySpritemapDocument
         {
             Version = EnemySpritemapDefinitions.PreDisplayBindingsVersion,
-            Frames = document.Frames,
+            Frames = preCeresDoorFrames,
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             preBindings, new JsonSerializerOptions
@@ -685,6 +754,8 @@ internal static partial class Program
                     PipeBugDefinitions.NorfairEnemyDefinition or
                     PipeBugDefinitions.YellowEnemyDefinition
                     ? EnemySpritemapDefinitions.PipeBugBank
+                    : definition == CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer
+                        ? CeresDoorInstructionProgramDefinitions.Bank
                     : definition == RoomEnemySystem.BoulderDefinition
                     ? EnemySpritemapDefinitions.BoulderBank
                     : definition == RoomEnemySystem.AtomicDefinition
@@ -735,7 +806,9 @@ internal static partial class Program
                 >= 0xa2e3c5 and < 0xa2e457 or
                 >= 0xa2e527 and < 0xa2e56f or
                 >= 0xa38ea5 and < 0xa3900a or
-                >= 0xa8b448 and < 0xa8b65e)
+                >= 0xa8b448 and < 0xa8b65e or
+                >= 0xa6f921 and < 0xa6fb72 or
+                >= 0xa6a329 and < 0xa6a353)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

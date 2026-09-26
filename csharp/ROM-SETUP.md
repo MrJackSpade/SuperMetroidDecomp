@@ -343,7 +343,8 @@ retain its old pixels until the next room load.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,
-the three Ripper variants, Fireflea, and Magdollite visual frames.
+the three Ripper variants, Fireflea, Magdollite, and Ceres door visual frames
+(including the Ridley-room private door overlay).
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
@@ -356,10 +357,11 @@ selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
 JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-thirteen overrides remain valid:
+Existing version-four through version-fourteen overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content and new visual bindings default to the stock identity selections. Save a
-current version-fourteen copy to edit Magdollite frames or display bindings.
+content. Version-fourteen overrides also retain their edited `displayFrames`
+bindings; earlier versions inherit stock identity selections. Save a current
+version-fifteen copy to edit Ceres door frames or display bindings.
 The separate `enemy-projectile-compositions.json` contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
 translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon and

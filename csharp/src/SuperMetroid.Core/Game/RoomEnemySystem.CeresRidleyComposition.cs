@@ -477,10 +477,10 @@ public sealed partial class RoomEnemySystem
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(EarthquakeTimer);
-            oam.AddEnemySpritemap(
-                _bus!,
-                bank: 0xa6,
-                spritemapPointer: 0xa329,
+            DrawEnemySpritemap(
+                oam,
+                bank: CeresDoorInstructionProgramDefinitions.Bank,
+                pointer: CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
                 unchecked((ushort)(door.XPosition - cameraX + quakeXOffset)),
                 unchecked((ushort)(door.YPosition - cameraY)),
                 paletteBits: EnemyPaletteBits.Palette2,

@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CeresDoorInitialSpritemap = 0xfac7;
     private const ushort CeresDoorRotatingRumbleFunction = 0xf7dc;
     private const ushort CeresDoorElevatorAnimationFunction = 0xf850;
     private const ushort CeresDoorRumbleDuration = 0x0030;
@@ -63,7 +62,7 @@ public sealed partial class RoomEnemySystem
         CeresDoorInitializationDefinition initialization =
             CeresDoorInitializationDefinitions.For(variant);
 
-        slot.SpritemapPointer = CeresDoorInitialSpritemap;
+        slot.SpritemapPointer = CeresDoorInstructionProgramDefinitions.InitialSpritemap;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.VramTilesIndex = 0;

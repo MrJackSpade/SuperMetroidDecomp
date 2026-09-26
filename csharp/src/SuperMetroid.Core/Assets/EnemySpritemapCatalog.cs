@@ -73,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreCeresDoorVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreCeresDoorFrameCount,
             EnemySpritemapDefinitions.PreDisplayBindingsVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
             EnemySpritemapDefinitions.PreMagdolliteVersion when stockForLegacyOverride is not null =>
@@ -123,7 +125,12 @@ public sealed class EnemySpritemapCatalog
             identities.Add(frame.Name, (frame.Bank << 16) | frame.Pointer);
         }
         var displayFrames = new Dictionary<int, int>();
-        if (!legacyOverride)
+        // Version fourteen already had editable display bindings. Keep those
+        // user choices when the newly added Ceres frames are supplied by stock;
+        // older versions had only art and inherit all stock bindings.
+        bool hasAuthoredBindings = !legacyOverride ||
+            document.Version == EnemySpritemapDefinitions.PreCeresDoorVersion;
+        if (hasAuthoredBindings)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -145,10 +152,10 @@ public sealed class EnemySpritemapCatalog
         var merged = new Dictionary<int, EnemySpritemapPart[]>(stockForLegacyOverride!.frames);
         foreach ((int identity, EnemySpritemapPart[] parts) in frames)
             merged[identity] = parts;
-        // Earlier user overrides contained only art. Preserve their edits and the
-        // verified stock identity bindings rather than guessing an animation remap.
-        return new EnemySpritemapCatalog(merged,
-            new Dictionary<int, int>(stockForLegacyOverride.displayFrames));
+        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
+        foreach ((int identity, int selected) in displayFrames)
+            mergedBindings[identity] = selected;
+        return new EnemySpritemapCatalog(merged, mergedBindings);
     }
 
     /// <summary>Compiles ordinary OAM pieces shared by plain and extended enemy frames.</summary>

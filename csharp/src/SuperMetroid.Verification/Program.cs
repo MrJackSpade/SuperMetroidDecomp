@@ -738,6 +738,12 @@ if (args is ["--ceres-door-instruction-mechanics"])
     VerifyCeresDoorInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-door-artwork"])
+{
+    VerifyCeresDoorQuakeDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--fake-kraid-instruction-mechanics"])
 {
     VerifyFakeKraidInstructionProgramDefinitions();

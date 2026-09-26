@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 14;
+    internal const int Version = 15;
+    internal const int PreCeresDoorVersion = 14;
+    internal const int PreCeresDoorFrameCount = 244;
     internal const int PreDisplayBindingsVersion = 13;
     internal const int PreDisplayBindingsFrameCount = 244;
     internal const int PreMagdolliteVersion = 12;
@@ -297,6 +299,24 @@ internal static class EnemySpritemapDefinitions
         new(MagdolliteBank, 0xb5ef, "magdollite_pillar_phase_5"),
         new(MagdolliteBank, 0xb60f, "magdollite_pillar_phase_6"),
         new(MagdolliteBank, 0xb634, "magdollite_pillar_phase_7"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf921, "ceres_door_rotating_overlay"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf95f, "ceres_door_left_hold"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf989, "ceres_door_left_transition_0"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf9b3, "ceres_door_left_transition_1"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf9d3, "ceres_door_left_transition_2"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xf9f3, "ceres_door_left_transition_3"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa13, "ceres_door_right_hold"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa3d, "ceres_door_right_transition_0"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa67, "ceres_door_right_transition_1"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfa87, "ceres_door_right_transition_2"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfaa7, "ceres_door_right_transition_3"),
+        new(CeresDoorInstructionProgramDefinitions.Bank,
+            CeresDoorInstructionProgramDefinitions.InitialSpritemap, "ceres_door_initial"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xface, "ceres_door_mode7_left_wall"),
+        new(CeresDoorInstructionProgramDefinitions.Bank, 0xfb2f, "ceres_door_mode7_right_wall"),
+        new(CeresDoorInstructionProgramDefinitions.Bank,
+            CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
+            "ceres_door_ridley_private_overlay"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

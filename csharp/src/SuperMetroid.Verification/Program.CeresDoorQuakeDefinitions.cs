@@ -1,3 +1,6 @@
+using System.Text.Json;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
@@ -52,17 +55,67 @@ internal static partial class Program
                 $"Ceres private door production OAM phase {phase}");
         }
 
+        byte[] stockJson = EnemySpritemapFiles.Extract(rom);
+        EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
+            new MemoryStream(stockJson, writable: false));
+        enemies.TileArtwork = new EnemyTileArtworkCatalog(
+            new Dictionary<ushort, RoomCharacterAtlas>(),
+            new Dictionary<ushort, EnemyPaletteSheet>(),
+            spritemaps: installed);
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            new CeresDoorQuakeReadGuard(rom, blockOverlay: true));
+        enemies.EarthquakeTimer = 0;
+        var nativeOverlay = new OamBuffer();
+        nativeOverlay.BeginFrame();
+        nativeOverlay.AddEnemySpritemap(rom, 0xa6, 0xa329, 100, 80,
+            EnemyPaletteBits.Palette2, 0);
+        nativeOverlay.FinalizeFrame();
+        var installedOverlay = new OamBuffer();
+        installedOverlay.BeginFrame();
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedOverlay, 0, 0);
+        installedOverlay.FinalizeFrame();
+        AssertTrue(nativeOverlay.LowTable.SequenceEqual(installedOverlay.LowTable) &&
+                   nativeOverlay.HighTable.SequenceEqual(installedOverlay.HighTable),
+            "Ceres private overlay matches native OAM with ROM frame reads forbidden");
+
+        EnemySpritemapDocument visual = JsonSerializer.Deserialize<EnemySpritemapDocument>(
+            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        SpriteVisualPart first = visual.Frames["ceres_door_ridley_private_overlay"][0];
+        visual.Frames["ceres_door_ridley_private_overlay"][0] = first with
+        {
+            OffsetY = first.OffsetY + 1,
+        };
+        byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        enemies.TileArtwork = new EnemyTileArtworkCatalog(
+            new Dictionary<ushort, RoomCharacterAtlas>(),
+            new Dictionary<ushort, EnemyPaletteSheet>(),
+            spritemaps: EnemySpritemapCatalog.Load(
+                new MemoryStream(editedJson, writable: false)));
+        var editedOverlay = new OamBuffer();
+        editedOverlay.BeginFrame();
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, 0, 0);
+        editedOverlay.FinalizeFrame();
+        AssertEqual(nativeOverlay.GetEntry(0).X, editedOverlay.GetEntry(0).X,
+            "private-overlay visual edit preserves the native quake/X coordinate");
+        AssertEqual(nativeOverlay.GetEntry(0).Y + 1, editedOverlay.GetEntry(0).Y,
+            "private-overlay visual edit changes only its authored Y offset");
+        AssertEqual((ushort)1, door.VariableB,
+            "private-overlay visual edit preserves the door's control flag");
+
         Console.WriteLine(
-            "Ceres door quake definitions: all four native bytes, 65,536 timer aliases and four real OAM phases pass with the malformed source table forbidden.");
+            "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and editable private-overlay art pass with source reads forbidden.");
     }
 
-    private sealed class CeresDoorQuakeReadGuard(ISnesAddressSpace source)
+    private sealed class CeresDoorQuakeReadGuard(
+        ISnesAddressSpace source, bool blockOverlay = false)
         : ISnesAddressSpace
     {
         public byte ReadByte(int address) =>
-            address is >= 0xa6a321 and < 0xa6a325
+            address is >= 0xa6a321 and < 0xa6a325 ||
+            (blockOverlay && address is >= 0xa6a329 and < 0xa6a353)
                 ? throw new InvalidOperationException(
-                    $"Ceres private door draw attempted migrated quake read ${address:X6}.")
+                    $"Ceres private door draw attempted migrated source read ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

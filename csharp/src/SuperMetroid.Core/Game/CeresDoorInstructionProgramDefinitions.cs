@@ -11,8 +11,14 @@ internal readonly record struct CeresDoorInstructionMechanicsWord(
 /// </summary>
 internal static class CeresDoorInstructionProgramDefinitions
 {
+    /// <summary>Native Ceres door instruction and visual bank $A6.</summary>
+    internal const byte Bank = 0xa6;
     /// <summary><c>Enemy_CeresDoor</c>, the bank-$A6 enemy definition at $A6:E23F.</summary>
     internal const ushort EnemyDefinitionPointer = 0xe23f;
+    /// <summary>The initial Ceres door spritemap at $A6:FAC7.</summary>
+    internal const ushort InitialSpritemap = 0xfac7;
+    /// <summary>The Ridley-room private door overlay spritemap at $A6:A329.</summary>
+    internal const ushort RidleyPrivateOverlaySpritemap = 0xa329;
     /// <summary>
     /// <c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at
     /// $A6:F53A-$A6:F56B. An intangible/invisible $0002 frame at $F53E

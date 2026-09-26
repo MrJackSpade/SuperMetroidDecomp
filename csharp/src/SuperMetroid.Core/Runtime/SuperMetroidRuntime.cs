@@ -786,7 +786,9 @@ public sealed partial class SuperMetroidRuntime
             Enemies.QueueGraphicsUploads(VramWrites);
 
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
-        VramWrites.Enqueue(sizeInBytes: 0x0040, sourceAddress: 0x80988b, encodedVramDestination: 0x5800);
+        VramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
+            sourceAddress: GameplayHudDefinitions.TopRowAddress,
+            encodedVramDestination: 0x5800);
 
         Hud.Initialize(_addressSpace, snapshot);
         Hud.QueueUpload(_addressSpace, VramWrites);

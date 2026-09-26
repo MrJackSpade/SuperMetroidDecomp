@@ -49,6 +49,8 @@ Within either platform's application-data root:
 
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
+- `game/maps/gameplay-hud.json`: editable HUD tilemap and icons, including the
+  32-cell immutable BG3 top row. Copy to `overrides/maps/` to preserve edits.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
   pose/frame/transfer-definition JSON.

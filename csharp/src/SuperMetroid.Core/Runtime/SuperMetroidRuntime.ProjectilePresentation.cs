@@ -8,6 +8,13 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtwor
     bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
+        if (MapPresentation is not null &&
+            sourceAddress == GameplayHudDefinitions.TopRowAddress &&
+            byteCount == GameplayHudDefinitions.TopRowByteCount)
+        {
+            data = MapPresentation.GameplayHud.TopRowTransfer;
+            return true;
+        }
         if (StandardObjectArt is not null &&
             sourceAddress == StandardObjectArtworkFormat.SourceAddress &&
             byteCount == StandardObjectArtworkFormat.TransferByteCount)

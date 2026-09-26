@@ -28,6 +28,8 @@ public static class GameplayHudPresentationExtractor
         GameplayHudPresentation.Write(output, new()
         {
             Version = GameplayHudDefinitions.Version,
+            TopRow = ReadCells(bus, GameplayHudDefinitions.TopRowAddress,
+                GameplayHudDefinitions.TopRowCellCount),
             Template = ReadCells(bus, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount),
             Blank = Cell(GameplayHudDefinitions.BlankWord),
             SelectedPalette = GameplayHudDefinitions.SelectedPalette,

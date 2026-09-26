@@ -27,6 +27,10 @@ internal static partial class Program
         installed.BindStandardObjectArt(installation.LoadStandardObjects());
         installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
         installed.BindSamusBodyArt(installation.LoadSamusBodyArt());
+        installed.BindRoomCharacterArt(installation.LoadRoomCharacters());
+        installed.BindRoomPaletteArt(installation.LoadRoomPalettes());
+        installed.BindRoomMetatileArt(installation.LoadRoomMetatiles());
+        installed.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         installed.BindBeamArtwork(projectiles.BeamTiles);
         installed.BindProjectileCompositions(projectiles.Catalog);

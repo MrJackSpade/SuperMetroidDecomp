@@ -13,7 +13,18 @@ internal static partial class Program
         AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
+        for (int index = 0; index < GameplayHudDefinitions.TopRowByteCount; index++)
+            AssertEqual(bus.ReadByte(GameplayHudDefinitions.TopRowAddress + index),
+                presentation.TopRowTransfer.Span[index], $"stock immutable HUD row byte {index}");
         var guard = new GameplayHudReadGuard(bus);
+        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard)
+            { MapPresentation = original };
+        topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
+            GameplayHudDefinitions.TopRowAddress, 0x5800);
+        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, guard, topRowRuntime);
+        AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
+            .SequenceEqual(presentation.TopRowTransfer.Span),
+            "queued immutable HUD row uses installed visual data without source reads");
         ushort equipment = (ushort)(SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam);
         var snapshot = new HudSnapshot(
             Health: 345, MaxHealth: 499,
@@ -70,6 +81,8 @@ internal static partial class Program
             Digits = document.Digits with { HealthAnchor = new(4, 2) },
             MinimapAnchor = new(25, 0),
         };
+        document.TopRow[0] = document.TopRow[0] with { FlipX =
+            !document.TopRow[0].FlipX };
         document.Icons["Missile"].Cells[0] = document.Icons["Missile"].Cells[0] with { FlipX = true };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, GameplayHudDefinitions.FileName);
@@ -78,6 +91,19 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
+        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard)
+            { MapPresentation = edited };
+        editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
+            GameplayHudDefinitions.TopRowAddress, 0x5800);
+        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, guard,
+            editedTopRowRuntime);
+        AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,
+                GameplayHudDefinitions.TopRowByteCount)
+            .SequenceEqual(edited.GameplayHud.TopRowTransfer.Span),
+            "edited top-row cell reaches live BG3 VRAM");
+        AssertTrue(!edited.GameplayHud.TopRowTransfer.Span.SequenceEqual(
+                original.GameplayHud.TopRowTransfer.Span),
+            "edited top-row cell changes the native transfer");
 
         var editedHud = new HudState();
         editedHud.BindPresentation(edited.GameplayHud);
@@ -116,6 +142,8 @@ internal static partial class Program
             document with { SelectedPalette = 8 }), "HUD rejects invalid highlight palette");
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
             document with { Template = document.Template[..^1] }), "HUD rejects incomplete template");
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
+            document with { TopRow = document.TopRow[..^1] }), "HUD rejects incomplete immutable row");
         var overlap = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(extracted,
             MapPresentationFormat.JsonOptions)!;
         overlap = overlap with { Digits = overlap.Digits with { HealthAnchor = new(8, 0) } };
@@ -134,7 +162,8 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
-            if (InRange(address, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount * 2) ||
+            if (InRange(address, GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowByteCount) ||
+                InRange(address, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount * 2) ||
                 InRange(address, GameplayHudDefinitions.IconTableAddress, 44) ||
                 InRange(address, GameplayHudDefinitions.HealthDigitsAddress, 20) ||
                 InRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||

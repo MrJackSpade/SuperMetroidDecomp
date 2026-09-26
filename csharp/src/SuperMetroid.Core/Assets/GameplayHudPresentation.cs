@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class GameplayHudPresentation
 {
     private readonly ushort[] template;
+    private readonly byte[] topRowTransfer;
     private readonly ushort[] healthDigits;
     private readonly ushort[] ammoDigits;
     private readonly ushort[] autoFull;
@@ -18,6 +19,14 @@ public sealed class GameplayHudPresentation
 
     private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
     {
+        ushort[] topRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount,
+            "HUD immutable top row");
+        topRowTransfer = new byte[GameplayHudDefinitions.TopRowByteCount];
+        for (int index = 0; index < topRow.Length; index++)
+        {
+            topRowTransfer[index * 2] = (byte)topRow[index];
+            topRowTransfer[index * 2 + 1] = (byte)(topRow[index] >> 8);
+        }
         template = CompileCells(document.Template, GameplayHudDefinitions.CellCount, "HUD template");
         Blank = CompileCell(document.Blank, "HUD blank");
         FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
@@ -56,6 +65,8 @@ public sealed class GameplayHudPresentation
     }
 
     public string ContentIdentity { get; }
+    /// <summary>Native-order BG3 top-row bytes supplied at the existing queued DMA boundary.</summary>
+    public ReadOnlyMemory<byte> TopRowTransfer => topRowTransfer;
     public ushort Blank { get; }
     public ushort FilledEnergyTank { get; }
     public ushort EmptyEnergyTank { get; }
@@ -167,7 +178,7 @@ public sealed class GameplayHudPresentation
         if (document.Version != GameplayHudDefinitions.Version || document.Template is null ||
             document.Blank is null || document.EnergyTanks is null || document.Digits is null ||
             document.AutoReserve is null || document.MinimapAnchor is null)
-            throw new InvalidDataException("Gameplay HUD presentation requires version 1 and every named visual owner.");
+            throw new InvalidDataException("Gameplay HUD presentation requires version 2 and every named visual owner.");
         return new(document, source);
     }
 
@@ -264,6 +275,7 @@ public sealed class GameplayHudPresentation
 public sealed record GameplayHudPresentationDocument
 {
     public required int Version { get; init; }
+    public required GameplayHudCell[] TopRow { get; init; }
     public required GameplayHudCell[] Template { get; init; }
     public required GameplayHudCell Blank { get; init; }
     public required int SelectedPalette { get; init; }

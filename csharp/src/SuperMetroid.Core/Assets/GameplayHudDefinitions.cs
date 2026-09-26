@@ -3,11 +3,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Stable resource names, extraction sources and native gameplay-HUD layout identities.</summary>
 public static class GameplayHudDefinitions
 {
-    public const int Version = 1;
+    public const int Version = 2;
     public const string FileName = "gameplay-hud.json";
     public const int Width = 32;
     public const int Height = 3;
     public const int CellCount = Width * Height;
+    /// <summary>Immutable top row copied directly to BG3 from $80:988B.</summary>
+    public const int TopRowAddress = 0x80988b;
+    public const int TopRowCellCount = Width;
+    public const int TopRowByteCount = TopRowCellCount * sizeof(ushort);
 
     /// <summary>The three mutable HUD rows copied from <c>$80:98CB</c>.</summary>
     public const int TemplateAddress = 0x8098cb;

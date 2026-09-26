@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 20;
+    internal const int Version = 21;
+    internal const int PreBullVersion = 20;
+    internal const int PreBullFrameCount = 316;
     internal const int PrePuyoVersion = 19;
     internal const int PrePuyoFrameCount = 308;
     internal const int PreNorfairRioVersion = 18;
@@ -50,6 +52,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte LowerNorfairRioBank = 0xa2;
     internal const byte NorfairRioBank = 0xa2;
     internal const byte PuyoBank = 0xa2;
+    internal const byte BullBank = 0xa8;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -394,6 +397,9 @@ internal static class EnemySpritemapDefinitions
         new(PuyoBank, 0x9e37, "puyo_air_2"),
         new(PuyoBank, 0x9e4d, "puyo_air_3"),
         new(PuyoBank, 0x9e5e, "puyo_air_4"),
+        new(BullBank, 0xdb76, "bull_idle_0"),
+        new(BullBank, 0xdb8c, "bull_idle_1"),
+        new(BullBank, 0xdba2, "bull_idle_2"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -421,6 +427,7 @@ internal static class EnemySpritemapDefinitions
                 LowerNorfairRioFrameAt(operandAddress),
             RoomEnemySystem.NorfairRioDefinition => NorfairRioFrameAt(operandAddress),
             RoomEnemySystem.PuyoDefinition => PuyoFrameAt(operandAddress),
+            RoomEnemySystem.BullDefinition => BullFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -454,6 +461,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or
             RoomEnemySystem.PuyoDefinition or
+            RoomEnemySystem.BullDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -529,6 +537,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Puyo visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// Bull's eight fixed visual operands at $A8:D843..D867 select three
+    /// editable OAM compositions. Its immune-shot loop remains engine-owned.
+    /// </summary>
+    internal static ushort BullFrameAt(ushort operandAddress)
+    {
+        if (BullInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(BullBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Bull visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

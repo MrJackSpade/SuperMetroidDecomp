@@ -4,7 +4,7 @@ internal readonly record struct BullInstructionMechanicsWord(ushort Address, ush
 
 /// <summary>
 /// Compiled engine-control words for Bull's ordinary and immune-shot animation programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands select installed presentation frames.
 /// </summary>
 internal static class BullInstructionProgramDefinitions
 {
@@ -37,6 +37,8 @@ internal static class BullInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static BullInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

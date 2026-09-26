@@ -25,7 +25,7 @@ internal static partial class Program
                 $"Bull instruction mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new BullInstructionProgramReadGuard(rom);
+        var guard = new BullInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBull", flags)!
@@ -62,9 +62,8 @@ internal static partial class Program
             "Bull shot program repeats five times and returns to normal");
         AssertEqual((ushort)0, slot.Timer, "Bull shot loop exhausts its native repeat timer");
 
-        AssertEqual(BullInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Bull spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all Bull spritemap words select compiled presentation frames");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Bull mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -83,7 +82,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Bull instruction mechanics: sixteen compiled words, the complete normal " +
-            "loop, the five-cycle immune-shot response, and eight live spritemap reads " +
+            "loop, the five-cycle immune-shot response, and eight compiled visual selectors " +
             "pass with mechanics bytes forbidden.");
     }
 
@@ -100,7 +99,8 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class BullInstructionProgramReadGuard(ISnesAddressSpace source) :
+    private sealed class BullInstructionProgramReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
@@ -127,6 +127,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                            throw new InvalidOperationException(
+                                $"Installed Bull read cartridge visual selector $A8:{presentation:X4}.");
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

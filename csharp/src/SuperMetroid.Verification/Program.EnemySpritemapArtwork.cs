@@ -7,6 +7,60 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyInstalledBullInstructionFrames(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
+        BindingFlags flags)
+    {
+        for (int index = 0;
+             index < BullInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = BullInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.BullDefinition, operand, out ushort frame),
+                $"Bull visual operand $A8:{operand:X4} is compiled");
+            AssertEqual(ReadBullInstructionWord(rom, 0xa80000 | operand), frame,
+                $"Bull frame selector $A8:{operand:X4} matches the pinned cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.BullFrameAt(0xd871),
+            "Bull rejects adjacent shot-angle data as presentation");
+
+        var guard = new BullInstructionProgramReadGuard(rom, forbidPresentation: true);
+        var enemies = new RoomEnemySystem { TileArtwork = stock };
+        Type type = typeof(RoomEnemySystem);
+        type.GetField("_bus", flags)!.SetValue(enemies, guard);
+        RoomEnemySlot bull = enemies.Slots[0];
+        bull.EnemyDefinitionPointer = RoomEnemySystem.BullDefinition;
+        bull.Definition = default(RoomEnemyDefinition) with
+            { Bank = EnemySpritemapDefinitions.BullBank };
+        type.GetMethod("InitializeBull", flags)!
+            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(bull);
+        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        object?[] arguments =
+            [bull, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+        for (int frame = 0; frame < 41; frame++)
+            process.Invoke(enemies, arguments);
+        AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
+            bull.CurrentInstruction,
+            "installed Bull normal animation retains its cursor and timing");
+        BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
+            "Bull initializer did not publish typed state.");
+        type.GetMethod("ResolveBullImmuneShot", flags | BindingFlags.Static)!
+            .Invoke(null, [bull, state, (ushort)2]);
+        for (int frame = 0; frame < 61; frame++)
+            process.Invoke(enemies, arguments);
+        AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
+            bull.CurrentInstruction,
+            "installed Bull immune-shot program returns to the normal loop");
+        AssertEqual((ushort)0, bull.Timer,
+            "installed Bull immune-shot loop exhausts its native repeat timer");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "installed Bull programs read no cartridge visual selectors");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "installed Bull programs retain compiled timing and control words");
+    }
+
     private static void VerifyInstalledPuyoInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
         BindingFlags flags)
@@ -82,8 +136,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PrePuyoFrameCount,
             "Norfair Rio adds its twenty parent and flame compositions");
         AssertEqual(EnemySpritemapDefinitions.PrePuyoFrameCount + 8,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreBullFrameCount,
             "Puyo adds its eight distinct ground and airborne compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreBullFrameCount + 3,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Bull adds its three distinct normal and immune-shot compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -204,6 +261,7 @@ internal static partial class Program
         AssertEqual(0, norfairRioGuard.ObservedPresentationWords.Count,
             "installed Norfair Rio programs never read ROM visual selectors");
         VerifyInstalledPuyoInstructionFrames(rom, stock, flags);
+        VerifyInstalledBullInstructionFrames(rom, stock, flags);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -237,6 +295,8 @@ internal static partial class Program
                         ? RoomEnemySystem.RioDefinition
                     : frame.Name.StartsWith("puyo_", StringComparison.Ordinal)
                         ? RoomEnemySystem.PuyoDefinition
+                    : frame.Name.StartsWith("bull_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.BullDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -397,6 +457,11 @@ internal static partial class Program
         document.Frames["puyo_ground_0"][0] = puyoPart with
         {
             OffsetY = puyoPart.OffsetY + 1,
+        };
+        SpriteVisualPart bullPart = document.Frames["bull_idle_0"][0];
+        document.Frames["bull_idle_0"][0] = bullPart with
+        {
+            OffsetY = bullPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -661,15 +726,50 @@ internal static partial class Program
             "authored Puyo Y offset changes installed room OAM");
         AssertEqual(stockPuyo.LowTable[0], editedPuyo.LowTable[0],
             "Puyo visual edit leaves physical X unchanged");
+        ushort bullPointer = EnemySpritemapDefinitions.BullFrameAt(
+            BullInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockBull = DrawEnemy(stock, new FrameReadGuard(rom),
+            bullPointer, RoomEnemySystem.BullDefinition);
+        OamBuffer editedBull = DrawEnemy(edited, new FrameReadGuard(rom),
+            bullPointer, RoomEnemySystem.BullDefinition);
+        AssertEqual(unchecked((byte)(stockBull.LowTable[1] + 1)),
+            editedBull.LowTable[1],
+            "authored Bull Y offset changes installed room OAM");
+        AssertEqual(stockBull.LowTable[0], editedBull.LowTable[0],
+            "Bull visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var prePuyoFrames = document.Frames
+        var preBullFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("bull_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreBullFrameCount,
+            preBullFrames.Count, "pre-Bull composition schema frame count");
+        var preBullBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("bull_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreBullVersion,
+                Frames = preBullFrames,
+                DisplayFrames = preBullBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preBullUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer retainedPreBullEdit = DrawEnemy(preBullUpgraded,
+            new FrameReadGuard(rom), puyoPointer, RoomEnemySystem.PuyoDefinition);
+        AssertEqual(editedPuyo.LowTable[1], retainedPreBullEdit.LowTable[1],
+            "version-twenty override retains an edited Puyo frame");
+        AssertTrue(preBullUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.BullBank, bullPointer, out _),
+            "version-twenty override gains stock Bull artwork");
+        var prePuyoFrames = preBullFrames
             .Where(pair => !pair.Key.StartsWith("puyo_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PrePuyoFrameCount,
             prePuyoFrames.Count, "pre-Puyo composition schema frame count");
-        var prePuyoBindings = document.DisplayFrames!
+        var prePuyoBindings = preBullBindings
             .Where(pair => !pair.Key.StartsWith("puyo_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1181,6 +1281,8 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.AtomicBank
                     : definition == RoomEnemySystem.MagdolliteDefinition
                         ? EnemySpritemapDefinitions.MagdolliteBank
+                    : definition == RoomEnemySystem.BullDefinition
+                        ? EnemySpritemapDefinitions.BullBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||
@@ -1228,7 +1330,9 @@ internal static partial class Program
                 >= 0xa8b448 and < 0xa8b65e or
                 >= 0xa6f921 and < 0xa6fb72 or
                 >= 0xa6a329 and < 0xa6a353 or
-                >= 0xa6bffd and < 0xa6c04e)
+                >= 0xa6bffd and < 0xa6c04e or
+                >= 0xa29df6 and < 0xa29e80 or
+                >= 0xa8db76 and < 0xa8dbb8)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

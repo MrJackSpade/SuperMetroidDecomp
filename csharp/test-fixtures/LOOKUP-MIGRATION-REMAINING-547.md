@@ -1,5 +1,13 @@
 # Remaining lookup migration inventory (#547)
 
+## Bull visual frames (2026-09-26)
+
+Bull's normal and immune-shot loops now select three named, editable OAM
+compositions through eight compiled bank-$A8 visual operands. The real 102-frame
+normal/shot sequence retains its compiled durations, repeat count, and return
+cursor with both mechanics and selector source bytes unreadable. Stock OAM,
+an edited live frame, override reload, and version-twenty migration pass.
+
 ## Puyo visual frames (2026-09-26)
 
 Puyo's eight distinct ground and airborne OAM compositions are installed as

@@ -414,18 +414,9 @@ static void VerifySamusPostureMovement()
             0x03, 0x00, 0x15, 0x00,
         ]);
     }
-    WriteTestWord(bus, 0x91b012, 0xc100);
-    WriteTestWord(bus, 0x91b05e, 0xc110);
-    WriteTestWord(bus, 0x91b07a, 0xc120);
-    WriteTestWord(bus, 0x91b086, 0xc130);
-    bus.WriteBytes(0x91c100, [0x0a, 0x0a, 0x0a, 0x0a, 0xf6]);
-    bus.WriteBytes(0x91c110, [0x0a, 0x0a, 0x0a, 0x0a, 0xf6]);
-    bus.WriteBytes(0x91c120, [0x02, 0xfd, 0x27]);
-    bus.WriteBytes(0x91c130, [0x02, 0xfd, 0x01]);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.NeutralJumpTransitionRightPose * 2, 0xc140);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.NeutralJumpTransitionLeftPose * 2, 0xc150);
-    bus.WriteBytes(0x91c140, [0x01, 0xfd, SamusPoseIds.NeutralJumpRightPose]);
-    bus.WriteBytes(0x91c150, [0x01, 0xfd, SamusPoseIds.NeutralJumpLeftPose]);
+    // Animation-delay pointers and command bytes are compiled cartridge
+    // mechanics. The real $35/$3B and $F1-$FC streams each spend three ticks
+    // before FD; the pose-definition bytes above remain mutable fixture data.
 
     // Dry-air table-zero values used by Make_Samus_Jump and normal-air gravity. Keeping
     // these as literal ROM words makes a crouch jump observable beyond merely changing pose.
@@ -434,29 +425,23 @@ static void VerifySamusPostureMovement()
     bus.WriteBytes(0x909ea1, [0x00, 0x1c]);
     bus.WriteBytes(0x909ea7, [0x00, 0x00]);
 
-    // Give every aimed transition its own command-$FD stream. Distinct stream pointers
-    // catch accidental pose reuse; the literal target arrays mirror `$91:B518-$91:B53B`.
+    // The literal target arrays mirror the compiled `$91:B518-$91:B53B`
+    // command operands. They are not fake-bus stream overrides.
     byte[] aimedCrouchTargets = [0x85, 0x86, 0x71, 0x72, 0x73, 0x74];
     byte[] aimedStandTargets = [0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
     for (int index = 0; index < 6; index++)
     {
-        ushort crouchStream = unchecked((ushort)(0xc200 + index * 0x10));
-        WriteTestWord(bus, 0x91b010 + aimedCrouchTransitions[index] * 2, crouchStream);
-        bus.WriteBytes(0x910000 | crouchStream, [0x02, 0xfd, aimedCrouchTargets[index]]);
-        ushort standStream = unchecked((ushort)(0xc260 + index * 0x10));
-        WriteTestWord(bus, 0x91b010 + aimedStandTransitions[index] * 2, standStream);
-        bus.WriteBytes(0x910000 | standStream, [0x02, 0xfd, aimedStandTargets[index]]);
+        AssertEqual((byte)3,
+            SamusAnimationDelayDefinitions.ReadAnimationByte(
+                bus, SamusAnimationDelayDefinitions.PointerForPose(aimedCrouchTransitions[index]), 0),
+            "aimed crouch starts with native three-tick delay");
+        AssertEqual((byte)3,
+            SamusAnimationDelayDefinitions.ReadAnimationByte(
+                bus, SamusAnimationDelayDefinitions.PointerForPose(aimedStandTransitions[index]), 0),
+            "aimed stand starts with native three-tick delay");
     }
-    byte[] stablePosturePoses = [
-        0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-        0x28, 0x71, 0x72, 0x73, 0x74, 0x85, 0x86,
-    ];
-    for (int index = 0; index < stablePosturePoses.Length; index++)
-    {
-        ushort stream = unchecked((ushort)(0xc300 + index * 0x10));
-        WriteTestWord(bus, 0x91b010 + stablePosturePoses[index] * 2, stream);
-        bus.WriteBytes(0x910000 | stream, [0x10, 0xff]);
-    }
+    // These poses already have compiled retail delay streams; no synthetic
+    // timing override is required to exercise the actual posture transitions.
 
     const int width = 8;
     const int height = 8;
@@ -481,7 +466,7 @@ static void VerifySamusPostureMovement()
     AssertEqual(16, samus.Kinematics.YRadius, "crouch transition radius");
     AssertEqual(48, samus.YPosition, "command seven moves crouch center down five");
 
-    for (int tick = 0; tick < 2; tick++)
+    for (int tick = 0; tick < 3; tick++)
         samus.AnimateNoFx(bus);
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "crouch FD applies");
@@ -507,7 +492,7 @@ static void VerifySamusPostureMovement()
     AssertEqual(43, samus.YPosition, "floor-constrained expansion moves center up five");
     samus.RefreshCollisionRadii(bus);
     AssertEqual(21, samus.Kinematics.YRadius, "next alpha publishes standing transition radius");
-    for (int tick = 0; tick < 2; tick++)
+    for (int tick = 0; tick < 3; tick++)
         samus.AnimateNoFx(bus);
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "standing FD applies");
     AssertEqual(0x01, samus.Pose, "standing transition target");
@@ -534,8 +519,8 @@ static void VerifySamusPostureMovement()
         AssertEqual(48, aimedSamus.YPosition, "aimed crouch keeps feet aligned");
         SamusPostureMovement.StepCrouchStandTransition(
             bus, level, aimedSamus, unchecked((ushort)index));
-        aimedSamus.AnimateNoFx(bus);
-        aimedSamus.AnimateNoFx(bus);
+        for (int tick = 0; tick < 3; tick++)
+            aimedSamus.AnimateNoFx(bus);
         AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
@@ -554,8 +539,8 @@ static void VerifySamusPostureMovement()
         AssertEqual(43, aimedSamus.YPosition, "aimed stand keeps feet aligned");
         aimedSamus.RefreshCollisionRadii(bus);
         AssertEqual(21, aimedSamus.Kinematics.YRadius, "aimed stand next alpha radius");
-        aimedSamus.AnimateNoFx(bus);
-        aimedSamus.AnimateNoFx(bus);
+        for (int tick = 0; tick < 3; tick++)
+            aimedSamus.AnimateNoFx(bus);
         AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");
     }

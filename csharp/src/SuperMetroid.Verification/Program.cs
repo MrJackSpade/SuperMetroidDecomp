@@ -67,6 +67,11 @@ if (args is ["--samus-morph-ball"])
     VerifySamusMorphBallMovement();
     return 0;
 }
+if (args is ["--samus-aimed-aerial"])
+{
+    VerifySamusAimedAerialMovement();
+    return 0;
+}
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

@@ -326,7 +326,10 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(0xe4, samus.Pose, "shot direction three selects E4 landing");
     AssertEqual(21, samus.Kinematics.YRadius, "aimed landing expands radius");
     AssertEqual(171, samus.YPosition, "aimed landing retains floor-aligned feet");
-    samus.AnimateNoFx(bus);
+    // Pose $E4's compiled landing stream is 05,02,F8,07. Seven native
+    // animation ticks reach the return-to-aim command.
+    for (int tick = 0; tick < 7; tick++)
+        samus.AnimateNoFx(bus);
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "aimed landing F8 applies");
     AssertEqual(0x07, samus.Pose, "E4 landing returns to down-right aim");
 

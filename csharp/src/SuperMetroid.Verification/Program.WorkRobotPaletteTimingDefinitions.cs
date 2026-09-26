@@ -1,4 +1,7 @@
 using System.Reflection;
+using System.Text.Json;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -38,10 +41,40 @@ internal static partial class Program
             () => WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(70),
             "Work Robot palette rejects offsets beyond the native terminator");
 
+        byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
+        WorkRobotPaletteCycle stock = WorkRobotPaletteCycle.Load(
+            new MemoryStream(extracted, writable: false));
+        for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
+        for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+        {
+            int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
+                record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
+                color * sizeof(ushort);
+            AssertEqual(ReadWord(rom, source), stock.Resolve(record, color),
+                $"Work Robot color record {record} slot {color} preserves ROM RGB5");
+        }
+        WorkRobotPaletteCycleDocument visual =
+            JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(extracted,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            throw new InvalidDataException("Work Robot color extraction is null.");
+        PaletteRgb5 prior = visual.Frames[1][0];
+        visual.Frames[1][0] = prior with
+        {
+            Blue = prior.Blue == 31 ? 30 : prior.Blue + 1,
+        };
+        WorkRobotPaletteCycle edited = WorkRobotPaletteCycle.Load(
+            new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
+
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new WorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = new EnemyTileArtworkCatalog(
+                new Dictionary<ushort, RoomCharacterAtlas>(),
+                new Dictionary<ushort, EnemyPaletteSheet>(),
+                workRobotPaletteCycle: edited),
+        };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
@@ -78,11 +111,9 @@ internal static partial class Program
                 (ushort)type.GetField(
                     "_workRobotPaletteAnimationTimer", flags)!.GetValue(enemies)!,
                 $"production Work Robot palette load {nextLoad} timer");
-            for (int color = 0; color < 4; color++)
+            for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
             {
-                int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
-                    record * WorkRobotPaletteTimingDefinitions.RecordByteCount + color * 2;
-                AssertEqual(ReadWord(rom, source), cgram.Colors[137 + color],
+                AssertEqual(edited.Resolve(record, color), cgram.Colors[137 + color],
                     $"production Work Robot palette load {nextLoad} color {color}");
             }
             nextLoad++;
@@ -91,10 +122,10 @@ internal static partial class Program
         AssertEqual(loadCalls.Length, nextLoad,
             "production Work Robot palette reaches every record and wraps");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production Work Robot palette performs no timing or terminator ROM reads");
+            "installed Work Robot palette performs no color, timing or terminator ROM reads");
         Console.WriteLine(
-            "Work Robot palette timing: all six native durations, the terminator and " +
-            "the complete 193-call production cycle pass with control reads forbidden.");
+            "Work Robot palette: all six native durations and 24 colors, the terminator and " +
+            "the complete 193-call edited-color production cycle pass with ROM reads forbidden.");
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
             bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
@@ -116,7 +147,14 @@ internal static partial class Program
             bool terminatorByte = address is
                 WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress or
                 WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress + 1;
-            if (timerByte || terminatorByte)
+            int colorRelative = address -
+                EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords;
+            bool colorByte = colorRelative >= 0 &&
+                colorRelative < WorkRobotPaletteTimingDefinitions.RecordCount *
+                    WorkRobotPaletteTimingDefinitions.RecordByteCount &&
+                colorRelative % WorkRobotPaletteTimingDefinitions.RecordByteCount <
+                    WorkRobotPaletteRomData.ColorCount * sizeof(ushort);
+            if (timerByte || terminatorByte || colorByte)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

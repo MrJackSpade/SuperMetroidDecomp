@@ -461,13 +461,24 @@ public sealed partial class RoomEnemySystem
         _workRobotPaletteAnimationTableOffset =
             WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
                 _workRobotPaletteAnimationTableOffset);
-        int recordAddress = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
-            _workRobotPaletteAnimationTableOffset;
+        int record = _workRobotPaletteAnimationTableOffset /
+            WorkRobotPaletteTimingDefinitions.RecordByteCount;
 
         int destination = 128 +
-            ((_workRobotPaletteAnimationPaletteIndex >> 9) & 7) * 16 + 9;
-        for (int color = 0; color < 4; color++)
-            _cgram!.SetColor(destination + color, ReadWord(_bus!, recordAddress + color * 2));
+            ((_workRobotPaletteAnimationPaletteIndex >> 9) & 7) * 16 +
+            WorkRobotPaletteRomData.FirstAnimatedColor;
+        if (TileArtwork?.WorkRobotPaletteCycle is { } installedCycle)
+            installedCycle.ApplyFrame(_cgram!, record, destination);
+        else
+        {
+            // Constructed fixtures without installed art retain the native source.
+            // The normal game installation always binds the extracted color rows.
+            int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
+                _workRobotPaletteAnimationTableOffset;
+            for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
+                _cgram!.SetColor(destination + color,
+                    ReadWord(_bus!, source + color * sizeof(ushort)));
+        }
         _workRobotPaletteAnimationTimer =
             WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
                 _workRobotPaletteAnimationTableOffset);

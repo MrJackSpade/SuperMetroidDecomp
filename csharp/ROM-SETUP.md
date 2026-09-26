@@ -346,6 +346,10 @@ Magdollite's separate four-frame OBJ color cycle is in
 eight-tick cadence, frame order, and selected OBJ palette slot stay in code.
 The installed game uses this asset for the cycle rather than reading its
 colors from the ROM during play.
+Work Robot's six four-color records are similarly editable in
+`game/enemy-tiles/work-robot-palette-cycle.json`, copied to the same overrides
+directory. Its 64/16-tick durations, record wrap, and powered/unpowered state
+remain compiled; only the RGB5 words are replaceable.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

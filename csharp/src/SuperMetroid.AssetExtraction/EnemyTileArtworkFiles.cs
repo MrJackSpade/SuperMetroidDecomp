@@ -173,6 +173,9 @@ public static class EnemyTileArtworkFiles
         byte[] magdollitePaletteCycle = MagdollitePaletteCycleExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, MagdollitePaletteCycleFormat.FileName),
             magdollitePaletteCycle);
+        byte[] workRobotPaletteCycle = WorkRobotPaletteCycleExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, WorkRobotPaletteCycleFormat.FileName),
+            workRobotPaletteCycle);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -189,7 +192,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(kraidRoomBackground)),
             Convert.ToHexString(SHA256.HashData(kraidColors)),
             ceresDoorTilesHash, ceresDoorColorsHash,
-            Convert.ToHexString(SHA256.HashData(magdollitePaletteCycle)));
+            Convert.ToHexString(SHA256.HashData(magdollitePaletteCycle)),
+            Convert.ToHexString(SHA256.HashData(workRobotPaletteCycle)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -231,7 +235,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.KraidColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.CeresDoorTilesSha256) ||
             string.IsNullOrWhiteSpace(manifest.CeresDoorColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.MagdollitePaletteCycleSha256))
+            string.IsNullOrWhiteSpace(manifest.MagdollitePaletteCycleSha256) ||
+            string.IsNullOrWhiteSpace(manifest.WorkRobotPaletteCycleSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -485,10 +490,25 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Magdollite palette cycle in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        WorkRobotPaletteCycle workRobotPaletteCycle;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(WorkRobotPaletteCycleFormat.FileName,
+                manifest.WorkRobotPaletteCycleSha256);
+            workRobotPaletteCycle = WorkRobotPaletteCycle.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Work Robot palette cycle in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
-            dmaSources, projectileSpritemaps, magdollitePaletteCycle);
+            dmaSources, projectileSpritemaps, magdollitePaletteCycle,
+            workRobotPaletteCycle);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -670,7 +690,8 @@ public static class EnemyTileArtworkFiles
         string KraidColorsSha256,
         string CeresDoorTilesSha256,
         string CeresDoorColorsSha256,
-        string MagdollitePaletteCycleSha256);
+        string MagdollitePaletteCycleSha256,
+        string WorkRobotPaletteCycleSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

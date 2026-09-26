@@ -23,7 +23,8 @@ public sealed class EnemyTileArtworkCatalog
         CeresDoorVisualCatalog? ceresDoorVisual = null,
         IReadOnlyDictionary<ushort, int>? dmaSources = null,
         EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
-        MagdollitePaletteCycle? magdollitePaletteCycle = null)
+        MagdollitePaletteCycle? magdollitePaletteCycle = null,
+        WorkRobotPaletteCycle? workRobotPaletteCycle = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -58,6 +59,7 @@ public sealed class EnemyTileArtworkCatalog
         CeresDoorVisual = ceresDoorVisual;
         ProjectileSpritemaps = projectileSpritemaps;
         MagdollitePaletteCycle = magdollitePaletteCycle;
+        WorkRobotPaletteCycle = workRobotPaletteCycle;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -86,6 +88,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Four editable color frames; the Magdollite draw hook retains timing.</summary>
     public MagdollitePaletteCycle? MagdollitePaletteCycle { get; }
+
+    /// <summary>Six editable Work Robot color records; timer/terminator stay compiled.</summary>
+    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; }
 
     /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
@@ -123,7 +128,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 24;
+    public const int Version = 25;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

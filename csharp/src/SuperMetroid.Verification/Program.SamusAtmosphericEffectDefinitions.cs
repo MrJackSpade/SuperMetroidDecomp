@@ -41,8 +41,6 @@ internal static partial class Program
 
         var source = new TestAddressSpace();
         const byte testPose = SamusPoseIds.MovingRightNormalPose;
-        WriteTestWord(source, 0x91b010 + testPose * 2, 0xc000);
-        source.WriteBytes(0x91c000, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
         var guarded = new SamusAtmosphericPolicyReadGuard(source);
 
         VerifyProductionWaterSplashSelection();
@@ -104,6 +102,7 @@ internal static partial class Program
             };
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
             samus.InitializeAnimation(guarded, frame);
+            AdvanceToFootContactTick(samus, guarded);
             samus.LiquidPhysics.PrepareAnimationFrame(guarded, samus, nmiFrameCounter: 1);
 
             byte expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
@@ -136,6 +135,7 @@ internal static partial class Program
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             runner.InitializeAnimation(guarded, initialFrame: 2);
+            AdvanceToFootContactTick(runner, guarded);
             runner.LiquidPhysics.PrepareAnimationFrame(guarded, runner, nmiFrameCounter: 1);
             AssertEqual(wet ? 1 : 0,
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
@@ -163,6 +163,19 @@ internal static partial class Program
                 landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
                 $"production Crateria landing policy ${room:X2}");
         }
+    }
+
+    private static void AdvanceToFootContactTick(
+        SamusState samus,
+        ISnesAddressSpace bus)
+    {
+        // Footstep publication occurs only on the last tick of a frame. Let the
+        // actual compiled animation delay count down to that tick rather than
+        // writing a synthetic one-tick stream into a now-immutable ROM table.
+        AssertTrue(samus.AnimationFrameTimer is > 0 and <= 32,
+            "running fixture starts with a bounded native animation delay");
+        while (samus.AnimationFrameTimer > 1)
+            samus.AnimateNoFx(bus);
     }
 
     private sealed class SamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) :

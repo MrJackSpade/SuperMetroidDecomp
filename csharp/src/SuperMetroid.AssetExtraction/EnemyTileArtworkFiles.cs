@@ -188,6 +188,9 @@ public static class EnemyTileArtworkFiles
         byte[] chozoAndTubeColors = ChozoAndTubeColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, ChozoAndTubeColorFormat.FileName),
             chozoAndTubeColors);
+        byte[] sporeSpawnColors = SporeSpawnColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, SporeSpawnColorFormat.FileName),
+            sporeSpawnColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -209,7 +212,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(crocomireColors)),
             Convert.ToHexString(SHA256.HashData(draygonColors)),
             Convert.ToHexString(SHA256.HashData(phantoonColors)),
-            Convert.ToHexString(SHA256.HashData(chozoAndTubeColors)));
+            Convert.ToHexString(SHA256.HashData(chozoAndTubeColors)),
+            Convert.ToHexString(SHA256.HashData(sporeSpawnColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -256,7 +260,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.DraygonColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.PhantoonColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.ChozoAndTubeColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.ChozoAndTubeColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.SporeSpawnColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -580,12 +585,26 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Chozo/tube colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        SporeSpawnColorCatalog sporeSpawnColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(SporeSpawnColorFormat.FileName,
+                manifest.SporeSpawnColorsSha256);
+            sporeSpawnColors = SporeSpawnColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Spore Spawn colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
             dmaSources, projectileSpritemaps, magdollitePaletteCycle,
             workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
-            chozoAndTubeColors);
+            chozoAndTubeColors, sporeSpawnColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -772,7 +791,8 @@ public static class EnemyTileArtworkFiles
         string CrocomireColorsSha256,
         string DraygonColorsSha256,
         string PhantoonColorsSha256,
-        string ChozoAndTubeColorsSha256);
+        string ChozoAndTubeColorsSha256,
+        string SporeSpawnColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

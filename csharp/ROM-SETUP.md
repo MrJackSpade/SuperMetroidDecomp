@@ -370,6 +370,10 @@ The Wrecked Ship and Lower Norfair Chozo statue palette pairs, plus the
 n00b-tube crack palette pair, are in
 `game/enemy-tiles/chozo-and-tube-colors.json`. They share the same override
 directory; statue variant, tube behavior and PLM placement remain compiled.
+Spore Spawn's spore palette, four health palettes, and death sprite/level/
+background color frames are in `game/enemy-tiles/spore-spawn-colors.json`.
+Health thresholds and death-frame timing remain compiled; this file changes
+only the RGB5 colors selected at those native moments.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

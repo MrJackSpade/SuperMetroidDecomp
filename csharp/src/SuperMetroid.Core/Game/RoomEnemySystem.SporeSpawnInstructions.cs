@@ -7,11 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int SporeSpawnHealthPaletteSource = 0xa5e379;
-    private const int SporeSpawnDeathSpritePaletteSource = 0xa5e3f9;
-    private const int SporeSpawnDeathLevelPaletteSource = 0xa5e4f9;
-    private const int SporeSpawnDeathBackgroundPaletteSource = 0xa5e5d9;
-
     private bool TryProcessSporeSpawnInstruction(
         RoomEnemySlot body,
         ushort opcode,
@@ -105,11 +100,16 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>SporeSpawn_Func_7</c> at $A5:EE4A.</summary>
     private void LoadSporeSpawnHealthPalette(ushort sourceByteOffset)
     {
-        for (int color = 0; color < 16; color++)
+        int frame = SporeSpawnColorRomData.FrameFromByteOffset(
+            sourceByteOffset, SporeSpawnColorRomData.HealthFrameCount);
+        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
             _cgram!.SetColor(
-                144 + color,
-                ReadWord(_bus!, SporeSpawnHealthPaletteSource + sourceByteOffset + color * 2));
+                SporeSpawnColorRomData.SpriteDestination + color,
+                TileArtwork?.SporeSpawnColors is { } colors
+                    ? colors.ResolveHealth(frame, color)
+                    : ReadWord(_bus!, SporeSpawnColorRomData.HealthSource +
+                        sourceByteOffset + color * sizeof(ushort)));
         }
     }
 
@@ -118,35 +118,39 @@ public sealed partial class RoomEnemySystem
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn palette instruction ran without the boss state.");
         CopySporeSpawnPaletteRow(
-            SporeSpawnDeathSpritePaletteSource,
+            SporeSpawnDeathPaletteLayer.Sprite,
             sourceByteOffset,
-            destination: 144,
             state,
             targetOnly);
         CopySporeSpawnPaletteRow(
-            SporeSpawnDeathLevelPaletteSource,
+            SporeSpawnDeathPaletteLayer.Level,
             sourceByteOffset,
-            destination: 64,
             state,
             targetOnly);
         CopySporeSpawnPaletteRow(
-            SporeSpawnDeathBackgroundPaletteSource,
+            SporeSpawnDeathPaletteLayer.Background,
             sourceByteOffset,
-            destination: 112,
             state,
             targetOnly);
     }
 
     private void CopySporeSpawnPaletteRow(
-        int source,
+        SporeSpawnDeathPaletteLayer layer,
         ushort sourceByteOffset,
-        int destination,
         SporeSpawnEnemyState state,
         bool targetOnly)
     {
-        for (int color = 0; color < 16; color++)
+        int frame = SporeSpawnColorRomData.FrameFromByteOffset(sourceByteOffset,
+            layer == SporeSpawnDeathPaletteLayer.Sprite
+                ? SporeSpawnColorRomData.DeathSpriteFrameCount
+                : SporeSpawnColorRomData.DeathSceneFrameCount);
+        int destination = SporeSpawnColorRomData.DeathDestination(layer);
+        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            ushort value = ReadWord(_bus!, source + sourceByteOffset + color * 2);
+            ushort value = TileArtwork?.SporeSpawnColors is { } colors
+                ? colors.ResolveDeath(layer, frame, color)
+                : ReadWord(_bus!, SporeSpawnColorRomData.DeathSource(layer) +
+                    sourceByteOffset + color * sizeof(ushort));
             if (targetOnly)
                 state.WriteTargetColor(destination + color, value);
             else

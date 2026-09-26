@@ -84,8 +84,6 @@ public sealed partial class RoomEnemySystem
     private const ushort SporeSpawnDeathCenterX = 128;
     private const ushort SporeSpawnDeathCenterY = 624;
     private const ushort SporeSpawnCeilingY = 560;
-    private const int SporeSpawnInitialPaletteSource = 0xa5e359;
-    private const int SporeSpawnInitialPaletteDestination = 240;
 
     private readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
 
@@ -166,11 +164,13 @@ public sealed partial class RoomEnemySystem
         // Native writes these sixteen colors to target-palette row F. Room loading currently
         // presents completed fades directly, so install the identical final words in CGRAM
         // while retaining the independent target copy above.
-        for (int color = 0; color < 16; color++)
+        for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            ushort value = ReadWord(_bus!, SporeSpawnInitialPaletteSource + color * 2);
-            state.WriteTargetColor(SporeSpawnInitialPaletteDestination + color, value);
-            _cgram!.SetColor(SporeSpawnInitialPaletteDestination + color, value);
+            ushort value = TileArtwork?.SporeSpawnColors is { } colors
+                ? colors.ResolveSpore(color)
+                : ReadWord(_bus!, SporeSpawnColorRomData.SporeSource + color * sizeof(ushort));
+            state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
+            _cgram!.SetColor(SporeSpawnColorRomData.SporeDestination + color, value);
         }
 
         // SpawnEprojWithGfx searches the eighteen-slot pool downward. Four calls therefore

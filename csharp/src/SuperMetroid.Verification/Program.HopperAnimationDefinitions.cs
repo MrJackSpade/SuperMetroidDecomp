@@ -1,10 +1,12 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    private static void VerifyHopperAnimationDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyHopperAnimationDefinitions(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         int[] tables = [0xa3aac2, 0xa3aaca, 0xa3aad2, 0xa3aada];
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -33,7 +35,7 @@ internal static partial class Program
                 $"hopper animation variant {variant}, selector {selector}");
         }
 
-        var guard = new HopperAnimationReadGuard(rom);
+        var guard = new HopperAnimationReadGuard(rom, forbidPresentation: true);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         ushort[] definitions =
         [
@@ -47,7 +49,7 @@ internal static partial class Program
         for (int orientation = 0; orientation < 2; orientation++)
         {
             bool upsideDown = orientation != 0;
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies, guard);
             typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(
@@ -110,20 +112,11 @@ internal static partial class Program
                 $"hopper landed sound {variant}/{orientation}");
         }
 
-        VerifyTourianSidehopperInstructionAlias(rom, flags, process);
+        VerifyTourianSidehopperInstructionAlias(rom, flags, process, artwork);
 
-        AssertEqual(HopperInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all hopper spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < HopperInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                HopperInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads hopper presentation word $A3:{address:X4}");
-        }
+            "hopper production programs avoid all cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled hopper mechanics byte");
 
@@ -149,20 +142,23 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => HopperAnimationDefinitions.InstructionList(ushort.MaxValue, true, true),
             "restored hopper animation variant does not wrap into authored table");
-        Console.WriteLine(
-            "Hopper instruction mechanics: ninety-six compiled words, sixteen native " +
-            "floor/ceiling programs, five production definitions, sound/processing/ready " +
-            "side effects, and forty live spritemap reads pass with mechanics bytes forbidden.");
+        Console.WriteLine(artwork is null
+            ? "Hopper instruction mechanics: ninety-six compiled words, sixteen native " +
+              "floor/ceiling programs, five production definitions, and forty compiled " +
+              "visual selectors preserve sound/processing/ready side effects."
+            : "Installed Sidehopper/Dessgeega: sixteen floor/ceiling programs and " +
+              "Tourian alias execute with cartridge visual reads forbidden.");
     }
 
     private static void VerifyTourianSidehopperInstructionAlias(
         SuperMetroidAddressSpace rom,
         BindingFlags flags,
-        MethodInfo process)
+        MethodInfo process,
+        EnemyTileArtworkCatalog? artwork)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new HopperAnimationReadGuard(rom));
+            enemies, new HopperAnimationReadGuard(rom, forbidPresentation: true));
         typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(
             enemies, (Action<ushort>)(_ => { }));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
@@ -209,7 +205,8 @@ internal static partial class Program
     private static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class HopperAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class HopperAnimationReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -239,6 +236,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                        {
+                            ForbiddenReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"Hopper read visual-selector byte ${address:X6}.");
+                        }
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

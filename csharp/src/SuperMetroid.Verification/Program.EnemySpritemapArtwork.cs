@@ -47,6 +47,39 @@ internal static partial class Program
         VerifyBeetomInstructionProgramDefinitions(rom, stock);
     }
 
+    private static void VerifyInstalledHopperInstructionFrames(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    {
+        ushort[] definitions =
+        [
+            RoomEnemySystem.SidehopperDefinition,
+            RoomEnemySystem.DessgeegaDefinition,
+            RoomEnemySystem.LargeSidehopperDefinition,
+            RoomEnemySystem.TourianSidehopperDefinition,
+            RoomEnemySystem.LargeDessgeegaDefinition,
+        ];
+        for (int index = 0;
+             index < HopperInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = HopperInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort compiled = EnemySpritemapDefinitions.HopperFrameAt(operand);
+            AssertEqual(ReadHopperAnimationWord(rom, 0xa30000 | operand), compiled,
+                $"Hopper visual selector $A3:{operand:X4} matches the pinned cartridge");
+            foreach (ushort definition in definitions)
+            {
+                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                        definition, operand, out ushort selected) && selected == compiled,
+                    $"Hopper family ${definition:X4} compiles visual operand $A3:{operand:X4}");
+            }
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.HopperFrameAt(
+                HopperInstructionProgramDefinitions.LastAdjacentPhysicsWord),
+            "Hopper rejects adjacent physics data as a visual selector");
+        VerifyHopperAnimationDefinitions(rom, stock);
+    }
+
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
         BindingFlags flags)
@@ -185,8 +218,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreBeetomFrameCount,
             "Alcoon adds eighteen left/right walking, firing, and airborne compositions");
         AssertEqual(EnemySpritemapDefinitions.PreBeetomFrameCount + 22,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreHopperFrameCount,
             "Beetom adds twenty-two distinct crawl, hop, and drain compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreHopperFrameCount + 24,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Hoppers add twenty-four distinct floor/ceiling compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -310,6 +346,7 @@ internal static partial class Program
         VerifyInstalledBullInstructionFrames(rom, stock, flags);
         VerifyInstalledAlcoonInstructionFrames(rom, stock);
         VerifyInstalledBeetomInstructionFrames(rom, stock);
+        VerifyInstalledHopperInstructionFrames(rom, stock);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -349,6 +386,14 @@ internal static partial class Program
                         ? RoomEnemySystem.AlcoonDefinition
                     : frame.Name.StartsWith("beetom_", StringComparison.Ordinal)
                         ? RoomEnemySystem.BeetomDefinition
+                    : frame.Name.StartsWith("large_sidehopper_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.LargeSidehopperDefinition
+                    : frame.Name.StartsWith("sidehopper_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.SidehopperDefinition
+                    : frame.Name.StartsWith("large_dessgeega_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.LargeDessgeegaDefinition
+                    : frame.Name.StartsWith("dessgeega_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.DessgeegaDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -524,6 +569,11 @@ internal static partial class Program
         document.Frames["beetom_left_crawl_0"][0] = beetomPart with
         {
             OffsetY = beetomPart.OffsetY + 1,
+        };
+        SpriteVisualPart hopperPart = document.Frames["sidehopper_jump_floor"][0];
+        document.Frames["sidehopper_jump_floor"][0] = hopperPart with
+        {
+            OffsetY = hopperPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -821,15 +871,59 @@ internal static partial class Program
             "authored Beetom Y offset changes installed room OAM");
         AssertEqual(stockBeetom.LowTable[0], editedBeetom.LowTable[0],
             "Beetom visual edit leaves physical X unchanged");
+        ushort hopperPointer = EnemySpritemapDefinitions.HopperFrameAt(
+            HopperInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockHopper = DrawEnemy(stock, new FrameReadGuard(rom),
+            hopperPointer, RoomEnemySystem.SidehopperDefinition);
+        OamBuffer editedHopper = DrawEnemy(edited, new FrameReadGuard(rom),
+            hopperPointer, RoomEnemySystem.SidehopperDefinition);
+        AssertEqual(unchecked((byte)(stockHopper.LowTable[1] + 1)),
+            editedHopper.LowTable[1],
+            "authored Sidehopper Y offset changes installed room OAM");
+        AssertEqual(stockHopper.LowTable[0], editedHopper.LowTable[0],
+            "Sidehopper visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preBeetomFrames = document.Frames
+        var preHopperFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("sidehopper_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("dessgeega_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("large_sidehopper_", StringComparison.Ordinal) &&
+                           !pair.Key.StartsWith("large_dessgeega_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreHopperFrameCount,
+            preHopperFrames.Count, "pre-Hopper composition schema frame count");
+        var preHopperBindings = document.DisplayFrames!
+            .Where(pair => preHopperFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preHopperBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreHopperVersion,
+                Frames = preHopperFrames,
+                DisplayFrames = preHopperBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preHopperUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer retainedPreHopperEdit = DrawEnemy(preHopperUpgraded,
+            new FrameReadGuard(rom), beetomPointer, RoomEnemySystem.BeetomDefinition);
+        AssertEqual(editedBeetom.LowTable[1], retainedPreHopperEdit.LowTable[1],
+            "version-twenty-three override retains edited Beetom artwork");
+        AssertTrue(DrawEnemy(preHopperUpgraded, new FrameReadGuard(rom), 0x88da,
+                RoomEnemySystem.BoyonDefinition).LowTable
+            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+                RoomEnemySystem.BoyonDefinition).LowTable),
+            "version-twenty-three override retains edited display binding");
+        AssertTrue(preHopperUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.HopperBank, hopperPointer, out _),
+            "version-twenty-three override gains stock Hopper artwork");
+        var preBeetomFrames = preHopperFrames
             .Where(pair => !pair.Key.StartsWith("beetom_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreBeetomFrameCount,
             preBeetomFrames.Count, "pre-Beetom composition schema frame count");
-        var preBeetomBindings = document.DisplayFrames!
+        var preBeetomBindings = preHopperBindings
             .Where(pair => !pair.Key.StartsWith("beetom_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preBeetomBindings["boyon_idle_0"] = "boyon_idle_1";
@@ -1425,6 +1519,12 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.AlcoonBank
                     : definition == RoomEnemySystem.BeetomDefinition
                         ? EnemySpritemapDefinitions.BeetomBank
+                    : definition is RoomEnemySystem.SidehopperDefinition or
+                        RoomEnemySystem.DessgeegaDefinition or
+                        RoomEnemySystem.LargeSidehopperDefinition or
+                        RoomEnemySystem.TourianSidehopperDefinition or
+                        RoomEnemySystem.LargeDessgeegaDefinition
+                        ? EnemySpritemapDefinitions.HopperBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||
@@ -1476,7 +1576,8 @@ internal static partial class Program
                 >= 0xa29df6 and < 0xa29e80 or
                 >= 0xa8db76 and < 0xa8dbb8 or
                 >= 0xa8dfa2 and < 0xa8e214 or
-                >= 0xa8bed3 and < 0xa8c143)
+                >= 0xa8bed3 and < 0xa8c143 or
+                >= 0xa3aee3 and < 0xa3b390)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

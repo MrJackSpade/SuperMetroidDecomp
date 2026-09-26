@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 23;
+    internal const int Version = 24;
+    internal const int PreHopperVersion = 23;
+    internal const int PreHopperFrameCount = 359;
     internal const int PreBeetomVersion = 22;
     internal const int PreBeetomFrameCount = 337;
     internal const int PreAlcoonVersion = 21;
@@ -59,6 +61,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte BullBank = 0xa8;
     internal const byte AlcoonBank = 0xa8;
     internal const byte BeetomBank = 0xa8;
+    internal const byte HopperBank = 0xa3;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -446,6 +449,30 @@ internal static class EnemySpritemapDefinitions
         new(BeetomBank, 0xc0e3, "beetom_right_drain_3"),
         new(BeetomBank, 0xc103, "beetom_right_drain_4"),
         new(BeetomBank, 0xc123, "beetom_right_drain_5"),
+        new(HopperBank, 0xaf19, "sidehopper_jump_floor"),
+        new(HopperBank, 0xaee3, "sidehopper_land_floor_0"),
+        new(HopperBank, 0xaefe, "sidehopper_land_floor_1"),
+        new(HopperBank, 0xaf6a, "sidehopper_jump_ceiling"),
+        new(HopperBank, 0xaf34, "sidehopper_land_ceiling_0"),
+        new(HopperBank, 0xaf4f, "sidehopper_land_ceiling_1"),
+        new(HopperBank, 0xb019, "dessgeega_jump_floor"),
+        new(HopperBank, 0xafe3, "dessgeega_land_floor_0"),
+        new(HopperBank, 0xaffe, "dessgeega_land_floor_1"),
+        new(HopperBank, 0xb06a, "dessgeega_jump_ceiling"),
+        new(HopperBank, 0xb034, "dessgeega_land_ceiling_0"),
+        new(HopperBank, 0xb04f, "dessgeega_land_ceiling_1"),
+        new(HopperBank, 0xb15b, "large_sidehopper_jump_floor"),
+        new(HopperBank, 0xb111, "large_sidehopper_land_floor_0"),
+        new(HopperBank, 0xb136, "large_sidehopper_land_floor_1"),
+        new(HopperBank, 0xb1de, "large_sidehopper_jump_ceiling"),
+        new(HopperBank, 0xb194, "large_sidehopper_land_ceiling_0"),
+        new(HopperBank, 0xb1b9, "large_sidehopper_land_ceiling_1"),
+        new(HopperBank, 0xb2d1, "large_dessgeega_jump_floor"),
+        new(HopperBank, 0xb273, "large_dessgeega_land_floor_0"),
+        new(HopperBank, 0xb2a2, "large_dessgeega_land_floor_1"),
+        new(HopperBank, 0xb368, "large_dessgeega_jump_ceiling"),
+        new(HopperBank, 0xb30a, "large_dessgeega_land_ceiling_0"),
+        new(HopperBank, 0xb339, "large_dessgeega_land_ceiling_1"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -476,6 +503,11 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.BullDefinition => BullFrameAt(operandAddress),
             RoomEnemySystem.AlcoonDefinition => AlcoonFrameAt(operandAddress),
             RoomEnemySystem.BeetomDefinition => BeetomFrameAt(operandAddress),
+            RoomEnemySystem.SidehopperDefinition or
+                RoomEnemySystem.DessgeegaDefinition or
+                RoomEnemySystem.LargeSidehopperDefinition or
+                RoomEnemySystem.TourianSidehopperDefinition or
+                RoomEnemySystem.LargeDessgeegaDefinition => HopperFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -512,6 +544,11 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.BullDefinition or
             RoomEnemySystem.AlcoonDefinition or
             RoomEnemySystem.BeetomDefinition or
+            RoomEnemySystem.SidehopperDefinition or
+            RoomEnemySystem.DessgeegaDefinition or
+            RoomEnemySystem.LargeSidehopperDefinition or
+            RoomEnemySystem.TourianSidehopperDefinition or
+            RoomEnemySystem.LargeDessgeegaDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -630,6 +667,21 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// The forty small/large Sidehopper and Dessgeega floor/ceiling operands
+    /// select twenty-four compositions. Tourian Sidehoppers share the large
+    /// Sidehopper instruction lists and visual identities.
+    /// </summary>
+    internal static ushort HopperFrameAt(ushort operandAddress)
+    {
+        if (HopperInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(HopperBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Hopper visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

@@ -7,8 +7,8 @@ internal readonly record struct HopperInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Sidehopper and Dessgeega floor/ceiling animation
-/// programs. Their forty interleaved spritemap operands remain live cartridge presentation
-/// data so replacing the visual asset pipeline does not change enemy mechanics.
+/// programs. Their forty interleaved spritemap operands select installed artwork;
+/// the hop physics, sound, and instruction cadence remain compiled here.
 /// </summary>
 internal static class HopperInstructionProgramDefinitions
 {
@@ -133,6 +133,9 @@ internal static class HopperInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static HopperInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

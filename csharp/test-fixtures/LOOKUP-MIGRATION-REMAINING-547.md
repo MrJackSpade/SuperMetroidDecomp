@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Sidehopper/Dessgeega visual frames (2026-09-26)
+
+All forty visual operands in the four small/large, floor/ceiling Hopper
+program variants are compiled as selectors of twenty-four installed OAM
+compositions. The Tourian Sidehopper shares the large Sidehopper identities.
+Native composition parity is checked at three origins; each of the sixteen
+programs runs with cartridge visual reads forbidden. An edited composition
+changes live room OAM without altering the native frame pointer or X position,
+and version-twenty-three overrides inherit the new stock frames while retaining
+older edits and display bindings. Movement, hitboxes, timers, and sounds remain
+compiled mechanics; other enemy visual families still require migration.
+
 ## Beetom visual frames (2026-09-26)
 
 All 32 Beetom crawling, hopping, and draining visual operands now select 22

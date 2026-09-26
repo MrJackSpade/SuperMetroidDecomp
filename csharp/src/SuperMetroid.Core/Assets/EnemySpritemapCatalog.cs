@@ -73,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreHopperVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreHopperFrameCount,
             EnemySpritemapDefinitions.PreBeetomVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreBeetomFrameCount,
             EnemySpritemapDefinitions.PreAlcoonVersion when stockForLegacyOverride is not null =>
@@ -148,6 +150,7 @@ public sealed class EnemySpritemapCatalog
             document.Version is EnemySpritemapDefinitions.PreCeresDoorVersion or
                 EnemySpritemapDefinitions.PreAlcoonVersion or
                 EnemySpritemapDefinitions.PreBeetomVersion or
+                EnemySpritemapDefinitions.PreHopperVersion or
                 EnemySpritemapDefinitions.PreBullVersion or
                 EnemySpritemapDefinitions.PrePuyoVersion or
                 EnemySpritemapDefinitions.PreCeresBabyVersion or

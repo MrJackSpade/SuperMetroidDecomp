@@ -82,9 +82,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort DachoraDefinition = 0xe5ff;
 
-    private const ushort DachoraDefaultPalette = 0xf225;
-    private const ushort DachoraSpeedPaletteTable = 0xf787;
-    private const ushort DachoraShinePaletteTable = 0xf92d;
     private const ushort DachoraActivationSound = 0x001d;
     private const ushort DachoraSpeedBoosterSound = 0x0039;
     private const ushort DachoraChargeSound = 0x003d;
@@ -262,7 +259,7 @@ public sealed partial class RoomEnemySystem
         slot.Parameter1 = 1;
         state.SpeedOrTimer = 0;
         state.Subspeed = 0;
-        LoadDachoraPalette(slot, DachoraDefaultPalette);
+        LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
     }
 
     /// <summary>Ports $A7:F65E, including the hard-coded tutorial launch coordinate.</summary>
@@ -281,7 +278,7 @@ public sealed partial class RoomEnemySystem
             state.SpeedOrTimer = 0;
             state.Subspeed = 0;
             state.PaletteAnimationTimer = 0;
-            LoadDachoraPalette(slot, DachoraDefaultPalette);
+            LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
             return;
         }
 
@@ -322,8 +319,7 @@ public sealed partial class RoomEnemySystem
                     throw new InvalidDataException(
                         $"Dachora speed palette index {paletteIndex} exceeds the retail table.");
                 }
-                ushort palette = ReadWord(_bus!, 0xa70000 | (DachoraSpeedPaletteTable + paletteIndex * 2));
-                LoadDachoraPalette(slot, palette);
+                LoadDachoraPalette(slot, DachoraPalettePhase.Speed, paletteIndex);
                 state.PaletteAnimationTimer = unchecked((ushort)(
                     state.PaletteAnimationTimer + 0x0110));
                 if (unchecked((short)(state.PaletteAnimationTimer - 0x0410)) >= 0)
@@ -433,7 +429,7 @@ public sealed partial class RoomEnemySystem
         state.SpeedOrTimer = 0;
         state.Subspeed = 0;
         state.PaletteAnimationTimer = 0;
-        LoadDachoraPalette(slot, DachoraDefaultPalette);
+        LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
         LastDachoraSoundEffect = DachoraCeilingImpactSound;
     }
 
@@ -532,22 +528,28 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Dachora shine palette index {paletteIndex} exceeds the retail table.");
         }
-        ushort palette = ReadWord(_bus!, 0xa70000 | (DachoraShinePaletteTable + paletteIndex * 2));
-        LoadDachoraPalette(slot, palette);
+        LoadDachoraPalette(slot, DachoraPalettePhase.Shine, paletteIndex);
         state.PaletteAnimationTimer = unchecked((ushort)(state.PaletteAnimationTimer + 0x0100));
         if (unchecked((short)(state.PaletteAnimationTimer - 0x0400)) >= 0)
             state.PaletteAnimationTimer = 0;
     }
 
     /// <summary>Copies one full native OBJ palette into the actor-selected sprite palette.</summary>
-    private void LoadDachoraPalette(RoomEnemySlot slot, ushort sourcePointer)
+    private void LoadDachoraPalette(
+        RoomEnemySlot slot, DachoraPalettePhase phase, int frame)
     {
         int objectPalette = (slot.PaletteIndex >> 9) & 7;
         int destinationColor = 128 + objectPalette * 16;
-        _cgram!.LoadFromBus(
-            _bus!,
-            0xa70000 | sourcePointer,
-            colorCount: 16,
+        int source = DachoraColorRomData.Source(phase, frame);
+        if (TileArtwork?.DachoraColors is { } colors)
+        {
+            for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
+                _cgram!.SetColor(destinationColor + color,
+                    colors.Resolve(phase, frame, color));
+            return;
+        }
+        _cgram!.LoadFromBus(_bus!, source,
+            colorCount: DachoraColorRomData.ColorsPerFrame,
             destinationIndex: destinationColor);
     }
 

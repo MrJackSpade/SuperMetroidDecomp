@@ -29,7 +29,8 @@ public sealed class EnemyTileArtworkCatalog
         DraygonColorCatalog? draygonColors = null,
         PhantoonColorCatalog? phantoonColors = null,
         ChozoAndTubeColorCatalog? chozoAndTubeColors = null,
-        SporeSpawnColorCatalog? sporeSpawnColors = null)
+        SporeSpawnColorCatalog? sporeSpawnColors = null,
+        DachoraColorCatalog? dachoraColors = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -70,6 +71,7 @@ public sealed class EnemyTileArtworkCatalog
         PhantoonColors = phantoonColors;
         ChozoAndTubeColors = chozoAndTubeColors;
         SporeSpawnColors = sporeSpawnColors;
+        DachoraColors = dachoraColors;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -117,6 +119,9 @@ public sealed class EnemyTileArtworkCatalog
     /// <summary>Editable Spore Spawn spore, health and death-sequence colors.</summary>
     public SporeSpawnColorCatalog? SporeSpawnColors { get; }
 
+    /// <summary>Editable Dachora default, speed and shine sprite colors.</summary>
+    public DachoraColorCatalog? DachoraColors { get; }
+
     /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
@@ -153,7 +158,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 30;
+    public const int Version = 31;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

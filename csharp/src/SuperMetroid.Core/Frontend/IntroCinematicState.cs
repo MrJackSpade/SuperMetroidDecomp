@@ -34,6 +34,14 @@ public sealed partial class IntroCinematicState
     [NonSerialized] private IntroFontAtlas? introFont;
     [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
     [NonSerialized] private BeamTileCatalog? beamArtwork;
+    [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
+    /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
+    public void BindSamusBodyArtwork(SamusBodyArtworkCatalog? value)
+    {
+        samusBodyArtwork = value;
+        flashbackSamus?.TileTransfers.BindArtwork(value);
+        babyDiscovery?.Samus.TileTransfers.BindArtwork(value);
+    }
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
     public IntroNarrationPresentation? NarrationPresentation
     {
@@ -154,7 +162,8 @@ public sealed partial class IntroCinematicState
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamTileCatalog? beamArtwork = null)
+        BeamTileCatalog? beamArtwork = null,
+        SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
@@ -162,6 +171,7 @@ public sealed partial class IntroCinematicState
         this.introFont = introFont;
         this.characterArtwork = characterArtwork;
         this.beamArtwork = beamArtwork;
+        this.samusBodyArtwork = samusBodyArtwork;
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
@@ -663,6 +673,7 @@ public sealed partial class IntroCinematicState
         // Shared Samus handlers read the nonzero cinematic-function word to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         flashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
+        flashbackSamus.TileTransfers.BindArtwork(samusBodyArtwork);
         flashbackSamus.RefreshCollisionRadii(bus);
         flashbackSamus.InitializeAnimation(bus);
         flashbackSamus.CommitPoseHistory(bus);

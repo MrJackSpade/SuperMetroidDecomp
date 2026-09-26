@@ -64,6 +64,8 @@ public sealed partial class SuperMetroidRuntime
         Samus.SuitColors = mapPresentation?.SamusSuitColors;
         Samus.FullBodyCycleColors = mapPresentation?.SamusFullBodyCycleColors;
         Samus.ChargeColors = mapPresentation?.SamusChargeColors;
+        // All Samus constructors call this rebind before priming the first visual DMA.
+        Samus.TileTransfers.BindArtwork(samusBodyArt);
     }
 
     private void PublishReboundHudArtwork()

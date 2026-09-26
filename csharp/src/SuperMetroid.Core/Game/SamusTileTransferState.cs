@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
@@ -15,6 +16,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusTileTransferState
 {
+    [NonSerialized] private SamusBodyArtworkCatalog? artwork;
+
+    /// <summary>Rebind installed visual data without replacing pending native DMA state.</summary>
+    public void BindArtwork(SamusBodyArtworkCatalog? value) => artwork = value;
+
     /// <summary>Bank-$92 address of the selected seven-byte top-half DMA definition.</summary>
     public int TopDefinitionAddress { get; private set; }
 
@@ -33,6 +39,20 @@ public sealed class SamusTileTransferState
     public void SelectForPoseFrame(ISnesAddressSpace bus, byte pose, ushort animationFrame)
     {
         ArgumentNullException.ThrowIfNull(bus);
+
+        if (artwork is not null)
+        {
+            SamusBodyFrameSelection frame = artwork.Frame(pose, animationFrame);
+            TopDefinitionAddress = artwork.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
+            TopTransferEnabled = true;
+            if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
+            {
+                BottomDefinitionAddress = artwork.DefinitionAddress(false, frame.BottomSet,
+                    frame.BottomPosition);
+                BottomTransferEnabled = true;
+            }
+            return;
+        }
 
         // One word per pose selects a variable-length list of four-byte animation records.
         // The frame number is 16-bit in WRAM and the original ASL/ASL arithmetic wraps.
@@ -83,19 +103,21 @@ public sealed class SamusTileTransferState
         // the pose spritemaps' tile numbers under gameplay OBSEL=$03.
         if (TopTransferEnabled)
         {
-            ExecuteDefinition(
-                bus,
-                vram,
-                TopDefinitionAddress,
-                SamusRenderingRomData.TileTransfers.TopDestinations);
+            if (artwork is null)
+                ExecuteDefinition(bus, vram, TopDefinitionAddress,
+                    SamusRenderingRomData.TileTransfers.TopDestinations);
+            else
+                ExecuteInstalledDefinition(vram, artwork.DefinitionAt(true, TopDefinitionAddress),
+                    SamusRenderingRomData.TileTransfers.TopDestinations);
         }
         if (BottomTransferEnabled)
         {
-            ExecuteDefinition(
-                bus,
-                vram,
-                BottomDefinitionAddress,
-                SamusRenderingRomData.TileTransfers.BottomDestinations);
+            if (artwork is null)
+                ExecuteDefinition(bus, vram, BottomDefinitionAddress,
+                    SamusRenderingRomData.TileTransfers.BottomDestinations);
+            else
+                ExecuteInstalledDefinition(vram, artwork.DefinitionAt(false, BottomDefinitionAddress),
+                    SamusRenderingRomData.TileTransfers.BottomDestinations);
         }
 
         // These flags are intentionally not cleared. The original NMI routine leaves them
@@ -146,6 +168,16 @@ public sealed class SamusTileTransferState
             int part2Source = sourceBank << 16 | unchecked((ushort)(sourceOffset + part1Size));
             vram.ExecuteQueuedWrite(bus, part2Source, part2Size, destinations.Second);
         }
+    }
+
+    private static void ExecuteInstalledDefinition(SnesVram vram,
+        SamusBodyTileDefinition definition,
+        SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
+    {
+        ReadOnlySpan<byte> planar = definition.Planar.Span;
+        vram.LoadBytes(destinations.First * 2, planar[..definition.FirstSize]);
+        if (definition.SecondSize != 0)
+            vram.LoadBytes(destinations.Second * 2, planar[definition.FirstSize..]);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

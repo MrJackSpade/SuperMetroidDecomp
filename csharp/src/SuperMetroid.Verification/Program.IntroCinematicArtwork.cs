@@ -22,6 +22,7 @@ internal static partial class Program
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
             SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
             VerifySamusAnimationDelayDefinitions(bus, sourceRom);
+            VerifySamusBodyArtwork(bus, installation);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             VerifyFrontendRomFreeStartup(installation, sourceRom);
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(

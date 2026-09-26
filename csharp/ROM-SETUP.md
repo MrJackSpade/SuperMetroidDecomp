@@ -50,6 +50,8 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
+- `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
+  pose/frame/transfer-definition JSON.
 - `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
   Crocomire's two melting images and two BG2 layouts, Kraid's body and head BG2
   tile-reference maps, room-backdrop character PNG and RGB5 palette file, and
@@ -95,6 +97,20 @@ header normalization, invalid input, cancellation, asset repair, interrupted pub
 save preservation, and booting the production Android session from the installed layout.
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
+
+## Samus body PNG and frame selectors
+
+`game/samus-body/top-00.png` through `top-0C.png` and `bottom-00.png` through
+`bottom-0A.png` contain the 4-bpp character data uploaded for Samus animation
+frames. Each native transfer definition occupies a 64x16-pixel strip in its set's
+PNG; unused cells must remain palette index zero. Copy a PNG to the same filename
+under `overrides/samus-body/` to change its pixels. Copy `samus-body.json` there
+to change visual pose/frame selectors or the two split VRAM transfer sizes; keep
+the stock provenance hashes, definition counts, set pointers, and source addresses.
+Replacements are validated on
+load, and installed stock is checked independently. These files do not change
+pose timing, movement, collision, or equipment. The same installed artwork is
+used by normal gameplay, attract demos, and the opening flashbacks.
 
 ## Opening-cinematic character PNG overrides
 

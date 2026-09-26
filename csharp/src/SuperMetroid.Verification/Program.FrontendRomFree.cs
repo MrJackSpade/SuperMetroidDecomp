@@ -24,6 +24,7 @@ internal static partial class Program
         var installed = new SuperMetroidGame(guardedBus);
         installed.BindMapPresentation(installation.LoadMaps());
         installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
+        installed.BindSamusBodyArt(installation.LoadSamusBodyArt());
         installed.BindBeamArtwork(installation.LoadProjectiles().BeamTiles);
         bool titleStartSent = false;
         bool fileSelectStartSent = false;

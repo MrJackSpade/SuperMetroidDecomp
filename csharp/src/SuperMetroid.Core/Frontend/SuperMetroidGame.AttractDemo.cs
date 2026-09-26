@@ -32,6 +32,7 @@ public sealed partial class SuperMetroidGame
                     runtime = new SuperMetroidRuntime(bus);
                     runtime.System.SetRandomNumber(incomingRandom);
                     runtime.MapPresentation = mapPresentation;
+                    runtime.SamusBodyArt = samusBodyArt;
                     runtime.ProjectileCompositions = projectileCompositions;
                     runtime.ProjectileFrameBindings = projectileFrameBindings;
                     runtime.TrailArtwork = trailArtwork;

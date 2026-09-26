@@ -366,7 +366,7 @@ public sealed partial class SuperMetroidGame
                             {
                                 intro = new IntroCinematicState(
                                     bus, audio, mapPresentation?.IntroFont, introCinematicArt,
-                                    beamArtwork)
+                                    beamArtwork, samusBodyArt)
                                 {
                                     ProjectileCompositions = projectileCompositions,
                                     TrailArtwork = trailArtwork,
@@ -397,7 +397,7 @@ public sealed partial class SuperMetroidGame
                     {
                         intro = new IntroCinematicState(
                             bus, audio, mapPresentation?.IntroFont, introCinematicArt,
-                            beamArtwork)
+                            beamArtwork, samusBodyArt)
                         {
                             ProjectileCompositions = projectileCompositions,
                             TrailArtwork = trailArtwork,
@@ -1342,6 +1342,7 @@ public sealed partial class SuperMetroidGame
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
         runtime.MapPresentation = mapPresentation;
+        runtime.SamusBodyArt = samusBodyArt;
         runtime.RoomCharacterArt = roomCharacterArt;
         runtime.RoomPaletteArt = roomPaletteArt;
         runtime.RoomMetatileArt = roomMetatileArt;

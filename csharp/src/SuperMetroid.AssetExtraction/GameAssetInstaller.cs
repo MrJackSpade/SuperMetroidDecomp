@@ -81,6 +81,7 @@ public static class GameAssetInstaller
             _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             EnemyTileArtworkFiles.ValidateStock(installation.EnemyTileDirectory);
             RoomCharacterArtworkFiles.ValidateStock(installation.RoomCharacterDirectory);
+            SamusBodyArtworkFiles.ValidateStock(installation.SamusBodyDirectory);
             IntroCinematicArtworkFiles.ValidateStock(installation.IntroCinematicDirectory);
             EndingMode7ArtworkFiles.ValidateStock(installation.EndingMode7Directory);
             EndingObjectArtworkFiles.ValidateStock(installation.EndingObjectDirectory);
@@ -161,6 +162,12 @@ public static class GameAssetInstaller
             RoomCharacterArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), roomCharacters,
                 SupportedCartridge.Sha256);
             RoomCharacterArtworkFiles.ValidateStock(roomCharacters);
+            progress?.Report("Extracting Samus body artwork...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string samusBody = Path.Combine(staging, GameInstallationLayout.SamusBodyDirectoryName);
+            SamusBodyArtworkFiles.Extract(new SuperMetroidAddressSpace(rom), samusBody,
+                SupportedCartridge.Sha256);
+            SamusBodyArtworkFiles.ValidateStock(samusBody);
             progress?.Report("Extracting opening-cinematic character artwork...");
             cancellationToken.ThrowIfCancellationRequested();
             string introArtwork = Path.Combine(staging, GameInstallationLayout.IntroCinematicDirectoryName);

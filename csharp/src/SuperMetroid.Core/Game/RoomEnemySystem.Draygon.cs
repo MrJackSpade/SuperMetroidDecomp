@@ -12,7 +12,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DraygonTailDefinition = 0xdebf;
     private const ushort DraygonArmsDefinition = 0xdeff;
 
-    private const int DraygonIntroPalette = 0xa5a217;
     private const int DraygonIntroEvirTiles = 0xb19400;
     private DraygonEnemyState? _draygon;
 
@@ -34,7 +33,11 @@ public sealed partial class RoomEnemySystem
         // The native copy targets colors 144..168. This runtime has one concrete CGRAM
         // surface instead of a second fade-target array, so publish those exact 25 colors
         // immediately; the room's normal fade-in controls when they become visible.
-        _cgram!.LoadFromBus(_bus!, DraygonIntroPalette, colorCount: 25, destinationIndex: 144);
+        if (TileArtwork?.DraygonColors is { } colors)
+            colors.ApplyIntro(_cgram!);
+        else
+            _cgram!.LoadFromBus(_bus!, DraygonColorRomData.IntroSource,
+                DraygonColorRomData.IntroCount, DraygonColorRomData.IntroDestination);
 
         // $7E:2000 is the enemy BG2 staging surface and the following NMI copies it to
         // VRAM word $4800. Fill all $800 words, not merely the currently visible page.

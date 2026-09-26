@@ -357,6 +357,11 @@ to edit those RGB5 images. The two initial transfers intentionally contain
 seventeen words each, including one word across the next palette boundary.
 The white hurt-flash decision, bridge and death phase timing, collision, and
 room progression stay in code.
+Draygon's opening, normal body/sprite, white-flash and eight health-band colors
+are in `game/enemy-tiles/draygon-colors.json` with the same override path. The
+opening transfer includes the first nine colors of the following palette, as
+the cartridge's 25-word copy does. Health thresholds, hurt timing and combat
+stay in code; edits affect only the displayed RGB5 colors.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

@@ -179,6 +179,9 @@ public static class EnemyTileArtworkFiles
         byte[] crocomireColors = CrocomireColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, CrocomireColorFormat.FileName),
             crocomireColors);
+        byte[] draygonColors = DraygonColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, DraygonColorFormat.FileName),
+            draygonColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -197,7 +200,8 @@ public static class EnemyTileArtworkFiles
             ceresDoorTilesHash, ceresDoorColorsHash,
             Convert.ToHexString(SHA256.HashData(magdollitePaletteCycle)),
             Convert.ToHexString(SHA256.HashData(workRobotPaletteCycle)),
-            Convert.ToHexString(SHA256.HashData(crocomireColors)));
+            Convert.ToHexString(SHA256.HashData(crocomireColors)),
+            Convert.ToHexString(SHA256.HashData(draygonColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -241,7 +245,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CeresDoorColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.MagdollitePaletteCycleSha256) ||
             string.IsNullOrWhiteSpace(manifest.WorkRobotPaletteCycleSha256) ||
-            string.IsNullOrWhiteSpace(manifest.CrocomireColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.CrocomireColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.DraygonColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -523,11 +528,25 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Crocomire colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        DraygonColorCatalog draygonColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(DraygonColorFormat.FileName,
+                manifest.DraygonColorsSha256);
+            draygonColors = DraygonColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Draygon colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
             dmaSources, projectileSpritemaps, magdollitePaletteCycle,
-            workRobotPaletteCycle, crocomireColors);
+            workRobotPaletteCycle, crocomireColors, draygonColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -711,7 +730,8 @@ public static class EnemyTileArtworkFiles
         string CeresDoorColorsSha256,
         string MagdollitePaletteCycleSha256,
         string WorkRobotPaletteCycleSha256,
-        string CrocomireColorsSha256);
+        string CrocomireColorsSha256,
+        string DraygonColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

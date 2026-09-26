@@ -14,14 +14,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DraygonDudHitboxShotAi = EnemyAiCodePointers.BankA0.DudShot;
     private const ushort DraygonNoOpHitboxTouchAi = EnemyAiCodePointers.BankA0.NoOp;
 
-    private const int DraygonBgPalette = 0xa5a277;
-    private const int DraygonSpritePalette = 0xa5a1f7;
-    private const int DraygonWhiteFlashPalette = 0xa5a297;
-    private const int DraygonHealthPaletteTable = 0xa596af;
-    private const int DraygonBgPaletteDestination = 80;
-    private const int DraygonSpritePaletteDestination = 240;
-    private const int DraygonHealthColorDestination = 89;
-
     /// <summary>
     /// Ports hurt AI <c>$A5:954D</c>. The body is rendered partly through BG2 palette five
     /// and partly through sprite palette seven, so a valid flash must update both surfaces.
@@ -32,19 +24,23 @@ public sealed partial class RoomEnemySystem
         SamusState? samus)
     {
         bool whiteFrame = (body.FlashTimer & 2) != 0;
-        _cgram!.LoadFromBus(
-            _bus!,
-            whiteFrame ? DraygonWhiteFlashPalette : DraygonBgPalette,
-            colorCount: 16,
-            destinationIndex: DraygonBgPaletteDestination);
-        if (!whiteFrame)
-            CopyDraygonHealthColors(state);
-
-        _cgram.LoadFromBus(
-            _bus!,
-            whiteFrame ? DraygonWhiteFlashPalette : DraygonSpritePalette,
-            colorCount: 16,
-            destinationIndex: DraygonSpritePaletteDestination);
+        if (TileArtwork?.DraygonColors is { } colors)
+            colors.ApplyHurt(_cgram!, whiteFrame, state.HealthPaletteTableByteIndex);
+        else
+        {
+            _cgram!.LoadFromBus(_bus!,
+                whiteFrame ? DraygonColorRomData.WhiteFlashSource :
+                    DraygonColorRomData.BackgroundSource,
+                DraygonColorRomData.BackgroundCount,
+                DraygonColorRomData.BackgroundDestination);
+            if (!whiteFrame)
+                CopyDraygonHealthColors(state);
+            _cgram.LoadFromBus(_bus!,
+                whiteFrame ? DraygonColorRomData.WhiteFlashSource :
+                    DraygonColorRomData.SpriteSource,
+                DraygonColorRomData.SpriteCount,
+                DraygonColorRomData.SpriteDestination);
+        }
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
@@ -148,12 +144,16 @@ public sealed partial class RoomEnemySystem
 
     private void CopyDraygonHealthColors(DraygonEnemyState state)
     {
-        int source = DraygonHealthPaletteTable + state.HealthPaletteTableByteIndex * 4;
-        for (int color = 0; color < 4; color++)
+        if (TileArtwork?.DraygonColors is { } colors)
         {
-            _cgram!.SetColor(
-                DraygonHealthColorDestination + color,
-                ReadWord(_bus!, source + color * 2));
+            colors.ApplyHealthBand(_cgram!, state.HealthPaletteTableByteIndex);
+            return;
         }
+        int source = DraygonColorRomData.HealthBandsSource +
+            state.HealthPaletteTableByteIndex *
+                DraygonColorRomData.HealthBandColorCount;
+        for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
+            _cgram!.SetColor(DraygonColorRomData.HealthDestination + color,
+                ReadWord(_bus!, source + color * sizeof(ushort)));
     }
 }

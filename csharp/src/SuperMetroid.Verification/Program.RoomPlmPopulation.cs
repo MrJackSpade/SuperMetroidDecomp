@@ -4,6 +4,54 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
+    {
+        static ushort Word(ISnesAddressSpace bus, ushort address) =>
+            unchecked((ushort)(bus.ReadByte(0x840000 | address) |
+                bus.ReadByte(0x840000 | unchecked((ushort)(address + 1))) << 8));
+
+        foreach ((ushort address, ushort value) in ElevatorPlatformPlmDefinitions.ProgramWords)
+        {
+            AssertEqual(Word(rom, address), value,
+                $"elevator platform program word $84:{address:X4} matches cartridge");
+            AssertTrue(ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(
+                    address, out ushort installed) && installed == value,
+                $"elevator platform program word $84:{address:X4} is installed");
+        }
+        AssertTrue(!ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(
+                unchecked((ushort)(ElevatorPlatformPlmDefinitions.InstructionLoop - 2)),
+                out _),
+            "elevator program does not claim preceding cartridge data");
+
+        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
+                 ElevatorPlatformPlmDefinitions.DrawLists)
+        {
+            ushort cursor = draw.Pointer;
+            foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
+            {
+                AssertEqual(Word(rom, cursor), run.DirectionAndCount,
+                    $"elevator draw ${draw.Pointer:X4} run count at ${cursor:X4}");
+                cursor += 2;
+                foreach (ushort levelWord in run.LevelWords.Span)
+                {
+                    AssertEqual(Word(rom, cursor), levelWord,
+                        $"elevator draw ${draw.Pointer:X4} level word at ${cursor:X4}");
+                    cursor += 2;
+                }
+                AssertEqual(rom.ReadByte(0x840000 | cursor),
+                    unchecked((byte)run.NextX),
+                    $"elevator draw ${draw.Pointer:X4} next X at ${cursor:X4}");
+                AssertEqual(rom.ReadByte(0x840000 | unchecked((ushort)(cursor + 1))),
+                    unchecked((byte)run.NextY),
+                    $"elevator draw ${draw.Pointer:X4} next Y at ${cursor + 1:X4}");
+                cursor += 2;
+            }
+            AssertEqual((ushort)0, Word(rom, unchecked((ushort)(cursor - 2))),
+                $"elevator draw ${draw.Pointer:X4} terminates with a zero relative offset");
+        }
+        Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
+    }
+
     private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) =>

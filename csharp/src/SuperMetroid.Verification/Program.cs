@@ -1242,8 +1242,10 @@ if (args is ["--magic-number-audit"])
 }
 if (args is ["--room-plm-populations"])
 {
-    VerifyCompiledRoomPlmPopulationDefinitions(
-        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    VerifyCompiledRoomPlmPopulationDefinitions(rom);
+    VerifyElevatorPlatformPlmDefinitions(rom);
     return 0;
 }
 if (args is ["--explored-map-packing-definitions"])

@@ -2014,6 +2014,14 @@ public sealed partial class RoomPlmSystem
                 useShotBlockVisuals: false, customVisuals: stationVisuals);
             return;
         }
+        if (ElevatorPlatformPlmDefinitions.TryGetDraw(drawPointer, out var elevator))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, elevator, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false);
+            return;
+        }
         if (DownwardGatePlmDrawDefinitions.TryGet(drawPointer, out var gate))
         {
             DrawCompiledBlockInstruction(
@@ -2315,6 +2323,8 @@ public sealed partial class RoomPlmSystem
             : ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
             : RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(address, out value)
+                ? value
+            : ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(address, out value)
                 ? value
             : BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
                 ? value

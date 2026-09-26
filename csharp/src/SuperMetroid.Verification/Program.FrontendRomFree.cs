@@ -144,6 +144,9 @@ internal static partial class Program
                     RoomHeaderPointers.WestOcean, "West Ocean");
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.NorfairRoom1E, "Norfair room 1E");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GreenBrinstarMainShaft,
+                    "Green Brinstar main shaft");
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }

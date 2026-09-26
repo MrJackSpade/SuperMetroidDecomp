@@ -244,8 +244,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreChootFrameCount,
             "Hoppers add twenty-four distinct floor/ceiling compositions");
         AssertEqual(EnemySpritemapDefinitions.PreChootFrameCount + 4,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreHZoomerFrameCount,
             "Choot adds four idle, jumping, and falling compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount + 20,
+            EnemySpritemapDefinitions.Frames.Length,
+            "HZoomer adds five frames in each of four surface orientations");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -371,6 +374,7 @@ internal static partial class Program
         VerifyInstalledBeetomInstructionFrames(rom, stock);
         VerifyInstalledHopperInstructionFrames(rom, stock);
         VerifyInstalledChootInstructionFrames(rom, stock);
+        VerifyInstalledHZoomerInstructionFrames(rom, stock);
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -420,6 +424,8 @@ internal static partial class Program
                         ? RoomEnemySystem.DessgeegaDefinition
                     : frame.Name.StartsWith("choot_", StringComparison.Ordinal)
                         ? RoomEnemySystem.ChootDefinition
+                    : frame.Name.StartsWith("hzoomer_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.HZoomerDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -605,6 +611,11 @@ internal static partial class Program
         document.Frames["choot_idle"][0] = chootPart with
         {
             OffsetY = chootPart.OffsetY + 1,
+        };
+        SpriteVisualPart hzoomerPart = document.Frames["hzoomer_upside_right_0"][0];
+        document.Frames["hzoomer_upside_right_0"][0] = hzoomerPart with
+        {
+            OffsetY = hzoomerPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -924,15 +935,57 @@ internal static partial class Program
             "authored Choot Y offset changes installed room OAM");
         AssertEqual(stockChoot.LowTable[0], editedChoot.LowTable[0],
             "Choot visual edit leaves physical X unchanged");
+        ushort hzoomerPointer = EnemySpritemapDefinitions.HZoomerFrameAt(
+            HZoomerInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockHZoomer = DrawEnemy(stock, new FrameReadGuard(rom),
+            hzoomerPointer, RoomEnemySystem.HZoomerDefinition);
+        OamBuffer editedHZoomer = DrawEnemy(edited, new FrameReadGuard(rom),
+            hzoomerPointer, RoomEnemySystem.HZoomerDefinition);
+        AssertEqual(unchecked((byte)(stockHZoomer.LowTable[1] + 1)),
+            editedHZoomer.LowTable[1],
+            "authored HZoomer Y offset changes installed room OAM");
+        AssertEqual(stockHZoomer.LowTable[0], editedHZoomer.LowTable[0],
+            "HZoomer visual edit leaves physical X unchanged");
+        VerifyHZoomerInstructionProgramDefinitions(rom, edited);
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preChootFrames = document.Frames
+        var preHZoomerFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("hzoomer_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount,
+            preHZoomerFrames.Count, "pre-HZoomer composition schema frame count");
+        var preHZoomerBindings = document.DisplayFrames!
+            .Where(pair => preHZoomerFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preHZoomerBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreHZoomerVersion,
+                Frames = preHZoomerFrames,
+                DisplayFrames = preHZoomerBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preHZoomerUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer retainedPreHZoomerEdit = DrawEnemy(preHZoomerUpgraded,
+            new FrameReadGuard(rom), chootPointer, RoomEnemySystem.ChootDefinition);
+        AssertEqual(editedChoot.LowTable[1], retainedPreHZoomerEdit.LowTable[1],
+            "version-twenty-five override retains edited Choot artwork");
+        AssertTrue(DrawEnemy(preHZoomerUpgraded, new FrameReadGuard(rom), 0x88da,
+                RoomEnemySystem.BoyonDefinition).LowTable
+            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+                RoomEnemySystem.BoyonDefinition).LowTable),
+            "version-twenty-five override retains edited display binding");
+        AssertTrue(preHZoomerUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.HZoomerBank, hzoomerPointer, out _),
+            "version-twenty-five override gains stock HZoomer artwork");
+        var preChootFrames = preHZoomerFrames
             .Where(pair => !pair.Key.StartsWith("choot_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreChootFrameCount,
             preChootFrames.Count, "pre-Choot composition schema frame count");
-        var preChootBindings = document.DisplayFrames!
+        var preChootBindings = preHZoomerBindings
             .Where(pair => preChootFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preChootBindings["boyon_idle_0"] = "boyon_idle_1";
@@ -1599,6 +1652,8 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.HopperBank
                     : definition == RoomEnemySystem.ChootDefinition
                         ? EnemySpritemapDefinitions.ChootBank
+                    : definition == RoomEnemySystem.HZoomerDefinition
+                        ? EnemySpritemapDefinitions.HZoomerBank
                         : definition == RoomEnemySystem.SkulteraDefinition ||
                           definition == RoomEnemySystem.WaverDefinition ||
                           definition == RoomEnemySystem.FirefleaDefinition ||
@@ -1652,7 +1707,8 @@ internal static partial class Program
                 >= 0xa8dfa2 and < 0xa8e214 or
                 >= 0xa8bed3 and < 0xa8c143 or
                 >= 0xa3aee3 and < 0xa3b390 or
-                >= 0xa2e146 and < 0xa2e180)
+                >= 0xa2e146 and < 0xa2e180 or
+                >= 0xa3e2e8 and < 0xa3e580)
                 throw new InvalidOperationException(
                     $"Installed enemy draw read native visual byte ${address:X6}.");
             return source.ReadByte(address);

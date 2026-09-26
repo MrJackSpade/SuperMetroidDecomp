@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ internal static partial class Program
     }
 
     private static void VerifyHZoomerInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
@@ -27,7 +28,7 @@ internal static partial class Program
                 $"HZoomer mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new HZoomerInstructionReadGuard(rom);
+        var guard = new HZoomerInstructionReadGuard(rom, forbidPresentation: true);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeHZoomer", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         (CrawlerSurfaceOrientation Orientation, CrawlerEnemyFunction Function)[] cases =
@@ -44,7 +45,7 @@ internal static partial class Program
 
         foreach ((CrawlerSurfaceOrientation orientation, CrawlerEnemyFunction function) in cases)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = RoomEnemySystem.HZoomerDefinition;
@@ -64,18 +65,8 @@ internal static partial class Program
                 $"HZoomer {orientation} completes and loops all five frames");
         }
 
-        AssertEqual(HZoomerInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all HZoomer spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < HZoomerInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                HZoomerInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads HZoomer presentation word $A3:{address:X4}");
-        }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "HZoomer production loops avoid cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled HZoomer mechanics byte");
 
@@ -95,10 +86,11 @@ internal static partial class Program
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
             "warmed HZoomer mechanics lookups allocate no per-frame storage");
 
-        Console.WriteLine(
-            "HZoomer instruction mechanics: thirty-six compiled words, all four surface " +
-            "loops and movement callbacks, and twenty live spritemap reads pass with " +
-            "mechanics bytes forbidden.");
+        Console.WriteLine(artwork is null
+            ? "HZoomer instruction mechanics: thirty-six compiled words, four surface " +
+              "loops and movement callbacks, and twenty compiled visual selectors pass."
+            : "Installed HZoomer: four surface loops execute with cartridge visual " +
+              "selector reads forbidden.");
     }
 
     private static void ExecuteHZoomerProgram(
@@ -136,7 +128,8 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class HZoomerInstructionReadGuard(ISnesAddressSpace source) :
+    private sealed class HZoomerInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
@@ -162,6 +155,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                        {
+                            ForbiddenReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"HZoomer read visual-selector byte ${address:X6}.");
+                        }
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

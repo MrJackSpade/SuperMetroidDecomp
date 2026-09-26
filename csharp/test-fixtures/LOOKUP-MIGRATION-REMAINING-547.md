@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## HZoomer visual frames (2026-09-26)
+
+The Wrecked Ship orange Zoomer's twenty visual operands now select twenty
+installed five-frame compositions across all four surface orientations.
+The four real instruction loops retain compiled movement callbacks and timing
+while visual-selector reads are forbidden. Every selector and native OAM
+composition matches the pinned cartridge, a live artwork edit changes only
+rendered Y, and version-twenty-five overrides retain their older Choot edit
+and binding while inheriting the new HZoomer frames. Other crawler families
+remain outside this slice.
+
 ## Choot visual frames (2026-09-26)
 
 Choot's five idle/jump/fall visual operands now select four installed OAM

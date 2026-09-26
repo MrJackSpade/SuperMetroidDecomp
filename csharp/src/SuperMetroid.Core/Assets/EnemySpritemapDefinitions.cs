@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 25;
+    internal const int Version = 26;
+    internal const int PreHZoomerVersion = 25;
+    internal const int PreHZoomerFrameCount = 387;
     internal const int PreChootVersion = 24;
     internal const int PreChootFrameCount = 383;
     internal const int PreHopperVersion = 23;
@@ -65,6 +67,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte BeetomBank = 0xa8;
     internal const byte HopperBank = 0xa3;
     internal const byte ChootBank = 0xa2;
+    internal const byte HZoomerBank = 0xa3;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -480,6 +483,26 @@ internal static class EnemySpritemapDefinitions
         new(ChootBank, 0xe15c, "choot_jump"),
         new(ChootBank, 0xe168, "choot_jump_apex"),
         new(ChootBank, 0xe16f, "choot_fall_end"),
+        new(HZoomerBank, 0xe50e, "hzoomer_upside_right_0"),
+        new(HZoomerBank, 0xe524, "hzoomer_upside_right_1"),
+        new(HZoomerBank, 0xe53a, "hzoomer_upside_right_2"),
+        new(HZoomerBank, 0xe550, "hzoomer_upside_right_3"),
+        new(HZoomerBank, 0xe566, "hzoomer_upside_right_4"),
+        new(HZoomerBank, 0xe3c4, "hzoomer_upside_left_0"),
+        new(HZoomerBank, 0xe3da, "hzoomer_upside_left_1"),
+        new(HZoomerBank, 0xe3f0, "hzoomer_upside_left_2"),
+        new(HZoomerBank, 0xe406, "hzoomer_upside_left_3"),
+        new(HZoomerBank, 0xe41c, "hzoomer_upside_left_4"),
+        new(HZoomerBank, 0xe432, "hzoomer_upside_down_0"),
+        new(HZoomerBank, 0xe448, "hzoomer_upside_down_1"),
+        new(HZoomerBank, 0xe45e, "hzoomer_upside_down_2"),
+        new(HZoomerBank, 0xe474, "hzoomer_upside_down_3"),
+        new(HZoomerBank, 0xe48a, "hzoomer_upside_down_4"),
+        new(HZoomerBank, 0xe2e8, "hzoomer_upside_up_0"),
+        new(HZoomerBank, 0xe2fe, "hzoomer_upside_up_1"),
+        new(HZoomerBank, 0xe314, "hzoomer_upside_up_2"),
+        new(HZoomerBank, 0xe32a, "hzoomer_upside_up_3"),
+        new(HZoomerBank, 0xe340, "hzoomer_upside_up_4"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -516,6 +539,7 @@ internal static class EnemySpritemapDefinitions
                 RoomEnemySystem.TourianSidehopperDefinition or
                 RoomEnemySystem.LargeDessgeegaDefinition => HopperFrameAt(operandAddress),
             RoomEnemySystem.ChootDefinition => ChootFrameAt(operandAddress),
+            RoomEnemySystem.HZoomerDefinition => HZoomerFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -558,6 +582,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.TourianSidehopperDefinition or
             RoomEnemySystem.LargeDessgeegaDefinition or
             RoomEnemySystem.ChootDefinition or
+            RoomEnemySystem.HZoomerDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -705,6 +730,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Choot visual operand $A2:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// The twenty <c>$A3:DFD1-E035</c> HZoomer visual operands select
+    /// installed five-frame compositions for each of four surface orientations.
+    /// </summary>
+    internal static ushort HZoomerFrameAt(ushort operandAddress)
+    {
+        if (HZoomerInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(HZoomerBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"HZoomer visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

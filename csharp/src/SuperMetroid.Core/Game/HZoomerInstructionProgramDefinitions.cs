@@ -7,7 +7,7 @@ internal readonly record struct HZoomerInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Wrecked Ship orange Zoomer's four surface loops.
-/// The twenty interleaved spritemap operands remain live cartridge presentation data.
+/// The twenty interleaved spritemap operands select installed presentation art.
 /// </summary>
 internal static class HZoomerInstructionProgramDefinitions
 {
@@ -61,6 +61,8 @@ internal static class HZoomerInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static HZoomerInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

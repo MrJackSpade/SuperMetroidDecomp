@@ -74,40 +74,42 @@ static void VerifySamusRenderingSlice()
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
     AssertEqual(0xfe, samus.LastAnimationDelayCommand!.Value, "low-health backward-loop command");
 
-    // Complete the otherwise-unused `$FA/$FC` instruction slots with direct bytecode
-    // fixtures. These poses are not admitted gameplay routes, but they are valid retail
-    // interpreter records and must preserve the same command-three publication seam.
-    const byte unusedInstructionPose = 0x20;
-    WriteTestWord(bus, 0x91b010 + unusedInstructionPose * 2, 0xf000);
+    // Pose $FD overreads the native pointer table and selects $91:0302, a mutable
+    // low-bank WRAM alias. This is the cartridge-faithful way to supply otherwise
+    // unreachable `$FA/$FC` command bytes after pose delay streams became compiled
+    // mechanics: editing the bank-$91 pointer table no longer changes its definition.
+    // Advance through the production death-animation entry point, which shares the
+    // delay interpreter but does not require valid gameplay movement metadata for $FD.
+    const byte unusedInstructionPose = 0xfd;
     var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose };
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
-    bus.WriteBytes(0x91f000, [0x01, 0xfa, 0x31, 0x32]);
+    bus.WriteBytes(0x910302, [0x01, 0xfa, 0x31, 0x32]);
     unusedInstructionSamus.InitializeAnimation(bus);
-    unusedInstructionSamus.AnimateNoFx(bus);
+    unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual(0xfa, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
         "unused vertical-speed instruction reaches `$FA`");
     AssertEqual((byte?)0x31, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
     unusedInstructionSamus.Kinematics.YSubspeed = 1;
     unusedInstructionSamus.InitializeAnimation(bus);
-    unusedInstructionSamus.AnimateNoFx(bus);
+    unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual((byte?)0x32, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` nonzero Y subspeed selects second pose byte");
 
     // `$FC eeee gg aa` uses a little-endian equipment word and distinct pose bytes.
-    bus.WriteBytes(0x91f000, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
+    bus.WriteBytes(0x910302, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
     unusedInstructionSamus.Kinematics.YSubspeed = 0;
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.InitializeAnimation(bus);
-    unusedInstructionSamus.AnimateNoFx(bus);
+    unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual(0xfc, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
         "unused equipment instruction reaches `$FC`");
     AssertEqual((byte?)0x41, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
     unusedInstructionSamus.EquippedItems = 0x0002;
     unusedInstructionSamus.InitializeAnimation(bus);
-    unusedInstructionSamus.AnimateNoFx(bus);
+    unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual((byte?)0x42, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` equipped branch selects second pose byte");
 

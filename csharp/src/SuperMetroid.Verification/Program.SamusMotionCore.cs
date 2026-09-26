@@ -154,18 +154,16 @@ static void VerifySamusHorizontalSpeed()
     speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual(0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
 
-    // Ordinary Dash uses the native ten-frame, two-tick cadence. The pose-specific
-    // stream deliberately differs, proving the momentum override selects that cadence.
-    bus.WriteBytes(0x91b671, [0x08, 0x01, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]); // pose $09
-    WriteTestWord(bus, 0x91b022, 0xc000); // pose $09's normal delay stream
-    bus.WriteBytes(0x91c000, [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0xff]);
+    // Ordinary Dash uses the compiled native ten-frame, two-tick cadence. Do not
+    // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
+    // those immutable definitions from SamusRunningCadenceDefinitions.
     var dashAnimation = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     dashAnimation.InitializeAnimation(bus);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false);
-    for (int tick = 0; tick < 9; tick++)
+    for (int tick = 0; tick < 2; tick++)
         dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash selects native frame-one delay");

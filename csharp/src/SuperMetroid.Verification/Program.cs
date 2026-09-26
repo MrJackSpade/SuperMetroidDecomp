@@ -27,6 +27,16 @@ try
 {
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--samus-rendering-slice"])
+{
+    VerifySamusRenderingSlice();
+    return 0;
+}
+if (args is ["--samus-horizontal-speed"])
+{
+    VerifySamusHorizontalSpeed();
+    return 0;
+}
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

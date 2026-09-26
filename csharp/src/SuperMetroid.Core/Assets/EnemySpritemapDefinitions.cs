@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 24;
+    internal const int Version = 25;
+    internal const int PreChootVersion = 24;
+    internal const int PreChootFrameCount = 383;
     internal const int PreHopperVersion = 23;
     internal const int PreHopperFrameCount = 359;
     internal const int PreBeetomVersion = 22;
@@ -62,6 +64,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte AlcoonBank = 0xa8;
     internal const byte BeetomBank = 0xa8;
     internal const byte HopperBank = 0xa3;
+    internal const byte ChootBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -473,6 +476,10 @@ internal static class EnemySpritemapDefinitions
         new(HopperBank, 0xb368, "large_dessgeega_jump_ceiling"),
         new(HopperBank, 0xb30a, "large_dessgeega_land_ceiling_0"),
         new(HopperBank, 0xb339, "large_dessgeega_land_ceiling_1"),
+        new(ChootBank, 0xe146, "choot_idle"),
+        new(ChootBank, 0xe15c, "choot_jump"),
+        new(ChootBank, 0xe168, "choot_jump_apex"),
+        new(ChootBank, 0xe16f, "choot_fall_end"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -508,6 +515,7 @@ internal static class EnemySpritemapDefinitions
                 RoomEnemySystem.LargeSidehopperDefinition or
                 RoomEnemySystem.TourianSidehopperDefinition or
                 RoomEnemySystem.LargeDessgeegaDefinition => HopperFrameAt(operandAddress),
+            RoomEnemySystem.ChootDefinition => ChootFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -549,6 +557,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.LargeSidehopperDefinition or
             RoomEnemySystem.TourianSidehopperDefinition or
             RoomEnemySystem.LargeDessgeegaDefinition or
+            RoomEnemySystem.ChootDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -682,6 +691,20 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Hopper visual operand $A3:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>
+    /// The five <c>$A2:D830-D848</c> Choot visual operands select four
+    /// installed idle, jump, apex, and falling compositions.
+    /// </summary>
+    internal static ushort ChootFrameAt(ushort operandAddress)
+    {
+        if (ChootInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(ChootBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Choot visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

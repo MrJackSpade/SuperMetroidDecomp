@@ -4,7 +4,7 @@ internal readonly record struct ChootInstructionMechanicsWord(ushort Address, us
 
 /// <summary>
 /// Compiled engine-control words for Choot's idle, jumping, and falling programs.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands select installed visual compositions.
 /// </summary>
 internal static class ChootInstructionProgramDefinitions
 {
@@ -14,7 +14,7 @@ internal static class ChootInstructionProgramDefinitions
     /// disable off-screen processing, display spritemap <c>E146</c> for one
     /// frame, then sleep. Retain this bounded authored command sequence; the
     /// opcode and duration are compiled mechanics, while the spritemap word
-    /// remains a live presentation read. Investigation: #625 / #662.
+    /// selects installed presentation art. Investigation: #625 / #662.
     /// </remarks>
     internal const ushort Idle = 0xd82c;
 
@@ -24,8 +24,8 @@ internal static class ChootInstructionProgramDefinitions
     /// <c>8173,0008,E15C,0001,E168,812F</c>: enable off-screen processing,
     /// display <c>E15C</c> for eight frames and <c>E168</c> for one, then sleep.
     /// Retain this bounded authored command/timing sequence. Opcodes and
-    /// durations are compiled mechanics; spritemap operands remain live
-    /// presentation reads. Investigation: #625 / #663.
+    /// durations are compiled mechanics; spritemap operands select installed
+    /// presentation art. Investigation: #625 / #663.
     /// </remarks>
     internal const ushort Jumping = 0xd834;
 
@@ -36,7 +36,7 @@ internal static class ChootInstructionProgramDefinitions
     /// display <c>E15C</c> for eight frames and <c>E16F</c> for one, then sleep.
     /// Retain this bounded authored command/timing sequence. It shares the
     /// jumping program's mechanics prefix but selects a different final
-    /// spritemap; the operands remain live presentation reads.
+    /// spritemap; the operands select installed presentation art.
     /// Investigation: #625 / #664.
     /// </remarks>
     internal const ushort Falling = 0xd840;
@@ -69,6 +69,8 @@ internal static class ChootInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static ChootInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

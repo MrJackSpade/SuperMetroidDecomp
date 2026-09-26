@@ -444,7 +444,8 @@ ground/airborne compositions, Bull's three idle/immune-shot compositions, and
 Alcoon's eighteen left/right walking, firing, and airborne compositions, plus
 Beetom's twenty-two crawling, hopping, and draining compositions, and the
 Sidehopper/Dessgeega family's twenty-four floor/ceiling compositions (including
-the large and Tourian Sidehopper variants).
+the large and Tourian Sidehopper variants), plus Choot's four idle/jump/fall
+compositions.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
@@ -457,11 +458,11 @@ selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
 JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-twenty-three overrides remain valid:
+Existing version-four through version-twenty-four overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Version-fourteen through version-twenty-three overrides also retain their edited
+content. Version-fourteen through version-twenty-four overrides also retain their edited
 `displayFrames` bindings; earlier versions inherit stock identity selections. Save a
-current version-twenty-four copy to edit Hopper frames or display bindings.
+current version-twenty-five copy to edit Choot frames or display bindings.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
 `game/maps/ceres-ridley-colors.json`; copy that file to
 `overrides/maps/ceres-ridley-colors.json` to edit colors. Its `baby` rows

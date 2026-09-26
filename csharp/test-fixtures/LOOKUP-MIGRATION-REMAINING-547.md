@@ -1,5 +1,14 @@
 # Remaining lookup migration inventory (#547)
 
+## Choot visual frames (2026-09-26)
+
+Choot's five idle/jump/fall visual operands now select four installed OAM
+compositions. All five selectors and four native compositions match the pinned
+cartridge; the real three-program handoff executes with visual and mechanics
+source reads forbidden. A live edit changes only the displayed Y offset, and
+version-twenty-four overrides inherit Choot's stock frames while retaining
+prior edits and bindings. Jump physics and animation timing stay engine-owned.
+
 ## Sidehopper/Dessgeega visual frames (2026-09-26)
 
 All forty visual operands in the four small/large, floor/ceiling Hopper

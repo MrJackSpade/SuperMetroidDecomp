@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ internal static partial class Program
     }
 
     private static void VerifyChootInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
@@ -26,8 +27,8 @@ internal static partial class Program
                 $"Choot instruction mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new ChootInstructionProgramReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var guard = new ChootInstructionProgramReadGuard(rom, forbidPresentation: true);
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type enemySystemType = typeof(RoomEnemySystem);
         enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
         var initialize = enemySystemType.GetMethod("InitializeChoot", flags)!
@@ -86,10 +87,8 @@ internal static partial class Program
             ChootInstructionProgramDefinitions.Falling,
             timedFrameCount: 2);
 
-        AssertEqual(
-            ChootInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "Choot spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Choot production programs avoid cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Choot mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -106,10 +105,11 @@ internal static partial class Program
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
             "warmed Choot mechanics lookups allocate no per-frame storage");
 
-        Console.WriteLine(
-            "Choot instruction mechanics: eleven compiled words, all three real " +
-            "program handoffs, and five live spritemap reads pass with mechanics bytes " +
-            "forbidden.");
+        Console.WriteLine(artwork is null
+            ? "Choot instruction mechanics: eleven compiled words, three real program " +
+              "handoffs, and five compiled visual selectors preserve native timing."
+            : "Installed Choot: idle, jump, and fall programs execute without " +
+              "cartridge visual-selector reads.");
     }
 
     private static void RunChootInstructionProgram(
@@ -154,7 +154,7 @@ internal static partial class Program
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class ChootInstructionProgramReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -180,6 +180,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                        {
+                            ForbiddenReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"Choot read visual-selector byte ${address:X6}.");
+                        }
                         ObservedPresentationWords.Add(presentation);
                     }
                 }

@@ -315,22 +315,9 @@ static void VerifySamusXray()
     foreach ((byte pose, byte[] definition) in poses)
         WritePoseDefinition(bus, pose, definition);
 
-    // The four X-ray poses share retail `$0F,$0F,$0F,$0F,$0F,$FF`. Synthetic one-tick
-    // turn/ordinary lists make the frame-two/timer-one completion seam deterministic while
-    // preserving the byte-indexed command shape expected by the production interpreter.
-    ushort nextStream = 0xc600;
-    foreach ((byte pose, _) in poses)
-    {
-        ushort stream = nextStream;
-        nextStream = unchecked((ushort)(nextStream + 0x10));
-        WriteTestWord(bus, 0x91b010 + pose * 2, stream);
-        bool xrayPose = pose is
-            SamusPoseIds.XrayingStandingRightPose or SamusPoseIds.XrayingStandingLeftPose or
-            SamusPoseIds.XrayingCrouchingRightPose or SamusPoseIds.XrayingCrouchingLeftPose;
-        bus.WriteBytes(
-            0x910000 | stream,
-            xrayPose ? [0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0xff] : [0x01, 0x01, 0x01, 0xff]);
-    }
+    // Animation pointers and delays are compiled cartridge mechanics. In particular,
+    // pose $25 uses three two-tick frames; fake-bus writes to $91:B010 no longer
+    // override its native frame-two/timer-one X-ray completion gate.
 
     // `$9B:A3C0` contains widening colors 3BE0/5FF0/7FFF and full-beam colors
     // 43FF/2F5A/1AB5. The normal-palette pointer is deliberately synthetic so teardown's
@@ -465,7 +452,7 @@ static void VerifySamusXray()
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
-    // F6, pose `$25` supplies type `$0E`, and two one-tick animation advances reach the
+    // F6, pose `$25` supplies type `$0E`, and five native animation ticks reach the
     // exact frame-two/timer-one completion gate before `$D6` is installed.
     standing.PoseHistory.PreviousPose = standing.Pose;
     standing.PoseHistory.PreviousDirectionAndMovement = 0x0008;
@@ -485,8 +472,8 @@ static void VerifySamusXray()
     AssertEqual(0xf6, standing.Xray.Angle.TableIndex, "X-ray turn mirrors angle");
     AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
         "X-ray movement is RTS during type-E turn");
-    standing.AnimateNoFx(bus);
-    standing.AnimateNoFx(bus);
+    for (int tick = 0; tick < 5; tick++)
+        standing.AnimateNoFx(bus);
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
     XrayPoseInputResult completedTurn = standing.Xray.HandlePoseInput(bus, standing, 0);

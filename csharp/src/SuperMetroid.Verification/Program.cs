@@ -37,6 +37,11 @@ if (args is ["--samus-horizontal-speed"])
     VerifySamusHorizontalSpeed();
     return 0;
 }
+if (args is ["--samus-xray"])
+{
+    VerifySamusXray();
+    return 0;
+}
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

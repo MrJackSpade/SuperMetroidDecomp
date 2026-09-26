@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class SamusBodyArtworkFiles
 {
     public const string ManifestFileName = "samus-body.json";
-    private const int FormatVersion = 3;
+    private const int FormatVersion = 4;
     private const int TileWidth = 64;
     private const int DefinitionHeight = 16;
     private const int DefinitionEndExclusive = 0xD7D3;
@@ -67,10 +67,23 @@ public static class SamusBodyArtworkFiles
         SamusSpritemapDefinition[] spritemaps = spritemapPointers.Distinct()
             .Where(pointer => pointer != 0).OrderBy(pointer => pointer)
             .Select(pointer => ReadSpritemap(bus, pointer)).ToArray();
+        ushort[] landingYOffsets = Enumerable.Range(0,
+            SamusRenderingRomData.Body.LandingVerticalOffsetByteCount)
+            .Select(index => (ushort)bus.ReadByte(
+                SamusRenderingRomData.Body.LandingVerticalOffsets + index)).ToArray();
+        sbyte[] postureYOffsets = Enumerable.Range(0,
+            SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount)
+            .Select(index => unchecked((sbyte)bus.ReadByte(
+                SamusRenderingRomData.Body.PostureTransitionVerticalOffsets + index))).ToArray();
+        sbyte[] drainedYOffsets = Enumerable.Range(0,
+            SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount)
+            .Select(index => unchecked((sbyte)bus.ReadByte(
+                SamusRenderingRomData.Body.DrainedVerticalOffsets + index))).ToArray();
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topPointers, bottomPointers, posePointers, graphicsYOffsets,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
-            spritemapPointers, spritemaps, hashes);
+            spritemapPointers, spritemaps, landingYOffsets, postureYOffsets,
+            drainedYOffsets, hashes);
         // Constructing the catalog catches missing/invalid references before publication.
         _ = BuildCatalog(directory, manifest, null);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -170,7 +183,9 @@ public static class SamusBodyArtworkFiles
         var spritemaps = new SamusSpritemapArtworkCatalog(manifest.SpritemapTopBases,
             manifest.SpritemapBottomBases, manifest.SpritemapPointers, manifest.Spritemaps);
         return new SamusBodyArtworkCatalog(manifest.TopPointers, manifest.BottomPointers,
-            manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom, spritemaps);
+            manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom,
+            spritemaps, manifest.LandingYOffsets, manifest.PostureYOffsets,
+            manifest.DrainedYOffsets);
     }
 
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
@@ -223,6 +238,8 @@ public static class SamusBodyArtworkFiles
             manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
             manifest.SpritemapTopBases is null || manifest.SpritemapBottomBases is null ||
             manifest.SpritemapPointers is null || manifest.Spritemaps is null ||
+            manifest.LandingYOffsets is null || manifest.PostureYOffsets is null ||
+            manifest.DrainedYOffsets is null ||
             manifest.Hashes is null || manifest.Top.Length != SamusBodyArtworkCatalog.TopSetCount ||
             manifest.Bottom.Length != SamusBodyArtworkCatalog.BottomSetCount ||
             manifest.GraphicsYOffsets.Length != SamusBodyArtworkCatalog.PoseCount ||
@@ -275,7 +292,9 @@ public static class SamusBodyArtworkFiles
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
         DefinitionEntry[][] Bottom, ushort[] SpritemapTopBases,
         ushort[] SpritemapBottomBases, ushort[] SpritemapPointers,
-        SamusSpritemapDefinition[] Spritemaps, Dictionary<string, string> Hashes);
+        SamusSpritemapDefinition[] Spritemaps, ushort[] LandingYOffsets,
+        sbyte[] PostureYOffsets, sbyte[] DrainedYOffsets,
+        Dictionary<string, string> Hashes);
 
     private sealed record DefinitionEntry(int SourceAddress, ushort FirstSize, ushort SecondSize);
 }

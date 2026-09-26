@@ -552,9 +552,11 @@ public sealed partial class SamusState
             // wrapped `$0AFA` spritemap-position word is observable and is preserved here.
             int landingOffsetIndex = (Pose - SamusPoseIds.NormalLandingRightPose) * 4 +
                 AnimationFrame;
-            ushort landingOffset = ReadWord(
-                bus,
-                AddWithinBank(SamusRenderingRomData.Body.LandingVerticalOffsets, landingOffsetIndex));
+            ushort landingOffset = TileTransfers.Artwork is { } landingArt &&
+                landingArt.TryLandingYOffset(landingOffsetIndex, out ushort installedLanding)
+                ? installedLanding
+                : ReadWord(bus, AddWithinBank(
+                    SamusRenderingRomData.Body.LandingVerticalOffsets, landingOffsetIndex));
             SpritemapYPosition = unchecked((ushort)(
                 renderY - landingOffset - layer1Y));
         }
@@ -565,12 +567,18 @@ public sealed partial class SamusState
             // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
             // of using the pose-definition graphics offset. Reading the cartridge table
             // directly retains ordinary crouch/morph/stand/unmorph values and the four
-            // valid-but-unused zero records `$39/$3A/$3F/$40`. Animation commands replace
-            // retail poses before a command/operand index can escape this two-byte record.
+            // valid-but-unused zero records `$39/$3A/$3F/$40`. The installed visual
+            // bytes preserve those values; an out-of-range diagnostic index still reads
+            // the native adjacent bank data instead of inventing a replacement.
             int transitionOffsetAddress = AddWithinBank(
                 SamusRenderingRomData.Body.PostureTransitionVerticalOffsets,
                 (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame);
-            sbyte transitionOffset = unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
+            sbyte transitionOffset = TileTransfers.Artwork is { } postureArt &&
+                postureArt.TryPostureYOffset(
+                    (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame,
+                    out sbyte installedPosture)
+                ? installedPosture
+                : unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
             SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
         }
         else if (Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
@@ -578,9 +586,12 @@ public sealed partial class SamusState
             // `$90:8DC1` indexes the shared 32-byte table at `$90:8DEF` directly with the
             // animation byte index. Several indices intentionally name command operands,
             // because the external controller can publish those literal indices for a
-            // visible frame. Reading ROM keeps that odd layout authoritative.
-            sbyte drainedOffset = unchecked((sbyte)bus.ReadByte(
-                AddWithinBank(SamusRenderingRomData.Body.DrainedVerticalOffsets, AnimationFrame)));
+            // visible frame. The installed 32-byte table preserves that odd layout.
+            sbyte drainedOffset = TileTransfers.Artwork is { } drainedArt &&
+                drainedArt.TryDrainedYOffset(AnimationFrame, out sbyte installedDrained)
+                ? installedDrained
+                : unchecked((sbyte)bus.ReadByte(AddWithinBank(
+                    SamusRenderingRomData.Body.DrainedVerticalOffsets, AnimationFrame)));
             SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
         else if ((Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose) &&

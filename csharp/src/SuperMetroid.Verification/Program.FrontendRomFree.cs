@@ -25,7 +25,11 @@ internal static partial class Program
         installed.BindMapPresentation(installation.LoadMaps());
         installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
         installed.BindSamusBodyArt(installation.LoadSamusBodyArt());
-        installed.BindBeamArtwork(installation.LoadProjectiles().BeamTiles);
+        InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
+        installed.BindBeamArtwork(projectiles.BeamTiles);
+        installed.BindProjectileCompositions(projectiles.Catalog);
+        installed.BindProjectileFrameBindings(projectiles.FrameBindings);
+        installed.BindTrailArtwork(projectiles.Trails);
         bool titleStartSent = false;
         bool fileSelectStartSent = false;
         var visited = new HashSet<SuperMetroidGameState>();
@@ -75,18 +79,23 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Continue the same host instances through the options dispatcher and opening
-    /// narration. This catches a missing installation binding at the real transition.
+    /// Continue the same host instances through the options dispatcher, narration,
+    /// and Mother Brain flashback. This catches missing live content bindings at the
+    /// real transition and during the projectile/hurt animation, not just at startup.
     /// </summary>
     private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
         SuperMetroidGame installed)
     {
         bool startSent = false;
         int introFrames = 0;
-        for (int frame = 0; frame < 2500; frame++)
+        int motherBrainFrame = -1;
+        for (int frame = 0; frame < 6000; frame++)
         {
             FrontendFrame before = installed.CurrentFrameMetadata;
-            ushort input = !startSent ? (ushort)SnesButton.Start : (ushort)0;
+            // Advance the narrator at a repeatable cadence; the original short
+            // fixture ended before its first bank-$93 projectile animation frame.
+            ushort input = !startSent ? (ushort)SnesButton.Start :
+                frame % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
@@ -100,13 +109,15 @@ internal static partial class Program
             if (actual.GameState != SuperMetroidGameState.IntroCinematic)
                 continue;
             introFrames++;
-            if (introFrames < 1500)
+            if (motherBrainFrame < 0 && actual.Phase == nameof(IntroCinematicPhase.MotherBrainFlashback))
+                motherBrainFrame = frame;
+            if (motherBrainFrame < 0 || frame - motherBrainFrame < 180)
                 continue;
-            Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity frames, including {introFrames} cinematic frames; all cartridge reads guarded.");
+            Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity frames, including 180 after Mother Brain flashback begins; all cartridge reads guarded.");
             return;
         }
         throw new InvalidOperationException(
-            "ROM-free frontend fixture did not reach 1500 opening-cinematic frames.");
+            "ROM-free frontend fixture did not reach the Mother Brain flashback.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

@@ -369,9 +369,11 @@ public sealed partial class SuperMetroidGame
                                     beamArtwork, samusBodyArt)
                                 {
                                     ProjectileCompositions = projectileCompositions,
+                                    ProjectileFrameBindings = projectileFrameBindings,
                                     TrailArtwork = trailArtwork,
                                     NarrationPresentation = mapPresentation?.IntroNarration,
                                 };
+                                intro.BindSamusHurtColors(mapPresentation?.SamusHurtColors);
                                 GameState = SuperMetroidGameState.IntroCinematic;
                                 PublishIntro(intro);
                             }
@@ -400,9 +402,11 @@ public sealed partial class SuperMetroidGame
                             beamArtwork, samusBodyArt)
                         {
                             ProjectileCompositions = projectileCompositions,
+                            ProjectileFrameBindings = projectileFrameBindings,
                             TrailArtwork = trailArtwork,
                             NarrationPresentation = mapPresentation?.IntroNarration,
                         };
+                        intro.BindSamusHurtColors(mapPresentation?.SamusHurtColors);
                         GameState = SuperMetroidGameState.IntroCinematic;
                         PublishIntro(intro);
                     }

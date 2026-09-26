@@ -26,6 +26,7 @@ public sealed partial class SuperMetroidGame
         title?.BindTitlePalette(catalog?.TitlePalette);
         if (intro is not null) intro.NarrationPresentation = catalog?.IntroNarration;
         intro?.BindIntroFont(catalog?.IntroFont);
+        intro?.BindSamusHurtColors(catalog?.SamusHurtColors);
         endingCredits?.BindEndingText(catalog?.EndingText);
         endingCredits?.BindPaletteFxColors(catalog?.RoomPaletteFx);
         endingCredits?.BindEndingFont(catalog?.EndingFont);

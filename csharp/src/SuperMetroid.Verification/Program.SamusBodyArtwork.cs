@@ -116,6 +116,17 @@ internal static partial class Program
                 $"Samus OAM index {index} installed/native staging parity");
         }
         AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
+        for (int i = 0; i < stock.LandingYOffsets.Length; i++)
+            AssertEqual((ushort)bus.ReadByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
+                stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
+        for (int i = 0; i < stock.PostureYOffsets.Length; i++)
+            AssertEqual(unchecked((sbyte)bus.ReadByte(
+                SamusRenderingRomData.Body.PostureTransitionVerticalOffsets + i)),
+                stock.PostureYOffsets[i], $"Samus posture visual byte {i}");
+        for (int i = 0; i < stock.DrainedYOffsets.Length; i++)
+            AssertEqual(unchecked((sbyte)bus.ReadByte(
+                SamusRenderingRomData.Body.DrainedVerticalOffsets + i)),
+                stock.DrainedYOffsets[i], $"Samus drained visual byte {i}");
 
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's
@@ -164,6 +175,8 @@ internal static partial class Program
             entry!["pointer"]!.GetValue<int>() == poseOnePointer)!;
         int originalPartX = poseOneRecord["parts"]![0]!["x"]!.GetValue<int>();
         poseOneRecord["parts"]![0]!["x"] = originalPartX + 1;
+        byte originalLandingYOffset = (byte)document["landingYOffsets"]![0]!.GetValue<int>();
+        document["landingYOffsets"]![0] = originalLandingYOffset + 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(!replacement.TopSet(0)[0].Planar.Span.SequenceEqual(stock.TopSet(0)[0].Planar.Span),
@@ -182,6 +195,21 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
             editedSpritemapOam.LowTable[0],
             "edited Samus spritemap part changes production OAM X by one pixel");
+        var stockLandingSamus = new SamusState
+        {
+            Pose = SamusPoseIds.NormalLandingRightPose, XPosition = 128, YPosition = 128,
+        };
+        var editedLandingSamus = new SamusState
+        {
+            Pose = SamusPoseIds.NormalLandingRightPose, XPosition = 128, YPosition = 128,
+        };
+        stockLandingSamus.TileTransfers.BindArtwork(stock);
+        editedLandingSamus.TileTransfers.BindArtwork(replacement);
+        stockLandingSamus.Draw(guardedBus, new OamBuffer(), layer1X: 0, layer1Y: 0);
+        editedLandingSamus.Draw(guardedBus, new OamBuffer(), layer1X: 0, layer1Y: 0);
+        AssertEqual(unchecked((ushort)(stockLandingSamus.SpritemapYPosition - 1)),
+            editedLandingSamus.SpritemapYPosition,
+            "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = 0x01 };
         editedSamus.TileTransfers.BindArtwork(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
@@ -229,6 +257,6 @@ internal static partial class Program
             "Samus body override cannot change native set-pointer identity");
         document["topPointers"]![0] = stock.TopSetPointers[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
-        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices match retail; PNG/JSON overrides load.");
+        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 }

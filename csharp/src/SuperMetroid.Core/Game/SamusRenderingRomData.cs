@@ -79,12 +79,18 @@ public static class SamusRenderingRomData
 
         /// <summary><c>$90:8D28</c>, packed landing-frame vertical offsets.</summary>
         public const int LandingVerticalOffsets = 0x908d28;
+        /// <summary>Sixteen landing bytes plus the adjacent byte read by the final unaligned word.</summary>
+        public const int LandingVerticalOffsetByteCount = 17;
 
         /// <summary><c>$90:8D80</c>, crouch/morph transition vertical offsets.</summary>
         public const int PostureTransitionVerticalOffsets = 0x908d80;
+        /// <summary>Twelve transition poses with two visual offset bytes each.</summary>
+        public const int PostureTransitionVerticalOffsetByteCount = 24;
 
         /// <summary><c>$90:8DEF</c>, drained-body vertical offsets.</summary>
         public const int DrainedVerticalOffsets = 0x908def;
+        /// <summary>Native contiguous drained-body visual offset interval.</summary>
+        public const int DrainedVerticalOffsetByteCount = 32;
     }
 
     /// <summary>Seven-byte body-character DMA definitions and their fixed destinations.</summary>

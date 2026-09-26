@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable bank-$92 Samus body characters and their native frame/half selectors.</summary>
@@ -23,6 +25,9 @@ public sealed class SamusBodyArtworkCatalog
     private readonly ushort[] bottomPointers;
     private readonly ushort[] posePointers;
     private readonly sbyte[] graphicsYOffsets;
+    private readonly ushort[] landingYOffsets;
+    private readonly sbyte[] postureYOffsets;
+    private readonly sbyte[] drainedYOffsets;
     private readonly SamusBodyFrameSelection[] frames;
     private readonly SamusBodyTileDefinition[][] top;
     private readonly SamusBodyTileDefinition[][] bottom;
@@ -35,7 +40,8 @@ public sealed class SamusBodyArtworkCatalog
         ushort[] posePointers, sbyte[] graphicsYOffsets,
         SamusBodyFrameSelection[] frames,
         SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom,
-        SamusSpritemapArtworkCatalog spritemaps)
+        SamusSpritemapArtworkCatalog spritemaps, ushort[] landingYOffsets,
+        sbyte[] postureYOffsets, sbyte[] drainedYOffsets)
     {
         ArgumentNullException.ThrowIfNull(topPointers);
         ArgumentNullException.ThrowIfNull(bottomPointers);
@@ -45,8 +51,14 @@ public sealed class SamusBodyArtworkCatalog
         ArgumentNullException.ThrowIfNull(top);
         ArgumentNullException.ThrowIfNull(bottom);
         ArgumentNullException.ThrowIfNull(spritemaps);
+        ArgumentNullException.ThrowIfNull(landingYOffsets);
+        ArgumentNullException.ThrowIfNull(postureYOffsets);
+        ArgumentNullException.ThrowIfNull(drainedYOffsets);
         if (topPointers.Length != TopSetCount || bottomPointers.Length != BottomSetCount ||
             posePointers.Length != PoseCount || graphicsYOffsets.Length != PoseCount ||
+            landingYOffsets.Length != SamusRenderingRomData.Body.LandingVerticalOffsetByteCount ||
+            postureYOffsets.Length != SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount ||
+            drainedYOffsets.Length != SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount ||
             frames.Length != FrameCount ||
             top.Length != TopSetCount || bottom.Length != BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
@@ -55,6 +67,11 @@ public sealed class SamusBodyArtworkCatalog
         this.bottomPointers = (ushort[])bottomPointers.Clone();
         this.posePointers = (ushort[])posePointers.Clone();
         this.graphicsYOffsets = (sbyte[])graphicsYOffsets.Clone();
+        this.landingYOffsets = (ushort[])landingYOffsets.Clone();
+        if (this.landingYOffsets.Any(value => value > byte.MaxValue))
+            throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
+        this.postureYOffsets = (sbyte[])postureYOffsets.Clone();
+        this.drainedYOffsets = (sbyte[])drainedYOffsets.Clone();
         this.frames = (SamusBodyFrameSelection[])frames.Clone();
         Spritemaps = spritemaps;
         this.top = CloneAndValidate(topPointers, top);
@@ -75,6 +92,32 @@ public sealed class SamusBodyArtworkCatalog
     public ReadOnlySpan<ushort> BottomSetPointers => bottomPointers;
     public ReadOnlySpan<ushort> PosePointers => posePointers;
     public ReadOnlySpan<sbyte> GraphicsYOffsets => graphicsYOffsets;
+    /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
+    public ReadOnlySpan<ushort> LandingYOffsets => landingYOffsets;
+    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsets;
+    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
+    public bool TryLandingYOffset(int index, out ushort value)
+    {
+        if ((uint)index >= landingYOffsets.Length - 1)
+        {
+            value = 0;
+            return false;
+        }
+        value = (ushort)(landingYOffsets[index] | landingYOffsets[index + 1] << 8);
+        return true;
+    }
+    public bool TryPostureYOffset(int index, out sbyte value)
+    {
+        if ((uint)index >= postureYOffsets.Length) { value = 0; return false; }
+        value = postureYOffsets[index];
+        return true;
+    }
+    public bool TryDrainedYOffset(int index, out sbyte value)
+    {
+        if ((uint)index >= drainedYOffsets.Length) { value = 0; return false; }
+        value = drainedYOffsets[index];
+        return true;
+    }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     public sbyte GraphicsYOffset(byte pose) =>
         pose < PoseCount ? graphicsYOffsets[pose] :

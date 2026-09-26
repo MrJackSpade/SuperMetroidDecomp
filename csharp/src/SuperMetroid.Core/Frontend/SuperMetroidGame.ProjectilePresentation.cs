@@ -12,6 +12,7 @@ public sealed partial class SuperMetroidGame
     {
         projectileFrameBindings = catalog;
         if (runtime is not null) runtime.ProjectileFrameBindings = catalog;
+        if (intro is not null) intro.ProjectileFrameBindings = catalog;
     }
     [NonSerialized] private BeamTileCatalog? beamArtwork;
     [NonSerialized] private EnemyTileArtworkCatalog? enemyTileArtwork;

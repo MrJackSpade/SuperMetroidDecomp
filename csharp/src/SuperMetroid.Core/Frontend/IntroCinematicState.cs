@@ -30,11 +30,20 @@ public sealed partial class IntroCinematicState
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
+    /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
+    public ProjectileFrameBindingCatalog? ProjectileFrameBindings
+    {
+        get => flashbackProjectiles.FrameBindings;
+        set => flashbackProjectiles.FrameBindings = value;
+    }
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     [NonSerialized] private IntroFontAtlas? introFont;
     [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
     [NonSerialized] private BeamTileCatalog? beamArtwork;
     [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
+    [NonSerialized] private SamusHurtColorCatalog? samusHurtColors;
+    /// <summary>Editable suit-flash colors used by the cinematic's ordinary Samus hurt handler.</summary>
+    public void BindSamusHurtColors(SamusHurtColorCatalog? value) => samusHurtColors = value;
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
     public void BindSamusBodyArtwork(SamusBodyArtworkCatalog? value)
     {
@@ -1107,7 +1116,7 @@ public sealed partial class IntroCinematicState
         // `$90:E84D` runs the ordinary Samus palette handler even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
-        SamusHurtFlashPalette.Update(bus, cgram, samus, demoInput);
+        SamusHurtFlashPalette.Update(bus, cgram, samus, demoInput, samusHurtColors);
 
         // `$8B:8E0D` ages the two hit words after both Samus state handlers, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.

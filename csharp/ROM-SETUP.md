@@ -108,7 +108,9 @@ under `overrides/samus-body/` to change its pixels. Copy `samus-body.json` there
 to change visual pose/frame selectors, signed per-pose graphics Y offsets, the
 two split VRAM transfer sizes, or the `spritemaps` array's OAM part offsets and
 attributes. The `spritemapTopBases` and `spritemapBottomBases` arrays select each
-pose's upper/lower indexed OAM frame. Keep the stock provenance hashes, definition
+pose's upper/lower indexed OAM frame. `landingYOffsets`, `postureYOffsets`, and
+`drainedYOffsets` adjust visual placement in those special poses without changing
+their movement or collision. Keep the stock provenance hashes, definition
 counts, set pointers, source addresses, and `spritemapPointers`/record identities.
 Zero spritemap pointers are native mutable-memory references, not blank frames.
 Replacements are validated on

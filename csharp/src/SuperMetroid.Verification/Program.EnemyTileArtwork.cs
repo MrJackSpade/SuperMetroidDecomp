@@ -30,6 +30,7 @@ internal static partial class Program
             VerifyInstalledChozoAndTubeColors(bus, directory, stock);
             VerifyInstalledSporeSpawnColors(bus, directory, stock);
             VerifyInstalledDachoraColors(bus, directory, stock);
+            VerifyInstalledShitroidColors(bus, directory, stock);
             VerifyInstalledCeresDoorVisuals(bus, directory, stock);
             VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock);
             VerifyInstalledKraidBackground(bus, directory, stock);

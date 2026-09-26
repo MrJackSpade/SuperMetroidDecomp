@@ -377,6 +377,12 @@ only the RGB5 colors selected at those native moments.
 Dachora's default, four speed-boost, and four shine palette frames are in
 `game/enemy-tiles/dachora-colors.json`. The timer and frame selection still
 follow the cartridge code; the JSON controls the selected RGB5 colors.
+The live Shitroid encounter's eight four-color normal-cycle frames and three
+sixteen-color initialization targets (sidehopper, Shitroid, and dead sidehopper)
+are in `game/enemy-tiles/shitroid-colors.json`. They can be overridden in
+`overrides/enemy-tiles/`; native palette timing and target destinations remain
+compiled. The opening cutscene Baby Metroid's separate death fade is not part
+of this file.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

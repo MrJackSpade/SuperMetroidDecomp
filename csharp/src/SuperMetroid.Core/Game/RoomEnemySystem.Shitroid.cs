@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -118,7 +119,6 @@ public sealed partial class RoomEnemySystem
 
     private const int ShitroidWorkBufferAddress = 0x7e2000;
     private const int ShitroidWorkBufferSize = 0x1000;
-    private const int ShitroidNormalPaletteSource = 0xa9f6d1;
 
     private static ReadOnlySpan<short> ShitroidShakeX => [0, -1, 0, 1];
     private static ReadOnlySpan<short> ShitroidShakeY => [0, 1, -1, 1];
@@ -205,19 +205,25 @@ public sealed partial class RoomEnemySystem
         slot.Parameter2 = 0;
         _shitroid = state;
 
-        CopyShitroidTargetPalette(state, 0xa9f8c6, destinationColor: 0x90);
-        CopyShitroidTargetPalette(state, 0xa9f8e6, destinationColor: 0xa0);
-        CopyShitroidTargetPalette(state, 0xa9f8a6, destinationColor: 0xf0);
+        CopyShitroidTargetPalette(state, ShitroidColorTarget.Sidehopper,
+            ShitroidColorRomData.SidehopperTarget, destinationColor: 0x90);
+        CopyShitroidTargetPalette(state, ShitroidColorTarget.Shitroid,
+            ShitroidColorRomData.ShitroidTarget, destinationColor: 0xa0);
+        CopyShitroidTargetPalette(state, ShitroidColorTarget.DeadSidehopper,
+            ShitroidColorRomData.DeadSidehopperTarget, destinationColor: 0xf0);
     }
 
     private void CopyShitroidTargetPalette(
         ShitroidEnemyState state,
+        ShitroidColorTarget target,
         int sourceAddress,
         int destinationColor)
     {
-        for (int color = 0; color < 16; color++)
+        for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
         {
-            ushort value = ReadWord(_bus!, sourceAddress + color * 2);
+            ushort value = TileArtwork?.ShitroidColors is { } colors
+                ? colors.TargetColor(target, color)
+                : ReadWord(_bus!, sourceAddress + color * sizeof(ushort));
             state.MutableTargetPalette[destinationColor + color] = value;
 
             // This runtime currently presents completed room fades directly in CGRAM.
@@ -910,9 +916,15 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        int source = ShitroidNormalPaletteSource + phase * 8;
-        for (int color = 0; color < 4; color++)
-            _cgram!.SetColor(165 + color, ReadWord(_bus!, source + color * 2));
+        int source = ShitroidColorRomData.NormalCycle +
+            phase * ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort);
+        for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
+        {
+            ushort value = TileArtwork?.ShitroidColors is { } colors
+                ? colors.NormalColor(phase, color)
+                : ReadWord(_bus!, source + color * sizeof(ushort));
+            _cgram!.SetColor(165 + color, value);
+        }
     }
 
     private static void SetShitroidInstruction(RoomEnemySlot slot, ushort pointer)

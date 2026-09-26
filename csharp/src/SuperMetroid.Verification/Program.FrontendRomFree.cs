@@ -89,7 +89,7 @@ internal static partial class Program
         bool startSent = false;
         int introFrames = 0;
         int motherBrainFrame = -1;
-        for (int frame = 0; frame < 6000; frame++)
+        for (int frame = 0; frame < 9000; frame++)
         {
             FrontendFrame before = installed.CurrentFrameMetadata;
             // Advance the narrator at a repeatable cadence; the original short
@@ -103,21 +103,24 @@ internal static partial class Program
                 $"installed intro game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed intro native phase at frame {frame}");
-            if (frame % 37 == 0 || actual.GameState != before.GameState)
-                AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
-                    $"installed intro native pixels at frame {frame}, {actual.Phase}");
+            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                $"installed intro native pixels at frame {frame}, {actual.Phase}");
+            if (before.GameState == SuperMetroidGameState.IntroCinematic &&
+                actual.GameState != SuperMetroidGameState.IntroCinematic)
+            {
+                AssertTrue(motherBrainFrame >= 0,
+                    "intro reached its game-state handoff after Mother Brain flashback");
+                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity frames through game-state handoff; all cartridge reads guarded.");
+                return;
+            }
             if (actual.GameState != SuperMetroidGameState.IntroCinematic)
                 continue;
             introFrames++;
             if (motherBrainFrame < 0 && actual.Phase == nameof(IntroCinematicPhase.MotherBrainFlashback))
                 motherBrainFrame = frame;
-            if (motherBrainFrame < 0 || frame - motherBrainFrame < 180)
-                continue;
-            Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity frames, including 180 after Mother Brain flashback begins; all cartridge reads guarded.");
-            return;
         }
         throw new InvalidOperationException(
-            "ROM-free frontend fixture did not reach the Mother Brain flashback.");
+            $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrameMetadata.Phase}.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int WreckedShipPowerPalette = 0xa7ca61;
     private const ushort PhantoonDeathWaveDelta = 0x0100;
     private const ushort PhantoonDeathWaveMaximum = 0xf000;
 
@@ -219,7 +218,9 @@ public sealed partial class RoomEnemySystem
         for (int color = 0; color < 112; color++)
         {
             ushort current = _cgram!.Colors[color];
-            ushort target = ReadWord(_bus!, WreckedShipPowerPalette + color * 2);
+            ushort target = TileArtwork?.PhantoonColors?.ResolvePowerOn(color) ??
+                ReadWord(_bus!, PhantoonColorRomData.PowerOnSource +
+                    color * sizeof(ushort));
             _cgram.SetColor(
                 color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));

@@ -284,8 +284,15 @@ public sealed partial class RoomEnemySystem
     private void CopyPhantoonHealthPalette(RoomEnemySlot body)
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
-        int palette = PhantoonHealthPaletteTable + healthBand * 32;
-        for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(112 + color, ReadWord(_bus!, palette + color * 2));
+        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+            _cgram!.SetColor(PhantoonColorRomData.BodyDestination + color,
+                ReadPhantoonHealthColor(healthBand, color));
     }
+
+    /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
+    private ushort ReadPhantoonHealthColor(int healthBand, int color) =>
+        TileArtwork?.PhantoonColors?.ResolveHealth(healthBand, color) ??
+        ReadWord(_bus!, PhantoonColorRomData.HealthBandsSource +
+            (healthBand * PhantoonColorRomData.HealthBandColorCount + color) *
+                sizeof(ushort));
 }

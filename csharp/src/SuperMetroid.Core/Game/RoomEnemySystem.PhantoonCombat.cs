@@ -16,7 +16,6 @@ public sealed partial class RoomEnemySystem
         PhantoonInstructionProgramDefinitions.FullHitboxBody;
     private const ushort PhantoonEyeCloseInstruction = PhantoonInstructionProgramDefinitions.EyeClose;
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
-    private const int PhantoonFadeOutPalette = 0xa7ca41;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
     private void RunPhantoonEyeTracking(
@@ -448,7 +447,9 @@ public sealed partial class RoomEnemySystem
         for (int color = 0; color < 16; color++)
         {
             ushort current = _cgram!.Colors[112 + color];
-            ushort target = ReadWord(_bus!, PhantoonFadeOutPalette + color * 2);
+            ushort target = TileArtwork?.PhantoonColors?.ResolveFadeOut(color) ??
+                ReadWord(_bus!, PhantoonColorRomData.FadeOutSource +
+                    color * sizeof(ushort));
             _cgram.SetColor(
                 112 + color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));

@@ -18,7 +18,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PhantoonInitialTentacleInstruction =
         PhantoonInstructionProgramDefinitions.InitialTentacles;
     private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionProgramDefinitions.InitialMouth;
-    private const int PhantoonHealthPaletteTable = 0xa7cb41;
     private const ushort PhantoonIntroAmplitudeDelta = 0x0040;
     private const ushort PhantoonIntroMaximumAmplitude = 0x0c00;
     private const ushort PhantoonWavyPhaseDelta = 0x0008;
@@ -544,9 +543,7 @@ public sealed partial class RoomEnemySystem
         for (int color = 0; color < 16; color++)
         {
             ushort current = _cgram!.Colors[112 + color];
-            ushort target = ReadWord(
-                _bus!,
-                PhantoonHealthPaletteTable + healthBand * 32 + color * 2);
+            ushort target = ReadPhantoonHealthColor(healthBand, color);
             _cgram.SetColor(
                 112 + color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));

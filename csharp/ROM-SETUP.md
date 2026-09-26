@@ -362,6 +362,10 @@ are in `game/enemy-tiles/draygon-colors.json` with the same override path. The
 opening transfer includes the first nine colors of the following palette, as
 the cartridge's 25-word copy does. Health thresholds, hurt timing and combat
 stay in code; edits affect only the displayed RGB5 colors.
+Phantoon's eight health palettes, fade-out target and 112-color Wrecked Ship
+power-on target are in `game/enemy-tiles/phantoon-colors.json`, also overridable
+through `overrides/enemy-tiles/`. Health-band selection, interpolation, hurt
+timing and boss/death transitions stay in code.
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

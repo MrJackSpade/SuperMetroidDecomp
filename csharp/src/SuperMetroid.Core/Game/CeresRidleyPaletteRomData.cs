@@ -10,6 +10,15 @@ public static class CeresRidleyPaletteRomData
     public const int StartColorCount = 32;
     public const int StartCgramIndex = 0x140 / 2;
 
+    /// <summary>
+    /// Four fifteen-color Ceres Baby shades at $A6:E1F1-$E268. The private
+    /// $BFE1 draw callback copies one row to OBJ palette one, colors 1..15.
+    /// </summary>
+    public const int BabyColors = 0xa6e1f1;
+    public const int BabyRowCount = 4;
+    public const int BabyColorCount = 15;
+    public const int BabyCgramIndex = 0x162 / 2;
+
     /// <summary>Sixteen three-color eye-fade rows beginning at $A6:E2AA.</summary>
     public const int EyeFadeColors = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows;
     public const int EyeFadeRowCount = 16;

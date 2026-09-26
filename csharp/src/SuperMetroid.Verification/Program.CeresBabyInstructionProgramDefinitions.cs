@@ -40,10 +40,28 @@ internal static partial class Program
                 CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(address),
                 $"compiled Ceres Baby spritemap operand $A6:{address:X4}");
         }
+        for (int index = 0;
+             index < CeresBabyInstructionProgramDefinitions.PaletteOperandCount;
+             index++)
+        {
+            ushort address =
+                CeresBabyInstructionProgramDefinitions.PaletteOperandAddress(index);
+            int row = CeresBabyInstructionProgramDefinitions.ReadPaletteRow(address);
+            AssertEqual(unchecked((ushort)(
+                    CeresRidleyPaletteRomData.BabyColors + row *
+                    CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort))),
+                ReadCeresBabyProgramWord(rom, address),
+                $"compiled Ceres Baby palette operand $A6:{address:X4}");
+        }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new CeresBabyInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        byte[] colorJson = CeresRidleyColorExtractor.Extract(rom);
+        var enemies = new RoomEnemySystem
+        {
+            CeresRidleyColors = CeresRidleyColorCatalog.Load(
+                new MemoryStream(colorJson, writable: false)),
+        };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         ushort random = 0;
@@ -70,22 +88,6 @@ internal static partial class Program
             "production Ceres Baby loop displays round spritemap");
         AssertTrue(observedSpritemaps.Contains(CeresBabyInstructionProgramDefinitions.VerticalFrame),
             "production Ceres Baby loop displays vertical-squish spritemap");
-        AssertEqual(
-            CeresBabyInstructionProgramDefinitions.PresentationWordCount -
-                CeresBabyInstructionProgramDefinitions.SpritemapOperandCount,
-            guard.ObservedPresentationWords.Count,
-            "complete Ceres Baby loop retains only the thirteen live palette operands");
-        for (int index = 0;
-             index < CeresBabyInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                CeresBabyInstructionProgramDefinitions.PresentationWordAddress(index);
-            if (!CeresBabyInstructionProgramDefinitions.IsCompiledSpritemapByte(
-                    0xa60000 | address))
-                AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                    $"production Ceres Baby loop reads palette word $A6:{address:X4}");
-        }
 
         // A stationary odd-RNG call takes the authored 50% branch back to the initial
         // program; a moving call bypasses that random branch and enters the expressive
@@ -112,7 +114,39 @@ internal static partial class Program
         AssertEqual((ushort)0xbf61, movingBranch.BabyInstruction,
             "moving Ceres Baby branch enters expressive palette frames");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production Ceres Baby interpreter avoids compiled mechanics and visual-selector bytes");
+            "production Ceres Baby interpreter avoids compiled mechanics and palette/pose bytes");
+
+        CeresRidleyColorDocument colorDocument =
+            JsonSerializer.Deserialize<CeresRidleyColorDocument>(colorJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        PaletteRgb5 priorBabyColor = colorDocument.Baby![1][0];
+        colorDocument.Baby[1][0] = priorBabyColor with
+        {
+            Blue = priorBabyColor.Blue == 31 ? 30 : priorBabyColor.Blue + 1,
+        };
+        enemies.CeresRidleyColors = CeresRidleyColorCatalog.Load(
+            new MemoryStream(CeresRidleyColorCatalog.Write(colorDocument), writable: false));
+        var editedPaletteState = new RidleyEnemyState
+        {
+            BabyInstruction = CeresBabyInstructionProgramDefinitions.ExpressiveLoop,
+            BabyInstructionTimer = 1,
+            BabyVerticalVelocity = 1,
+            BabyXPosition = 100,
+            BabyYPosition = 80,
+        };
+        ushort editedPalettePose = advance(editedPaletteState);
+        AssertEqual(enemies.CeresRidleyColors.ResolveBaby(1, 0),
+            ((SnesCgram)typeof(RoomEnemySystem).GetField("_cgram", flags)!
+                .GetValue(enemies)!).Colors[CeresRidleyPaletteRomData.BabyCgramIndex],
+            "edited Ceres Baby color reaches the native CGRAM slot");
+        AssertEqual(CeresBabyInstructionProgramDefinitions.HorizontalFrame,
+            editedPalettePose, "palette edit does not change Baby pose selection");
+        AssertEqual((ushort)100, editedPaletteState.BabyXPosition,
+            "palette edit does not change Baby world position");
+        AssertEqual((ushort)2, editedPaletteState.BabyInstructionTimer,
+            "palette edit does not change Baby animation timer");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "edited Ceres Baby color never rereads ROM visuals");
 
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
@@ -205,8 +239,8 @@ internal static partial class Program
         Console.WriteLine(
             $"  Ceres Baby instruction mechanics: " +
             $"{CeresBabyInstructionProgramDefinitions.MechanicsWordCount} words and " +
-            "twenty compiled spritemap selectors and thirteen live palette " +
-            "operands pass through the complete production loop.");
+            "twenty compiled spritemap selectors and thirteen compiled palette " +
+            "selectors pass through the complete production loop.");
     }
 
     private static ushort ReadCeresBabyProgramWord(
@@ -220,38 +254,22 @@ internal static partial class Program
         ISnesAddressSpace source, bool blockBabyFrames = false) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
             if (CeresBabyInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
                 CeresBabyInstructionProgramDefinitions.IsCompiledSpritemapByte(address) ||
+                CeresBabyInstructionProgramDefinitions.IsCompiledPaletteByte(address) ||
+                address is >= CeresRidleyPaletteRomData.BabyColors and <
+                    CeresRidleyPaletteRomData.BabyColors +
+                    CeresRidleyPaletteRomData.BabyRowCount *
+                    CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort) ||
                 (blockBabyFrames && address is >= 0xa6bffd and < 0xa6c04e))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Production read compiled Ceres Baby control/selector byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CeresBabyInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        CeresBabyInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (!CeresBabyInstructionProgramDefinitions.IsCompiledSpritemapByte(
-                            0xa60000 | presentation) &&
-                        (bankAddress == presentation ||
-                         bankAddress == unchecked((ushort)(presentation + 1))))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
             }
 
             return source.ReadByte(address);

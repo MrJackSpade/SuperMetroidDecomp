@@ -535,12 +535,15 @@ public sealed partial class RoomEnemySystem
                     break;
 
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors:
-                    ushort palettePointer = ReadWord(_bus!, 0xa60000 | argument);
-                    _cgram!.LoadFromBus(
-                        _bus!,
-                        0xa60000 | palettePointer,
-                        colorCount: 15,
-                        destinationIndex: 0x0162 / 2);
+                    int babyPaletteRow = CeresBabyInstructionProgramDefinitions.ReadPaletteRow(argument);
+                    if (CeresRidleyColors is { } babyColors)
+                        babyColors.ApplyBaby(_cgram!, babyPaletteRow);
+                    else
+                        _cgram!.LoadFromBus(_bus!,
+                            CeresRidleyPaletteRomData.BabyColors + babyPaletteRow *
+                                CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort),
+                            CeresRidleyPaletteRomData.BabyColorCount,
+                            CeresRidleyPaletteRomData.BabyCgramIndex);
                     cursor = unchecked((ushort)(argument + 2));
                     break;
 

@@ -36,6 +36,11 @@ internal static partial class Program
             CeresRidleyPaletteRomData.RetreatBgColorCount, native.ResolveRetreatBg);
         Check(CeresRidleyPaletteRomData.RetreatSharedColors,
             CeresRidleyPaletteRomData.RetreatSharedColorCount, native.ResolveRetreatShared);
+        for (int row = 0; row < CeresRidleyPaletteRomData.BabyRowCount; row++)
+            Check(CeresRidleyPaletteRomData.BabyColors + row *
+                    CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort),
+                CeresRidleyPaletteRomData.BabyColorCount,
+                color => native.ResolveBaby(row, color));
 
         CeresRidleyColorDocument document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName)),
@@ -48,6 +53,7 @@ internal static partial class Program
         Paint(document.Health[2]);
         Paint(document.RetreatBg);
         Paint(document.RetreatShared);
+        Paint(document.Baby![1]);
         string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyColorCatalog.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
@@ -147,6 +153,22 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");
 
+        // A version-one override predates the Baby rows. Preserve the user's
+        // Ridley edits and supply only the new Baby colors from verified stock.
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
+            document with { Version = CeresRidleyColorFormat.PreBabyVersion, Baby = null },
+            MapPresentationFormat.JsonOptions);
+        File.WriteAllBytes(replacement, legacyJson);
+        AreaMapPresentationCatalog migrated =
+            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AssertEqual(edited.CeresRidleyColors.ResolveStart(1),
+            migrated.CeresRidleyColors.ResolveStart(1),
+            "version-one Ceres Ridley override retains an edited color");
+        AssertEqual(original.CeresRidleyColors.ResolveBaby(1, 0),
+            migrated.CeresRidleyColors.ResolveBaby(1, 0),
+            "version-one Ceres Ridley override inherits stock Baby colors");
+        File.WriteAllBytes(replacement, CeresRidleyColorCatalog.Write(document));
+
         document.EyeFade[0][0] = document.EyeFade[0][0] with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CeresRidleyColorCatalog.Write(document),
             "Ceres Ridley colors reject invalid RGB5 channel");
@@ -164,7 +186,7 @@ internal static partial class Program
         AssertEqual(original.ContentIdentity,
             AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory).ContentIdentity,
             "removing Ceres Ridley override restores stock identity");
-        Console.WriteLine("Ceres Ridley colors: 321 native words, initialization/64 eye steps/16 body rows/health thresholds/retreat destinations, ROM guard and stock repair pass.");
+        Console.WriteLine("Ceres Ridley colors: 381 native words, initialization/64 eye steps/16 body rows/health thresholds/retreat and four Baby rows, ROM guard and stock repair pass.");
 
         void Check(int source, int count, Func<int, ushort> resolve)
         {

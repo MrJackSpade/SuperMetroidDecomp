@@ -10,8 +10,8 @@ internal readonly record struct CeresBabyInstructionMechanicsWord(
 /// </summary>
 /// <remarks>
 /// Callback identities, branch targets, and frame durations determine animation cadence
-/// and control flow. Fixed spritemap selectors are compiled; palette operands remain
-/// live until their color data is migrated to editable presentation assets.
+/// and control flow. Fixed spritemap and palette selectors are compiled; their
+/// OAM compositions and RGB5 colors live in editable presentation assets.
 /// </remarks>
 internal static class CeresBabyInstructionProgramDefinitions
 {
@@ -49,7 +49,7 @@ internal static class CeresBabyInstructionProgramDefinitions
     private static readonly CeresBabyInstructionMechanicsWord[] Words = CreateWords();
 
     /// <summary>
-    /// Palette and spritemap operand addresses in the two draw programs.
+    /// Visual operand layout in the two draw programs.
     /// In <see cref="Initial"/>, each of the two four-frame groups has
     /// spritemap operands at $BF37 + 4*i or $BF4B + 4*i for i = 0..3.
     /// Both groups store the same {$BFFD, $C018, $C033, $C018} pose sequence;
@@ -64,24 +64,43 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// its pointer is $BFFD + $001B*q using the same four-pose cycle
     /// q = {0, 1, 2, 1} repeated three times.
     /// </summary>
-    private static readonly ushort[] PresentationWords =
-    [
-        0xbf37, 0xbf3b, 0xbf3f, 0xbf43, 0xbf4b, 0xbf4f, 0xbf53, 0xbf57,
-        0xbf5f, 0xbf63, 0xbf67, 0xbf6b, 0xbf6f, 0xbf73, 0xbf77, 0xbf7b,
-        0xbf7f, 0xbf83, 0xbf87, 0xbf8b, 0xbf8f, 0xbf93, 0xbf97, 0xbf9b,
-        0xbf9f, 0xbfa3, 0xbfa7, 0xbfab, 0xbfaf, 0xbfb3, 0xbfb7, 0xbfbb,
-        0xbfbf,
-    ];
-
     internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
 
     internal static CeresBabyInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
 
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
     internal const int SpritemapOperandCount = 20;
+    internal const int PaletteOperandCount = 13;
+
+    /// <summary>Enumerates the twelve expressive and one final palette operands.</summary>
+    internal static ushort PaletteOperandAddress(int index) => index switch
+    {
+        >= 0 and < 12 => unchecked((ushort)(0xbf5f + index * 8)),
+        12 => 0xbfbf,
+        _ => throw new ArgumentOutOfRangeException(nameof(index), index,
+            "Ceres Baby has exactly thirteen authored palette operands."),
+    };
+
+    /// <summary>
+    /// Returns the authored palette row: rows one, two, three, two repeat in
+    /// the expressive cycle, and the final callback restores row zero.
+    /// </summary>
+    internal static int ReadPaletteRow(ushort address)
+    {
+        for (int index = 0; index < PaletteOperandCount; index++)
+        {
+            if (PaletteOperandAddress(index) != address)
+                continue;
+            return index == 12 ? 0 : (index & 3) switch
+            {
+                0 => 1,
+                1 or 3 => 2,
+                _ => 3,
+            };
+        }
+        throw new InvalidDataException(
+            $"Ceres Baby palette operand $A6:{address:X4} is not compiled.");
+    }
 
     /// <summary>Enumerates the eight initial and twelve expressive pose operands.</summary>
     internal static ushort SpritemapOperandAddress(int index) => index switch
@@ -120,6 +139,20 @@ internal static class CeresBabyInstructionProgramDefinitions
         for (int index = 0; index < SpritemapOperandCount; index++)
         {
             ushort operand = SpritemapOperandAddress(index);
+            if (bankAddress == operand || bankAddress == unchecked((ushort)(operand + 1)))
+                return true;
+        }
+        return false;
+    }
+
+    internal static bool IsCompiledPaletteByte(int address)
+    {
+        if ((address & 0xff0000) != 0xa60000)
+            return false;
+        ushort bankAddress = unchecked((ushort)address);
+        for (int index = 0; index < PaletteOperandCount; index++)
+        {
+            ushort operand = PaletteOperandAddress(index);
             if (bankAddress == operand || bankAddress == unchecked((ushort)(operand + 1)))
                 return true;
         }

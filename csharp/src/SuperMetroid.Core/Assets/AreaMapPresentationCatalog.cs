@@ -362,7 +362,16 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         try { samusChargeColors = SamusChargeColorCatalog.Load(new MemoryStream(Select(SamusChargeColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName))))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus charge colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         CeresRidleyColorCatalog ceresRidleyColors;
-        try { ceresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(Select(CeresRidleyColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName))))); }
+        try
+        {
+            byte[] stockRidleyColors = File.ReadAllBytes(
+                Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName));
+            CeresRidleyColorCatalog stockRidleyCatalog = CeresRidleyColorCatalog.Load(
+                new MemoryStream(stockRidleyColors, writable: false));
+            ceresRidleyColors = CeresRidleyColorCatalog.Load(
+                new MemoryStream(Select(CeresRidleyColorFormat.FileName,
+                    stockRidleyColors), writable: false), stockRidleyCatalog);
+        }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Ceres Ridley colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors;
         try { ceresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(Select(CeresRidleyMode7ColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyMode7ColorFormat.FileName))))); }

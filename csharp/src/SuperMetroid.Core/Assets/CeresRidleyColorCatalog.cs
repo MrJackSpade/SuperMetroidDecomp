@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable Ceres Ridley fade, health, and retreat colors.</summary>
+/// <summary>Editable Ceres Ridley and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
     private readonly ushort[] start;
@@ -14,9 +14,11 @@ public sealed class CeresRidleyColorCatalog
     private readonly ushort[][] health;
     private readonly ushort[] retreatBg;
     private readonly ushort[] retreatShared;
+    private readonly ushort[][] baby;
 
     private CeresRidleyColorCatalog(ushort[] start, ushort[][] eyeFade,
-        ushort[][] bodyFade, ushort[][] health, ushort[] retreatBg, ushort[] retreatShared)
+        ushort[][] bodyFade, ushort[][] health, ushort[] retreatBg, ushort[] retreatShared,
+        ushort[][] baby)
     {
         this.start = start;
         this.eyeFade = eyeFade;
@@ -24,6 +26,7 @@ public sealed class CeresRidleyColorCatalog
         this.health = health;
         this.retreatBg = retreatBg;
         this.retreatShared = retreatShared;
+        this.baby = baby;
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -39,6 +42,7 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
     public ushort ResolveRetreatBg(int color) => Get(retreatBg, color);
     public ushort ResolveRetreatShared(int color) => Get(retreatShared, color);
+    public ushort ResolveBaby(int row, int color) => Get(baby, row, color);
 
     public void ApplyStart(SnesCgram cgram) =>
         Apply(cgram, start, CeresRidleyPaletteRomData.StartCgramIndex);
@@ -63,7 +67,11 @@ public sealed class CeresRidleyColorCatalog
         Apply(cgram, retreatShared, CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex);
     }
 
-    public static CeresRidleyColorCatalog Load(Stream json)
+    public void ApplyBaby(SnesCgram cgram, int row) =>
+        Apply(cgram, Get(baby, row), CeresRidleyPaletteRomData.BabyCgramIndex);
+
+    public static CeresRidleyColorCatalog Load(Stream json,
+        CeresRidleyColorCatalog? stockForLegacyOverride = null)
     {
         ArgumentNullException.ThrowIfNull(json);
         CeresRidleyColorDocument document;
@@ -78,7 +86,9 @@ public sealed class CeresRidleyColorCatalog
         {
             throw new InvalidDataException("Invalid Ceres Ridley color JSON.", error);
         }
-        if (document.Version != CeresRidleyColorFormat.Version)
+        if (document.Version != CeresRidleyColorFormat.Version &&
+            !(document.Version == CeresRidleyColorFormat.PreBabyVersion &&
+              stockForLegacyOverride is not null))
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         return new(Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"),
             CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
@@ -89,7 +99,11 @@ public sealed class CeresRidleyColorCatalog
                 CeresRidleyPaletteRomData.HealthColorCount, "health"),
             Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"),
             Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
-                "retreat shared"));
+                "retreat shared"),
+            document.Version == CeresRidleyColorFormat.PreBabyVersion
+                ? stockForLegacyOverride!.baby
+                : CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
+                    CeresRidleyPaletteRomData.BabyColorCount, "Baby"));
     }
 
     public static byte[] Write(CeresRidleyColorDocument document)
@@ -174,10 +188,12 @@ public sealed record CeresRidleyColorDocument
     public required PaletteRgb5[][] Health { get; init; }
     public required PaletteRgb5[] RetreatBg { get; init; }
     public required PaletteRgb5[] RetreatShared { get; init; }
+    public PaletteRgb5[][]? Baby { get; init; }
 }
 
 public static class CeresRidleyColorFormat
 {
     public const string FileName = "ceres-ridley-colors.json";
-    public const int Version = 1;
+    public const int Version = 2;
+    public const int PreBabyVersion = 1;
 }

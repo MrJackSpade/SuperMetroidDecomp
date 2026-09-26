@@ -29,6 +29,9 @@ public static class CeresRidleyColorExtractor
                 CeresRidleyPaletteRomData.RetreatBgColorCount),
             RetreatShared = ReadColors(CeresRidleyPaletteRomData.RetreatSharedColors,
                 CeresRidleyPaletteRomData.RetreatSharedColorCount),
+            Baby = ReadRows(CeresRidleyPaletteRomData.BabyColors,
+                CeresRidleyPaletteRomData.BabyRowCount,
+                CeresRidleyPaletteRomData.BabyColorCount),
         });
 
         PaletteRgb5[][] ReadRows(int source, int rows, int colorsPerRow)

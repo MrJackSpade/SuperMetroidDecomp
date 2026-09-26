@@ -134,10 +134,16 @@ internal static partial class Program
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeCeresInput(native, installed);
-                VerifyFrontendRomFreeCeresRidleyRoom(native, installed);
-                VerifyFrontendRomFreeLandingSite(native, installed);
-                VerifyFrontendRomFreeParlor(native, installed);
-                VerifyFrontendRomFreeWestOcean(native, installed);
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.CeresRidleyRoom, "Ceres Ridley");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.LandingSite, "Landing Site");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.ParlorAndAlcatraz, "Parlor");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.WestOcean, "West Ocean");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.NorfairRoom1E, "Norfair room 1E");
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -228,119 +234,34 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Start a separate guarded room fixture after the bounded Ceres input test.
-    /// Direct loading is valid here because this room has no incoming door setup
-    /// dependency; the fixture never drives input across a room boundary.
+    /// Compare several directly loaded room states without crossing a door.
+    /// The sequence covers Ceres enemy composition, land/ocean scrolling skies,
+    /// an ordinary interior, and Norfair room FX. It tests room initialization
+    /// and neutral-frame presentation, not incoming door setup or player travel.
     /// </summary>
-    private static void VerifyFrontendRomFreeCeresRidleyRoom(
-        SuperMetroidGame native, SuperMetroidGame installed)
+    private static void VerifyFrontendRomFreeRoom(
+        SuperMetroidGame native, SuperMetroidGame installed,
+        ushort roomPointer, string roomName)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.CeresRidleyRoom);
+            roomPointer);
         installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.CeresRidleyRoom);
+            roomPointer);
         for (int frame = 0; frame < 90; frame++)
         {
             FrontendFrame expected = native.Step(0);
             FrontendFrame actual = installed.Step(0);
-            AssertEqual(RoomHeaderPointers.CeresRidleyRoom,
+            AssertEqual(roomPointer,
                 installed.GameplayActiveRoomPointer,
-                $"installed Ceres Ridley fixture remains in one room at frame {frame}");
+                $"installed {roomName} fixture remains in one room at frame {frame}");
             AssertEqual(expected.GameState, actual.GameState,
-                $"installed Ceres Ridley game state at frame {frame}");
+                $"installed {roomName} game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
-                $"installed Ceres Ridley phase at frame {frame}");
+                $"installed {roomName} phase at frame {frame}");
             AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
-                $"installed Ceres Ridley pixels at frame {frame}");
+                $"installed {roomName} pixels at frame {frame}");
         }
-        Console.WriteLine("Frontend ROM-free Ceres Ridley room: 90 native-parity frames with all cartridge reads guarded.");
-    }
-
-    /// <summary>
-    /// Independently enter the large, sky-scrolling landing room. This keeps
-    /// the controller test within one room while exercising a different area,
-    /// tileset, FX population, and the outdoor background presentation path.
-    /// </summary>
-    private static void VerifyFrontendRomFreeLandingSite(
-        SuperMetroidGame native, SuperMetroidGame installed)
-    {
-        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.LandingSite);
-        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.LandingSite);
-        for (int frame = 0; frame < 90; frame++)
-        {
-            FrontendFrame expected = native.Step(0);
-            FrontendFrame actual = installed.Step(0);
-            AssertEqual(RoomHeaderPointers.LandingSite,
-                installed.GameplayActiveRoomPointer,
-                $"installed Landing Site fixture remains in one room at frame {frame}");
-            AssertEqual(expected.GameState, actual.GameState,
-                $"installed Landing Site game state at frame {frame}");
-            AssertEqual(expected.Phase, actual.Phase,
-                $"installed Landing Site phase at frame {frame}");
-            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
-                $"installed Landing Site pixels at frame {frame}");
-        }
-        Console.WriteLine("Frontend ROM-free Landing Site room: 90 native-parity frames with all cartridge reads guarded.");
-    }
-
-    /// <summary>
-    /// The default Parlor room state exercises an ordinary multi-screen interior
-    /// after the sky and Ceres fixtures. Direct entry avoids depending on an
-    /// incoming door transition while keeping all stepped frames in one room.
-    /// </summary>
-    private static void VerifyFrontendRomFreeParlor(
-        SuperMetroidGame native, SuperMetroidGame installed)
-    {
-        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.ParlorAndAlcatraz);
-        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.ParlorAndAlcatraz);
-        for (int frame = 0; frame < 90; frame++)
-        {
-            FrontendFrame expected = native.Step(0);
-            FrontendFrame actual = installed.Step(0);
-            AssertEqual(RoomHeaderPointers.ParlorAndAlcatraz,
-                installed.GameplayActiveRoomPointer,
-                $"installed Parlor fixture remains in one room at frame {frame}");
-            AssertEqual(expected.GameState, actual.GameState,
-                $"installed Parlor game state at frame {frame}");
-            AssertEqual(expected.Phase, actual.Phase,
-                $"installed Parlor phase at frame {frame}");
-            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
-                $"installed Parlor pixels at frame {frame}");
-        }
-        Console.WriteLine("Frontend ROM-free Parlor room: 90 native-parity frames with all cartridge reads guarded.");
-    }
-
-    /// <summary>
-    /// Directly enter the ocean-sky room after the preceding room fixtures. This
-    /// exercises the other native scrolling-sky callback through the installed
-    /// frontend and NMI rather than checking its queued transfers in isolation.
-    /// </summary>
-    private static void VerifyFrontendRomFreeWestOcean(
-        SuperMetroidGame native, SuperMetroidGame installed)
-    {
-        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.WestOcean);
-        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            RoomHeaderPointers.WestOcean);
-        for (int frame = 0; frame < 90; frame++)
-        {
-            FrontendFrame expected = native.Step(0);
-            FrontendFrame actual = installed.Step(0);
-            AssertEqual(RoomHeaderPointers.WestOcean,
-                installed.GameplayActiveRoomPointer,
-                $"installed West Ocean fixture remains in one room at frame {frame}");
-            AssertEqual(expected.GameState, actual.GameState,
-                $"installed West Ocean game state at frame {frame}");
-            AssertEqual(expected.Phase, actual.Phase,
-                $"installed West Ocean phase at frame {frame}");
-            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
-                $"installed West Ocean pixels at frame {frame}");
-        }
-        Console.WriteLine("Frontend ROM-free West Ocean room: 90 native-parity frames with all cartridge reads guarded.");
+        Console.WriteLine($"Frontend ROM-free {roomName} room: 90 native-parity frames with all cartridge reads guarded.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :

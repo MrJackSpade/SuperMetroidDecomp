@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 28;
+    internal const int Version = 29;
+    internal const int PreKamerVersion = 28;
+    internal const int PreKamerFrameCount = 453;
     internal const int PreFuneNamiheVersion = 27;
     internal const int PreFuneNamiheFrameCount = 431;
     internal const int PreSbugVersion = 26;
@@ -74,6 +76,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte HZoomerBank = 0xa3;
     internal const byte SbugBank = 0xa3;
     internal const byte FuneNamiheBank = 0xa8;
+    internal const byte KamerPlatformBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -555,6 +558,10 @@ internal static class EnemySpritemapDefinitions
         new(FuneNamiheBank, 0x992e, "namihe_right_active_2"),
         new(FuneNamiheBank, 0x9958, "namihe_right_active_3"),
         new(FuneNamiheBank, 0x9982, "namihe_right_active_4"),
+        new(KamerPlatformBank, 0xf468, "kamer_platform_0"),
+        new(KamerPlatformBank, 0xf474, "kamer_platform_1"),
+        new(KamerPlatformBank, 0xf480, "kamer_platform_2"),
+        new(KamerPlatformBank, 0xf48c, "kamer_platform_3"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -597,6 +604,8 @@ internal static class EnemySpritemapDefinitions
             FuneNamiheDefinitions.FuneEnemyDefinition or
                 FuneNamiheDefinitions.NamiheEnemyDefinition =>
                 FuneNamiheFrameAt(operandAddress),
+            RoomEnemySystem.KamerVerticalPlatformDefinition =>
+                KamerPlatformFrameAt(operandAddress),
             RoomEnemySystem.ZeelaDefinition or
                 RoomEnemySystem.SovaDefinition or
                 RoomEnemySystem.ZoomerDefinition or
@@ -648,6 +657,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition or
             FuneNamiheDefinitions.FuneEnemyDefinition or
             FuneNamiheDefinitions.NamiheEnemyDefinition or
+            RoomEnemySystem.KamerVerticalPlatformDefinition or
             RoomEnemySystem.ZeelaDefinition or
             RoomEnemySystem.SovaDefinition or
             RoomEnemySystem.ZoomerDefinition or
@@ -679,6 +689,17 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
+    }
+
+    /// <summary>Four cartridge selectors in Kamer platform's $A2:EDE7 loop.</summary>
+    internal static ushort KamerPlatformFrameAt(ushort operandAddress)
+    {
+        if (operandAddress is (0xede9 or 0xeded or 0xedf1 or 0xedf5) &&
+            CompiledEnemyVisualSelectors.TryGet(KamerPlatformBank,
+                operandAddress, out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

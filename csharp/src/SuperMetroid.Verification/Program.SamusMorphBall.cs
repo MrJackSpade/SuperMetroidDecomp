@@ -48,51 +48,11 @@ static void VerifySamusMorphBallMovement()
     WritePose(SamusPoseIds.FallingAimDownLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x08, 0x00, 0x0a, 0x00]);
     WritePose(SamusPoseIds.SpinJumpLeftPose, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x13, 0x00]);
 
-    // Stable ordinary-ball poses all point to `$91:B378`. Separate synthetic storage keeps
-    // the production pointer lookup real while making the expected command stream concise.
-    const ushort sharedBallDelay = 0xc400;
-    foreach (byte pose in new byte[] {
-        SamusPoseIds.MorphBallGroundRightPose,
-        SamusPoseIds.MorphBallMovingRightPose,
-        SamusPoseIds.MorphBallMovingLeftPose,
-        SamusPoseIds.MorphBallFallingRightPose,
-        SamusPoseIds.MorphBallFallingLeftPose,
-        SamusPoseIds.MorphBallGroundLeftPose,
-        SamusPoseIds.SpringBallGroundRightPose,
-        SamusPoseIds.SpringBallGroundLeftPose,
-        SamusPoseIds.SpringBallMovingRightPose,
-        SamusPoseIds.SpringBallMovingLeftPose,
-        SamusPoseIds.SpringBallFallingRightPose,
-        SamusPoseIds.SpringBallFallingLeftPose,
-        SamusPoseIds.SpringBallJumpRightPose,
-        SamusPoseIds.SpringBallJumpLeftPose,
-        SamusPoseIds.NormalJumpForwardRightPose,
-        SamusPoseIds.NormalJumpForwardLeftPose,
-        SamusPoseIds.FallingAimUpRightPose,
-        SamusPoseIds.FallingAimUpLeftPose,
-    })
-    {
-        WriteTestWord(bus, 0x91b010 + pose * 2, sharedBallDelay);
-    }
-    bus.WriteBytes(0x910000 | sharedBallDelay, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]);
+    // Pose metadata remains explicit fixture data. Animation pointers, frame
+    // delays, and F9/FD operands are compiled cartridge mechanics: the retail
+    // $37/$38 morph transitions spend three ticks in each of two visible frames.
 
-    // `$37/$38`: two visible frames, then `$F9 $0002 ground air springGround springAir`.
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.MorphingTransitionRightPose * 2, 0xc420);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.MorphingTransitionLeftPose * 2, 0xc430);
-    bus.WriteBytes(0x91c420, [0x02, 0x02, 0xf9, 0x02, 0x00, 0x1d, 0x31, 0x79, 0x7d]);
-    bus.WriteBytes(0x91c430, [0x02, 0x02, 0xf9, 0x02, 0x00, 0x41, 0x32, 0x7a, 0x7e]);
-
-    // `$3D/$3E` finish through the already translated `$FD pp` command-three seam.
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.UnmorphingTransitionRightPose * 2, 0xc440);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.UnmorphingTransitionLeftPose * 2, 0xc450);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrouchingRightPose * 2, 0xc460);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrouchingLeftPose * 2, 0xc470);
-    bus.WriteBytes(0x91c440, [0x02, 0x02, 0xfd, 0x27]);
-    bus.WriteBytes(0x91c450, [0x02, 0x02, 0xfd, 0x28]);
-    bus.WriteBytes(0x91c460, [0x10, 0xff]);
-    bus.WriteBytes(0x91c470, [0x10, 0xff]);
-
-    // Horizontal motion uses compiled native rows; only pose/animation data is synthetic.
+    // Horizontal motion uses compiled native rows; only pose metadata is synthetic.
     bus.WriteBytes(0x909eb9, [0x04, 0x00]); // Dry-air jump whole speed 4.
     bus.WriteBytes(0x909ebf, [0x00, 0xe0]); // Dry-air jump subspeed E000.
     bus.WriteBytes(0x909ea1, [0x00, 0x28]); // Dry-air gravity subspeed 2800.
@@ -200,8 +160,9 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(2, spinMorph.HorizontalSpeed.AccelerationMode,
         "spin-source morph forces native aerial deceleration mode two");
 
-    // Delay 2 at frame zero, delay 2 at frame one, then command F9 at frame two.
-    for (int tick = 0; tick < 4; tick++)
+    // The compiled retail transition is 03,03,F9: six animation ticks
+    // reach the frame-two branch while retaining its native F9 operands.
+    for (int tick = 0; tick < 6; tick++)
         samus.AnimateNoFx(bus);
     AssertEqual(0xf9, samus.LastAnimationDelayCommand!.Value, "morph transition reaches F9");
     AssertEqual(SamusPoseIds.MorphBallGroundRightPose, samus.PendingTransitionalPose!.Value,
@@ -563,7 +524,7 @@ static void VerifySamusMorphBallMovement()
             bus, floor, SamusPoseIds.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSubspeed = 1;
-    for (int tick = 0; tick < 4; tick++)
+    for (int tick = 0; tick < 6; tick++)
         airborneEntry.AnimateNoFx(bus);
     AssertEqual(SamusPoseIds.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
         "F9 nonzero Y subspeed selects airborne endpoint");
@@ -583,7 +544,7 @@ static void VerifySamusMorphBallMovement()
         spring.TryApplyMorphTransition(
             bus, floor, SamusPoseIds.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "Spring Ball fixture begins morph entry");
-    for (int tick = 0; tick < 4; tick++)
+    for (int tick = 0; tick < 6; tick++)
         spring.AnimateNoFx(bus);
     AssertEqual(SamusPoseIds.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
         "F9 equipped endpoint selects Spring Ball ground");

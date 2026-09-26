@@ -62,6 +62,11 @@ if (args is ["--samus-posture-movement"])
     VerifySamusPostureMovement();
     return 0;
 }
+if (args is ["--samus-morph-ball"])
+{
+    VerifySamusMorphBallMovement();
+    return 0;
+}
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

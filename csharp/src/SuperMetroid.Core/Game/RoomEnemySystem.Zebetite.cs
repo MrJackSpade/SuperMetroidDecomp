@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The three native function words stored in Zebetite variable A.</summary>
@@ -72,7 +74,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort ZebetiteMaximumHealth = 1000;
     private const ushort ZebetiteShotSound = 9;
-    private const int ZebetitePaletteDestination = 0x0158 / 2;
 
     private readonly ZebetiteEnemyState?[] _zebetiteStates =
         new ZebetiteEnemyState?[MaximumEnemyCount];
@@ -209,14 +210,17 @@ public sealed partial class RoomEnemySystem
         // occupy higher slots while retaining the original's vacated WRAM word as the shared
         // palette counter, exactly matching Get_Zebetites(0)->zebet_var_C.
         RoomEnemySlot firstPhysicalSlot = _slots[0];
-        ushort paletteCycle = unchecked((ushort)((firstPhysicalSlot.VariableC + 1) & 7));
+        ushort paletteCycle = unchecked((ushort)((firstPhysicalSlot.VariableC + 1) &
+            ZebetiteDefinitions.PaletteCycleMask));
         firstPhysicalSlot.VariableC = paletteCycle;
-        ushort sourcePointer = unchecked((ushort)(4 * paletteCycle - 0x0279));
-        _cgram!.LoadFromBus(
-            _bus!,
-            0xa60000 | sourcePointer,
-            colorCount: 2,
-            destinationIndex: ZebetitePaletteDestination);
+        if (TileArtwork?.ZebetiteColors is { } colors)
+            colors.Apply(_cgram!, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
+        else
+            _cgram!.LoadFromBus(_bus!,
+                ZebetiteDefinitions.PaletteSource +
+                    paletteCycle * ZebetiteColorFormat.ColorsPerFrame * sizeof(ushort),
+                colorCount: ZebetiteColorFormat.ColorsPerFrame,
+                destinationIndex: ZebetiteDefinitions.PaletteDestinationColor);
     }
 
     private static void SelectZebetiteHealthAnimation(

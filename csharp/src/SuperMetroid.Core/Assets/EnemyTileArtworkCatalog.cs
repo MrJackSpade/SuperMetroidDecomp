@@ -34,7 +34,8 @@ public sealed class EnemyTileArtworkCatalog
         ShitroidColorCatalog? shitroidColors = null,
         BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null,
         BotwoonColorCatalog? botwoonColors = null,
-        MotherBrainDeathColorCatalog? motherBrainDeathColors = null)
+        MotherBrainDeathColorCatalog? motherBrainDeathColors = null,
+        ZebetiteColorCatalog? zebetiteColors = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -80,6 +81,7 @@ public sealed class EnemyTileArtworkCatalog
         BabyMetroidCutsceneColors = babyMetroidCutsceneColors;
         BotwoonColors = botwoonColors;
         MotherBrainDeathColors = motherBrainDeathColors;
+        ZebetiteColors = zebetiteColors;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -142,6 +144,9 @@ public sealed class EnemyTileArtworkCatalog
     /// <summary>Editable Mother Brain death-fade and exploded-door colors.</summary>
     public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; }
 
+    /// <summary>Editable Tourian Zebetite two-color pulse; actor selection stays in code.</summary>
+    public ZebetiteColorCatalog? ZebetiteColors { get; }
+
     /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
@@ -178,7 +183,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 35;
+    public const int Version = 36;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

@@ -207,6 +207,9 @@ public static class EnemyTileArtworkFiles
         byte[] motherBrainDeathColors = MotherBrainDeathColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory,
             MotherBrainDeathColorFormat.FileName), motherBrainDeathColors);
+        byte[] zebetiteColors = ZebetiteColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, ZebetiteColorFormat.FileName),
+            zebetiteColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -234,7 +237,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(shitroidColors)),
             Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)),
             Convert.ToHexString(SHA256.HashData(botwoonColors)),
-            Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)));
+            Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)),
+            Convert.ToHexString(SHA256.HashData(zebetiteColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -287,7 +291,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.ShitroidColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.BabyMetroidCutsceneColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.BotwoonColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.MotherBrainDeathColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.MotherBrainDeathColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.ZebetiteColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -697,13 +702,28 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Mother Brain death colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        ZebetiteColorCatalog zebetiteColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(ZebetiteColorFormat.FileName,
+                manifest.ZebetiteColorsSha256);
+            zebetiteColors = ZebetiteColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Zebetite colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
             dmaSources, projectileSpritemaps, magdollitePaletteCycle,
             workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
             chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
-            babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors);
+            babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
+            zebetiteColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -896,7 +916,8 @@ public static class EnemyTileArtworkFiles
         string ShitroidColorsSha256,
         string BabyMetroidCutsceneColorsSha256,
         string BotwoonColorsSha256,
-        string MotherBrainDeathColorsSha256);
+        string MotherBrainDeathColorsSha256,
+        string ZebetiteColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

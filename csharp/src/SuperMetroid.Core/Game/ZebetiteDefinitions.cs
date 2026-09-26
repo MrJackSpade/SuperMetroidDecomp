@@ -3,6 +3,15 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed generation, health-tier, and respawn definitions for Tourian's Zebetites.</summary>
 internal static class ZebetiteDefinitions
 {
+    /// <summary>Eight two-color pulse records at $A6:FD87..FDA6.</summary>
+    public const int PaletteSource = 0xa6fd87;
+
+    /// <summary>Sprite palette two colors C..D, selected by $A6:FD7C.</summary>
+    public const int PaletteDestinationColor = 0x0158 / sizeof(ushort);
+
+    /// <summary>Native palette-cycle index mask applied to physical enemy slot zero.</summary>
+    public const ushort PaletteCycleMask = 7;
+
     /// <summary>
     /// Four parallel generation rows at <c>$A6:FC03-$A6:FC32</c>: multipart flag,
     /// collision half-height, initial list, X, primary Y, and linked-half Y.

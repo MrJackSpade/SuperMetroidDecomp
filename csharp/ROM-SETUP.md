@@ -399,6 +399,11 @@ fade frames, and exploded-door palette are in
 `game/enemy-tiles/mother-brain-death-colors.json`. Override that file under
 `overrides/enemy-tiles/`; death-phase timing, counter selection, and collision
 remain compiled behavior.
+Zebetite's eight-frame, two-color Tourian pulse is in
+`game/enemy-tiles/zebetite-colors.json`; copy it to `overrides/enemy-tiles/`
+to edit the RGB5 colors. Its physical-slot-zero counter, eight-frame wrap,
+and palette destination remain engine behavior.
+
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,

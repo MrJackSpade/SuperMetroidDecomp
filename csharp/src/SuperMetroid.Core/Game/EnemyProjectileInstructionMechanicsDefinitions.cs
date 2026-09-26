@@ -17,6 +17,11 @@ internal readonly record struct EnemyProjectileTimedProgramDefinition(
     ushort TerminalInstruction,
     ushort? TerminalOperand);
 
+/// <summary>One presentation-only spritemap operand in a compiled bank-$86 program.</summary>
+internal readonly record struct EnemyProjectilePresentationFrameDefinition(
+    ushort OperandAddress,
+    string Name);
+
 /// <summary>
 /// Compiled mechanics words for the translated Mother Brain and shared misc-dust enemy
 /// projectile programs in bank $86.
@@ -156,6 +161,19 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
 
     private static readonly EnemyProjectileMechanicsWordDefinition[] MechanicsWords =
         BuildMechanicsWords();
+
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PresentationFrames =
+        BuildPresentationFrames();
+
+    /// <summary>Every timed-frame visual operand owned by the shared Mother Brain/dust lists.</summary>
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> VisualFrames =>
+        PresentationFrames;
+
+    /// <summary>Presentation operands are deliberately excluded from compiled mechanics words.</summary>
+    internal static bool IsVisualOperand(ushort address) =>
+        Array.BinarySearch(PresentationFrames,
+            new EnemyProjectilePresentationFrameDefinition(address, string.Empty),
+            PresentationFrameAddressComparer.Instance) >= 0;
 
     /// <summary>Number of authored misc-dust list selectors.</summary>
     internal static int MiscDustProgramCount => MiscDustInitialPointers.Length;
@@ -346,5 +364,67 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         }
 
         return [.. words];
+    }
+
+    private static EnemyProjectilePresentationFrameDefinition[] BuildPresentationFrames()
+    {
+        var frames = new List<EnemyProjectilePresentationFrameDefinition>();
+        static void Add(List<EnemyProjectilePresentationFrameDefinition> target,
+            ushort operand, string name) => target.Add(new(operand, name));
+
+        ushort bluePointer = MotherBrainBlueRingInitial;
+        for (int frame = 0; frame < BlueRingDurations.Length; frame++)
+        {
+            Add(frames, unchecked((ushort)(bluePointer + 6)),
+                $"mother_brain_blue_ring_{frame:D2}");
+            bluePointer = unchecked((ushort)(bluePointer + 8));
+        }
+
+        ushort touchPointer = unchecked((ushort)(MotherBrainBlueRingTouch + 4));
+        for (int frame = 0; frame < 6; frame++)
+        {
+            Add(frames, unchecked((ushort)(touchPointer + 2)),
+                $"mother_brain_blue_ring_impact_{frame:D2}");
+            touchPointer = unchecked((ushort)(touchPointer + 4));
+        }
+
+        ushort droolPointer = MotherBrainDroolInitial;
+        for (int frame = 0; frame < 5; frame++)
+        {
+            Add(frames, unchecked((ushort)(droolPointer + 2)),
+                $"mother_brain_drool_attached_{frame:D2}");
+            droolPointer = unchecked((ushort)(droolPointer + 4));
+        }
+        Add(frames, unchecked((ushort)(droolPointer + 8)),
+            "mother_brain_drool_released");
+
+        foreach (EnemyProjectileTimedProgramDefinition program in TimedPrograms)
+        {
+            ushort pointer = unchecked((ushort)(program.InitialPointer +
+                (program.PrefixInstruction is null ? 0 : 2)));
+            for (int frame = 0; frame < program.Durations.Length; frame++)
+            {
+                Add(frames, unchecked((ushort)(pointer + 2)),
+                    $"projectile_86_{program.InitialPointer:X4}_frame_{frame:D2}".ToLowerInvariant());
+                pointer = unchecked((ushort)(pointer + 4));
+            }
+        }
+
+        frames.Sort(static (left, right) => left.OperandAddress.CompareTo(right.OperandAddress));
+        for (int index = 1; index < frames.Count; index++)
+        {
+            if (frames[index - 1].OperandAddress == frames[index].OperandAddress)
+                throw new InvalidDataException(
+                    $"Duplicate projectile visual operand $86:{frames[index].OperandAddress:X4}.");
+        }
+        return [.. frames];
+    }
+
+    private sealed class PresentationFrameAddressComparer : IComparer<EnemyProjectilePresentationFrameDefinition>
+    {
+        internal static readonly PresentationFrameAddressComparer Instance = new();
+        public int Compare(EnemyProjectilePresentationFrameDefinition left,
+            EnemyProjectilePresentationFrameDefinition right) =>
+            left.OperandAddress.CompareTo(right.OperandAddress);
     }
 }

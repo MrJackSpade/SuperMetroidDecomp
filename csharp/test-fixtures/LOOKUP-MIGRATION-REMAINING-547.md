@@ -1568,8 +1568,14 @@ duration/opcode/operand words across those nine programs and all thirty misc-dus
 programs. The generic dust selector and Mother Brain initializers share the same entry-point
 definitions, so their instruction identities cannot drift.
 
-The interpreter still reads each timed record's bank-$8D spritemap pointer from the ROM;
-those words and sprite payloads are presentation. Mechanics lookups are bounded by exact
+The ordinary room-projectile interpreter now selects the shared-program visual frames from
+the installed version-three `enemy-projectile-compositions.json` when artwork is bound.
+Extraction follows each bank-$86 visual operand to its bank-$8D OAM parts; production
+frame selection and drawing then avoid both ROM reads. Version-one/two overrides inherit
+the newly extracted frames from verified stock. The separate legacy
+`MotherBrainEnemyProjectileSystem` diagnostic implementation still reads its own visual
+operands and OAM parts, and other projectile instruction families remain outside this
+slice. Mechanics lookups are bounded by exact
 word address and reject adjacent/restored pointers rather than falling back to cartridge
 code. Exhaustive verification compares every compiled word to the pinned ROM and executes
 all 39 production programs with those source bytes forbidden, including the previously

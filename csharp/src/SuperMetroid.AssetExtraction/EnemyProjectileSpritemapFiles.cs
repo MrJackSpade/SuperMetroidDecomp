@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction;
@@ -12,10 +13,20 @@ internal static class EnemyProjectileSpritemapFiles
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
             frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
+        var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (EnemyProjectilePresentationFrameDefinition frame in
+                 EnemyProjectileInstructionMechanicsDefinitions.VisualFrames)
+        {
+            ushort pointer = unchecked((ushort)(
+                bus.ReadByte(0x860000 | frame.OperandAddress) |
+                bus.ReadByte(0x860000 | unchecked((ushort)(frame.OperandAddress + 1))) << 8));
+            programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
+        }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument
         {
             Version = EnemyProjectileSpritemapDefinitions.Version,
             Frames = frames,
+            ProgramFrames = programFrames,
         });
     }
 }

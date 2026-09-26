@@ -361,11 +361,13 @@ their edited frames are retained, while newer families come from verified stock
 content and new visual bindings default to the stock identity selections. Save a
 current version-fourteen copy to edit Magdollite frames or display bindings.
 The separate `enemy-projectile-compositions.json` contains the Ceres elevator
-platform/pad and Skree/Metaree debris OAM parts. Copy it to
-`overrides/enemy-tiles/` to edit those visual parts without changing projectile
-timing, damage, motion, or collision. Existing version-one overrides retain
-their three edited Ceres frames; the two debris frames are supplied from
-hash-checked stock. Use a current version-two copy to edit debris.
+platform/pad, Skree/Metaree debris, and the named Mother Brain/shared dust
+projectile OAM frames. Copy it to `overrides/enemy-tiles/` to edit visual parts
+without changing projectile timing, damage, motion, or collision. The
+`programFrames` names identify bank-$86 animation lists and frame numbers; only
+their drawing is editable. Existing version-one and version-two overrides keep
+their earlier edited frames, while new program frames come from hash-checked
+stock. Use a current version-three copy to edit the shared program frames.
 The five `gunship-liftoff-N-tiles.png` files in `game/enemy-tiles/` contain the
 gunship's takeoff character uploads. Copy an individual PNG to
 `overrides/enemy-tiles/` to replace its indexed 4-bpp pixels. The five upload

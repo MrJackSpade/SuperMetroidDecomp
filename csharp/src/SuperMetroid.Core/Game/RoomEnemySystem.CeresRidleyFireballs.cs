@@ -169,6 +169,11 @@ public sealed class RoomEnemyProjectileSlot
     public ushort InstructionPointer { get; internal set; }
     public ushort InstructionTimer { get; internal set; }
     public ushort SpritemapPointer { get; internal set; }
+    /// <summary>
+    /// Host-only visual identity for an installed shared Mother Brain/dust program frame.
+    /// Zero preserves the ordinary native bank-$8D spritemap path.
+    /// </summary>
+    public ushort PresentationOperandAddress { get; internal set; }
     public ushort PreInstruction { get; internal set; }
     public ushort GraphicsIndex { get; internal set; }
     public ushort XRadius { get; internal set; }
@@ -235,6 +240,7 @@ public sealed class RoomEnemyProjectileSlot
         XPosition = XSubposition = YPosition = YSubposition = 0;
         XVelocity = YVelocity = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
+        PresentationOperandAddress = 0;
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = GeneralTimer = 0;
         DrawPriority = EnemyProjectileDrawPriority.Low;
         RemainingAfterburns = NextAfterburnKind = 0;
@@ -631,7 +637,17 @@ public sealed partial class RoomEnemySystem
             if (((screenX + 128) & 0xfe00) != 0 || ((screenY + 128) & 0xfe00) != 0)
                 continue;
 
-            if (SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
+            if (projectile.PresentationOperandAddress != 0 &&
+                TileArtwork?.ProjectileSpritemaps is { } programArtwork)
+            {
+                oam.AddEnemySpritemap(
+                    programArtwork.GetProgramFrame(projectile.PresentationOperandAddress).Span,
+                    screenX, screenY,
+                    unchecked((ushort)(projectile.GraphicsIndex & 0xff00)),
+                    unchecked((byte)projectile.GraphicsIndex),
+                    clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
+            }
+            else if (SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
                 TileArtwork?.ProjectileSpritemaps is { } installed)
             {
                 oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
@@ -1464,9 +1480,13 @@ public sealed partial class RoomEnemySystem
                     throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
                 projectile.InstructionTimer = word;
                 ushort visualOperand = unchecked((ushort)(cursor + 2));
-                projectile.SpritemapPointer =
-                    SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
-                    TileArtwork?.ProjectileSpritemaps is not null
+                bool installedSharedFrame = TileArtwork?.ProjectileSpritemaps is not null &&
+                    EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(visualOperand);
+                projectile.PresentationOperandAddress = installedSharedFrame ? visualOperand : (ushort)0;
+                projectile.SpritemapPointer = installedSharedFrame
+                    ? (ushort)0x8000
+                    : SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
+                      TileArtwork?.ProjectileSpritemaps is not null
                         ? SkreeMetareeParticleVisualDefinitions.Resolve(visualOperand)
                         : ReadWord(_bus!, 0x860000 | visualOperand);
                 projectile.InstructionPointer = unchecked((ushort)(cursor + 4));

@@ -6,7 +6,7 @@ internal readonly record struct RioInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Rio's idle, swooping, and cooldown programs.
-/// Their twenty-four spritemap operands remain live cartridge presentation data.
+/// Their twenty-four spritemap operands select extracted presentation frames.
 /// </summary>
 internal static class RioInstructionProgramDefinitions
 {
@@ -67,6 +67,17 @@ internal static class RioInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static RioInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    internal static bool IsPresentationWord(ushort address)
+    {
+        for (int index = 0; index < PresentationWords.Length; index++)
+        {
+            if (PresentationWords[index] == address)
+                return true;
+        }
+
+        return false;
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

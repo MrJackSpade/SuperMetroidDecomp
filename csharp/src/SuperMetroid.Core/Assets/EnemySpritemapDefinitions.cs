@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 16;
+    internal const int Version = 17;
+    internal const int PreRioVersion = 16;
+    internal const int PreRioFrameCount = 262;
     internal const int PreCeresBabyVersion = 15;
     internal const int PreCeresBabyFrameCount = 259;
     internal const int PreCeresDoorVersion = 14;
@@ -38,6 +40,7 @@ internal static class EnemySpritemapDefinitions
     internal const int LegacyFrameCount = 47;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;
+    internal const byte RioBank = 0xa2;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -328,6 +331,14 @@ internal static class EnemySpritemapDefinitions
         new(CeresBabyInstructionProgramDefinitions.Bank,
             CeresBabyInstructionProgramDefinitions.VerticalFrame,
             "ceres_baby_vertical"),
+        new(RioBank, 0xbd6c, "rio_bd6c"),
+        new(RioBank, 0xbd82, "rio_bd82"),
+        new(RioBank, 0xbd98, "rio_bd98"),
+        new(RioBank, 0xbdae, "rio_bdae"),
+        new(RioBank, 0xbdc4, "rio_bdc4"),
+        new(RioBank, 0xbdda, "rio_bdda"),
+        new(RioBank, 0xbdf0, "rio_bdf0"),
+        new(RioBank, 0xbe06, "rio_be06"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -350,6 +361,7 @@ internal static class EnemySpritemapDefinitions
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer =>
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
+            RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
             RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
             RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
@@ -379,6 +391,7 @@ internal static class EnemySpritemapDefinitions
         return enemyDefinition is
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.BoyonDefinition or
+            RoomEnemySystem.RioDefinition or
             RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
             RoomEnemySystem.MagdolliteDefinition or
             RoomEnemySystem.BoulderDefinition or
@@ -395,6 +408,21 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition or
             RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition or
             RoomEnemySystem.RipperDefinition;
+    }
+
+    /// <summary>
+    /// Rio's twenty-four fixed presentation operands at $A2:BB4D..BBB5 select
+    /// eight distinct extracted OAM compositions. The instruction timing, swoop
+    /// callbacks, and hitboxes remain compiled gameplay behavior.
+    /// </summary>
+    internal static ushort RioFrameAt(ushort operandAddress)
+    {
+        if (RioInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(RioBank, operandAddress,
+                out ushort frame))
+            return frame;
+        throw new InvalidDataException(
+            $"Rio visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>

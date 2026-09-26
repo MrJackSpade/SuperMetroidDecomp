@@ -21,10 +21,50 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreCeresBabyFrameCount,
             "Ceres door adds its thirteen selected poses, initial pose, and private overlay");
         AssertEqual(EnemySpritemapDefinitions.PreCeresBabyFrameCount + 3,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreRioFrameCount,
             "Ceres Baby adds its three authored OAM poses");
+        AssertEqual(EnemySpritemapDefinitions.PreRioFrameCount + 8,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Rio adds its eight distinct OAM compositions");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
             "unknown enemy family keeps the existing cartridge selector path");
+        for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = RioInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.RioDefinition, operand, out ushort frame),
+                $"Rio presentation operand $A2:{operand:X4} uses the installed selector");
+            AssertEqual(ReadRioInstructionWord(rom, operand), frame,
+                $"Rio selector $A2:{operand:X4} matches the pinned cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => EnemySpritemapDefinitions.RioFrameAt(
+                RioInstructionProgramDefinitions.FirstAdjacentMechanicsData),
+            "Rio rejects adjacent data as a presentation operand");
+        var rioGuard = new RioInstructionReadGuard(rom, forbidPresentation: true);
+        var installedRio = new RoomEnemySystem { TileArtwork = stock };
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installedRio, rioGuard);
+        RoomEnemySlot rioSlot = installedRio.Slots[0];
+        rioSlot.EnemyDefinitionPointer = RoomEnemySystem.RioDefinition;
+        rioSlot.Definition = default(RoomEnemyDefinition) with
+            { Bank = EnemySpritemapDefinitions.RioBank };
+        typeof(RoomEnemySystem).GetMethod("InitializeRio", flags)!
+            .CreateDelegate<Action<RoomEnemySlot>>(installedRio)(rioSlot);
+        MethodInfo rioProcess = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
+        object?[] rioArguments =
+            [rioSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+            RioInstructionProgramDefinitions.Idle, callCount: 13);
+        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+            RioInstructionProgramDefinitions.SwoopingPart1, callCount: 6);
+        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+            RioInstructionProgramDefinitions.SwoopingPart2, callCount: 3);
+        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+            RioInstructionProgramDefinitions.SwoopCooldown, callCount: 6);
+        AssertEqual(0, rioGuard.ObservedPresentationWords.Count,
+            "installed Rio programs never read ROM visual selectors");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -50,6 +90,8 @@ internal static partial class Program
             var room = DrawEnemy(stock, new FrameReadGuard(rom), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
+                    : frame.Name.StartsWith("rio_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.RioDefinition
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
                         ? RoomEnemySystem.CacatacDefinition
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
@@ -190,6 +232,11 @@ internal static partial class Program
         document.Frames["ceres_baby_round"][0] = ceresBabyPart with
         {
             OffsetY = ceresBabyPart.OffsetY + 1,
+        };
+        SpriteVisualPart rioPart = document.Frames["rio_bd6c"][0];
+        document.Frames["rio_bd6c"][0] = rioPart with
+        {
+            OffsetY = rioPart.OffsetY + 1,
         };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
@@ -410,16 +457,56 @@ internal static partial class Program
             "authored Magdollite Y offset changes live room OAM");
         AssertEqual(stockMagdollite.LowTable[0], editedMagdollite.LowTable[0],
             "Magdollite visual edit leaves X position unchanged");
+        ushort rioPointer = EnemySpritemapDefinitions.RioFrameAt(
+            RioInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockRio = DrawEnemy(stock, new FrameReadGuard(rom),
+            rioPointer, RoomEnemySystem.RioDefinition);
+        OamBuffer editedRio = DrawEnemy(edited, new FrameReadGuard(rom),
+            rioPointer, RoomEnemySystem.RioDefinition);
+        AssertEqual(unchecked((byte)(stockRio.LowTable[1] + 1)),
+            editedRio.LowTable[1],
+            "authored Rio Y offset changes installed room OAM");
+        AssertEqual(stockRio.LowTable[0], editedRio.LowTable[0],
+            "Rio visual edit leaves physical X unchanged");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preRioFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("rio_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreRioFrameCount,
+            preRioFrames.Count, "pre-Rio composition schema frame count");
+        var preRioBindings = document.DisplayFrames!
+            .Where(pair => !pair.Key.StartsWith("rio_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        preRioBindings["boyon_idle_0"] = "boyon_idle_1";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreRioVersion,
+                Frames = preRioFrames,
+                DisplayFrames = preRioBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preRioUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer priorRioEraRemap = DrawEnemy(preRioUpgraded,
+            new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
+        OamBuffer priorRioEraSelected = DrawEnemy(stock,
+            new FrameReadGuard(rom), 0x88e1, RoomEnemySystem.BoyonDefinition);
+        AssertTrue(priorRioEraSelected.LowTable.SequenceEqual(priorRioEraRemap.LowTable),
+            "version-sixteen override retains its display binding");
+        AssertTrue(preRioUpgraded.Spritemaps!.TryGet(
+                EnemySpritemapDefinitions.RioBank, rioPointer, out _),
+            "version-sixteen override gains stock Rio artwork");
         var preCeresBabyFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreCeresBabyFrameCount,
             preCeresBabyFrames.Count, "pre-Ceres-Baby composition schema frame count");
         var preCeresBabyBindings = document.DisplayFrames!
-            .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("ceres_baby_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("rio_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         preCeresBabyBindings["ceres_door_right_hold"] =
             "ceres_door_right_transition_0";

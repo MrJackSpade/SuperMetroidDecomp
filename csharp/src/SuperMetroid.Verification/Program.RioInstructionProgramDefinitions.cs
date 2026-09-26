@@ -156,7 +156,8 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class RioInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class RioInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
@@ -182,6 +183,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                            throw new InvalidOperationException(
+                                $"Installed Rio read visual selector $A2:{presentation:X4}.");
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

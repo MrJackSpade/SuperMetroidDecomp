@@ -124,9 +124,14 @@ public sealed class TourianStatueSequence
                             runtime.Cgram.SetColor(clearPaletteByteIndex / 2 + color, 0);
                         break;
                     case AnimatedTileInstructionCodes.WriteEightTargetPaletteColors:
-                        runtime.Cgram.LoadFromBus(
-                            bus, TourianStatueRomData.GreyColors, 8,
-                            MechanicsWord(tile, operand) / 2);
+                        int greyDestination = MechanicsWord(tile, operand) / 2;
+                        if (runtime.Enemies.TileArtwork?.TourianStatueColors is { } greyColors)
+                            greyColors.ApplyGrey(runtime.Cgram, greyDestination);
+                        else
+                            runtime.Cgram.LoadFromBus(bus,
+                                TourianStatuePaletteRomData.GreyColors,
+                                TourianStatuePaletteRomData.GreyColorCount,
+                                greyDestination);
                         break;
                     case AnimatedTileInstructionCodes.SpawnPaletteFxObject:
                         runtime.RoomPaletteFx.SpawnDefinition(

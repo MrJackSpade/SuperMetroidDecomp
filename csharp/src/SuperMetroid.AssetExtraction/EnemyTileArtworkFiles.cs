@@ -213,6 +213,9 @@ public static class EnemyTileArtworkFiles
         byte[] norfairRidleyColors = NorfairRidleyColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, NorfairRidleyColorFormat.FileName),
             norfairRidleyColors);
+        byte[] tourianStatueColors = TourianStatueColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, TourianStatueColorFormat.FileName),
+            tourianStatueColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
             Convert.ToHexString(SHA256.HashData(firstMelt)),
@@ -242,7 +245,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(botwoonColors)),
             Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)),
             Convert.ToHexString(SHA256.HashData(zebetiteColors)),
-            Convert.ToHexString(SHA256.HashData(norfairRidleyColors)));
+            Convert.ToHexString(SHA256.HashData(norfairRidleyColors)),
+            Convert.ToHexString(SHA256.HashData(tourianStatueColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -297,7 +301,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.BotwoonColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainDeathColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.ZebetiteColorsSha256) ||
-            string.IsNullOrWhiteSpace(manifest.NorfairRidleyColorsSha256))
+            string.IsNullOrWhiteSpace(manifest.NorfairRidleyColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.TourianStatueColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
         ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
@@ -735,6 +740,20 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Norfair Ridley colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        TourianStatueColorCatalog tourianStatueColors;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(TourianStatueColorFormat.FileName,
+                manifest.TourianStatueColorsSha256);
+            tourianStatueColors = TourianStatueColorCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Tourian statue colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
@@ -742,7 +761,7 @@ public static class EnemyTileArtworkFiles
             workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
             chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
             babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
-            zebetiteColors, norfairRidleyColors);
+            zebetiteColors, norfairRidleyColors, tourianStatueColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -937,7 +956,8 @@ public static class EnemyTileArtworkFiles
         string BotwoonColorsSha256,
         string MotherBrainDeathColorsSha256,
         string ZebetiteColorsSha256,
-        string NorfairRidleyColorsSha256);
+        string NorfairRidleyColorsSha256,
+        string TourianStatueColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

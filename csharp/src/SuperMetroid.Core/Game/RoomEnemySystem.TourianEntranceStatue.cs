@@ -68,18 +68,21 @@ public sealed partial class RoomEnemySystem
         // Statue init writes target palette rows $F and $A from $AA:D785/$D765.
         // This runtime exposes the currently visible CGRAM buffer, so install those rows
         // directly while retaining every cartridge color word.
-        for (int color = 0; color < 16; color++)
+        if (TileArtwork?.TourianStatueColors is { } colors)
+            colors.ApplyEntrance(_cgram!);
+        else
         {
-            _cgram!.SetColor(
-                240 + color,
-                ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.TourianStatue.BaseDecorationPaletteWords + color * 2));
-            _cgram.SetColor(
-                160 + color,
-                ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.TourianStatue.StatuePaletteWords + color * 2));
+            for (int color = 0; color < TourianStatuePaletteRomData.BaseColorCount; color++)
+            {
+                _cgram!.SetColor(
+                    TourianStatuePaletteRomData.BaseCgramIndex + color,
+                    ReadWord(_bus!,
+                        TourianStatuePaletteRomData.BaseColors + color * sizeof(ushort)));
+                _cgram.SetColor(
+                    TourianStatuePaletteRomData.StatueCgramIndex + color,
+                    ReadWord(_bus!,
+                        TourianStatuePaletteRomData.StatueColors + color * sizeof(ushort)));
+            }
         }
     }
 

@@ -409,6 +409,11 @@ rows are in `game/enemy-tiles/norfair-ridley-colors.json`. Copy that file to
 cadence, zero-terminator handoff, and liquid-motion trigger remain engine
 behavior. Ridley's health-shade rows are shared with Ceres in
 `game/maps/ceres-ridley-colors.json`.
+The Tourian entrance statue's base, boss statue, four eye-glow, and shared
+grey-transition colors are in `game/enemy-tiles/tourian-statue-colors.json`.
+Copy it to `overrides/enemy-tiles/` to edit RGB5 colors. Boss-event gates,
+eye positions, unlock timing, and the four grey-palette destinations remain
+compiled behavior.
 
 The same directory contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the

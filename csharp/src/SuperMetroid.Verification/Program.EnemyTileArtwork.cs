@@ -25,6 +25,7 @@ internal static partial class Program
             VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock);
             VerifyInstalledZebetiteColors(bus, directory, stock);
             VerifyInstalledNorfairRidleyColors(bus, directory, stock);
+            VerifyInstalledTourianStatueColors(bus, directory, stock);
             VerifyInstalledMagdollitePaletteCycle(bus, directory, stock);
             VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock);
             VerifyInstalledCrocomireColors(bus, directory, stock);

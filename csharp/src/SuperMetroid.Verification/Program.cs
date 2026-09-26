@@ -27,6 +27,12 @@ try
 {
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--hyper-beam-fx-colors"])
+{
+    VerifyHyperBeamFxColorArtwork(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--samus-rendering-slice"])
 {
     VerifySamusRenderingSlice();

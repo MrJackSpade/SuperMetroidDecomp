@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -60,7 +61,8 @@ public sealed class HyperBeamPaletteFxState
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
-    public HyperBeamPaletteFxStepResult Step(ISnesAddressSpace bus, SnesCgram cgram)
+    public HyperBeamPaletteFxStepResult Step(ISnesAddressSpace bus, SnesCgram cgram,
+        HyperBeamFxColorCatalog? presentationColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -108,12 +110,17 @@ public sealed class HyperBeamPaletteFxState
         if (completedCycle)
             CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
 
-        for (int color = 0; color < ColorsPerFrame; color++)
+        if (presentationColors is not null)
+            presentationColors.Apply(cgram, frame.Index, DestinationColorIndex);
+        else
         {
-            ushort bgr555 = ReadBank8dWord(
-                bus,
-                unchecked((ushort)(frame.FirstColorPointer + color * sizeof(ushort))));
-            cgram.SetColor(DestinationColorIndex + color, bgr555);
+            for (int color = 0; color < ColorsPerFrame; color++)
+            {
+                ushort bgr555 = ReadBank8dWord(
+                    bus,
+                    unchecked((ushort)(frame.FirstColorPointer + color * sizeof(ushort))));
+                cgram.SetColor(DestinationColorIndex + color, bgr555);
+            }
         }
 
         InstructionTimer = frame.Duration;

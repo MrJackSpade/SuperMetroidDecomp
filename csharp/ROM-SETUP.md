@@ -867,8 +867,12 @@ These sheets do not replace missile, bomb, trail, flare or Grapple artwork.
 
 Copy `game/projectiles/beam-palettes.json` to `overrides/projectiles/beam-palettes.json`
 to edit ordinary beam colors. Keep all twelve selections and sixteen colors per
-selection; RGB components range from 0 to 31. Charge/Hyper animation colors are
-not controlled by this file. Loading a state refreshes ordinary colors at the
+selection; RGB components range from 0 to 31. Charge and Hyper animation colors
+are not controlled by this file. For the ten-frame Hyper Beam projectile palette
+cycle, copy `game/projectiles/hyper-beam-fx-colors.json` to
+`overrides/projectiles/hyper-beam-fx-colors.json` and edit its eight RGB5 colors
+per frame. This changes appearance only: the frame order, two-tick cadence and
+loop remain compiled cartridge behavior. Loading a state refreshes ordinary colors at the
 next accepted display update, but preserves an active Crystal Flash or Hyper
 palette. Crystal Flash completion restores the selected override normally.
 

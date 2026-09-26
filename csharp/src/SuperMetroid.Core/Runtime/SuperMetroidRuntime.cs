@@ -1632,7 +1632,8 @@ public sealed partial class SuperMetroidRuntime
         }
         LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
             _addressSpace,
-            Cgram);
+            Cgram,
+            beamArtwork?.HyperBeamFxColors);
 
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the

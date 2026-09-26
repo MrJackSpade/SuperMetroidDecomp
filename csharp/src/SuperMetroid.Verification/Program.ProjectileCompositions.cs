@@ -10,6 +10,7 @@ internal static partial class Program
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         VerifyBeamTileArtwork(rom);
+        VerifyHyperBeamFxColorArtwork(rom);
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         VerifyProjectileCompositionOwners(rom, content);
         int draws = 0;
@@ -249,6 +250,32 @@ internal static partial class Program
         File.WriteAllText(paletteOverride, "broken palette override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed palette override does not fall back");
         File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
+        string hyperStock = Path.Combine(installation.ProjectileDirectory, HyperBeamFxColorFormat.FileName);
+        string hyperOverride = Path.Combine(installation.ProjectileOverrideDirectory, HyperBeamFxColorFormat.FileName);
+        var hyperDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(hyperStock))!;
+        var hyperRed = hyperDocument["frames"]![3]![2]!["red"]!;
+        hyperDocument["frames"]![3]![2]!["red"] = hyperRed.GetValue<int>() ^ 1;
+        File.WriteAllText(hyperOverride, hyperDocument.ToJsonString());
+        var hyperEdited = installation.LoadProjectiles();
+        AssertTrue(hyperEdited.SelectedSha256 != paletteEdited.SelectedSha256,
+            "Hyper Beam FX override changes selected identity");
+        var hyperNative = new SnesCgram();
+        var hyperSelected = new SnesCgram();
+        stock.BeamTiles.HyperBeamFxColors!.Apply(hyperNative, 3, 225);
+        hyperEdited.BeamTiles.HyperBeamFxColors!.Apply(hyperSelected, 3, 225);
+        AssertEqual((ushort)(hyperNative.Colors[227] ^ 1), hyperSelected.Colors[227],
+            "Installed Hyper Beam FX override changes its selected color");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(hyperEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256,
+            "Re-extraction retains Hyper Beam FX override");
+        File.WriteAllText(hyperStock, "broken stock Hyper Beam FX colors");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(),
+            "Hyper Beam FX override cannot conceal stock corruption");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        File.WriteAllText(hyperOverride, "broken Hyper Beam FX override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(),
+            "Malformed Hyper Beam FX override does not fall back");
+        File.WriteAllText(hyperOverride, hyperDocument.ToJsonString());
         string trailStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName);
         string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
         var trailDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(trailStock))!;

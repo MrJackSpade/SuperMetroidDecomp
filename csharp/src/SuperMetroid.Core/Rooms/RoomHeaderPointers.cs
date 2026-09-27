@@ -89,6 +89,9 @@ public static class RoomHeaderPointers
     /// <summary>Crateria room $1E at $8F:9A44; contains the Blue Brinstar face block.</summary>
     public const ushort CrateriaFaceBlockRoom = 0x9a44;
 
+    /// <summary>Crateria room $1F at $8F:9A90; contains the Morph Ball surveillance eye.</summary>
+    public const ushort CrateriaMorphBallEyeRoom = 0x9a90;
+
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;
 

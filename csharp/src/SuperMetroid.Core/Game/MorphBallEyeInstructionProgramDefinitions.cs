@@ -7,7 +7,7 @@ internal readonly record struct MorphBallEyeInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled frame timing and terminal control for the Morph Ball eye body and mount.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class MorphBallEyeInstructionProgramDefinitions
 {
@@ -47,6 +47,10 @@ internal static class MorphBallEyeInstructionProgramDefinitions
     internal static MorphBallEyeInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for an eye-body or mount visual operand.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     /// <summary>Returns fixed eye control or rejects pointers outside its eleven lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

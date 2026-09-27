@@ -184,6 +184,9 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.CrateriaFaceBlockRoom, "Crateria face block", frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.CrateriaMorphBallEyeRoom, "Crateria Morph Ball eye",
+                    frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.DeadTorizoCorpse, "Tourian dead-Torizo corpse",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,

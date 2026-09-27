@@ -295,8 +295,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreFaceBlockFrameCount,
             "Kago adds three OAM frames shared by its slow and fast loops");
         AssertEqual(EnemySpritemapDefinitions.PreFaceBlockFrameCount + 5,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
             "face block adds five distinct neutral and directional OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreMorphBallEyeFrameCount + 22,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Morph Ball eye and mount add twenty-two distinct OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -633,6 +636,23 @@ internal static partial class Program
             () => BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
                 BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial),
             "face block rejects adjacent timing as presentation");
+        for (int index = 0;
+             index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = MorphBallEyeInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.MorphBallEyeDefinition, operand,
+                    out ushort selected),
+                $"Morph Ball eye visual operand $A8:{operand:X4} is compiled");
+            AssertEqual(ReadMorphBallEyeInstructionWord(rom, operand), selected,
+                $"Morph Ball eye selector $A8:{operand:X4} matches the cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => MorphBallEyeVisualDefinitions.FrameAt(
+                MorphBallEyeInstructionProgramDefinitions.AdjacentProximityDefinitions),
+            "eye visual selector rejects adjacent proximity definitions");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -678,6 +698,8 @@ internal static partial class Program
                         ? RoomEnemySystem.KagoDefinition
                     : frame.Name.StartsWith("face_block_", StringComparison.Ordinal)
                         ? RoomEnemySystem.BlueBrinstarFaceBlockDefinition
+                    : frame.Name.StartsWith("morph_eye_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.MorphBallEyeDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
@@ -996,6 +1018,12 @@ internal static partial class Program
         {
             OffsetX = faceBlockPart.OffsetX + 1,
         };
+        const string morphEyeFrameName = "morph_eye_mount_left";
+        SpriteVisualPart morphEyePart = document.Frames[morphEyeFrameName][0];
+        document.Frames[morphEyeFrameName][0] = morphEyePart with
+        {
+            OffsetX = morphEyePart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1048,6 +1076,15 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockFaceBlock.LowTable[0] + 1)),
             editedFaceBlock.LowTable[0],
             "face-block authored offset changes installed presentation");
+        ushort morphEyePointer = MorphBallEyeVisualDefinitions.FrameAt(
+            MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress(34));
+        OamBuffer stockMorphEye = DrawEnemy(stock, new FrameReadGuard(rom),
+            morphEyePointer, RoomEnemySystem.MorphBallEyeDefinition);
+        OamBuffer editedMorphEye = DrawEnemy(edited, new FrameReadGuard(rom),
+            morphEyePointer, RoomEnemySystem.MorphBallEyeDefinition);
+        AssertEqual(unchecked((byte)(stockMorphEye.LowTable[0] + 1)),
+            editedMorphEye.LowTable[0],
+            "Morph Ball eye mount art edit changes installed presentation");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1496,6 +1533,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preMorphBallEyeFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("morph_eye_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
+            preMorphBallEyeFrames.Count, "pre-Morph-Ball-eye composition schema count");
+        var preMorphBallEyeBindings = document.DisplayFrames!
+            .Where(pair => preMorphBallEyeFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreMorphBallEyeVersion,
+                Frames = preMorphBallEyeFrames,
+                DisplayFrames = preMorphBallEyeBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preMorphBallEyeUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in MorphBallEyeVisualDefinitions.Frames())
+            AssertTrue(preMorphBallEyeUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-forty-two override inherits eye frame {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreMorphBallEyeVersion,
+            Frames = preMorphBallEyeFrames,
+            DisplayFrames = preMorphBallEyeBindings,
+        };
         var preFaceBlockFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("face_block_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2638,6 +2702,8 @@ internal static partial class Program
                         ? KagoVisualDefinitions.Bank
                     : definition == RoomEnemySystem.BlueBrinstarFaceBlockDefinition
                         ? BlueBrinstarFaceBlockVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.MorphBallEyeDefinition
+                        ? MorphBallEyeVisualDefinitions.Bank
                     : definition is RoomEnemySystem.HZoomerDefinition or
                         RoomEnemySystem.SciserDefinition or
                         RoomEnemySystem.ZeelaDefinition or

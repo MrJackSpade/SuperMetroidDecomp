@@ -71,7 +71,7 @@ internal static partial class Program
         AssertEqual(46, MorphBallEyeInstructionProgramDefinitions.MechanicsWordCount,
             "Morph Ball eye compiled mechanics word count");
         AssertEqual(36, MorphBallEyeInstructionProgramDefinitions.PresentationWordCount,
-            "Morph Ball eye live presentation word count");
+            "Morph Ball eye fixed presentation word count");
         for (int index = 0;
              index < MorphBallEyeInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -122,17 +122,16 @@ internal static partial class Program
 
         VerifyMorphBallEyeInitializerSelections(guard, flags);
 
-        AssertEqual(MorphBallEyeInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Morph Ball eye spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Morph Ball eye programs use compiled spritemap selectors");
         for (int index = 0;
              index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads eye presentation word $A8:{address:X4}");
+            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+                $"production execution avoids eye presentation word $A8:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Morph Ball eye mechanics byte");
@@ -155,7 +154,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Morph Ball eye instruction mechanics: 46 compiled words, all eleven body/" +
-            "mount programs, six initializer roles, and 36 live spritemap reads pass.");
+            "mount programs, six initializer roles, and 36 compiled spritemap selectors pass " +
+            "without presentation ROM reads.");
     }
 
     private static void VerifyMorphBallEyeInitializerSelections(

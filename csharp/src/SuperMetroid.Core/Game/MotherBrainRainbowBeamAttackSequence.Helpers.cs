@@ -390,18 +390,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         return false;
     }
 
-    private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer(ISnesAddressSpace bus)
+    private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer()
     {
         int index = BabyMetroidTileTransferIndex;
-        if ((uint)index >= MotherBrainTileTransferRomData.BabyTileCount)
+        if ((uint)index >= MotherBrainTileTransferDefinitions.BabyTileCount)
             throw new InvalidOperationException("Baby Metroid sprite-tile transfer list is already complete.");
 
-        int record = MotherBrainTileTransferRomData.BabyTileList + index * MotherBrainTileTransferRomData.RecordSize;
-        var request = new MotherBrainSpriteTileTransferRequest(
-            EntryIndex: (ushort)index,
-            Size: ReadWord(bus, record),
-            SourceAddress: (uint)(ReadWord(bus, record + 2) | bus.ReadByte(record + 4) << 16),
-            VramDestination: ReadWord(bus, record + 5));
+        MotherBrainSpriteTileTransferRequest request =
+            MotherBrainTileTransferDefinitions.BabyTileTransfer(index);
         BabyMetroidTileTransferIndex++;
         return request;
     }

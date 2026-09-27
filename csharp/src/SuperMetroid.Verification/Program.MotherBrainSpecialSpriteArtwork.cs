@@ -84,8 +84,8 @@ internal static partial class Program
             MotherBrainSpecialSpriteArtworkDefinitions.BabyMetroid;
         for (int page = 0; page < baby.PageCount; page++)
         {
-            int record = MotherBrainTileTransferRomData.BabyTileList +
-                page * MotherBrainTileTransferRomData.RecordSize;
+            int record = MotherBrainTileTransferDefinitions.BabyTileList +
+                page * MotherBrainTileTransferDefinitions.RecordSize;
             AssertEqual(MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 RomDataReader.ReadWordFixedBank(rom, record),
                 $"Baby tile record {page} size");
@@ -98,7 +98,17 @@ internal static partial class Program
                 page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride),
                 RomDataReader.ReadWordFixedBank(rom, record + 5),
                 $"Baby tile record {page} destination");
+            AssertEqual(new MotherBrainSpriteTileTransferRequest(
+                    (ushort)page,
+                    RomDataReader.ReadWordFixedBank(rom, record),
+                    source,
+                    RomDataReader.ReadWordFixedBank(rom, record + 5)),
+                MotherBrainTileTransferDefinitions.BabyTileTransfer(page),
+                $"compiled Baby tile transfer {page} matches the source record");
         }
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => MotherBrainTileTransferDefinitions.BabyTileTransfer(baby.PageCount),
+            "compiled Baby tile transfer rejects a record past the terminator");
         Console.WriteLine(
             "  Mother Brain special sprites: Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload and invalid override pass.");
     }
@@ -136,6 +146,21 @@ internal static partial class Program
             address >= sheet.SourceAddress && address < sheet.SourceAddress + sheet.ByteCount
                 ? throw new InvalidOperationException(
                     $"{sheet.FileName} attempted a visual ROM read at ${address:X6}.")
+                : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class MotherBrainBabyTileRecordReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        public byte ReadByte(int address) =>
+            address is >= MotherBrainTileTransferDefinitions.BabyTileList and
+                < MotherBrainTileTransferDefinitions.BabyTileList +
+                    MotherBrainTileTransferDefinitions.BabyTileCount *
+                    MotherBrainTileTransferDefinitions.RecordSize
+                ? throw new InvalidOperationException(
+                    $"Mother Brain read compiled Baby metadata from ROM at ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

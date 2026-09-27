@@ -762,9 +762,10 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     int finalChargeCalls = 0;
     MotherBrainRainbowBeamAttackStepResult firstTile = default;
+    var guardedBabyTileBus = new MotherBrainBabyTileRecordReadGuard(bus);
     while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam)
     {
-        firstTile = finalAttack.Step(bus, finalSamus, 0, 0);
+        firstTile = finalAttack.Step(guardedBabyTileBus, finalSamus, 0, 0);
         finalAttack.Body.Step(bus);
         finalChargeCalls++;
     }
@@ -782,7 +783,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     MotherBrainRainbowBeamAttackStepResult spawnCall = firstTile;
     while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles)
     {
-        spawnCall = finalAttack.Step(bus, finalSamus, 0, 0);
+        spawnCall = finalAttack.Step(guardedBabyTileBus, finalSamus, 0, 0);
         finalAttack.Body.Step(bus);
         if (spawnCall.SpriteTileTransfer is { } transfer)
             transfers.Add(transfer);

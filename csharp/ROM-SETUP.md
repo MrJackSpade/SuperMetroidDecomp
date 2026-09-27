@@ -504,6 +504,13 @@ inherits the new ninja frames. Version-three overrides retain all their art and
 inherit stock identity bindings; use a version-four copy to edit display bindings.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
+Phantoon's body, eye, tentacles, and mouth use BG2 tilemap writes rather than
+ordinary OAM parts. Copy `game/enemy-tiles/phantoon-bg2-frames.json` to
+`overrides/enemy-tiles/` to edit its 22 named visual frames. Each ordered write
+has `x` and `y` coordinates in the 32-by-64 BG2 tilemap and a horizontal `tiles`
+array of SNES tile words. Frame selection and write timing stay in the engine;
+the JSON contains no hitbox, damage, or instruction data. Invalid or missing
+frames fail during load, and the stock file is manifest-hash checked.
 Other extended enemy families still use cartridge visual records until their
 compositions are extracted separately.
 Crocomire's first and second melting images are the separate indexed files

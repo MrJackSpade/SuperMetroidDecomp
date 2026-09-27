@@ -48,17 +48,29 @@ public sealed partial class RoomEnemySystem
             for (int word = 0; word < wordCount; word++)
                 words[word] = ReadWord(_bus!, cursor + 4 + word * 2);
 
-            if (_crocomireDeath is { } death)
-                words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, wordCount));
-            _vram!.ExecuteWordTransfer(
-                words,
-                unchecked((ushort)(CrocomireBg2TilemapVramBase + destinationWord)),
-                wordIncrement: 1);
+            ApplyExtendedEnemyBg2Words(destinationWord, words);
             cursor += 4 + wordCount * 2;
         }
 
         throw new InvalidDataException(
             $"Extended BG2 command stream ${bank:X2}:{streamPointer:X4} has no terminator.");
+    }
+
+    /// <summary>
+    /// Common $A0:96CA destination semantics for cartridge and installed tilemap
+    /// streams. Only the source of the visual words changes; the VRAM side effect
+    /// and Crocomire's working-image mirror remain shared.
+    /// </summary>
+    private void ApplyExtendedEnemyBg2Words(int destinationWord, ReadOnlySpan<ushort> words)
+    {
+        if (destinationWord < 0 || words.Length == 0 ||
+            destinationWord + words.Length > CrocomireDeathState.Bg2WorkingWordCount)
+            throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
+        if (_crocomireDeath is { } death)
+            words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
+        _vram!.ExecuteWordTransfer(words,
+            unchecked((ushort)(CrocomireBg2TilemapVramBase + destinationWord)),
+            wordIncrement: 1);
     }
 
     private void ClearCrocomireBg2WorkingTilemap()

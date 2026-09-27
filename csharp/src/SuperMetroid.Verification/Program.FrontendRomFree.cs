@@ -157,6 +157,8 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.LowerNorfairMainHall,
                     "Lower Norfair main hall");
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.Phantoon, "Phantoon");
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
                 return;
             }
@@ -247,10 +249,10 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Compare several directly loaded room states without crossing a door.
-    /// The sequence covers Ceres enemy composition, land/ocean scrolling skies,
-    /// an ordinary interior, and Norfair room FX. It tests room initialization
-    /// and neutral-frame presentation, not incoming door setup or player travel.
+    /// Compare representative directly loaded room states without crossing a door.
+    /// This covers Ceres and ordinary enemy composition, scrolling skies,
+    /// elevators, save rooms, Norfair FX, and Phantoon's BG2 frames. It tests room
+    /// initialization and neutral-frame presentation, not incoming doors or travel.
     /// </summary>
     private static void VerifyFrontendRomFreeRoom(
         SuperMetroidGame native, SuperMetroidGame installed,

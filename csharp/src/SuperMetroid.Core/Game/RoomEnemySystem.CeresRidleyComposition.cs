@@ -410,7 +410,11 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
-        if (_ridleyState is null || _ridleyState.MovementAnimationEnabled != 0)
+        // The shared Ridley state also exists in Lower Norfair. Only Ceres
+        // Ridley's initializer installs this private Baby/door draw path.
+        if (_ridleyState is null ||
+            _slots[0].EnemyDefinitionPointer != CeresRidleyDefinition ||
+            _ridleyState.MovementAnimationEnabled != 0)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
@@ -428,7 +432,9 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
-        if (_ridleyState is null || _ridleyState.MovementAnimationEnabled == 0)
+        if (_ridleyState is null ||
+            _slots[0].EnemyDefinitionPointer != CeresRidleyDefinition ||
+            _ridleyState.MovementAnimationEnabled == 0)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);

@@ -31,6 +31,7 @@ internal static partial class Program
         {
             CeresStatus = 1,
         };
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
         typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(

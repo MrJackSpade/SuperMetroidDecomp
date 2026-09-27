@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CeresRidleyDefinition = 0xe13f;
+    private const ushort CeresRidleyDefinition = EnemyDefinitionPointers.CeresRidley;
 
     /// <summary>
     /// Runs Ceres Ridley's bank-$A6 shot-overlap seam against the five ordinary Samus

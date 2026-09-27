@@ -62,6 +62,7 @@ internal static partial class Program
             CeresRidleyColors = CeresRidleyColorCatalog.Load(
                 new MemoryStream(colorJson, writable: false)),
         };
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         ushort random = 0;
@@ -224,6 +225,11 @@ internal static partial class Program
 
         _ = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(
             CeresBabyInstructionProgramDefinitions.Initial);
+        // Cross the tiered-JIT hot-loop threshold before measuring steady-state
+        // lookups; that one-time runtime transition is not a per-frame allocation.
+        for (int index = 0; index < 65536; index++)
+            _ = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(
+                CeresBabyInstructionProgramDefinitions.Initial);
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int checksum = 0;
         for (int index = 0; index < 65536; index++)

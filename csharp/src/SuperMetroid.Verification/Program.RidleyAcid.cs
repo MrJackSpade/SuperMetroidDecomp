@@ -17,6 +17,21 @@ internal static partial class Program
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.BaseYPosition, "acid starts below the arena");
         var state = runtime.Enemies.Ridley!;
+        // The shared Ridley state has no Ceres Baby program in Norfair. The
+        // global actor-draw seam must not invoke Ceres's private graphics hook.
+        var expectedEmptyOam = new OamBuffer();
+        expectedEmptyOam.BeginFrame();
+        expectedEmptyOam.FinalizeFrame();
+        var ridleyOam = new OamBuffer();
+        ridleyOam.BeginFrame();
+        runtime.Enemies.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, 0, 256);
+        runtime.Enemies.DrawCeresRidleyPostEnemyHook(ridleyOam, 0, 256);
+        ridleyOam.FinalizeFrame();
+        AssertTrue(ridleyOam.LowTable.SequenceEqual(expectedEmptyOam.LowTable) &&
+            ridleyOam.HighTable.SequenceEqual(expectedEmptyOam.HighTable),
+            "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
+        AssertEqual((ushort)0, state.BabyInstruction,
+            "Norfair Ridley never advances an uninitialized Ceres Baby program");
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
         state.Function = RidleyAiFunction.WaitBeforeLiftoff;

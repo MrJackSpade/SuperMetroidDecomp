@@ -1,4 +1,5 @@
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -2783,6 +2784,37 @@ public sealed partial class RoomEnemySystem
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
                 foreach (SpacePirateCollisionHitbox hitbox in
                          SpacePirateCollisionDefinitions.HitboxesAt(
+                             component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
+            DraygonBg2FrameDefinitions.IsFrame(enemy.SpritemapPointer))
+        {
+            // Draygon's BG2 tiles are presentation data. Even though the
+            // cartridge stores hitbox pointers beside the visual stream,
+            // collision must use its fixed gameplay records instead.
+            foreach (DraygonBg2CollisionComponent component in
+                     DraygonBg2CollisionDefinitions.ComponentsAt(
+                         enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (DraygonBg2CollisionHitbox hitbox in
+                         DraygonBg2CollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));

@@ -68,6 +68,7 @@ internal static partial class Program
         AssertEqual(34, DraygonBg2FrameDefinitions.Frames.Length,
             "all selected Draygon BG2 frame identities are installed");
         AssertEqual(102, writeCount, "all Draygon BG2 command writes are installed");
+        VerifyCompiledDraygonBg2Collision(rom);
 
         string stockPath = Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName);
         byte[] original = File.ReadAllBytes(stockPath);
@@ -119,6 +120,98 @@ internal static partial class Program
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");
         Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; live edit, producer gate, ROM guard, reload, hash and strict validation pass.");
+
+        ushort ReadWord(int address) =>
+            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+    }
+
+    private static void VerifyCompiledDraygonBg2Collision(
+        SuperMetroidAddressSpace rom)
+    {
+        var nativeLists = new HashSet<ushort>();
+        foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        {
+            int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
+            ReadOnlySpan<DraygonBg2CollisionComponent> components =
+                DraygonBg2CollisionDefinitions.ComponentsAt(frame.Pointer);
+            AssertEqual((int)rom.ReadByte(root), components.Length,
+                $"Draygon {frame.Name} compiled collision component count");
+            for (int index = 0; index < components.Length; index++)
+            {
+                int record = root + 2 + index * 8;
+                DraygonBg2CollisionComponent component = components[index];
+                AssertEqual(ReadWord(record), unchecked((ushort)component.X),
+                    $"Draygon {frame.Name} collision X offset");
+                AssertEqual(ReadWord(record + 2), unchecked((ushort)component.Y),
+                    $"Draygon {frame.Name} collision Y offset");
+                AssertEqual(ReadWord(record + 6), component.HitboxPointer,
+                    $"Draygon {frame.Name} hitbox list identity");
+                nativeLists.Add(component.HitboxPointer);
+            }
+        }
+        AssertEqual(3, nativeLists.Count,
+            "Draygon BG2 frames have three distinct native hitbox lists");
+        foreach (ushort pointer in nativeLists)
+        {
+            int list = (DraygonBg2FrameDefinitions.Bank << 16) | pointer;
+            ReadOnlySpan<DraygonBg2CollisionHitbox> hitboxes =
+                DraygonBg2CollisionDefinitions.HitboxesAt(pointer);
+            AssertEqual((int)ReadWord(list), hitboxes.Length,
+                $"Draygon hitbox list {pointer:X4} rectangle count");
+            for (int index = 0; index < hitboxes.Length; index++)
+            {
+                int record = list + 2 + index * 12;
+                DraygonBg2CollisionHitbox box = hitboxes[index];
+                AssertEqual(ReadWord(record), unchecked((ushort)box.Left),
+                    $"Draygon list {pointer:X4} box {index} left");
+                AssertEqual(ReadWord(record + 2), unchecked((ushort)box.Top),
+                    $"Draygon list {pointer:X4} box {index} top");
+                AssertEqual(ReadWord(record + 4), unchecked((ushort)box.Right),
+                    $"Draygon list {pointer:X4} box {index} right");
+                AssertEqual(ReadWord(record + 6), unchecked((ushort)box.Bottom),
+                    $"Draygon list {pointer:X4} box {index} bottom");
+                AssertEqual(ReadWord(record + 8), box.TouchAi,
+                    $"Draygon list {pointer:X4} box {index} touch callback");
+                AssertEqual(ReadWord(record + 10), box.ShotAi,
+                    $"Draygon list {pointer:X4} box {index} shot callback");
+            }
+        }
+
+        // Invoke the production overlap walker with all cartridge reads
+        // denied. This checks the actual dispatch, not just a matching table.
+        var enemies = new RoomEnemySystem();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            new FrontendCartridgeReadGuard(rom));
+        var walker = typeof(RoomEnemySystem).GetMethod(
+            "TryFindExtendedHitboxCallback", flags)!;
+        RoomEnemySlot slot = enemies.Slots[0];
+        slot.EnemyDefinitionPointer = DraygonEnemyDefinitionPointers.Body;
+        slot.Definition = default(RoomEnemyDefinition) with
+        {
+            Bank = DraygonBg2FrameDefinitions.Bank,
+        };
+        slot.XPosition = 0x100;
+        slot.YPosition = 0x100;
+        foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
+        {
+            slot.SpritemapPointer = pointer;
+            object?[] arguments =
+                [slot, (ushort)0x100, (ushort)0x100, (ushort)0,
+                    (ushort)0, true, (ushort)0];
+            bool found = (bool)walker.Invoke(enemies, arguments)!;
+            AssertEqual(pointer != 0xa36b, found,
+                $"Draygon frame {pointer:X4} shot overlap without ROM reads");
+            if (found)
+                AssertEqual(EnemyAiCodePointers.BankA5.DraygonShot,
+                    (ushort)arguments[^1]!,
+                    $"Draygon frame {pointer:X4} selected shot callback");
+        }
+
+        AssertThrows<InvalidDataException>(
+            () => DraygonBg2CollisionDefinitions.ComponentsAt(0x8000),
+            "uncatalogued Draygon BG2 collision frame fails loudly");
+        Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
 
         ushort ReadWord(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

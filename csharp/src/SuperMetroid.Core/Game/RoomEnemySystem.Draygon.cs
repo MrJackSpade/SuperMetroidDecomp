@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort DraygonBodyDefinition = 0xde3f;
-    private const ushort DraygonEyeDefinition = 0xde7f;
-    private const ushort DraygonTailDefinition = 0xdebf;
-    private const ushort DraygonArmsDefinition = 0xdeff;
+    private const ushort DraygonBodyDefinition = DraygonEnemyDefinitionPointers.Body;
+    private const ushort DraygonEyeDefinition = DraygonEnemyDefinitionPointers.Eye;
+    private const ushort DraygonTailDefinition = DraygonEnemyDefinitionPointers.Tail;
+    private const ushort DraygonArmsDefinition = DraygonEnemyDefinitionPointers.Arms;
 
     private DraygonEnemyState? _draygon;
 

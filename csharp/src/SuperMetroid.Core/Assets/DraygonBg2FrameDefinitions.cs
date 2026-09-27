@@ -53,4 +53,14 @@ internal static class DraygonBg2FrameDefinitions
     ];
 
     internal static ReadOnlySpan<EnemyBg2FrameDefinition> Frames => FrameDefinitions;
+
+    internal static bool IsFrame(ushort pointer)
+    {
+        foreach (EnemyBg2FrameDefinition frame in FrameDefinitions)
+        {
+            if (frame.Pointer == pointer)
+                return true;
+        }
+        return false;
+    }
 }

@@ -58,17 +58,16 @@ internal static partial class Program
                 $"Sciser {orientation} completes and loops all four frames");
         }
 
-        AssertEqual(SciserInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Sciser spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Sciser instruction execution uses compiled spritemap selectors");
         for (int index = 0;
              index < SciserInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 SciserInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Sciser presentation word $A3:{address:X4}");
+            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+                $"production execution avoids Sciser presentation word $A3:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Sciser mechanics byte");
@@ -91,8 +90,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Sciser instruction mechanics: thirty-two compiled words, all four surface " +
-            "loops and movement callbacks, and sixteen live spritemap reads pass with " +
-            "mechanics bytes forbidden.");
+            "loops and movement callbacks, and sixteen compiled spritemap selectors pass " +
+            "with both instruction and presentation ROM reads forbidden.");
     }
 
     private static void ExecuteSciserProgram(

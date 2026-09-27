@@ -283,8 +283,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
             "Dead Torizo adds its private corpse OAM frame");
         AssertEqual(EnemySpritemapDefinitions.PreRidleySupplementFrameCount + 31,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreSciserFrameCount,
             "Ridley adds sixteen tips, twelve wings, and three tail segment OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreSciserFrameCount + 12,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Sciser adds twelve distinct surface-animation OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -559,6 +562,19 @@ internal static partial class Program
         VerifyInstalledChootInstructionFrames(rom, stock);
         VerifyInstalledHZoomerInstructionFrames(rom, stock);
         VerifyInstalledSharedCrawlerFrames(rom, stock);
+        for (int index = 0; index < SciserInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = SciserInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.SciserDefinition, operand, out ushort selected),
+                $"Sciser visual operand $A3:{operand:X4} is compiled");
+            AssertEqual(ReadSciserInstructionWord(rom, operand), selected,
+                $"Sciser selector $A3:{operand:X4} matches the pinned cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => SciserVisualDefinitions.FrameAt(SciserInstructionProgramDefinitions.UpsideUp),
+            "Sciser rejects adjacent mechanics as a visual selector");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -596,6 +612,8 @@ internal static partial class Program
             var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
+                    : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.SciserDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
@@ -890,6 +908,12 @@ internal static partial class Program
         {
             OffsetX = ridleyWingPart.OffsetX + 1,
         };
+        const string sciserFrameName = "sciser_upside_up_0";
+        SpriteVisualPart sciserPart = document.Frames[sciserFrameName][0];
+        document.Frames[sciserFrameName][0] = sciserPart with
+        {
+            OffsetX = sciserPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -897,6 +921,17 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
+            SciserVisualDefinitions.FrameAt(
+                SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
+            RoomEnemySystem.SciserDefinition);
+        OamBuffer editedSciser = DrawEnemy(edited, new FrameReadGuard(rom),
+            SciserVisualDefinitions.FrameAt(
+                SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
+            RoomEnemySystem.SciserDefinition);
+        AssertEqual(unchecked((byte)(stockSciser.LowTable[0] + 1)),
+            editedSciser.LowTable[0],
+            "Sciser authored OAM offset changes installed room presentation");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1345,6 +1380,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preSciserFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("sciser_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreSciserFrameCount,
+            preSciserFrames.Count, "pre-Sciser composition schema frame count");
+        var preSciserBindings = document.DisplayFrames!
+            .Where(pair => preSciserFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreSciserVersion,
+                Frames = preSciserFrames,
+                DisplayFrames = preSciserBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preSciserUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in SciserVisualDefinitions.Frames())
+            AssertTrue(preSciserUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-thirty-eight override inherits Sciser {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreSciserVersion,
+            Frames = preSciserFrames,
+            DisplayFrames = preSciserBindings,
+        };
         var preRidleyFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("ridley_supplement_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2373,6 +2435,7 @@ internal static partial class Program
                     : definition == RoomEnemySystem.ChootDefinition
                         ? EnemySpritemapDefinitions.ChootBank
                     : definition is RoomEnemySystem.HZoomerDefinition or
+                        RoomEnemySystem.SciserDefinition or
                         RoomEnemySystem.ZeelaDefinition or
                         RoomEnemySystem.SovaDefinition or
                         RoomEnemySystem.ZoomerDefinition or

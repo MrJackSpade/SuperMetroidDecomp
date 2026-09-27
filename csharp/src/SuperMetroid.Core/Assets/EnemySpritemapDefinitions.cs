@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 38;
+    internal const int Version = 39;
+    internal const int PreSciserVersion = 38;
+    internal const int PreSciserFrameCount = 850;
     internal const int PreRidleySupplementVersion = 37;
     internal const int PreRidleySupplementFrameCount = 819;
     internal const int PreDeadTorizoVersion = 36;
@@ -611,6 +613,7 @@ internal static class EnemySpritemapDefinitions
         .. MotherBrainVisualDefinitions.Frames(),
         .. DeadTorizoArtworkDefinitions.Frames(),
         .. RidleySupplementalVisualDefinitions.Frames(),
+        .. SciserVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -633,6 +636,7 @@ internal static class EnemySpritemapDefinitions
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer =>
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
+            RoomEnemySystem.SciserDefinition => SciserVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
@@ -699,6 +703,7 @@ internal static class EnemySpritemapDefinitions
         return enemyDefinition is
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.BoyonDefinition or
+            RoomEnemySystem.SciserDefinition or
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or

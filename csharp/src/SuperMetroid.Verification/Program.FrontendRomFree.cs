@@ -176,6 +176,8 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.PreMoat, "pre-moat KiHunter", frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.CrabMaze, "Crab Maze Sciser", frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.DeadTorizoCorpse, "Tourian dead-Torizo corpse",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,

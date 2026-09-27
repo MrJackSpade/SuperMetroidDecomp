@@ -35,6 +35,9 @@ public static class RoomHeaderPointers
     /// <summary>Landing Site at $8F:91F8.</summary>
     public const ushort LandingSite = 0x91f8;
 
+    /// <summary>Crab Maze at $8F:957D; its ordinary Scisers cycle all four surface poses.</summary>
+    public const ushort CrabMaze = 0x957d;
+
     /// <summary>Gauntlet east at $8F:92B3; contains the Crateria Yapping Maws.</summary>
     public const ushort GauntletEast = 0x92b3;
 

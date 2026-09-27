@@ -7,7 +7,7 @@ internal readonly record struct SciserInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Sciser's four surface loops. The sixteen interleaved
-/// spritemap operands remain live cartridge presentation data.
+/// spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class SciserInstructionProgramDefinitions
 {
@@ -57,6 +57,10 @@ internal static class SciserInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static SciserInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for a spritemap operand in one of the four native loops.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

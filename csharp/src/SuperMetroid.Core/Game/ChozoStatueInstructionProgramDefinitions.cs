@@ -7,7 +7,8 @@ internal readonly record struct ChozoStatueInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Lower Norfair and Wrecked Ship Chozo-statue
-/// sequences. Interleaved spritemap operands remain live cartridge presentation data.
+/// sequences. Interleaved spritemap operands resolve to installed presentation
+/// identities when artwork is bound; diagnostic buses may still supply them.
 /// </summary>
 internal static class ChozoStatueInstructionProgramDefinitions
 {

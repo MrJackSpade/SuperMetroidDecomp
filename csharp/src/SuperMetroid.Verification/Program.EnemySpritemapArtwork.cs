@@ -321,8 +321,12 @@ internal static partial class Program
             "Multiviola adds eight distinct spinning OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount +
                 NorfairLavaJumperVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreChozoStatueFrameCount,
             "Norfair lava jumper adds ten visible and one empty OAM frame");
+        AssertEqual(EnemySpritemapDefinitions.PreChozoStatueFrameCount +
+                ChozoStatueVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Lower Norfair and Wrecked Ship Chozo share twenty-six OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -884,6 +888,35 @@ internal static partial class Program
             () => NorfairLavaJumperVisualDefinitions.FrameAt(
                 NorfairLavaJumperInstructionProgramDefinitions.Hidden),
             "lava-jumper visual selector rejects a neighboring duration word");
+        HashSet<ushort> chozoFrames = ChozoStatueVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(ChozoStatueVisualDefinitions.FrameCount, chozoFrames.Count,
+            "the two Chozo sequences select twenty-six distinct installed frames");
+        var selectedChozoFrames = new HashSet<ushort>();
+        for (int index = 0;
+             index < ChozoStatueInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = ChozoStatueInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xaa0000 | operand) |
+                rom.ReadByte(0xaa0000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    ChozoStatueEnemyDefinitions.EnemyDefinitionPointer,
+                    operand, out ushort selected),
+                $"Chozo statue visual selector $AA:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Chozo statue visual selector $AA:{operand:X4} matches the cartridge");
+            AssertTrue(chozoFrames.Contains(selected),
+                $"Chozo statue visual target $AA:{selected:X4} has installed art");
+            selectedChozoFrames.Add(selected);
+        }
+        AssertTrue(selectedChozoFrames.SetEquals(chozoFrames),
+            "every installed Chozo composition is selected by a native program");
+        AssertThrows<InvalidDataException>(
+            () => ChozoStatueVisualDefinitions.FrameAt(
+                ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial),
+            "Chozo visual selector rejects neighboring mechanics data");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -945,6 +978,8 @@ internal static partial class Program
                         ? RoomEnemySystem.MultiviolaDefinition
                     : frame.Name.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairLavaJumpingEnemyDefinition
+                    : frame.Name.StartsWith("chozo_statue_aa_", StringComparison.Ordinal)
+                        ? ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -1051,7 +1086,30 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preNorfairLavaJumperFrames = document.Frames
+        var preChozoStatueFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preChozoStatueBindings = document.DisplayFrames!
+            .Where(pair => preChozoStatueFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreChozoStatueFrameCount,
+            preChozoStatueFrames.Count,
+            "version-fifty composition schema count");
+        using (var preChozoStatueJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreChozoStatueVersion,
+                Frames = preChozoStatueFrames,
+                DisplayFrames = preChozoStatueBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog chozoUpgraded = EnemySpritemapCatalog.Load(
+                preChozoStatueJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in ChozoStatueVisualDefinitions.Frames())
+                AssertTrue(chozoUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty override inherits Chozo frame {frame.Name}");
+        }
+        var preNorfairLavaJumperFrames = preChozoStatueFrames
             .Where(pair => !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preNorfairLavaJumperBindings = document.DisplayFrames!
@@ -1417,6 +1475,12 @@ internal static partial class Program
         {
             OffsetX = lavaJumperPart.OffsetX + 1,
         };
+        const string chozoFrameName = "chozo_statue_aa_efd8";
+        SpriteVisualPart chozoPart = document.Frames[chozoFrameName][0];
+        document.Frames[chozoFrameName][0] = chozoPart with
+        {
+            OffsetX = chozoPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1457,6 +1521,17 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockLavaJumper.LowTable[0] + 1)),
             editedLavaJumper.LowTable[0],
             "lava-jumper authored OAM offset changes installed room presentation");
+        OamBuffer stockChozo = DrawEnemy(stock, new FrameReadGuard(rom),
+            ChozoStatueVisualDefinitions.FrameAt(
+                ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
+            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer);
+        OamBuffer editedChozo = DrawEnemy(edited, new FrameReadGuard(rom),
+            ChozoStatueVisualDefinitions.FrameAt(
+                ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
+            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer);
+        AssertEqual(unchecked((byte)(stockChozo.LowTable[0] + 1)),
+            editedChozo.LowTable[0],
+            "Chozo authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
@@ -1992,7 +2067,8 @@ internal static partial class Program
             document.Frames.Where(pair =>
                 !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal));
+                !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
@@ -3224,6 +3300,8 @@ internal static partial class Program
                         ? MetroidVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ShaktoolDefinition
                         ? ShaktoolVisualDefinitions.Bank
+                    : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
+                        ? ChozoStatueVisualDefinitions.Bank
                     : definition is RoomEnemySystem.TripperDefinition or
                         RoomEnemySystem.KamerDefinition
                         ? TripperKamerVisualDefinitions.Bank

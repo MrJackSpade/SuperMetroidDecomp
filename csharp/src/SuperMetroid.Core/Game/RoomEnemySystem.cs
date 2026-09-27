@@ -1587,7 +1587,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_NoobTubeCrack when slot.EnemyDefinitionPointer == N00bTubeCracksDefinition:
                 InitializeN00bTubeCracks();
                 return;
-            case EnemyAiCodePointers.InitAI_Chozo when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
+            case EnemyAiCodePointers.InitAI_Chozo when slot.EnemyDefinitionPointer == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer:
                 InitializeChozoStatue(slot);
                 return;
             case EnemyAiCodePointers.RTL_A2804C:
@@ -2126,7 +2126,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_HurtAI_Shaktool when slot.EnemyDefinitionPointer == ShaktoolDefinition:
                 RunShaktoolMain(slot, RequireShaktoolState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Chozo when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
+            case EnemyAiCodePointers.MainAI_Chozo when slot.EnemyDefinitionPointer == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer:
                 RunChozoStatueMain(slot, RequireChozoStatueState(slot));
                 return;
             default:
@@ -3695,7 +3695,7 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer == CrocomireDefinition)
             return CrocomireInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == ChozoStatueDefinition)
+        if (slot.EnemyDefinitionPointer == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer)
             return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == FakeKraidDefinition)

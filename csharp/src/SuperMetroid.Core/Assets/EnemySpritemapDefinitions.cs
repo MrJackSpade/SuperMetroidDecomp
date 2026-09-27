@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 50;
+    internal const int Version = 51;
+    internal const int PreChozoStatueVersion = 50;
+    internal const int PreChozoStatueFrameCount = 969;
     internal const int PreNorfairLavaJumperVersion = 49;
     internal const int PreNorfairLavaJumperFrameCount = 958;
     internal const int PreMultiviolaVersion = 48;
@@ -647,6 +649,7 @@ internal static class EnemySpritemapDefinitions
         .. DragonVisualDefinitions.Frames(),
         .. MultiviolaVisualDefinitions.Frames(),
         .. NorfairLavaJumperVisualDefinitions.Frames(),
+        .. ChozoStatueVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -689,6 +692,8 @@ internal static class EnemySpritemapDefinitions
                 MultiviolaVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.NorfairLavaJumpingEnemyDefinition =>
                 NorfairLavaJumperVisualDefinitions.FrameAt(operandAddress),
+            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer =>
+                ChozoStatueVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -772,6 +777,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.DragonDefinition or
             RoomEnemySystem.MultiviolaDefinition or
             RoomEnemySystem.NorfairLavaJumpingEnemyDefinition or
+            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

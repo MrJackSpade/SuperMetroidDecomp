@@ -78,7 +78,6 @@ public readonly record struct ChozoStatuePlmRequest(
 public sealed partial class RoomEnemySystem
 {
     private const ushort N00bTubeCracksDefinition = 0xf0bf;
-    private const ushort ChozoStatueDefinition = 0xf0ff;
 
     private const ushort EmptyBankAaSpritemap = 0x804d;
 
@@ -232,7 +231,7 @@ public sealed partial class RoomEnemySystem
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
         RoomEnemySlot statue = _slots[0];
-        if (statue.EnemyDefinitionPointer != ChozoStatueDefinition)
+        if (statue.EnemyDefinitionPointer != ChozoStatueEnemyDefinitions.EnemyDefinitionPointer)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
         int triggerBlockX = statue.Parameter2 == 0 ? 0x4a : ChozoStatuePlmRomData.LowerNorfairTriggerX;
@@ -315,7 +314,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (statue.EnemyDefinitionPointer != ChozoStatueDefinition)
+        if (statue.EnemyDefinitionPointer != ChozoStatueEnemyDefinitions.EnemyDefinitionPointer)
             return false;
 
         ChozoStatueState state = RequireChozoStatueState(statue);

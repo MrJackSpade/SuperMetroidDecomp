@@ -48,7 +48,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Chozo statue instruction mechanics: 166 compiled words across four production " +
-            "programs; 52 spritemap reads remain presentation data.");
+            "programs; 52 spritemap selectors bind separately installed presentation data.");
     }
 
     private static int ProbeChozoStatueInstructionMechanicsAllocation()

@@ -313,8 +313,12 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreDragonFrameCount,
             "Tripper/Kamer add sixteen animated and two frozen OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreDragonFrameCount + 12,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreMultiviolaFrameCount,
             "Dragon adds twelve distinct body and wing OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreMultiviolaFrameCount +
+                MultiviolaVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Multiviola adds eight distinct spinning OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -816,6 +820,34 @@ internal static partial class Program
             () => DragonVisualDefinitions.FrameAt(
                 DragonInstructionProgramDefinitions.AttackFinishedCallback),
             "Dragon visual selector rejects neighboring attack callback");
+        HashSet<ushort> multiviolaFrames = MultiviolaVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(MultiviolaVisualDefinitions.FrameCount, multiviolaFrames.Count,
+            "Multiviola's fourteen-frame loop selects eight distinct OAM frames");
+        var selectedMultiviolaFrames = new HashSet<ushort>();
+        for (int index = 0;
+             index < MultiviolaInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = MultiviolaInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
+                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.MultiviolaDefinition, operand, out ushort selected),
+                $"Multiviola visual selector $A2:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Multiviola visual selector $A2:{operand:X4} matches the cartridge");
+            AssertTrue(multiviolaFrames.Contains(selected),
+                $"Multiviola visual target $A2:{selected:X4} has installed art");
+            selectedMultiviolaFrames.Add(selected);
+        }
+        AssertTrue(selectedMultiviolaFrames.SetEquals(multiviolaFrames),
+            "every installed Multiviola composition is selected by its loop");
+        AssertThrows<InvalidDataException>(
+            () => MultiviolaVisualDefinitions.FrameAt(
+                MultiviolaInstructionProgramDefinitions.Flying),
+            "Multiviola visual selector rejects its neighboring duration word");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -873,6 +905,8 @@ internal static partial class Program
                         ? RoomEnemySystem.TripperDefinition
                     : frame.Name.StartsWith("dragon_", StringComparison.Ordinal)
                         ? RoomEnemySystem.DragonDefinition
+                    : frame.Name.StartsWith("multiviola_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.MultiviolaDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -979,7 +1013,29 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preDragonFrames = document.Frames
+        var preMultiviolaFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preMultiviolaBindings = document.DisplayFrames!
+            .Where(pair => preMultiviolaFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreMultiviolaFrameCount,
+            preMultiviolaFrames.Count, "version-forty-eight composition schema count");
+        using (var preMultiviolaJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreMultiviolaVersion,
+                Frames = preMultiviolaFrames,
+                DisplayFrames = preMultiviolaBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog multiviolaUpgraded = EnemySpritemapCatalog.Load(
+                preMultiviolaJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in MultiviolaVisualDefinitions.Frames())
+                AssertTrue(multiviolaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-forty-eight override inherits Multiviola frame {frame.Name}");
+        }
+        var preDragonFrames = preMultiviolaFrames
             .Where(pair => !pair.Key.StartsWith("dragon_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preDragonBindings = document.DisplayFrames!
@@ -1288,6 +1344,12 @@ internal static partial class Program
         {
             OffsetX = dragonPart.OffsetX + 1,
         };
+        const string multiviolaFrameName = "multiviola_spin_0";
+        SpriteVisualPart multiviolaPart = document.Frames[multiviolaFrameName][0];
+        document.Frames[multiviolaFrameName][0] = multiviolaPart with
+        {
+            OffsetX = multiviolaPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1306,6 +1368,17 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockDragon.LowTable[0] + 1)),
             editedDragon.LowTable[0],
             "Dragon authored body offset changes installed room OAM");
+        OamBuffer stockMultiviola = DrawEnemy(stock, new FrameReadGuard(rom),
+            MultiviolaVisualDefinitions.FrameAt(
+                MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.MultiviolaDefinition);
+        OamBuffer editedMultiviola = DrawEnemy(edited, new FrameReadGuard(rom),
+            MultiviolaVisualDefinitions.FrameAt(
+                MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.MultiviolaDefinition);
+        AssertEqual(unchecked((byte)(stockMultiviola.LowTable[0] + 1)),
+            editedMultiviola.LowTable[0],
+            "Multiviola authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
@@ -1839,7 +1912,8 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
-                !pair.Key.StartsWith("dragon_", StringComparison.Ordinal));
+                !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&

@@ -344,8 +344,12 @@ internal static partial class Program
             "dead Zoomer, Ripper, Skree, and Sidehopper add thirteen compositions");
         AssertEqual(EnemySpritemapDefinitions.PreMochtroidFrameCount +
                 MochtroidVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreEvirFrameCount,
             "Mochtroid adds six free-flight and attached OAM compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreEvirFrameCount +
+                EvirVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Evir adds 24 body, arms, and projectile compositions");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -616,6 +620,7 @@ internal static partial class Program
         VerifyInstalledBullInstructionFrames(rom, stock, flags);
         VerifyInstalledAlcoonInstructionFrames(rom, stock);
         VerifyInstalledMochtroidVisuals(rom, stock);
+        VerifyInstalledEvirVisuals(rom, stock);
         VerifyInstalledBeetomInstructionFrames(rom, stock);
         VerifyInstalledHopperInstructionFrames(rom, stock);
         VerifyInstalledChootInstructionFrames(rom, stock);
@@ -1026,6 +1031,10 @@ internal static partial class Program
                     ? RoomEnemySystem.BoyonDefinition
                     : frame.Name.StartsWith("mochtroid_", StringComparison.Ordinal)
                         ? EnemyDefinitionPointers.Mochtroid
+                    : frame.Name.StartsWith("evir_projectile_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.EvirProjectileDefinition
+                    : frame.Name.StartsWith("evir_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.EvirDefinition
                     : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
                         ? RoomEnemySystem.SciserDefinition
                     : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
@@ -1162,12 +1171,36 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        HashSet<string> evirNames = EvirVisualDefinitions.Frames()
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
+        var preEvirFrames = document.Frames
+            .Where(pair => !evirNames.Contains(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preEvirBindings = document.DisplayFrames!
+            .Where(pair => preEvirFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreEvirFrameCount,
+            preEvirFrames.Count, "version-fifty-six composition schema count");
+        using (var preEvirJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreEvirVersion,
+                Frames = preEvirFrames,
+                DisplayFrames = preEvirBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog evirUpgraded = EnemySpritemapCatalog.Load(
+                preEvirJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in EvirVisualDefinitions.Frames())
+                AssertTrue(evirUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty-six override inherits {frame.Name}");
+        }
         HashSet<string> mochtroidNames = MochtroidVisualDefinitions.Frames()
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        var preMochtroidFrames = document.Frames
+        var preMochtroidFrames = preEvirFrames
             .Where(pair => !mochtroidNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preMochtroidBindings = document.DisplayFrames!
+        var preMochtroidBindings = preEvirBindings
             .Where(pair => preMochtroidFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMochtroidFrameCount,
@@ -2291,6 +2324,7 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
+                !pair.Key.StartsWith("evir_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("mochtroid_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("dead_zoomer_corpse_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("dead_ripper_corpse_", StringComparison.Ordinal) &&
@@ -3534,6 +3568,9 @@ internal static partial class Program
                         ? MetroidVisualDefinitions.Bank
                     : definition == EnemyDefinitionPointers.Mochtroid
                         ? MochtroidVisualDefinitions.Bank
+                    : definition is RoomEnemySystem.EvirDefinition or
+                        RoomEnemySystem.EvirProjectileDefinition
+                        ? EvirVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ShaktoolDefinition
                         ? ShaktoolVisualDefinitions.Bank
                     : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer

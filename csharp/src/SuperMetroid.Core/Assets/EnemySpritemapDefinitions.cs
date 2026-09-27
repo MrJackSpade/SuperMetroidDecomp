@@ -11,13 +11,15 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    internal const int PreEvirVersion = 56;
+    internal const int PreEvirFrameCount = 1028;
     internal const int PreMochtroidVersion = 55;
     internal const int PreMochtroidFrameCount = 1022;
     internal const int PreDeadTourianCorpseVersion = 54;
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 56;
+    internal const int Version = 57;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -665,6 +667,7 @@ internal static class EnemySpritemapDefinitions
         .. DeadTorizoArtworkDefinitions.StationaryFrames(),
         .. DeadTourianCorpseVisualDefinitions.Frames(),
         .. MochtroidVisualDefinitions.Frames(),
+        .. EvirVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -723,6 +726,8 @@ internal static class EnemySpritemapDefinitions
                 DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operandAddress),
             EnemyDefinitionPointers.Mochtroid =>
                 MochtroidVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.EvirDefinition or RoomEnemySystem.EvirProjectileDefinition =>
+                EvirVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -815,6 +820,8 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.DeadSkreeDefinition or
             RoomEnemySystem.DeadSidehopperDefinition or
             EnemyDefinitionPointers.Mochtroid or
+            RoomEnemySystem.EvirDefinition or
+            RoomEnemySystem.EvirProjectileDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

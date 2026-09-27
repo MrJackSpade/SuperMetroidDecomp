@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Evir body, arms, and projectile compositions (2026-09-27)
+
+Evir's 49 bank-`$A8` presentation operands now select 24 named, editable
+body, arm, and projectile OAM compositions. Body/arm motion, projectile aiming,
+regeneration callbacks, and all instruction timing remain compiled mechanics.
+The verifier compares every selector and complete OAM output with the pinned
+cartridge, exercises all 49 real instruction-selection paths with visual ROM
+reads forbidden, and checks version-56 override inheritance. Isolated room
+`$8F:D4C2` matches native pixels for 90 neutral frames with all runtime
+cartridge reads denied. This clears its staged first-frame failure, not the
+broader enemy-art or full ROM-free runtime contract.
+
 ## Mochtroid flight and attachment compositions (2026-09-27)
 
 Eight bank-`$A3` Mochtroid instruction operands now select six named, editable

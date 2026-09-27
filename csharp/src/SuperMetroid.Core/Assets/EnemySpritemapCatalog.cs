@@ -73,6 +73,9 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreEvirVersion when
+                stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreEvirFrameCount,
             EnemySpritemapDefinitions.PreMochtroidVersion when
                 stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreMochtroidFrameCount,

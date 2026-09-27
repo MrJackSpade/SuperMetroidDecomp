@@ -200,7 +200,8 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class EvirInstructionReadGuard(ISnesAddressSpace source) :
+    private sealed class EvirInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
@@ -226,6 +227,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (forbidPresentation)
+                            throw new InvalidOperationException(
+                                $"Installed Evir read presentation byte ${address:X6}.");
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

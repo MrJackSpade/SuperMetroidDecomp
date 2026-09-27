@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort CrocomireBlankBg2Tile = 0x0338;
-    private const int CrocomireVerticalCorrectionMapTable = 0xa48b79;
 
     private void ClearCrocomireBg2WorkingTilemap()
     {
@@ -57,24 +56,8 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot body = state.Body;
         if (includeVerticalPosition)
-        {
-            ushort vertical = unchecked((ushort)(67 - body.YPosition));
-            for (int tableIndex = 16; tableIndex >= 0; tableIndex--)
-            {
-                ushort authoredMap = ReadWord(
-                    _bus!,
-                    CrocomireVerticalCorrectionMapTable + tableIndex * 2);
-                if (body.SpritemapPointer != authoredMap)
-                    continue;
-
-                vertical = unchecked((ushort)(vertical + ReadWord(
-                    _bus!,
-                    (body.Definition.Bank << 16) |
-                    unchecked((ushort)(body.SpritemapPointer + 0x001c)))));
-                break;
-            }
-            CrocomireBg2VerticalScroll = vertical;
-        }
+            CrocomireBg2VerticalScroll = CrocomireBg2ScrollDefinitions.VerticalScroll(
+                body.YPosition, body.SpritemapPointer);
 
         // The tongue is a normal second enemy actor whose var A is the body-relative X
         // offset. $8BA4 updates it even while the body's bulk is represented by BG2.

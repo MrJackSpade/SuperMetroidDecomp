@@ -34,6 +34,7 @@ internal static partial class Program
             VerifyInstalledMagdollitePaletteCycle(bus, directory, stock);
             VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock);
             VerifyInstalledCrocomireColors(bus, directory, stock);
+            VerifyCrocomireBg2ScrollDefinitions(bus);
             VerifyCrocomireSkeletonArtwork(bus, directory, stock);
             VerifyInstalledDraygonColors(bus, directory, stock);
             VerifyInstalledPhantoonColors(bus, directory, stock);

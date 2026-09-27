@@ -223,6 +223,13 @@ camera behavior remain compiled cartridge logic.
 planet, star-sheet, and title OAM frames. Destruction actors also use shared frames
 from `ceres-flight-sprites.json`. Both files support visual part edits without
 changing the native actor instruction timing, motion, or scene handoff.
+`ceres-zebes-reveal-actors.json` holds the initial 16-bit screen X/Y coordinates
+for the planet, four star sheets, and PLANET ZEBES title. Keep the six IDs and
+their order; edit only `x`/`y` under `overrides/intro-cinematic/`, then restart
+the scene. These values are read from the pinned cartridge's actor initializer
+operands. The slide acceleration, visibility schedule, deletion, and phase
+handoff remain compiled. Missing, reordered, or malformed entries fail loudly,
+and an override survives stock installation repair.
 The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
 view of the Ceres flight map, with its original sixteen-frame upload cadence.
 

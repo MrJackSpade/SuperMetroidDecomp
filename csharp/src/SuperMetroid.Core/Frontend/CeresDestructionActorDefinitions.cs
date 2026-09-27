@@ -12,6 +12,17 @@ internal static class CeresDestructionActorDefinitions
     /// <summary>Number of reveal actors allocated by <c>$8B:C810-$C831</c>.</summary>
     public const int ZebesActorCount = 6;
 
+    /// <summary>Native reveal actor placement operands in bank $8B, in spawn order.</summary>
+    public static readonly (string Id, ushort XAddress, ushort YAddress)[] ZebesPlacementSources =
+    [
+        ("planet", 0xc83c, 0xc842),
+        ("stars-upper-left", 0xc944, 0xc94a),
+        ("stars-upper-right", 0xc958, 0xc95e),
+        ("stars-lower-left", 0xc96c, 0xc972),
+        ("stars-lower-right", 0xc980, 0xc986),
+        ("planet-zebes-title", 0xc993, 0xc999),
+    ];
+
     /// <summary>Returns the three persistent actors behind the station explosion.</summary>
     /// <remarks>
     /// Issues #625 and #1015: row zero's distinct large-asteroid list at

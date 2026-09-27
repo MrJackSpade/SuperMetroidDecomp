@@ -447,14 +447,14 @@ internal sealed partial class CeresDestructionCinematicState
         angle = CeresDestructionRomData.Motion.ApproachAngle;
         zoom = CeresDestructionRomData.Motion.IdentityScale;
         actors.Clear();
-        zebesPlanetActor = CreateActor(CeresDestructionActorDefinitions.ZebesActor(0));
+        zebesPlanetActor = CreateZebesActor(0);
         actors.Add(zebesPlanetActor);
-        actors.Add(CreateActor(CeresDestructionActorDefinitions.ZebesActor(1)));
-        actors.Add(CreateActor(CeresDestructionActorDefinitions.ZebesActor(2)));
-        actors.Add(CreateActor(CeresDestructionActorDefinitions.ZebesActor(3)));
-        zebesCompletionStarActor = CreateActor(CeresDestructionActorDefinitions.ZebesActor(4));
+        actors.Add(CreateZebesActor(1));
+        actors.Add(CreateZebesActor(2));
+        actors.Add(CreateZebesActor(3));
+        zebesCompletionStarActor = CreateZebesActor(4);
         actors.Add(zebesCompletionStarActor);
-        zebesTitleActor = CreateActor(CeresDestructionActorDefinitions.ZebesActor(5));
+        zebesTitleActor = CreateZebesActor(5);
         actors.Add(zebesTitleActor);
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
@@ -514,6 +514,22 @@ internal sealed partial class CeresDestructionCinematicState
             definition.InstructionList);
         actor.PreInstructionPointerForDiscovery(definition.ActivePreInstruction);
         return actor;
+    }
+
+    private IntroDiscoverySprite CreateZebesActor(int index)
+    {
+        CeresDestructionActorDefinition definition =
+            CeresDestructionActorDefinitions.ZebesActor(index);
+        if (artwork?.CeresDestruction.RevealActors is { } layout)
+        {
+            CeresRevealActorPlacement placement = layout[index];
+            definition = definition with
+            {
+                X = checked((ushort)placement.X),
+                Y = checked((ushort)placement.Y),
+            };
+        }
+        return CreateActor(definition);
     }
 
     private static void AddSignedSixteenSixteen(

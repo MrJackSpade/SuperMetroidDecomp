@@ -92,6 +92,77 @@ internal static partial class Program
 
         string overrideRoot = installation.IntroCinematicOverrideDirectory;
         Directory.CreateDirectory(overrideRoot);
+        string actorsName = CeresRevealActorLayoutFormat.FileName;
+        string actorsPath = Path.Combine(installation.IntroCinematicDirectory, actorsName);
+        string actorsOverride = Path.Combine(overrideRoot, actorsName);
+        CeresRevealActorLayoutDocument actorsDocument =
+            JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(
+                File.ReadAllBytes(actorsPath), MapPresentationFormat.JsonOptions) ??
+            throw new InvalidDataException("Stock Zebes reveal actor layout is empty.");
+        for (int index = 0; index < actorsDocument.Actors.Length; index++)
+        {
+            var source = CeresDestructionActorDefinitions.ZebesPlacementSources[index];
+            AssertEqual(source.Id, actorsDocument.Actors[index].Id,
+                $"Zebes reveal actor {index} retains its native identity");
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(bus,
+                    CeresDestructionActorDefinitions.NativeBank | source.XAddress),
+                actorsDocument.Actors[index].X,
+                $"Zebes reveal actor {index} X matches the cartridge operand");
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(bus,
+                    CeresDestructionActorDefinitions.NativeBank | source.YAddress),
+                actorsDocument.Actors[index].Y,
+                $"Zebes reveal actor {index} Y matches the cartridge operand");
+        }
+        int stockPlanetX = actorsDocument.Actors[0].X;
+        actorsDocument.Actors[0] = actorsDocument.Actors[0] with { X = stockPlanetX + 16 };
+        using (var output = File.Create(actorsOverride))
+            CeresRevealActorLayout.Write(output, actorsDocument);
+        IntroCinematicArtworkCatalog movedPlanet = installation.LoadIntroCinematicArt();
+        var stockReveal = new CeresDestructionCinematicState(guard, artwork: stock);
+        var movedReveal = new CeresDestructionCinematicState(guard, artwork: movedPlanet);
+        for (int frame = 0; frame < 4000 &&
+            stockReveal.Phase != CeresDestructionPhase.PlanetZebesTitle; frame++)
+        {
+            stockReveal.Step();
+            movedReveal.Step();
+        }
+        AssertEqual(CeresDestructionPhase.PlanetZebesTitle, stockReveal.Phase,
+            "Zebes placement fixture reaches the planet reveal");
+        AssertEqual(stockReveal.Phase, movedReveal.Phase,
+            "visual placement edit preserves cinematic handoff timing");
+        var planetField = typeof(CeresDestructionCinematicState).GetField("zebesPlanetActor",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic) ??
+            throw new InvalidOperationException("Zebes planet actor field is unavailable.");
+        var stockPlanet = (IntroDiscoverySprite?)planetField.GetValue(stockReveal) ??
+            throw new InvalidOperationException("Stock Zebes planet actor did not spawn.");
+        var editedPlanet = (IntroDiscoverySprite?)planetField.GetValue(movedReveal) ??
+            throw new InvalidOperationException("Edited Zebes planet actor did not spawn.");
+        AssertEqual(unchecked((ushort)(stockPlanet.XPosition + 16)), editedPlanet.XPosition,
+            "edited scene position moves the actual planet actor by one tile");
+        for (int frame = 0; frame < 20; frame++)
+        {
+            stockReveal.Step();
+            movedReveal.Step();
+        }
+        AssertTrue(!stockReveal.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
+                movedReveal.CaptureRenderSnapshot().Memory.Oam),
+            "edited planet placement changes production OAM, not just JSON parsing");
+        File.WriteAllBytes(actorsPath, [0]);
+        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+            "a valid actor override cannot conceal damaged stock layout");
+        GameInstallation repairedActors = GameAssetInstaller.EnsureInstalled(installation.Root)
+            ?? throw new InvalidOperationException("Ceres reveal actor repair lost installation.");
+        AssertEqual(stockPlanetX + 16,
+            repairedActors.LoadIntroCinematicArt().CeresDestruction.RevealActors[0].X,
+            "actor layout override survives stock repair");
+        actorsDocument.Actors[0] = actorsDocument.Actors[0] with { Id = "wrong-actor" };
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var invalid = new MemoryStream();
+            CeresRevealActorLayout.Write(invalid, actorsDocument);
+        }, "Zebes reveal layout rejects missing or reordered actor identities");
+        File.Delete(actorsOverride);
+
         string spritesName = CeresDestructionSpriteFormat.FileName;
         string spritesPath = Path.Combine(installation.IntroCinematicDirectory, spritesName);
         string spritesOverride = Path.Combine(overrideRoot, spritesName);
@@ -220,6 +291,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "malformed Ceres destruction override fails loudly");
         File.Delete(ceresOverride);
-        Console.WriteLine("Ceres destruction art: 23 native OAM frames, visible sprite edit, exact PNG/JSON transfers, overrides and state rebind pass.");
+        Console.WriteLine("Ceres destruction art: 23 native OAM frames, six ROM-sourced actor placements, visible edits, exact PNG/JSON transfers, overrides and state rebind pass.");
     }
 }

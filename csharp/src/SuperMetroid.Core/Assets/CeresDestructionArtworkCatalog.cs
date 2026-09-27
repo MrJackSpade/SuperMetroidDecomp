@@ -11,12 +11,13 @@ public sealed class CeresDestructionArtworkCatalog
 {
     private CeresDestructionArtworkCatalog(byte[] ceresMaps,
         RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters,
-        CeresDestructionSpritePresentation sprites)
+        CeresDestructionSpritePresentation sprites, CeresRevealActorLayout revealActors)
     {
         CeresMaps = ceresMaps;
         ZebesMap = zebesMap;
         ZebesCharacters = zebesCharacters;
         Sprites = sprites;
+        RevealActors = revealActors;
     }
 
     /// <summary>Two destruction views followed by the native clear-map slice.</summary>
@@ -24,14 +25,17 @@ public sealed class CeresDestructionArtworkCatalog
     public RoomBackgroundTilemapAtlas ZebesMap { get; }
     public RoomCharacterAtlas ZebesCharacters { get; }
     public CeresDestructionSpritePresentation Sprites { get; }
+    public CeresRevealActorLayout RevealActors { get; }
 
     public static CeresDestructionArtworkCatalog Load(Stream ceresMapJson,
-        Stream zebesMapJson, Stream zebesCharactersPng, Stream spritesJson)
+        Stream zebesMapJson, Stream zebesCharactersPng, Stream spritesJson,
+        Stream revealActorsJson)
     {
         ArgumentNullException.ThrowIfNull(ceresMapJson);
         ArgumentNullException.ThrowIfNull(zebesMapJson);
         ArgumentNullException.ThrowIfNull(zebesCharactersPng);
         ArgumentNullException.ThrowIfNull(spritesJson);
+        ArgumentNullException.ThrowIfNull(revealActorsJson);
         CeresDestructionMapDocument document = ReadMap(ceresMapJson);
         var maps = new byte[CeresDestructionArtworkFormat.MapByteCount];
         for (int view = 0; view < document.Views.Length; view++)
@@ -43,7 +47,8 @@ public sealed class CeresDestructionArtworkCatalog
                 CeresDestructionArtworkFormat.ZebesMapByteCount),
             RoomCharacterAtlas.Load(zebesCharactersPng,
                 CeresDestructionArtworkFormat.ZebesCharacterByteCount),
-            CeresDestructionSpritePresentation.Load(spritesJson));
+            CeresDestructionSpritePresentation.Load(spritesJson),
+            CeresRevealActorLayout.Load(revealActorsJson));
     }
 
     public static void WriteMap(Stream json, CeresDestructionMapDocument document)

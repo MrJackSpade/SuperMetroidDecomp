@@ -65,11 +65,42 @@ internal static class CeresDestructionArtworkExtractor
             });
         byte[] spritesFile = spritesJson.ToArray();
 
+        // These six X/Y operands are presentation data. Read the pinned cartridge
+        // directly, then verify that the existing translated actor definitions
+        // have not drifted from the source before publishing an editable layout.
+        var placements = new CeresRevealActorPlacement[
+            CeresDestructionActorDefinitions.ZebesActorCount];
+        for (int index = 0; index < placements.Length; index++)
+        {
+            var source = CeresDestructionActorDefinitions.ZebesPlacementSources[index];
+            ushort x = RomDataReader.ReadWordFixedBank(bus,
+                CeresDestructionActorDefinitions.NativeBank | source.XAddress);
+            ushort y = RomDataReader.ReadWordFixedBank(bus,
+                CeresDestructionActorDefinitions.NativeBank | source.YAddress);
+            CeresDestructionActorDefinition translatedActor =
+                CeresDestructionActorDefinitions.ZebesActor(index);
+            if (x != translatedActor.X || y != translatedActor.Y)
+                throw new InvalidDataException(
+                    $"Ceres reveal actor {source.Id} placement differs from pinned cartridge operands.");
+            placements[index] = new CeresRevealActorPlacement
+            {
+                Id = source.Id, X = x, Y = y,
+            };
+        }
+        using var actorsJson = new MemoryStream();
+        CeresRevealActorLayout.Write(actorsJson, new CeresRevealActorLayoutDocument
+        {
+            Version = CeresRevealActorLayoutFormat.Version,
+            Actors = placements,
+        });
+        byte[] actorsFile = actorsJson.ToArray();
+
         CeresDestructionArtworkCatalog compiled = CeresDestructionArtworkCatalog.Load(
             new MemoryStream(mapJson.ToArray(), writable: false),
             new MemoryStream(zebesMapJson, writable: false),
             new MemoryStream(zebesPng, writable: false),
-            new MemoryStream(spritesFile, writable: false));
+            new MemoryStream(spritesFile, writable: false),
+            new MemoryStream(actorsFile, writable: false));
         if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
                 CeresDestructionArtworkFormat.MapByteCount)) ||
             !compiled.ZebesMap.Transfer.Span.SequenceEqual(zebesMap.AsSpan(0,
@@ -82,6 +113,7 @@ internal static class CeresDestructionArtworkExtractor
             [CeresDestructionArtworkFormat.ZebesMapFileName] = zebesMapJson,
             [CeresDestructionArtworkFormat.ZebesCharacterFileName] = zebesPng,
             [CeresDestructionSpriteFormat.FileName] = spritesFile,
+            [CeresRevealActorLayoutFormat.FileName] = actorsFile,
         };
     }
 }

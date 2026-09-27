@@ -630,18 +630,20 @@ public static class IntroCinematicArtworkFiles
             (string zebesMapPath, byte[] zebesMap) = ReadSelected(CeresDestructionArtworkFormat.ZebesMapFileName);
             (string zebesPngPath, byte[] zebesPng) = ReadSelected(CeresDestructionArtworkFormat.ZebesCharacterFileName);
             (string spritesPath, byte[] sprites) = ReadSelected(CeresDestructionSpriteFormat.FileName);
+            (string actorsPath, byte[] actors) = ReadSelected(CeresRevealActorLayoutFormat.FileName);
             try
             {
                 return CeresDestructionArtworkCatalog.Load(
                     new MemoryStream(ceres, writable: false),
                     new MemoryStream(zebesMap, writable: false),
                     new MemoryStream(zebesPng, writable: false),
-                    new MemoryStream(sprites, writable: false));
+                    new MemoryStream(sprites, writable: false),
+                    new MemoryStream(actors, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}, {spritesPath}): {error.Message}",
+                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}, {spritesPath}, {actorsPath}): {error.Message}",
                     error);
             }
         }
@@ -688,6 +690,7 @@ public static class IntroCinematicArtworkFiles
         CeresDestructionArtworkFormat.ZebesMapFileName,
         CeresDestructionArtworkFormat.ZebesCharacterFileName,
         CeresDestructionSpriteFormat.FileName,
+        CeresRevealActorLayoutFormat.FileName,
     ];
 
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);

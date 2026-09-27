@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -42,15 +43,6 @@ public sealed partial class BabyMetroidCutsceneState
 
     private static ReadOnlySpan<short> DeathExplosionYOffsets =>
         [-24, 20, -30, -3, -13, 18, -32, 8, -10, 19];
-
-    // Killing the Baby restores Mother Brain's attack graphics over the four OBJ rows that
-    // `$A9:8FE5` temporarily replaced. These are the literal `$A9:8FC7` source/destination
-    // records consumed one per `$CCC0` call.
-    private static ReadOnlySpan<uint> MotherBrainAttackTileSources =>
-        [0xb7a000, 0xb7a200, 0xb7a400, 0xb7a600];
-
-    private static ReadOnlySpan<ushort> MotherBrainAttackTileDestinations =>
-        [0x7c00, 0x7d00, 0x7e00, 0x7f00];
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
     // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
@@ -771,17 +763,21 @@ public sealed partial class BabyMetroidCutsceneState
                 if ((FunctionTimer & 0x8000) != 0)
                 {
                     int transferIndex = AttackTileTransferIndex;
-                    if ((uint)transferIndex >= (uint)MotherBrainAttackTileSources.Length)
+                    MotherBrainSpecialSpriteSheetDefinition attack =
+                        MotherBrainSpecialSpriteArtworkDefinitions.Attack;
+                    if ((uint)transferIndex >= (uint)attack.PageCount)
                         throw new InvalidOperationException("Mother Brain attack-tile transfer list is already complete.");
 
                     attackTileTransfer = new MotherBrainSpriteTileTransferRequest(
                         EntryIndex: AttackTileTransferIndex,
-                        Size: 0x0200,
-                        SourceAddress: MotherBrainAttackTileSources[transferIndex],
-                        VramDestination: MotherBrainAttackTileDestinations[transferIndex]);
+                        Size: MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
+                        SourceAddress: unchecked((uint)(attack.SourceAddress +
+                            transferIndex * MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
+                        VramDestination: unchecked((ushort)(attack.FirstDestinationWord +
+                            transferIndex * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride)));
                     AttackTileTransferIndex++;
 
-                    if (AttackTileTransferIndex == MotherBrainAttackTileSources.Length)
+                    if (AttackTileTransferIndex == attack.PageCount)
                     {
                         // ProcessSpriteTilesTransfers observes the zero terminator after
                         // publishing entry four. Native falls straight into `$CCDE`, so the

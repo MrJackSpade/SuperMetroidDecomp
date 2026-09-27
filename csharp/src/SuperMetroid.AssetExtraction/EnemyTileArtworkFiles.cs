@@ -188,6 +188,15 @@ public static class EnemyTileArtworkFiles
                 "Mother Brain escape-text PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory,
             MotherBrainEscapeTextArtworkDefinitions.FileName), escapeTextPng);
+        var motherBrainSpecialHashes = new Dictionary<int, string>();
+        foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
+                 MotherBrainSpecialSpriteArtworkDefinitions.All)
+        {
+            byte[] png = ExtractMotherBrainSpecialSpritePng(bus, sheet);
+            File.WriteAllBytes(Path.Combine(directory, sheet.FileName), png);
+            motherBrainSpecialHashes.Add(sheet.SourceAddress,
+                Convert.ToHexString(SHA256.HashData(png)));
+        }
         byte[] upperKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.UpperTilemap);
         byte[] lowerKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.LowerTilemap);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
@@ -275,6 +284,7 @@ public static class EnemyTileArtworkFiles
             gunshipLiftoffHashes,
             Convert.ToHexString(SHA256.HashData(corpsePng)),
             Convert.ToHexString(SHA256.HashData(escapeTextPng)),
+            motherBrainSpecialHashes,
             Convert.ToHexString(SHA256.HashData(upperKraid)),
             Convert.ToHexString(SHA256.HashData(lowerKraid)),
             kraidHeadHashes,
@@ -334,6 +344,9 @@ public static class EnemyTileArtworkFiles
                 GunshipLiftoffTransferDefinitions.Frames.Length ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainCorpseSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainEscapeTextSha256) ||
+            manifest.MotherBrainSpecialSpritesSha256 is null ||
+            manifest.MotherBrainSpecialSpritesSha256.Count !=
+                MotherBrainSpecialSpriteArtworkDefinitions.All.Count ||
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
             manifest.KraidHeadsSha256 is null ||
@@ -597,6 +610,31 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Mother Brain escape-text PNG {MotherBrainEscapeTextArtworkDefinitions.FileName}: {error.Message}",
                 error);
         }
+        var motherBrainSpecialSheets = new Dictionary<int, RoomCharacterAtlas>();
+        foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
+                 MotherBrainSpecialSpriteArtworkDefinitions.All)
+        {
+            if (!manifest.MotherBrainSpecialSpritesSha256.TryGetValue(
+                    sheet.SourceAddress, out string? expectedHash) ||
+                string.IsNullOrWhiteSpace(expectedHash))
+                throw new InvalidDataException(
+                    $"Enemy tile manifest omits {sheet.FileName}.");
+            try
+            {
+                byte[] selected = ReadStockOrOverride(sheet.FileName, expectedHash);
+                motherBrainSpecialSheets.Add(sheet.SourceAddress,
+                    RoomCharacterAtlas.Load(
+                        new MemoryStream(selected, writable: false), sheet.ByteCount));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid Mother Brain sprite PNG {sheet.FileName}: {error.Message}",
+                    error);
+            }
+        }
+        var motherBrainSpecialSprites = new MotherBrainSpecialSpriteArtworkCatalog(
+            motherBrainSpecialSheets);
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
             KraidBackgroundArtworkFormat.UpperFileName, manifest.KraidUpperSha256);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
@@ -878,7 +916,7 @@ public static class EnemyTileArtworkFiles
             babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
-            motherBrainEscapeText);
+            motherBrainEscapeText, motherBrainSpecialSprites);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -979,6 +1017,25 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
+        MotherBrainSpecialSpriteSheetDefinition sheet)
+    {
+        byte[] native = RomDataReader.ReadFixedBank(bus,
+            sheet.SourceAddress, sheet.ByteCount);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
+            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+        using var output = new MemoryStream();
+        IndexedPng.Write(output, width, height, pixels,
+            SnesGraphics.DiagnosticPalette(16));
+        byte[] png = output.ToArray();
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+            new MemoryStream(png, writable: false), sheet.ByteCount);
+        if (!roundtrip.Transfer.Span.SequenceEqual(native))
+            throw new InvalidDataException(
+                $"Mother Brain {sheet.FileName} PNG changed native pixels during extraction.");
+        return png;
+    }
+
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
         KraidColorCatalog.Write(new KraidColorDocument
         {
@@ -1058,6 +1115,7 @@ public static class EnemyTileArtworkFiles
         Dictionary<int, string> GunshipLiftoffSha256,
         string MotherBrainCorpseSha256,
         string MotherBrainEscapeTextSha256,
+        Dictionary<int, string> MotherBrainSpecialSpritesSha256,
         string KraidUpperSha256, string KraidLowerSha256,
         Dictionary<ushort, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,

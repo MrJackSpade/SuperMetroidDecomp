@@ -321,6 +321,21 @@ public sealed partial class RoomEnemySystem
     private void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {
+        if (TileArtwork is not null &&
+            MotherBrainSpecialSpriteArtworkDefinitions.TryForSource(
+                transfer.SourceAddress, out MotherBrainSpecialSpriteSheetDefinition sheet))
+        {
+            int page = sheet.ResolvePage(
+                transfer.SourceAddress, transfer.Size, transfer.VramDestination);
+            MotherBrainSpecialSpriteArtworkCatalog artwork = TileArtwork.MotherBrainSpecialSprites ??
+                throw new InvalidDataException(
+                    $"Installed enemy artwork is missing {sheet.FileName}.");
+            _vram!.LoadBytes(transfer.VramDestination * 2,
+                artwork.Get(sheet).Transfer.Span.Slice(
+                    page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
+                    transfer.Size));
+            return;
+        }
         if (MotherBrainEscapeTextArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
             TileArtwork is not null)
         {

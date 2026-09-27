@@ -97,8 +97,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     // escape-timer list falls through, entry zero is emitted on the timer list's final call.
     private static readonly MotherBrainSpriteTileTransferRequest[] ExplodedDoorTileTransfers =
     [
-        new(0, 0x0200, 0xabf400, 0x7000),
-        new(1, 0x0200, 0xabf600, 0x7100),
+        new(0, MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
+            unchecked((uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.SourceAddress),
+            MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.FirstDestinationWord),
+        new(1, MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
+            unchecked((uint)(MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.SourceAddress +
+                MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
+            unchecked((ushort)(MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.FirstDestinationWord +
+                MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride))),
     ];
 
     // Seven records of four interleaved (X,Y) pairs at `$A9:B099-$B108`. The native

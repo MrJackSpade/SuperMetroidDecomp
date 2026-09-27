@@ -24,6 +24,7 @@ internal static partial class Program
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
             VerifyInstalledMotherBrainCorpseArtwork(directory, stock);
             VerifyInstalledMotherBrainEscapeTextArtwork(directory, stock);
+            VerifyInstalledMotherBrainSpecialSpriteArtwork(directory, stock);
             VerifyInstalledDeadTorizoArtwork(directory, stock);
             VerifyInstalledDeadTourianCorpseArtwork(directory, stock);
             VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock);

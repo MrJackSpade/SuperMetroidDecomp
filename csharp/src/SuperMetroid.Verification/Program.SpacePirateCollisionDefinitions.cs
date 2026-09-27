@@ -48,9 +48,19 @@ internal static partial class Program
         }
         AssertEqual(229, componentCount,
             "Space Pirate compiled collision-component count");
+        AssertTrue(EnemyExtendedFrameDefinitions.Frames.ToArray().Any(
+                frame => frame.Bank != EnemyExtendedFrameDefinitions.Bank),
+            "shared extended artwork catalog also contains non-Pirate boss frames");
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        {
+            // The artwork manifest now contains Ridley, Draygon, and Spore Spawn
+            // frames as well. Their physical hitboxes belong to their own banks,
+            // not to this bank-$B2 Space Pirate collision catalog.
+            if (frame.Bank != EnemyExtendedFrameDefinitions.Bank)
+                continue;
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
                 $"installed Pirate frame {frame.Name} has fixed collision");
+        }
         for (int index = 0;
              index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)

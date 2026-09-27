@@ -325,8 +325,12 @@ internal static partial class Program
             "Norfair lava jumper adds ten visible and one empty OAM frame");
         AssertEqual(EnemySpritemapDefinitions.PreChozoStatueFrameCount +
                 ChozoStatueVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreViolaFrameCount,
             "Lower Norfair and Wrecked Ship Chozo share twenty-six OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreViolaFrameCount +
+                ViolaVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Viola adds eight distinct OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -917,6 +921,31 @@ internal static partial class Program
             () => ChozoStatueVisualDefinitions.FrameAt(
                 ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial),
             "Chozo visual selector rejects neighboring mechanics data");
+        HashSet<ushort> violaFrames = ViolaVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(ViolaVisualDefinitions.FrameCount, violaFrames.Count,
+            "Viola's fourteen-frame loop selects eight distinct OAM frames");
+        var selectedViolaFrames = new HashSet<ushort>();
+        for (int index = 0; index < ViolaInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = ViolaInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
+                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.ViolaDefinition, operand, out ushort selected),
+                $"Viola visual selector $A3:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Viola visual selector $A3:{operand:X4} matches the cartridge");
+            AssertTrue(violaFrames.Contains(selected),
+                $"Viola visual target $A3:{selected:X4} has installed art");
+            selectedViolaFrames.Add(selected);
+        }
+        AssertTrue(selectedViolaFrames.SetEquals(violaFrames),
+            "every installed Viola composition is selected by its native loop");
+        AssertThrows<InvalidDataException>(
+            () => ViolaVisualDefinitions.FrameAt(ViolaInstructionProgramDefinitions.NormalLoop),
+            "Viola visual selector rejects neighboring mechanics data");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -980,6 +1009,8 @@ internal static partial class Program
                         ? RoomEnemySystem.NorfairLavaJumpingEnemyDefinition
                     : frame.Name.StartsWith("chozo_statue_aa_", StringComparison.Ordinal)
                         ? ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
+                    : frame.Name.StartsWith("viola_spin_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.ViolaDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -1086,7 +1117,29 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preChozoStatueFrames = document.Frames
+        var preViolaFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preViolaBindings = document.DisplayFrames!
+            .Where(pair => preViolaFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreViolaFrameCount, preViolaFrames.Count,
+            "version-fifty-one composition schema count");
+        using (var preViolaJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreViolaVersion,
+                Frames = preViolaFrames,
+                DisplayFrames = preViolaBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog violaUpgraded = EnemySpritemapCatalog.Load(
+                preViolaJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in ViolaVisualDefinitions.Frames())
+                AssertTrue(violaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty-one override inherits Viola frame {frame.Name}");
+        }
+        var preChozoStatueFrames = preViolaFrames
             .Where(pair => !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preChozoStatueBindings = document.DisplayFrames!
@@ -1481,6 +1534,12 @@ internal static partial class Program
         {
             OffsetX = chozoPart.OffsetX + 1,
         };
+        const string violaFrameName = "viola_spin_b689";
+        SpriteVisualPart violaPart = document.Frames[violaFrameName][0];
+        document.Frames[violaFrameName][0] = violaPart with
+        {
+            OffsetX = violaPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1532,6 +1591,17 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockChozo.LowTable[0] + 1)),
             editedChozo.LowTable[0],
             "Chozo authored body offset changes installed room OAM");
+        OamBuffer stockViola = DrawEnemy(stock, new FrameReadGuard(rom),
+            ViolaVisualDefinitions.FrameAt(
+                ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.ViolaDefinition);
+        OamBuffer editedViola = DrawEnemy(edited, new FrameReadGuard(rom),
+            ViolaVisualDefinitions.FrameAt(
+                ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.ViolaDefinition);
+        AssertEqual(unchecked((byte)(stockViola.LowTable[0] + 1)),
+            editedViola.LowTable[0],
+            "Viola authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
@@ -2068,7 +2138,8 @@ internal static partial class Program
                 !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal));
+                !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
@@ -3302,6 +3373,8 @@ internal static partial class Program
                         ? ShaktoolVisualDefinitions.Bank
                     : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
                         ? ChozoStatueVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.ViolaDefinition
+                        ? ViolaVisualDefinitions.Bank
                     : definition is RoomEnemySystem.TripperDefinition or
                         RoomEnemySystem.KamerDefinition
                         ? TripperKamerVisualDefinitions.Bank

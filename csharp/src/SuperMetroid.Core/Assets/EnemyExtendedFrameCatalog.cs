@@ -29,11 +29,10 @@ public sealed class EnemyExtendedFrameCatalog
     internal bool TryGet(byte bank, ushort pointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {
-        // Bank-$B2's common empty extended frame has no OAM parts. It is a
-        // compiled draw identity, not user artwork, including during the first
-        // frame after an enemy slot is initialized.
-        if (bank == EnemyExtendedFrameDefinitions.Bank &&
-            pointer == EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap)
+        // The bank-local $804F extended frame is shared by ordinary enemy
+        // banks. Its sole component points to the empty $804D OAM frame; no
+        // editable drawing or cartridge lookup is needed before initialization.
+        if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(bank, pointer))
         {
             components = ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty;
             return true;

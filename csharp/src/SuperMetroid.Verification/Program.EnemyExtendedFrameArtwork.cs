@@ -34,6 +34,7 @@ internal static partial class Program
                    nativeEmpty.HighTable.SequenceEqual(installedEmpty.HighTable) &&
                    nativeEmpty.NextByteOffset == installedEmpty.NextByteOffset,
             "walking Pirate common empty frame draws without ROM reads");
+        VerifySharedEmptyExtendedFrames(rom, stock);
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking/wall Pirate distinct extended-frame count");

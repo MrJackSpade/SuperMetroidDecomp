@@ -2752,6 +2752,22 @@ public sealed partial class RoomEnemySystem
         ushort targetTop = unchecked((ushort)(targetY - targetYRadius));
         ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
 
+        if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
+                enemy.Definition.Bank, enemy.SpritemapPointer))
+        {
+            // The shared empty frame has a single zero-radius point at the
+            // enemy origin. Run the same asymmetric native overlap test before
+            // selecting its common touch/shot callback.
+            if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                    targetTop, targetBottom,
+                    enemy.XPosition, enemy.YPosition,
+                    enemy.XPosition, enemy.YPosition,
+                    selectShotCallback))
+                return false;
+            callback = CommonEnemyEmptyExtendedFrameDefinitions.Callback(selectShotCallback);
+            return true;
+        }
+
         if (IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
             IsWallSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
             IsNinjaSpacePirateDefinition(enemy.EnemyDefinitionPointer))

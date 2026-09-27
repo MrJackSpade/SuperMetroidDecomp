@@ -2,12 +2,13 @@
 
 The 2026-09-27 all-room pass found 32 first-frame failures among 262 retail
 rooms. One was room `$8F:ACF0` reading the Speed Booster escape PLM list; eight
-Tourian rooms read the same Metroids-cleared PLM `Sleep` word at `$84:DB42`.
-Both bounded lists are now compiled. Selected-room reruns for `$ACF0`, `$DAE1`,
-and `$DEDE` pass with native pixel parity and all cartridge reads blocked; the
-other six Tourian rooms and the 23 unrelated baseline failures have not been
-rerun as a batch. Later frames and inter-room transitions are outside this
-one-frame diagnostic.
+Tourian rooms read the same Metroids-cleared PLM `Sleep` word at `$84:DB42`;
+Wrecked Ship room `$8F:CA52` read the attic PLM list at `$84:BAFF`. All three
+bounded lists are now compiled. Selected-room reruns for `$ACF0`, `$CA52`,
+`$DAE1`, and `$DEDE` pass with native pixel parity and all cartridge reads
+blocked; the other six Tourian rooms and 22 unrelated baseline failures have
+not been rerun as a batch. Later frames and inter-room transitions are outside
+this one-frame diagnostic.
 
 The regular `--intro-cinematic-artwork` verification now restores a gameplay
 snapshot once and checks Kraid's first frame after rebinding installed artwork.

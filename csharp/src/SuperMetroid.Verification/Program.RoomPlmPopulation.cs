@@ -643,15 +643,27 @@ internal static partial class Program
         WriteWord(bus,
             0x840000 | unchecked((ushort)(RoomPlmHeaders.WreckedShipAttic + 2)),
             RoomPlmInstructionLists.WreckedShipAttic);
-        WriteWord(bus,
-            0x840000 | RoomPlmInstructionLists.WreckedShipAttic,
-            RoomPlmInstructionCodes.InstallPreInstruction);
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 2)),
-            WreckedShipAtticPlmRomData.NoOpCallback);
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 4)),
-            RoomPlmInstructionCodes.Sleep);
+        SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
+            ? SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")
+            : null;
+        for (int index = 0; index < 3; index++)
+        {
+            ushort address = checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + index * 2));
+            AssertTrue(WreckedShipAtticPlmRomData.TryReadInstructionWord(address,
+                    out ushort compiled),
+                $"Wrecked Ship attic list word ${address:X4} is compiled");
+            if (rom is not null)
+            {
+                int source = 0x840000 | address;
+                AssertEqual((ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8),
+                    compiled,
+                    $"Wrecked Ship attic list word ${address:X4} matches cartridge");
+            }
+            WriteWord(bus, 0x840000 | address, 0xdead);
+        }
+        AssertTrue(!WreckedShipAtticPlmRomData.TryReadInstructionWord(
+                checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 6)), out _),
+            "Wrecked Ship attic list owner excludes its adjacent header");
         bus.WriteBytes(0x8f0000 | population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
@@ -701,30 +713,18 @@ internal static partial class Program
         AssertEqual(0x9123, level.GetCollisionBlock(blockX, blockY).LevelWord,
             "inert attic callback leaves authored terrain unchanged");
 
-        // The generic install opcode accepts a raw bank-$84 operand. Prove this family's
-        // dispatcher rejects a different callback on the next handler pass rather than
-        // treating an untranslated resident function as another harmless no-op.
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 2)),
-            0x9876);
-        var invalid = new RoomPlmSystem();
-        invalid.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            population,
-            new Bank80SystemState(),
-            AreaId.WreckedShip,
-            () => new SamusState(),
-            () => false);
-        invalid.Step(bus, level, streamer, 0, 0, 0);
+        // A saved/corrupt live state can still supply an unsupported callback even
+        // though the compiled retail list cannot. Inject that state after install so
+        // the family dispatcher remains loudly exhaustive without reopening ROM reads.
+        Array slots = (Array)typeof(RoomPlmSystem).GetField("_slots",
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic)!.GetValue(plms)!;
+        object liveSlot = slots.GetValue(39)!;
+        liveSlot.GetType().GetProperty("PreInstruction")!.SetValue(liveSlot,
+            (ushort)0x9876);
         AssertThrows<InvalidDataException>(
-            () => invalid.Step(bus, level, streamer, 0, 0, 0),
+            () => plms.Step(bus, level, streamer, 0, 0, 0),
             "unknown Wrecked Ship attic pre-instruction fails loudly");
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 2)),
-            WreckedShipAtticPlmRomData.NoOpCallback);
     }
 
     /// <summary>

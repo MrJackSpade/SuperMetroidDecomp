@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Wrecked Ship attic PLM instruction owner (2026-09-27)
+
+The complete three-word `$84:BAFF-BB04` resident list now compiles its
+install-pre-instruction and permanent sleep in the dedicated attic catalog.
+Each word matches the pinned cartridge. A synthetic PLM run poisons all three
+old list words yet verifies callback installation, sleep, and unchanged terrain;
+an injected unknown live callback still fails loudly. Room `$8F:CA52` passes
+isolated native first-frame pixel parity with all cartridge reads blocked.
+Other PLM programs and the overall ROM-free runtime remain open.
+
 ## Tourian Metroids-cleared PLM instruction owner (2026-09-27)
 
 The complete `$84:DB42` resident observer list is one `Sleep` word, now

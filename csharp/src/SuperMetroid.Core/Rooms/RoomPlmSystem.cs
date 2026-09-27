@@ -2315,6 +2315,8 @@ public sealed partial class RoomPlmSystem
             ? value
             : MetroidsClearedPlmRomData.TryReadInstructionWord(address, out value)
             ? value
+            : WreckedShipAtticPlmRomData.TryReadInstructionWord(address, out value)
+            ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value)

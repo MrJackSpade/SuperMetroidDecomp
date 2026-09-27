@@ -7,7 +7,8 @@ internal readonly record struct MotherBrainTurretInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Mother Brain's eight turret poses, direction-selected bullets, and
-/// shared bullet touch/shot smoke. Spritemap operands remain live cartridge presentation data.
+/// shared bullet touch/shot smoke. Spritemap operands resolve through extracted
+/// presentation art.
 /// </summary>
 internal static class MotherBrainTurretInstructionProgramDefinitions
 {

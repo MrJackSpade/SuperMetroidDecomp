@@ -522,13 +522,14 @@ drool, swipe, sonic-boom, landing-dust, explosion and Chozo-orb effects, plus
 generic enemy-death explosions and pickups. It also includes Ceres debris,
 save-station electricity, gunship dust, Tourian dust, falling sparks, lava
 throws, eye-door sweat, Ki Hunter acid, Fune/Namihe and Dragon fireballs, and
-Powamp spikes. Copy it to
+Powamp spikes, Bomb Torizo statue fragments, and Mother Brain glass, hand beam,
+top tubes and turrets. Copy it to
 `overrides/enemy-tiles/` to edit visual parts
 without changing projectile timing, damage, motion, or collision. The
 `programFrames` names identify bank-$86 animation lists and frame numbers; only
-their drawing is editable. Existing version-one through version-nine overrides
+their drawing is editable. Existing version-one through version-ten overrides
 keep their earlier edited frames, while new program frames come from hash-checked
-stock. Use a current version-ten copy to edit the expanded program frames.
+stock. Use a current version-eleven copy to edit the expanded program frames.
 The five `gunship-liftoff-N-tiles.png` files in `game/enemy-tiles/` contain the
 gunship's takeoff character uploads. Copy an individual PNG to
 `overrides/enemy-tiles/` to replace its indexed 4-bpp pixels. The five upload

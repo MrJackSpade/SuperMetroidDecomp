@@ -6,8 +6,8 @@ internal readonly record struct BombTorizoStatueInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the sixteen Bomb Torizo statue-fragment programs at
-/// $86:A4C3-$A5D3. Their thirty-two interleaved spritemap operands and sixteen packed
-/// sound IDs remain live cartridge presentation/audio data.
+/// $86:A4C3-$A5D3. Their thirty-two interleaved spritemap operands use extracted
+/// presentation art; sixteen packed sound IDs remain cartridge audio data.
 /// </summary>
 internal static class BombTorizoStatueInstructionProgramDefinitions
 {

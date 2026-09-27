@@ -7,7 +7,7 @@ internal readonly record struct MotherBrainTopTubeInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the four falling ceiling-tube poses in Mother Brain's fake-death
-/// sequence. Their four spritemap operands remain live cartridge presentation data.
+/// sequence. Their four spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class MotherBrainTopTubeInstructionProgramDefinitions
 {

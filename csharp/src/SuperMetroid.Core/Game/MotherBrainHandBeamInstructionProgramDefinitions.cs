@@ -2,7 +2,8 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Compiled mechanics and callback metadata for Mother Brain's recursive red hand-beam
-/// projectile program in bank $86. Interleaved spritemap operands remain presentation data.
+/// projectile program in bank $86. Interleaved spritemap operands resolve through
+/// extracted presentation art.
 /// </summary>
 internal static class MotherBrainHandBeamInstructionProgramDefinitions
 {
@@ -36,6 +37,9 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitions
 
     /// <summary>Number of interleaved spritemap words retained as presentation reads.</summary>
     internal static int PresentationWordCount => PresentationWords.Length;
+
+    /// <summary>Returns one authored visual operand; timing and external calls are separate.</summary>
+    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
 
     /// <summary>Returns whether this projectile kind owns the recursive hand-beam program.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is

@@ -17,6 +17,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreTorizoEffects,
         PreGenericEnemyDeath,
         PreEnvironmentAndAttack,
+        PreMotherBrainAndStatue,
         Current,
     }
 
@@ -30,6 +31,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         Build(CatalogGeneration.PreGenericEnemyDeath);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreEnvironmentAndAttackFrames =
         Build(CatalogGeneration.PreEnvironmentAndAttack);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreMotherBrainAndStatueFrames =
+        Build(CatalogGeneration.PreMotherBrainAndStatue);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
         Build(CatalogGeneration.Current);
 
@@ -44,6 +47,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreGenericEnemyDeathFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttack =>
         PreEnvironmentAndAttackFrames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreMotherBrainAndStatue =>
+        PreMotherBrainAndStatueFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
@@ -155,7 +160,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
                 EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
         }
-        if (generation >= CatalogGeneration.Current)
+        if (generation >= CatalogGeneration.PreMotherBrainAndStatue)
         {
             Add(frames, "ceres_falling_debris",
                 CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
@@ -190,6 +195,24 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "powamp_spike",
                 PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
                 PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
+        }
+        if (generation >= CatalogGeneration.Current)
+        {
+            Add(frames, "bomb_torizo_statue_fragment",
+                BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
+                BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "mother_brain_glass",
+                MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "mother_brain_hand_beam",
+                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "mother_brain_top_tube",
+                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "mother_brain_turret",
+                MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
         }
 
         return frames.OrderBy(entry => entry.Key)

@@ -237,6 +237,40 @@ internal static partial class Program
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
+                $"{family} frame {index} draws stock OAM without visual ROM reads");
+            }
+        }
+        var motherBrainAndStatueFamilies = new (string Name, RoomEnemyProjectileKind Kind,
+            int Count, Func<int, ushort> AddressAt)[]
+        {
+            ("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking,
+                BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
+                BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress),
+            ("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
+                MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress),
+            ("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
+                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress),
+            ("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
+                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress),
+            ("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
+                MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
+                MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress),
+        };
+        foreach ((string family, RoomEnemyProjectileKind kind, int count,
+                     Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
+        {
+            for (int index = 0; index < count; index++)
+            {
+                ushort operand = addressAt(index);
+                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind);
+                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
+                    native.LowTable.SequenceEqual(extracted.LowTable) &&
+                    native.HighTable.SequenceEqual(extracted.HighTable),
                     $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
@@ -369,6 +403,25 @@ internal static partial class Program
             AssertTrue(environmentEditableOperands.ContainsKey(family),
                 $"{family} has an editable OAM part in at least one frame");
         }
+        var motherBrainEditableOperands = new Dictionary<string, ushort>(StringComparer.Ordinal);
+        foreach ((string family, RoomEnemyProjectileKind _, int count,
+                     Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
+        {
+            for (int index = 0; index < count; index++)
+            {
+                ushort operand = addressAt(index);
+                string frameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                    .Single(frame => frame.OperandAddress == operand).Name;
+                SpriteVisualPart[] frame = document.ProgramFrames[frameName];
+                if (frame.Length == 0)
+                    continue;
+                frame[0] = frame[0] with { OffsetX = frame[0].OffsetX + 1 };
+                motherBrainEditableOperands.Add(family, operand);
+                break;
+            }
+            AssertTrue(motherBrainEditableOperands.ContainsKey(family),
+                $"{family} has an editable OAM part in at least one frame");
+        }
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
@@ -452,6 +505,16 @@ internal static partial class Program
                      Func<int, ushort> _) in environmentAndAttackFamilies)
         {
             ushort operand = environmentEditableOperands[family];
+            AssertTrue(!DrawProgramFrame(stock, operand,
+                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
+                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                $"edited {family} frame changes production OAM");
+        }
+        foreach ((string family, RoomEnemyProjectileKind kind, int _,
+                     Func<int, ushort> _) in motherBrainAndStatueFamilies)
+        {
+            ushort operand = motherBrainEditableOperands[family];
             AssertTrue(!DrawProgramFrame(stock, operand,
                         new EnemyProjectileVisualReadGuard(bus), kind).LowTable
                     .SequenceEqual(DrawProgramFrame(editedArt, operand,
@@ -739,9 +802,40 @@ internal static partial class Program
                     new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
                 $"version-nine overrides inherit {family} frames");
         }
+        var versionTenFrames = EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue
+            .ToArray().ToDictionary(frame => frame.Name,
+                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+        byte[] versionTenJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = EnemyProjectileSpritemapDefinitions.PreMotherBrainAndStatueVersion,
+                Frames = document.Frames,
+                ProgramFrames = versionTenFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        File.WriteAllBytes(Path.Combine(overrides,
+            EnemyProjectileSpritemapDefinitions.FileName), versionTenJson);
+        EnemyTileArtworkCatalog migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);
+        ushort editedEnvironmentOperand = environmentEditableOperands["falling spark"];
+        AssertTrue(DrawProgramFrame(migratedV10, editedEnvironmentOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.FallingSpark).LowTable
+            .SequenceEqual(DrawProgramFrame(editedArt, editedEnvironmentOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.FallingSpark).LowTable),
+            "version-ten overrides retain their edited falling-spark frame");
+        foreach ((string family, RoomEnemyProjectileKind kind, int _,
+                     Func<int, ushort> _) in motherBrainAndStatueFamilies)
+        {
+            ushort operand = motherBrainEditableOperands[family];
+            AssertTrue(DrawProgramFrame(migratedV10, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                .SequenceEqual(DrawProgramFrame(stock, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                $"version-ten overrides inherit {family} frames");
+        }
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameDefinitions.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws, editable frames, and v1-v9 migrations pass.");
+            "match native OAM; installed draws, editable frames, and v1-v10 migrations pass.");
 
         void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
         {

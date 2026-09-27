@@ -7,7 +7,7 @@ internal readonly record struct MotherBrainGlassInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Mother Brain's eight glass-shard loops and finite sparkle program.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class MotherBrainGlassInstructionProgramDefinitions
 {

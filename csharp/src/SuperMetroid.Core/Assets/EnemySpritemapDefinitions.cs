@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 49;
+    internal const int Version = 50;
+    internal const int PreNorfairLavaJumperVersion = 49;
+    internal const int PreNorfairLavaJumperFrameCount = 958;
     internal const int PreMultiviolaVersion = 48;
     internal const int PreMultiviolaFrameCount = 950;
     internal const int PreDragonVersion = 47;
@@ -644,6 +646,7 @@ internal static class EnemySpritemapDefinitions
         .. TripperKamerVisualDefinitions.Frames(),
         .. DragonVisualDefinitions.Frames(),
         .. MultiviolaVisualDefinitions.Frames(),
+        .. NorfairLavaJumperVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -684,6 +687,8 @@ internal static class EnemySpritemapDefinitions
                 DragonVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.MultiviolaDefinition =>
                 MultiviolaVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition =>
+                NorfairLavaJumperVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -766,6 +771,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.TripperDefinition or RoomEnemySystem.KamerDefinition or
             RoomEnemySystem.DragonDefinition or
             RoomEnemySystem.MultiviolaDefinition or
+            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

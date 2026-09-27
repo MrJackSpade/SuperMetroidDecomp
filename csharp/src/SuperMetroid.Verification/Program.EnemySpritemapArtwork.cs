@@ -317,8 +317,12 @@ internal static partial class Program
             "Dragon adds twelve distinct body and wing OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreMultiviolaFrameCount +
                 MultiviolaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount,
             "Multiviola adds eight distinct spinning OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount +
+                NorfairLavaJumperVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Norfair lava jumper adds ten visible and one empty OAM frame");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -848,6 +852,38 @@ internal static partial class Program
             () => MultiviolaVisualDefinitions.FrameAt(
                 MultiviolaInstructionProgramDefinitions.Flying),
             "Multiviola visual selector rejects its neighboring duration word");
+        HashSet<ushort> lavaJumperFrames = NorfairLavaJumperVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(NorfairLavaJumperVisualDefinitions.FrameCount,
+            lavaJumperFrames.Count,
+            "Norfair lava jumper has eleven distinct installed identities");
+        AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap),
+            "Norfair lava jumper retains its native bank-local empty frame");
+        var selectedLavaJumperFrames = new HashSet<ushort>();
+        for (int index = 0;
+             index < NorfairLavaJumperInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = NorfairLavaJumperInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
+                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.NorfairLavaJumpingEnemyDefinition,
+                    operand, out ushort selected),
+                $"lava-jumper visual selector $A2:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"lava-jumper visual selector $A2:{operand:X4} matches the cartridge");
+            AssertTrue(lavaJumperFrames.Contains(selected),
+                $"lava-jumper visual target $A2:{selected:X4} has installed art");
+            selectedLavaJumperFrames.Add(selected);
+        }
+        AssertTrue(selectedLavaJumperFrames.SetEquals(lavaJumperFrames),
+            "every installed lava-jumper frame is selected by a native program");
+        AssertThrows<InvalidDataException>(
+            () => NorfairLavaJumperVisualDefinitions.FrameAt(
+                NorfairLavaJumperInstructionProgramDefinitions.Hidden),
+            "lava-jumper visual selector rejects a neighboring duration word");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -907,6 +943,8 @@ internal static partial class Program
                         ? RoomEnemySystem.DragonDefinition
                     : frame.Name.StartsWith("multiviola_", StringComparison.Ordinal)
                         ? RoomEnemySystem.MultiviolaDefinition
+                    : frame.Name.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.NorfairLavaJumpingEnemyDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -1013,7 +1051,30 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preMultiviolaFrames = document.Frames
+        var preNorfairLavaJumperFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preNorfairLavaJumperBindings = document.DisplayFrames!
+            .Where(pair => preNorfairLavaJumperFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount,
+            preNorfairLavaJumperFrames.Count,
+            "version-forty-nine composition schema count");
+        using (var preNorfairLavaJumperJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreNorfairLavaJumperVersion,
+                Frames = preNorfairLavaJumperFrames,
+                DisplayFrames = preNorfairLavaJumperBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapCatalog.Load(
+                preNorfairLavaJumperJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
+                AssertTrue(lavaJumperUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-forty-nine override inherits lava-jumper frame {frame.Name}");
+        }
+        var preMultiviolaFrames = preNorfairLavaJumperFrames
             .Where(pair => !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preMultiviolaBindings = document.DisplayFrames!
@@ -1350,6 +1411,12 @@ internal static partial class Program
         {
             OffsetX = multiviolaPart.OffsetX + 1,
         };
+        const string lavaJumperFrameName = "norfair_lava_jumper_c02c";
+        SpriteVisualPart lavaJumperPart = document.Frames[lavaJumperFrameName][0];
+        document.Frames[lavaJumperFrameName][0] = lavaJumperPart with
+        {
+            OffsetX = lavaJumperPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1379,6 +1446,17 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockMultiviola.LowTable[0] + 1)),
             editedMultiviola.LowTable[0],
             "Multiviola authored body offset changes installed room OAM");
+        OamBuffer stockLavaJumper = DrawEnemy(stock, new FrameReadGuard(rom),
+            NorfairLavaJumperVisualDefinitions.FrameAt(
+                NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition);
+        OamBuffer editedLavaJumper = DrawEnemy(edited, new FrameReadGuard(rom),
+            NorfairLavaJumperVisualDefinitions.FrameAt(
+                NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition);
+        AssertEqual(unchecked((byte)(stockLavaJumper.LowTable[0] + 1)),
+            editedLavaJumper.LowTable[0],
+            "lava-jumper authored OAM offset changes installed room presentation");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
@@ -1913,7 +1991,8 @@ internal static partial class Program
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
                 !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal));
+                !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&

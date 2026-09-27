@@ -6,7 +6,8 @@ internal readonly record struct NorfairLavaJumperInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Norfair lava jumper's parent and follower programs.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands are compiled visual identities when
+/// installed artwork is bound; diagnostic address spaces may still supply them.
 /// </summary>
 internal static class NorfairLavaJumperInstructionProgramDefinitions
 {

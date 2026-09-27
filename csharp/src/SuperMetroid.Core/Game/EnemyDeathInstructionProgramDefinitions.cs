@@ -7,7 +7,7 @@ internal readonly record struct EnemyDeathInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the five generic enemy-death animations and their shared blank
-/// respawn tail. The thirty-one spritemap operands remain live cartridge presentation data.
+/// respawn tail. The thirty-one spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class EnemyDeathInstructionProgramDefinitions
 {

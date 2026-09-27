@@ -6,8 +6,8 @@ internal readonly record struct EnemyPickupInstructionMechanicsWord(
     ushort Value);
 
 /// <summary>
-/// Compiled control for the five live enemy-pickup animation programs. The sixteen
-/// spritemap operands remain live cartridge presentation data.
+/// Compiled control for the five live enemy-pickup animation programs. Their sixteen
+/// spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class EnemyPickupInstructionProgramDefinitions
 {

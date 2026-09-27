@@ -9,16 +9,19 @@ internal static class EnemyProjectilePresentationFrameDefinitions
 {
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
         Build(includeGoldenTorizo: false, includeGoldenTorizoEgg: false,
-            includeTorizoEffects: false);
+            includeTorizoEffects: false, includeGenericEnemyDeath: false);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
         Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: false,
-            includeTorizoEffects: false);
+            includeTorizoEffects: false, includeGenericEnemyDeath: false);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreTorizoEffectsFrames =
         Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
-            includeTorizoEffects: false);
+            includeTorizoEffects: false, includeGenericEnemyDeath: false);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreGenericEnemyDeathFrames =
+        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
+            includeTorizoEffects: true, includeGenericEnemyDeath: false);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
         Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
-            includeTorizoEffects: true);
+            includeTorizoEffects: true, includeGenericEnemyDeath: true);
 
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
@@ -27,6 +30,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreGoldenTorizoEggFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreTorizoEffects =>
         PreTorizoEffectsFrames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGenericEnemyDeath =>
+        PreGenericEnemyDeathFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
@@ -34,7 +39,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             AddressComparer.Instance) >= 0;
 
     private static EnemyProjectilePresentationFrameDefinition[] Build(bool includeGoldenTorizo,
-        bool includeGoldenTorizoEgg, bool includeTorizoEffects)
+        bool includeGoldenTorizoEgg, bool includeTorizoEffects, bool includeGenericEnemyDeath)
     {
         var frames = new Dictionary<ushort, string>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in
@@ -128,6 +133,15 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "torizo_chozo_orb",
                 TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
                 TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
+        }
+        if (includeGenericEnemyDeath)
+        {
+            Add(frames, "enemy_pickup",
+                EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
+                EnemyPickupInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "enemy_death",
+                EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
+                EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
         }
 
         return frames.OrderBy(entry => entry.Key)

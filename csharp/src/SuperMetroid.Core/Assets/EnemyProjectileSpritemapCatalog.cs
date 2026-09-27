@@ -47,9 +47,10 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        bool legacyOverride = document.Version is 1 or 2 or 3 or 4 or 5 or 6 or 7 &&
+        bool legacyOverride = document.Version is >= 1 and < EnemyProjectileSpritemapDefinitions.Version &&
             stock is not null;
-        int expectedFrames = document.Version == 1 && legacyOverride
+        int expectedFrames = document.Version == EnemyProjectileSpritemapDefinitions.CeresOnlyVersion &&
+            legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.Frames.Length;
         if ((!legacyOverride && document.Version != EnemyProjectileSpritemapDefinitions.Version) ||
@@ -73,111 +74,40 @@ public sealed class EnemyProjectileSpritemapCatalog
                     $"Enemy-projectile composition {name} is missing.");
             compiled[pointer] = CompileParts(name, visual);
         }
-        if (document.Version == 3 && legacyOverride)
+        if (document.Version >= EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion)
         {
-            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
-                EnemyProjectileInstructionMechanicsDefinitions.VisualFrames;
-            if (document.ProgramFrames is null ||
-                document.ProgramFrames.Count != oldDefinitions.Length)
-                throw new InvalidDataException(
-                    "Version-three enemy-projectile program frames have the wrong count.");
-            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
+            EnemyProjectilePresentationFrameDefinition[] definitions = document.Version switch
             {
-                if (!document.ProgramFrames.TryGetValue(frame.Name,
-                        out SpriteVisualPart[]? visual) || visual is null)
-                    throw new InvalidDataException(
-                        $"Version-three enemy-projectile frame {frame.Name} is missing.");
-                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
-            }
-        }
-        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreAlcoonVersion &&
-                 legacyOverride)
-        {
-            EnemyProjectilePresentationFrameDefinition[] oldDefinitions =
-                EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
-                    .Where(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
-                    .ToArray();
+                EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion =>
+                    EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreAlcoonVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
+                        .Where(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
+                        .ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreGoldenTorizoEggVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreGenericEnemyDeathVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
+                EnemyProjectileSpritemapDefinitions.Version =>
+                    EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
+                _ => throw new InvalidDataException(
+                    $"Enemy-projectile program-frame version {document.Version} is unsupported."),
+            };
             if (document.ProgramFrames is null ||
-                document.ProgramFrames.Count != oldDefinitions.Length)
+                document.ProgramFrames.Count != definitions.Length)
                 throw new InvalidDataException(
-                    "Version-four enemy-projectile program frames have the wrong count.");
-            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
-            {
-                if (!document.ProgramFrames.TryGetValue(frame.Name,
-                        out SpriteVisualPart[]? visual) || visual is null)
-                    throw new InvalidDataException(
-                        $"Version-four enemy-projectile frame {frame.Name} is missing.");
-                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
-            }
-        }
-        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion &&
-                 legacyOverride)
-        {
-            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
-                EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo;
-            if (document.ProgramFrames is null ||
-                document.ProgramFrames.Count != oldDefinitions.Length)
-                throw new InvalidDataException(
-                    "Version-five enemy-projectile program frames have the wrong count.");
-            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
-            {
-                if (!document.ProgramFrames.TryGetValue(frame.Name,
-                        out SpriteVisualPart[]? visual) || visual is null)
-                    throw new InvalidDataException(
-                        $"Version-five enemy-projectile frame {frame.Name} is missing.");
-                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
-            }
-        }
-        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreGoldenTorizoEggVersion &&
-                 legacyOverride)
-        {
-            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
-                EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg;
-            if (document.ProgramFrames is null ||
-                document.ProgramFrames.Count != oldDefinitions.Length)
-                throw new InvalidDataException(
-                    "Version-six enemy-projectile program frames have the wrong count.");
-            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
-            {
-                if (!document.ProgramFrames.TryGetValue(frame.Name,
-                        out SpriteVisualPart[]? visual) || visual is null)
-                    throw new InvalidDataException(
-                        $"Version-six enemy-projectile frame {frame.Name} is missing.");
-                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
-            }
-        }
-        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion &&
-                 legacyOverride)
-        {
-            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
-                EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects;
-            if (document.ProgramFrames is null ||
-                document.ProgramFrames.Count != oldDefinitions.Length)
-                throw new InvalidDataException(
-                    "Version-seven enemy-projectile program frames have the wrong count.");
-            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
-            {
-                if (!document.ProgramFrames.TryGetValue(frame.Name,
-                        out SpriteVisualPart[]? visual) || visual is null)
-                    throw new InvalidDataException(
-                        $"Version-seven enemy-projectile frame {frame.Name} is missing.");
-                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
-            }
-        }
-        else if (!legacyOverride)
-        {
-            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions =
-                EnemyProjectilePresentationFrameDefinitions.All;
-            if (document.ProgramFrames is null || document.ProgramFrames.Count != definitions.Length)
-                throw new InvalidDataException(
-                    "Enemy-projectile program frames have the wrong count.");
+                    $"Version-{document.Version} enemy-projectile program frames have the wrong count.");
             foreach (EnemyProjectilePresentationFrameDefinition frame in definitions)
             {
                 if (!document.ProgramFrames.TryGetValue(frame.Name,
                         out SpriteVisualPart[]? visual) || visual is null)
                     throw new InvalidDataException(
-                        $"Enemy-projectile program frame {frame.Name} is missing.");
-                compiledPrograms.Add(frame.OperandAddress, CompileParts(frame.Name, visual));
+                        $"Version-{document.Version} enemy-projectile frame {frame.Name} is missing.");
+                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
             }
         }
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
@@ -251,7 +181,10 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 8;
+    public const int Version = 9;
+    public const int CeresOnlyVersion = 1;
+    public const int FirstProgramFrameVersion = 3;
+    public const int PreGenericEnemyDeathVersion = 8;
     public const int PreTorizoEffectsVersion = 7;
     public const int PreGoldenTorizoEggVersion = 6;
     public const int PreGoldenTorizoVersion = 5;

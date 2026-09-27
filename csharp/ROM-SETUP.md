@@ -518,13 +518,14 @@ The separate `enemy-projectile-compositions.json` contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
 translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon,
 Alcoon fireballs, Golden Torizo eggs/missiles/eye beams, and Bomb/Golden Torizo
-drool, swipe, sonic-boom, landing-dust, explosion and Chozo-orb effects. Copy it to
+drool, swipe, sonic-boom, landing-dust, explosion and Chozo-orb effects, plus
+generic enemy-death explosions and pickups. Copy it to
 `overrides/enemy-tiles/` to edit visual parts
 without changing projectile timing, damage, motion, or collision. The
 `programFrames` names identify bank-$86 animation lists and frame numbers; only
-their drawing is editable. Existing version-one through version-seven overrides
+their drawing is editable. Existing version-one through version-eight overrides
 keep their earlier edited frames, while new program frames come from hash-checked
-stock. Use a current version-eight copy to edit the expanded program frames.
+stock. Use a current version-nine copy to edit the expanded program frames.
 The five `gunship-liftoff-N-tiles.png` files in `game/enemy-tiles/` contain the
 gunship's takeoff character uploads. Copy an individual PNG to
 `overrides/enemy-tiles/` to replace its indexed 4-bpp pixels. The five upload

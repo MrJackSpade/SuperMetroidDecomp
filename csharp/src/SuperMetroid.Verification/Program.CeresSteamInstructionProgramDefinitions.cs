@@ -75,7 +75,7 @@ internal static partial class Program
 
         AssertEqual(CeresSteamInstructionProgramDefinitions.PresentationWordCount,
             guard.ObservedPresentationWords.Count,
-            "all live Ceres steam extended-spritemap words remain cartridge reads");
+            "uninstalled Ceres steam fixture retains mutable visual operands");
         for (int index = 0;
              index < CeresSteamInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -83,7 +83,7 @@ internal static partial class Program
             ushort address =
                 CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Ceres steam presentation $A6:{address:X4}");
+                $"uninstalled Ceres steam fixture reads presentation $A6:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -104,7 +104,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres steam instruction mechanics: sixty-eight compiled words, four shared " +
-            "directional cycles, and thirty-six live extended-spritemap reads pass with " +
+            "directional cycles, and thirty-six synthetic mutable visual reads pass with " +
             "mechanics bytes forbidden.");
 
         RoomEnemySystem CreateSystem(CeresSteamVariant variant, out RoomEnemySlot slot)

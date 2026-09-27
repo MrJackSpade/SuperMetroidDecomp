@@ -7,7 +7,7 @@ internal readonly record struct EnemyExtendedFrameDefinition(
     byte Bank, ushort Pointer, string Name);
 
 /// <summary>
-/// Named visual identities for Pirate, Ridley, Draygon, and Spore Spawn
+/// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, and Ceres steam
 /// composite frames. Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -20,7 +20,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreDraygonVersion = 5;
     internal const int PreDraygonFrameCount = 142;
     internal const int PreSporeIdentityVersion = 6;
-    internal const int Version = 7;
+    internal const int PreCeresSteamVersion = 7;
+    internal const int PreCeresSteamFrameCount = 202;
+    internal const int Version = 8;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -30,11 +32,12 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int RidleyFrameCount = 11;
     internal const int DraygonOamFrameCount = 48;
     internal const int SporeSpawnOamFrameCount = 12;
+    internal const int CeresSteamFrameCount = 28;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
         PirateFrameCount + RidleyFrameCount +
-        DraygonOamFrameCount + SporeSpawnOamFrameCount;
+        DraygonOamFrameCount + SporeSpawnOamFrameCount + CeresSteamFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -195,6 +198,12 @@ internal static class EnemyExtendedFrameDefinitions
         foreach (ushort pointer in SporeSpawnOamPointers)
             frames.Add(new EnemyExtendedFrameDefinition(0xa5, pointer,
                 $"spore_spawn_oam_{pointer:X4}"));
+        if (frames.Count != PreCeresSteamFrameCount ||
+            CeresSteamCollisionDefinitions.FramePointers.Length != CeresSteamFrameCount)
+            throw new InvalidDataException("Ceres steam extended-frame prefix changed.");
+        foreach (ushort pointer in CeresSteamCollisionDefinitions.FramePointers)
+            frames.Add(new EnemyExtendedFrameDefinition(CeresSteamCollisionDefinitions.Bank,
+                pointer, $"ceres_steam_oam_{pointer:X4}"));
         return frames.ToArray();
     }
 }

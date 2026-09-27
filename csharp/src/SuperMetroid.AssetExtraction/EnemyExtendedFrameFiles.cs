@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Extracts walking/wall/ninja-Pirate visual components without exporting their
+/// Extracts supported extended enemy visual components without exporting their
 /// native hitbox pointers or any instruction/callback words.
 /// </summary>
 internal static class EnemyExtendedFrameFiles
@@ -24,8 +24,13 @@ internal static class EnemyExtendedFrameFiles
             int count = bus.ReadByte(baseAddress);
             byte padding = bus.ReadByte((bank << 16) |
                 unchecked((ushort)(pointer + 1)));
+            // Ceres steam's header is $1001: the generic drawing/collision
+            // walkers consume its low byte as one component and retain the
+            // high byte as native presentation metadata.
+            byte expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
+                StringComparison.Ordinal) ? (byte)0x10 : (byte)0;
             if (count is < 1 or > EnemyExtendedFrameDefinitions.MaximumComponents ||
-                padding != 0)
+                padding != expectedPadding)
                 throw new InvalidDataException(
                     $"Extended frame ${bank:X2}:{pointer:X4} has invalid component header.");
             var components = new EnemyExtendedVisualComponent[count];

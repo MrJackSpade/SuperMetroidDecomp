@@ -36,6 +36,7 @@ internal static partial class Program
             "walking Pirate common empty frame draws without ROM reads");
         VerifySharedEmptyExtendedFrames(rom, stock);
         VerifyInstalledSporeSpawnSelectorPrograms(rom, stock);
+        VerifyInstalledCeresSteamInstructionFrames(stock);
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking/wall Pirate distinct extended-frame count");
@@ -68,8 +69,12 @@ internal static partial class Program
         }
         AssertEqual(EnemyExtendedFrameDefinitions.RidleyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
-                frame => frame.Bank == 0xa6),
+                frame => frame.Name.StartsWith("ridley_body_", StringComparison.Ordinal)),
             "all Ceres/Lower Norfair Ridley body frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.CeresSteamFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("ceres_steam_oam_", StringComparison.Ordinal)),
+            "all selected Ceres steam visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
@@ -131,6 +136,12 @@ internal static partial class Program
         {
             OffsetX = draygonFirst.OffsetX + 1,
         };
+        const string steamName = "ceres_steam_oam_F142";
+        EnemyExtendedVisualComponent steamFirst = document.Frames[steamName][0];
+        document.Frames[steamName][0] = steamFirst with
+        {
+            OffsetX = steamFirst.OffsetX + 1,
+        };
         string ridleyOverrideDirectory = Path.Combine(stockDirectory,
             "ridley-composition-overrides");
         Directory.CreateDirectory(ridleyOverrideDirectory);
@@ -148,6 +159,13 @@ internal static partial class Program
             0xa5, 0xa2df, 0x0040, 0x0080);
         OamBuffer movedDraygonOam = DrawExtendedForBank(editedRidley, guard,
             0xa5, 0xa2df, 0x0040, 0x0080);
+        OamBuffer stockSteam = DrawExtendedForBank(stock, guard,
+            0xa6, 0xf142, 0x0040, 0x0080);
+        OamBuffer movedSteam = DrawExtendedForBank(editedRidley, guard,
+            0xa6, 0xf142, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockSteam.LowTable[0] + 1)),
+            movedSteam.LowTable[0],
+            "editable Ceres steam composition moves live OAM by one pixel");
         AssertEqual(unchecked((byte)(stockDraygonOam.LowTable[0] + 1)),
             movedDraygonOam.LowTable[0],
             "editable Draygon extended OAM offset changes live drawing");
@@ -266,7 +284,8 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ninja_pirate_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key) &&
+                !IsCeresSteamExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -336,7 +355,8 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key) &&
+                !IsCeresSteamExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -356,11 +376,13 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key) &&
+                !IsCeresSteamExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !IsBankA5ExtendedFrameName(entry.Key))
+                !IsBankA5ExtendedFrameName(entry.Key) &&
+                !IsCeresSteamExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -390,10 +412,12 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreDraygonVersion,
             Frames = document.Frames.Where(entry =>
-                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key) &&
+                !IsCeresSteamExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !IsBankA5ExtendedFrameName(entry.Key))
+                !IsBankA5ExtendedFrameName(entry.Key) &&
+                !IsCeresSteamExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -418,13 +442,15 @@ internal static partial class Program
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         const string currentSporeName = "spore_spawn_oam_EE6F";
         const string legacySporeName = "draygon_oam_EE6F";
-        var versionSixFrames = beforeSporeIdentity.Frames.ToDictionary(
-            entry => LegacyExtendedFrameName(entry.Key), entry => entry.Value,
-            StringComparer.Ordinal);
-        var versionSixBindings = beforeSporeIdentity.DisplayFrames!.ToDictionary(
-            entry => LegacyExtendedFrameName(entry.Key),
-            entry => LegacyExtendedFrameName(entry.Value),
-            StringComparer.Ordinal);
+        var versionSixFrames = beforeSporeIdentity.Frames
+            .Where(entry => !IsCeresSteamExtendedFrameName(entry.Key))
+            .ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
+                entry => entry.Value, StringComparer.Ordinal);
+        var versionSixBindings = beforeSporeIdentity.DisplayFrames!
+            .Where(entry => !IsCeresSteamExtendedFrameName(entry.Key))
+            .ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
+                entry => LegacyExtendedFrameName(entry.Value),
+                StringComparer.Ordinal);
         EnemyExtendedVisualComponent legacySporeFirst =
             versionSixFrames[legacySporeName][0];
         versionSixFrames[legacySporeName][0] = legacySporeFirst with
@@ -458,6 +484,30 @@ internal static partial class Program
         AssertTrue(beforeSporeIdentity.Frames.ContainsKey(currentSporeName) &&
                    !beforeSporeIdentity.Frames.ContainsKey(legacySporeName),
             "current stock exposes the corrected Spore Spawn author key");
+
+        var versionSeven = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreCeresSteamVersion,
+            Frames = document.Frames.Where(entry =>
+                !IsCeresSteamExtendedFrameName(entry.Key)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !IsCeresSteamExtendedFrameName(entry.Key)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionSeven, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionSeven = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer inheritedSteam = DrawExtendedForBank(upgradedVersionSeven, guard,
+            0xa6, 0xf142, 0x0040, 0x0080);
+        AssertTrue(inheritedSteam.LowTable.SequenceEqual(stockSteam.LowTable) &&
+                   inheritedSteam.HighTable.SequenceEqual(stockSteam.HighTable),
+            "version-seven override inherits verified stock Ceres steam art");
+        AssertTrue(DrawExtended(upgradedVersionSeven, guard, editedPointer,
+                0x0040, 0x0080).LowTable.SequenceEqual(editedOam.LowTable),
+            "version-seven Pirate edit survives the Ceres steam schema update");
 
         EnemyExtendedFrameDocument sporeVisualRemap =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -557,6 +607,14 @@ internal static partial class Program
             "current Spore Spawn display binding cannot select Draygon art");
         remapped.DisplayFrames["spore_spawn_oam_EE65"] =
             "spore_spawn_oam_EE65";
+        remapped.DisplayFrames[steamName] = "ridley_body_E983";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "Ceres steam display binding cannot select Ridley art");
+        remapped.DisplayFrames[steamName] = steamName;
         remapped.DisplayFrames.Remove(sourceName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
@@ -589,6 +647,16 @@ internal static partial class Program
             "v3 override missing a wall-Pirate frame fails loudly");
         document.Frames.Add(wallName, editedWallComponents);
 
+        EnemyExtendedVisualComponent[] steamComponents = document.Frames[steamName];
+        document.Frames.Remove(steamName);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "current override missing a Ceres steam frame fails loudly");
+        document.Frames.Add(steamName, steamComponents);
+
         document.Frames.Remove(editedName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, new JsonSerializerOptions
@@ -604,15 +672,18 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon and 12 Spore Spawn OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn and 28 Ceres steam OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v6 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v7 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 
     private static bool IsBankA5ExtendedFrameName(string name) =>
         name.StartsWith("draygon_oam_", StringComparison.Ordinal) ||
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal);
+
+    private static bool IsCeresSteamExtendedFrameName(string name) =>
+        name.StartsWith("ceres_steam_oam_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)

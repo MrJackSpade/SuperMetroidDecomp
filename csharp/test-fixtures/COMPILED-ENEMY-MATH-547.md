@@ -3244,11 +3244,13 @@ pointers fail as mechanics, and warmed lookup is allocation-free.
 Ceres steam's six variants share four directional programs whose 68 fixed durations,
 activation branches, visibility callbacks, gotos, and loop targets now resolve through
 `CeresSteamInstructionProgramDefinitions`. Their 36 interleaved extended-spritemap
-pointers remain live cartridge-backed presentation data.
+pointers use the compiled visual-selector catalog with installed assets. Synthetic
+uninstalled fixtures retain mutable cartridge-backed presentation operands.
 
 Verification compares every mechanics word with the pinned cartridge and executes every
 direction through activation, all plume frames, the hidden hold, and reactivation while
-every mechanics byte is forbidden. All 36 presentation operands remain observable,
+every mechanics byte is forbidden. All 36 presentation operands remain observable
+in the uninstalled fixture; installed directional cycles forbid every ROM read,
 presentation and adjacent callback-code pointers fail as mechanics, and warmed lookup is
 allocation-free.
 

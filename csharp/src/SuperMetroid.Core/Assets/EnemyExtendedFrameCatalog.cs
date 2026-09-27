@@ -88,9 +88,12 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreCeresSteamVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount,
             EnemyExtendedFrameDefinitions.PreSporeIdentityVersion
                 when stockForLegacyOverride is not null =>
-                EnemyExtendedFrameDefinitions.ExpectedFrameCount,
+                EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount,
             EnemyExtendedFrameDefinitions.PreDraygonVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreDraygonFrameCount,
@@ -190,7 +193,8 @@ public sealed class EnemyExtendedFrameCatalog
         var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
         if (document.Version is EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
             or EnemyExtendedFrameDefinitions.PreDraygonVersion
-            or EnemyExtendedFrameDefinitions.PreSporeIdentityVersion)
+            or EnemyExtendedFrameDefinitions.PreSporeIdentityVersion
+            or EnemyExtendedFrameDefinitions.PreCeresSteamVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -217,6 +221,8 @@ public sealed class EnemyExtendedFrameCatalog
                 return right.StartsWith("draygon_oam_", StringComparison.Ordinal);
             if (left.StartsWith("ridley_body_", StringComparison.Ordinal))
                 return right.StartsWith("ridley_body_", StringComparison.Ordinal);
+            if (left.StartsWith("ceres_steam_oam_", StringComparison.Ordinal))
+                return right.StartsWith("ceres_steam_oam_", StringComparison.Ordinal);
             int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);
             int rightEnd = right.IndexOf("_pirate_", StringComparison.Ordinal);
             return leftEnd > 0 && rightEnd > 0 && left.AsSpan(0, leftEnd)
@@ -233,7 +239,7 @@ public sealed record EnemyExtendedVisualComponent
     public required SpriteVisualPart[] Parts { get; init; }
 }
 
-/// <summary>Versioned walking/wall/ninja-Pirate extended-frame compositions.</summary>
+/// <summary>Versioned editable extended-enemy-frame compositions.</summary>
 public sealed record EnemyExtendedFrameDocument
 {
     public required int Version { get; init; }

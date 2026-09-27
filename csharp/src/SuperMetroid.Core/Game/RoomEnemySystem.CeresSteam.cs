@@ -2,8 +2,9 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Cartridge-faithful Ceres steam initialization and graphical-offset behavior from
-/// bank <c>$A6:EFB1-$F03E</c>. Animation instructions and extended spritemaps remain in
-/// the shared ROM-backed enemy interpreters; this file owns only the actor's private AI.
+/// bank <c>$A6:EFB1-$F03E</c>. Shared instruction mechanics and fixed extended
+/// collision are compiled; installed OAM comes from the editable visual catalog.
+/// This file owns only the actor's private AI.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {

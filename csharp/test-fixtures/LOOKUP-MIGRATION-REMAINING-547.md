@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Ceres steam extended frames and collision (2026-09-27)
+
+All 28 bank-$A6 steam extended frames now have named editable OAM compositions.
+The v8 asset schema adds those identities while preserving v1-v7 overrides from
+complete stock. Every stock frame matches native OAM at three origins with its
+source frame reads forbidden. Their one-component physical maps use 21 distinct
+hitbox lists (20 rectangles and an empty list), compiled independently of art.
+Both contact and shot callback selection match 4,512 native boundary probes,
+including signed coordinate wraparound, with all collision ROM reads forbidden.
+The 36 interleaved instruction visual selectors were already in the compiled
+sparse selector catalog; constructed fixtures may still use their mutable bus.
+Other enemy families and the broader ROM-free runtime remain open.
+
 ## Ridley body collision definitions (2026-09-27)
 
 Both Ceres and Lower Norfair Ridley select eleven bank-$A6 extended body frames.
@@ -1417,8 +1430,9 @@ are compiled as typed initialization records. All twelve source words match the
 pinned cartridge, and all six production initialization paths run with both tables
 forbidden. The four shared directional programs now compile all 68 engine-control
 words too: every activation branch, visibility callback, duration, goto, and loop
-target executes with those source bytes forbidden while all 36 interleaved extended-
-spritemap operands remain live cartridge presentation data.
+target executes with those source bytes forbidden. The 36 interleaved extended-
+spritemap operands use the compiled selector catalog in installed gameplay;
+synthetic fixtures without installed art may still read mutable bus operands.
 
 Normal and strong Brinstar Pipe Bugs' four facing/action instruction selectors at
 `$B3:882B-$883A` are compiled behind a proven flags enum: bit zero selects shooting

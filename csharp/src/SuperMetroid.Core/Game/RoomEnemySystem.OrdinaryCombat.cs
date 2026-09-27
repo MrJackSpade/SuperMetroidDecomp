@@ -2923,6 +2923,37 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition &&
+            enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
+            (CeresSteamCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+             TileArtwork is not null))
+        {
+            // The high byte of each steam frame's $1001 header is drawing
+            // metadata, not an extra component. Both damaging rectangles and
+            // callbacks remain fixed even if its installed OAM is edited.
+            foreach (CeresSteamCollisionComponent component in
+                     CeresSteamCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (CeresSteamCollisionHitbox hitbox in
+                         CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

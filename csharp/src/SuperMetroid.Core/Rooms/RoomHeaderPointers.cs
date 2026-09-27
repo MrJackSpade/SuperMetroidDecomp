@@ -86,6 +86,9 @@ public static class RoomHeaderPointers
     /// <summary>Crateria room $1A at $8F:9969; its Kago population uses the shared three-frame cycle.</summary>
     public const ushort CrateriaKagoRoom = 0x9969;
 
+    /// <summary>Crateria room $1E at $8F:9A44; contains the Blue Brinstar face block.</summary>
+    public const ushort CrateriaFaceBlockRoom = 0x9a44;
+
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;
 

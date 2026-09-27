@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 41;
+    internal const int Version = 42;
+    internal const int PreFaceBlockVersion = 41;
+    internal const int PreFaceBlockFrameCount = 869;
     internal const int PreKagoVersion = 40;
     internal const int PreKagoFrameCount = 866;
     internal const int PreFlyVersion = 39;
@@ -620,6 +622,7 @@ internal static class EnemySpritemapDefinitions
         .. SciserVisualDefinitions.Frames(),
         .. FlyVisualDefinitions.Frames(),
         .. KagoVisualDefinitions.Frames(),
+        .. BlueBrinstarFaceBlockVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -646,6 +649,8 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
             RoomEnemySystem.MemuDefinition => FlyVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.KagoDefinition => KagoVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.BlueBrinstarFaceBlockDefinition =>
+                BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
@@ -716,6 +721,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
             RoomEnemySystem.MemuDefinition or
             RoomEnemySystem.KagoDefinition or
+            RoomEnemySystem.BlueBrinstarFaceBlockDefinition or
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or

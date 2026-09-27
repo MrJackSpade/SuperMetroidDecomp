@@ -292,8 +292,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreKagoFrameCount,
             "Mellow, Mella and Memu share four flight OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreKagoFrameCount + 3,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreFaceBlockFrameCount,
             "Kago adds three OAM frames shared by its slow and fast loops");
+        AssertEqual(EnemySpritemapDefinitions.PreFaceBlockFrameCount + 5,
+            EnemySpritemapDefinitions.Frames.Length,
+            "face block adds five distinct neutral and directional OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -613,6 +616,23 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => KagoVisualDefinitions.FrameAt(KagoInstructionProgramDefinitions.Slow),
             "Kago rejects adjacent mechanics as presentation");
+        for (int index = 0;
+             index < BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.BlueBrinstarFaceBlockDefinition, operand,
+                    out ushort selected),
+                $"face-block visual operand $A8:{operand:X4} is compiled");
+            AssertEqual(ReadBlueBrinstarFaceBlockWord(rom, 0xa80000 | operand), selected,
+                $"face-block selector $A8:{operand:X4} matches the cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
+                BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial),
+            "face block rejects adjacent timing as presentation");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -656,6 +676,8 @@ internal static partial class Program
                         ? RoomEnemySystem.MellowDefinition
                     : frame.Name.StartsWith("kago_", StringComparison.Ordinal)
                         ? RoomEnemySystem.KagoDefinition
+                    : frame.Name.StartsWith("face_block_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.BlueBrinstarFaceBlockDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
@@ -968,6 +990,12 @@ internal static partial class Program
         {
             OffsetX = kagoPart.OffsetX + 1,
         };
+        const string faceBlockFrameName = "face_block_neutral";
+        SpriteVisualPart faceBlockPart = document.Frames[faceBlockFrameName][0];
+        document.Frames[faceBlockFrameName][0] = faceBlockPart with
+        {
+            OffsetX = faceBlockPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1011,6 +1039,15 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
             "Kago authored offset changes installed presentation");
+        ushort faceBlockPointer = BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
+            BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(6));
+        OamBuffer stockFaceBlock = DrawEnemy(stock, new FrameReadGuard(rom),
+            faceBlockPointer, RoomEnemySystem.BlueBrinstarFaceBlockDefinition);
+        OamBuffer editedFaceBlock = DrawEnemy(edited, new FrameReadGuard(rom),
+            faceBlockPointer, RoomEnemySystem.BlueBrinstarFaceBlockDefinition);
+        AssertEqual(unchecked((byte)(stockFaceBlock.LowTable[0] + 1)),
+            editedFaceBlock.LowTable[0],
+            "face-block authored offset changes installed presentation");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1459,6 +1496,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preFaceBlockFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("face_block_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreFaceBlockFrameCount,
+            preFaceBlockFrames.Count, "pre-face-block composition schema frame count");
+        var preFaceBlockBindings = document.DisplayFrames!
+            .Where(pair => preFaceBlockFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreFaceBlockVersion,
+                Frames = preFaceBlockFrames,
+                DisplayFrames = preFaceBlockBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preFaceBlockUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in BlueBrinstarFaceBlockVisualDefinitions.Frames())
+            AssertTrue(preFaceBlockUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-forty-one override inherits face-block frame {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreFaceBlockVersion,
+            Frames = preFaceBlockFrames,
+            DisplayFrames = preFaceBlockBindings,
+        };
         var preKagoFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("kago_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2572,6 +2636,8 @@ internal static partial class Program
                         ? FlyVisualDefinitions.Bank
                     : definition == RoomEnemySystem.KagoDefinition
                         ? KagoVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.BlueBrinstarFaceBlockDefinition
+                        ? BlueBrinstarFaceBlockVisualDefinitions.Bank
                     : definition is RoomEnemySystem.HZoomerDefinition or
                         RoomEnemySystem.SciserDefinition or
                         RoomEnemySystem.ZeelaDefinition or

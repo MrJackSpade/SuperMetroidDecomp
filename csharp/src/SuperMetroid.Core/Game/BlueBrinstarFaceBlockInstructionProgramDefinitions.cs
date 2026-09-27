@@ -8,7 +8,7 @@ internal readonly record struct BlueBrinstarFaceBlockInstructionMechanicsWord(
 /// <summary>Compiled mechanics words from all three Blue Brinstar face-block programs.</summary>
 /// <remarks>
 /// Frame durations and terminal sleeps are immutable simulation data. The seven
-/// interleaved spritemap pointers remain live cartridge presentation data.
+/// interleaved spritemap pointers select separately installed presentation data.
 /// </remarks>
 internal static class BlueBrinstarFaceBlockInstructionProgramDefinitions
 {
@@ -42,6 +42,10 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitions
     internal static BlueBrinstarFaceBlockInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for an OAM selector in one of the three native programs.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     /// <summary>Returns fixed face-block control or rejects pointers outside its programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

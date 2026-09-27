@@ -53,18 +53,16 @@ internal static partial class Program
             frames: 96,
             "Samus-right");
 
-        AssertEqual(
-            BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Blue Brinstar face-block spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "face-block programs use compiled spritemap selectors");
         for (int index = 0;
              index < BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads face-block presentation word $A8:{address:X4}");
+            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+                $"production execution avoids face-block presentation word $A8:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled face-block mechanics byte");
@@ -86,8 +84,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Blue Brinstar face-block instruction mechanics: ten compiled words, all " +
-            "three production programs, both activation sides, and seven live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "three production programs, both activation sides, and seven compiled " +
+            "spritemap selectors pass without instruction or presentation ROM reads.");
 
         static void VerifyBlueBrinstarFaceBlockProgram(
             BlueBrinstarFaceBlockProgramReadGuard guard,

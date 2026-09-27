@@ -2598,6 +2598,10 @@ public sealed partial class RoomEnemySystem
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+            operandAddress == MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand)
+            return MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
+                operandAddress);
+        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             MotherBrainHandBeamBodyInstructionDefinitions.ContainsWord(operandAddress))
         {
             return MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector(

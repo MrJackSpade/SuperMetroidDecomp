@@ -67,6 +67,15 @@ internal static partial class Program
             "Mother Brain initial dummy advances to its dormant sleep");
         AssertEqual((ushort)0xa320, initial.SpritemapPointer,
             "Mother Brain initial dummy retains its live presentation operand");
+        AssertEqual(ReadRetailWord(rom, 0xa90000 |
+                MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand),
+            MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
+                MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand),
+            "Mother Brain initial dummy selector matches the cartridge");
+        AssertThrows<InvalidDataException>(
+            () => MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
+                MotherBrainBodyInstructionProgramDefinitions.InitialDummy),
+            "Mother Brain dummy visual selector rejects neighboring mechanics data");
         AssertTrue(initialStep.LoadedFrame,
             "Mother Brain initial dummy publishes its presentation frame");
         MotherBrainBodyAnimationStepResult wrappedStep = initial.Step(guarded);

@@ -7,12 +7,26 @@ namespace SuperMetroid.Core.Game;
 /// The native streams interleave mechanics with presentation. Command words and frame
 /// durations control body movement, pose, footsteps, and AI-visible timing, so they belong
 /// to the translated mechanics model. The word following each duration is an extended
-/// spritemap pointer and deliberately remains a cartridge/presentation lookup.
+/// spritemap pointer and belongs to presentation. The initial dummy's fixed visual
+/// selector is compiled separately for installed play; the animation diagnostic may
+/// still use a mutable cartridge operand for its constructed fixtures.
 /// </remarks>
 internal static class MotherBrainBodyInstructionProgramDefinitions
 {
     /// <summary>$A9:9C13, <c>InstList_MotherBrainHead_InitialDummy</c>.</summary>
     internal const ushort InitialDummy = 0x9c13;
+    /// <summary>
+    /// The dummy list's presentation operand at $A9:9C15 selects extended
+    /// frame $A9:A320. It is an authored visual identity, not a timer or opcode.
+    /// </summary>
+    internal const ushort InitialDummyVisualOperand = 0x9c15;
+    private const ushort InitialDummyVisualFrame = 0xa320;
+
+    /// <summary>Resolves the fixed initial dummy selector without reading the ROM.</summary>
+    internal static ushort ReadInitialDummyVisualSelector(ushort address) =>
+        address == InitialDummyVisualOperand ? InitialDummyVisualFrame :
+        throw new InvalidDataException(
+            $"Mother Brain initial dummy visual operand $A9:{address:X4} is not compiled.");
 
     /// <summary>$A9:9730-$A9:9851, five forward-walk programs.</summary>
     private const ushort ForwardWalkReallyFast = 0x9730;

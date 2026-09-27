@@ -6,7 +6,7 @@ internal readonly record struct VerticalShutterInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for plain vertical shutters and Kamer platforms.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class VerticalShutterInstructionProgramDefinitions
 {
@@ -42,6 +42,10 @@ internal static class VerticalShutterInstructionProgramDefinitions
     internal static VerticalShutterInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for the plain vertical shutter, not the Kamer platform loop.</summary>
+    internal static bool IsPlainShutterPresentationWord(ushort address) =>
+        address == PresentationWords[0];
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

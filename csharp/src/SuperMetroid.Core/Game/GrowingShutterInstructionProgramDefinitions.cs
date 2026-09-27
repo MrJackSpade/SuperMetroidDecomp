@@ -6,7 +6,7 @@ internal readonly record struct GrowingShutterInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the growing shutter's four height programs.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class GrowingShutterInstructionProgramDefinitions
 {
@@ -48,6 +48,10 @@ internal static class GrowingShutterInstructionProgramDefinitions
     internal static GrowingShutterInstructionMechanicsWord MechanicsWord(int index) =>
         Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for one of the four growing-height visual operands.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ProgramEntryPoint(int index) => index switch
     {

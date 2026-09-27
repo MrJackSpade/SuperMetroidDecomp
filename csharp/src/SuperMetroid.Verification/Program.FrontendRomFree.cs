@@ -187,6 +187,8 @@ internal static partial class Program
                     RoomHeaderPointers.CrateriaMorphBallEyeRoom, "Crateria Morph Ball eye",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.BrinstarShutterRoom, "Brinstar shutters", frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.DeadTorizoCorpse, "Tourian dead-Torizo corpse",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,

@@ -79,12 +79,10 @@ internal static partial class Program
             kamer.CurrentInstruction,
             "Kamer vertical platform loops to its first timed frame");
 
-        // Kamer's four fixed display selectors were compiled when its editable
-        // compositions were installed. Only the plain shutter's visual operand
-        // remains a live cartridge read in this unbound diagnostic fixture.
-        AssertTrue(guard.ObservedPresentationWords.SetEquals(
-                [VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(0)]),
-            "only the plain vertical-shutter selector remains a cartridge read");
+        // Both Kamer and the plain shutters use compiled selectors; gameplay
+        // timing still comes from their separately compiled instruction words.
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "plain vertical-shutter selector uses compiled presentation data");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled vertical-shutter mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -104,7 +102,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Vertical-shutter instruction mechanics: eight compiled words, all three " +
-            "real initializers, the Kamer loop, and one live plain-shutter selector pass with " +
+            "real initializers, the Kamer loop, and one compiled plain-shutter selector pass with " +
             "mechanics bytes forbidden.");
     }
 

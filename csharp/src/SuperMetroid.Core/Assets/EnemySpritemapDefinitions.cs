@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 43;
+    internal const int Version = 44;
+    internal const int PreShutterVersion = 43;
+    internal const int PreShutterFrameCount = 896;
     internal const int PreMorphBallEyeVersion = 42;
     internal const int PreMorphBallEyeFrameCount = 874;
     internal const int PreFaceBlockVersion = 41;
@@ -626,6 +628,7 @@ internal static class EnemySpritemapDefinitions
         .. KagoVisualDefinitions.Frames(),
         .. BlueBrinstarFaceBlockVisualDefinitions.Frames(),
         .. MorphBallEyeVisualDefinitions.Frames(),
+        .. ShutterVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -656,6 +659,11 @@ internal static class EnemySpritemapDefinitions
                 BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.MorphBallEyeDefinition =>
                 MorphBallEyeVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.GrowingShutterDefinition or
+                RoomEnemySystem.ShootableVerticalShutterDefinition or
+                RoomEnemySystem.DestroyableVerticalShutterDefinition or
+                RoomEnemySystem.ShootableHorizontalShutterDefinition =>
+                ShutterVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
@@ -728,6 +736,10 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.KagoDefinition or
             RoomEnemySystem.BlueBrinstarFaceBlockDefinition or
             RoomEnemySystem.MorphBallEyeDefinition or
+            RoomEnemySystem.GrowingShutterDefinition or
+            RoomEnemySystem.ShootableVerticalShutterDefinition or
+            RoomEnemySystem.DestroyableVerticalShutterDefinition or
+            RoomEnemySystem.ShootableHorizontalShutterDefinition or
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or

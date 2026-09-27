@@ -6,7 +6,7 @@ internal readonly record struct HorizontalShutterInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the horizontal shutter's stationary program.
-/// Its interleaved spritemap operand remains live cartridge presentation data.
+/// Its interleaved spritemap operand selects separately installed presentation data.
 /// </summary>
 internal static class HorizontalShutterInstructionProgramDefinitions
 {
@@ -28,6 +28,9 @@ internal static class HorizontalShutterInstructionProgramDefinitions
     internal static ushort PresentationWordAddress(int index) => index == 0
         ? PresentationWord
         : throw new ArgumentOutOfRangeException(nameof(index));
+
+    /// <summary>True only for the stationary horizontal shutter's visual operand.</summary>
+    internal static bool IsPresentationWord(ushort address) => address == PresentationWord;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

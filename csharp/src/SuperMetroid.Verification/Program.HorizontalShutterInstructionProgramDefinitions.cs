@@ -61,10 +61,8 @@ internal static partial class Program
             slot.CurrentInstruction,
             "horizontal-shutter terminal sleep remains installed");
 
-        AssertEqual(
-            HorizontalShutterInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "horizontal-shutter spritemap word remains a cartridge read");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "horizontal-shutter spritemap word uses a compiled visual selector");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled horizontal-shutter mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -84,7 +82,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Horizontal-shutter instruction mechanics: two compiled words, the real " +
-            "initializer, terminal sleep, and one live spritemap read pass with mechanics " +
+            "initializer, terminal sleep, and one compiled visual selector pass with mechanics " +
             "bytes forbidden.");
     }
 

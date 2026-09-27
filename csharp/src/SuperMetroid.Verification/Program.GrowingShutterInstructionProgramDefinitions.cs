@@ -74,10 +74,8 @@ internal static partial class Program
 
         AssertEqual((ushort)4, state.GrowthLevel,
             "growing-shutter real section transitions complete all four stages");
-        AssertEqual(
-            GrowingShutterInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "growing-shutter spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "growing-shutter spritemap words use compiled visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled growing-shutter mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -97,8 +95,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Growing-shutter instruction mechanics: eight compiled words, four real " +
-            "stage programs, and four live spritemap reads pass with mechanics bytes " +
-            "forbidden.");
+            "stage programs, and four compiled visual selectors pass with mechanics " +
+            "bytes forbidden.");
     }
 
     private static int ProbeGrowingShutterInstructionMechanicsAllocation()

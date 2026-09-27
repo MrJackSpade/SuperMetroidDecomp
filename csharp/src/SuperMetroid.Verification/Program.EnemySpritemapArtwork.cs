@@ -298,8 +298,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
             "face block adds five distinct neutral and directional OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreMorphBallEyeFrameCount + 22,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreShutterFrameCount,
             "Morph Ball eye and mount add twenty-two distinct OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreShutterFrameCount + 5,
+            EnemySpritemapDefinitions.Frames.Length,
+            "growing, vertical and horizontal shutters share five distinct OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -653,6 +656,46 @@ internal static partial class Program
             () => MorphBallEyeVisualDefinitions.FrameAt(
                 MorphBallEyeInstructionProgramDefinitions.AdjacentProximityDefinitions),
             "eye visual selector rejects adjacent proximity definitions");
+        for (int index = 0;
+             index < GrowingShutterInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = GrowingShutterInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.GrowingShutterDefinition, operand,
+                    out ushort selected),
+                $"growing-shutter visual operand $A2:{operand:X4} is compiled");
+            AssertEqual(ReadGrowingShutterInstructionWord(rom, 0xa20000 | operand),
+                selected, $"growing-shutter selector $A2:{operand:X4} matches the cartridge");
+        }
+        ushort verticalOperand =
+            VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(0);
+        foreach (ushort definition in new ushort[]
+                 { RoomEnemySystem.ShootableVerticalShutterDefinition,
+                   RoomEnemySystem.DestroyableVerticalShutterDefinition })
+        {
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(definition,
+                    verticalOperand, out ushort selected),
+                $"vertical shutter ${definition:X4} selector is compiled");
+            AssertEqual(ReadVerticalShutterInstructionWord(rom,
+                    0xa20000 | verticalOperand), selected,
+                $"vertical shutter ${definition:X4} selector matches the cartridge");
+        }
+        ushort horizontalOperand =
+            HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(0);
+        AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                RoomEnemySystem.ShootableHorizontalShutterDefinition,
+                horizontalOperand, out ushort horizontalSelected),
+            "horizontal-shutter visual selector is compiled");
+        AssertEqual(ReadHorizontalShutterInstructionWord(rom,
+                0xa20000 | horizontalOperand), horizontalSelected,
+            "horizontal-shutter selector matches the cartridge");
+        AssertThrows<InvalidDataException>(
+            () => ShutterVisualDefinitions.FrameAt(
+                RoomEnemySystem.GrowingShutterDefinition,
+                GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(0)),
+            "shutter visual selector rejects adjacent frame timing");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -700,6 +743,12 @@ internal static partial class Program
                         ? RoomEnemySystem.BlueBrinstarFaceBlockDefinition
                     : frame.Name.StartsWith("morph_eye_", StringComparison.Ordinal)
                         ? RoomEnemySystem.MorphBallEyeDefinition
+                    : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.GrowingShutterDefinition
+                    : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.ShootableVerticalShutterDefinition
+                    : frame.Name.StartsWith("shutter_horizontal", StringComparison.Ordinal)
+                        ? RoomEnemySystem.ShootableHorizontalShutterDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
@@ -1024,6 +1073,12 @@ internal static partial class Program
         {
             OffsetX = morphEyePart.OffsetX + 1,
         };
+        const string shutterFrameName = "shutter_vertical_40px";
+        SpriteVisualPart shutterPart = document.Frames[shutterFrameName][0];
+        document.Frames[shutterFrameName][0] = shutterPart with
+        {
+            OffsetX = shutterPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1085,6 +1140,24 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockMorphEye.LowTable[0] + 1)),
             editedMorphEye.LowTable[0],
             "Morph Ball eye mount art edit changes installed presentation");
+        ushort shutterPointer = ShutterVisualDefinitions.FrameAt(
+            RoomEnemySystem.GrowingShutterDefinition,
+            GrowingShutterInstructionProgramDefinitions.PresentationWordAddress(3));
+        foreach (ushort definition in new ushort[]
+                 { RoomEnemySystem.GrowingShutterDefinition,
+                   RoomEnemySystem.ShootableVerticalShutterDefinition,
+                   RoomEnemySystem.DestroyableVerticalShutterDefinition })
+        {
+            OamBuffer stockShutter = DrawEnemy(stock, new FrameReadGuard(rom),
+                shutterPointer, definition);
+            OamBuffer editedShutter = DrawEnemy(edited, new FrameReadGuard(rom),
+                shutterPointer, definition);
+            AssertEqual(unchecked((byte)(stockShutter.LowTable[0] + 1)),
+                editedShutter.LowTable[0],
+                $"shutter ${definition:X4} uses edited shared forty-pixel art");
+            AssertEqual(stockShutter.LowTable[1], editedShutter.LowTable[1],
+                $"shutter ${definition:X4} visual edit leaves physical Y unchanged");
+        }
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1533,6 +1606,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preShutterFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("shutter_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreShutterFrameCount,
+            preShutterFrames.Count, "pre-shutter composition schema count");
+        var preShutterBindings = document.DisplayFrames!
+            .Where(pair => preShutterFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreShutterVersion,
+                Frames = preShutterFrames,
+                DisplayFrames = preShutterBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preShutterUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in ShutterVisualDefinitions.Frames())
+            AssertTrue(preShutterUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-forty-three override inherits shutter frame {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreShutterVersion,
+            Frames = preShutterFrames,
+            DisplayFrames = preShutterBindings,
+        };
         var preMorphBallEyeFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("morph_eye_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2704,6 +2804,11 @@ internal static partial class Program
                         ? BlueBrinstarFaceBlockVisualDefinitions.Bank
                     : definition == RoomEnemySystem.MorphBallEyeDefinition
                         ? MorphBallEyeVisualDefinitions.Bank
+                    : definition is RoomEnemySystem.GrowingShutterDefinition or
+                        RoomEnemySystem.ShootableVerticalShutterDefinition or
+                        RoomEnemySystem.DestroyableVerticalShutterDefinition or
+                        RoomEnemySystem.ShootableHorizontalShutterDefinition
+                        ? ShutterVisualDefinitions.Bank
                     : definition is RoomEnemySystem.HZoomerDefinition or
                         RoomEnemySystem.SciserDefinition or
                         RoomEnemySystem.ZeelaDefinition or

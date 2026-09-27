@@ -472,6 +472,10 @@ the other shared frames use stable `room_sprite_b4_` names followed by their
 native spritemap address. A frame can be shared by several object kinds, so an
 address-named edit can affect more than one effect. Object allocation, frame
 durations, movement, and collision remain engine-owned.
+Mother Brain's head, neck joint, and five falling-tube compositions use stable
+`mother_brain_a9_` names followed by the native address. The private head/neck
+draw hook preserves its world-space clipping and palette logic while using
+these installed OAM parts; animation timing and encounter physics are separate.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,

@@ -274,8 +274,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreKiHunterFrameCount,
             "Yapping Maw adds 24 distinct OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreKiHunterFrameCount + 41,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreMotherBrainFrameCount,
             "KiHunter adds 41 distinct body and wing OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreMotherBrainFrameCount + 18,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Mother Brain adds eighteen head, neck, and falling-tube OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -578,6 +581,10 @@ internal static partial class Program
             // enemy slot whose definition selects an $A0-$B3 spritemap bank.
             if (frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
                 continue;
+            // The head/neck use a private world-space hook, and the falling tubes
+            // use Mother Brain's encounter route. Test that route separately below.
+            if (frame.Bank == MotherBrainVisualDefinitions.Bank)
+                continue;
             var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
@@ -666,6 +673,8 @@ internal static partial class Program
                        room.HighTable.SequenceEqual(nativeRoom.HighTable),
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
+
+        VerifyInstalledMotherBrainDrawHook(rom, stock);
 
         string fileName = EnemySpritemapDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
@@ -854,6 +863,12 @@ internal static partial class Program
         {
             OffsetY = hunterPart.OffsetY + 1,
         };
+        const string motherBrainHeadName = "mother_brain_a9_a586";
+        SpriteVisualPart motherBrainHeadPart = document.Frames[motherBrainHeadName][0];
+        document.Frames[motherBrainHeadName][0] = motherBrainHeadPart with
+        {
+            OffsetX = motherBrainHeadPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -861,6 +876,15 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
+            stock, rom, 0xa586, 0x0140, 0x00a0);
+        OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
+            edited, rom, 0xa586, 0x0140, 0x00a0);
+        AssertEqual(unchecked((byte)(stockBrain.LowTable[0] + 1)),
+            editedBrain.LowTable[0],
+            "Mother Brain head artwork edit changes live OAM X without ROM reads");
+        AssertEqual(stockBrain.LowTable[1], editedBrain.LowTable[1],
+            "Mother Brain head artwork edit leaves physical Y placement unchanged");
         OamBuffer stockMaw = DrawEnemy(stock, new FrameReadGuard(rom),
             mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
         OamBuffer editedMaw = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -1284,6 +1308,34 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preMotherBrainFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("mother_brain_a9_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreMotherBrainFrameCount,
+            preMotherBrainFrames.Count, "pre-Mother-Brain composition schema frame count");
+        var preMotherBrainBindings = document.DisplayFrames!
+            .Where(pair => preMotherBrainFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreMotherBrainVersion,
+                Frames = preMotherBrainFrames,
+                DisplayFrames = preMotherBrainBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preMotherBrainUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
+            AssertTrue(preMotherBrainUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-thirty-five override inherits Mother Brain frame {frame.Name}");
+        // All earlier migration fixtures start from the previous complete schema.
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreMotherBrainVersion,
+            Frames = preMotherBrainFrames,
+            DisplayFrames = preMotherBrainBindings,
+        };
         var preHunterFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2259,6 +2311,44 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyInstalledMotherBrainDrawHook(
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    {
+        foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
+        {
+            OamBuffer actual = DrawInstalledMotherBrainFrame(
+                stock, rom, frame.Pointer, 0x0140, 0x00a0);
+            var expected = new OamBuffer();
+            expected.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
+                0x0040, 0x0090, 0x0400, 0x0010);
+            AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) &&
+                       actual.HighTable.SequenceEqual(expected.HighTable) &&
+                       actual.NextByteOffset == expected.NextByteOffset,
+                $"Mother Brain private draw uses installed {frame.Name} with native OAM");
+        }
+
+        OamBuffer aboveScreen = DrawInstalledMotherBrainFrame(
+            stock, rom, 0xa586, 0x0140, 0x000f);
+        AssertEqual(0, aboveScreen.NextByteOffset,
+            "Mother Brain private draw still culls a head above the viewport");
+    }
+
+    private static OamBuffer DrawInstalledMotherBrainFrame(
+        EnemyTileArtworkCatalog art, ISnesAddressSpace rom, ushort pointer,
+        ushort worldX, ushort worldY)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = art };
+        typeof(RoomEnemySystem).GetField("_bus", flags)!
+            .SetValue(enemies, new MotherBrainFrameReadGuard(rom));
+        var oam = new OamBuffer();
+        typeof(RoomEnemySystem).GetMethod("DrawMotherBrainWorldSpritemap", flags)!
+            .Invoke(enemies,
+                [oam, pointer, worldX, worldY,
+                    (ushort)0x0400, (ushort)0x0010, (ushort)0x0100, (ushort)0x0010]);
+        return oam;
+    }
+
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, RoomSpriteObjectKind kind)
     {
@@ -2284,6 +2374,19 @@ internal static partial class Program
             ? throw new InvalidOperationException(
                 $"Installed room sprite object reread bank-$B4 byte ${address:X6}.")
             : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class MotherBrainFrameReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace
+    {
+        public byte ReadByte(int address) =>
+            address is >= 0xa9a586 and < 0xa9a7c2 or
+                >= 0xa9ad3e and < 0xa9aee4
+                ? throw new InvalidOperationException(
+                    $"Mother Brain draw reread native artwork byte ${address:X6}.")
+                : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

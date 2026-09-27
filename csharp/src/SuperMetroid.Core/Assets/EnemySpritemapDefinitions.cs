@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 35;
+    internal const int Version = 36;
+    internal const int PreMotherBrainVersion = 35;
+    internal const int PreMotherBrainFrameCount = 800;
     internal const int PreKiHunterVersion = 34;
     internal const int PreKiHunterFrameCount = 759;
     internal const int PreYappingMawVersion = 33;
@@ -602,6 +604,7 @@ internal static class EnemySpritemapDefinitions
         .. RoomSpriteObjectVisualDefinitions.AdditionalFrames(NamedFrameDefinitions),
         .. YappingMawVisualDefinitions.Frames(),
         .. KiHunterVisualDefinitions.Frames(),
+        .. MotherBrainVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

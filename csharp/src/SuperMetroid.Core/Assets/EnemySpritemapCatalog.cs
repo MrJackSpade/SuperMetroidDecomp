@@ -73,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreMotherBrainVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreMotherBrainFrameCount,
             EnemySpritemapDefinitions.PreKiHunterVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreKiHunterFrameCount,
             EnemySpritemapDefinitions.PreYappingMawVersion when stockForLegacyOverride is not null =>
@@ -170,6 +172,7 @@ public sealed class EnemySpritemapCatalog
         // older versions had only art and inherit all stock bindings.
         bool hasAuthoredBindings = !legacyOverride ||
             document.Version is EnemySpritemapDefinitions.PreFuneNamiheVersion or
+                EnemySpritemapDefinitions.PreMotherBrainVersion or
                 EnemySpritemapDefinitions.PreKiHunterVersion or
                 EnemySpritemapDefinitions.PreYappingMawVersion or
                 EnemySpritemapDefinitions.PreRoomSpriteObjectVersion or

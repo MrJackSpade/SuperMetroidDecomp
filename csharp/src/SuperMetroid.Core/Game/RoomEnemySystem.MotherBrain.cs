@@ -427,9 +427,9 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)screenY) < 0)
             return;
 
-        oam.AddEnemySpritemap(
-            _bus!,
-            bank: 0xa9,
+        DrawEnemySpritemap(
+            oam,
+            MotherBrainVisualDefinitions.Bank,
             spritemapPointer,
             unchecked((ushort)(worldX - cameraX)),
             screenY,

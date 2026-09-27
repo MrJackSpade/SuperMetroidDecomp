@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -11,7 +12,6 @@ public sealed partial class RoomEnemySystem
     public const ushort DeadSidehopperDefinition = 0xed7f;
 
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
-    private const int DeadMonsterTileDataAddress = 0xb7c000;
     private const ushort DeadMonsterSolidProperty = 0x8000;
     private const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
 
@@ -484,16 +484,20 @@ public sealed partial class RoomEnemySystem
 
     private void InitializeDeadSidehopperGraphics(ushort graphicsVariant)
     {
+        ReadOnlySpan<byte> installedTiles = InstalledDeadTourianCorpseTiles();
+
         int variantIndex = graphicsVariant == 0 ? 0 : 1;
         foreach (DeadSidehopperGraphicsCopy copy in
                  DeadSidehopperInitialGraphicsCopies[variantIndex])
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
+                int sourceOffset = copy.SourceOffset + byteIndex;
                 _bus!.WriteByte(
                     DeadMonsterWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    _bus.ReadByte(
-                        DeadMonsterTileDataAddress + copy.SourceOffset + byteIndex));
+                    installedTiles.IsEmpty
+                        ? _bus.ReadByte(DeadTourianCorpseArtworkDefinitions.SourceAddress + sourceOffset)
+                        : installedTiles[sourceOffset]);
             }
         }
     }

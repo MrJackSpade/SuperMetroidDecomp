@@ -170,7 +170,7 @@ internal static partial class Program
                     DraygonBg2FrameDefinitions.Frames);
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Draygon, "Draygon room entry, dance and fight handoff",
-                    frameCount: 1550);
+                    frameCount: 2600);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }

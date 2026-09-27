@@ -510,7 +510,7 @@ inherit stock identity bindings; use a version-four copy to edit display binding
 Version-four and version-five overrides retain their existing display bindings
 and inherit later boss frames from verified stock. Use a current version-six
 copy to edit Draygon's OAM compositions. Draygon's other 34 selected extended
-frames contain BG2 tilemap commands and are not yet editable in this file.
+frames contain BG2 tilemap commands and live in a separate file.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
 Phantoon's body, eye, tentacles, and mouth use BG2 tilemap writes rather than
@@ -520,6 +520,12 @@ has `x` and `y` coordinates in the 32-by-64 BG2 tilemap and a horizontal `tiles`
 array of SNES tile words. Frame selection and write timing stay in the engine;
 the JSON contains no hitbox, damage, or instruction data. Invalid or missing
 frames fail during load, and the stock file is manifest-hash checked.
+Draygon's 34 BG2 frames use the same visual-only tilemap format in
+`game/enemy-tiles/draygon-bg2-frames.json`. Copy it to `overrides/enemy-tiles/`
+to edit the ordered tile words or their 32-by-64 tilemap positions. Its native
+frame selectors, producer timing, hitboxes, and damage callbacks remain outside
+the appearance file. The stock file is hash-checked and malformed overrides
+fail during load.
 Other extended enemy families still use cartridge visual records until their
 compositions are extracted separately.
 Crocomire's first and second melting images are the separate indexed files

@@ -45,6 +45,7 @@ internal static partial class Program
             VerifyInstalledEnemySpritemaps(bus, directory, stock);
             VerifyInstalledEnemyExtendedFrames(bus, directory, stock);
             VerifyInstalledPhantoonBg2Frames(bus, directory, stock);
+            VerifyInstalledDraygonBg2Frames(bus, directory, stock);
             VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,

@@ -14,12 +14,12 @@ internal static partial class Program
         AssertTrue(stock.PhantoonBg2Frames is not null,
             "installed enemy art includes Phantoon BG2 frames");
         var identities = new HashSet<ushort>();
-        foreach (PhantoonBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             AssertTrue(identities.Add(frame.Pointer),
                 $"Phantoon frame {frame.Name} has a distinct physical selector");
             AssertTrue(stock.PhantoonBg2Frames!.TryGet(frame.Pointer,
-                    out ReadOnlyMemory<PhantoonBg2TilemapWrite> installed),
+                    out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Phantoon BG2 frame {frame.Name} exists");
             var native = new List<(ushort Destination, ushort[] Tiles)>();
             int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
@@ -46,7 +46,7 @@ internal static partial class Program
                 $"Phantoon {frame.Name} preserves native BG2 write order");
             for (int index = 0; index < native.Count; index++)
             {
-                PhantoonBg2TilemapWrite write = installed.Span[index];
+                EnemyBg2TilemapWrite write = installed.Span[index];
                 AssertEqual(native[index].Destination,
                     checked((ushort)(PhantoonBg2FrameDefinitions.WorkingRamBase +
                         write.DestinationWord * 2)),
@@ -64,11 +64,11 @@ internal static partial class Program
             "stock Phantoon BG2 frames are manifest-hash checked");
         File.WriteAllBytes(stockPath, original);
 
-        PhantoonBg2FrameDocument document =
-            JsonSerializer.Deserialize<PhantoonBg2FrameDocument>(original,
+        EnemyBg2FrameDocument document =
+            JsonSerializer.Deserialize<EnemyBg2FrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         const string frameName = "body_invulnerable";
-        PhantoonBg2WriteDocument first = document.Frames[frameName][0];
+        EnemyBg2WriteDocument first = document.Frames[frameName][0];
         int originalTile = first.Tiles[0];
         int[] editedTiles = (int[])first.Tiles.Clone();
         editedTiles[0] ^= 1;
@@ -84,14 +84,14 @@ internal static partial class Program
             stockDirectory, overrideDirectory);
         AssertTrue(edited.PhantoonBg2Frames!.TryGet(
             PhantoonBg2FrameDefinitions.Frames[0].Pointer,
-            out ReadOnlyMemory<PhantoonBg2TilemapWrite> editedFrame),
+            out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "Phantoon BG2 edited frame is installed");
         AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Tiles.Span[0],
             "Phantoon BG2 override changes the selected tile reference");
         AssertEqual((ushort)originalTile,
             stock.PhantoonBg2Frames!.TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Pointer,
-                out ReadOnlyMemory<PhantoonBg2TilemapWrite> stockFrame)
+                out ReadOnlyMemory<EnemyBg2TilemapWrite> stockFrame)
                 ? stockFrame.Span[0].Tiles.Span[0] : (ushort)0,
             "Phantoon BG2 override leaves stock frame intact");
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
@@ -117,7 +117,7 @@ internal static partial class Program
             stockDirectory, overrideDirectory);
         AssertTrue(reloaded.PhantoonBg2Frames!.TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Pointer,
-                out ReadOnlyMemory<PhantoonBg2TilemapWrite> reloadedFrame) &&
+                out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)(originalTile ^ 1),
             "Phantoon BG2 override survives catalog reload");
 
@@ -141,7 +141,7 @@ internal static partial class Program
         ushort ReadWord(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var checkedLists = new HashSet<ushort>();
-        foreach (PhantoonBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
             ReadOnlySpan<PhantoonCollisionComponent> components =

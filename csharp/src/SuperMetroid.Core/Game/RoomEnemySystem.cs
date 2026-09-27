@@ -918,19 +918,8 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                if (slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank &&
-                    TileArtwork?.PhantoonBg2Frames?.TryGet(slot.SpritemapPointer,
-                        out ReadOnlyMemory<PhantoonBg2TilemapWrite> phantoonWrites) == true)
-                {
-                    // The native extended frame points to one or two $FFFE BG2
-                    // streams. Its current-instruction-frame bit still controls
-                    // whether those streams write VRAM on this draw pass.
-                    if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
-                        foreach (PhantoonBg2TilemapWrite write in phantoonWrites.Span)
-                            ApplyExtendedEnemyBg2Words(write.DestinationWord,
-                                write.Tiles.Span);
+                if (TryDrawInstalledEnemyBg2Frame(slot))
                     continue;
-                }
 
                 if (TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
                         slot.SpritemapPointer,

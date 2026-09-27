@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -160,11 +161,14 @@ internal static partial class Program
                     "Lower Norfair main hall");
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Phantoon, "Phantoon");
-                // Draygon's extended body/arms/eye/tail compositions and BG2
-                // commands are a separate unfinished asset family. Permit only
-                // that bank while verifying the Evir graphics upload and bank-B4
-                // sprite-object visuals against the native room for 90 frames.
+                // Draygon's remaining collision and other mechanics records
+                // still live in bank $A5. Permit those while comparing 90
+                // native room frames, but keep its now-installed $FFFE visual
+                // streams forbidden alongside every other cartridge bank.
                 guardedBus.AllowedCartridgeBank = 0xa5;
+                guardedBus.BlockExtendedBg2Streams(
+                    DraygonBg2FrameDefinitions.Bank,
+                    DraygonBg2FrameDefinitions.Frames);
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Draygon, "Draygon (bank-$A5 partial)",
                     allCartridgeReadsGuarded: false);
@@ -300,16 +304,62 @@ internal static partial class Program
         Console.WriteLine($"Frontend {roomName} room: 90 native-parity frames; " +
             (allCartridgeReadsGuarded
                 ? "all cartridge reads guarded."
-                : "bank-$A5 reads permitted; other cartridge reads guarded."));
+                : "bank-$A5 mechanics/collision reads permitted; BG2 streams and other cartridge reads guarded."));
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
+        private readonly HashSet<int> blockedPresentationBytes = [];
         internal int AllowedCartridgeBank { get; set; } = -1;
+
+        internal void BlockExtendedBg2Streams(byte bank,
+            ReadOnlySpan<EnemyBg2FrameDefinition> frames)
+        {
+            foreach (EnemyBg2FrameDefinition frame in frames)
+            {
+                int root = (bank << 16) | frame.Pointer;
+                int components = source.ReadByte(root);
+                for (int component = 0; component < components; component++)
+                {
+                    int record = root + 2 + component * 8;
+                    ushort stream = (ushort)(source.ReadByte(record + 4) |
+                        source.ReadByte(record + 5) << 8);
+                    ushort cursor = stream;
+                    for (int command = 0;
+                         command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
+                    {
+                        int address = (bank << 16) | cursor;
+                        ushort first = (ushort)(source.ReadByte(address) |
+                            source.ReadByte(address + 1) << 8);
+                        if (command == 0)
+                        {
+                            AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
+                                $"{frame.Name} has a native BG2 stream");
+                            blockedPresentationBytes.Add(address);
+                            blockedPresentationBytes.Add(address + 1);
+                            cursor = unchecked((ushort)(cursor + 2));
+                            continue;
+                        }
+                        blockedPresentationBytes.Add(address);
+                        blockedPresentationBytes.Add(address + 1);
+                        if (first == 0xffff)
+                            break;
+                        int count = source.ReadByte(address + 2) |
+                            source.ReadByte(address + 3) << 8;
+                        for (int offset = 2; offset < 4 + count * 2; offset++)
+                            blockedPresentationBytes.Add(address + offset);
+                        cursor = unchecked((ushort)(cursor + 4 + count * 2));
+                    }
+                }
+            }
+        }
 
         public byte ReadByte(int address)
         {
+            if (blockedPresentationBytes.Contains(address))
+                throw new InvalidOperationException(
+                    $"Installed frontend reread BG2 visual stream byte ${address:X6}.");
             int bank = address >> 16;
             if (bank is not (0x7e or 0x7f) && bank != AllowedCartridgeBank &&
                 (address & 0x8000) != 0)

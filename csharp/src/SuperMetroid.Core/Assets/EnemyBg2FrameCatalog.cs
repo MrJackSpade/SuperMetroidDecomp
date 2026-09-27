@@ -1,0 +1,103 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>One ordered visual BG2 write; native hitbox and timing data are absent.</summary>
+internal readonly record struct EnemyBg2TilemapWrite(
+    ushort DestinationWord, ReadOnlyMemory<ushort> Tiles);
+
+/// <summary>
+/// Validated, named extended-enemy BG2 presentation shared by Phantoon and
+/// Draygon. The native instruction selector still determines the frame identity.
+/// </summary>
+internal sealed class EnemyBg2FrameCatalog
+{
+    private readonly Dictionary<ushort, EnemyBg2TilemapWrite[]> frames;
+
+    private EnemyBg2FrameCatalog(Dictionary<ushort, EnemyBg2TilemapWrite[]> frames) =>
+        this.frames = frames;
+
+    internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
+    {
+        if (frames.TryGetValue(pointer, out EnemyBg2TilemapWrite[]? found))
+        {
+            writes = found;
+            return true;
+        }
+        writes = default;
+        return false;
+    }
+
+    internal static EnemyBg2FrameCatalog Load(Stream json,
+        ReadOnlySpan<EnemyBg2FrameDefinition> definitions, int version, string family)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        EnemyBg2FrameDocument document;
+        try
+        {
+            using JsonDocument parsed = JsonDocument.Parse(json);
+            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
+            document = parsed.RootElement.Deserialize<EnemyBg2FrameDocument>(
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+                }) ?? throw new InvalidDataException($"{family} BG2 frames are null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException($"Invalid {family} BG2 frame JSON.", error);
+        }
+        if (document.Version != version || document.Frames is null ||
+            document.Frames.Count != definitions.Length)
+            throw new InvalidDataException(
+                $"{family} BG2 frames require the current version and every named frame.");
+
+        var frames = new Dictionary<ushort, EnemyBg2TilemapWrite[]>();
+        foreach (EnemyBg2FrameDefinition frame in definitions)
+        {
+            if (!document.Frames.TryGetValue(frame.Name, out EnemyBg2WriteDocument[]? source) ||
+                source is null || source.Length is < 1 or >
+                    EnemyBg2FrameLayout.MaximumCommandsPerStream)
+                throw new InvalidDataException(
+                    $"{family} BG2 frame {frame.Name} is missing or empty.");
+            var writes = new EnemyBg2TilemapWrite[source.Length];
+            for (int index = 0; index < writes.Length; index++)
+            {
+                EnemyBg2WriteDocument? write = source[index];
+                if (write is null ||
+                    write.X is < 0 or >= EnemyBg2FrameLayout.TilemapWidth ||
+                    write.Y is < 0 or >= EnemyBg2FrameLayout.TilemapHeight ||
+                    write.Tiles is null || write.Tiles.Length is < 1 or >
+                        EnemyBg2FrameLayout.TilemapWidth ||
+                    write.X + write.Tiles.Length > EnemyBg2FrameLayout.TilemapWidth ||
+                    write.Tiles.Any(tile => tile is < 0 or > ushort.MaxValue))
+                    throw new InvalidDataException(
+                        $"{family} BG2 frame {frame.Name} write {index} is outside its tilemap.");
+                writes[index] = new EnemyBg2TilemapWrite(
+                    checked((ushort)(write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X)),
+                    write.Tiles.Select(tile => checked((ushort)tile)).ToArray());
+            }
+            if (!frames.TryAdd(frame.Pointer, writes))
+                throw new InvalidDataException(
+                    $"{family} BG2 frame {frame.Name} repeats a native identity.");
+        }
+        return new EnemyBg2FrameCatalog(frames);
+    }
+}
+
+/// <summary>Named visual frames; no collision or instruction-program data.</summary>
+public sealed record EnemyBg2FrameDocument
+{
+    public required int Version { get; init; }
+    public required Dictionary<string, EnemyBg2WriteDocument[]> Frames { get; init; }
+}
+
+/// <summary>A horizontal BG2 tile run in 32-by-64 tilemap coordinates.</summary>
+public sealed record EnemyBg2WriteDocument
+{
+    public required int X { get; init; }
+    public required int Y { get; init; }
+    public required int[] Tiles { get; init; }
+}

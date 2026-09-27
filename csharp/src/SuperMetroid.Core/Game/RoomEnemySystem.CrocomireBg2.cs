@@ -1,77 +1,12 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Crocomire's generic extended-tilemap writer and private BG2 scroll ownership.</summary>
+/// <summary>Crocomire's private BG2 scroll and sinking-image ownership.</summary>
 public sealed partial class RoomEnemySystem
 {
     private const ushort CrocomireBlankBg2Tile = 0x0338;
-    private const ushort CrocomireBg2TilemapVramBase = 0x4800;
-    private const ushort CrocomireBg2WorkingRamBase = 0x2000;
     private const int CrocomireVerticalCorrectionMapTable = 0xa48b79;
-
-    /// <summary>
-    /// Ports <c>ProcessExtendedTilemap</c> at $A0:96CA. Each command provides a WRAM byte
-    /// destination, word count, and inline words; $FFFF terminates the stream. The original
-    /// copies into $7E:2000 and queues one BG2 DMA. Writing the same addressed slices into
-    /// both the typed working image and modeled VRAM produces the identical visible state.
-    /// </summary>
-    private void ProcessExtendedEnemyBg2Tilemap(byte bank, ushort streamPointer)
-    {
-        int cursor = (bank << 16) | unchecked((ushort)(streamPointer + 2));
-        for (int command = 0; command < 128; command++)
-        {
-            ushort destination = ReadWord(_bus!, cursor);
-            if (destination == 0xffff)
-                return;
-
-            int wordCount = ReadWord(_bus!, cursor + 2);
-            if (wordCount is <= 0 or > CrocomireDeathState.Bg2WorkingWordCount)
-            {
-                throw new InvalidDataException(
-                    $"Extended BG2 command ${bank:X2}:{cursor & 0xffff:X4} has invalid word count {wordCount}.");
-            }
-
-            int relativeByte = unchecked((ushort)(destination - CrocomireBg2WorkingRamBase));
-            if ((relativeByte & 1) != 0)
-            {
-                throw new InvalidDataException(
-                    $"Extended BG2 command destination ${destination:X4} is not word aligned.");
-            }
-            int destinationWord = relativeByte >> 1;
-            if (destinationWord < 0 ||
-                destinationWord + wordCount > CrocomireDeathState.Bg2WorkingWordCount)
-            {
-                throw new InvalidDataException(
-                    $"Extended BG2 command destination ${destination:X4} exceeds the enemy tilemap buffer.");
-            }
-
-            ushort[] words = new ushort[wordCount];
-            for (int word = 0; word < wordCount; word++)
-                words[word] = ReadWord(_bus!, cursor + 4 + word * 2);
-
-            ApplyExtendedEnemyBg2Words(destinationWord, words);
-            cursor += 4 + wordCount * 2;
-        }
-
-        throw new InvalidDataException(
-            $"Extended BG2 command stream ${bank:X2}:{streamPointer:X4} has no terminator.");
-    }
-
-    /// <summary>
-    /// Common $A0:96CA destination semantics for cartridge and installed tilemap
-    /// streams. Only the source of the visual words changes; the VRAM side effect
-    /// and Crocomire's working-image mirror remain shared.
-    /// </summary>
-    private void ApplyExtendedEnemyBg2Words(int destinationWord, ReadOnlySpan<ushort> words)
-    {
-        if (destinationWord < 0 || words.Length == 0 ||
-            destinationWord + words.Length > CrocomireDeathState.Bg2WorkingWordCount)
-            throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
-        if (_crocomireDeath is { } death)
-            words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
-        _vram!.ExecuteWordTransfer(words,
-            unchecked((ushort)(CrocomireBg2TilemapVramBase + destinationWord)),
-            wordIncrement: 1);
-    }
 
     private void ClearCrocomireBg2WorkingTilemap()
     {
@@ -89,7 +24,7 @@ public sealed partial class RoomEnemySystem
 
         _vram!.ExecuteWordTransfer(
             RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount),
-            unchecked((ushort)(CrocomireBg2TilemapVramBase + startWord)),
+            unchecked((ushort)(EnemyBg2FrameLayout.VramBase + startWord)),
             wordIncrement: 1);
     }
 

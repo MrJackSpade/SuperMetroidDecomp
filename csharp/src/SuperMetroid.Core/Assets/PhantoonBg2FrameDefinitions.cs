@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One physical Phantoon extended-frame identity and its editable visual name.</summary>
-internal readonly record struct PhantoonBg2FrameDefinition(ushort Pointer, string Name);
-
 /// <summary>
 /// Phantoon's bank-$A7 extended frames selected by the compiled $CC41-$CCFB
 /// instruction programs. These identities select BG2 tilemap writes, not OAM.
@@ -12,14 +9,16 @@ internal static class PhantoonBg2FrameDefinitions
 {
     internal const int Version = 1;
     internal const string FileName = "phantoon-bg2-frames.json";
+    /// <summary>Phantoon's tentacle frames have at most two BG2 components.</summary>
+    internal const int MaximumComponents = 2;
     /// <summary>Phantoon's extended frames and BG2 streams reside in bank $A7.</summary>
     internal const byte Bank = 0xa7;
     /// <summary>$A0:96CA identifies an extended BG2 command stream by this first word.</summary>
-    internal const ushort StreamMarker = 0xfffe;
-    internal const ushort VramBase = 0x4800;
-    internal const ushort WorkingRamBase = 0x2000;
-    internal const int TilemapWidth = 32;
-    internal const int TilemapHeight = 64;
+    internal const ushort StreamMarker = EnemyBg2FrameLayout.StreamMarker;
+    internal const ushort VramBase = EnemyBg2FrameLayout.VramBase;
+    internal const ushort WorkingRamBase = EnemyBg2FrameLayout.WorkingRamBase;
+    internal const int TilemapWidth = EnemyBg2FrameLayout.TilemapWidth;
+    internal const int TilemapHeight = EnemyBg2FrameLayout.TilemapHeight;
     /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>
     internal const ushort BodyFullHitbox = 0xdee7;
     /// <summary>Body with only the vulnerable eye hitbox, $A7:DEF1.</summary>
@@ -31,7 +30,7 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>Third two-component tentacle frame, $A7:DFD7.</summary>
     internal const ushort Tentacles2 = 0xdfd7;
 
-    private static readonly PhantoonBg2FrameDefinition[] FrameDefinitions =
+    private static readonly EnemyBg2FrameDefinition[] FrameDefinitions =
     [
         new(0xdedd, "body_invulnerable"),
         new(BodyFullHitbox, "body_full_hitbox"),
@@ -57,11 +56,11 @@ internal static class PhantoonBg2FrameDefinitions
         new(0xdffd, "mouth_2"),
     ];
 
-    internal static ReadOnlySpan<PhantoonBg2FrameDefinition> Frames => FrameDefinitions;
+    internal static ReadOnlySpan<EnemyBg2FrameDefinition> Frames => FrameDefinitions;
 
     internal static bool IsFrame(ushort pointer)
     {
-        foreach (PhantoonBg2FrameDefinition frame in FrameDefinitions)
+        foreach (EnemyBg2FrameDefinition frame in FrameDefinitions)
             if (frame.Pointer == pointer)
                 return true;
         return false;

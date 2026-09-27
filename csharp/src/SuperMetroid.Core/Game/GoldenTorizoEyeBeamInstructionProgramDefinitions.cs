@@ -6,8 +6,8 @@ internal readonly record struct GoldenTorizoEyeBeamInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Golden Torizo's eye-beam programs at $86:B3CD-$B428. Their
-/// seventeen interleaved spritemap operands and packed floor-impact sound ID remain live
-/// cartridge presentation/audio data.
+/// seventeen interleaved spritemap operands are extracted presentation data; the packed
+/// floor-impact sound ID remains live cartridge audio data.
 /// </summary>
 internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
 {

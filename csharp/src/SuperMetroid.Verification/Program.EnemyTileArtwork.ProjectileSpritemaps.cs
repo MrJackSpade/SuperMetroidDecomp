@@ -84,6 +84,32 @@ internal static partial class Program
                 nativeAlcoon.HighTable.SequenceEqual(installedAlcoon.HighTable),
                 $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads");
         }
+        foreach ((string family, RoomEnemyProjectileKind kind, int count,
+                     Func<int, ushort> addressAt) in new (string, RoomEnemyProjectileKind,
+                         int, Func<int, ushort>)[]
+                 {
+                     ("Golden Torizo Super Missile",
+                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
+                         GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
+                         GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress),
+                     ("Golden Torizo eye beam",
+                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
+                         GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
+                         GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress),
+                 })
+        {
+            for (int index = 0; index < count; index++)
+            {
+                ushort operand = addressAt(index);
+                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind);
+                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
+                    native.LowTable.SequenceEqual(extracted.LowTable) &&
+                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    $"{family} frame {index} draws stock OAM without visual ROM reads");
+            }
+        }
         OamBuffer nativeShard = DrawNoobTubeShard(null, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             new EnemyProjectileVisualReadGuard(bus));
@@ -137,6 +163,18 @@ internal static partial class Program
             .Single(frame => frame.OperandAddress == alcoonOperand).Name;
         SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
         alcoon[0] = alcoon[0] with { OffsetX = alcoon[0].OffsetX + 1 };
+        ushort goldenMissileOperand = GoldenTorizoSuperMissileInstructionProgramDefinitions
+            .PresentationWordAddress(0);
+        string goldenMissileFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+            .Single(frame => frame.OperandAddress == goldenMissileOperand).Name;
+        SpriteVisualPart[] goldenMissile = document.ProgramFrames[goldenMissileFrameName];
+        goldenMissile[0] = goldenMissile[0] with { OffsetX = goldenMissile[0].OffsetX + 1 };
+        ushort goldenEyeOperand = GoldenTorizoEyeBeamInstructionProgramDefinitions
+            .PresentationWordAddress(0);
+        string goldenEyeFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+            .Single(frame => frame.OperandAddress == goldenEyeOperand).Name;
+        SpriteVisualPart[] goldenEye = document.ProgramFrames[goldenEyeFrameName];
+        goldenEye[0] = goldenEye[0] with { OffsetX = goldenEye[0].OffsetX + 1 };
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
@@ -175,6 +213,20 @@ internal static partial class Program
                     new EnemyProjectileVisualReadGuard(bus),
                     RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "edited Alcoon fireball frame changes production OAM without a ROM visual read");
+        foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
+                 {
+                     ("Super Missile", goldenMissileOperand,
+                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile),
+                     ("eye beam", goldenEyeOperand,
+                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam),
+                 })
+        {
+            AssertTrue(!DrawProgramFrame(stock, operand,
+                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
+                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                $"edited Golden Torizo {family} frame changes production OAM");
+        }
         var incompleteCurrent = document.Frames
             .Where(entry => entry.Key != "skree_debris")
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -274,7 +326,8 @@ internal static partial class Program
                 AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)
             .Select(AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress)
             .ToHashSet();
-        var versionFourFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+        var versionFourFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+            .ToArray()
             .Where(frame => !alcoonOperands.Contains(frame.OperandAddress))
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
@@ -302,9 +355,43 @@ internal static partial class Program
                 new EnemyProjectileVisualReadGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "version-four overrides inherit newly extracted Alcoon fireball frames");
+        var versionFiveFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+            .ToArray().ToDictionary(frame => frame.Name,
+                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+        byte[] versionFiveJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion,
+                Frames = document.Frames,
+                ProgramFrames = versionFiveFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        File.WriteAllBytes(Path.Combine(overrides,
+            EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
+        EnemyTileArtworkCatalog migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
+        AssertTrue(DrawProgramFrame(migratedV5, alcoonOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.AlcoonFireball).LowTable
+            .SequenceEqual(DrawProgramFrame(editedArt, alcoonOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.AlcoonFireball).LowTable),
+            "version-five overrides retain their edited Alcoon fireball frames");
+        foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
+                 {
+                     ("Super Missile", goldenMissileOperand,
+                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile),
+                     ("eye beam", goldenEyeOperand,
+                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam),
+                 })
+        {
+            AssertTrue(DrawProgramFrame(migratedV5, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                .SequenceEqual(DrawProgramFrame(stock, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                $"version-five overrides inherit extracted Golden Torizo {family} frames");
+        }
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameDefinitions.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws, editable frames, and v1-v4 migrations pass.");
+            "match native OAM; installed draws, editable frames, and v1-v5 migrations pass.");
 
         void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
         {

@@ -47,7 +47,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        bool legacyOverride = document.Version is 1 or 2 or 3 or 4 && stock is not null;
+        bool legacyOverride = document.Version is 1 or 2 or 3 or 4 or 5 && stock is not null;
         int expectedFrames = document.Version == 1 && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.Frames.Length;
@@ -93,7 +93,7 @@ public sealed class EnemyProjectileSpritemapCatalog
                  legacyOverride)
         {
             EnemyProjectilePresentationFrameDefinition[] oldDefinitions =
-                EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
                     .Where(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
                     .ToArray();
             if (document.ProgramFrames is null ||
@@ -106,6 +106,24 @@ public sealed class EnemyProjectileSpritemapCatalog
                         out SpriteVisualPart[]? visual) || visual is null)
                     throw new InvalidDataException(
                         $"Version-four enemy-projectile frame {frame.Name} is missing.");
+                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
+            }
+        }
+        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion &&
+                 legacyOverride)
+        {
+            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
+                EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo;
+            if (document.ProgramFrames is null ||
+                document.ProgramFrames.Count != oldDefinitions.Length)
+                throw new InvalidDataException(
+                    "Version-five enemy-projectile program frames have the wrong count.");
+            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
+            {
+                if (!document.ProgramFrames.TryGetValue(frame.Name,
+                        out SpriteVisualPart[]? visual) || visual is null)
+                    throw new InvalidDataException(
+                        $"Version-five enemy-projectile frame {frame.Name} is missing.");
                 compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
             }
         }
@@ -196,7 +214,8 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 5;
+    public const int Version = 6;
+    public const int PreGoldenTorizoVersion = 5;
     public const int PreAlcoonVersion = 4;
     public const string FileName = "enemy-projectile-compositions.json";
     public const int LegacyFrameCount = 3;

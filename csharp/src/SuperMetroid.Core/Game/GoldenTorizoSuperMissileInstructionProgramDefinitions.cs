@@ -6,8 +6,8 @@ internal readonly record struct GoldenTorizoSuperMissileInstructionMechanicsWord
 
 /// <summary>
 /// Compiled control for Golden Torizo's reflected Super Missile programs at
-/// $86:B293-$B31A. Their twenty-four interleaved spritemap operands and packed impact
-/// sound ID remain live cartridge presentation/audio data.
+/// $86:B293-$B31A. Their twenty-four interleaved spritemap operands are extracted
+/// presentation data; the packed impact sound ID remains live cartridge audio data.
 /// </summary>
 internal static class GoldenTorizoSuperMissileInstructionProgramDefinitions
 {

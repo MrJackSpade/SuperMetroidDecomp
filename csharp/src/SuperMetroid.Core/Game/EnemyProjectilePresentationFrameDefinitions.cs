@@ -7,16 +7,21 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class EnemyProjectilePresentationFrameDefinitions
 {
-    private static readonly EnemyProjectilePresentationFrameDefinition[] Frames = Build();
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
+        Build(includeGoldenTorizo: false);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
+        Build(includeGoldenTorizo: true);
 
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
+        PreGoldenTorizoFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
             new EnemyProjectilePresentationFrameDefinition(operandAddress, string.Empty),
             AddressComparer.Instance) >= 0;
 
-    private static EnemyProjectilePresentationFrameDefinition[] Build()
+    private static EnemyProjectilePresentationFrameDefinition[] Build(bool includeGoldenTorizo)
     {
         var frames = new Dictionary<ushort, string>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in
@@ -75,6 +80,15 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "alcoon_fireball", AlcoonFireballInstructionProgramDefinitions.PresentationWordCount,
             AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress);
+        if (includeGoldenTorizo)
+        {
+            Add(frames, "golden_torizo_super_missile",
+                GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
+                GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "golden_torizo_eye_beam",
+                GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
+                GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress);
+        }
 
         return frames.OrderBy(entry => entry.Key)
             .Select(entry => new EnemyProjectilePresentationFrameDefinition(entry.Key, entry.Value))

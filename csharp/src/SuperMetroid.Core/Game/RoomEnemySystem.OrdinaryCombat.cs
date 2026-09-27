@@ -2981,6 +2981,21 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == CrocomireTongueDefinition &&
+            enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
+            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+             TileArtwork is not null))
+        {
+            // These nine selected frames have one component each, but both
+            // referenced native hitbox lists are empty. Validate the exact
+            // engine-owned frame identity and return no touch/shot callback.
+            CrocomireTongueCollisionComponent component =
+                CrocomireTongueCollisionDefinitions.ComponentAt(enemy.SpritemapPointer);
+            _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
+                component.HitboxPointer);
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

@@ -1,5 +1,20 @@
 # Remaining lookup migration inventory (#547)
 
+## Crocomire tongue extended frames and collision (2026-09-27)
+
+The independently scheduled tongue's four fight and five melting selectors now
+resolve to nine named, editable bank-$A4 OAM frames in the v10 visual schema.
+Installed selectors and drawing require no frame/selector ROM reads; stock OAM
+matches the pinned cartridge at three origins. Visual overrides from v1-v9
+retain their prior edits and inherit these new identities from verified stock.
+All nine selected frames have one native physical component; their two referenced
+hitbox lists are both empty. Installed touch and projectile collision therefore
+returns no callback from compiled gameplay data, independent of editable art.
+Synthetic no-art fixtures retain the native walker. The verifier compares all
+selected component fields and list counts with the cartridge, then checks
+touch/shot results at three origins without installed collision reads. Other
+Crocomire parts and the broader ROM-free runtime remain open.
+
 ## Maridia large snail/Oum extended frames and collision (2026-09-27)
 
 Oum's 60 fixed instruction visual operands select 30 distinct bank-$A2 extended

@@ -7,7 +7,8 @@ internal readonly record struct CrocomireTongueInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Crocomire's independently scheduled tongue. Interleaved
-/// extended-spritemap operands remain live cartridge presentation data.
+/// extended-spritemap operands are compiled selectors for installed artwork;
+/// constructed no-art fixtures may still supply mutable cartridge data.
 /// </summary>
 internal static class CrocomireTongueInstructionProgramDefinitions
 {
@@ -15,7 +16,7 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// <c>InstList_CrocomireTongue_Fight</c> at $A4:BE56. In the pinned NTSC
     /// J/U v1.0 ROM, the four mechanics words at $BE56 + 4*i (i=0..3) are
     /// exactly five-frame durations; $BE66 is goto $80ED and $BE68 targets
-    /// $BE56. The interleaved pointer operands are live presentation data,
+    /// $BE56. The interleaved pointer operands are presentation selectors,
     /// and the unused reverse list beginning at $BE6A is outside this loop.
     /// </summary>
     internal const ushort Fight = 0xbe56;
@@ -33,7 +34,7 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// mechanics words at $BF98 + 4*i (i=0..4) are exactly five-frame
     /// durations in the pinned NTSC J/U v1.0 ROM. $BFAC is goto $80ED and
     /// $BFAE targets $BF98; $BFB0 begins a different body program. The
-    /// interleaved spritemap pointers remain live presentation reads.
+    /// interleaved spritemap pointers remain presentation selectors.
     /// </summary>
     internal const ushort Melting = 0xbf98;
 
@@ -49,15 +50,15 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     ];
 
     /// <summary>
-    /// The first four entries identify the live fight-loop presentation operands
+    /// The first four entries identify the fight-loop presentation operands
     /// at $A4:BE58 + 4*i for i=0..3. In the pinned NTSC J/U v1.0 ROM each
     /// unsigned pointer is exactly $C65E + 10*i; $A4:BE66 is the following
-    /// goto opcode. Production reads these operands from the live cartridge so
-    /// installed spritemap presentation remains effective.
+    /// goto opcode. Installed art uses their compiled values; constructed
+    /// fixtures without installed art can still read their mutable bus values.
     /// The last five entries identify the melting-loop operands at
     /// $A4:BF9A + 4*i for i=0..4. Their stock pointers are exactly
     /// $CACE + 10*i, followed by the goto opcode at $A4:BFAC. This second
-    /// independently indexed loop also keeps its presentation reads live.
+    /// independently indexed loop follows the same selector policy.
     /// </summary>
     private static readonly ushort[] PresentationWords =
     [
@@ -90,5 +91,21 @@ internal static class CrocomireTongueInstructionProgramDefinitions
 
         throw new InvalidDataException(
             $"Crocomire tongue instruction mechanics pointer $A4:{address:X4} is not compiled.");
+    }
+
+    internal static bool IsCompiledMechanicsByte(int address)
+    {
+        if ((address & 0xff0000) != 0xa40000)
+            return false;
+
+        ushort bankAddress = unchecked((ushort)address);
+        for (int index = 0; index < Words.Length; index++)
+        {
+            ushort wordAddress = Words[index].Address;
+            if (bankAddress == wordAddress ||
+                bankAddress == unchecked((ushort)(wordAddress + 1)))
+                return true;
+        }
+        return false;
     }
 }

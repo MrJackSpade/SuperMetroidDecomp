@@ -1810,6 +1810,11 @@ if (args is ["--verify-oum-collision"])
     VerifyMaridiaLargeSnailCollisionDefinitions();
     return 0;
 }
+if (args is ["--verify-crocomire-tongue-collision"])
+{
+    VerifyCrocomireTongueCollisionDefinitions();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
@@ -2835,6 +2840,7 @@ VerifySpacePirateCollisionDefinitions();
 VerifyRidleyCollisionDefinitions();
 VerifyCeresSteamCollisionDefinitions();
 VerifyMaridiaLargeSnailCollisionDefinitions();
+VerifyCrocomireTongueCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

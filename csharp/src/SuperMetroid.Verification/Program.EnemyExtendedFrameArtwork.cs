@@ -38,6 +38,7 @@ internal static partial class Program
         VerifyInstalledSporeSpawnSelectorPrograms(rom, stock);
         VerifyInstalledCeresSteamInstructionFrames(stock);
         VerifyInstalledOumVisualSelectors(rom, stock);
+        VerifyInstalledCrocomireTongueVisualSelectors(rom, stock);
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking/wall Pirate distinct extended-frame count");
@@ -80,6 +81,10 @@ internal static partial class Program
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("oum_oam_", StringComparison.Ordinal)),
             "all selected Oum visual frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.CrocomireOamFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => IsCrocomireExtendedFrameName(frame.Name)),
+            "all selected Crocomire tongue visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
@@ -153,6 +158,12 @@ internal static partial class Program
         {
             OffsetX = oumFirst.OffsetX + 1,
         };
+        const string crocomireName = "crocomire_oam_C65E";
+        EnemyExtendedVisualComponent crocomireFirst = document.Frames[crocomireName][0];
+        document.Frames[crocomireName][0] = crocomireFirst with
+        {
+            OffsetX = crocomireFirst.OffsetX + 1,
+        };
         string ridleyOverrideDirectory = Path.Combine(stockDirectory,
             "ridley-composition-overrides");
         Directory.CreateDirectory(ridleyOverrideDirectory);
@@ -178,6 +189,13 @@ internal static partial class Program
             0xa2, 0xcb87, 0x0040, 0x0080);
         OamBuffer movedOum = DrawExtendedForBank(editedRidley, guard,
             0xa2, 0xcb87, 0x0040, 0x0080);
+        OamBuffer stockCrocomire = DrawExtendedForBank(stock, guard,
+            0xa4, 0xc65e, 0x0040, 0x0080);
+        OamBuffer movedCrocomire = DrawExtendedForBank(editedRidley, guard,
+            0xa4, 0xc65e, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockCrocomire.LowTable[0] + 1)),
+            movedCrocomire.LowTable[0],
+            "editable Crocomire tongue composition moves live OAM by one pixel");
         AssertEqual(unchecked((byte)(stockOum.LowTable[0] + 1)),
             movedOum.LowTable[0],
             "editable Oum composition moves live OAM by one pixel");
@@ -304,7 +322,8 @@ internal static partial class Program
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -376,7 +395,8 @@ internal static partial class Program
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -398,13 +418,15 @@ internal static partial class Program
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key))
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -436,12 +458,14 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key))
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -468,12 +492,14 @@ internal static partial class Program
         const string legacySporeName = "draygon_oam_EE6F";
         var versionSixFrames = beforeSporeIdentity.Frames
             .Where(entry => !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key))
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key))
             .ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
                 entry => entry.Value, StringComparer.Ordinal);
         var versionSixBindings = beforeSporeIdentity.DisplayFrames!
             .Where(entry => !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key))
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key))
             .ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
                 entry => LegacyExtendedFrameName(entry.Value),
                 StringComparer.Ordinal);
@@ -516,11 +542,13 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreCeresSteamVersion,
             Frames = document.Frames.Where(entry =>
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -541,10 +569,12 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreOumVersion,
             Frames = document.Frames.Where(entry =>
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !IsOumExtendedFrameName(entry.Key)).ToDictionary(
+                !IsOumExtendedFrameName(entry.Key) &&
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -560,6 +590,30 @@ internal static partial class Program
         AssertTrue(DrawExtendedForBank(upgradedVersionEight, guard, 0xa6, 0xf142,
                 0x0040, 0x0080).LowTable.SequenceEqual(movedSteam.LowTable),
             "version-eight Ceres steam edit survives the Oum schema update");
+
+        var versionNine = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreCrocomireVersion,
+            Frames = document.Frames.Where(entry =>
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionNine, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionNine = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer inheritedCrocomire = DrawExtendedForBank(upgradedVersionNine, guard,
+            0xa4, 0xc65e, 0x0040, 0x0080);
+        AssertTrue(inheritedCrocomire.LowTable.SequenceEqual(stockCrocomire.LowTable) &&
+                   inheritedCrocomire.HighTable.SequenceEqual(stockCrocomire.HighTable),
+            "version-nine override inherits verified stock Crocomire tongue art");
+        AssertTrue(DrawExtendedForBank(upgradedVersionNine, guard, 0xa2, 0xcb87,
+                0x0040, 0x0080).LowTable.SequenceEqual(movedOum.LowTable),
+            "version-nine Oum edit survives the Crocomire schema update");
 
         EnemyExtendedFrameDocument sporeVisualRemap =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -675,6 +729,14 @@ internal static partial class Program
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "Oum display binding cannot select Ceres steam art");
         remapped.DisplayFrames[oumName] = oumName;
+        remapped.DisplayFrames[crocomireName] = oumName;
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "Crocomire tongue display binding cannot select Oum art");
+        remapped.DisplayFrames[crocomireName] = crocomireName;
         remapped.DisplayFrames.Remove(sourceName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
@@ -727,6 +789,17 @@ internal static partial class Program
             "current override missing an Oum frame fails loudly");
         document.Frames.Add(oumName, oumComponents);
 
+        EnemyExtendedVisualComponent[] crocomireComponents =
+            document.Frames[crocomireName];
+        document.Frames.Remove(crocomireName);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            document, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "current override missing a Crocomire tongue frame fails loudly");
+        document.Frames.Add(crocomireName, crocomireComponents);
+
         document.Frames.Remove(editedName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, new JsonSerializerOptions
@@ -742,9 +815,9 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam and 30 Oum OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum and 9 Crocomire OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v8 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v9 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 
@@ -757,6 +830,9 @@ internal static partial class Program
 
     private static bool IsOumExtendedFrameName(string name) =>
         name.StartsWith("oum_oam_", StringComparison.Ordinal);
+
+    private static bool IsCrocomireExtendedFrameName(string name) =>
+        name.StartsWith("crocomire_oam_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)

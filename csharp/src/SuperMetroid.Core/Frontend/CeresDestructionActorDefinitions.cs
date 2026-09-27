@@ -9,6 +9,14 @@ internal static class CeresDestructionActorDefinitions
     /// <summary>Number of persistent scene actors allocated by <c>$8B:C27C-$C295</c>.</summary>
     public const int InitialActorCount = 3;
 
+    /// <summary>Stable presentation roles of the three persistent explosion-scene actors.</summary>
+    public static readonly string[] InitialPlacementIds =
+    [
+        "large-asteroid",
+        "small-asteroid",
+        "vortex",
+    ];
+
     /// <summary>Number of reveal actors allocated by <c>$8B:C810-$C831</c>.</summary>
     public const int ZebesActorCount = 6;
 

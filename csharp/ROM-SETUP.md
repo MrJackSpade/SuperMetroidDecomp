@@ -223,6 +223,12 @@ camera behavior remain compiled cartridge logic.
 planet, star-sheet, and title OAM frames. Destruction actors also use shared frames
 from `ceres-flight-sprites.json`. Both files support visual part edits without
 changing the native actor instruction timing, motion, or scene handoff.
+`ceres-destruction-actors.json` holds the initial 16-bit screen X/Y positions
+of the large asteroid, small asteroid, and vortex behind the station blast.
+Keep those three IDs and their order, and edit only `x`/`y` in
+`overrides/intro-cinematic/`. The stock values come from the cartridge-checked
+actor initializers; horizontal motion, wrapping, animation, and phase timing
+remain code-owned. Restart the scene to apply a placement edit.
 `ceres-zebes-reveal-actors.json` holds the initial 16-bit screen X/Y coordinates
 for the planet, four star sheets, and PLANET ZEBES title. Keep the six IDs and
 their order; edit only `x`/`y` under `overrides/intro-cinematic/`, then restart

@@ -381,7 +381,20 @@ internal sealed partial class CeresDestructionCinematicState
 
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
-            actors.Add(CreateActor(CeresDestructionActorDefinitions.InitialActor(index)));
+        {
+            CeresDestructionActorDefinition definition =
+                CeresDestructionActorDefinitions.InitialActor(index);
+            if (artwork?.CeresDestruction.DestructionActors is { } layout)
+            {
+                CeresDestructionActorPlacement placement = layout[index];
+                definition = definition with
+                {
+                    X = checked((ushort)placement.X),
+                    Y = checked((ushort)placement.Y),
+                };
+            }
+            actors.Add(CreateActor(definition));
+        }
         ceresActorSlots.Clear();
         ceresActorSlots.Add(actors[0], CeresDestructionRomData.Sprites.AsteroidSlot);
         ceresActorSlots.Add(actors[1], CeresDestructionRomData.Sprites.SmallAsteroidSlot);

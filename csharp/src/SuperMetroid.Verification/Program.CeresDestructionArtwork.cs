@@ -163,6 +163,78 @@ internal static partial class Program
         }, "Zebes reveal layout rejects missing or reordered actor identities");
         File.Delete(actorsOverride);
 
+        string destructionActorsName = CeresDestructionActorLayoutFormat.FileName;
+        string destructionActorsPath = Path.Combine(installation.IntroCinematicDirectory,
+            destructionActorsName);
+        string destructionActorsOverride = Path.Combine(overrideRoot, destructionActorsName);
+        CeresDestructionActorLayoutDocument destructionActorsDocument =
+            JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(
+                File.ReadAllBytes(destructionActorsPath), MapPresentationFormat.JsonOptions) ??
+            throw new InvalidDataException("Stock Ceres destruction actor layout is empty.");
+        for (int index = 0; index < destructionActorsDocument.Actors.Length; index++)
+        {
+            CeresDestructionActorDefinition definition =
+                CeresDestructionActorDefinitions.InitialActor(index);
+            AssertEqual(CeresDestructionActorDefinitions.InitialPlacementIds[index],
+                destructionActorsDocument.Actors[index].Id,
+                $"Ceres destruction actor {index} retains its native role");
+            AssertEqual((int)definition.X, destructionActorsDocument.Actors[index].X,
+                $"Ceres destruction actor {index} X matches its verified initializer");
+            AssertEqual((int)definition.Y, destructionActorsDocument.Actors[index].Y,
+                $"Ceres destruction actor {index} Y matches its verified initializer");
+        }
+        int stockAsteroidX = destructionActorsDocument.Actors[0].X;
+        destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with
+        {
+            X = stockAsteroidX + 16,
+        };
+        using (var output = File.Create(destructionActorsOverride))
+            CeresDestructionActorLayout.Write(output, destructionActorsDocument);
+        IntroCinematicArtworkCatalog movedAsteroid = installation.LoadIntroCinematicArt();
+        var stockDestruction = new CeresDestructionCinematicState(guard, artwork: stock);
+        var movedDestruction = new CeresDestructionCinematicState(guard, artwork: movedAsteroid);
+        for (int frame = 0; frame < 36; frame++)
+        {
+            stockDestruction.Step();
+            movedDestruction.Step();
+        }
+        AssertEqual(stockDestruction.Phase, movedDestruction.Phase,
+            "edited Ceres asteroid placement preserves cinematic phase timing");
+        var destructionActorsField = typeof(CeresDestructionCinematicState).GetField("actors",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic) ??
+            throw new InvalidOperationException("Ceres destruction actor list is unavailable.");
+        var stockDestructionActors =
+            (List<IntroDiscoverySprite>?)destructionActorsField.GetValue(stockDestruction) ??
+            throw new InvalidOperationException("Stock Ceres destruction actors did not spawn.");
+        var movedDestructionActors =
+            (List<IntroDiscoverySprite>?)destructionActorsField.GetValue(movedDestruction) ??
+            throw new InvalidOperationException("Edited Ceres destruction actors did not spawn.");
+        AssertEqual(unchecked((ushort)(stockDestructionActors[0].XPosition + 16)),
+            movedDestructionActors[0].XPosition,
+            "edited destruction layout moves the actual asteroid actor by one tile");
+        AssertTrue(!stockDestruction.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
+                movedDestruction.CaptureRenderSnapshot().Memory.Oam),
+            "edited destruction placement changes production OAM");
+        File.WriteAllBytes(destructionActorsPath, [0]);
+        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+            "a destruction actor override cannot hide damaged stock layout");
+        GameInstallation repairedDestructionActors =
+            GameAssetInstaller.EnsureInstalled(installation.Root) ??
+            throw new InvalidOperationException("Ceres destruction actor repair lost installation.");
+        AssertEqual(stockAsteroidX + 16,
+            repairedDestructionActors.LoadIntroCinematicArt().CeresDestruction.DestructionActors[0].X,
+            "destruction actor override survives stock repair");
+        destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with
+        {
+            Id = "wrong-actor",
+        };
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var invalid = new MemoryStream();
+            CeresDestructionActorLayout.Write(invalid, destructionActorsDocument);
+        }, "Ceres destruction layout rejects missing or reordered actor identities");
+        File.Delete(destructionActorsOverride);
+
         string spritesName = CeresDestructionSpriteFormat.FileName;
         string spritesPath = Path.Combine(installation.IntroCinematicDirectory, spritesName);
         string spritesOverride = Path.Combine(overrideRoot, spritesName);
@@ -291,6 +363,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "malformed Ceres destruction override fails loudly");
         File.Delete(ceresOverride);
-        Console.WriteLine("Ceres destruction art: 23 native OAM frames, six ROM-sourced actor placements, visible edits, exact PNG/JSON transfers, overrides and state rebind pass.");
+        Console.WriteLine("Ceres destruction art: 23 native OAM frames, three destruction and six ROM-sourced reveal actor placements, visible edits, exact PNG/JSON transfers, overrides and state rebind pass.");
     }
 }

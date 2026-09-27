@@ -95,12 +95,38 @@ internal static class CeresDestructionArtworkExtractor
         });
         byte[] actorsFile = actorsJson.ToArray();
 
+        // The three initial actor positions are the bounded initializer results
+        // already checked against the pinned cartridge by the native actor verifier.
+        // Export only presentation coordinates; their movement and callbacks stay in code.
+        var destructionPlacements = new CeresDestructionActorPlacement[
+            CeresDestructionActorDefinitions.InitialActorCount];
+        for (int index = 0; index < destructionPlacements.Length; index++)
+        {
+            CeresDestructionActorDefinition actor =
+                CeresDestructionActorDefinitions.InitialActor(index);
+            destructionPlacements[index] = new CeresDestructionActorPlacement
+            {
+                Id = CeresDestructionActorDefinitions.InitialPlacementIds[index],
+                X = actor.X,
+                Y = actor.Y,
+            };
+        }
+        using var destructionActorsJson = new MemoryStream();
+        CeresDestructionActorLayout.Write(destructionActorsJson,
+            new CeresDestructionActorLayoutDocument
+            {
+                Version = CeresDestructionActorLayoutFormat.Version,
+                Actors = destructionPlacements,
+            });
+        byte[] destructionActorsFile = destructionActorsJson.ToArray();
+
         CeresDestructionArtworkCatalog compiled = CeresDestructionArtworkCatalog.Load(
             new MemoryStream(mapJson.ToArray(), writable: false),
             new MemoryStream(zebesMapJson, writable: false),
             new MemoryStream(zebesPng, writable: false),
             new MemoryStream(spritesFile, writable: false),
-            new MemoryStream(actorsFile, writable: false));
+            new MemoryStream(actorsFile, writable: false),
+            new MemoryStream(destructionActorsFile, writable: false));
         if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
                 CeresDestructionArtworkFormat.MapByteCount)) ||
             !compiled.ZebesMap.Transfer.Span.SequenceEqual(zebesMap.AsSpan(0,
@@ -114,6 +140,7 @@ internal static class CeresDestructionArtworkExtractor
             [CeresDestructionArtworkFormat.ZebesCharacterFileName] = zebesPng,
             [CeresDestructionSpriteFormat.FileName] = spritesFile,
             [CeresRevealActorLayoutFormat.FileName] = actorsFile,
+            [CeresDestructionActorLayoutFormat.FileName] = destructionActorsFile,
         };
     }
 }

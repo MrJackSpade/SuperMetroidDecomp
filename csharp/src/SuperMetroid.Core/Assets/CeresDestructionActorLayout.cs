@@ -1,0 +1,78 @@
+using System.Text.Json;
+using SuperMetroid.Core.Frontend;
+
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>
+/// Editable spawn positions for the three persistent actors behind Ceres's explosion.
+/// Their instruction lists, wrap behavior, and movement remain compiled mechanics.
+/// </summary>
+public sealed class CeresDestructionActorLayout
+{
+    private readonly CeresDestructionActorPlacement[] placements;
+
+    private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements) =>
+        this.placements = placements;
+
+    public CeresDestructionActorPlacement this[int actorIndex] => placements[actorIndex];
+
+    public static CeresDestructionActorLayout Load(Stream json)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        CeresDestructionActorLayoutDocument document;
+        try
+        {
+            document = JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(json,
+                MapPresentationFormat.JsonOptions)
+                ?? throw new InvalidDataException("Ceres destruction actor layout is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid Ceres destruction actor layout JSON.", error);
+        }
+
+        if (document.Version != CeresDestructionActorLayoutFormat.Version ||
+            document.Actors is not { Length: CeresDestructionActorDefinitions.InitialActorCount })
+            throw new InvalidDataException(
+                "Ceres destruction requires exactly three ordered actor placements.");
+        for (int index = 0; index < document.Actors.Length; index++)
+        {
+            CeresDestructionActorPlacement placement = document.Actors[index];
+            if (placement is null ||
+                placement.Id != CeresDestructionActorDefinitions.InitialPlacementIds[index] ||
+                placement.X is < 0 or > ushort.MaxValue ||
+                placement.Y is < 0 or > ushort.MaxValue)
+                throw new InvalidDataException(
+                    $"Ceres destruction actor {index} must retain its identity and 16-bit coordinates.");
+        }
+        return new CeresDestructionActorLayout(document.Actors);
+    }
+
+    public static void Write(Stream json, CeresDestructionActorLayoutDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
+            MapPresentationFormat.JsonOptions);
+        _ = Load(new MemoryStream(bytes, writable: false));
+        json.Write(bytes);
+    }
+}
+
+public sealed record CeresDestructionActorPlacement
+{
+    public required string Id { get; init; }
+    public required int X { get; init; }
+    public required int Y { get; init; }
+}
+
+public sealed record CeresDestructionActorLayoutDocument
+{
+    public required int Version { get; init; }
+    public required CeresDestructionActorPlacement[] Actors { get; init; }
+}
+
+public static class CeresDestructionActorLayoutFormat
+{
+    public const int Version = 1;
+    public const string FileName = "ceres-destruction-actors.json";
+}

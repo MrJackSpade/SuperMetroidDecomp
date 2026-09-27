@@ -921,6 +921,8 @@ public sealed partial class RoomEnemySystem
                 if (TryDrawInstalledEnemyBg2Frame(slot))
                     continue;
 
+                ApplyInstalledCrocomireBodyBg2(slot);
+
                 if (TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
                         slot.SpritemapPointer,
                         out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)

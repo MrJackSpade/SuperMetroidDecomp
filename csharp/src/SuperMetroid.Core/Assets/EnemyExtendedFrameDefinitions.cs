@@ -8,7 +8,7 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
-/// Maridia's Oum snail, and Crocomire's tongue composite frames.
+/// Maridia's Oum snail, and Crocomire's tongue and fight-body composite frames.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -27,7 +27,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreOumFrameCount = 230;
     internal const int PreCrocomireVersion = 9;
     internal const int PreCrocomireFrameCount = 260;
-    internal const int Version = 10;
+    internal const int PreCrocomireBodyVersion = 10;
+    internal const int PreCrocomireBodyFrameCount = 269;
+    internal const int Version = 11;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -40,12 +42,14 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int CeresSteamFrameCount = 28;
     internal const int OumFrameCount = 30;
     internal const int CrocomireOamFrameCount = 9;
+    internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
         PirateFrameCount + RidleyFrameCount +
         DraygonOamFrameCount + SporeSpawnOamFrameCount +
-        CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount;
+        CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
+        CrocomireBodyFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -227,6 +231,12 @@ internal static class EnemyExtendedFrameDefinitions
             frames.Add(new EnemyExtendedFrameDefinition(
                 CrocomireTongueCollisionDefinitions.Bank,
                 pointer, $"crocomire_oam_{pointer:X4}"));
+        if (frames.Count != PreCrocomireBodyFrameCount)
+            throw new InvalidDataException("Crocomire body frame prefix changed.");
+        foreach (ushort pointer in CrocomireBodyVisualDefinitions.Frames)
+            frames.Add(new EnemyExtendedFrameDefinition(
+                CrocomireBodyVisualDefinitions.Bank,
+                pointer, $"crocomire_body_oam_{pointer:X4}"));
         return frames.ToArray();
     }
 }

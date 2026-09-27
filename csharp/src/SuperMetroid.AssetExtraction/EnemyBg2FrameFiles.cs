@@ -13,7 +13,7 @@ internal static class EnemyBg2FrameFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus, byte bank,
         ReadOnlySpan<EnemyBg2FrameDefinition> definitions, int version,
-        int maximumComponents, string family)
+        int maximumComponents, string family, bool allowMixedOam = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         var frames = new Dictionary<string, EnemyBg2WriteDocument[]>(StringComparer.Ordinal);
@@ -31,14 +31,21 @@ internal static class EnemyBg2FrameFiles
             for (int component = 0; component < componentCount; component++)
             {
                 int record = root + 2 + component * 8;
-                if (ReadWord(bus, record) != 0 || ReadWord(bus, record + 2) != 0)
-                    throw new InvalidDataException(
-                        $"{family} frame ${bank:X2}:{frame.Pointer:X4} uses an unexpected BG2 component offset.");
                 ushort stream = ReadWord(bus, record + 4);
                 if (ReadWord(bus, (bank << 16) | stream) !=
                     EnemyBg2FrameLayout.StreamMarker)
+                {
+                    if (allowMixedOam)
+                        continue;
                     throw new InvalidDataException(
                         $"{family} frame ${bank:X2}:{frame.Pointer:X4} component {component} is not a BG2 stream.");
+                }
+                // Crocomire stores nonzero OAM-style offsets even on BG2
+                // components. ProcessExtendedTilemap ignores both fields.
+                if (!allowMixedOam &&
+                    (ReadWord(bus, record) != 0 || ReadWord(bus, record + 2) != 0))
+                    throw new InvalidDataException(
+                        $"{family} frame ${bank:X2}:{frame.Pointer:X4} uses an unexpected BG2 component offset.");
                 ushort cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
                 for (int command = 0;
@@ -79,7 +86,7 @@ internal static class EnemyBg2FrameFiles
                     throw new InvalidDataException(
                         $"{family} BG2 stream ${bank:X2}:{stream:X4} has no terminator.");
             }
-            if (!frames.TryAdd(frame.Name, writes.ToArray()))
+            if (writes.Count == 0 || !frames.TryAdd(frame.Name, writes.ToArray()))
                 throw new InvalidDataException($"Duplicate {family} BG2 frame {frame.Name}.");
         }
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new EnemyBg2FrameDocument

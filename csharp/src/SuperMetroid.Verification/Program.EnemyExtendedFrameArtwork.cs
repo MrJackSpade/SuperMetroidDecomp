@@ -83,8 +83,12 @@ internal static partial class Program
             "all selected Oum visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.CrocomireOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
-                frame => IsCrocomireExtendedFrameName(frame.Name)),
+                frame => frame.Name.StartsWith("crocomire_oam_", StringComparison.Ordinal)),
             "all selected Crocomire tongue visual frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.CrocomireBodyFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)),
+            "all selected Crocomire fight-body OAM frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
@@ -615,6 +619,28 @@ internal static partial class Program
                 0x0040, 0x0080).LowTable.SequenceEqual(movedOum.LowTable),
             "version-nine Oum edit survives the Crocomire schema update");
 
+        var versionTen = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion,
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        AssertEqual(EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount,
+            versionTen.Frames.Count, "version-ten extended-frame schema count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionTen, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionTen = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(upgradedVersionTen.ExtendedFrames!.TryGetDisplay(0xa4, 0xc2ec, out _),
+            "version-ten override inherits Crocomire's mixed fight-body OAM");
+
         EnemyExtendedFrameDocument sporeVisualRemap =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
@@ -832,7 +858,8 @@ internal static partial class Program
         name.StartsWith("oum_oam_", StringComparison.Ordinal);
 
     private static bool IsCrocomireExtendedFrameName(string name) =>
-        name.StartsWith("crocomire_oam_", StringComparison.Ordinal);
+        name.StartsWith("crocomire_oam_", StringComparison.Ordinal) ||
+        name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
@@ -950,8 +977,38 @@ internal static partial class Program
                 int parts = source.ReadByte(spriteAddress) |
                     source.ReadByte((bank << 16) |
                         unchecked((ushort)(sprite + 1))) << 8;
+                if (parts == EnemyBg2FrameLayout.StreamMarker)
+                {
+                    Block(bank, sprite, 2);
+                    ushort cursor = unchecked((ushort)(sprite + 2));
+                    bool terminated = false;
+                    for (int command = 0;
+                         command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
+                         command++)
+                    {
+                        ushort destination = ReadSourceWord(cursor);
+                        if (destination == 0xffff)
+                        {
+                            Block(bank, cursor, 2);
+                            terminated = true;
+                            break;
+                        }
+                        ushort wordCount = ReadSourceWord(unchecked((ushort)(cursor + 2)));
+                        int length = 4 + wordCount * 2;
+                        Block(bank, cursor, length);
+                        cursor = unchecked((ushort)(cursor + length));
+                    }
+                    if (!terminated)
+                        throw new InvalidDataException(
+                            $"Extended BG2 stream ${bank:X2}:{sprite:X4} has no terminator.");
+                    continue;
+                }
                 Block(bank, sprite, 2 + parts * 5);
             }
+
+            ushort ReadSourceWord(ushort address) => unchecked((ushort)(
+                source.ReadByte((bank << 16) | address) |
+                source.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
         }
 
         private void Block(byte bank, ushort pointer, int length)

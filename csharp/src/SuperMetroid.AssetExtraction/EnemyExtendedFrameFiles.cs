@@ -33,7 +33,7 @@ internal static class EnemyExtendedFrameFiles
                 padding != expectedPadding)
                 throw new InvalidDataException(
                     $"Extended frame ${bank:X2}:{pointer:X4} has invalid component header.");
-            var components = new EnemyExtendedVisualComponent[count];
+            var components = new List<EnemyExtendedVisualComponent>(count);
             for (int index = 0; index < count; index++)
             {
                 ushort record = unchecked((ushort)(pointer + 2 + index * 8));
@@ -42,20 +42,30 @@ internal static class EnemyExtendedFrameFiles
                     unchecked((ushort)(record + 2))));
                 ushort spritePointer = ReadWord(bus, bank,
                     unchecked((ushort)(record + 4)));
-                if (ReadWord(bus, bank, spritePointer) == 0xfffe)
+                if (ReadWord(bus, bank, spritePointer) ==
+                    EnemyBg2FrameLayout.StreamMarker)
+                {
+                    // Crocomire's body combines ordinary OAM with BG2 streams
+                    // in one native extended root. Its BG2 half is extracted
+                    // separately, never misrepresented as sprite artwork.
+                    if (definition.Name.StartsWith("crocomire_body_oam_",
+                            StringComparison.Ordinal))
+                        continue;
                     throw new InvalidDataException(
                         $"Extended frame ${bank:X2}:{pointer:X4} contains a BG2 command, not OAM.");
-                components[index] = new EnemyExtendedVisualComponent
+                }
+                components.Add(new EnemyExtendedVisualComponent
                 {
                     OffsetX = x,
                     OffsetY = y,
                     Parts = EnemySpritemapFiles.ExtractParts(bus, bank,
                         spritePointer),
-                };
+                });
             }
-            if (!frames.TryAdd(definition.Name, components))
+            if (components.Count == 0 ||
+                !frames.TryAdd(definition.Name, components.ToArray()))
                 throw new InvalidDataException(
-                    $"Duplicate extended enemy frame {definition.Name}.");
+                    $"Extended enemy frame {definition.Name} has no OAM or repeats an identity.");
         }
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyExtendedFrameDocument

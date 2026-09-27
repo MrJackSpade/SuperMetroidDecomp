@@ -148,6 +148,9 @@ public static class EnemyTileArtworkFiles
         byte[] draygonBg2Json = DraygonBg2FrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, DraygonBg2FrameDefinitions.FileName),
             draygonBg2Json);
+        byte[] crocomireBg2Json = CrocomireBg2FrameFiles.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, CrocomireBg2FrameDefinitions.FileName),
+            crocomireBg2Json);
         var gunshipLiftoffHashes = new Dictionary<int, string>();
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
         {
@@ -304,6 +307,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(extendedJson)),
             Convert.ToHexString(SHA256.HashData(phantoonBg2Json)),
             Convert.ToHexString(SHA256.HashData(draygonBg2Json)),
+            Convert.ToHexString(SHA256.HashData(crocomireBg2Json)),
             gunshipLiftoffHashes,
             Convert.ToHexString(SHA256.HashData(corpsePng)),
             Convert.ToHexString(SHA256.HashData(escapeTextPng)),
@@ -364,6 +368,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.PhantoonBg2FramesSha256) ||
             string.IsNullOrWhiteSpace(manifest.DraygonBg2FramesSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CrocomireBg2FramesSha256) ||
             manifest.GunshipLiftoffSha256 is null ||
             manifest.GunshipLiftoffSha256.Count !=
                 GunshipLiftoffTransferDefinitions.Frames.Length ||
@@ -593,6 +598,21 @@ public static class EnemyTileArtworkFiles
         {
             throw new InvalidDataException(
                 $"Invalid Draygon BG2 frames in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                error);
+        }
+        CrocomireBg2FrameCatalog crocomireBg2Frames;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(
+                CrocomireBg2FrameDefinitions.FileName,
+                manifest.CrocomireBg2FramesSha256);
+            crocomireBg2Frames = CrocomireBg2FrameCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Crocomire BG2 frames in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
         var gunshipFrames = new RoomCharacterAtlas[
@@ -956,7 +976,8 @@ public static class EnemyTileArtworkFiles
             babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
-            motherBrainEscapeText, motherBrainSpecialSprites, skeleton);
+            motherBrainEscapeText, motherBrainSpecialSprites, skeleton,
+            crocomireBg2Frames);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1152,6 +1173,7 @@ public static class EnemyTileArtworkFiles
         string EnemyExtendedCompositionsSha256,
         string PhantoonBg2FramesSha256,
         string DraygonBg2FramesSha256,
+        string CrocomireBg2FramesSha256,
         Dictionary<int, string> GunshipLiftoffSha256,
         string MotherBrainCorpseSha256,
         string MotherBrainEscapeTextSha256,

@@ -6,6 +6,28 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>
+    /// Crocomire's native extended roots interleave ordinary OAM and BG2
+    /// streams. Apply only their installed BG2 half here; the common installed
+    /// extended-frame draw immediately afterward emits their OAM half.
+    /// </summary>
+    private void ApplyInstalledCrocomireBodyBg2(RoomEnemySlot slot)
+    {
+        if (slot.EnemyDefinitionPointer != CrocomireDefinition ||
+            slot.Definition.Bank != CrocomireBodyVisualDefinitions.Bank ||
+            !CrocomireBodyVisualDefinitions.HasBg2(slot.SpritemapPointer) ||
+            TileArtwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
+                slot.SpritemapPointer, out _) != true)
+            return;
+        if (TileArtwork.CrocomireBg2Frames?.TryGet(slot.SpritemapPointer,
+                out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) != true)
+            throw new InvalidDataException(
+                $"Installed Crocomire body frame $A4:{slot.SpritemapPointer:X4} has no BG2 presentation.");
+        if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
+            foreach (EnemyBg2TilemapWrite write in writes.Span)
+                ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);
+    }
+
+    /// <summary>
     /// Executes an installed extended BG2 visual stream for the converted boss
     /// families. The native new-frame bit gates writes; collision remains on
     /// the separate gameplay path and is never read from editable visual JSON.

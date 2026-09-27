@@ -43,7 +43,8 @@ public sealed class EnemyTileArtworkCatalog
         RoomCharacterAtlas? motherBrainCorpse = null,
         RoomCharacterAtlas? motherBrainEscapeText = null,
         MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
-        CrocomireSkeletonArtwork? crocomireSkeleton = null)
+        CrocomireSkeletonArtwork? crocomireSkeleton = null,
+        CrocomireBg2FrameCatalog? crocomireBg2Frames = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -94,6 +95,7 @@ public sealed class EnemyTileArtworkCatalog
         TourianStatueColors = tourianStatueColors;
         PhantoonBg2Frames = phantoonBg2Frames;
         DraygonBg2Frames = draygonBg2Frames;
+        CrocomireBg2Frames = crocomireBg2Frames;
         MotherBrainCorpse = motherBrainCorpse;
         MotherBrainEscapeText = motherBrainEscapeText;
         MotherBrainSpecialSprites = motherBrainSpecialSprites;
@@ -117,6 +119,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Editable Draygon BG2 tilemap frames; collision remains engine-owned.</summary>
     public DraygonBg2FrameCatalog? DraygonBg2Frames { get; }
+
+    /// <summary>Editable BG2 half of Crocomire's mixed fight-body frames.</summary>
+    public CrocomireBg2FrameCatalog? CrocomireBg2Frames { get; }
 
     /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting WRAM staging.</summary>
     public RoomCharacterAtlas? MotherBrainCorpse { get; }
@@ -223,7 +228,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 46;
+    public const int Version = 47;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

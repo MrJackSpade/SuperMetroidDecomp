@@ -79,6 +79,17 @@ internal static partial class Program
                 "ROM-free census room selector is a hexadecimal room pointer");
             selectedRoom = parsedRoom;
         }
+        int frameCount = 1;
+        string? frameCountText = Environment.GetEnvironmentVariable("SM_ROM_FREE_CENSUS_FRAMES");
+        if (!string.IsNullOrWhiteSpace(frameCountText))
+        {
+            AssertTrue(selectedRoom is not null,
+                "multi-frame ROM-free census requires one selected room");
+            AssertTrue(int.TryParse(frameCountText, NumberStyles.None,
+                    CultureInfo.InvariantCulture, out frameCount) &&
+                frameCount is >= 1 and <= 3600,
+                "ROM-free census frame count must be 1..3600");
+        }
         var failures = new List<string>();
         int checkedRooms = 0;
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
@@ -96,7 +107,7 @@ internal static partial class Program
                     DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(installedSnapshot);
                 bindInstalled(installedRoom, false);
                 VerifyFrontendRomFreeRoom(nativeRoom, installedRoom, room.Pointer,
-                    $"room ${room.Pointer:X4}", frameCount: 1);
+                    $"room ${room.Pointer:X4}", frameCount);
             }
             catch (Exception error)
             {
@@ -106,8 +117,9 @@ internal static partial class Program
         }
         AssertTrue(checkedRooms > 0, "ROM-free census selected at least one retail room");
         AssertTrue(failures.Count == 0,
-            $"ROM-free one-frame room census failed in {failures.Count} of " +
+            $"ROM-free {frameCount}-frame room census failed in {failures.Count} of " +
             $"{checkedRooms} rooms:\n" + string.Join("\n", failures));
-        Console.WriteLine($"ROM-free room census: {checkedRooms} isolated rooms match native pixels without cartridge reads.");
+        Console.WriteLine($"ROM-free room census: {checkedRooms} isolated rooms, " +
+            $"{frameCount} frame(s) each, match native pixels without cartridge reads.");
     }
 }

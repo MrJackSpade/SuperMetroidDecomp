@@ -1,6 +1,6 @@
 # ROM-free retail-room census (#549)
 
-The 2026-09-27 all-room pass found 32 first-frame failures among 262 retail
+An earlier 2026-09-27 all-room pass found 32 first-frame failures among 262 retail
 rooms. One was room `$8F:ACF0` reading the Speed Booster escape PLM list; eight
 Tourian rooms read the same Metroids-cleared PLM `Sleep` word at `$84:DB42`;
 Wrecked Ship room `$8F:CA52` read the attic PLM list at `$84:BAFF`. All three
@@ -51,3 +51,17 @@ also writes native and installed PNGs to ignored
 `csharp/test-temp/rom-free-room-census-compare`. Keep those screenshots local.
 The diagnostic fails nonzero with the room pointer and exception; it never
 silently skips a room, including known incomplete instruction programs.
+
+For a neutral-input sequence within one room, set
+`SM_ROM_FREE_CENSUS_FRAMES` to an integer from 1 through 3600 while selecting
+`SM_ROM_FREE_CENSUS_ROOM`. For example, use 90 frames to check a Viola loop:
+
+```powershell
+$env:SM_ROM_FREE_CENSUS_ROOM = 'B37A'
+$env:SM_ROM_FREE_CENSUS_FRAMES = '90'
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-room-census 'Super Metroid.smc' 'csharp/test-temp/rom-free-room-census-cache'
+```
+
+The frame setting is rejected for an all-room census to avoid an accidental
+hours-long run. This checks neutral frames only; it does not substitute for
+controller sequences, door transitions, combat, or a complete room state graph.

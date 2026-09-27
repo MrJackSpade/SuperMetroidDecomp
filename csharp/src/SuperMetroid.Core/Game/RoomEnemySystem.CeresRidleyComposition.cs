@@ -739,38 +739,29 @@ public sealed partial class RoomEnemySystem
         int subjectRight = unchecked((ushort)(subjectX + subjectXRadius));
         int subjectTop = unchecked((ushort)(subjectY - subjectYRadius));
         int subjectBottom = unchecked((ushort)(subjectY + subjectYRadius));
-        int extendedAddress = 0xa60000 | slot.SpritemapPointer;
-        int componentCount = _bus!.ReadByte(extendedAddress);
-        if (componentCount > 64)
-            throw new InvalidDataException("Extended spritemap contains more than 64 components.");
-        int componentAddress = AdvanceBankAddress(extendedAddress, 2);
-        for (int component = 0; component < componentCount; component++)
+        // Constructed verification rooms may install their own bank-$A6 frame in
+        // a bus with no artwork catalog. Retail frames always use compiled
+        // collision; an installed game's unknown frame fails in ComponentsAt.
+        bool nativeFixture = TileArtwork is null &&
+            !RidleyCollisionDefinitions.HasFrame(slot.SpritemapPointer);
+        ReadOnlySpan<RidleyCollisionComponent> components = nativeFixture
+            ? ReadNativeRidleyCollisionComponents(slot.SpritemapPointer)
+            : RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
+        foreach (RidleyCollisionComponent component in components)
         {
             ushort componentX = unchecked((ushort)(
-                slot.XPosition + ReadWord(_bus, componentAddress)));
+                slot.XPosition + component.X));
             ushort componentY = unchecked((ushort)(
-                slot.YPosition + ReadWord(_bus, AdvanceBankAddress(componentAddress, 2))));
-            ushort hitboxPointer = ReadWord(
-                _bus,
-                AdvanceBankAddress(componentAddress, 6));
-            int hitboxAddress = 0xa60000 | hitboxPointer;
-            int hitboxCount = ReadWord(_bus, hitboxAddress);
-            if (hitboxCount > 64)
-                throw new InvalidDataException("Extended spritemap component contains more than 64 hitboxes.");
-            hitboxAddress = AdvanceBankAddress(hitboxAddress, 2);
-
-            for (int hitbox = 0; hitbox < hitboxCount; hitbox++)
+                slot.YPosition + component.Y));
+            ReadOnlySpan<RidleyCollisionHitbox> hitboxes = nativeFixture
+                ? ReadNativeRidleyCollisionHitboxes(component.HitboxPointer)
+                : RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
+            foreach (RidleyCollisionHitbox hitbox in hitboxes)
             {
-                int left = unchecked((ushort)(componentX + ReadWord(_bus, hitboxAddress)));
-                int top = unchecked((ushort)(componentY + ReadWord(
-                    _bus,
-                    AdvanceBankAddress(hitboxAddress, 2))));
-                int right = unchecked((ushort)(componentX + ReadWord(
-                    _bus,
-                    AdvanceBankAddress(hitboxAddress, 4))));
-                int bottom = unchecked((ushort)(componentY + ReadWord(
-                    _bus,
-                    AdvanceBankAddress(hitboxAddress, 6))));
+                int left = unchecked((ushort)(componentX + hitbox.Left));
+                int top = unchecked((ushort)(componentY + hitbox.Top));
+                int right = unchecked((ushort)(componentX + hitbox.Right));
+                int bottom = unchecked((ushort)(componentY + hitbox.Bottom));
 
                 // $A0:9B14/$9B20/$9B2C/$9B38 use signed comparisons and treat touching
                 // right/bottom edges as non-overlap. Ceres coordinates remain in the low
@@ -782,11 +773,48 @@ public sealed partial class RoomEnemySystem
                 {
                     return true;
                 }
-                hitboxAddress = AdvanceBankAddress(hitboxAddress, 12);
             }
-            componentAddress = AdvanceBankAddress(componentAddress, 8);
         }
         return false;
+    }
+
+    private RidleyCollisionComponent[] ReadNativeRidleyCollisionComponents(ushort frame)
+    {
+        int root = RidleyCollisionDefinitions.Bank << 16 | frame;
+        int count = _bus!.ReadByte(root);
+        if (count > 64)
+            throw new InvalidDataException("Synthetic Ridley frame has more than 64 components.");
+        var result = new RidleyCollisionComponent[count];
+        for (int index = 0; index < count; index++)
+        {
+            int record = AdvanceBankAddress(root, 2 + index * 8);
+            result[index] = new(
+                unchecked((short)ReadWord(_bus, record)),
+                unchecked((short)ReadWord(_bus, AdvanceBankAddress(record, 2))),
+                ReadWord(_bus, AdvanceBankAddress(record, 6)));
+        }
+        return result;
+    }
+
+    private RidleyCollisionHitbox[] ReadNativeRidleyCollisionHitboxes(ushort list)
+    {
+        int root = RidleyCollisionDefinitions.Bank << 16 | list;
+        int count = ReadWord(_bus!, root);
+        if (count > 64)
+            throw new InvalidDataException("Synthetic Ridley component has more than 64 hitboxes.");
+        var result = new RidleyCollisionHitbox[count];
+        for (int index = 0; index < count; index++)
+        {
+            int record = AdvanceBankAddress(root, 2 + index * 12);
+            result[index] = new(
+                unchecked((short)ReadWord(_bus!, record)),
+                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 2))),
+                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 4))),
+                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 6))),
+                ReadWord(_bus!, AdvanceBankAddress(record, 8)),
+                ReadWord(_bus!, AdvanceBankAddress(record, 10)));
+        }
+        return result;
     }
 
     private static void ApplyNormalEnemyTouchDamage(

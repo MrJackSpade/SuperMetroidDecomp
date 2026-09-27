@@ -1,5 +1,20 @@
 # Remaining lookup migration inventory (#547)
 
+## Ridley body collision definitions (2026-09-27)
+
+Both Ceres and Lower Norfair Ridley select eleven bank-$A6 extended body frames.
+Their 41 fixed component offsets refer to seventeen hitbox lists containing 24
+rectangles. These physical offsets, bounds, and `$DF59/$DF8A` callbacks now live
+in `RidleyCollisionDefinitions`, independently of the editable Ridley OAM
+compositions. The shared contact/projectile callback walker and the Ceres
+encounter's private projectile-overlap path consume the same compiled data
+in installed gameplay, without reading bank-$A6 map or hitbox bytes. Constructed
+rooms with no installed art may still supply a synthetic bus-backed frame;
+an unknown installed frame fails loudly. Verification checks
+every retained field against the pinned cartridge and compares 11,232 native
+and compiled boundary probes at three origins, including signed wraparound.
+Other extended enemy families and the broader ROM-free runtime remain open.
+
 ## Mother Brain head, falling-tube and hand-beam instruction lists (2026-09-27)
 
 Six disassembly-bounded bank-$A9 head-list data regions now compile 362 exact

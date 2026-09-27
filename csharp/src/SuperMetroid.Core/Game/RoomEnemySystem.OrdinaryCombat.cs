@@ -2892,6 +2892,37 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
+            enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
+            (RidleyCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+             TileArtwork is not null))
+        {
+            // The OAM component offsets in an installed composition are editable.
+            // Contact and shot collision instead use the eleven fixed cartridge
+            // body frames and their engine-owned hitbox lists.
+            foreach (RidleyCollisionComponent component in
+                     RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (RidleyCollisionHitbox hitbox in
+                         RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

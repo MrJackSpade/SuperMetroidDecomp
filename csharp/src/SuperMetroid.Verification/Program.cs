@@ -1795,6 +1795,11 @@ if (args is ["--verify-space-pirate-collision"])
     VerifySpacePirateCollisionDefinitions();
     return 0;
 }
+if (args is ["--verify-ridley-collision"])
+{
+    VerifyRidleyCollisionDefinitions();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
@@ -2817,6 +2822,7 @@ VerifyRoomEnemyLoading();
 VerifyEnemyTileArtwork();
 VerifyCompiledEnemyVisualSelectors();
 VerifySpacePirateCollisionDefinitions();
+VerifyRidleyCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

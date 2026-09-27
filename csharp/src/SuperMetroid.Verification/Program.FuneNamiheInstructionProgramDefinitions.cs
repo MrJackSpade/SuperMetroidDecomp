@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -77,18 +78,17 @@ internal static partial class Program
                 $"Fune/Namihe program $A8:{program.Entry:X4} returns main-AI ownership");
         }
 
-        AssertEqual(
-            FuneNamiheInstructionProgramDefinitions.PresentationWordCount,
-            guarded.ObservedPresentationWords.Count,
-            "all live Fune/Namihe spritemap words remain cartridge reads");
+        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+            "all Fune/Namihe visual selectors are compiled, not reread from cartridge");
         for (int index = 0;
              index < FuneNamiheInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guarded.ObservedPresentationWords.Contains(address),
-                $"production execution reads presentation word $A8:{address:X4}");
+            AssertEqual(ReadFuneNamiheProgramWord(rom, address),
+                EnemySpritemapDefinitions.FuneNamiheFrameAt(address),
+                $"compiled Fune/Namihe selector $A8:{address:X4} matches cartridge");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids every compiled Fune/Namihe mechanics byte");
@@ -120,9 +120,9 @@ internal static partial class Program
         Console.WriteLine(
             $"  Fune/Namihe instruction mechanics: " +
             $"{FuneNamiheInstructionProgramDefinitions.MechanicsWordCount} words, " +
-            $"{FuneNamiheInstructionProgramDefinitions.PresentationWordCount} live " +
-            "spritemap words, and all eight production programs pass with mechanics reads " +
-            "forbidden.");
+            $"{FuneNamiheInstructionProgramDefinitions.PresentationWordCount} compiled " +
+            "spritemap selectors, and all eight production programs pass with mechanics " +
+            "and visual-selector reads forbidden.");
     }
 
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(

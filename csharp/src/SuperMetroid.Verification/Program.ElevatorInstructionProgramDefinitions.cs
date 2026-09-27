@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -48,8 +49,18 @@ internal static partial class Program
         }
         AssertEqual((ushort)0x94da, elevator.CurrentInstruction,
             "elevator two-frame program loops to its second mechanics word");
-        AssertEqual(2, guard.ObservedPresentationWords.Count,
-            "both elevator spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "both elevator visual selectors are compiled, not reread from cartridge");
+        for (int index = 0;
+             index < ElevatorInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = ElevatorInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertEqual(ReadElevatorInstructionWord(rom, operand),
+                EnemySpritemapDefinitions.ElevatorFrameAt(operand),
+                $"compiled elevator selector $A3:{operand:X4} matches cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled elevator mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -70,8 +81,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Elevator instruction mechanics: four compiled words, the real initializer, " +
-            "the complete two-frame loop, and two live spritemap reads pass with mechanics " +
-            "bytes forbidden.");
+            "the complete two-frame loop, and two compiled visual selectors pass with " +
+            "mechanics and selector reads forbidden.");
     }
 
     private static int ProbeElevatorInstructionMechanicsAllocation()

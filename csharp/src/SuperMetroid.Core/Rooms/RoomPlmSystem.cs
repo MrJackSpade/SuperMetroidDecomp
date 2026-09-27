@@ -41,6 +41,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals;
     [NonSerialized] private RoomPlmNoobTubeVisualCatalog? noobTubeVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
+    [NonSerialized] private RoomPlmElevatorPlatformVisualCatalog? elevatorPlatformVisuals;
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? escapeGateVisuals;
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals;
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals;
@@ -125,6 +126,13 @@ public sealed partial class RoomPlmSystem
     {
         get => downwardGateVisuals;
         set => downwardGateVisuals = value;
+    }
+
+    /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
+    public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals
+    {
+        get => elevatorPlatformVisuals;
+        set => elevatorPlatformVisuals = value;
     }
 
     /// <summary>Nonserialized Mother Brain escape-gate appearance; collision stays compiled.</summary>
@@ -2019,7 +2027,8 @@ public sealed partial class RoomPlmSystem
             DrawCompiledBlockInstruction(
                 level, streamer, elevator, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                useShotBlockVisuals: false);
+                useShotBlockVisuals: false,
+                elevatorPlatformVisuals: elevatorPlatformVisuals);
             return;
         }
         if (DownwardGatePlmDrawDefinitions.TryGet(drawPointer, out var gate))
@@ -2137,6 +2146,7 @@ public sealed partial class RoomPlmSystem
         bool useShotBlockVisuals,
         RoomPlmStationVisualCatalog? customVisuals = null,
         RoomPlmDownwardGateVisualCatalog? gateVisuals = null,
+        RoomPlmElevatorPlatformVisualCatalog? elevatorPlatformVisuals = null,
         RoomPlmBlueDoorVisualCatalog? blueDoorVisuals = null,
         RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals = null,
         RoomPlmGreyDoorVisualCatalog? greyDoorVisuals = null,
@@ -2177,6 +2187,7 @@ public sealed partial class RoomPlmSystem
                     ?.GetWord(definition.Pointer, runIndex, offset)
                     ?? customVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? gateVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? elevatorPlatformVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? blueDoorVisuals?.GetWord(definition.Pointer, offset)
                     ?? coloredDoorVisuals?.GetWord(definition.Pointer, offset)
                     ?? greyDoorVisuals?.GetWord(definition.Pointer, offset)

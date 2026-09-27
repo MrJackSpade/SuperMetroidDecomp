@@ -12,6 +12,7 @@ public sealed partial class PlayableGameControl
     private SuperMetroid.Core.Rooms.RoomPlmMotherBrainGlassVisualCatalog? roomPlmMotherBrainGlassVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog? roomPlmNoobTubeVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
+    private SuperMetroid.Core.Rooms.RoomPlmElevatorPlatformVisualCatalog? roomPlmElevatorPlatformVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmBombTorizoHandVisualCatalog? roomPlmBombTorizoHandVisuals;
     private SuperMetroid.Core.Rooms.RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;

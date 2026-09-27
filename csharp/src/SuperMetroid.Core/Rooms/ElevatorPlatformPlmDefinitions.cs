@@ -40,6 +40,27 @@ internal static class ElevatorPlatformPlmDefinitions
     internal static ReadOnlySpan<(ushort Address, ushort Value)> ProgramWords => Program;
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists => Lists.Values;
 
+    internal static string VisualId(ushort pointer) => pointer switch
+    {
+        FirstDraw => "first-frame",
+        SecondDraw => "second-frame",
+        ThirdDraw => "third-frame",
+        _ => throw new InvalidDataException($"Unknown elevator-platform draw list ${pointer:X4}."),
+    };
+
+    internal static bool TryGetByVisualId(string? id,
+        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        ushort pointer = id switch
+        {
+            "first-frame" => FirstDraw,
+            "second-frame" => SecondDraw,
+            "third-frame" => ThirdDraw,
+            _ => 0,
+        };
+        return Lists.TryGetValue(pointer, out list);
+    }
+
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         foreach ((ushort candidate, ushort word) in Program)

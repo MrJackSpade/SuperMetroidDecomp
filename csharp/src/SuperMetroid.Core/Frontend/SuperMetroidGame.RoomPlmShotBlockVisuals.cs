@@ -14,6 +14,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmMotherBrainGlassVisualCatalog? roomPlmMotherBrainGlassVisuals;
     [NonSerialized] private RoomPlmNoobTubeVisualCatalog? roomPlmNoobTubeVisuals;
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
+    [NonSerialized] private RoomPlmElevatorPlatformVisualCatalog? roomPlmElevatorPlatformVisuals;
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? roomPlmBombTorizoHandVisuals;
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;
@@ -99,6 +100,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmDownwardGateVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmDownwardGateVisuals = catalog;
+    }
+
+    /// <summary>Binds installed elevator-platform frames at startup and after state restoration.</summary>
+    public void BindRoomPlmElevatorPlatformVisuals(RoomPlmElevatorPlatformVisualCatalog? catalog)
+    {
+        roomPlmElevatorPlatformVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmElevatorPlatformVisuals = catalog;
     }
 
     /// <summary>Binds installed escape-gate art at startup and after state restoration.</summary>

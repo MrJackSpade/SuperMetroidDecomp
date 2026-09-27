@@ -129,6 +129,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmDownwardGateVisualCatalog LoadRoomPlmDownwardGateVisuals() =>
         RoomPlmDownwardGateVisualFiles.Load(RoomPlmDownwardGateVisualDirectory,
             RoomPlmDownwardGateVisualOverrideDirectory);
+    public string RoomPlmElevatorPlatformVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName);
+    public string RoomPlmElevatorPlatformVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName);
+    /// <summary>Editable elevator frames; physical blocks and the instruction loop stay compiled.</summary>
+    public RoomPlmElevatorPlatformVisualCatalog LoadRoomPlmElevatorPlatformVisuals() =>
+        RoomPlmElevatorPlatformVisualFiles.Load(RoomPlmElevatorPlatformVisualDirectory,
+            RoomPlmElevatorPlatformVisualOverrideDirectory);
     public string RoomPlmEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName);
     public string RoomPlmEscapeGateVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName);
     /// <summary>Editable escape-gate appearance; closing and collision stay compiled.</summary>
@@ -280,6 +286,7 @@ public static class GameInstallationLayout
     public const string RoomPlmMotherBrainGlassVisualDirectoryName = "room-plm-mother-brain-glass";
     public const string RoomPlmNoobTubeVisualDirectoryName = "room-plm-noob-tube";
     public const string RoomPlmDownwardGateVisualDirectoryName = "room-plm-downward-gates";
+    public const string RoomPlmElevatorPlatformVisualDirectoryName = "room-plm-elevator-platforms";
     public const string RoomPlmEscapeGateVisualDirectoryName = "room-plm-escape-gate";
     public const string RoomPlmBombTorizoHandVisualDirectoryName = "room-plm-bomb-torizo-hand";
     public const string RoomPlmDraygonCannonVisualDirectoryName = "room-plm-draygon-cannons";

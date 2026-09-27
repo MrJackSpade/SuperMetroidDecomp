@@ -74,6 +74,13 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.DownwardGateVisuals = value;
     }
 
+    /// <summary>Visual-only elevator-platform frames; reattached after state restoration.</summary>
+    public RoomPlmElevatorPlatformVisualCatalog? RoomPlmElevatorPlatformVisuals
+    {
+        get => Plms.ElevatorPlatformVisuals;
+        set => Plms.ElevatorPlatformVisuals = value;
+    }
+
     /// <summary>Visual-only escape-gate resources; reattached after debugger-state restoration.</summary>
     public RoomPlmEscapeGateVisualCatalog? RoomPlmEscapeGateVisuals
     {

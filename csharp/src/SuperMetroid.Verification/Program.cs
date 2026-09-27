@@ -1253,6 +1253,11 @@ if (args is ["--room-plm-populations"])
     VerifyElevatorPlatformPlmDefinitions(rom);
     return 0;
 }
+if (args is ["--elevator-platform-visuals"])
+{
+    VerifyElevatorPlatformVisuals();
+    return 0;
+}
 if (args is ["--explored-map-packing-definitions"])
 {
     VerifyExploredMapPackingDefinitions();

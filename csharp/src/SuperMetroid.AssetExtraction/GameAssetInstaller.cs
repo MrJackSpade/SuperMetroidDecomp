@@ -117,6 +117,7 @@ public static class GameAssetInstaller
             RoomPlmMotherBrainGlassVisualFiles.ValidateStock(installation.RoomPlmMotherBrainGlassVisualDirectory);
             RoomPlmNoobTubeVisualFiles.ValidateStock(installation.RoomPlmNoobTubeVisualDirectory);
             RoomPlmDownwardGateVisualFiles.ValidateStock(installation.RoomPlmDownwardGateVisualDirectory);
+            RoomPlmElevatorPlatformVisualFiles.ValidateStock(installation.RoomPlmElevatorPlatformVisualDirectory);
             RoomPlmEscapeGateVisualFiles.ValidateStock(installation.RoomPlmEscapeGateVisualDirectory);
             RoomPlmBombTorizoHandVisualFiles.ValidateStock(installation.RoomPlmBombTorizoHandVisualDirectory);
             RoomPlmDraygonCannonVisualFiles.ValidateStock(installation.RoomPlmDraygonCannonVisualDirectory);
@@ -324,6 +325,13 @@ public static class GameAssetInstaller
             RoomPlmDownwardGateVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 gateVisuals, SupportedCartridge.Sha256);
             RoomPlmDownwardGateVisualFiles.ValidateStock(gateVisuals);
+            progress?.Report("Extracting elevator-platform PLM visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string elevatorVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName);
+            RoomPlmElevatorPlatformVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                elevatorVisuals, SupportedCartridge.Sha256);
+            RoomPlmElevatorPlatformVisualFiles.ValidateStock(elevatorVisuals);
             progress?.Report("Extracting Mother Brain escape-gate visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string escapeGateVisuals = Path.Combine(staging,

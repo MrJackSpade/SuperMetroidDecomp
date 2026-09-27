@@ -834,6 +834,14 @@ change. The visible moving gate actor uses separate bank-$86 sprite art and is
 not replaced by this resource. Invalid stock or override data fails loudly;
 the override survives stock installation repair or updates.
 
+Elevator-platform PLM frames are installed as
+`game/room-plm-elevator-platforms/elevator-platforms.json`. Copy that file to
+`overrides/room-plm-elevator-platforms/elevator-platforms.json` and edit only
+the `runs` visual words (0..4095), then restart. Keep all three named frames
+and their run lengths. Each word selects a visual block from the active room
+tileset; the four-step frame loop, draw offsets, and physical collision words
+remain compiled. Invalid edits fail loudly, and overrides survive stock repair.
+
 Mother Brain's escape-gate appearances are installed as
 `game/room-plm-escape-gate/escape-gate.json`. Copy that file to
 `overrides/room-plm-escape-gate/escape-gate.json`, edit only `blocks` visual

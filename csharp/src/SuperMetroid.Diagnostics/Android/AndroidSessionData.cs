@@ -40,6 +40,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmMotherBrainGlassVisualCatalog? roomPlmMotherBrainGlassVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog? roomPlmNoobTubeVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmElevatorPlatformVisualCatalog? roomPlmElevatorPlatformVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmBombTorizoHandVisualCatalog? roomPlmBombTorizoHandVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;
@@ -145,6 +146,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmDownwardGateVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmDownwardGateVisuals() : null;
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
+        roomPlmElevatorPlatformVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmElevatorPlatformVisuals() : null;
+        Game.BindRoomPlmElevatorPlatformVisuals(roomPlmElevatorPlatformVisuals);
         roomPlmEscapeGateVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmEscapeGateVisuals() : null;
         Game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
@@ -304,6 +308,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmMotherBrainGlassVisuals(roomPlmMotherBrainGlassVisuals);
         Game.BindRoomPlmNoobTubeVisuals(roomPlmNoobTubeVisuals);
         Game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
+        Game.BindRoomPlmElevatorPlatformVisuals(roomPlmElevatorPlatformVisuals);
         Game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
         Game.BindRoomPlmBombTorizoHandVisuals(roomPlmBombTorizoHandVisuals);
         Game.BindRoomPlmDraygonCannonVisuals(roomPlmDraygonCannonVisuals);

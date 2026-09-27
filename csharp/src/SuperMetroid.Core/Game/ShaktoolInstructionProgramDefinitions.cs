@@ -155,6 +155,10 @@ internal static class ShaktoolInstructionProgramDefinitions
     internal static ShaktoolInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
 
+    /// <summary>Whether the address selects one of the fifteen native OAM frames.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
+
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

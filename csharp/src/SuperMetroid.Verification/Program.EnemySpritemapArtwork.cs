@@ -304,8 +304,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreMetroidFrameCount,
             "growing, vertical and horizontal shutters share five distinct OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount + 4,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreShaktoolFrameCount,
             "both ordinary-Metroid loops share four distinct body OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreShaktoolFrameCount + 15,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Shaktool's saw, arm, and head programs select fifteen OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -715,6 +718,32 @@ internal static partial class Program
             () => MetroidVisualDefinitions.FrameAt(
                 MetroidInstructionProgramDefinitions.AdjacentBombedOffVelocities),
             "Metroid visual selector rejects neighboring bomb-off physics data");
+        HashSet<ushort> shaktoolFrames = ShaktoolVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(15, shaktoolFrames.Count,
+            "Shaktool's visual frame identities are distinct");
+        for (int index = 0;
+             index < ShaktoolInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = ShaktoolInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.ShaktoolDefinition, operand, out ushort selected),
+                $"Shaktool visual operand $AA:{operand:X4} is compiled");
+            ushort native = unchecked((ushort)(rom.ReadByte(0xaa0000 | operand) |
+                rom.ReadByte(0xaa0000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertEqual(native, selected,
+                $"Shaktool visual selector $AA:{operand:X4} matches the cartridge");
+            AssertTrue(shaktoolFrames.Remove(selected),
+                $"Shaktool visual selector $AA:{operand:X4} has unique installed art");
+        }
+        AssertEqual(0, shaktoolFrames.Count,
+            "every installed Shaktool frame is selected by a native program");
+        AssertThrows<InvalidDataException>(
+            () => ShaktoolVisualDefinitions.FrameAt(
+                ShaktoolInstructionProgramDefinitions.HeadAimingLeft),
+            "Shaktool visual selector rejects neighboring mechanics data");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -764,6 +793,8 @@ internal static partial class Program
                         ? RoomEnemySystem.MorphBallEyeDefinition
                     : frame.Name.StartsWith("metroid_body_", StringComparison.Ordinal)
                         ? RoomEnemySystem.MetroidDefinition
+                    : frame.Name.StartsWith("shaktool_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.ShaktoolDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -870,6 +901,28 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var preShaktoolFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preShaktoolBindings = document.DisplayFrames!
+            .Where(pair => preShaktoolFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreShaktoolFrameCount,
+            preShaktoolFrames.Count, "version-forty-five composition schema count");
+        using (var preShaktoolJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreShaktoolVersion,
+                Frames = preShaktoolFrames,
+                DisplayFrames = preShaktoolBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog shaktoolUpgraded = EnemySpritemapCatalog.Load(
+                preShaktoolJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in ShaktoolVisualDefinitions.Frames())
+                AssertTrue(shaktoolUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-forty-five override inherits Shaktool frame {frame.Name}");
+        }
         SpriteVisualPart originalPart = document.Frames["boyon_idle_0"][0];
         document.Frames["boyon_idle_0"][0] = originalPart with
         {
@@ -1645,7 +1698,8 @@ internal static partial class Program
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
         var preMetroidFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount,
             preMetroidFrames.Count, "pre-Metroid composition schema count");
@@ -2871,6 +2925,8 @@ internal static partial class Program
                         ? MorphBallEyeVisualDefinitions.Bank
                     : definition == RoomEnemySystem.MetroidDefinition
                         ? MetroidVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.ShaktoolDefinition
+                        ? ShaktoolVisualDefinitions.Bank
                     : definition is RoomEnemySystem.GrowingShutterDefinition or
                         RoomEnemySystem.ShootableVerticalShutterDefinition or
                         RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -3025,6 +3081,7 @@ internal static partial class Program
                 >= 0xa3e2e8 and < 0xa3e580 or
                 >= 0xa893f9 and < 0xa8959d or
                 >= 0xa897b4 and < 0xa899ac or
+                >= 0xaadf5c and < 0xaae03d or
                 >= 0xa2f468 and < 0xa2f498 or
                 >= 0xa3962f and < 0xa3965b)
                 throw new InvalidOperationException(

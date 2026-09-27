@@ -2317,6 +2317,8 @@ public sealed partial class RoomPlmSystem
             ? value
             : WreckedShipAtticPlmRomData.TryReadInstructionWord(address, out value)
             ? value
+            : ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out value)
+            ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value)

@@ -10,6 +10,11 @@ blocked; the other six Tourian rooms and 22 unrelated baseline failures have
 not been rerun as a batch. Later frames and inter-room transitions are outside
 this one-frame diagnostic.
 
+Shaktool room `$8F:D8C5` originally stopped on its `$84:B8D6` resident PLM
+list. Compiling the complete three-word list advances the same isolated
+first-frame check to a separate missing Shaktool saw-hand composition at
+`$AA:E028`; the room remains a census failure, not a pass.
+
 The regular `--intro-cinematic-artwork` verification now restores a gameplay
 snapshot once and checks Kraid's first frame after rebinding installed artwork.
 This is a regression for the deferred HUD upload: Kraid's private BG2 map owns

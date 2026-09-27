@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Shaktool-room PLM instruction owner (2026-09-27)
+
+The complete three-word `$84:B8D6-B8DB` resident list now compiles its
+callback installation and sleep. Each word matches the pinned cartridge.
+A synthetic room poisons all three source words, yet setup still installs the
+callback; a power bomb opens all four scroll cells; and Samus crossing the
+native X threshold marks the path event and deletes the controller. The
+isolated `$8F:D8C5` first-frame test progresses past this PLM read but still
+fails on Shaktool saw-hand artwork at `$AA:E028`. That separate visual
+composition is not claimed complete here.
+
 ## Wrecked Ship attic PLM instruction owner (2026-09-27)
 
 The complete three-word `$84:BAFF-BB04` resident list now compiles its

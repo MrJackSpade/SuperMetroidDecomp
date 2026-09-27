@@ -390,6 +390,7 @@ internal static partial class Program
         VerifySaveStationConfirmation(bus);
         VerifyNativeOutOfBoundsPopulationSetupOrder(bus);
         VerifyMetroidsClearedStatePlm(bus);
+        VerifyShaktoolRoomPlm();
         VerifyMotherBrainEscapeRoomGate(bus);
         VerifyBombTorizoGreyDoorClosingReentry(bus);
         VerifyStandardGreyDoorClosingFallthrough(bus);
@@ -1387,6 +1388,85 @@ internal static partial class Program
                 () => new SamusState(),
                 () => false),
             "odd Metroids-cleared room argument fails loudly");
+    }
+
+    /// <summary>
+    /// The hardcoded room-setup spawn and actual PLM handler must install the
+    /// compiled $B8D6 callback before the power-bomb and path-clear branches.
+    /// </summary>
+    private static void VerifyShaktoolRoomPlm()
+    {
+        var bus = new TestAddressSpace();
+        SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
+            ? SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")
+            : null;
+        for (int index = 0; index < 3; index++)
+        {
+            ushort address = checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + index * 2));
+            AssertTrue(ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out ushort compiled),
+                $"Shaktool room list word ${address:X4} is compiled");
+            if (rom is not null)
+            {
+                int source = 0x840000 | address;
+                AssertEqual((ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8),
+                    compiled,
+                    $"Shaktool room list word ${address:X4} matches pinned cartridge");
+            }
+            WriteWord(bus, 0x840000 | address, 0xdead);
+        }
+        AssertTrue(!ShaktoolRoomPlmRomData.TryReadInstructionWord(
+                checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 6)), out _),
+            "Shaktool room list owner excludes adjacent setup code");
+
+        const ushort emptyPopulation = 0x9780;
+        WriteWord(bus, 0x8f0000 | emptyPopulation, 0);
+        RoomLevelData level = CreateRoom(32, 32, new ushort[32 * 32],
+            new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(bus,
+            new byte[RoomScrollGrid.StorageByteCount], 2, 2);
+        var samus = new SamusState();
+        var system = new Bank80SystemState();
+        var plms = new RoomPlmSystem();
+        AssertEqual(0, plms.LoadRoomPopulation(bus, level, streamer,
+                new SnesVram(), emptyPopulation, system, AreaId.Maridia,
+                () => samus, () => false,
+                hasEvent: system.HasEvent, setEvent: system.SetEvent),
+            "empty fixture reserves no PLM before Shaktool setup spawn");
+        AssertTrue(plms.TrySpawnShaktoolRoomController(scrolls),
+            "Shaktool room setup spawns its resident controller");
+        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(0),
+            "Shaktool setup opens the first scroll cell");
+        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(3),
+            "Shaktool setup keeps later scroll cells red");
+
+        plms.Step(bus, level, streamer, 0, 0, 0,
+            scrolls: scrolls, enemyDeaths: 0, enemyDeathQuota: 0,
+            controllerNewInput: 0);
+        RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
+        AssertEqual(ShaktoolRoomPlmRomData.PreInstruction, sleeping.PreInstruction,
+            "compiled list installs Shaktool room pre-instruction");
+        AssertEqual(checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 4)),
+            sleeping.InstructionPointer,
+            "compiled list sleeps on its last instruction");
+
+        plms.Step(bus, level, streamer, 0, 0, 0,
+            scrolls: scrolls, enemyDeaths: 0, enemyDeathQuota: 0,
+            controllerNewInput: 0, powerBombExplosionStatus: 1);
+        for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
+            AssertEqual(RoomScrollState.Blue, scrolls.ReadState(cell),
+                $"Shaktool power bomb opens scroll cell {cell}");
+        AssertEqual(1, plms.ActiveCount,
+            "Shaktool controller remains resident until Samus passes the threshold");
+
+        samus.XPosition = checked((ushort)(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1));
+        plms.Step(bus, level, streamer, 0, 0, 0,
+            scrolls: scrolls, enemyDeaths: 0, enemyDeathQuota: 0,
+            controllerNewInput: 0);
+        AssertTrue(system.HasEvent(EventNumber.ShaktoolClearedPath),
+            "Shaktool path event follows the native X threshold");
+        AssertEqual(0, plms.ActiveCount,
+            "Shaktool controller deletes itself when the path event is set");
     }
 
     private static void VerifyOtherStationFamilies(TestAddressSpace bus,

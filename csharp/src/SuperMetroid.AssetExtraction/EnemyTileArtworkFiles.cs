@@ -168,6 +168,26 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Mother Brain corpse PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseArtworkDefinitions.FileName),
             corpsePng);
+        // The following bank-$B7 pages are a different visual owner: the escape
+        // typewriter characters. Keep their override separate from corpse decay.
+        byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(bus,
+            MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
+            MotherBrainEscapeTextArtworkDefinitions.ByteCount);
+        byte[] escapeTextPixels = SnesGraphics.DecodePlanarTiles(escapeTextPlanar, 4,
+            RoomCharacterAtlasFormat.TileColumns,
+            out int escapeTextWidth, out int escapeTextHeight);
+        using var escapeTextStream = new MemoryStream();
+        IndexedPng.Write(escapeTextStream, escapeTextWidth, escapeTextHeight,
+            escapeTextPixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] escapeTextPng = escapeTextStream.ToArray();
+        RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlas.Load(
+            new MemoryStream(escapeTextPng, writable: false),
+            MotherBrainEscapeTextArtworkDefinitions.ByteCount);
+        if (!escapeTextRoundtrip.Transfer.Span.SequenceEqual(escapeTextPlanar))
+            throw new InvalidDataException(
+                "Mother Brain escape-text PNG changed native pixels during extraction.");
+        File.WriteAllBytes(Path.Combine(directory,
+            MotherBrainEscapeTextArtworkDefinitions.FileName), escapeTextPng);
         byte[] upperKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.UpperTilemap);
         byte[] lowerKraid = ExtractKraidTilemap(bus, KraidBackgroundRomData.LowerTilemap);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
@@ -254,6 +274,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(draygonBg2Json)),
             gunshipLiftoffHashes,
             Convert.ToHexString(SHA256.HashData(corpsePng)),
+            Convert.ToHexString(SHA256.HashData(escapeTextPng)),
             Convert.ToHexString(SHA256.HashData(upperKraid)),
             Convert.ToHexString(SHA256.HashData(lowerKraid)),
             kraidHeadHashes,
@@ -312,6 +333,7 @@ public static class EnemyTileArtworkFiles
             manifest.GunshipLiftoffSha256.Count !=
                 GunshipLiftoffTransferDefinitions.Frames.Length ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainCorpseSha256) ||
+            string.IsNullOrWhiteSpace(manifest.MotherBrainEscapeTextSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidUpperSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidLowerSha256) ||
             manifest.KraidHeadsSha256 is null ||
@@ -557,6 +579,22 @@ public static class EnemyTileArtworkFiles
         {
             throw new InvalidDataException(
                 $"Invalid Mother Brain corpse PNG {MotherBrainCorpseArtworkDefinitions.FileName}: {error.Message}",
+                error);
+        }
+        RoomCharacterAtlas motherBrainEscapeText;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(
+                MotherBrainEscapeTextArtworkDefinitions.FileName,
+                manifest.MotherBrainEscapeTextSha256);
+            motherBrainEscapeText = RoomCharacterAtlas.Load(
+                new MemoryStream(selected, writable: false),
+                MotherBrainEscapeTextArtworkDefinitions.ByteCount);
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Mother Brain escape-text PNG {MotherBrainEscapeTextArtworkDefinitions.FileName}: {error.Message}",
                 error);
         }
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
@@ -839,7 +877,8 @@ public static class EnemyTileArtworkFiles
             chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
             babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
-            phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse);
+            phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
+            motherBrainEscapeText);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1018,6 +1057,7 @@ public static class EnemyTileArtworkFiles
         string DraygonBg2FramesSha256,
         Dictionary<int, string> GunshipLiftoffSha256,
         string MotherBrainCorpseSha256,
+        string MotherBrainEscapeTextSha256,
         string KraidUpperSha256, string KraidLowerSha256,
         Dictionary<ushort, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,

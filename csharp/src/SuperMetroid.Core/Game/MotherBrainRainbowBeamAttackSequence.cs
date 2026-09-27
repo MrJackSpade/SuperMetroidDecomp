@@ -76,11 +76,21 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     [
         new(0, 0x0200, 0xb0c000, 0x7e00),
         new(1, 0x0120, 0xb0c200, 0x7f00),
-        new(2, 0x0200, 0xb7da00, 0x7820),
-        new(3, 0x0200, 0xb7dc00, 0x7920),
-        new(4, 0x0200, 0xb7de00, 0x7a20),
-        new(5, 0x0200, 0xb7e000, 0x7b20),
-        new(6, 0x0100, 0xb7e200, 0x7c20),
+        new(2, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[0],
+            MotherBrainEscapeTextArtworkDefinitions.PageSources[0],
+            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[0]),
+        new(3, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[1],
+            MotherBrainEscapeTextArtworkDefinitions.PageSources[1],
+            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[1]),
+        new(4, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[2],
+            MotherBrainEscapeTextArtworkDefinitions.PageSources[2],
+            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[2]),
+        new(5, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[3],
+            MotherBrainEscapeTextArtworkDefinitions.PageSources[3],
+            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[3]),
+        new(6, MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[4],
+            MotherBrainEscapeTextArtworkDefinitions.PageSources[4],
+            MotherBrainEscapeTextArtworkDefinitions.PageDestinations[4]),
     ];
 
     // `$A9:902F-$903E` replaces the destroyed escape door's two sprite pages. Because the

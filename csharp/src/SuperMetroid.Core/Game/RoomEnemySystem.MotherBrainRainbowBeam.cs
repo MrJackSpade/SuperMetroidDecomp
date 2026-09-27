@@ -321,6 +321,36 @@ public sealed partial class RoomEnemySystem
     private void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {
+        if (MotherBrainEscapeTextArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
+            TileArtwork is not null)
+        {
+            int page = -1;
+            for (int index = 0; index < MotherBrainEscapeTextArtworkDefinitions.PageSources.Length;
+                 index++)
+            {
+                if (transfer.SourceAddress ==
+                    MotherBrainEscapeTextArtworkDefinitions.PageSources[index])
+                {
+                    page = index;
+                    break;
+                }
+            }
+            if (page < 0 ||
+                transfer.Size != MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[page] ||
+                transfer.VramDestination !=
+                    MotherBrainEscapeTextArtworkDefinitions.PageDestinations[page])
+                throw new InvalidDataException(
+                    $"Invalid Mother Brain escape-text sprite transfer {transfer}.");
+
+            RoomCharacterAtlas artwork = TileArtwork.MotherBrainEscapeText ??
+                throw new InvalidDataException(
+                    "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
+            int offset = checked((int)transfer.SourceAddress -
+                MotherBrainEscapeTextArtworkDefinitions.SourceAddress);
+            _vram!.LoadBytes(transfer.VramDestination * 2,
+                artwork.Transfer.Span.Slice(offset, transfer.Size));
+            return;
+        }
         if (MotherBrainCorpseArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
             TileArtwork is not null)
         {

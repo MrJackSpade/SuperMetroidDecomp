@@ -367,6 +367,9 @@ The ordinary `enemy-ED3F-tiles.png` sheet also supplies Dead Torizo's corpse
 and falling-sand rows. `enemy-ED7F-tiles.png` supplies the dead sidehopper,
 Zoomer, Ripper, and Skree corpse layouts. Mother Brain's decaying body instead
 uses `mother-brain-corpse-tiles.png`, a separate indexed 4bpp source sheet.
+The escape typewriter's five character uploads use
+`mother-brain-escape-text-tiles.png`, also separate from the ordinary enemy
+sheet and editable without changing text timing or placement.
 Copy any of these to `overrides/enemy-tiles/` to replace those visuals; their
 row timing, collision, and decay mechanics remain compiled.
 

@@ -67,7 +67,12 @@ public sealed partial class SuperMetroidGame
     {
         beamArtwork = catalog;
         if (runtime is not null) runtime.BeamArtwork = catalog;
-        intro?.BindBeamArtwork(catalog);
+        // A completed intro remains in a restored object graph, but its VRAM
+        // and beam DMA are no longer displayed or advanced during gameplay.
+        // Rebinding that dormant scene would replay an unrelated cartridge
+        // read while loading a gameplay debugger state.
+        if (GameState == SuperMetroidGameState.IntroCinematic)
+            intro?.BindBeamArtwork(catalog);
     }
 
     /// <summary>Attaches current host content to an existing runtime and future game/demo runtimes.</summary>

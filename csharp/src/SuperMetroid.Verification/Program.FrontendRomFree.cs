@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
@@ -25,24 +26,8 @@ internal static partial class Program
 
         var native = new SuperMetroidGame(nativeBus);
         var installed = new SuperMetroidGame(guardedBus);
-        installed.BindMapPresentation(installation.LoadMaps());
-        installed.BindCompiledRoomFxRecords(true);
-        installed.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-        installed.BindEnemyTileArtwork(installation.LoadEnemyTiles());
-        installed.BindStandardObjectArt(installation.LoadStandardObjects());
-        installed.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
-        installed.BindSamusBodyArt(installation.LoadSamusBodyArt());
-        installed.BindRoomCharacterArt(installation.LoadRoomCharacters());
-        installed.BindRoomPaletteArt(installation.LoadRoomPalettes());
-        installed.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-        installed.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-        installed.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-        installed.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
-        installed.BindBeamArtwork(projectiles.BeamTiles);
-        installed.BindProjectileCompositions(projectiles.Catalog);
-        installed.BindProjectileFrameBindings(projectiles.FrameBindings);
-        installed.BindTrailArtwork(projectiles.Trails);
+        Action<SuperMetroidGame, bool> bindInstalled = PrepareRomFreeBindings(installation);
+        bindInstalled(installed, true);
         bool titleStartSent = false;
         bool fileSelectStartSent = false;
         var visited = new HashSet<SuperMetroidGameState>();
@@ -83,7 +68,7 @@ internal static partial class Program
                     visited.Contains(SuperMetroidGameState.FileSelectMenus),
                     "ROM-free startup traverses title, file select and options");
                 Console.WriteLine($"Frontend ROM-free startup: {frame + 1} native-parity frames through options, all cartridge reads guarded.");
-                VerifyFrontendRomFreeIntro(native, installed, guardedBus);
+                VerifyFrontendRomFreeIntro(native, installed, guardedBus, bindInstalled);
                 return;
             }
         }
@@ -92,12 +77,58 @@ internal static partial class Program
     }
 
     /// <summary>
+    /// Retain the same validated immutable installation catalogs when a diagnostic
+    /// room snapshot is restored. Debugger states omit external artwork by design.
+    /// </summary>
+    private static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation)
+    {
+        var maps = installation.LoadMaps();
+        var palettes = installation.LoadGameplayBasePalettes();
+        var enemies = installation.LoadEnemyTiles();
+        var objects = installation.LoadStandardObjects();
+        var intro = installation.LoadIntroCinematicArt();
+        var samus = installation.LoadSamusBodyArt();
+        var characters = installation.LoadRoomCharacters();
+        var roomPalettes = installation.LoadRoomPalettes();
+        var metatiles = installation.LoadRoomMetatiles();
+        var visualLayouts = installation.LoadRoomVisualLayouts();
+        var backgrounds = installation.LoadRoomBackgroundTilemaps();
+        var sky = installation.LoadRoomSkyTilemaps();
+        InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
+        return (game, bindIntro) =>
+        {
+            game.BindMapPresentation(maps);
+            game.BindCompiledRoomFxRecords(true);
+            game.BindGameplayBasePalettes(palettes);
+            game.BindEnemyTileArtwork(enemies);
+            game.BindStandardObjectArt(objects);
+            // An already-finished intro is deliberately not rebound for the
+            // isolated gameplay-room census: its restored DMA side effect
+            // would test a retired cinematic, not the room under examination.
+            if (bindIntro)
+                game.BindIntroCinematicArt(intro);
+            game.BindSamusBodyArt(samus);
+            game.BindRoomCharacterArt(characters);
+            game.BindRoomPaletteArt(roomPalettes);
+            game.BindRoomMetatileArt(metatiles);
+            game.BindRoomVisualLayouts(visualLayouts);
+            game.BindRoomBackgroundTilemapArt(backgrounds);
+            game.BindRoomSkyTilemapArt(sky);
+            game.BindBeamArtwork(projectiles.BeamTiles);
+            game.BindProjectileCompositions(projectiles.Catalog);
+            game.BindProjectileFrameBindings(projectiles.FrameBindings);
+            game.BindTrailArtwork(projectiles.Trails);
+        };
+    }
+
+    /// <summary>
     /// Continue the same host instances through the options dispatcher, narration,
     /// and Mother Brain flashback. This catches missing live content bindings at the
     /// real transition and during the projectile/hurt animation, not just at startup.
     /// </summary>
     private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
-        SuperMetroidGame installed, FrontendCartridgeReadGuard guardedBus)
+        SuperMetroidGame installed, FrontendCartridgeReadGuard guardedBus,
+        Action<SuperMetroidGame, bool> bindInstalled)
     {
         bool startSent = false;
         int introFrames = 0;
@@ -135,6 +166,9 @@ internal static partial class Program
                     AssertTrue(actualGameplay.Pixels.AsSpan().SequenceEqual(expectedGameplay.Pixels),
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
+                VerifyFrontendRomFreeRestoredKraidHud(native, installed, bindInstalled);
+                if (Environment.GetEnvironmentVariable("SM_ROM_FREE_ROOM_CENSUS") == "1")
+                    VerifyFrontendRomFreeRoomCensus(native, installed, bindInstalled);
                 VerifyFrontendRomFreeCeresInput(native, installed);
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.CeresRidleyRoom, "Ceres Ridley");
@@ -208,6 +242,45 @@ internal static partial class Program
         }
         throw new InvalidOperationException(
             $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrameMetadata.Phase}.");
+    }
+
+    /// <summary>
+    /// A gameplay debugger restore rebinds host artwork after the original HUD DMA.
+    /// Kraid relocates BG3 characters to $2000 and owns the ordinary $4000 region as
+    /// his BG2 map, so the deferred host refresh must use the room's selected base.
+    /// </summary>
+    private static void VerifyFrontendRomFreeRestoredKraidHud(SuperMetroidGame native,
+        SuperMetroidGame installed, Action<SuperMetroidGame, bool> bindInstalled)
+    {
+        using var nativeSnapshot = new MemoryStream();
+        using var installedSnapshot = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(nativeSnapshot, native);
+        DebuggerObjectGraphSerializer.Serialize(installedSnapshot, installed);
+        nativeSnapshot.Position = 0;
+        installedSnapshot.Position = 0;
+        SuperMetroidGame nativeRoom =
+            DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(nativeSnapshot);
+        SuperMetroidGame installedRoom =
+            DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(installedSnapshot);
+        bindInstalled(installedRoom, false);
+        nativeRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
+        installedRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
+        AssertEqual(RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
+            installedRoom.RuntimeForVerification.GameplayHudCharacterBaseWord,
+            "restored Kraid room selects the relocated HUD character base");
+        int bg2Byte = KraidBackgroundRomData.LiveBg2TilemapWord * sizeof(ushort);
+        int bg2Bytes = KraidBackgroundRomData.WorkingTilemapWords * sizeof(ushort);
+        AssertTrue(nativeRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
+                .SequenceEqual(installedRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
+            "restored Kraid BG2 pages match before the first accepted NMI");
+        FrontendFrame expected = nativeRoom.Step(0);
+        FrontendFrame actual = installedRoom.Step(0);
+        AssertTrue(nativeRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
+                .SequenceEqual(installedRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
+            "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
+        AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+            "restored Kraid first frame matches native pixels after HUD artwork rebind");
+        Console.WriteLine("Frontend ROM-free Kraid restore: relocated HUD refresh preserves both BG2 pages and stock pixels.");
     }
 
     /// <summary>
@@ -300,6 +373,12 @@ internal static partial class Program
             roomPointer);
         installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
+        ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
+        ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
+        int firstLoadVram = 0;
+        while (firstLoadVram < nativeLoadedVram.Length &&
+               nativeLoadedVram[firstLoadVram] == installedLoadedVram[firstLoadVram])
+            firstLoadVram++;
         for (int frame = 0; frame < frameCount; frame++)
         {
             FrontendFrame expected = native.Step(0);
@@ -311,8 +390,66 @@ internal static partial class Program
                 $"installed {roomName} game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed {roomName} phase at frame {frame}");
-            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
-                $"installed {roomName} pixels at frame {frame}");
+            if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
+            {
+                int first = -1;
+                int count = 0;
+                int minX = FrontendFrame.Width;
+                int minY = FrontendFrame.Height;
+                int maxX = -1;
+                int maxY = -1;
+                for (int pixel = 0; pixel < actual.Pixels.Length; pixel++)
+                {
+                    if (actual.Pixels[pixel].Equals(expected.Pixels[pixel]))
+                        continue;
+                    if (first < 0) first = pixel;
+                    count++;
+                    int x = pixel % FrontendFrame.Width;
+                    int y = pixel / FrontendFrame.Width;
+                    minX = Math.Min(minX, x);
+                    minY = Math.Min(minY, y);
+                    maxX = Math.Max(maxX, x);
+                    maxY = Math.Max(maxY, y);
+                }
+                ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification!.Vram.Bytes;
+                ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification!.Vram.Bytes;
+                int firstVram = 0;
+                while (firstVram < nativeVram.Length &&
+                       nativeVram[firstVram] == installedVram[firstVram])
+                    firstVram++;
+                var changedVramPages = new List<string>();
+                for (int page = 0; page < nativeVram.Length; page += 0x1000)
+                {
+                    int changed = 0;
+                    for (int offset = page; offset < page + 0x1000; offset++)
+                        if (nativeVram[offset] != installedVram[offset]) changed++;
+                    if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
+                }
+                ReadOnlySpan<ushort> nativeColors = native.RuntimeForVerification.Cgram.Colors;
+                ReadOnlySpan<ushort> installedColors = installed.RuntimeForVerification.Cgram.Colors;
+                int changedColors = 0;
+                for (int color = 0; color < nativeColors.Length; color++)
+                    if (nativeColors[color] != installedColors[color]) changedColors++;
+                if (Environment.GetEnvironmentVariable("SM_ROM_FREE_CENSUS_ROOM") is not null)
+                {
+                    string output = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+                        "rom-free-room-census-compare"));
+                    Directory.CreateDirectory(output);
+                    PngWriter.WriteRgba(Path.Combine(output, $"{roomPointer:X4}-native.png"),
+                        FrontendFrame.Width, FrontendFrame.Height, expected.Pixels);
+                    PngWriter.WriteRgba(Path.Combine(output, $"{roomPointer:X4}-installed.png"),
+                        FrontendFrame.Width, FrontendFrame.Height, actual.Pixels);
+                }
+                throw new InvalidOperationException(
+                    $"Installed {roomName} pixels differ at frame {frame}: " +
+                    $"{count} pixels, bounds ({minX},{minY})..({maxX},{maxY}), " +
+                    $"first ({first % FrontendFrame.Width},{first / FrontendFrame.Width}) " +
+                    $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
+                    $"first loaded VRAM difference byte ${firstLoadVram:X4}, " +
+                    $"first displayed VRAM difference byte ${firstVram:X4}; " +
+                    $"VRAM pages=[{string.Join(", ", changedVramPages)}], " +
+                    $"CGRAM changed colors={changedColors}.");
+            }
             if (roomPointer == RoomHeaderPointers.Draygon && frame == 0)
             {
                 ReadOnlySpan<byte> nativeEvir = native.RuntimeForVerification!.Vram.Bytes

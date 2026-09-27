@@ -1836,6 +1836,11 @@ if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
     VerifyIntroCinematicArtwork(introBackgroundRom);
     return 0;
 }
+if (args is ["--rom-free-room-census", var censusRom, var censusSnapshotDirectory])
+{
+    VerifyFrontendRomFreeRoomCensusFromSnapshots(censusRom, censusSnapshotDirectory);
+    return 0;
+}
 if (args is ["--gameplay-base-palettes", var gameplayPaletteRom])
 {
     VerifyGameplayBasePalettes(gameplayPaletteRom);

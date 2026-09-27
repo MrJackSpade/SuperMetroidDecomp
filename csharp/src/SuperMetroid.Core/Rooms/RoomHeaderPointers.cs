@@ -9,6 +9,8 @@ public static class RoomHeaderPointers
     public const ushort FrogSpeedway = 0xb106;
     /// <summary>RoomHeader_Crocomire at $8F:A98D; includes the west Power Bomb route door.</summary>
     public const ushort Crocomire = 0xa98d;
+    /// <summary>RoomHeader_Kraid at $8F:A59F; its live state relocates BG3 HUD characters to VRAM word $2000.</summary>
+    public const ushort Kraid = 0xa59f;
     /// <summary>RoomHeader_RedTower at $8F:A253, Brinstar room $20.</summary>
     public const ushort RedTower = 0xa253;
 

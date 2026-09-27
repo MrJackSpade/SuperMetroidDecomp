@@ -76,7 +76,12 @@ public sealed partial class SuperMetroidRuntime
         // Binding a restored session changes content ownership, not the already
         // published frame. Refresh at accepted NMI, before native queued writes.
         // The original upload's padding may now contain live BG2 tilemaps.
-        mapPresentation!.HudTiles.LoadCharactersTo(Vram, HudTileAtlasFormat.DestinationWord * 2);
+        // Kraid's room changes BG34NBA to place HUD characters at $2000 while
+        // his private BG2 tilemap occupies the ordinary $4000 HUD character
+        // address. A restored-state art rebind must honor the *current* PPU
+        // character base, or the next NMI paints HUD pixels across Kraid.
+        mapPresentation!.HudTiles.LoadCharactersTo(Vram,
+            GameplayHudCharacterBaseWord * sizeof(ushort));
         hudArtworkRefreshPending = false;
     }
 }

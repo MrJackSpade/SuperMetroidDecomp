@@ -185,6 +185,31 @@ internal static partial class Program
             }
             AssertTrue(terminated, $"room state $8F:{state.Pointer:X4} FX list terminates");
         }
+        // Mother Brain selects these records by numeric FX index after room load.
+        // The ordinary door-list walk stops at the default $A0A4 record and
+        // therefore cannot discover them from room-state FX pointers alone.
+        foreach (ushort pointer in MotherBrainFxRecordPointers.DirectRecords)
+        {
+            byte[] native = RomDataReader.ReadFixedBank(bus,
+                RoomFxRomData.Banks.RoomDefinitions | pointer,
+                RoomFxRomData.Record.ByteCount);
+            static ushort Word(byte[] bytes, int offset) =>
+                (ushort)(bytes[offset] | bytes[offset + 1] << 8);
+            records.Add(pointer, new RoomFxRecordDefinition(
+                pointer,
+                Word(native, RoomFxRomData.Record.DoorPointerOffset),
+                Word(native, RoomFxRomData.Record.BaseYPositionOffset),
+                Word(native, RoomFxRomData.Record.TargetYPositionOffset),
+                Word(native, RoomFxRomData.Record.YVelocityOffset),
+                native[RoomFxRomData.Record.TimerOffset],
+                native[RoomFxRomData.Record.TypeOffset],
+                native[RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset],
+                native[RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset],
+                native[RoomFxRomData.Record.LiquidOptionsOffset],
+                native[RoomFxRomData.Record.PaletteFxBitsetOffset],
+                native[RoomFxRomData.Record.AnimatedTileBitsetOffset],
+                native[RoomFxRomData.Record.PaletteBlendOffset]));
+        }
         return records;
     }
 

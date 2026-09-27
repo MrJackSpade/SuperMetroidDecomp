@@ -25,6 +25,15 @@ internal static partial class Program
         AssertDeadTorizoBufferParity(nativeBus, installedBus, 0x7e9500, 0x200,
             "installed dead-Torizo sand line matches cartridge WRAM");
 
+        OamBuffer nativeCorpse = DrawDeadTorizoCorpseFrame(null, nativeBus, 0, 0);
+        OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, 0, 0);
+        AssertTrue(nativeCorpse.LowTable.SequenceEqual(installedCorpse.LowTable) &&
+                   nativeCorpse.HighTable.SequenceEqual(installedCorpse.HighTable) &&
+                   nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
+            "Dead Torizo private corpse hook draws installed native-parity OAM without ROM reads");
+        AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, 0, 188).NextByteOffset,
+            "Dead Torizo private hook retains its above-screen cull");
+
         var missing = new EnemyTileArtworkCatalog(
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>());
@@ -89,6 +98,22 @@ internal static partial class Program
             .CreateDelegate<Action<ushort>>(enemies)(line);
     }
 
+    private static OamBuffer DrawDeadTorizoCorpseFrame(
+        EnemyTileArtworkCatalog? artwork, SuperMetroidAddressSpace bus,
+        ushort cameraX, ushort cameraY)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
+        if (artwork is not null)
+            typeof(RoomEnemySystem).GetField("_bus", flags)!
+                .SetValue(enemies, new DeadTorizoOamReadGuard(bus));
+        var oam = new OamBuffer();
+        typeof(RoomEnemySystem).GetMethod("DrawDeadTorizoHook", flags)!
+            .CreateDelegate<Action<OamBuffer, ushort, ushort>>(enemies)(
+                oam, cameraX, cameraY);
+        return oam;
+    }
+
     private static void AssertDeadTorizoBufferParity(
         ISnesAddressSpace expected, ISnesAddressSpace actual, int address, int length,
         string description)
@@ -105,6 +130,18 @@ internal static partial class Program
             address is >= 0xb7a800 and < 0xb7c000
                 ? throw new InvalidOperationException(
                     $"Dead Torizo read installed artwork from ROM at ${address:X6}.")
+                : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class DeadTorizoOamReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        public byte ReadByte(int address) =>
+            address is >= 0xa9d761 and < 0xa9d77c
+                ? throw new InvalidOperationException(
+                    $"Dead Torizo drew native OAM from ROM at ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -15,7 +15,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadTorizoRottingFunction = 0xd3e6;
     private const ushort DeadTorizoNoOperationFunction = 0xd3c7;
     private const ushort DeadTorizoHitbox = 0xd77c;
-    private const ushort DeadTorizoHookSpritemap = 0xd761;
     private const ushort DeadTorizoOddVramTable = 0xd583;
     private const ushort DeadTorizoEvenVramTable = 0xd549;
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
@@ -442,14 +441,14 @@ public sealed partial class RoomEnemySystem
         ushort screenY = unchecked((ushort)(187 - cameraY));
         if (unchecked((short)screenY) < 0)
             return;
-        oam.AddEnemySpritemap(
-            _bus!,
-            bank: 0xa9,
-            spritemapPointer: DeadTorizoHookSpritemap,
+        DrawEnemySpritemap(
+            oam,
+            DeadTorizoArtworkDefinitions.SpritemapBank,
+            DeadTorizoArtworkDefinitions.HookSpritemap,
             unchecked((ushort)(296 - cameraX)),
             screenY,
-            paletteBits: 0,
-            baseTileIndex: 0);
+            0,
+            0);
     }
 
     private DeadTorizoEnemyState RequireDeadTorizoState(RoomEnemySlot slot)

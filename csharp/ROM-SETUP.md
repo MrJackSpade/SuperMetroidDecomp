@@ -476,6 +476,9 @@ Mother Brain's head, neck joint, and five falling-tube compositions use stable
 `mother_brain_a9_` names followed by the native address. The private head/neck
 draw hook preserves its world-space clipping and palette logic while using
 these installed OAM parts; animation timing and encounter physics are separate.
+Dead Torizo's private corpse hook likewise uses the named
+`dead_torizo_corpse_a9_d761` composition, while its rotting tile sheet remains
+the separate indexed PNG.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,

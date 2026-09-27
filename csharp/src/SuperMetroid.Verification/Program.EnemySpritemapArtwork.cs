@@ -277,8 +277,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreMotherBrainFrameCount,
             "KiHunter adds 41 distinct body and wing OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreMotherBrainFrameCount + 18,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
             "Mother Brain adds eighteen head, neck, and falling-tube OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoFrameCount + 1,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Dead Torizo adds its private corpse OAM frame");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -869,6 +872,12 @@ internal static partial class Program
         {
             OffsetX = motherBrainHeadPart.OffsetX + 1,
         };
+        const string deadTorizoName = "dead_torizo_corpse_a9_d761";
+        SpriteVisualPart deadTorizoPart = document.Frames[deadTorizoName][0];
+        document.Frames[deadTorizoName][0] = deadTorizoPart with
+        {
+            OffsetX = deadTorizoPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -885,6 +894,13 @@ internal static partial class Program
             "Mother Brain head artwork edit changes live OAM X without ROM reads");
         AssertEqual(stockBrain.LowTable[1], editedBrain.LowTable[1],
             "Mother Brain head artwork edit leaves physical Y placement unchanged");
+        OamBuffer stockDeadTorizo = DrawDeadTorizoCorpseFrame(stock, rom, 0, 0);
+        OamBuffer editedDeadTorizo = DrawDeadTorizoCorpseFrame(edited, rom, 0, 0);
+        AssertEqual(unchecked((byte)(stockDeadTorizo.LowTable[0] + 1)),
+            editedDeadTorizo.LowTable[0],
+            "Dead Torizo corpse composition edit changes live OAM X without ROM reads");
+        AssertEqual(stockDeadTorizo.LowTable[1], editedDeadTorizo.LowTable[1],
+            "Dead Torizo corpse composition edit leaves physical Y placement unchanged");
         OamBuffer stockMaw = DrawEnemy(stock, new FrameReadGuard(rom),
             mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
         OamBuffer editedMaw = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -1308,6 +1324,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preDeadTorizoFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("dead_torizo_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
+            preDeadTorizoFrames.Count, "pre-Dead-Torizo composition schema frame count");
+        var preDeadTorizoBindings = document.DisplayFrames!
+            .Where(pair => preDeadTorizoFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreDeadTorizoVersion,
+                Frames = preDeadTorizoFrames,
+                DisplayFrames = preDeadTorizoBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preDeadTorizoUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(preDeadTorizoUpgraded.Spritemaps!.TryGetDisplay(
+                DeadTorizoArtworkDefinitions.SpritemapBank,
+                DeadTorizoArtworkDefinitions.HookSpritemap, out _),
+            "version-thirty-six override inherits Dead Torizo corpse frame");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreDeadTorizoVersion,
+            Frames = preDeadTorizoFrames,
+            DisplayFrames = preDeadTorizoBindings,
+        };
         var preMotherBrainFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("mother_brain_a9_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);

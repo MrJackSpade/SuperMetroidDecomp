@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 36;
+    internal const int Version = 37;
+    internal const int PreDeadTorizoVersion = 36;
+    internal const int PreDeadTorizoFrameCount = 818;
     internal const int PreMotherBrainVersion = 35;
     internal const int PreMotherBrainFrameCount = 800;
     internal const int PreKiHunterVersion = 34;
@@ -605,6 +607,7 @@ internal static class EnemySpritemapDefinitions
         .. YappingMawVisualDefinitions.Frames(),
         .. KiHunterVisualDefinitions.Frames(),
         .. MotherBrainVisualDefinitions.Frames(),
+        .. DeadTorizoArtworkDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

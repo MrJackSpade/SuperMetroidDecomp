@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -356,8 +357,8 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment tip = state.TailSegments[6];
             int tipIndex = unchecked((byte)(
                 tip.Angle + state.TailSegments[5].Angle + 8)) & 0xf0;
-            ushort tipSpritemap = ReadWord(
-                _bus!, EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + (tipIndex >> 3));
+            ushort tipSpritemap = RidleySupplementalVisualDefinitions.TailTipFrameAt(
+                tipIndex >> 4);
             DrawRidleyWorldSpritemap(
                 oam,
                 state.SpritemapPaletteIndex,
@@ -369,14 +370,12 @@ public sealed partial class RoomEnemySystem
             // $A6:DB59-$DBBF walks back from segment five to the base after emitting the
             // tip. Lower OAM indices win equal-priority overlap, so reversing this visually
             // changes the curl even though every individual piece is otherwise correct.
-            ushort[] segmentSpritemaps =
-                [0xdc90, 0xdc90, 0xdc97, 0xdc97, 0xdc9e, 0xdc9e];
             for (int index = 5; index >= 0; index--)
                 DrawRidleyWorldSpritemap(
                     oam,
                     state.SpritemapPaletteIndex,
                     state.TailSegments[index],
-                    segmentSpritemaps[index],
+                    RidleySupplementalVisualDefinitions.SegmentFrameAt(index),
                     cameraX,
                     cameraY);
         }
@@ -384,16 +383,16 @@ public sealed partial class RoomEnemySystem
         if (state.FacingDirection == 1)
             return;
         int wingPointerIndex = (state.FacingDirection == 0 ? 0 : 10) + state.WingFrame;
-        ushort wingSpritemap = ReadWord(
-            _bus!, EnemyRomTablePointers.Ceres.WingSpritemapPointers + wingPointerIndex * 2);
-        oam.AddEnemySpritemap(
-            _bus!,
-            bank: 0xa6,
+        ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
+            wingPointerIndex);
+        DrawEnemySpritemap(
+            oam,
+            RidleySupplementalVisualDefinitions.Bank,
             wingSpritemap,
             unchecked((ushort)(slot.XPosition - cameraX)),
             unchecked((ushort)(slot.YPosition - cameraY)),
             state.SpritemapPaletteIndex,
-            baseTileIndex: 0,
+            0,
             clipVerticalWrap: true,
             originYIsOnScreen: unchecked((ushort)(slot.YPosition - cameraY)) < 0x0100);
     }
@@ -615,14 +614,14 @@ public sealed partial class RoomEnemySystem
     {
         ushort screenX = unchecked((ushort)(segment.XPosition - cameraX));
         ushort screenY = unchecked((ushort)(segment.YPosition - cameraY));
-        oam.AddEnemySpritemap(
-            _bus!,
-            bank: 0xa6,
+        DrawEnemySpritemap(
+            oam,
+            RidleySupplementalVisualDefinitions.Bank,
             spritemap,
             screenX,
             screenY,
             paletteIndex,
-            baseTileIndex: 0,
+            0,
             clipVerticalWrap: true,
             originYIsOnScreen: screenY < 0x0100);
     }

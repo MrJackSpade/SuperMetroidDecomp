@@ -280,8 +280,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
             "Mother Brain adds eighteen head, neck, and falling-tube OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoFrameCount + 1,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
             "Dead Torizo adds its private corpse OAM frame");
+        AssertEqual(EnemySpritemapDefinitions.PreRidleySupplementFrameCount + 31,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Ridley adds sixteen tips, twelve wings, and three tail segment OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -588,6 +591,8 @@ internal static partial class Program
             // use Mother Brain's encounter route. Test that route separately below.
             if (frame.Bank == MotherBrainVisualDefinitions.Bank)
                 continue;
+            if (frame.Name.StartsWith("ridley_supplement_", StringComparison.Ordinal))
+                continue;
             var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
@@ -678,6 +683,7 @@ internal static partial class Program
         }
 
         VerifyInstalledMotherBrainDrawHook(rom, stock);
+        VerifyInstalledRidleySupplementalArtwork(rom, stock);
 
         string fileName = EnemySpritemapDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
@@ -878,6 +884,12 @@ internal static partial class Program
         {
             OffsetX = deadTorizoPart.OffsetX + 1,
         };
+        const string ridleyWingName = "ridley_supplement_a6_dd4a";
+        SpriteVisualPart ridleyWingPart = document.Frames[ridleyWingName][0];
+        document.Frames[ridleyWingName][0] = ridleyWingPart with
+        {
+            OffsetX = ridleyWingPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -901,6 +913,15 @@ internal static partial class Program
             "Dead Torizo corpse composition edit changes live OAM X without ROM reads");
         AssertEqual(stockDeadTorizo.LowTable[1], editedDeadTorizo.LowTable[1],
             "Dead Torizo corpse composition edit leaves physical Y placement unchanged");
+        OamBuffer stockRidleyWing = DrawInstalledRidleySupplement(
+            stock, rom, facing: 0, wingFrame: 0, tailDirection: null);
+        OamBuffer editedRidleyWing = DrawInstalledRidleySupplement(
+            edited, rom, facing: 0, wingFrame: 0, tailDirection: null);
+        AssertEqual(unchecked((byte)(stockRidleyWing.LowTable[0] + 1)),
+            editedRidleyWing.LowTable[0],
+            "Ridley wing artwork edit changes live OAM X without ROM reads");
+        AssertEqual(stockRidleyWing.LowTable[1], editedRidleyWing.LowTable[1],
+            "Ridley wing artwork edit leaves physical Y placement unchanged");
         OamBuffer stockMaw = DrawEnemy(stock, new FrameReadGuard(rom),
             mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
         OamBuffer editedMaw = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -1324,6 +1345,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preRidleyFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("ridley_supplement_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
+            preRidleyFrames.Count, "pre-Ridley-supplement composition schema frame count");
+        var preRidleyBindings = document.DisplayFrames!
+            .Where(pair => preRidleyFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreRidleySupplementVersion,
+                Frames = preRidleyFrames,
+                DisplayFrames = preRidleyBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preRidleyUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in RidleySupplementalVisualDefinitions.Frames())
+            AssertTrue(preRidleyUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-thirty-seven override inherits Ridley supplement {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreRidleySupplementVersion,
+            Frames = preRidleyFrames,
+            DisplayFrames = preRidleyBindings,
+        };
         var preDeadTorizoFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("dead_torizo_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);

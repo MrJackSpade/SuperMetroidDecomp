@@ -112,6 +112,7 @@ internal static partial class Program
         AssertTrue(DrawPhantoonBg2(edited, noCartridge,
                 firstPointer, newInstructionFrame: false).All(value => value == 0),
             "Phantoon BG2 override retains the native new-frame producer gate");
+        VerifyPhantoonCollisionDefinitions(rom, noCartridge, stock, edited);
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(reloaded.PhantoonBg2Frames!.TryGet(
@@ -127,10 +128,108 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");
-        Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve ordered native writes; override, reload and invalid-data checks passed.");
+        Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; live VRAM edit, collision ROM guard, reload and invalid-data checks passed.");
 
         ushort ReadWord(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+    }
+
+    private static void VerifyPhantoonCollisionDefinitions(
+        SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
+        EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
+    {
+        ushort ReadWord(int address) =>
+            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var checkedLists = new HashSet<ushort>();
+        foreach (PhantoonBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        {
+            int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
+            ReadOnlySpan<PhantoonCollisionComponent> components =
+                PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
+            AssertEqual(rom.ReadByte(root), (byte)components.Length,
+                $"Phantoon {frame.Name} compiled hitbox component count");
+            for (int index = 0; index < components.Length; index++)
+            {
+                int record = root + 2 + index * 8;
+                PhantoonCollisionComponent component = components[index];
+                AssertEqual(unchecked((short)ReadWord(record)), component.X,
+                    $"Phantoon {frame.Name} component X");
+                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Y,
+                    $"Phantoon {frame.Name} component Y");
+                AssertEqual(ReadWord(record + 6), component.HitboxPointer,
+                    $"Phantoon {frame.Name} engine hitbox list");
+                if (!checkedLists.Add(component.HitboxPointer))
+                    continue;
+                int listAddress = (PhantoonBg2FrameDefinitions.Bank << 16) |
+                    component.HitboxPointer;
+                ReadOnlySpan<PhantoonCollisionHitbox> hitboxes =
+                    PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
+                AssertEqual(ReadWord(listAddress), (ushort)hitboxes.Length,
+                    $"Phantoon ${component.HitboxPointer:X4} rectangle count");
+                for (int hitboxIndex = 0; hitboxIndex < hitboxes.Length; hitboxIndex++)
+                {
+                    int address = listAddress + 2 + hitboxIndex * 12;
+                    PhantoonCollisionHitbox hitbox = hitboxes[hitboxIndex];
+                    AssertEqual(unchecked((short)ReadWord(address)), hitbox.Left,
+                        "Phantoon compiled left bound");
+                    AssertEqual(unchecked((short)ReadWord(address + 2)), hitbox.Top,
+                        "Phantoon compiled top bound");
+                    AssertEqual(unchecked((short)ReadWord(address + 4)), hitbox.Right,
+                        "Phantoon compiled right bound");
+                    AssertEqual(unchecked((short)ReadWord(address + 6)), hitbox.Bottom,
+                        "Phantoon compiled bottom bound");
+                    AssertEqual(ReadWord(address + 8), hitbox.TouchAi,
+                        "Phantoon compiled touch callback");
+                    AssertEqual(ReadWord(address + 10), hitbox.ShotAi,
+                        "Phantoon compiled shot callback");
+                }
+            }
+            _ = FindPhantoonHitboxCallback(stock, guardedBus,
+                frame.Pointer, 0x0080, 0x0080, selectShot: true);
+            _ = FindPhantoonHitboxCallback(stock, guardedBus,
+                frame.Pointer, 0x0080, 0x00a0, selectShot: false);
+        }
+        AssertEqual(3, checkedLists.Count,
+            "Phantoon uses the three compiled retail hitbox lists");
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi,
+            FindPhantoonHitboxCallback(stock, guardedBus,
+                PhantoonBg2FrameDefinitions.BodyFullHitbox,
+                0x0080, 0x0080, selectShot: true),
+            "Phantoon full-body frame selects native shot callback");
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi,
+            FindPhantoonHitboxCallback(edited, guardedBus,
+                PhantoonBg2FrameDefinitions.BodyFullHitbox,
+                0x0080, 0x0080, selectShot: true),
+            "Phantoon BG2 artwork edit does not move or replace hitbox callbacks");
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi,
+            FindPhantoonHitboxCallback(edited, guardedBus,
+                PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly,
+                0x0080, 0x0099, selectShot: true),
+            "Phantoon eye-only frame selects native vulnerable eye callback");
+    }
+
+    private static ushort FindPhantoonHitboxCallback(
+        EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
+        ushort pointer, ushort targetX, ushort targetY, bool selectShot)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = art };
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        RoomEnemySlot slot = enemies.Slots[0];
+        slot.EnemyDefinitionPointer = RoomEnemySystem.PhantoonBodyDefinition;
+        slot.Definition = default(RoomEnemyDefinition) with
+        {
+            Bank = PhantoonBg2FrameDefinitions.Bank,
+        };
+        slot.SpritemapPointer = pointer;
+        slot.XPosition = 0x0080;
+        slot.YPosition = 0x0080;
+        object?[] arguments =
+            [slot, targetX, targetY, (ushort)2, (ushort)2, selectShot, null];
+        bool found = (bool)typeof(RoomEnemySystem)
+            .GetMethod("TryFindExtendedHitboxCallback", flags)!
+            .Invoke(enemies, arguments)!;
+        return found ? (ushort)arguments[6]! : (ushort)0;
     }
 
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog? art,

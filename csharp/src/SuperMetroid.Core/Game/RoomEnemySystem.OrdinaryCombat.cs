@@ -175,7 +175,7 @@ public sealed partial class RoomEnemySystem
             bool isCrocomireTongue = slot.EnemyDefinitionPointer == CrocomireTongueDefinition &&
                 slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi;
             bool isPhantoon = slot.EnemyDefinitionPointer == PhantoonBodyDefinition &&
-                slot.Definition.TouchAiPointer == PhantoonTouchHitboxCallback;
+                slot.Definition.TouchAiPointer == PhantoonCollisionDefinitions.TouchAi;
             bool isDraygonBody = slot.EnemyDefinitionPointer == DraygonBodyDefinition &&
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
             bool isMotherBrainHead = slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
@@ -380,7 +380,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (hitboxTouchAi == PhantoonNoOpHitboxCallback)
                     return true;
-                if (hitboxTouchAi != PhantoonTouchHitboxCallback)
+                if (hitboxTouchAi != PhantoonCollisionDefinitions.TouchAi)
                 {
                     throw new InvalidDataException(
                         $"Phantoon hitbox touch AI $A7:{hitboxTouchAi:X4} is not translated.");
@@ -1977,7 +1977,7 @@ public sealed partial class RoomEnemySystem
                         selectedShotAi == RidleyShotAi;
                     bool isPhantoonBody =
                         enemy.EnemyDefinitionPointer == PhantoonBodyDefinition &&
-                        selectedShotAi == PhantoonShotHitboxCallback;
+                        selectedShotAi == PhantoonCollisionDefinitions.ShotAi;
                     bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
                         selectedShotAi == SporeSpawnShotAi;
                     bool isBossDudHitbox =
@@ -2297,7 +2297,7 @@ public sealed partial class RoomEnemySystem
         enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
             callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi ||
         enemy.EnemyDefinitionPointer == PhantoonBodyDefinition &&
-            callback == PhantoonShotHitboxCallback ||
+            callback == PhantoonCollisionDefinitions.ShotAi ||
         enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
             callback == MotherBrainBodyShotAi ||
         enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
@@ -2768,6 +2768,35 @@ public sealed partial class RoomEnemySystem
                 foreach (SpacePirateCollisionHitbox hitbox in
                          SpacePirateCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer))
+        {
+            // Phantoon's extended frame roots include hitbox-list pointers,
+            // but its editable BG2 tilemap writes must never become collision
+            // data. Preserve the native component and rectangle order from
+            // the compiled bank-$A7 definitions, including point no-ops.
+            foreach (PhantoonCollisionComponent component in
+                     PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (PhantoonCollisionHitbox hitbox in
+                         PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));

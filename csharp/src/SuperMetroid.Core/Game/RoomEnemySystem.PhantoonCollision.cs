@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort PhantoonNoOpHitboxCallback = 0x804c;
-    private const ushort PhantoonTouchHitboxCallback = 0xdd95;
-    private const ushort PhantoonShotHitboxCallback = 0xdd9b;
     private const ushort PhantoonDamageThreshold = 300;
 
     /// <summary>
@@ -94,7 +92,7 @@ public sealed partial class RoomEnemySystem
                 return 1;
             }
 
-            if (hitboxShotAi != PhantoonShotHitboxCallback)
+            if (hitboxShotAi != PhantoonCollisionDefinitions.ShotAi)
             {
                 throw new InvalidDataException(
                     $"Phantoon hitbox shot AI $A7:{hitboxShotAi:X4} is not translated.");

@@ -20,12 +20,22 @@ internal static class PhantoonBg2FrameDefinitions
     internal const ushort WorkingRamBase = 0x2000;
     internal const int TilemapWidth = 32;
     internal const int TilemapHeight = 64;
+    /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>
+    internal const ushort BodyFullHitbox = 0xdee7;
+    /// <summary>Body with only the vulnerable eye hitbox, $A7:DEF1.</summary>
+    internal const ushort BodyEyeHitboxOnly = 0xdef1;
+    /// <summary>First two-component tentacle frame, $A7:DFB3.</summary>
+    internal const ushort Tentacles0 = 0xdfb3;
+    /// <summary>Second two-component tentacle frame, $A7:DFC5.</summary>
+    internal const ushort Tentacles1 = 0xdfc5;
+    /// <summary>Third two-component tentacle frame, $A7:DFD7.</summary>
+    internal const ushort Tentacles2 = 0xdfd7;
 
     private static readonly PhantoonBg2FrameDefinition[] FrameDefinitions =
     [
         new(0xdedd, "body_invulnerable"),
-        new(0xdee7, "body_full_hitbox"),
-        new(0xdef1, "body_eye_hitbox_only"),
+        new(BodyFullHitbox, "body_full_hitbox"),
+        new(BodyEyeHitboxOnly, "body_eye_hitbox_only"),
         new(0xdefb, "eye_closed"),
         new(0xdf05, "eye_open_0"),
         new(0xdf0f, "eye_open_1"),
@@ -39,13 +49,21 @@ internal static class PhantoonBg2FrameDefinitions
         new(0xdf5f, "eyeball_down_right"),
         new(0xdf69, "eyeball_up_left"),
         new(0xdf73, "eyeball_up_right"),
-        new(0xdfb3, "tentacles_0"),
-        new(0xdfc5, "tentacles_1"),
-        new(0xdfd7, "tentacles_2"),
+        new(Tentacles0, "tentacles_0"),
+        new(Tentacles1, "tentacles_1"),
+        new(Tentacles2, "tentacles_2"),
         new(0xdfe9, "mouth_0"),
         new(0xdff3, "mouth_1"),
         new(0xdffd, "mouth_2"),
     ];
 
     internal static ReadOnlySpan<PhantoonBg2FrameDefinition> Frames => FrameDefinitions;
+
+    internal static bool IsFrame(ushort pointer)
+    {
+        foreach (PhantoonBg2FrameDefinition frame in FrameDefinitions)
+            if (frame.Pointer == pointer)
+                return true;
+        return false;
+    }
 }

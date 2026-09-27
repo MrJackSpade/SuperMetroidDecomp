@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -413,7 +414,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
         var request = new MotherBrainSpriteTileTransferRequest(
             EntryIndex: (ushort)index,
-            Size: 0x01c0,
+            Size: MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
             SourceAddress: CorpseTileSources[index],
             VramDestination: CorpseTileDestinations[index]);
         CorpseTileTransferIndex++;

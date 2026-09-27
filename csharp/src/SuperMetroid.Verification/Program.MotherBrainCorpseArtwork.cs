@@ -1,3 +1,4 @@
+using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -17,6 +18,29 @@ internal static partial class Program
             MotherBrainCorpseArtworkDefinitions.ByteCount);
         AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
             "installed Mother Brain corpse PNG preserves all native source bytes");
+
+        SnesVram stockVram = TransferMotherBrainCorpsePages(
+            stock, new MotherBrainCorpseArtworkReadGuard(
+                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+        SnesVram cartridgeVram = TransferMotherBrainCorpsePages(null,
+            SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc"));
+        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length; page++)
+        {
+            int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSources[page] -
+                MotherBrainCorpseArtworkDefinitions.SourceAddress);
+            int destinationOffset =
+                MotherBrainCorpseArtworkDefinitions.VramPageDestinations[page] * 2;
+            AssertTrue(stockVram.Bytes.Slice(destinationOffset,
+                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)
+                .SequenceEqual(native.AsSpan(sourceOffset,
+                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)),
+                $"installed Mother Brain corpse VRAM page {page} matches the native transfer");
+            AssertTrue(stockVram.Bytes.Slice(destinationOffset,
+                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)
+                .SequenceEqual(cartridgeVram.Bytes.Slice(destinationOffset,
+                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)),
+                $"installed and cartridge Mother Brain corpse VRAM page {page} agree");
+        }
 
         var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
         var installedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
@@ -48,6 +72,14 @@ internal static partial class Program
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+        SnesVram editedVram = TransferMotherBrainCorpsePages(
+            edited, new MotherBrainCorpseArtworkReadGuard(
+                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+        int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestinations[0] * 2 +
+            6 * RoomCharacterAtlasFormat.BytesPerTile;
+        AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
+            editedVram.ReadByte(editedVramOffset),
+            "Mother Brain corpse PNG edit changes live sprite VRAM");
         var editedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
         new MotherBrainCorpseRottingState().Initialize(
             new MotherBrainCorpseArtworkReadGuard(editedBus), edited.MotherBrainCorpse);
@@ -71,7 +103,29 @@ internal static partial class Program
             () => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
             "malformed Mother Brain corpse override is rejected explicitly");
 
-        Console.WriteLine("  Mother Brain corpse art: indexed PNG source parity, guarded room/sequence staging, visible edit, reload and invalid override pass.");
+        Console.WriteLine("  Mother Brain corpse art: indexed PNG source parity, six guarded sprite VRAM pages, room/sequence staging, visible edit, reload and invalid override pass.");
+    }
+
+    private static SnesVram TransferMotherBrainCorpsePages(
+        EnemyTileArtworkCatalog? artwork, ISnesAddressSpace bus)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
+            "ApplyMotherBrainRainbowTileTransfer", flags)!;
+        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length; page++)
+        {
+            var request = new MotherBrainSpriteTileTransferRequest(
+                (ushort)page,
+                MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
+                MotherBrainCorpseArtworkDefinitions.VramPageSources[page],
+                MotherBrainCorpseArtworkDefinitions.VramPageDestinations[page]);
+            transfer.Invoke(enemies, [request]);
+        }
+        return vram;
     }
 
     private static void AssertMotherBrainCorpseBufferParity(

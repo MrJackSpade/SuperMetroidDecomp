@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -319,6 +321,37 @@ public sealed partial class RoomEnemySystem
     private void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {
+        if (MotherBrainCorpseArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
+            TileArtwork is not null)
+        {
+            // The native list supplies both the source page and its OBJ destination.
+            // Keep that scheduling intact, but source the transferred pixels from the
+            // installed sheet instead of making a visual read from cartridge ROM.
+            int page = -1;
+            for (int index = 0; index < MotherBrainCorpseArtworkDefinitions.VramPageSources.Length;
+                 index++)
+            {
+                if (transfer.SourceAddress ==
+                    MotherBrainCorpseArtworkDefinitions.VramPageSources[index])
+                {
+                    page = index;
+                    break;
+                }
+            }
+            if (page < 0 ||
+                transfer.Size != MotherBrainCorpseArtworkDefinitions.VramPageByteCount ||
+                transfer.VramDestination !=
+                    MotherBrainCorpseArtworkDefinitions.VramPageDestinations[page])
+                throw new InvalidDataException(
+                    $"Invalid Mother Brain corpse sprite transfer {transfer}.");
+
+            RoomCharacterAtlas artwork = MotherBrainCorpseArtwork!;
+            int offset = checked((int)transfer.SourceAddress -
+                MotherBrainCorpseArtworkDefinitions.SourceAddress);
+            _vram!.LoadBytes(transfer.VramDestination * 2,
+                artwork.Transfer.Span.Slice(offset, transfer.Size));
+            return;
+        }
         if (EscapeTimerArtwork?.TryLoadNativeTransfer(
             _vram!, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
             return;

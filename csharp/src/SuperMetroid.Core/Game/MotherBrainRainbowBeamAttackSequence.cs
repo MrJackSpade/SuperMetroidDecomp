@@ -63,14 +63,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private static ReadOnlySpan<ushort> PainfulWalkingFunctionTimers =>
         [0x0010, 0x0010, 0x0020, 0x0020, 0x0030, 0x0030, 0x0040, 0x0040];
 
-    // `$A9:9003-$902E` replaces the four attack pages with six pieces of Mother Brain's
-    // corpse. Although each source advances by `$200`, the transfer size is only `$1C0`:
-    // the final two tile rows in every source page are deliberately skipped.
     private static ReadOnlySpan<uint> CorpseTileSources =>
-        [0xb7ce00, 0xb7d000, 0xb7d200, 0xb7d400, 0xb7d600, 0xb7d800];
+        MotherBrainCorpseArtworkDefinitions.VramPageSources;
 
     private static ReadOnlySpan<ushort> CorpseTileDestinations =>
-        [0x7a00, 0x7b00, 0x7c00, 0x7d00, 0x7e00, 0x7f00];
+        MotherBrainCorpseArtworkDefinitions.VramPageDestinations;
 
     // NTSC `$A6:C4CB-$C4FC`: two number pages followed by five typewriter-text pages.
     // The final text page is only `$100` bytes. ProcessSpriteTilesTransfers emits one

@@ -400,6 +400,16 @@ public sealed partial class RoomEnemySystem
         if (EscapeTimerArtwork?.TryLoadNativeTransfer(
             _vram!, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
             return;
+        if (TileArtwork is not null &&
+            (transfer.SourceAddress >> 16) is not (0x7e or 0x7f))
+        {
+            // Every cartridge-backed source used by this encounter has an installed
+            // art owner above. The remaining live transfer is the mutable $7E:9000
+            // corpse buffer; an unknown ROM source must never silently reintroduce
+            // a cartridge dependency in an installed game.
+            throw new InvalidDataException(
+                $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
+        }
         var bytes = new byte[transfer.Size];
         for (int index = 0; index < bytes.Length; index++)
             bytes[index] = _bus!.ReadByte(unchecked((int)transfer.SourceAddress + index));

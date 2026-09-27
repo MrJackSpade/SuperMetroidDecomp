@@ -109,8 +109,80 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTileTransferDefinitions.BabyTileTransfer(baby.PageCount),
             "compiled Baby tile transfer rejects a record past the terminator");
+        VerifyMotherBrainInstalledTransferBoundary(stock, rom);
         Console.WriteLine(
-            "  Mother Brain special sprites: Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload and invalid override pass.");
+            "  Mother Brain special sprites: Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
+    }
+
+    private static void VerifyMotherBrainInstalledTransferBoundary(
+        EnemyTileArtworkCatalog stock, SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
+            "ApplyMotherBrainRainbowTileTransfer", flags)!;
+        var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = stock,
+            EscapeTimerArtwork = EscapeTimerTileAtlas.Load(new MemoryStream(
+                EscapeTimerTileAtlasExtractor.Extract(rom))),
+        };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            new MotherBrainTimerArtworkReadGuard(bus));
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+
+        MotherBrainSpriteTileTransferRequest[] timerRequests =
+        [
+            new(0, EscapeTimerTileAtlasFormat.FirstByteCount,
+                EscapeTimerTileRomData.FirstSourceAddress,
+                EscapeTimerTileAtlasFormat.FirstDestinationWord),
+            new(1, EscapeTimerTileAtlasFormat.SecondByteCount,
+                EscapeTimerTileRomData.SecondSourceAddress,
+                EscapeTimerTileAtlasFormat.SecondDestinationWord),
+        ];
+        foreach (MotherBrainSpriteTileTransferRequest request in timerRequests)
+        {
+            transfer.Invoke(enemies, [request]);
+            byte[] native = RomDataReader.ReadFixedBank(rom,
+                checked((int)request.SourceAddress), request.Size);
+            AssertTrue(vram.Bytes.Slice(request.VramDestination * 2, request.Size)
+                .SequenceEqual(native),
+                "installed Mother Brain timer page matches cartridge without visual ROM reads");
+        }
+
+        enemies.EscapeTimerArtwork = null;
+        AssertMotherBrainInstalledTransferRejected(transfer, enemies, timerRequests[0],
+            "missing installed timer art does not fall back to ROM");
+        AssertMotherBrainInstalledTransferRejected(transfer, enemies,
+            timerRequests[0] with { Size = 1 },
+            "malformed installed timer record does not fall back to ROM");
+        AssertMotherBrainInstalledTransferRejected(transfer, enemies,
+            new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7000),
+            "uncatalogued cartridge source does not fall back to ROM");
+
+        bus.WriteByte(MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x5a);
+        transfer.Invoke(enemies,
+            [new MotherBrainSpriteTileTransferRequest(0, 1,
+                MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
+        AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
+            "installed Mother Brain still copies mutable corpse WRAM to VRAM");
+    }
+
+    private static void AssertMotherBrainInstalledTransferRejected(
+        MethodInfo method, RoomEnemySystem enemies,
+        MotherBrainSpriteTileTransferRequest request, string label)
+    {
+        try
+        {
+            method.Invoke(enemies, [request]);
+        }
+        catch (TargetInvocationException error) when
+            (error.InnerException is InvalidDataException)
+        {
+            return;
+        }
+        throw new InvalidOperationException($"Expected InvalidDataException: {label}.");
     }
 
     private static SnesVram TransferMotherBrainSpecialPages(
@@ -161,6 +233,20 @@ internal static partial class Program
                     MotherBrainTileTransferDefinitions.RecordSize
                 ? throw new InvalidOperationException(
                     $"Mother Brain read compiled Baby metadata from ROM at ${address:X6}.")
+                : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class MotherBrainTimerArtworkReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        public byte ReadByte(int address) =>
+            address >= EscapeTimerTileRomData.FirstSourceAddress &&
+            address < EscapeTimerTileRomData.SecondSourceAddress +
+                EscapeTimerTileAtlasFormat.SecondByteCount
+                ? throw new InvalidOperationException(
+                    $"Mother Brain attempted a timer-art ROM read at ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

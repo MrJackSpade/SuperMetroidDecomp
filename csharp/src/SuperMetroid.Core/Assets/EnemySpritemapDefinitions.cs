@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 52;
+    internal const int Version = 53;
+    internal const int PreRinkaVersion = 52;
+    internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
     internal const int PreViolaFrameCount = 995;
     internal const int PreChozoStatueVersion = 50;
@@ -653,6 +655,7 @@ internal static class EnemySpritemapDefinitions
         .. NorfairLavaJumperVisualDefinitions.Frames(),
         .. ChozoStatueVisualDefinitions.Frames(),
         .. ViolaVisualDefinitions.Frames(),
+        .. RinkaVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -699,6 +702,8 @@ internal static class EnemySpritemapDefinitions
                 ChozoStatueVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.ViolaDefinition =>
                 ViolaVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.RinkaDefinition =>
+                RinkaVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -784,6 +789,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.NorfairLavaJumpingEnemyDefinition or
             ChozoStatueEnemyDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.ViolaDefinition or
+            RoomEnemySystem.RinkaDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

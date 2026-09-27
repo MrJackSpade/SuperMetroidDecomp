@@ -12,7 +12,8 @@ internal readonly record struct RinkaInstructionMechanicsWord(
 /// Both native lists interleave engine state with presentation data. Callback identities,
 /// frame durations, the common goto opcode, and its loop targets affect simulation and live
 /// here. The word following every duration is a spritemap pointer; those eighteen words
-/// deliberately remain live cartridge reads.
+/// are presentation selectors installed as editable artwork. Constructed
+/// diagnostic buses without installed artwork may still provide mutable words.
 /// </remarks>
 internal static class RinkaInstructionProgramDefinitions
 {
@@ -44,13 +45,13 @@ internal static class RinkaInstructionProgramDefinitions
     /// <summary>Number of mechanics words compiled from the two native programs.</summary>
     internal static int MechanicsWordCount => Words.Length;
 
-    /// <summary>Number of interleaved presentation words deliberately left ROM-backed.</summary>
+    /// <summary>Number of interleaved presentation selector words.</summary>
     internal static int PresentationWordCount => PresentationWords.Length;
 
     /// <summary>Returns one mechanics definition for cartridge-equivalence verification.</summary>
     internal static RinkaInstructionMechanicsWord MechanicsWord(int index) => Words[index];
 
-    /// <summary>Returns one live spritemap-word address for boundary verification.</summary>
+    /// <summary>Returns one authored spritemap-word address for boundary verification.</summary>
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
 
     /// <summary>

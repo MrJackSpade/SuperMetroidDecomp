@@ -329,8 +329,12 @@ internal static partial class Program
             "Lower Norfair and Wrecked Ship Chozo share twenty-six OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreViolaFrameCount +
                 ViolaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreRinkaFrameCount,
             "Viola adds eight distinct OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreRinkaFrameCount +
+                RinkaVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Rinka adds five OAM frames shared by ordinary and boss loops");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -946,6 +950,31 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => ViolaVisualDefinitions.FrameAt(ViolaInstructionProgramDefinitions.NormalLoop),
             "Viola visual selector rejects neighboring mechanics data");
+        HashSet<ushort> rinkaFrames = RinkaVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(RinkaVisualDefinitions.FrameCount, rinkaFrames.Count,
+            "both Rinka loops select five distinct OAM frames");
+        var selectedRinkaFrames = new HashSet<ushort>();
+        for (int index = 0; index < RinkaInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
+                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.RinkaDefinition, operand, out ushort selected),
+                $"Rinka visual selector $A2:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Rinka visual selector $A2:{operand:X4} matches the cartridge");
+            AssertTrue(rinkaFrames.Contains(selected),
+                $"Rinka visual target $A2:{selected:X4} has installed art");
+            selectedRinkaFrames.Add(selected);
+        }
+        AssertTrue(selectedRinkaFrames.SetEquals(rinkaFrames),
+            "every installed Rinka composition is selected by a native loop");
+        AssertThrows<InvalidDataException>(
+            () => RinkaVisualDefinitions.FrameAt(RinkaInstructionProgramDefinitions.OrdinaryInitial),
+            "Rinka visual selector rejects neighboring mechanics data");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -1011,6 +1040,8 @@ internal static partial class Program
                         ? ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
                     : frame.Name.StartsWith("viola_spin_", StringComparison.Ordinal)
                         ? RoomEnemySystem.ViolaDefinition
+                    : frame.Name.StartsWith("rinka_spin_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.RinkaDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -1117,7 +1148,29 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preViolaFrames = document.Frames
+        var preRinkaFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("rinka_spin_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preRinkaBindings = document.DisplayFrames!
+            .Where(pair => preRinkaFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreRinkaFrameCount, preRinkaFrames.Count,
+            "version-fifty-two composition schema count");
+        using (var preRinkaJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreRinkaVersion,
+                Frames = preRinkaFrames,
+                DisplayFrames = preRinkaBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog rinkaUpgraded = EnemySpritemapCatalog.Load(
+                preRinkaJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in RinkaVisualDefinitions.Frames())
+                AssertTrue(rinkaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty-two override inherits Rinka frame {frame.Name}");
+        }
+        var preViolaFrames = preRinkaFrames
             .Where(pair => !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preViolaBindings = document.DisplayFrames!
@@ -1540,6 +1593,12 @@ internal static partial class Program
         {
             OffsetX = violaPart.OffsetX + 1,
         };
+        const string rinkaFrameName = "rinka_spin_ba38";
+        SpriteVisualPart rinkaPart = document.Frames[rinkaFrameName][0];
+        document.Frames[rinkaFrameName][0] = rinkaPart with
+        {
+            OffsetX = rinkaPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1602,6 +1661,17 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockViola.LowTable[0] + 1)),
             editedViola.LowTable[0],
             "Viola authored body offset changes installed room OAM");
+        OamBuffer stockRinka = DrawEnemy(stock, new FrameReadGuard(rom),
+            RinkaVisualDefinitions.FrameAt(
+                RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.RinkaDefinition);
+        OamBuffer editedRinka = DrawEnemy(edited, new FrameReadGuard(rom),
+            RinkaVisualDefinitions.FrameAt(
+                RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.RinkaDefinition);
+        AssertEqual(unchecked((byte)(stockRinka.LowTable[0] + 1)),
+            editedRinka.LowTable[0],
+            "Rinka authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
@@ -2139,7 +2209,8 @@ internal static partial class Program
                 !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal));
+                !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("rinka_spin_", StringComparison.Ordinal));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
@@ -3375,6 +3446,8 @@ internal static partial class Program
                         ? ChozoStatueVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ViolaDefinition
                         ? ViolaVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.RinkaDefinition
+                        ? RinkaVisualDefinitions.Bank
                     : definition is RoomEnemySystem.TripperDefinition or
                         RoomEnemySystem.KamerDefinition
                         ? TripperKamerVisualDefinitions.Bank

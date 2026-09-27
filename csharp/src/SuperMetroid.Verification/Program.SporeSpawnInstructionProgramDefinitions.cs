@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -122,10 +123,13 @@ internal static partial class Program
     private static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
         SporeSpawnInstructionReadGuard bus,
         ushort initialPointer,
-        int frames)
+        int frames,
+        EnemyTileArtworkCatalog? artwork = null,
+        Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
+        enemies.TileArtwork = artwork;
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
@@ -156,7 +160,10 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments = [body, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
         for (int frame = 0; frame < frames; frame++)
+        {
             process.Invoke(enemies, arguments);
+            afterFrame?.Invoke(enemies, body);
+        }
 
         return (enemies, body);
     }
@@ -173,6 +180,7 @@ internal static partial class Program
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+        internal bool DenyPresentationReads { get; init; }
 
         public byte ReadByte(int address)
         {
@@ -195,6 +203,12 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
+                        if (DenyPresentationReads)
+                        {
+                            ForbiddenReadAttempts++;
+                            throw new InvalidOperationException(
+                                $"Installed Spore Spawn reread visual selector ${address:X6}.");
+                        }
                         ObservedPresentationWords.Add(presentation);
                         break;
                     }

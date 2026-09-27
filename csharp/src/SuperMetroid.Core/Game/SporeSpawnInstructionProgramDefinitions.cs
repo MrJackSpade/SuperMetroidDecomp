@@ -11,8 +11,9 @@ internal readonly record struct SporeSpawnInstructionMechanicsWord(
 /// <remarks>
 /// These native lists interleave simulation state with presentation data. Durations,
 /// callbacks, callback operands, loop counters, and branch targets affect gameplay and
-/// therefore live here. The word following every duration is a spritemap pointer; those
-/// forty-one presentation words deliberately remain live cartridge reads.
+/// therefore live here. The word following every duration is a spritemap pointer. The
+/// forty-one presentation operands belong to the separate compiled visual-selector
+/// catalog when artwork is installed; unbound native diagnostics can still read the bus.
 /// </remarks>
 internal static class SporeSpawnInstructionProgramDefinitions
 {
@@ -87,7 +88,7 @@ internal static class SporeSpawnInstructionProgramDefinitions
     /// <summary>Number of mechanics words compiled from the five native programs.</summary>
     internal static int MechanicsWordCount => Words.Length;
 
-    /// <summary>Number of interleaved presentation words deliberately left ROM-backed.</summary>
+    /// <summary>Number of interleaved presentation words, compiled separately for installed play.</summary>
     internal static int PresentationWordCount => PresentationWords.Length;
 
     /// <summary>Returns one mechanics definition for cartridge-equivalence verification.</summary>

@@ -35,6 +35,7 @@ internal static partial class Program
                    nativeEmpty.NextByteOffset == installedEmpty.NextByteOffset,
             "walking Pirate common empty frame draws without ROM reads");
         VerifySharedEmptyExtendedFrames(rom, stock);
+        VerifyInstalledSporeSpawnSelectorPrograms(rom, stock);
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking/wall Pirate distinct extended-frame count");
@@ -457,6 +458,48 @@ internal static partial class Program
         AssertTrue(beforeSporeIdentity.Frames.ContainsKey(currentSporeName) &&
                    !beforeSporeIdentity.Frames.ContainsKey(legacySporeName),
             "current stock exposes the corrected Spore Spawn author key");
+
+        EnemyExtendedFrameDocument sporeVisualRemap =
+            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        OamBuffer closedSpore = DrawExtendedForBank(stock, guard,
+            0xa5, 0xee65, 0x0040, 0x0080);
+        EnemyExtendedFrameDefinition[] visiblyDifferentSporeFrames =
+            EnemyExtendedFrameDefinitions.Frames.ToArray()
+                .Where(frame => frame.Name.StartsWith("spore_spawn_oam_",
+                    StringComparison.Ordinal))
+                .Where(frame =>
+                {
+                    OamBuffer candidate = DrawExtendedForBank(stock, guard,
+                        frame.Bank, frame.Pointer, 0x0040, 0x0080);
+                    return !candidate.LowTable.SequenceEqual(closedSpore.LowTable) ||
+                           !candidate.HighTable.SequenceEqual(closedSpore.HighTable);
+                }).ToArray();
+        AssertTrue(visiblyDifferentSporeFrames.Length > 0,
+            "Spore Spawn visual remap fixture has a visibly different frame");
+        EnemyExtendedFrameDefinition targetSporeFrame = visiblyDifferentSporeFrames[0];
+        sporeVisualRemap.DisplayFrames!["spore_spawn_oam_EE65"] =
+            targetSporeFrame.Name;
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            sporeVisualRemap, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog swappedSpore = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer openSpore = DrawExtendedForBank(stock, guard,
+            targetSporeFrame.Bank, targetSporeFrame.Pointer, 0x0040, 0x0080);
+        OamBuffer swappedClosedSpore = DrawExtendedForBank(swappedSpore, guard,
+            0xa5, 0xee65, 0x0040, 0x0080);
+        AssertTrue(swappedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
+                   swappedClosedSpore.HighTable.SequenceEqual(openSpore.HighTable),
+            "Spore Spawn display remap changes live OAM to the selected frame");
+        EnemyTileArtworkCatalog reloadedSpore = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer reloadedClosedSpore = DrawExtendedForBank(reloadedSpore, guard,
+            0xa5, 0xee65, 0x0040, 0x0080);
+        AssertTrue(reloadedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
+                   reloadedClosedSpore.HighTable.SequenceEqual(openSpore.HighTable),
+            "Spore Spawn display remap survives asset reload");
+        VerifySporeSpawnVisualRemapKeepsMechanics(rom, stock, swappedSpore);
 
         EnemyExtendedFrameDocument remapped =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,

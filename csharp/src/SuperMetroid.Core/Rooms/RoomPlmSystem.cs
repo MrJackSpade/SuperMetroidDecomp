@@ -2311,6 +2311,8 @@ public sealed partial class RoomPlmSystem
             ? value
             : MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value)
             ? value
+            : SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(address, out value)
+            ? value
             : SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value)

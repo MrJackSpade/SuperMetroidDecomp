@@ -244,6 +244,23 @@ internal static partial class Program
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
             (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+        for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
+        {
+            ushort address = checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2));
+            AssertTrue(SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
+                    address, out ushort compiled),
+                $"Speed Booster escape instruction ${address:X4} is compiled");
+            AssertEqual(ReadWord(rom, 0x840000 | address), compiled,
+                $"Speed Booster escape instruction ${address:X4} matches cartridge");
+        }
+        AssertTrue(!SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
+                checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start - 2)), out _),
+            "Speed Booster escape instruction owner excludes the preceding routine");
+        AssertTrue(!SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(
+                checked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start +
+                    SpeedBoosterEscapePlmProgramDefinitions.WordCount * 2)), out _),
+            "Speed Booster escape instruction owner excludes the following setup routine");
+
         for (ushort offset = 0;
              offset < SpeedBoosterEscapeStageDefinitions.TerminatorOffset;
              offset += SpeedBoosterEscapeStageDefinitions.RecordByteCount)
@@ -723,18 +740,14 @@ internal static partial class Program
         const int height = 16;
 
         WriteWord(bus, 0x84b8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
-        WriteWord(bus, 0x84b88a, RoomPlmInstructionCodes.InstallPreInstruction);
-        WriteWord(bus, 0x84b88c,
-            SpeedBoosterEscapePlmRomData.WaitForSpeedBoosterPreInstruction);
-        WriteWord(bus, 0x84b88e, RoomPlmInstructionCodes.Sleep);
-        WriteWord(bus, 0x84b890, RoomPlmInstructionCodes.InstallPreInstruction);
-        WriteWord(bus, 0x84b892,
-            SpeedBoosterEscapePlmRomData.WaitForSamusLeftPreInstruction);
-        WriteWord(bus, 0x84b894, RoomPlmInstructionCodes.Sleep);
-        WriteWord(bus, 0x84b896, RoomPlmInstructionCodes.InstallPreInstruction);
-        WriteWord(bus, 0x84b898,
-            SpeedBoosterEscapePlmRomData.AdvanceLavaPreInstruction);
-        WriteWord(bus, 0x84b89a, RoomPlmInstructionCodes.Sleep);
+        // Poison the old cartridge path: all three real handoffs must now use
+        // the compiled list even when a synthetic address space disagrees.
+        for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
+        {
+            WriteWord(bus,
+                0x840000 | SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2,
+                0xdead);
+        }
         bus.WriteBytes(0x8f0000 | population,
         [
             0xac, 0xb8, 0x01, 0x01, 0x00, 0x00,

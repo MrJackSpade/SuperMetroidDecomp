@@ -1,5 +1,12 @@
 # ROM-free retail-room census (#549)
 
+The 2026-09-27 all-room pass found 32 first-frame failures among 262 retail
+rooms. One was room `$8F:ACF0` reading the Speed Booster escape PLM list from
+the cartridge. That list is now compiled; the selected-room rerun passes with
+native pixel parity and all cartridge reads blocked. The other 31 baseline
+failures have not been rerun as a batch and remain open work. Later frames and
+inter-room transitions are outside this one-frame diagnostic.
+
 The regular `--intro-cinematic-artwork` verification now restores a gameplay
 snapshot once and checks Kraid's first frame after rebinding installed artwork.
 This is a regression for the deferred HUD upload: Kraid's private BG2 map owns

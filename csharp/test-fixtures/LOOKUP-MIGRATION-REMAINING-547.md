@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Speed Booster escape PLM instruction owner (2026-09-27)
+
+The complete nine-word `$84:B88A-$B89B` resident PLM list is compiled as
+simulation control, not copied into editable artwork. The three native
+install-pre-instruction/sleep handoffs match the pinned cartridge word for word.
+The existing synthetic speed-booster scenario now poisons every list word in
+its address space and still exercises all three callbacks, lava thresholds,
+and event completion. An isolated installed first frame of room `$8F:ACF0`
+matches the cartridge with every runtime ROM read blocked. Other PLM programs
+and the broader ROM-free contract remain open.
+
 ## Crocomire skeleton character uploads (2026-09-27)
 
 The six `$0200`-byte death-sequence character pages at `$AD:A600-B1FF` are

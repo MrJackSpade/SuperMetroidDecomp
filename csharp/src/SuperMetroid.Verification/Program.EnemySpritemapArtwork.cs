@@ -340,8 +340,12 @@ internal static partial class Program
             "Dead Torizo adds its stationary corpse composition after version 53");
         AssertEqual(EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount +
                 DeadTourianCorpseVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.PreMochtroidFrameCount,
+            "dead Zoomer, Ripper, Skree, and Sidehopper add thirteen compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreMochtroidFrameCount +
+                MochtroidVisualDefinitions.FrameCount,
             EnemySpritemapDefinitions.Frames.Length,
-            "dead Zoomer, Ripper, and Skree add eight corpse compositions");
+            "Mochtroid adds six free-flight and attached OAM compositions");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -611,6 +615,7 @@ internal static partial class Program
         VerifyInstalledPuyoInstructionFrames(rom, stock, flags);
         VerifyInstalledBullInstructionFrames(rom, stock, flags);
         VerifyInstalledAlcoonInstructionFrames(rom, stock);
+        VerifyInstalledMochtroidVisuals(rom, stock);
         VerifyInstalledBeetomInstructionFrames(rom, stock);
         VerifyInstalledHopperInstructionFrames(rom, stock);
         VerifyInstalledChootInstructionFrames(rom, stock);
@@ -1019,6 +1024,8 @@ internal static partial class Program
             var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
+                    : frame.Name.StartsWith("mochtroid_", StringComparison.Ordinal)
+                        ? EnemyDefinitionPointers.Mochtroid
                     : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
                         ? RoomEnemySystem.SciserDefinition
                     : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
@@ -1155,12 +1162,36 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        HashSet<string> mochtroidNames = MochtroidVisualDefinitions.Frames()
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
+        var preMochtroidFrames = document.Frames
+            .Where(pair => !mochtroidNames.Contains(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preMochtroidBindings = document.DisplayFrames!
+            .Where(pair => preMochtroidFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreMochtroidFrameCount,
+            preMochtroidFrames.Count, "version-fifty-five composition schema count");
+        using (var preMochtroidJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreMochtroidVersion,
+                Frames = preMochtroidFrames,
+                DisplayFrames = preMochtroidBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog mochtroidUpgraded = EnemySpritemapCatalog.Load(
+                preMochtroidJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in MochtroidVisualDefinitions.Frames())
+                AssertTrue(mochtroidUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty-five override inherits {frame.Name}");
+        }
         HashSet<string> deadCorpseNames = DeadTourianCorpseVisualDefinitions.Frames()
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        var preCorpsesFrames = document.Frames
+        var preCorpsesFrames = preMochtroidFrames
             .Where(pair => !deadCorpseNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preCorpsesBindings = document.DisplayFrames!
+        var preCorpsesBindings = preMochtroidBindings
             .Where(pair => preCorpsesFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount,
@@ -2260,6 +2291,7 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
+                !pair.Key.StartsWith("mochtroid_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("dead_zoomer_corpse_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("dead_ripper_corpse_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("dead_skree_corpse_", StringComparison.Ordinal) &&
@@ -3500,6 +3532,8 @@ internal static partial class Program
                         ? MorphBallEyeVisualDefinitions.Bank
                     : definition == RoomEnemySystem.MetroidDefinition
                         ? MetroidVisualDefinitions.Bank
+                    : definition == EnemyDefinitionPointers.Mochtroid
+                        ? MochtroidVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ShaktoolDefinition
                         ? ShaktoolVisualDefinitions.Bank
                     : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer

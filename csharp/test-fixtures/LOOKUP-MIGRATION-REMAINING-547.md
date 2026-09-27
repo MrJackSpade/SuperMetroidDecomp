@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Mochtroid flight and attachment compositions (2026-09-27)
+
+Eight bank-`$A3` Mochtroid instruction operands now select six named, editable
+OAM frames instead of reading their visual pointers from the cartridge. The
+compiled flight and attachment program timing and enemy mechanics are unchanged.
+The verifier checks all eight native selectors, complete OAM output, and
+inheritance of existing version-55 edits. Isolated rooms `$8F:D617`,
+`$8F:D72A`, and `$8F:D913` each match native pixels for 90 neutral frames
+with all runtime cartridge reads blocked. This clears their shared first-frame
+failure, not the broader enemy or whole-game ROM-free migration.
+
 ## Shared ordinary empty enemy frame (2026-09-27)
 
 The bank-local `$804D` ordinary spritemap has zero OAM parts in all twelve

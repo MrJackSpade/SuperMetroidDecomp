@@ -7,7 +7,7 @@ internal readonly record struct SaveStationElectricityInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the save station's twenty-cycle electricity animation. The eight
-/// spritemap operands remain live cartridge presentation data.
+/// spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class SaveStationElectricityInstructionProgramDefinitions
 {

@@ -14,7 +14,7 @@ internal readonly record struct GunshipDustInstructionProgramDefinition(
 
 /// <summary>
 /// Compiled control for all six gunship liftoff-dust instruction lists. Interleaved
-/// spritemap operands remain live cartridge presentation data.
+/// spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class GunshipDustInstructionProgramDefinitions
 {

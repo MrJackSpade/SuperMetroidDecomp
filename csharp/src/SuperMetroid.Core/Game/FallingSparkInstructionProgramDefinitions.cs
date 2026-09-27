@@ -7,7 +7,7 @@ internal readonly record struct FallingSparkInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Falling Spark's falling and floor-impact programs. Interleaved
-/// spritemap operands remain live cartridge presentation data.
+/// spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class FallingSparkInstructionProgramDefinitions
 {

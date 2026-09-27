@@ -7,7 +7,7 @@ internal readonly record struct EyeDoorSweatInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for an Eye Door sweat drop's falling loop and floor-impact animation.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class EyeDoorSweatInstructionProgramDefinitions
 {

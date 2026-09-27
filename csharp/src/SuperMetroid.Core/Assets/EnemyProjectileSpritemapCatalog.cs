@@ -92,6 +92,8 @@ public sealed class EnemyProjectileSpritemapCatalog
                     EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
                 EnemyProjectileSpritemapDefinitions.PreGenericEnemyDeathVersion =>
                     EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
+                EnemyProjectileSpritemapDefinitions.PreEnvironmentAndAttackVersion =>
+                    EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
                 EnemyProjectileSpritemapDefinitions.Version =>
                     EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
                 _ => throw new InvalidDataException(
@@ -181,7 +183,8 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 9;
+    public const int Version = 10;
+    public const int PreEnvironmentAndAttackVersion = 9;
     public const int CeresOnlyVersion = 1;
     public const int FirstProgramFrameVersion = 3;
     public const int PreGenericEnemyDeathVersion = 8;

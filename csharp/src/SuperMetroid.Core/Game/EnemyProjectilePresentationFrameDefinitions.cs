@@ -7,21 +7,31 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class EnemyProjectilePresentationFrameDefinitions
 {
+    // Each generation is a complete historical set of named visual operands. Their
+    // order matches the published artwork schema, so an older override can be merged
+    // by operand identity without assuming that the sorted current catalog is a prefix.
+    private enum CatalogGeneration
+    {
+        PreGoldenTorizo,
+        PreGoldenTorizoEgg,
+        PreTorizoEffects,
+        PreGenericEnemyDeath,
+        PreEnvironmentAndAttack,
+        Current,
+    }
+
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
-        Build(includeGoldenTorizo: false, includeGoldenTorizoEgg: false,
-            includeTorizoEffects: false, includeGenericEnemyDeath: false);
+        Build(CatalogGeneration.PreGoldenTorizo);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
-        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: false,
-            includeTorizoEffects: false, includeGenericEnemyDeath: false);
+        Build(CatalogGeneration.PreGoldenTorizoEgg);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreTorizoEffectsFrames =
-        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
-            includeTorizoEffects: false, includeGenericEnemyDeath: false);
+        Build(CatalogGeneration.PreTorizoEffects);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGenericEnemyDeathFrames =
-        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
-            includeTorizoEffects: true, includeGenericEnemyDeath: false);
+        Build(CatalogGeneration.PreGenericEnemyDeath);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreEnvironmentAndAttackFrames =
+        Build(CatalogGeneration.PreEnvironmentAndAttack);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
-        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
-            includeTorizoEffects: true, includeGenericEnemyDeath: true);
+        Build(CatalogGeneration.Current);
 
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
@@ -32,14 +42,16 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreTorizoEffectsFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGenericEnemyDeath =>
         PreGenericEnemyDeathFrames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttack =>
+        PreEnvironmentAndAttackFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
             new EnemyProjectilePresentationFrameDefinition(operandAddress, string.Empty),
             AddressComparer.Instance) >= 0;
 
-    private static EnemyProjectilePresentationFrameDefinition[] Build(bool includeGoldenTorizo,
-        bool includeGoldenTorizoEgg, bool includeTorizoEffects, bool includeGenericEnemyDeath)
+    private static EnemyProjectilePresentationFrameDefinition[] Build(
+        CatalogGeneration generation)
     {
         var frames = new Dictionary<ushort, string>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in
@@ -98,7 +110,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "alcoon_fireball", AlcoonFireballInstructionProgramDefinitions.PresentationWordCount,
             AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress);
-        if (includeGoldenTorizo)
+        if (generation >= CatalogGeneration.PreGoldenTorizoEgg)
         {
             Add(frames, "golden_torizo_super_missile",
                 GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
@@ -107,13 +119,13 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress);
         }
-        if (includeGoldenTorizoEgg)
+        if (generation >= CatalogGeneration.PreTorizoEffects)
         {
             Add(frames, "golden_torizo_egg",
                 GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress);
         }
-        if (includeTorizoEffects)
+        if (generation >= CatalogGeneration.PreGenericEnemyDeath)
         {
             Add(frames, "torizo_drool",
                 BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
@@ -134,7 +146,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
                 TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
         }
-        if (includeGenericEnemyDeath)
+        if (generation >= CatalogGeneration.PreEnvironmentAndAttack)
         {
             Add(frames, "enemy_pickup",
                 EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
@@ -142,6 +154,42 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "enemy_death",
                 EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
                 EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
+        }
+        if (generation >= CatalogGeneration.Current)
+        {
+            Add(frames, "ceres_falling_debris",
+                CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
+                CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "save_station_electricity",
+                SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
+                SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "gunship_dust",
+                GunshipDustInstructionProgramDefinitions.PresentationWordCount,
+                GunshipDustInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "falling_spark",
+                FallingSparkInstructionProgramDefinitions.PresentationWordCount,
+                FallingSparkInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "magdollite_lava",
+                MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
+                MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "chozo_tourian_dust",
+                ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
+                ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "eye_door_sweat",
+                EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
+                EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "ki_hunter_acid_spit",
+                KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
+                KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "fune_namihe_fireball",
+                FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
+                FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "dragon_fireball",
+                DragonFireballInstructionProgramDefinitions.PresentationWordCount,
+                DragonFireballInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "powamp_spike",
+                PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
+                PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
         }
 
         return frames.OrderBy(entry => entry.Key)

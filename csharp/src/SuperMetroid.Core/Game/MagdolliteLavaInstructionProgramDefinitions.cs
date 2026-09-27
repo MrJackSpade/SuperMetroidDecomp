@@ -7,7 +7,7 @@ internal readonly record struct MagdolliteLavaInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Magdollite's left/right thrown-lava poses and shot program.
-/// Interleaved spritemap operands remain live cartridge presentation data; the shot
+/// Interleaved spritemap operands resolve through extracted presentation art; the shot
 /// program's final target belongs to the shared projectile-program catalog.
 /// </summary>
 internal static class MagdolliteLavaInstructionProgramDefinitions

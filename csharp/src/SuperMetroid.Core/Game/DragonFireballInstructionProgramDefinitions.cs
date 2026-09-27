@@ -7,7 +7,7 @@ internal readonly record struct DragonFireballInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Dragon's left/right rising and falling fireball loops.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class DragonFireballInstructionProgramDefinitions
 {

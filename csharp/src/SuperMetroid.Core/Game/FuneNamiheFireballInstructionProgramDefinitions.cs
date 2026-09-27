@@ -7,7 +7,7 @@ internal readonly record struct FuneNamiheFireballInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for both directional Fune/Namihe fireball programs. Their
-/// interleaved spritemap operands remain live cartridge presentation data.
+/// interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class FuneNamiheFireballInstructionProgramDefinitions
 {

@@ -6,7 +6,7 @@ internal readonly record struct ChozoTourianDustInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Wrecked Ship Chozo footsteps/explosions and Tourian statue descent
-/// dust. Their fourteen spritemap operands remain live cartridge presentation data.
+/// dust. Their fourteen spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class ChozoTourianDustInstructionProgramDefinitions
 {

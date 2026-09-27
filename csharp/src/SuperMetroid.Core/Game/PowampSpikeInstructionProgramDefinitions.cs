@@ -7,7 +7,7 @@ internal readonly record struct PowampSpikeInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Powamp's looping spike animation and private delete list.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class PowampSpikeInstructionProgramDefinitions
 {

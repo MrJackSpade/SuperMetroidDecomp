@@ -7,7 +7,7 @@ internal readonly record struct CeresFallingDebrisInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the light and dark Ceres falling-debris poses. Their spritemap
-/// operands remain live cartridge presentation data.
+/// operands resolve through extracted presentation art.
 /// </summary>
 internal static class CeresFallingDebrisInstructionProgramDefinitions
 {

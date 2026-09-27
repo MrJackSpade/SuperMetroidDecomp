@@ -7,7 +7,7 @@ internal readonly record struct KiHunterAcidSpitInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for both KiHunter acid-spit introductions and their shared splash.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class KiHunterAcidSpitInstructionProgramDefinitions
 {

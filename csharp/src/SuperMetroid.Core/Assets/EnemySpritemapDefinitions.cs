@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 33;
+    internal const int Version = 34;
+    internal const int PreYappingMawVersion = 33;
+    internal const int PreYappingMawFrameCount = 735;
     internal const int PreRoomSpriteObjectVersion = 32;
     internal const int PreRoomSpriteObjectFrameCount = 472;
     internal const int PreDraygonBreathVersion = 31;
@@ -596,6 +598,7 @@ internal static class EnemySpritemapDefinitions
     [
         .. NamedFrameDefinitions,
         .. RoomSpriteObjectVisualDefinitions.AdditionalFrames(NamedFrameDefinitions),
+        .. YappingMawVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -641,6 +644,8 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.KamerVerticalPlatformDefinition =>
                 KamerPlatformFrameAt(operandAddress),
             RoomEnemySystem.ElevatorDefinition => ElevatorFrameAt(operandAddress),
+            RoomEnemySystem.YappingMawDefinition =>
+                YappingMawVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.ZeelaDefinition or
                 RoomEnemySystem.SovaDefinition or
                 RoomEnemySystem.ZoomerDefinition or
@@ -694,6 +699,7 @@ internal static class EnemySpritemapDefinitions
             FuneNamiheDefinitions.NamiheEnemyDefinition or
             RoomEnemySystem.KamerVerticalPlatformDefinition or
             RoomEnemySystem.ElevatorDefinition or
+            RoomEnemySystem.YappingMawDefinition or
             RoomEnemySystem.ZeelaDefinition or
             RoomEnemySystem.SovaDefinition or
             RoomEnemySystem.ZoomerDefinition or

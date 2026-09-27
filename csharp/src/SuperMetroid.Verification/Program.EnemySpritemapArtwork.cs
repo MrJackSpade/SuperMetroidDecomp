@@ -268,8 +268,38 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
             "Draygon breath bubble adds its nine native sprite-object frames");
         AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount + 263,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreYappingMawFrameCount,
             "remaining room sprite-object programs add 263 distinct visual frames");
+        AssertEqual(EnemySpritemapDefinitions.PreYappingMawFrameCount + 24,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Yapping Maw adds 24 distinct OAM frames");
+        HashSet<ushort> installedMawPointers = EnemySpritemapDefinitions.Frames
+            .ToArray()
+            .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
+            .Select(frame => frame.Pointer)
+            .ToHashSet();
+        for (int index = 0;
+             index < YappingMawInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = YappingMawInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
+                rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.YappingMawDefinition, operand, out ushort selected),
+                $"Yapping Maw visual selector $A8:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Yapping Maw visual selector $A8:{operand:X4} matches cartridge");
+            AssertTrue(installedMawPointers.Contains(native),
+                $"Yapping Maw visual target $A8:{native:X4} has installed art");
+        }
+        AssertEqual(24, installedMawPointers.Count,
+            "Yapping Maw's 52 visual operands select 24 distinct frames");
+        AssertThrows<InvalidDataException>(
+            () => YappingMawVisualDefinitions.FrameAt(
+                YappingMawInstructionProgramDefinitions.AttackingFacingUp),
+            "Yapping Maw rejects adjacent instruction mechanics as presentation");
         AssertEqual(276, EnemySpritemapDefinitions.Frames.ToArray().Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
             "all bank-B4 sprite-object programs select 276 distinct visual frames");
@@ -1190,8 +1220,32 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preMawFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreYappingMawFrameCount,
+            preMawFrames.Count, "pre-Yapping-Maw composition schema frame count");
+        var preMawBindings = document.DisplayFrames!
+            .Where(pair => preMawFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreYappingMawVersion,
+                Frames = preMawFrames,
+                DisplayFrames = preMawBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preMawUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (ushort pointer in installedMawPointers)
+        {
+            AssertTrue(preMawUpgraded.Spritemaps!.TryGetDisplay(
+                    YappingMawVisualDefinitions.Bank, pointer, out _),
+                $"version-thirty-three override inherits Yapping Maw frame ${pointer:X4}");
+        }
         var preRoomSpriteFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("room_sprite_b4_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("room_sprite_b4_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
             preRoomSpriteFrames.Count, "pre-shared-sprite-object composition schema frame count");

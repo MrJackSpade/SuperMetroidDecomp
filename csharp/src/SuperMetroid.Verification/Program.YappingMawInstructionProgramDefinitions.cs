@@ -105,20 +105,8 @@ internal static partial class Program
 
         VerifyYappingMawInitializerSelections(guard, flags);
 
-        AssertEqual(YappingMawInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Yapping Maw spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < YappingMawInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                YappingMawInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Yapping Maw presentation word $A8:{address:X4}");
-        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Yapping Maw mechanics byte");
+            "production execution avoids all compiled Yapping Maw mechanics and visual bytes");
 
         AssertThrows<InvalidDataException>(
             () => YappingMawInstructionProgramDefinitions.ReadMechanicsWord(
@@ -138,7 +126,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Yapping Maw instruction mechanics: 96 compiled words, all fourteen attack/" +
-            "cooldown entries, seven callbacks, and 52 live spritemap reads pass.");
+            "cooldown entries, seven callbacks, and 52 compiled visual selectors pass.");
     }
 
     private static void VerifyYappingMawInitializerSelections(
@@ -238,7 +226,6 @@ internal static partial class Program
     private sealed class YappingMawInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -261,8 +248,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled Yapping Maw visual byte ${address:X6}.");
                     }
                 }
             }

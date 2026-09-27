@@ -171,6 +171,8 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Draygon, "Draygon room entry, dance and fight handoff",
                     frameCount: 2600);
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GauntletEast, "Gauntlet east Yapping Maw", frameCount: 90);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }

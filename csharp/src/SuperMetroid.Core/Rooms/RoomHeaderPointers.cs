@@ -35,6 +35,9 @@ public static class RoomHeaderPointers
     /// <summary>Landing Site at $8F:91F8.</summary>
     public const ushort LandingSite = 0x91f8;
 
+    /// <summary>Gauntlet east at $8F:92B3; contains the Crateria Yapping Maws.</summary>
+    public const ushort GauntletEast = 0x92b3;
+
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 

@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 40;
+    internal const int Version = 41;
+    internal const int PreKagoVersion = 40;
+    internal const int PreKagoFrameCount = 866;
     internal const int PreFlyVersion = 39;
     internal const int PreFlyFrameCount = 862;
     internal const int PreSciserVersion = 38;
@@ -617,6 +619,7 @@ internal static class EnemySpritemapDefinitions
         .. RidleySupplementalVisualDefinitions.Frames(),
         .. SciserVisualDefinitions.Frames(),
         .. FlyVisualDefinitions.Frames(),
+        .. KagoVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -641,7 +644,8 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
             RoomEnemySystem.SciserDefinition => SciserVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
-                RoomEnemySystem.MemuDefinition => FlyVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.MemuDefinition => FlyVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.KagoDefinition => KagoVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
@@ -711,6 +715,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.SciserDefinition or
             RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
             RoomEnemySystem.MemuDefinition or
+            RoomEnemySystem.KagoDefinition or
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or

@@ -4,7 +4,7 @@ internal readonly record struct KagoInstructionMechanicsWord(ushort Address, ush
 
 /// <summary>
 /// Compiled engine-control words for Kago's slow and post-hit animation loops.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class KagoInstructionProgramDefinitions
 {
@@ -31,6 +31,10 @@ internal static class KagoInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static KagoInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for a visual operand in the native slow or fast loop.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

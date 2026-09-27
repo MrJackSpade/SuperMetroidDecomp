@@ -69,9 +69,8 @@ internal static partial class Program
         AssertEqual((ushort)3, slot.InstructionTimer,
             "Kago fast loop restores its three-frame duration");
 
-        AssertEqual(KagoInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Kago spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Kago's slow and fast loops use compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Kago mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -90,8 +89,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Kago instruction mechanics: twelve compiled words, the complete slow and " +
-            "post-hit loops, the real bug-spawning handoff, and eight live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "post-hit loops, the real bug-spawning handoff, and eight compiled spritemap " +
+            "selectors pass without instruction or presentation ROM reads.");
     }
 
     private static int ProbeKagoInstructionMechanicsAllocation()

@@ -289,8 +289,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreFlyFrameCount,
             "Sciser adds twelve distinct surface-animation OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreFlyFrameCount + 4,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreKagoFrameCount,
             "Mellow, Mella and Memu share four flight OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreKagoFrameCount + 3,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Kago adds three OAM frames shared by its slow and fast loops");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -597,6 +600,19 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => FlyVisualDefinitions.FrameAt(FlyInstructionProgramDefinitions.Flight),
             "fly family rejects adjacent mechanics as presentation");
+        for (int index = 0; index < KagoInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = KagoInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.KagoDefinition, operand, out ushort selected),
+                $"Kago visual operand $A8:{operand:X4} is compiled");
+            AssertEqual(ReadKagoInstructionWord(rom, 0xa80000 | operand), selected,
+                $"Kago selector $A8:{operand:X4} matches the cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => KagoVisualDefinitions.FrameAt(KagoInstructionProgramDefinitions.Slow),
+            "Kago rejects adjacent mechanics as presentation");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -638,6 +654,8 @@ internal static partial class Program
                         ? RoomEnemySystem.SciserDefinition
                     : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
                         ? RoomEnemySystem.MellowDefinition
+                    : frame.Name.StartsWith("kago_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.KagoDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
@@ -944,6 +962,12 @@ internal static partial class Program
         {
             OffsetX = flyPart.OffsetX + 1,
         };
+        const string kagoFrameName = "kago_cycle_0";
+        SpriteVisualPart kagoPart = document.Frames[kagoFrameName][0];
+        document.Frames[kagoFrameName][0] = kagoPart with
+        {
+            OffsetX = kagoPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -976,6 +1000,17 @@ internal static partial class Program
                 editedFly.LowTable[0],
                 $"fly ${definition:X4} uses edited shared presentation");
         }
+        OamBuffer stockKago = DrawEnemy(stock, new FrameReadGuard(rom),
+            KagoVisualDefinitions.FrameAt(
+                KagoInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.KagoDefinition);
+        OamBuffer editedKago = DrawEnemy(edited, new FrameReadGuard(rom),
+            KagoVisualDefinitions.FrameAt(
+                KagoInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.KagoDefinition);
+        AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
+            editedKago.LowTable[0],
+            "Kago authored offset changes installed presentation");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1424,6 +1459,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preKagoFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("kago_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreKagoFrameCount,
+            preKagoFrames.Count, "pre-Kago composition schema frame count");
+        var preKagoBindings = document.DisplayFrames!
+            .Where(pair => preKagoFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreKagoVersion,
+                Frames = preKagoFrames,
+                DisplayFrames = preKagoBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preKagoUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in KagoVisualDefinitions.Frames())
+            AssertTrue(preKagoUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-forty override inherits Kago frame {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreKagoVersion,
+            Frames = preKagoFrames,
+            DisplayFrames = preKagoBindings,
+        };
         var preFlyFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("fly_shared_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2508,6 +2570,8 @@ internal static partial class Program
                     : definition is RoomEnemySystem.MellowDefinition or
                         RoomEnemySystem.MellaDefinition or RoomEnemySystem.MemuDefinition
                         ? FlyVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.KagoDefinition
+                        ? KagoVisualDefinitions.Bank
                     : definition is RoomEnemySystem.HZoomerDefinition or
                         RoomEnemySystem.SciserDefinition or
                         RoomEnemySystem.ZeelaDefinition or

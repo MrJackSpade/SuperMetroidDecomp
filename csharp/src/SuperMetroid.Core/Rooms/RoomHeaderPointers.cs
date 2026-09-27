@@ -83,6 +83,9 @@ public static class RoomHeaderPointers
     /// <summary>Flyway at $8F:9879.</summary>
     public const ushort Flyway = 0x9879;
 
+    /// <summary>Crateria room $1A at $8F:9969; its Kago population uses the shared three-frame cycle.</summary>
+    public const ushort CrateriaKagoRoom = 0x9969;
+
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;
 

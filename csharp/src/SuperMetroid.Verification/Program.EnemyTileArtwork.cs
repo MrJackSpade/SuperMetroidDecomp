@@ -22,6 +22,7 @@ internal static partial class Program
         {
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
+            VerifyInstalledDeadTorizoArtwork(directory, stock);
             VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock);
             VerifyInstalledZebetiteColors(bus, directory, stock);
             VerifyInstalledNorfairRidleyColors(bus, directory, stock);

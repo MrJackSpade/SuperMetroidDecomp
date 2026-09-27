@@ -41,6 +41,9 @@ public static class RoomHeaderPointers
     /// <summary>Pre-moat room at $8F:948C; contains the Crateria KiHunter pair.</summary>
     public const ushort PreMoat = 0x948c;
 
+    /// <summary>Dead-Torizo corpse room at $8F:DC65 in Tourian.</summary>
+    public const ushort DeadTorizoCorpse = 0xdc65;
+
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 

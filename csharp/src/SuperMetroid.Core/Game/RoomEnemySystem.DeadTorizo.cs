@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -19,7 +21,6 @@ public sealed partial class RoomEnemySystem
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
     private const int DeadTorizoWorkBufferSize = 0x1000;
     private const int DeadTorizoSandBufferAddress = 0x7e9500;
-    private const int DeadTorizoTileDataAddress = 0xb7a800;
 
     private static readonly DeadTorizoGraphicsCopy[] DeadTorizoInitialGraphicsCopies =
     [
@@ -264,15 +265,36 @@ public sealed partial class RoomEnemySystem
 
     private void InitializeDeadTorizoGraphics()
     {
+        ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
         foreach (DeadTorizoGraphicsCopy copy in DeadTorizoInitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
+                int sourceOffset = copy.SourceOffset + byteIndex;
                 _bus!.WriteByte(
                     DeadTorizoWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    _bus.ReadByte(DeadTorizoTileDataAddress + copy.SourceOffset + byteIndex));
+                    installedTiles.IsEmpty
+                        ? _bus.ReadByte(DeadTorizoArtworkDefinitions.SourceAddress + sourceOffset)
+                        : installedTiles[sourceOffset]);
             }
         }
+    }
+
+    /// <summary>
+    /// The enemy's ordinary extracted PNG already covers the complete bank-$B7 source
+    /// sheet. Reuse that same edited planar image for both the initial corpse copy and
+    /// later sand rows; neither path may bypass a bound installation to read the ROM.
+    /// Constructed cartridge-only fixtures retain the native source path.
+    /// </summary>
+    private ReadOnlySpan<byte> DeadTorizoInstalledTiles()
+    {
+        if (TileArtwork is null)
+            return [];
+        if (!TileArtwork.TryResolve(DeadTorizoArtworkDefinitions.SourceAddress,
+                DeadTorizoArtworkDefinitions.ByteCount, out ReadOnlyMemory<byte> tiles))
+            throw new InvalidDataException(
+                "Installed dead-Torizo sheet enemy-ed3f-tiles.png is missing or has the wrong size.");
+        return tiles.Span;
     }
 
     private void CopyOrMoveDeadTorizoPixelRow(
@@ -327,6 +349,7 @@ public sealed partial class RoomEnemySystem
 
     private void CopyDeadTorizoSandLine(ushort lineIndex)
     {
+        ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
         ushort destinationOffset = ReadWord(
             _bus!,
             0xa9d67c + lineIndex * 2);
@@ -338,9 +361,10 @@ public sealed partial class RoomEnemySystem
         // heap surface. Only the first 16-bit bitplane word of each row is replaced.
         for (int row = 0; row < 18; row++)
         {
-            ushort value = ReadWord(
-                _bus!,
-                DeadTorizoTileDataAddress + sourceOffset + row * 16);
+            int tileOffset = sourceOffset + row * 16;
+            ushort value = installedTiles.IsEmpty
+                ? ReadWord(_bus!, DeadTorizoArtworkDefinitions.SourceAddress + tileOffset)
+                : BinaryPrimitives.ReadUInt16LittleEndian(installedTiles.Slice(tileOffset, 2));
             WriteWord(
                 _bus!,
                 DeadTorizoSandBufferAddress + destinationOffset + row * 16,

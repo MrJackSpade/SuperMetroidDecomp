@@ -59,8 +59,37 @@ internal static partial class Program
         AssertEqual((ushort)0xa717, firstBabyFrame.SpritemapPointer,
             "compiled Baby-attack head program selects the native first-frame visual");
 
+        MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
+            "ProcessInstructions", flags)!;
+        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
+        foreach (ushort start in new[]
+        {
+            MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
+            MotherBrainHeadInstructionProgramDefinitions.BombStart,
+        })
+        {
+            var enemies = new RoomEnemySystem();
+            busField.SetValue(enemies, new MotherBrainHeadInstructionReadGuard(rom));
+            var head = new RoomEnemySlot(0)
+            {
+                EnemyDefinitionPointer = 0xec3f,
+                Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
+                CurrentInstruction = start,
+                InstructionTimer = 1,
+            };
+            processInstructions.Invoke(enemies,
+                [head, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            AssertEqual((ushort)(start + 4), head.CurrentInstruction,
+                $"ordinary Mother Brain head owner advances ${start:X4} frame cursor");
+            AssertEqual((ushort)4, head.InstructionTimer,
+                $"ordinary Mother Brain head owner retains ${start:X4} frame duration");
+            AssertEqual((ushort)0xa69b, head.SpritemapPointer,
+                $"ordinary Mother Brain head owner selects ${start:X4} frame artwork");
+        }
+
         Console.WriteLine(
-            $"Mother Brain head programs: {checkedWords} native words, strict pointers and guarded Baby-attack execution pass.");
+            $"Mother Brain head programs: {checkedWords} native words, strict pointers, " +
+            "guarded Baby-attack and ordinary-enemy execution pass.");
     }
 
     private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :

@@ -2595,6 +2595,11 @@ public sealed partial class RoomEnemySystem
 
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
+        if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            MotherBrainHeadInstructionProgramDefinitions.ContainsWord(operandAddress))
+        {
+            return MotherBrainHeadInstructionProgramDefinitions.ReadWord(operandAddress);
+        }
         if (EnemySpritemapDefinitions.TryFrameAt(
                 slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
             return frame;
@@ -3963,6 +3968,12 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition)
             return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            MotherBrainHeadInstructionProgramDefinitions.ContainsWord(address))
+        {
+            return MotherBrainHeadInstructionProgramDefinitions.ReadWord(address);
+        }
 
         if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
             return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);

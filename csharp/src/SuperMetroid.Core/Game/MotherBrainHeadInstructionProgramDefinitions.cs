@@ -57,6 +57,12 @@ public static class MotherBrainHeadInstructionProgramDefinitions
             >= BabyAttackStart and <= BabyAttackActiveEnd or
             >= BombStart and <= BombActiveEnd;
 
+    /// <summary>Whether a word belongs to one of the three compiled head lists.</summary>
+    public static bool ContainsWord(ushort pointer) =>
+        Contains(NeutralStart, NeutralWords, pointer) ||
+        Contains(BabyAttackStart, BabyAttackWords, pointer) ||
+        Contains(BombStart, BombWords, pointer);
+
     /// <summary>Reads one compiled native word, including the boundary operand word.</summary>
     public static ushort ReadWord(ushort pointer)
     {
@@ -71,13 +77,18 @@ public static class MotherBrainHeadInstructionProgramDefinitions
     private static bool TryRead(ushort start, ReadOnlySpan<ushort> words,
         ushort pointer, out ushort value)
     {
-        int offset = pointer - start;
-        if (offset >= 0 && (offset & 1) == 0 && offset / 2 < words.Length)
+        if (Contains(start, words, pointer))
         {
-            value = words[offset / 2];
+            value = words[(pointer - start) / 2];
             return true;
         }
         value = 0;
         return false;
+    }
+
+    private static bool Contains(ushort start, ReadOnlySpan<ushort> words, ushort pointer)
+    {
+        int offset = pointer - start;
+        return offset >= 0 && (offset & 1) == 0 && offset / 2 < words.Length;
     }
 }

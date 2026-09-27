@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -129,18 +130,17 @@ internal static partial class Program
                 process.Invoke(programSystem, arguments);
         }
 
-        AssertEqual(
-            SbugInstructionProgramDefinitions.PresentationWordCount,
-            programGuard.ObservedPresentationWords.Count,
-            "all live Sbug spritemap words remain cartridge reads");
+        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+            "all Sbug presentation selectors are compiled, not reread from cartridge");
         for (int index = 0;
              index < SbugInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 SbugInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(programGuard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Sbug presentation word $A3:{address:X4}");
+            AssertEqual(ReadSbugProgramWord(rom, address),
+                EnemySpritemapDefinitions.SbugFrameAt(address),
+                $"compiled Sbug visual selector $A3:{address:X4} matches cartridge");
         }
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Sbug mechanics byte");
@@ -165,7 +165,7 @@ internal static partial class Program
         Console.WriteLine(
             "Sbug movement definitions: eight facing lists, seven activation callbacks, " +
             "48 compiled instruction words, and eight complete loops pass with mechanics " +
-            "reads forbidden; 32 spritemap words remain live.");
+            "and all 32 visual-selector reads forbidden.");
     }
 
     private static int ProbeSbugInstructionMechanicsAllocation()

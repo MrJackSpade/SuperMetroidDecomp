@@ -122,9 +122,31 @@ internal static partial class Program
                 $"ordinary Mother Brain head owner selects ${start:X4} frame artwork");
         }
 
+        // The first-frame tests above stop before $A9:9C25. Execute its
+        // branch too: the target word at $A9:9C27 is compiled mechanics,
+        // and the guarded bus must not be asked to read it on the loop.
+        var loopingEnemies = new RoomEnemySystem();
+        busField.SetValue(loopingEnemies, new MotherBrainHeadInstructionReadGuard(rom));
+        var loopingHead = new RoomEnemySlot(0)
+        {
+            EnemyDefinitionPointer = 0xec3f,
+            Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
+            CurrentInstruction = 0x9c21,
+            InstructionTimer = 1,
+        };
+        processInstructions.Invoke(loopingEnemies,
+            [loopingHead, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+        loopingHead.InstructionTimer = 1;
+        processInstructions.Invoke(loopingEnemies,
+            [loopingHead, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+        AssertEqual((ushort)0x9c25, loopingHead.CurrentInstruction,
+            "ordinary Mother Brain head loops through the compiled goto operand");
+        AssertEqual((ushort)0xa586, loopingHead.SpritemapPointer,
+            "ordinary Mother Brain head loop retains the authored visual frame");
+
         Console.WriteLine(
             $"Mother Brain head programs: {checkedWords} native words, strict data gaps, " +
-            "guarded Baby-attack and nine ordinary-enemy entry frames pass.");
+            "guarded Baby-attack, nine ordinary-enemy entry frames and a branch loop pass.");
     }
 
     private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :

@@ -508,16 +508,14 @@ public sealed partial class RoomEnemySystem
         switch (instruction)
         {
             case MotherBrainInstructionCodes.Instruction_MotherBrain_GotoX:
-                cursor = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                cursor = ReadEnemyInstructionMechanicsWord(
+                    slot, unchecked((ushort)(cursor + 2)));
                 return true;
 
             case MotherBrainInstructionCodes.Instruction_MotherBrainHead_EnableNeckMovement_GotoX:
                 RequireCompleteMotherBrainState(slot).NeckMovementEnabled = true;
-                cursor = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                cursor = ReadEnemyInstructionMechanicsWord(
+                    slot, unchecked((ushort)(cursor + 2)));
                 return true;
 
             // `$95B6-$95F2` are the six posture-transition displacements. Each command

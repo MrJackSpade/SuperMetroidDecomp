@@ -54,9 +54,8 @@ internal static partial class Program
                 $"fly ${definition:X4} completes native animation loop");
         }
 
-        AssertEqual(FlyInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live fly-family spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "fly-family animation uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled fly-family mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -75,8 +74,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Fly-family instruction mechanics: six compiled words, all three real " +
-            "initializers, the complete loop, and four live spritemap reads pass with " +
-            "mechanics bytes forbidden.");
+            "initializers, the complete loop, and four compiled spritemap selectors pass " +
+            "without instruction or presentation ROM reads.");
     }
 
     private static int ProbeFlyInstructionMechanicsAllocation()

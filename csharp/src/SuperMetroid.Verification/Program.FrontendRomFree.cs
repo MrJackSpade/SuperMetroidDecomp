@@ -178,6 +178,8 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.CrabMaze, "Crab Maze Sciser", frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.Flyway, "Flyway shared fly family", frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.DeadTorizoCorpse, "Tourian dead-Torizo corpse",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,

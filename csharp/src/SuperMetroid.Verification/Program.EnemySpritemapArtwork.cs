@@ -286,8 +286,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreSciserFrameCount,
             "Ridley adds sixteen tips, twelve wings, and three tail segment OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreSciserFrameCount + 12,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreFlyFrameCount,
             "Sciser adds twelve distinct surface-animation OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreFlyFrameCount + 4,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Mellow, Mella and Memu share four flight OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -575,6 +578,25 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => SciserVisualDefinitions.FrameAt(SciserInstructionProgramDefinitions.UpsideUp),
             "Sciser rejects adjacent mechanics as a visual selector");
+        for (int index = 0; index < FlyInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = FlyInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort expected = ReadFlyInstructionWord(rom, 0xa20000 | operand);
+            foreach (ushort definition in new ushort[]
+                     { RoomEnemySystem.MellowDefinition, RoomEnemySystem.MellaDefinition,
+                       RoomEnemySystem.MemuDefinition })
+            {
+                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                        definition, operand, out ushort selected),
+                    $"fly ${definition:X4} visual operand $A2:{operand:X4} is compiled");
+                AssertEqual(expected, selected,
+                    $"fly ${definition:X4} selector $A2:{operand:X4} matches the cartridge");
+            }
+        }
+        AssertThrows<InvalidDataException>(
+            () => FlyVisualDefinitions.FrameAt(FlyInstructionProgramDefinitions.Flight),
+            "fly family rejects adjacent mechanics as presentation");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -614,6 +636,8 @@ internal static partial class Program
                     ? RoomEnemySystem.BoyonDefinition
                     : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
                         ? RoomEnemySystem.SciserDefinition
+                    : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.MellowDefinition
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
                         ? RoomEnemySystem.NorfairRioDefinition
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
@@ -914,6 +938,12 @@ internal static partial class Program
         {
             OffsetX = sciserPart.OffsetX + 1,
         };
+        const string flyFrameName = "fly_shared_0";
+        SpriteVisualPart flyPart = document.Frames[flyFrameName][0];
+        document.Frames[flyFrameName][0] = flyPart with
+        {
+            OffsetX = flyPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -932,6 +962,20 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockSciser.LowTable[0] + 1)),
             editedSciser.LowTable[0],
             "Sciser authored OAM offset changes installed room presentation");
+        foreach (ushort definition in new ushort[]
+                 { RoomEnemySystem.MellowDefinition, RoomEnemySystem.MellaDefinition,
+                   RoomEnemySystem.MemuDefinition })
+        {
+            OamBuffer stockFly = DrawEnemy(stock, new FrameReadGuard(rom),
+                FlyVisualDefinitions.FrameAt(
+                    FlyInstructionProgramDefinitions.PresentationWordAddress(0)), definition);
+            OamBuffer editedFly = DrawEnemy(edited, new FrameReadGuard(rom),
+                FlyVisualDefinitions.FrameAt(
+                    FlyInstructionProgramDefinitions.PresentationWordAddress(0)), definition);
+            AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
+                editedFly.LowTable[0],
+                $"fly ${definition:X4} uses edited shared presentation");
+        }
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1380,6 +1424,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preFlyFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("fly_shared_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreFlyFrameCount,
+            preFlyFrames.Count, "pre-fly composition schema frame count");
+        var preFlyBindings = document.DisplayFrames!
+            .Where(pair => preFlyFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreFlyVersion,
+                Frames = preFlyFrames,
+                DisplayFrames = preFlyBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preFlyUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in FlyVisualDefinitions.Frames())
+            AssertTrue(preFlyUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-thirty-nine override inherits fly frame {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreFlyVersion,
+            Frames = preFlyFrames,
+            DisplayFrames = preFlyBindings,
+        };
         var preSciserFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("sciser_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2434,6 +2505,9 @@ internal static partial class Program
                         ? EnemySpritemapDefinitions.HopperBank
                     : definition == RoomEnemySystem.ChootDefinition
                         ? EnemySpritemapDefinitions.ChootBank
+                    : definition is RoomEnemySystem.MellowDefinition or
+                        RoomEnemySystem.MellaDefinition or RoomEnemySystem.MemuDefinition
+                        ? FlyVisualDefinitions.Bank
                     : definition is RoomEnemySystem.HZoomerDefinition or
                         RoomEnemySystem.SciserDefinition or
                         RoomEnemySystem.ZeelaDefinition or

@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 39;
+    internal const int Version = 40;
+    internal const int PreFlyVersion = 39;
+    internal const int PreFlyFrameCount = 862;
     internal const int PreSciserVersion = 38;
     internal const int PreSciserFrameCount = 850;
     internal const int PreRidleySupplementVersion = 37;
@@ -614,6 +616,7 @@ internal static class EnemySpritemapDefinitions
         .. DeadTorizoArtworkDefinitions.Frames(),
         .. RidleySupplementalVisualDefinitions.Frames(),
         .. SciserVisualDefinitions.Frames(),
+        .. FlyVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -637,6 +640,8 @@ internal static class EnemySpritemapDefinitions
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
             RoomEnemySystem.SciserDefinition => SciserVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
+                RoomEnemySystem.MemuDefinition => FlyVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
             RoomEnemySystem.LowerNorfairRioDefinition =>
                 LowerNorfairRioFrameAt(operandAddress),
@@ -704,6 +709,8 @@ internal static class EnemySpritemapDefinitions
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
             RoomEnemySystem.BoyonDefinition or
             RoomEnemySystem.SciserDefinition or
+            RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
+            RoomEnemySystem.MemuDefinition or
             RoomEnemySystem.RioDefinition or
             RoomEnemySystem.LowerNorfairRioDefinition or
             RoomEnemySystem.NorfairRioDefinition or

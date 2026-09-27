@@ -4,7 +4,7 @@ internal readonly record struct FlyInstructionMechanicsWord(ushort Address, usho
 
 /// <summary>
 /// Compiled engine-control words for the shared Mellow, Mella, and Memu animation loop.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class FlyInstructionProgramDefinitions
 {
@@ -23,6 +23,10 @@ internal static class FlyInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static FlyInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for the four visual operands in the shared flight loop.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

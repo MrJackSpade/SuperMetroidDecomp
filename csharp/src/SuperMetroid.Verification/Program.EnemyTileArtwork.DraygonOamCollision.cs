@@ -8,10 +8,9 @@ internal static partial class Program
     private static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {
-        // The previous visual catalog grouped all 60 selected bank-$A5 OAM
-        // roots under a Draygon key. The final 12 are actually selected by
-        // Spore Spawn's program; do not let that presentation name broaden
-        // the Draygon collision fast path to a different enemy.
+        // Version 6 grouped all 60 selected bank-$A5 OAM roots under a
+        // Draygon key. The final twelve are selected by Spore Spawn's program;
+        // never broaden Draygon's empty-list shortcut to a different enemy.
         var sporePointers = new HashSet<ushort>();
         for (int index = 0;
              index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount;
@@ -48,6 +47,9 @@ internal static partial class Program
                 continue;
             if (sporePointers.Contains(frame.Pointer))
             {
+                AssertTrue(frame.Name.StartsWith("spore_spawn_oam_",
+                        StringComparison.Ordinal),
+                    $"Spore Spawn frame {frame.Pointer:X4} has its own author key");
                 AssertTrue(!DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer),
                     $"Spore Spawn frame {frame.Name} is not a Draygon collision frame");
                 sporeFrames++;
@@ -56,6 +58,9 @@ internal static partial class Program
 
             AssertTrue(DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer),
                 $"Draygon OAM frame {frame.Name} has a compiled no-hitbox identity");
+            AssertTrue(frame.Name.StartsWith("draygon_oam_",
+                    StringComparison.Ordinal),
+                $"Draygon frame {frame.Pointer:X4} retains its author family");
             AssertEqual(0,
                 DraygonCollisionDefinitions.ComponentsAt(frame.Pointer).Length,
                 $"Draygon OAM frame {frame.Name} has no collision components");

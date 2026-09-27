@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreSporeIdentityVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.PreDraygonVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreDraygonFrameCount,
@@ -123,12 +126,17 @@ public sealed class EnemyExtendedFrameCatalog
         var identities = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (EnemyExtendedFrameDefinition definition in expected)
         {
-            if (!document.Frames.TryGetValue(definition.Name,
+            string authoredName = document.Version ==
+                EnemyExtendedFrameDefinitions.PreSporeIdentityVersion &&
+                definition.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
+                    ? $"draygon_oam_{definition.Pointer:X4}"
+                    : definition.Name;
+            if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
                 visual is null || visual.Length is < 1 or >
                     EnemyExtendedFrameDefinitions.MaximumComponents)
                 throw new InvalidDataException(
-                    $"Extended enemy frame {definition.Name} is missing or exceeds component capacity.");
+                    $"Extended enemy frame {authoredName} is missing or exceeds component capacity.");
             var compiled = new EnemyExtendedDrawComponent[visual.Length];
             int totalParts = 0;
             for (int index = 0; index < visual.Length; index++)
@@ -152,7 +160,7 @@ public sealed class EnemyExtendedFrameCatalog
                     compiled))
                 throw new InvalidDataException(
                     $"Extended enemy frame {definition.Name} repeats a visual identity.");
-            identities.Add(definition.Name,
+            identities.Add(authoredName,
                 (definition.Bank << 16) | definition.Pointer);
         }
         var displayFrames = new Dictionary<int, int>();
@@ -181,7 +189,8 @@ public sealed class EnemyExtendedFrameCatalog
             merged[identity] = components;
         var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
         if (document.Version is EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
-            or EnemyExtendedFrameDefinitions.PreDraygonVersion)
+            or EnemyExtendedFrameDefinitions.PreDraygonVersion
+            or EnemyExtendedFrameDefinitions.PreSporeIdentityVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -202,6 +211,8 @@ public sealed class EnemyExtendedFrameCatalog
 
         static bool SameFrameFamily(string left, string right)
         {
+            if (left.StartsWith("spore_spawn_oam_", StringComparison.Ordinal))
+                return right.StartsWith("spore_spawn_oam_", StringComparison.Ordinal);
             if (left.StartsWith("draygon_oam_", StringComparison.Ordinal))
                 return right.StartsWith("draygon_oam_", StringComparison.Ordinal);
             if (left.StartsWith("ridley_body_", StringComparison.Ordinal))

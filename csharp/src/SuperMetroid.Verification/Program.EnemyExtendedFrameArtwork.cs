@@ -71,10 +71,14 @@ internal static partial class Program
             "all Ceres/Lower Norfair Ridley body frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
-                frame => frame.Bank == 0xa5),
+                frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
             "all selected ordinary-OAM Draygon extended frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.SporeSpawnOamFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)),
+            "all selected Spore Spawn extended frames are installed");
         var draygonOamPointers = EnemyExtendedFrameDefinitions.Frames.ToArray()
-            .Where(frame => frame.Bank == 0xa5)
+            .Where(frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
         var draygonBg2Pointers = new HashSet<ushort>();
@@ -100,7 +104,7 @@ internal static partial class Program
             }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
         }
         AssertEqual(34, draygonBg2Pointers.Count,
-            "Draygon presentation selectors partition into 60 OAM and 34 BG2 frames");
+            "Draygon presentation selectors partition into 48 OAM and 34 BG2 frames");
 
         string fileName = EnemyExtendedFrameDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
@@ -261,7 +265,7 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ninja_pirate_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -331,7 +335,7 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -351,11 +355,11 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal)).ToDictionary(
+                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal))
+                !IsBankA5ExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -384,11 +388,11 @@ internal static partial class Program
         var versionFive = new EnemyExtendedFrameDocument
         {
             Version = EnemyExtendedFrameDefinitions.PreDraygonVersion,
-            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
-                "draygon_oam_", StringComparison.Ordinal)).ToDictionary(
+            Frames = document.Frames.Where(entry =>
+                !IsBankA5ExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal))
+                !IsBankA5ExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -404,6 +408,55 @@ internal static partial class Program
             "version-five override retains its authored Pirate display binding");
         AssertTrue(upgradedVersionFive.ExtendedFrames!.TryGet(0xa5, 0xa2df, out _),
             "version-five override inherits stock Draygon OAM art");
+
+        // V6 published the Spore Spawn roots with Draygon-prefixed author keys.
+        // Migrate the keys by unchanged bank/pointer identity so old artwork
+        // and display bindings remain effective after the family correction.
+        EnemyExtendedFrameDocument beforeSporeIdentity =
+            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        const string currentSporeName = "spore_spawn_oam_EE6F";
+        const string legacySporeName = "draygon_oam_EE6F";
+        var versionSixFrames = beforeSporeIdentity.Frames.ToDictionary(
+            entry => LegacyExtendedFrameName(entry.Key), entry => entry.Value,
+            StringComparer.Ordinal);
+        var versionSixBindings = beforeSporeIdentity.DisplayFrames!.ToDictionary(
+            entry => LegacyExtendedFrameName(entry.Key),
+            entry => LegacyExtendedFrameName(entry.Value),
+            StringComparer.Ordinal);
+        EnemyExtendedVisualComponent legacySporeFirst =
+            versionSixFrames[legacySporeName][0];
+        versionSixFrames[legacySporeName][0] = legacySporeFirst with
+        {
+            OffsetX = legacySporeFirst.OffsetX + 1,
+        };
+        versionSixBindings["draygon_oam_EE65"] = legacySporeName;
+        var versionSix = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreSporeIdentityVersion,
+            Frames = versionSixFrames,
+            DisplayFrames = versionSixBindings,
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionSix, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionSix = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer stockSpore = DrawExtendedForBank(stock, guard,
+            0xa5, 0xee6f, 0x0040, 0x0080);
+        OamBuffer editedSpore = DrawExtendedForBank(upgradedVersionSix, guard,
+            0xa5, 0xee6f, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockSpore.LowTable[0] + 1)),
+            editedSpore.LowTable[0],
+            "version-six Draygon-named Spore Spawn art edit survives migration");
+        OamBuffer reboundSpore = DrawExtendedForBank(upgradedVersionSix, guard,
+            0xa5, 0xee65, 0x0040, 0x0080);
+        AssertTrue(reboundSpore.LowTable.SequenceEqual(editedSpore.LowTable) &&
+                   reboundSpore.HighTable.SequenceEqual(editedSpore.HighTable),
+            "version-six Spore Spawn display binding survives key migration");
+        AssertTrue(beforeSporeIdentity.Frames.ContainsKey(currentSporeName) &&
+                   !beforeSporeIdentity.Frames.ContainsKey(legacySporeName),
+            "current stock exposes the corrected Spore Spawn author key");
 
         EnemyExtendedFrameDocument remapped =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -451,6 +504,16 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "cross-family Pirate display binding fails loudly");
+        remapped.DisplayFrames[sourceName] = targetName;
+        remapped.DisplayFrames["spore_spawn_oam_EE65"] = "draygon_oam_A2DF";
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            remapped, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        AssertThrows<InvalidDataException>(
+            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            "current Spore Spawn display binding cannot select Draygon art");
+        remapped.DisplayFrames["spore_spawn_oam_EE65"] =
+            "spore_spawn_oam_EE65";
         remapped.DisplayFrames.Remove(sourceName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
@@ -498,11 +561,20 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, and 60 Draygon OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon and 12 Spore Spawn OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v5 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v6 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
+
+    private static bool IsBankA5ExtendedFrameName(string name) =>
+        name.StartsWith("draygon_oam_", StringComparison.Ordinal) ||
+        name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal);
+
+    private static string LegacyExtendedFrameName(string name) =>
+        name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
+            ? "draygon_oam_" + name["spore_spawn_oam_".Length..]
+            : name;
 
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog? art,
         ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,

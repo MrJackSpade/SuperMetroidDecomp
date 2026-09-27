@@ -2835,9 +2835,9 @@ public sealed partial class RoomEnemySystem
             enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
             SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer))
         {
-            // These twelve OAM frames are selected by Spore Spawn, despite
-            // their legacy visual asset keys bearing a Draygon prefix. Keep
-            // every rectangle and callback in the compiled gameplay catalog.
+            // These twelve OAM frames are selected by Spore Spawn. Old visual
+            // overrides may carry Draygon-prefixed keys, but every rectangle
+            // and callback comes from the compiled gameplay catalog.
             foreach (SporeSpawnCollisionComponent component in
                      SporeSpawnCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))

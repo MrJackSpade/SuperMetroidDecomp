@@ -7,9 +7,9 @@ internal readonly record struct EnemyExtendedFrameDefinition(
     byte Bank, ushort Pointer, string Name);
 
 /// <summary>
-/// Named visual identities for Pirate and Ridley composite frames. The Pirate
-/// selectors come from compiled instruction catalogs; component
-/// hitbox pointers remain gameplay-owned and are absent from the asset.
+/// Named visual identities for Pirate, Ridley, Draygon, and Spore Spawn
+/// composite frames. Their selectors come from compiled instruction catalogs;
+/// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
 internal static class EnemyExtendedFrameDefinitions
 {
@@ -19,7 +19,8 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PirateDisplayBindingsVersion = 4;
     internal const int PreDraygonVersion = 5;
     internal const int PreDraygonFrameCount = 142;
-    internal const int Version = 6;
+    internal const int PreSporeIdentityVersion = 6;
+    internal const int Version = 7;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -27,11 +28,13 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int WallFrameCount = 18;
     internal const int NinjaFrameCount = 76;
     internal const int RidleyFrameCount = 11;
-    internal const int DraygonOamFrameCount = 60;
+    internal const int DraygonOamFrameCount = 48;
+    internal const int SporeSpawnOamFrameCount = 12;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
-        PirateFrameCount + RidleyFrameCount + DraygonOamFrameCount;
+        PirateFrameCount + RidleyFrameCount +
+        DraygonOamFrameCount + SporeSpawnOamFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -46,6 +49,13 @@ internal static class EnemyExtendedFrameDefinitions
         0xa6ed, 0xa6f7, 0xa701, 0xa70b,
         0xa779, 0xa78b, 0xa79d, 0xa7af, 0xa7c1, 0xa7d3, 0xa7e5, 0xa7f7,
         0xa811, 0xa833, 0xa85d, 0xa88f, 0xa8c9, 0xa90b,
+    ];
+
+    // These twelve bank-$A5 roots are selected by Spore Spawn's instruction
+    // programs, not Draygon. Version 6 accidentally published Draygon-prefixed
+    // author keys for them; the loader migrates those keys by physical pointer.
+    private static readonly ushort[] SporeSpawnOamPointers =
+    [
         0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,
         0xeed3, 0xeee5, 0xef3d, 0xef4f, 0xef61,
     ];
@@ -175,11 +185,16 @@ internal static class EnemyExtendedFrameDefinitions
             frames.Add(new EnemyExtendedFrameDefinition(0xa6, pointer,
                 $"ridley_body_{pointer:X4}"));
         if (frames.Count != PreDraygonFrameCount ||
-            DraygonOamPointers.Length != DraygonOamFrameCount)
-            throw new InvalidDataException("Draygon OAM frame catalog prefix changed.");
+            DraygonOamPointers.Length != DraygonOamFrameCount ||
+            SporeSpawnOamPointers.Length != SporeSpawnOamFrameCount)
+            throw new InvalidDataException(
+                "Draygon/Spore Spawn OAM frame catalog prefix changed.");
         foreach (ushort pointer in DraygonOamPointers)
             frames.Add(new EnemyExtendedFrameDefinition(0xa5, pointer,
                 $"draygon_oam_{pointer:X4}"));
+        foreach (ushort pointer in SporeSpawnOamPointers)
+            frames.Add(new EnemyExtendedFrameDefinition(0xa5, pointer,
+                $"spore_spawn_oam_{pointer:X4}"));
         return frames.ToArray();
     }
 }

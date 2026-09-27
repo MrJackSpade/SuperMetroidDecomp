@@ -495,8 +495,8 @@ times and VRAM destinations stay fixed; edits are resolved when each queued
 upload reaches NMI, including after restoring an older pending debugger state.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
-`overrides/enemy-tiles/` to edit the 131 Pirate, 11 Ridley-body, and 60
-ordinary-OAM Draygon extended frames. Each frame contains
+`overrides/enemy-tiles/` to edit the 131 Pirate, 11 Ridley-body, 48 Draygon,
+and 12 Spore Spawn ordinary-OAM extended frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
 OAM fields listed above. Its `displayFrames` table can remap any named visual
 frame to another frame of the same enemy family, without changing the native
@@ -508,9 +508,13 @@ come from verified stock. A version-two override also retains wall edits and
 inherits the new ninja frames. Version-three overrides retain all their art and
 inherit stock identity bindings; use a version-four copy to edit display bindings.
 Version-four and version-five overrides retain their existing display bindings
-and inherit later boss frames from verified stock. Use a current version-six
-copy to edit Draygon's OAM compositions. Draygon's other 34 selected extended
-frames contain BG2 tilemap commands and live in a separate file.
+and inherit later boss frames from verified stock. Version-six overrides retain
+their Draygon and Spore Spawn edits and display bindings; the twelve formerly
+misnamed `draygon_oam_EE65`–`draygon_oam_EF61` keys migrate by unchanged frame
+pointer to `spore_spawn_oam_*`. Use a current version-seven copy to edit those
+families separately. New display bindings cannot cross between Draygon and
+Spore Spawn. Draygon's other 34 selected extended frames contain BG2 tilemap
+commands and live in a separate file.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
 Phantoon's body, eye, tentacles, and mouth use BG2 tilemap writes rather than

@@ -10,8 +10,8 @@ internal readonly record struct SporeSpawnCollisionHitbox(
 
 /// <summary>
 /// The twelve bank-$A5 Spore Spawn extended OAM frames at $EE65-$EF61 and
-/// their fixed gameplay hitboxes. The visual catalog currently labels these
-/// frames as Draygon; collision must follow the actual Spore Spawn program.
+/// their fixed gameplay hitboxes. Version 6 mislabeled their visual keys as
+/// Draygon, but collision always follows the actual Spore Spawn program.
 /// </summary>
 internal static class SporeSpawnCollisionDefinitions
 {

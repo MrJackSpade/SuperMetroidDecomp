@@ -5,8 +5,9 @@ namespace SuperMetroid.Core.Game;
 /// statue animated-tile objects in bank <c>$87</c>.
 /// </summary>
 /// <remarks>
-/// The nine frame-source operands in each program remain cartridge-backed presentation
-/// references. This catalog owns the instruction graph, timing, event routing, boss-bit
+/// The nine frame-source operands in each program are presentation references in
+/// <see cref="SuperMetroid.Core.Assets.TourianStatueAnimatedTileArtworkDefinitions"/>.
+/// This catalog owns the instruction graph, timing, event routing, boss-bit
 /// tests, palette destinations, and effect parameters that make the sequence operate.
 /// </remarks>
 public static class TourianStatueAnimatedTileMechanicsDefinitions
@@ -156,7 +157,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     public ushort PaletteFxDefinition { get; }
     /// <summary>The byte offset receiving the eight common grey target colors.</summary>
     public ushort TargetPaletteByteIndex { get; }
-    /// <summary>The nine live artwork-pointer operands excluded from mechanics ownership.</summary>
+    /// <summary>The nine artwork-pointer operands excluded from mechanics ownership.</summary>
     public IReadOnlyList<ushort> SourceOperandPointers => readOnlySourceOperandPointers;
 
     /// <summary>Reads one immutable mechanics word, excluding frame source operands.</summary>

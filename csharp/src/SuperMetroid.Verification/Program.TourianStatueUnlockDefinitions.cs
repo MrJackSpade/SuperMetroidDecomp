@@ -1,4 +1,6 @@
 using System.Reflection;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -66,6 +68,8 @@ internal static partial class Program
     {
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
+        RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(
+            new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
         {
@@ -84,6 +88,18 @@ internal static partial class Program
                     AssertTrue(!definition.TryReadMechanicsWord(pointer, out _),
                         $"statue $87:{definition.ObjectPointer:X4} leaves source " +
                         $"$87:{pointer:X4} presentation-owned");
+                    int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
+                        definition, pointer);
+                    AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                            RoomFxRomData.Banks.AnimatedTiles | pointer),
+                        (ushort)source,
+                        $"statue $87:{definition.ObjectPointer:X4} compiled frame selection $87:{pointer:X4}");
+                    byte[] native = RomDataReader.ReadFixedBank(rom, source,
+                        definition.TransferByteCount);
+                    AssertTrue(artwork.TryResolve(source, native.Length,
+                            out ReadOnlyMemory<byte> installed) &&
+                        installed.Span.SequenceEqual(native),
+                        $"statue frame $87:{pointer:X4} preserves every cartridge pixel byte");
                     presentationWordCount++;
                     continue;
                 }
@@ -110,13 +126,15 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
-        runtime.VramWrites.DrainTo(runtime.Vram, guarded);
+        var provider = new RoomFxArtworkTestProvider(artwork);
+        runtime.VramWrites.DrainTo(runtime.Vram, guarded, provider);
+        guarded.ForbidArtworkReads = true;
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
         {
             runtime.TourianStatues.StepTiles(runtime);
-            runtime.VramWrites.DrainTo(runtime.Vram, guarded);
+            runtime.VramWrites.DrainTo(runtime.Vram, guarded, provider);
         }
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),
@@ -124,11 +142,11 @@ internal static partial class Program
         AssertTrue(steps < 3000, "production Tourian sequence remains bounded");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production Tourian sequence performs no mechanics ROM reads");
-        AssertEqual(36, guarded.ObservedSourceOperands.Count,
-            "production Tourian sequence reads every live frame-source operand");
+        AssertEqual(0, guarded.ObservedSourceOperands.Count,
+            "installed Tourian sequence reads no frame-source operands");
         Console.WriteLine(
-            $"Tourian statue animated tiles: 184 mechanics words compiled, 36 source " +
-            $"pointers live, and the real four-statue release completes in {steps} calls.");
+            $"Tourian statue animated tiles: 184 mechanics words and 36 art selections " +
+            $"compiled, with ROM-free art transfer; release completes in {steps} calls.");
     }
 
     private static bool TourianStatueGreyEventsAreSet(SuperMetroidRuntime runtime) =>
@@ -170,10 +188,16 @@ internal static partial class Program
         ISnesAddressSpace
     {
         public int ForbiddenReadAttempts { get; private set; }
+        public bool ForbidArtworkReads { get; set; }
         public HashSet<ushort> ObservedSourceOperands { get; } = [];
 
         public byte ReadByte(int address)
         {
+            if (ForbidArtworkReads &&
+                address >= TourianStatueAnimatedTileArtworkDefinitions.FirstSource &&
+                address < TourianStatueAnimatedTileArtworkDefinitions.SourceEnd)
+                throw new InvalidOperationException(
+                    $"Installed Tourian statue artwork read cartridge byte ${address:X6}.");
             SnesAddress snesAddress = SnesAddress.FromBusAddress(address);
             if (snesAddress.Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16))
             {

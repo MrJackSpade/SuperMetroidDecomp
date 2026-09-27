@@ -122,6 +122,9 @@ internal static partial class Program
         editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] = (byte)(
             (editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] + 1) %
             RoomFxAnimatedTileAtlasFormat.ColorCount);
+        editedPixels[RoomFxAnimatedTileAtlasFormat.PreStatueWidth] = (byte)(
+            (editedPixels[RoomFxAnimatedTileAtlasFormat.PreStatueWidth] + 1) %
+            RoomFxAnimatedTileAtlasFormat.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, image.Width, image.Height, editedPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
@@ -165,10 +168,52 @@ internal static partial class Program
             "edited treadmill pixel reaches the production runtime NMI destination");
         AssertEqual(0, guarded.ForbiddenReads,
             "edited treadmill animation and queued upload remain ROM-free");
+        int statueSource = TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
+        AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
+                out ReadOnlyMemory<byte> stockStatue),
+            "stock Tourian statue frame is installed");
+        AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
+                out ReadOnlyMemory<byte> editedStatue) &&
+            !editedStatue.Span.SequenceEqual(stockStatue.Span),
+            "edited Tourian statue pixels compile to a distinct installed frame");
+        var statueVram = new SnesVram();
+        var statueWrites = new VramWriteQueue();
+        statueWrites.Enqueue(0x80, statueSource, 0x7800);
+        statueWrites.DrainTo(statueVram, guarded,
+            new RoomFxArtworkTestProvider(changed.RoomFxAnimatedTiles));
+        AssertEqual(editedStatue.Span[0], statueVram.ReadByte(0x7800 * 2),
+            "edited Tourian statue pixel reaches the native NMI destination");
         File.Delete(file);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX override restores stock identity");
+
+        // The immediately preceding 97-character format keeps its edits and
+        // inherits only the newly added Tourian statue strip from current stock.
+        byte[] preStatuePixels = new byte[
+            RoomFxAnimatedTileAtlasFormat.PreStatueWidth * RoomFxAnimatedTileAtlasFormat.Height];
+        for (int row = 0; row < RoomFxAnimatedTileAtlasFormat.Height; row++)
+            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.Width,
+                    RoomFxAnimatedTileAtlasFormat.PreStatueWidth)
+                .CopyTo(preStatuePixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.PreStatueWidth,
+                    RoomFxAnimatedTileAtlasFormat.PreStatueWidth));
+        preStatuePixels[0] = (byte)((preStatuePixels[0] + 1) %
+            RoomFxAnimatedTileAtlasFormat.ColorCount);
+        using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
+            IndexedPng.Write(output, RoomFxAnimatedTileAtlasFormat.PreStatueWidth,
+                RoomFxAnimatedTileAtlasFormat.Height, preStatuePixels,
+                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
+        AreaMapPresentationCatalog migratedPreStatue =
+            AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
+                out ReadOnlyMemory<byte> migratedPreStatueSimple) &&
+            !migratedPreStatueSimple.Span.SequenceEqual(original.Span),
+            "pre-statue override retains its edited room-FX pixels");
+        AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
+                out ReadOnlyMemory<byte> migratedStatue) &&
+            migratedStatue.Span.SequenceEqual(stockStatue.Span),
+            "pre-statue override inherits checked stock statue pixels");
+        File.Delete(file);
 
         // A pre-treadmill 89-character override must keep its original edits after an
         // update, with only the newly added four frames inherited from checked stock.
@@ -196,7 +241,7 @@ internal static partial class Program
             migratedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
             "old-size room-FX override receives only new treadmill frames from stock");
         File.Delete(file);
-        Console.WriteLine("Room-FX animation override: edited simple/treadmill pixels reach VRAM; legacy overrides retain edits.");
+        Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
     private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner) : ISnesAddressSpace

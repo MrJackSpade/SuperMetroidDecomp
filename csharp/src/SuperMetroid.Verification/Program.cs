@@ -114,6 +114,12 @@ if (args is ["--room-fx-animated-tiles"])
     VerifyRoomFxAnimatedTileArtwork();
     return 0;
 }
+if (args is ["--tourian-statue-animated-tiles"])
+{
+    VerifyTourianStatueUnlockDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--treadmill-animated-tiles"])
 {
     VerifyAnimatedTileInstructionCodeCatalog();

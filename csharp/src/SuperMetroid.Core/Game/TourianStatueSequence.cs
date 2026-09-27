@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -75,10 +76,11 @@ public sealed class TourianStatueSequence
                 {
                     if (code == 0) throw new InvalidDataException("Zero-duration statue tile frame.");
                     tile.Timer = code;
-                    ushort sourcePointer = Word(bus, operand);
+                    int sourceAddress = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
+                        tile.Definition, unchecked((ushort)operand));
                     runtime.VramWrites.Enqueue(
                         tile.Definition.TransferByteCount,
-                        RoomFxRomData.Banks.AnimatedTiles | sourcePointer,
+                        sourceAddress,
                         tile.Definition.EncodedVramDestination);
                     tile.Pointer += 4;
                     break;
@@ -191,10 +193,6 @@ public sealed class TourianStatueSequence
         runtime.Camera!.Scrolls.SetLogicalState(0, 0, RoomScrollState.Green);
         runtime.Camera.Scrolls.SetLogicalState(0, 1, RoomScrollState.Green);
     }
-    private static ushort Word(ISnesAddressSpace bus, int pointer) =>
-        (ushort)(bus.ReadByte(RoomFxRomData.Banks.AnimatedTiles | pointer) |
-            bus.ReadByte(RoomFxRomData.Banks.AnimatedTiles | (pointer + 1)) << 8);
-
     private static ushort MechanicsWord(TileObject tile, int pointer)
     {
         ushort bankPointer = unchecked((ushort)pointer);

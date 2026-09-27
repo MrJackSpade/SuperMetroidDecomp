@@ -11,6 +11,26 @@ internal static partial class Program
         var blockedRom = new FrontendCartridgeReadGuard(rom);
         foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitions.SupportedBanks)
         {
+            int emptyOam = (bank << 16) |
+                CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+            AssertEqual((ushort)0, ReadWord(emptyOam),
+                $"bank ${bank:X2} shared ordinary empty OAM part count");
+            // Exercise the ordinary draw entry point too: unlike the extended
+            // $804F root below, enemies can select $804D directly during their
+            // initialization. A full-ROM read guard proves this is compiled.
+            var ordinaryEnemies = new RoomEnemySystem { TileArtwork = stock };
+            typeof(RoomEnemySystem).GetField("_bus",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(
+                    ordinaryEnemies, new FrontendCartridgeReadGuard(rom));
+            var emptyDraw = new OamBuffer();
+            typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(
+                    ordinaryEnemies,
+                    [emptyDraw, bank, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap,
+                        (ushort)0x0080, (ushort)0x0080, (ushort)0, (ushort)0,
+                        false, true]);
+            AssertEqual(0, emptyDraw.NextByteOffset,
+                $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = (bank << 16) |
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame;
             AssertEqual((byte)1, rom.ReadByte(root),
@@ -58,7 +78,10 @@ internal static partial class Program
                 FindSharedEmptyCallback(blockedRom, bank, selectShot: true),
                 $"bank ${bank:X2} shared point selects compiled shot callback");
         }
-        Console.WriteLine("  Shared empty extended frame: 12 bank-local records match the ROM and draw/collide with cartridge reads forbidden.");
+        AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(
+                0xb4, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap),
+            "non-enemy bank does not inherit the shared empty OAM definition");
+        Console.WriteLine("  Shared empty frames: 12 bank-local ordinary and extended records match the ROM; ordinary draw and extended draw/collision forbid cartridge reads.");
 
         ushort ReadWord(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Shared ordinary empty enemy frame (2026-09-27)
+
+The bank-local `$804D` ordinary spritemap has zero OAM parts in all twelve
+supported enemy banks. An installed game now recognizes this identity after
+checking editable display bindings, so direct empty-frame drawing does not read
+the cartridge. Constructed fixtures without installed art retain the native
+reader. The enemy-artwork test checks every bank's native zero count and calls
+the real ordinary draw method with ROM reads forbidden. Room `$8F:D95E` now
+matches native pixels for 90 neutral frames with the full installed ROM-read
+guard. Other census failures, including mixed Golden Torizo instructions, remain.
+
 ## Shaktool-room PLM instruction owner (2026-09-27)
 
 The complete three-word `$84:B8D6-B8DB` resident list now compiles its

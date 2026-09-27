@@ -2591,6 +2591,12 @@ public sealed partial class RoomEnemySystem
                 paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
             return;
         }
+        // All ordinary enemy banks share a zero-part frame at $804D. An installed
+        // game must not consult cartridge bytes just to draw nothing; keep the
+        // bus path for constructed fixtures without an artwork installation.
+        if (TileArtwork?.Spritemaps is not null &&
+            CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer))
+            return;
         oam.AddEnemySpritemap(_bus!, bank, pointer, originX, originY,
             paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }

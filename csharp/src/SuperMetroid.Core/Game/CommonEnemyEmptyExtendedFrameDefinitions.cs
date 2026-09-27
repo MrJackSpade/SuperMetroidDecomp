@@ -22,6 +22,14 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     internal static bool HasFrame(byte bank, ushort pointer) =>
         pointer == Frame && Banks.AsSpan().Contains(bank);
 
+    /// <summary>
+    /// The ordinary $804D OAM record is a zero-part frame in every supported
+    /// enemy bank. It is also selected directly by enemies that have not yet
+    /// entered a visible animation, independently of the $804F extended frame.
+    /// </summary>
+    internal static bool HasEmptySpritemap(byte bank, ushort pointer) =>
+        pointer == EmptySpritemap && Banks.AsSpan().Contains(bank);
+
     internal static ushort Callback(bool selectShot) => selectShot
         ? EnemyAiCodePointers.BankA0.NormalEnemyShot
         : EnemyAiCodePointers.BankA0.NormalEnemyTouch;

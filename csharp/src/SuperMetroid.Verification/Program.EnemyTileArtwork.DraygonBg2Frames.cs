@@ -69,6 +69,7 @@ internal static partial class Program
             "all selected Draygon BG2 frame identities are installed");
         AssertEqual(102, writeCount, "all Draygon BG2 command writes are installed");
         VerifyCompiledDraygonBg2Collision(rom);
+        VerifyCompiledDraygonOamCollision(rom);
 
         string stockPath = Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName);
         byte[] original = File.ReadAllBytes(stockPath);
@@ -132,14 +133,14 @@ internal static partial class Program
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
-            ReadOnlySpan<DraygonBg2CollisionComponent> components =
-                DraygonBg2CollisionDefinitions.ComponentsAt(frame.Pointer);
+            ReadOnlySpan<DraygonCollisionComponent> components =
+                DraygonCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual((int)rom.ReadByte(root), components.Length,
                 $"Draygon {frame.Name} compiled collision component count");
             for (int index = 0; index < components.Length; index++)
             {
                 int record = root + 2 + index * 8;
-                DraygonBg2CollisionComponent component = components[index];
+                DraygonCollisionComponent component = components[index];
                 AssertEqual(ReadWord(record), unchecked((ushort)component.X),
                     $"Draygon {frame.Name} collision X offset");
                 AssertEqual(ReadWord(record + 2), unchecked((ushort)component.Y),
@@ -154,14 +155,14 @@ internal static partial class Program
         foreach (ushort pointer in nativeLists)
         {
             int list = (DraygonBg2FrameDefinitions.Bank << 16) | pointer;
-            ReadOnlySpan<DraygonBg2CollisionHitbox> hitboxes =
-                DraygonBg2CollisionDefinitions.HitboxesAt(pointer);
+            ReadOnlySpan<DraygonCollisionHitbox> hitboxes =
+                DraygonCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual((int)ReadWord(list), hitboxes.Length,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 int record = list + 2 + index * 12;
-                DraygonBg2CollisionHitbox box = hitboxes[index];
+                DraygonCollisionHitbox box = hitboxes[index];
                 AssertEqual(ReadWord(record), unchecked((ushort)box.Left),
                     $"Draygon list {pointer:X4} box {index} left");
                 AssertEqual(ReadWord(record + 2), unchecked((ushort)box.Top),
@@ -209,7 +210,7 @@ internal static partial class Program
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonBg2CollisionDefinitions.ComponentsAt(0x8000),
+            () => DraygonCollisionDefinitions.ComponentsAt(0x8000),
             "uncatalogued Draygon BG2 collision frame fails loudly");
         Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
 

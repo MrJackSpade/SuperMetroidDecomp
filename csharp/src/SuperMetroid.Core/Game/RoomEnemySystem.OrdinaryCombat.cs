@@ -2802,19 +2802,18 @@ public sealed partial class RoomEnemySystem
         }
 
         if (IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
-            DraygonBg2FrameDefinitions.IsFrame(enemy.SpritemapPointer))
+            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank)
         {
-            // Draygon's BG2 tiles are presentation data. Even though the
-            // cartridge stores hitbox pointers beside the visual stream,
-            // collision must use its fixed gameplay records instead.
-            foreach (DraygonBg2CollisionComponent component in
-                     DraygonBg2CollisionDefinitions.ComponentsAt(
+            // Both OAM and BG2 art are replaceable presentation. Their native
+            // component offsets and hitbox pointers remain fixed gameplay data.
+            foreach (DraygonCollisionComponent component in
+                     DraygonCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
-                foreach (DraygonBg2CollisionHitbox hitbox in
-                         DraygonBg2CollisionDefinitions.HitboxesAt(
+                foreach (DraygonCollisionHitbox hitbox in
+                         DraygonCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));

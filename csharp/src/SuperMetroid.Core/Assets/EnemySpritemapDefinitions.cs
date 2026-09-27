@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 32;
+    internal const int Version = 33;
+    internal const int PreRoomSpriteObjectVersion = 32;
+    internal const int PreRoomSpriteObjectFrameCount = 472;
     internal const int PreDraygonBreathVersion = 31;
     internal const int PreDraygonBreathFrameCount = 463;
     internal const int PreDraygonIntroVersion = 30;
@@ -102,7 +104,7 @@ internal static class EnemySpritemapDefinitions
     internal const int TileColumns = 16;
     internal const int TileRows = 32;
 
-    private static readonly EnemySpritemapDefinition[] FrameDefinitions =
+    private static readonly EnemySpritemapDefinition[] NamedFrameDefinitions =
     [
         new(BoyonBank, 0x88da, "boyon_idle_0"),
         new(BoyonBank, 0x88e1, "boyon_idle_1"),
@@ -585,6 +587,15 @@ internal static class EnemySpritemapDefinitions
         new(RoomSpriteObjectBank, 0xc97c, "draygon_breath_bubble_6"),
         new(RoomSpriteObjectBank, 0xc98d, "draygon_breath_bubble_7"),
         new(RoomSpriteObjectBank, 0xc999, "draygon_breath_bubble_8"),
+    ];
+
+    // All other bank-$B4 presentation targets are shared by the 62 compiled
+    // sprite-object programs. Build their stable, address-named art identities
+    // from the compiled selectors; do not duplicate their pointer list here.
+    private static readonly EnemySpritemapDefinition[] FrameDefinitions =
+    [
+        .. NamedFrameDefinitions,
+        .. RoomSpriteObjectVisualDefinitions.AdditionalFrames(NamedFrameDefinitions),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

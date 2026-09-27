@@ -446,9 +446,13 @@ Beetom's twenty-two crawling, hopping, and draining compositions, and the
 Sidehopper/Dessgeega family's twenty-four floor/ceiling compositions (including
 the large and Tourian Sidehopper variants), plus Choot's four idle/jump/fall
 compositions, plus twenty surface-orientation poses shared by HZoomer, Zeela,
-Sova, Zoomer, and Stone Zoomer. It also contains four bank-$B4 Evir
-sprite-object frames used during Draygon's opening dance. Their object
-allocation, frame durations, movement, and collision remain engine-owned.
+Sova, Zoomer, and Stone Zoomer. It also contains all 276 distinct bank-$B4
+sprite-object frames selected by the 62 compiled room-object programs. Four
+Draygon opening Evir and nine breath-bubble frames have descriptive names;
+the other shared frames use stable `room_sprite_b4_` names followed by their
+native spritemap address. A frame can be shared by several object kinds, so an
+address-named edit can affect more than one effect. Object allocation, frame
+durations, movement, and collision remain engine-owned.
 Copy it to
 `overrides/enemy-tiles/` to edit a frame's ordered OAM
 parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
@@ -461,11 +465,13 @@ selection, enemy hitboxes, movement, and damage remain engine-owned. The stock
 JSON is hash-checked; malformed overrides
 fail with a load error. Other enemy families still use their ROM spritemaps until
 their visual frames are extracted.
-Existing version-four through version-thirty overrides remain valid:
+Existing version-four through version-thirty-two overrides remain valid:
 their edited frames are retained, while newer families come from verified stock
-content. Version-fourteen through version-thirty overrides also retain their edited
+content. Version-fourteen through version-thirty-two overrides also retain their edited
 `displayFrames` bindings; earlier versions inherit stock identity selections. Save a
-current version-thirty-one copy to edit Draygon's intro Evir frames or display bindings.
+current version-thirty-three copy to edit the full room sprite-object catalog or
+its display bindings. A bound catalog missing one of these frames fails with an
+error instead of silently rereading cartridge art.
 The Evir character sheet is the ordinary extracted enemy PNG; the boss-room
 intro reuses that sheet for its VRAM upload rather than reading raw cartridge bytes.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in

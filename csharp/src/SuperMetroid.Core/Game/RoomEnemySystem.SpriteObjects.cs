@@ -244,15 +244,24 @@ public sealed partial class RoomEnemySystem
             ushort paletteBits = new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits;
             ushort baseTileIndex = unchecked((ushort)
                 new SnesObjAttributeWord(slot.GraphicsIndex).TileNumber);
-            if (TileArtwork?.Spritemaps?.TryGetDisplay(
-                    RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
-                    out ReadOnlyMemory<EnemySpritemapPart> installed) == true)
+            if (TileArtwork?.Spritemaps is { } spritemaps)
             {
+                if (!spritemaps.TryGetDisplay(
+                        RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
+                        out ReadOnlyMemory<EnemySpritemapPart> installed))
+                {
+                    throw new InvalidDataException(
+                        $"Installed room sprite-object artwork lacks " +
+                        $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
+                }
                 oam.AddEnemySpritemap(installed.Span, screenX, screenY,
                     paletteBits, baseTileIndex);
             }
             else
             {
+                // Cartridge-backed diagnostics may deliberately run without an
+                // installed composition catalog. A bound catalog must never
+                // conceal a missing frame by silently rereading the ROM.
                 oam.AddEnemySpritemap(_bus!, RoomSpriteObjectVisualDefinitions.Bank,
                     slot.SpritemapPointer, screenX, screenY,
                     paletteBits, baseTileIndex);

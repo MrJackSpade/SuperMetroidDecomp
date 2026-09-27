@@ -265,8 +265,19 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreDraygonBreathFrameCount,
             "Draygon intro adds its four native Evir sprite-object frames");
         AssertEqual(EnemySpritemapDefinitions.PreDraygonBreathFrameCount + 9,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
             "Draygon breath bubble adds its nine native sprite-object frames");
+        AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount + 263,
+            EnemySpritemapDefinitions.Frames.Length,
+            "remaining room sprite-object programs add 263 distinct visual frames");
+        AssertEqual(276, EnemySpritemapDefinitions.Frames.ToArray().Count(
+                frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
+            "all bank-B4 sprite-object programs select 276 distinct visual frames");
+        HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
+            .ToArray()
+            .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
+            .Select(frame => frame.Pointer)
+            .ToHashSet();
         for (int index = 0;
              index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -277,6 +288,8 @@ internal static partial class Program
                 rom.ReadByte(0xb40000 | unchecked((ushort)(operand + 1))) << 8));
             AssertEqual(native, RoomSpriteObjectVisualDefinitions.FrameAt(operand),
                 $"room sprite-object visual selector $B4:{operand:X4}");
+            AssertTrue(installedSpritePointers.Contains(native),
+                $"room sprite-object visual target $B4:{native:X4} has installed art");
         }
         AssertThrows<InvalidDataException>(
             () => RoomSpriteObjectVisualDefinitions.FrameAt(
@@ -760,6 +773,11 @@ internal static partial class Program
         {
             OffsetX = draygonIntroPart.OffsetX + 1,
         };
+        SpriteVisualPart sharedSpritePart = document.Frames["room_sprite_b4_dc3f"][0];
+        document.Frames["room_sprite_b4_dc3f"][0] = sharedSpritePart with
+        {
+            OffsetY = sharedSpritePart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -776,6 +794,15 @@ internal static partial class Program
             "editable Draygon intro Evir offset changes live room sprite-object OAM");
         AssertEqual(stockIntroEvir.LowTable[1], editedIntroEvir.LowTable[1],
             "Draygon intro Evir edit leaves vertical placement unchanged");
+        OamBuffer stockDeathEvir = DrawRoomSpriteObject(stock, new BankB4ReadGuard(rom),
+            RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
+        OamBuffer editedDeathEvir = DrawRoomSpriteObject(edited, new BankB4ReadGuard(rom),
+            RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
+        AssertEqual(unchecked((byte)(stockDeathEvir.LowTable[1] + 1)),
+            editedDeathEvir.LowTable[1],
+            "address-named shared sprite-object edit changes live room OAM");
+        AssertEqual(stockDeathEvir.LowTable[0], editedDeathEvir.LowTable[0],
+            "shared sprite-object edit leaves physical X placement unchanged");
         OamBuffer stockFune = DrawEnemy(stock, new FrameReadGuard(rom),
             0x94cb, FuneNamiheDefinitions.FuneEnemyDefinition);
         OamBuffer editedFune = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -1163,12 +1190,37 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preBreathFrames = document.Frames
+        var preRoomSpriteFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("room_sprite_b4_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
+            preRoomSpriteFrames.Count, "pre-shared-sprite-object composition schema frame count");
+        var preRoomSpriteBindings = document.DisplayFrames!
+            .Where(pair => preRoomSpriteFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreRoomSpriteObjectVersion,
+                Frames = preRoomSpriteFrames,
+                DisplayFrames = preRoomSpriteBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preRoomSpriteUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+        {
+            if (!frame.Name.StartsWith("room_sprite_b4_", StringComparison.Ordinal))
+                continue;
+            AssertTrue(preRoomSpriteUpgraded.Spritemaps!.TryGetDisplay(
+                    EnemySpritemapDefinitions.RoomSpriteObjectBank, frame.Pointer, out _),
+                $"version-thirty-two override inherits stock sprite-object frame {frame.Name}");
+        }
+        var preBreathFrames = preRoomSpriteFrames
             .Where(pair => !pair.Key.StartsWith("draygon_breath_bubble_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDraygonBreathFrameCount,
             preBreathFrames.Count, "pre-Draygon-breath composition schema frame count");
-        var preBreathBindings = document.DisplayFrames!
+        var preBreathBindings = preRoomSpriteBindings
             .Where(pair => preBreathFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(

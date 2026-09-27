@@ -97,7 +97,13 @@ public sealed partial class RoomEnemySystem
         if ((nmiFrameCounter & 3) == 0)
         {
             state.Mode7BabyFrame = unchecked((ushort)((state.Mode7BabyFrame + 1) & 3));
-            ushort[] babyTransferPointers = [0xace2, 0xacf5, 0xad08, 0xacf5];
+            ushort[] babyTransferPointers =
+            [
+                CeresMode7TransferDefinitions.BabyFrame0,
+                CeresMode7TransferDefinitions.BabyFrame1,
+                CeresMode7TransferDefinitions.BabyFrame2,
+                CeresMode7TransferDefinitions.BabyFrame1,
+            ];
             ApplyMode7TransferList(babyTransferPointers[state.Mode7BabyFrame]);
         }
 
@@ -105,7 +111,9 @@ public sealed partial class RoomEnemySystem
         if ((nmiFrameCounter & 7) == 0)
         {
             state.Mode7WingFrame = unchecked((ushort)((state.Mode7WingFrame + 1) & 1));
-            ApplyMode7TransferList(state.Mode7WingFrame == 0 ? (ushort)0xad49 : (ushort)0xad80);
+            ApplyMode7TransferList(state.Mode7WingFrame == 0
+                ? CeresMode7TransferDefinitions.WingFrame0
+                : CeresMode7TransferDefinitions.WingFrame1);
         }
     }
 
@@ -141,45 +149,12 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Executes one $80:8B4F Mode-7 DMA-list payload synchronously. The Ceres lists use only
-    /// low-byte VRAM writes ($2118), but rejecting any other target keeps later additions
-    /// from silently treating character or CGRAM data as a tile number.
+    /// Replays one compiled $80:8B4F Mode-7 transfer list synchronously. Its source
+    /// bytes are immutable cartridge definitions, so gameplay needs no bank-$A6 read.
     /// </summary>
     private void ApplyMode7TransferList(ushort pointer)
     {
-        int cursor = 0xa60000 | pointer;
-        for (int transferCount = 0; transferCount < 16; transferCount++)
-        {
-            byte control = _bus!.ReadByte(cursor);
-            if (control == 0)
-                return;
-            if ((control & 0xc0) != 0x80)
-            {
-                throw new InvalidDataException(
-                    $"Ceres Mode-7 transfer $A6:{cursor & 0xffff:X4} uses unsupported control ${control:X2}.");
-            }
-
-            int sourceAddress = _bus.ReadByte(AdvanceBankAddress(cursor, 1)) |
-                (_bus.ReadByte(AdvanceBankAddress(cursor, 2)) << 8) |
-                (_bus.ReadByte(AdvanceBankAddress(cursor, 3)) << 16);
-            ushort byteCount = ReadWord(_bus, AdvanceBankAddress(cursor, 4));
-            ushort destinationWord = ReadWord(_bus, AdvanceBankAddress(cursor, 6));
-            byte incrementMode = _bus.ReadByte(AdvanceBankAddress(cursor, 8));
-            if (incrementMode != 0)
-            {
-                throw new InvalidDataException(
-                    $"Ceres Mode-7 transfer $A6:{cursor & 0xffff:X4} uses VMAIN ${incrementMode:X2}.");
-            }
-
-            byte[] source = new byte[byteCount];
-            SnesAddress sourceStart = SnesAddress.FromBusAddress(sourceAddress);
-            for (int index = 0; index < source.Length; index++)
-                source[index] = _bus.ReadByte((int)sourceStart.AddWithinBank(index));
-            _vram!.LoadMode7MapBytes(source, destinationWord);
-            cursor = AdvanceBankAddress(cursor, 9);
-        }
-
-        throw new InvalidDataException("Ceres Mode-7 transfer list exceeded sixteen entries.");
+        CeresMode7TransferDefinitions.ApplyTo(_vram!, pointer);
     }
 
     private static int AdvanceBankAddress(int address, int byteCount) =>

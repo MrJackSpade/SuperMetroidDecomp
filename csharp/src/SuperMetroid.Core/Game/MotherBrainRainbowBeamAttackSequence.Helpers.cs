@@ -49,14 +49,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         });
     }
 
-    private static ushort ReadBankA9Word(ISnesAddressSpace bus, ushort address)
-    {
-        SnesAddress lowAddress = new(0xa9, address);
-        return unchecked((ushort)(
-            bus.ReadByte((int)lowAddress) |
-            (bus.ReadByte((int)lowAddress.AddWithinBank(1)) << 8)));
-    }
-
     private void RetractHead()
     {
         // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.

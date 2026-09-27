@@ -16,38 +16,9 @@ static void VerifyMotherBrainBombProjectiles()
 {
     var bus = new TestAddressSpace();
 
-    // Literal `$A9:9F00-$9F33` phase-three bomb list. The spritemap words are fixture
-    // sentinels because the head interpreter only publishes them; every duration, opcode,
-    // operand, and branch target is the retail byte stream being verified here.
-    bus.WriteBytes(0xa99f00, [
-        0x04, 0x00, 0x00, 0xa0,
-        0x04, 0x00, 0x02, 0xa0,
-        0x08, 0x00, 0x04, 0xa0,
-        0x20, 0x9b,
-        0x04, 0x00, 0x04, 0xa0,
-        0x04, 0x00, 0x06, 0xa0,
-        0x28, 0x9b, 0x6f, 0x00,
-        0x08, 0x00, 0x08, 0xa0,
-        0xbd, 0x9e, 0x01, 0x00,
-        0x6d, 0x9b,
-        0x20, 0x00, 0x08, 0xa0,
-        0x04, 0x00, 0x06, 0xa0,
-        0x10, 0x00, 0x04, 0xa0,
-        0x14, 0x9b, 0xb9, 0x9c,
-    ]);
-    bus.WriteBytes(0xa99cb9, [
-        0x04, 0x00, 0x00, 0xa0,
-        0x04, 0x00, 0x02, 0xa0,
-        0x08, 0x00, 0x04, 0xa0,
-        0x04, 0x00, 0x02, 0xa0,
-        0x04, 0x00, 0x00, 0xa0,
-        0x04, 0x00, 0x02, 0xa0,
-        0x08, 0x00, 0x04, 0xa0,
-        0x08, 0x00, 0x02, 0xa0,
-        0x0d, 0x9d,
-        0x04, 0x00, 0x00, 0xa0,
-        0x0f, 0x9b, 0xb9, 0x9c,
-    ]);
+    // Head durations, visual selectors, opcodes and operands now come from the
+    // compiled native program catalog. The fixture bus below owns only the separate
+    // projectile bytecode and mutable state needed for this collision sequence.
 
     // Literal `$86:C76E-$C795` bomb animation. Its nine durations sum to 34 calls and
     // `$81AB` loops directly to the first record without introducing a blank frame.
@@ -86,13 +57,14 @@ static void VerifyMotherBrainBombProjectiles()
         "phase-three combat selects bomb fixture");
     AssertEqual(0x9f00, motherBrain.HeadInstructionPointer,
         "bomb selection exposes first head bytecode word");
+    var guardedHeadBus = new MotherBrainHeadInstructionReadGuard(bus);
 
     MotherBrainHeadAnimationStepResult spawnHead = default;
     ushort? headSoundLibraryTwo = null;
     int headCalls = 0;
     while (spawnHead.BombSpawn is null)
     {
-        spawnHead = motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0100);
+        spawnHead = motherBrain.StepHeadAnimation(guardedHeadBus, samus, baby: null, randomNumberSeed: 0x0100);
         if (spawnHead.QueuedSoundLibraryTwo is { } sound)
             headSoundLibraryTwo = sound;
         headCalls++;
@@ -111,7 +83,7 @@ static void VerifyMotherBrainBombProjectiles()
     // Finish the close-mouth tail. `$9B14` must re-enable the neck, jump to `$9CB9`, and
     // load the first neutral frame during the same interpreter call.
     for (int call = 0; call < 52; call++)
-        motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0100);
+        motherBrain.StepHeadAnimation(guardedHeadBus, samus, baby: null, randomNumberSeed: 0x0100);
     AssertEqual(0x9cbd, motherBrain.HeadInstructionPointer,
         "bomb tail returns to first phase-three neutral frame without a blank call");
     AssertEqual(1, motherBrain.NeckMovementEnabled,
@@ -120,11 +92,11 @@ static void VerifyMotherBrainBombProjectiles()
     // The retail `$9D0D` contains an unconditional BRA over a tempting cry branch. Low
     // twelve-bit RNG below `$EC0` loops to `$9CD1`; exactly `$EC0` falls through to `$9CDB`.
     for (int call = 0; call < 44; call++)
-        motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0ebf);
+        motherBrain.StepHeadAnimation(guardedHeadBus, samus, baby: null, randomNumberSeed: 0x0ebf);
     AssertEqual(0x9cd5, motherBrain.HeadInstructionPointer,
         "neutral low-RNG branch reloads `$9CD1` frame");
     for (int call = 0; call < 16; call++)
-        motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0ec0);
+        motherBrain.StepHeadAnimation(guardedHeadBus, samus, baby: null, randomNumberSeed: 0x0ec0);
     AssertEqual(0x9cdf, motherBrain.HeadInstructionPointer,
         "neutral RNG `$EC0` boundary falls through to `$9CDB` frame");
 

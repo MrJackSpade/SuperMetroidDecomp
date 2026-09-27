@@ -746,10 +746,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // Accept precisely the three contiguous native ranges translated here. In particular,
         // `$9F00` must run even after the cutscene Baby has deleted itself: phase-three bombs
         // are ordinary combat attacks and have no Baby dependency.
-        bool isPhaseThreeNeutral = HeadInstructionPointer is >= 0x9cb9 and <= 0x9ce1;
-        bool isBabyMurderOrFourRings = HeadInstructionPointer is >= 0x9db1 and <= 0x9df5;
-        bool isPhaseThreeBomb = HeadInstructionPointer is >= 0x9f00 and <= 0x9f32;
-        if (!isPhaseThreeNeutral && !isBabyMurderOrFourRings && !isPhaseThreeBomb)
+        if (!MotherBrainHeadInstructionProgramDefinitions.IsActivePointer(
+                HeadInstructionPointer))
             return CreateResult();
 
         ushort oldTimer = HeadInstructionTimer;
@@ -759,12 +757,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
         for (int commandCount = 0; commandCount < 24; commandCount++)
         {
-            ushort word = ReadBankA9Word(bus, HeadInstructionPointer);
+            ushort word = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                HeadInstructionPointer);
             if ((word & 0x8000) == 0)
             {
                 HeadInstructionTimer = word;
-                HeadSpritemapPointer = ReadBankA9Word(
-                    bus,
+                HeadSpritemapPointer = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
                     unchecked((ushort)(HeadInstructionPointer + 2)));
                 HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 4));
                 loadedFrame = true;
@@ -809,12 +807,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     break;
 
                 case MotherBrainInstructionCodes.Instruction_MotherBrain_GotoX:
-                    HeadInstructionPointer = ReadBankA9Word(bus, HeadInstructionPointer);
+                    HeadInstructionPointer = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                        HeadInstructionPointer);
                     break;
 
                 case MotherBrainInstructionCodes.Instruction_MotherBrainHead_EnableNeckMovement_GotoX:
                     NeckMovementEnabled = 1;
-                    HeadInstructionPointer = ReadBankA9Word(bus, HeadInstructionPointer);
+                    HeadInstructionPointer = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                        HeadInstructionPointer);
                     break;
 
                 case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueBabyMetroidAttackSFX:
@@ -827,18 +827,21 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     break;
 
                 case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib3_Max6:
-                    queuedSoundLibraryThree = ReadBankA9Word(bus, HeadInstructionPointer);
+                    queuedSoundLibraryThree = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                        HeadInstructionPointer);
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 
                 case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib2_Max6:
-                    queuedSoundLibraryTwo = ReadBankA9Word(bus, HeadInstructionPointer);
+                    queuedSoundLibraryTwo = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                        HeadInstructionPointer);
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 
                 case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnBombProjectileWithParamX:
                     bomb = new MotherBrainBombSpawnRequest(
-                        ReadBankA9Word(bus, HeadInstructionPointer));
+                        MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                            HeadInstructionPointer));
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 

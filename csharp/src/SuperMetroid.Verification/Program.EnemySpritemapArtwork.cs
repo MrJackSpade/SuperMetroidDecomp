@@ -271,8 +271,38 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreYappingMawFrameCount,
             "remaining room sprite-object programs add 263 distinct visual frames");
         AssertEqual(EnemySpritemapDefinitions.PreYappingMawFrameCount + 24,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreKiHunterFrameCount,
             "Yapping Maw adds 24 distinct OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreKiHunterFrameCount + 41,
+            EnemySpritemapDefinitions.Frames.Length,
+            "KiHunter adds 41 distinct body and wing OAM frames");
+        HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
+            .ToArray()
+            .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
+            .Select(frame => frame.Pointer)
+            .ToHashSet();
+        for (int index = 0;
+             index < KiHunterInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = KiHunterInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
+                rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.KiHunterDefinition, operand, out ushort selected),
+                $"KiHunter visual selector $A8:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"KiHunter visual selector $A8:{operand:X4} matches cartridge");
+            AssertTrue(installedHunterPointers.Contains(native),
+                $"KiHunter visual target $A8:{native:X4} has installed art");
+        }
+        AssertEqual(41, installedHunterPointers.Count,
+            "KiHunter's visual operands select 41 distinct OAM frames");
+        AssertThrows<InvalidDataException>(
+            () => KiHunterVisualDefinitions.FrameAt(
+                KiHunterInstructionProgramDefinitions.FlyingLeft),
+            "KiHunter rejects adjacent instruction mechanics as presentation");
         HashSet<ushort> installedMawPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
@@ -808,6 +838,22 @@ internal static partial class Program
         {
             OffsetY = sharedSpritePart.OffsetY + 1,
         };
+        ushort mawIdlePointer = YappingMawVisualDefinitions.FrameAt(
+            YappingMawInstructionProgramDefinitions.PresentationWordAddress(0));
+        string mawIdleName = $"yapping_maw_a8_{mawIdlePointer:x4}";
+        SpriteVisualPart mawPart = document.Frames[mawIdleName][0];
+        document.Frames[mawIdleName][0] = mawPart with
+        {
+            OffsetY = mawPart.OffsetY + 1,
+        };
+        ushort hunterIdlePointer = KiHunterVisualDefinitions.FrameAt(
+            KiHunterInstructionProgramDefinitions.PresentationWordAddress(0));
+        string hunterIdleName = $"ki_hunter_a8_{hunterIdlePointer:x4}";
+        SpriteVisualPart hunterPart = document.Frames[hunterIdleName][0];
+        document.Frames[hunterIdleName][0] = hunterPart with
+        {
+            OffsetY = hunterPart.OffsetY + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -815,6 +861,24 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        OamBuffer stockMaw = DrawEnemy(stock, new FrameReadGuard(rom),
+            mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
+        OamBuffer editedMaw = DrawEnemy(edited, new FrameReadGuard(rom),
+            mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
+        AssertEqual(unchecked((byte)(stockMaw.LowTable[1] + 1)),
+            editedMaw.LowTable[1],
+            "editable Yapping Maw OAM offset changes its displayed frame");
+        AssertEqual(stockMaw.LowTable[0], editedMaw.LowTable[0],
+            "Yapping Maw visual edit leaves physical X placement unchanged");
+        OamBuffer stockHunter = DrawEnemy(stock, new FrameReadGuard(rom),
+            hunterIdlePointer, RoomEnemySystem.KiHunterDefinition);
+        OamBuffer editedHunter = DrawEnemy(edited, new FrameReadGuard(rom),
+            hunterIdlePointer, RoomEnemySystem.KiHunterDefinition);
+        AssertEqual(unchecked((byte)(stockHunter.LowTable[1] + 1)),
+            editedHunter.LowTable[1],
+            "editable KiHunter OAM offset changes its displayed frame");
+        AssertEqual(stockHunter.LowTable[0], editedHunter.LowTable[0],
+            "KiHunter visual edit leaves physical X placement unchanged");
         OamBuffer stockIntroEvir = DrawRoomSpriteObject(stock, new BankB4ReadGuard(rom),
             RoomSpriteObjectKind.DraygonIntroEvir);
         OamBuffer editedIntroEvir = DrawRoomSpriteObject(edited, new BankB4ReadGuard(rom),
@@ -1220,8 +1284,32 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preHunterFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreKiHunterFrameCount,
+            preHunterFrames.Count, "pre-KiHunter composition schema frame count");
+        var preHunterBindings = document.DisplayFrames!
+            .Where(pair => preHunterFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreKiHunterVersion,
+                Frames = preHunterFrames,
+                DisplayFrames = preHunterBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preHunterUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (ushort pointer in installedHunterPointers)
+        {
+            AssertTrue(preHunterUpgraded.Spritemaps!.TryGetDisplay(
+                    KiHunterVisualDefinitions.Bank, pointer, out _),
+                $"version-thirty-four override inherits KiHunter frame ${pointer:X4}");
+        }
         var preMawFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreYappingMawFrameCount,
             preMawFrames.Count, "pre-Yapping-Maw composition schema frame count");
@@ -1245,7 +1333,8 @@ internal static partial class Program
         }
         var preRoomSpriteFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("room_sprite_b4_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
+                !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
             preRoomSpriteFrames.Count, "pre-shared-sprite-object composition schema frame count");
@@ -2096,7 +2185,16 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with
-                { Bank = definition == RoomEnemySystem.FakeKraidDefinition
+                { Bank = definition == RoomEnemySystem.YappingMawDefinition
+                    ? YappingMawVisualDefinitions.Bank
+                    : definition is RoomEnemySystem.KiHunterDefinition or
+                        RoomEnemySystem.KiHunterWingsDefinition or
+                        RoomEnemySystem.RedKiHunterDefinition or
+                        RoomEnemySystem.RedKiHunterWingsDefinition or
+                        RoomEnemySystem.GoldKiHunterDefinition or
+                        RoomEnemySystem.GoldKiHunterWingsDefinition
+                    ? KiHunterVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.FakeKraidDefinition
                     ? EnemySpritemapDefinitions.FakeKraidBank
                     : definition is RoomEnemySystem.KraidGoodNailDefinition or
                         RoomEnemySystem.KraidBadNailDefinition

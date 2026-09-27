@@ -6,7 +6,7 @@ internal readonly record struct KiHunterInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for KiHunter body and wing instruction programs.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands are compiled selectors for installed presentation art.
 /// </summary>
 internal static class KiHunterInstructionProgramDefinitions
 {

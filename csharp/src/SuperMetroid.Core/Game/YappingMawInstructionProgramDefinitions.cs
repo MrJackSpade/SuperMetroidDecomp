@@ -7,7 +7,7 @@ internal readonly record struct YappingMawInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing, callback, and loop control for Yapping Maw's attack and cooldown
-/// programs. Interleaved spritemap operands remain live cartridge presentation data.
+/// programs. Interleaved spritemap operands are compiled selectors for installed art.
 /// </summary>
 internal static class YappingMawInstructionProgramDefinitions
 {

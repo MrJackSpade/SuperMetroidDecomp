@@ -41,20 +41,8 @@ internal static partial class Program
         VerifySpit(KiHunterInstructionProgramDefinitions.SpitLeft, movingRight: false);
         VerifySpit(KiHunterInstructionProgramDefinitions.SpitRight, movingRight: true);
 
-        AssertEqual(KiHunterInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live KiHunter spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < KiHunterInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address = KiHunterInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads KiHunter presentation $A8:{address:X4}");
-        }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled KiHunter mechanics bytes");
+            "production execution avoids compiled KiHunter mechanics and visual bytes");
         AssertThrows<InvalidDataException>(
             () => KiHunterInstructionProgramDefinitions.ReadMechanicsWord(0xe9fc),
             "KiHunter spritemap pointer is rejected as mechanics");
@@ -73,8 +61,8 @@ internal static partial class Program
             $"KiHunter instruction mechanics: " +
             $"{KiHunterInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
             "thirteen complete body/wing programs, two real acid spawns, and " +
-            $"{KiHunterInstructionProgramDefinitions.PresentationWordCount} live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            $"{KiHunterInstructionProgramDefinitions.PresentationWordCount} compiled " +
+            "visual selectors pass with cartridge reads forbidden.");
 
         void VerifyFlying(ushort program, bool movingRight)
         {
@@ -228,7 +216,6 @@ internal static partial class Program
     private sealed class KiHunterInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
@@ -252,8 +239,9 @@ internal static partial class Program
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled KiHunter visual byte ${address:X6}.");
                     }
                 }
             }

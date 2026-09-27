@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 34;
+    internal const int Version = 35;
+    internal const int PreKiHunterVersion = 34;
+    internal const int PreKiHunterFrameCount = 759;
     internal const int PreYappingMawVersion = 33;
     internal const int PreYappingMawFrameCount = 735;
     internal const int PreRoomSpriteObjectVersion = 32;
@@ -599,6 +601,7 @@ internal static class EnemySpritemapDefinitions
         .. NamedFrameDefinitions,
         .. RoomSpriteObjectVisualDefinitions.AdditionalFrames(NamedFrameDefinitions),
         .. YappingMawVisualDefinitions.Frames(),
+        .. KiHunterVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -646,6 +649,13 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.ElevatorDefinition => ElevatorFrameAt(operandAddress),
             RoomEnemySystem.YappingMawDefinition =>
                 YappingMawVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.KiHunterDefinition or
+                RoomEnemySystem.KiHunterWingsDefinition or
+                RoomEnemySystem.RedKiHunterDefinition or
+                RoomEnemySystem.RedKiHunterWingsDefinition or
+                RoomEnemySystem.GoldKiHunterDefinition or
+                RoomEnemySystem.GoldKiHunterWingsDefinition =>
+                KiHunterVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.ZeelaDefinition or
                 RoomEnemySystem.SovaDefinition or
                 RoomEnemySystem.ZoomerDefinition or
@@ -700,6 +710,12 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.KamerVerticalPlatformDefinition or
             RoomEnemySystem.ElevatorDefinition or
             RoomEnemySystem.YappingMawDefinition or
+            RoomEnemySystem.KiHunterDefinition or
+            RoomEnemySystem.KiHunterWingsDefinition or
+            RoomEnemySystem.RedKiHunterDefinition or
+            RoomEnemySystem.RedKiHunterWingsDefinition or
+            RoomEnemySystem.GoldKiHunterDefinition or
+            RoomEnemySystem.GoldKiHunterWingsDefinition or
             RoomEnemySystem.ZeelaDefinition or
             RoomEnemySystem.SovaDefinition or
             RoomEnemySystem.ZoomerDefinition or

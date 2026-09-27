@@ -38,6 +38,9 @@ public static class RoomHeaderPointers
     /// <summary>Gauntlet east at $8F:92B3; contains the Crateria Yapping Maws.</summary>
     public const ushort GauntletEast = 0x92b3;
 
+    /// <summary>Pre-moat room at $8F:948C; contains the Crateria KiHunter pair.</summary>
+    public const ushort PreMoat = 0x948c;
+
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 

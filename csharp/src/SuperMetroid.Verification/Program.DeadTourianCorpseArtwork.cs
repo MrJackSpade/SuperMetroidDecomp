@@ -9,6 +9,7 @@ internal static partial class Program
     private static void VerifyInstalledDeadTourianCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
+        VerifyDeadTourianCorpseVisuals(stock);
         // The same ED7F sheet provides two distinct initial corpse layouts. Run
         // their real initialization callback against separate cartridge memories;
         // only the installed instance forbids reads from the visual source bank.
@@ -87,6 +88,91 @@ internal static partial class Program
             "dead-sidehopper PNG edit survives catalog reload");
 
         Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
+    }
+
+    private static void VerifyDeadTourianCorpseVisuals(
+        EnemyTileArtworkCatalog stock)
+    {
+        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount,
+            DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
+            "every dead Tourian corpse program has an editable composition");
+        for (int index = 0;
+             index < DeadTourianCorpseInstructionProgramDefinitions.ProgramCount;
+             index++)
+        {
+            ushort operand = DeadTourianCorpseInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
+            ushort nativePointer = unchecked((ushort)(
+                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+            AssertEqual(nativePointer,
+                DeadTourianCorpseVisualDefinitions.FrameAt(operand),
+                $"dead Tourian corpse selector {index} matches cartridge");
+            ushort definition = index < 3 ? RoomEnemySystem.DeadZoomerDefinition :
+                index < 5 ? RoomEnemySystem.DeadRipperDefinition :
+                RoomEnemySystem.DeadSkreeDefinition;
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    definition, operand, out ushort installedPointer),
+                $"dead Tourian corpse program {index} has an installed selector");
+            AssertEqual(nativePointer, installedPointer,
+                $"dead Tourian corpse program {index} keeps its native identity");
+            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+                    DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
+                    out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+                $"dead Tourian corpse program {index} has installed OAM");
+            var nativeOam = new OamBuffer();
+            var installedOam = new OamBuffer();
+            nativeOam.AddEnemySpritemap(rom, DeadTourianCorpseVisualDefinitions.Bank,
+                nativePointer, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
+                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                       nativeOam.NextByteOffset == installedOam.NextByteOffset,
+                $"dead Tourian corpse {index} installed OAM matches cartridge");
+        }
+        var sidehopperPointers = new HashSet<ushort>();
+        for (int index = 0;
+             index < DeadSidehopperInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = DeadSidehopperInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
+            ushort nativePointer = unchecked((ushort)(
+                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+            AssertEqual(nativePointer,
+                DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operand),
+                $"dead Sidehopper selector {index} matches cartridge");
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.DeadSidehopperDefinition, operand,
+                    out ushort installedPointer),
+                $"dead Sidehopper selector {index} is installed");
+            AssertEqual(nativePointer, installedPointer,
+                $"dead Sidehopper selector {index} preserves identity");
+            sidehopperPointers.Add(installedPointer);
+            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+                    DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
+                    out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+                $"dead Sidehopper selector {index} has installed OAM");
+            var nativeOam = new OamBuffer();
+            var installedOam = new OamBuffer();
+            nativeOam.AddEnemySpritemap(rom, DeadTourianCorpseVisualDefinitions.Bank,
+                nativePointer, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
+                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                       nativeOam.NextByteOffset == installedOam.NextByteOffset,
+                $"dead Sidehopper selector {index} installed OAM matches cartridge");
+        }
+        AssertEqual(DeadTourianCorpseVisualDefinitions.SidehopperFrameCount,
+            sidehopperPointers.Count,
+            "eleven Sidehopper selectors choose five distinct OAM compositions");
+        AssertThrows<InvalidDataException>(
+            () => DeadTourianCorpseVisualDefinitions.FrameAt(
+                DeadTourianCorpseInstructionProgramDefinitions.Zoomer0),
+            "dead Tourian corpse selector rejects adjacent mechanics");
+        Console.WriteLine("  Dead Tourian corpses: eight Zoomer/Ripper/Skree and eleven Sidehopper selectors choose thirteen editable native-parity OAM frames.");
     }
 
     private static void InitializeDeadSidehopperArtwork(

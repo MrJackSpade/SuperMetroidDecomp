@@ -29,6 +29,17 @@ existing edits. Isolated room `$8F:DC65` now matches native pixels for 90
 neutral frames with all runtime cartridge reads denied. This does not complete
 the broader enemy presentation or ROM-free integration tickets.
 
+## Dead Tourian corpse visual compositions (2026-09-27)
+
+The eight dead Zoomer/Ripper/Skree instruction operands and eleven dead
+Sidehopper operands now select thirteen named, editable bank-$A9 OAM frames.
+Their compiled instruction timing and rotting WRAM logic are unchanged. The
+verifier checks every selector against the pinned cartridge, compares each
+complete native and installed OAM output, and confirms that a version-54
+override inherits the new frames. Room `$8F:DCB1` matches native pixels for
+90 neutral frames with all runtime cartridge reads blocked. Other enemy
+families and the full ROM-free contract remain open.
+
 ## Shaktool-room PLM instruction owner (2026-09-27)
 
 The complete three-word `$84:B8D6-B8DB` resident list now compiles its

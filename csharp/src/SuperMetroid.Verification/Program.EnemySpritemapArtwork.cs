@@ -336,8 +336,12 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount,
             "Rinka adds five OAM frames shared by ordinary and boss loops");
         AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount + 1,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount,
             "Dead Torizo adds its stationary corpse composition after version 53");
+        AssertEqual(EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount +
+                DeadTourianCorpseVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "dead Zoomer, Ripper, and Skree add eight corpse compositions");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -1151,10 +1155,35 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preStationaryFrames = document.Frames
+        HashSet<string> deadCorpseNames = DeadTourianCorpseVisualDefinitions.Frames()
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
+        var preCorpsesFrames = document.Frames
+            .Where(pair => !deadCorpseNames.Contains(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preCorpsesBindings = document.DisplayFrames!
+            .Where(pair => preCorpsesFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount,
+            preCorpsesFrames.Count, "version-fifty-four composition schema count");
+        using (var preCorpsesJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreDeadTourianCorpseVersion,
+                Frames = preCorpsesFrames,
+                DisplayFrames = preCorpsesBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog corpsesUpgraded = EnemySpritemapCatalog.Load(
+                preCorpsesJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in
+                     DeadTourianCorpseVisualDefinitions.Frames())
+                AssertTrue(corpsesUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty-four override inherits {frame.Name}");
+        }
+        var preStationaryFrames = preCorpsesFrames
             .Where(pair => pair.Key != "dead_torizo_stationary_a9_d6e2")
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preStationaryBindings = document.DisplayFrames!
+        var preStationaryBindings = preCorpsesBindings
             .Where(pair => preStationaryFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount,
@@ -2231,6 +2260,10 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
+                !pair.Key.StartsWith("dead_zoomer_corpse_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("dead_ripper_corpse_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("dead_skree_corpse_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("dead_sidehopper_", StringComparison.Ordinal) &&
                 pair.Key != "dead_torizo_stationary_a9_d6e2" &&
                 !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&

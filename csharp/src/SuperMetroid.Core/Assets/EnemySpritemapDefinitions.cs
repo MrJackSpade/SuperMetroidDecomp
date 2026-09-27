@@ -11,9 +11,11 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    internal const int PreDeadTourianCorpseVersion = 54;
+    internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 54;
+    internal const int Version = 55;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -659,6 +661,7 @@ internal static class EnemySpritemapDefinitions
         .. ViolaVisualDefinitions.Frames(),
         .. RinkaVisualDefinitions.Frames(),
         .. DeadTorizoArtworkDefinitions.StationaryFrames(),
+        .. DeadTourianCorpseVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -709,6 +712,12 @@ internal static class EnemySpritemapDefinitions
                 RinkaVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.DeadTorizoDefinition =>
                 DeadTorizoArtworkDefinitions.StationaryFrameAt(operandAddress),
+            RoomEnemySystem.DeadZoomerDefinition or
+                RoomEnemySystem.DeadRipperDefinition or
+                RoomEnemySystem.DeadSkreeDefinition =>
+                DeadTourianCorpseVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.DeadSidehopperDefinition =>
+                DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -796,6 +805,10 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.ViolaDefinition or
             RoomEnemySystem.RinkaDefinition or
             RoomEnemySystem.DeadTorizoDefinition or
+            RoomEnemySystem.DeadZoomerDefinition or
+            RoomEnemySystem.DeadRipperDefinition or
+            RoomEnemySystem.DeadSkreeDefinition or
+            RoomEnemySystem.DeadSidehopperDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

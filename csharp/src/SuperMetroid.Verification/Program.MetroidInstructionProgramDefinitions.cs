@@ -17,7 +17,7 @@ internal static partial class Program
         AssertEqual(31, MetroidInstructionProgramDefinitions.MechanicsWordCount,
             "Metroid compiled mechanics word count");
         AssertEqual(25, MetroidInstructionProgramDefinitions.PresentationWordCount,
-            "Metroid live presentation word count");
+            "Metroid compiled presentation word count");
         for (int index = 0;
              index < MetroidInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -82,18 +82,8 @@ internal static partial class Program
 
         VerifyMetroidInstructionInitializer(guard, flags);
 
-        AssertEqual(MetroidInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Metroid spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < MetroidInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                MetroidInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Metroid presentation word $A3:{address:X4}");
-        }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "both Metroid loops use compiled visual selectors, not cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Metroid mechanics byte");
 
@@ -115,7 +105,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Metroid instruction mechanics: 31 compiled words, both complete animation " +
-            "loops and sound callbacks, and 25 live spritemap reads pass.");
+            "loops and sound callbacks, and 25 compiled visual selectors pass.");
     }
 
     private static void VerifyMetroidInstructionInitializer(
@@ -222,7 +212,9 @@ internal static partial class Program
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {
                         ObservedPresentationWords.Add(presentation);
-                        break;
+                        ForbiddenReadAttempts++;
+                        throw new InvalidOperationException(
+                            $"Production read compiled Metroid presentation byte ${address:X6}.");
                     }
                 }
             }

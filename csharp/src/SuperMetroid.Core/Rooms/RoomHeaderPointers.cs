@@ -50,6 +50,9 @@ public static class RoomHeaderPointers
     /// <summary>Mother Brain's chamber at $8F:DD58; its live state loads population $A1:E321.</summary>
     public const ushort MotherBrainChamber = 0xdd58;
 
+    /// <summary>Tourian room $01 at $8F:DAE1; its initial state has four ordinary Metroids.</summary>
+    public const ushort TourianMetroidRoom = 0xdae1;
+
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 

@@ -73,6 +73,8 @@ public sealed class EnemySpritemapCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemySpritemapDefinitions.PreMetroidVersion when stockForLegacyOverride is not null =>
+                EnemySpritemapDefinitions.PreMetroidFrameCount,
             EnemySpritemapDefinitions.PreShutterVersion when stockForLegacyOverride is not null =>
                 EnemySpritemapDefinitions.PreShutterFrameCount,
             EnemySpritemapDefinitions.PreMorphBallEyeVersion when stockForLegacyOverride is not null =>
@@ -187,7 +189,8 @@ public sealed class EnemySpritemapCatalog
         // those user choices when newly added frames are supplied by stock;
         // older versions had only art and inherit all stock bindings.
         bool hasAuthoredBindings = !legacyOverride ||
-            document.Version is EnemySpritemapDefinitions.PreShutterVersion or
+            document.Version is EnemySpritemapDefinitions.PreMetroidVersion or
+                EnemySpritemapDefinitions.PreShutterVersion or
                 EnemySpritemapDefinitions.PreMorphBallEyeVersion or
                 EnemySpritemapDefinitions.PreFaceBlockVersion or
                 EnemySpritemapDefinitions.PreKagoVersion or

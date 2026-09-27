@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 44;
+    internal const int Version = 45;
+    internal const int PreMetroidVersion = 44;
+    internal const int PreMetroidFrameCount = 901;
     internal const int PreShutterVersion = 43;
     internal const int PreShutterFrameCount = 896;
     internal const int PreMorphBallEyeVersion = 42;
@@ -629,6 +631,7 @@ internal static class EnemySpritemapDefinitions
         .. BlueBrinstarFaceBlockVisualDefinitions.Frames(),
         .. MorphBallEyeVisualDefinitions.Frames(),
         .. ShutterVisualDefinitions.Frames(),
+        .. MetroidVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -659,6 +662,8 @@ internal static class EnemySpritemapDefinitions
                 BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.MorphBallEyeDefinition =>
                 MorphBallEyeVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.MetroidDefinition =>
+                MetroidVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -736,6 +741,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.KagoDefinition or
             RoomEnemySystem.BlueBrinstarFaceBlockDefinition or
             RoomEnemySystem.MorphBallEyeDefinition or
+            RoomEnemySystem.MetroidDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

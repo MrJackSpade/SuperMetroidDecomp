@@ -301,8 +301,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreShutterFrameCount,
             "Morph Ball eye and mount add twenty-two distinct OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreShutterFrameCount + 5,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreMetroidFrameCount,
             "growing, vertical and horizontal shutters share five distinct OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount + 4,
+            EnemySpritemapDefinitions.Frames.Length,
+            "both ordinary-Metroid loops share four distinct body OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -696,6 +699,22 @@ internal static partial class Program
                 RoomEnemySystem.GrowingShutterDefinition,
                 GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(0)),
             "shutter visual selector rejects adjacent frame timing");
+        for (int index = 0;
+             index < MetroidInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = MetroidInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.MetroidDefinition, operand, out ushort selected),
+                $"ordinary-Metroid visual operand $A3:{operand:X4} is compiled");
+            AssertEqual(ReadMetroidInstructionWord(rom, operand), selected,
+                $"ordinary-Metroid selector $A3:{operand:X4} matches the cartridge");
+        }
+        AssertThrows<InvalidDataException>(
+            () => MetroidVisualDefinitions.FrameAt(
+                MetroidInstructionProgramDefinitions.AdjacentBombedOffVelocities),
+            "Metroid visual selector rejects neighboring bomb-off physics data");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -743,6 +762,8 @@ internal static partial class Program
                         ? RoomEnemySystem.BlueBrinstarFaceBlockDefinition
                     : frame.Name.StartsWith("morph_eye_", StringComparison.Ordinal)
                         ? RoomEnemySystem.MorphBallEyeDefinition
+                    : frame.Name.StartsWith("metroid_body_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.MetroidDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -1079,6 +1100,12 @@ internal static partial class Program
         {
             OffsetX = shutterPart.OffsetX + 1,
         };
+        const string metroidFrameName = "metroid_body_0";
+        SpriteVisualPart metroidPart = document.Frames[metroidFrameName][0];
+        document.Frames[metroidFrameName][0] = metroidPart with
+        {
+            OffsetX = metroidPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1158,6 +1185,17 @@ internal static partial class Program
             AssertEqual(stockShutter.LowTable[1], editedShutter.LowTable[1],
                 $"shutter ${definition:X4} visual edit leaves physical Y unchanged");
         }
+        ushort metroidPointer = MetroidVisualDefinitions.FrameAt(
+            MetroidInstructionProgramDefinitions.PresentationWordAddress(0));
+        OamBuffer stockMetroid = DrawEnemy(stock, new FrameReadGuard(rom),
+            metroidPointer, RoomEnemySystem.MetroidDefinition);
+        OamBuffer editedMetroid = DrawEnemy(edited, new FrameReadGuard(rom),
+            metroidPointer, RoomEnemySystem.MetroidDefinition);
+        AssertEqual(unchecked((byte)(stockMetroid.LowTable[0] + 1)),
+            editedMetroid.LowTable[0],
+            "ordinary-Metroid body art edit changes live OAM X without a ROM read");
+        AssertEqual(stockMetroid.LowTable[1], editedMetroid.LowTable[1],
+            "ordinary-Metroid body art edit leaves physical Y unchanged");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
             stock, rom, 0xa586, 0x0140, 0x00a0);
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
@@ -1606,6 +1644,33 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        var preMetroidFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount,
+            preMetroidFrames.Count, "pre-Metroid composition schema count");
+        var preMetroidBindings = document.DisplayFrames!
+            .Where(pair => preMetroidFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreMetroidVersion,
+                Frames = preMetroidFrames,
+                DisplayFrames = preMetroidBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preMetroidUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (EnemySpritemapDefinition frame in MetroidVisualDefinitions.Frames())
+            AssertTrue(preMetroidUpgraded.Spritemaps!.TryGetDisplay(
+                    frame.Bank, frame.Pointer, out _),
+                $"version-forty-four override inherits Metroid frame {frame.Name}");
+        document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.PreMetroidVersion,
+            Frames = preMetroidFrames,
+            DisplayFrames = preMetroidBindings,
+        };
         var preShutterFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("shutter_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2804,6 +2869,8 @@ internal static partial class Program
                         ? BlueBrinstarFaceBlockVisualDefinitions.Bank
                     : definition == RoomEnemySystem.MorphBallEyeDefinition
                         ? MorphBallEyeVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.MetroidDefinition
+                        ? MetroidVisualDefinitions.Bank
                     : definition is RoomEnemySystem.GrowingShutterDefinition or
                         RoomEnemySystem.ShootableVerticalShutterDefinition or
                         RoomEnemySystem.DestroyableVerticalShutterDefinition or

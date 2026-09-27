@@ -189,6 +189,9 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.BrinstarShutterRoom, "Brinstar shutters", frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.TourianMetroidRoom, "Tourian ordinary Metroids",
+                    frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.DeadTorizoCorpse, "Tourian dead-Torizo corpse",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,

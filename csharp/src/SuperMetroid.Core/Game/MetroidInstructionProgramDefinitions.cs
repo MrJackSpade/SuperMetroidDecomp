@@ -7,7 +7,7 @@ internal readonly record struct MetroidInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled animation timing, sound callbacks, and loop control for ordinary Metroids.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class MetroidInstructionProgramDefinitions
 {
@@ -30,6 +30,10 @@ internal static class MetroidInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static MetroidInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>True only for an ordinary-Metroid visual operand in either animation loop.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     /// <summary>Returns fixed Metroid control or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

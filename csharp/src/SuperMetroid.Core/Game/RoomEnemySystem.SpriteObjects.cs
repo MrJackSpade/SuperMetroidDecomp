@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
@@ -212,9 +213,10 @@ public sealed partial class RoomEnemySystem
         }
 
         slot.InstructionTimer = duration;
-        slot.SpritemapPointer = ReadWord(
-            _bus!,
-            0xb40000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+        ushort operand = unchecked((ushort)(slot.InstructionPointer + 2));
+        slot.SpritemapPointer = TileArtwork is null
+            ? ReadWord(_bus!, (RoomSpriteObjectVisualDefinitions.Bank << 16) | operand)
+            : RoomSpriteObjectVisualDefinitions.FrameAt(operand);
     }
 
     /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>
@@ -239,15 +241,22 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            oam.AddEnemySpritemap(
-                _bus!,
-                bank: 0xb4,
-                slot.SpritemapPointer,
-                screenX,
-                screenY,
-                paletteBits: new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits,
-                baseTileIndex: unchecked((ushort)
-                    new SnesObjAttributeWord(slot.GraphicsIndex).TileNumber));
+            ushort paletteBits = new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits;
+            ushort baseTileIndex = unchecked((ushort)
+                new SnesObjAttributeWord(slot.GraphicsIndex).TileNumber);
+            if (TileArtwork?.Spritemaps?.TryGetDisplay(
+                    RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
+                    out ReadOnlyMemory<EnemySpritemapPart> installed) == true)
+            {
+                oam.AddEnemySpritemap(installed.Span, screenX, screenY,
+                    paletteBits, baseTileIndex);
+            }
+            else
+            {
+                oam.AddEnemySpritemap(_bus!, RoomSpriteObjectVisualDefinitions.Bank,
+                    slot.SpritemapPointer, screenX, screenY,
+                    paletteBits, baseTileIndex);
+            }
         }
     }
 }

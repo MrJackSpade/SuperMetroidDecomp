@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 30;
+    internal const int Version = 31;
+    internal const int PreDraygonIntroVersion = 30;
+    internal const int PreDraygonIntroFrameCount = 459;
     internal const int PreElevatorVersion = 29;
     internal const int PreElevatorFrameCount = 457;
     internal const int PreKamerVersion = 28;
@@ -80,6 +82,7 @@ internal static class EnemySpritemapDefinitions
     internal const byte FuneNamiheBank = 0xa8;
     internal const byte KamerPlatformBank = 0xa2;
     internal const byte ElevatorBank = 0xa3;
+    internal const byte RoomSpriteObjectBank = 0xb4;
     internal const byte SkulteraBank = 0xa3;
     internal const byte WaverBank = 0xa3;
     internal const byte ZoaBank = 0xa3;
@@ -567,6 +570,10 @@ internal static class EnemySpritemapDefinitions
         new(KamerPlatformBank, 0xf48c, "kamer_platform_3"),
         new(ElevatorBank, 0x962f, "elevator_platform_0"),
         new(ElevatorBank, 0x9645, "elevator_platform_1"),
+        new(RoomSpriteObjectBank, 0xdb42, "draygon_intro_evir_0"),
+        new(RoomSpriteObjectBank, 0xdb80, "draygon_intro_evir_1"),
+        new(RoomSpriteObjectBank, 0xdbbe, "draygon_intro_evir_2"),
+        new(RoomSpriteObjectBank, 0xdbfc, "draygon_intro_evir_3"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

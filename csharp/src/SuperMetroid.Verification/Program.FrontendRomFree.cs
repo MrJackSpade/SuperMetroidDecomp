@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -81,7 +82,7 @@ internal static partial class Program
                     visited.Contains(SuperMetroidGameState.FileSelectMenus),
                     "ROM-free startup traverses title, file select and options");
                 Console.WriteLine($"Frontend ROM-free startup: {frame + 1} native-parity frames through options, all cartridge reads guarded.");
-                VerifyFrontendRomFreeIntro(native, installed);
+                VerifyFrontendRomFreeIntro(native, installed, guardedBus);
                 return;
             }
         }
@@ -95,7 +96,7 @@ internal static partial class Program
     /// real transition and during the projectile/hurt animation, not just at startup.
     /// </summary>
     private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
-        SuperMetroidGame installed)
+        SuperMetroidGame installed, FrontendCartridgeReadGuard guardedBus)
     {
         bool startSent = false;
         int introFrames = 0;
@@ -159,7 +160,16 @@ internal static partial class Program
                     "Lower Norfair main hall");
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Phantoon, "Phantoon");
-                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded.");
+                // Draygon's extended body/arms/eye/tail compositions and BG2
+                // commands are a separate unfinished asset family. Permit only
+                // that bank while verifying the Evir graphics upload and bank-B4
+                // sprite-object visuals against the native room for 90 frames.
+                guardedBus.AllowedCartridgeBank = 0xa5;
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.Draygon, "Draygon (bank-$A5 partial)",
+                    allCartridgeReadsGuarded: false);
+                guardedBus.AllowedCartridgeBank = -1;
+                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded (separate Draygon fixture permits bank $A5).");
                 return;
             }
             if (actual.GameState != SuperMetroidGameState.IntroCinematic)
@@ -256,7 +266,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyFrontendRomFreeRoom(
         SuperMetroidGame native, SuperMetroidGame installed,
-        ushort roomPointer, string roomName)
+        ushort roomPointer, string roomName, bool allCartridgeReadsGuarded = true)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
@@ -275,17 +285,34 @@ internal static partial class Program
                 $"installed {roomName} phase at frame {frame}");
             AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
                 $"installed {roomName} pixels at frame {frame}");
+            if (roomPointer == RoomHeaderPointers.Draygon && frame == 0)
+            {
+                ReadOnlySpan<byte> nativeEvir = native.RuntimeForVerification!.Vram.Bytes
+                    .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
+                        DraygonIntroPresentationDefinitions.EvirTilesByteCount);
+                ReadOnlySpan<byte> installedEvir = installed.RuntimeForVerification!.Vram.Bytes
+                    .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
+                        DraygonIntroPresentationDefinitions.EvirTilesByteCount);
+                AssertTrue(installedEvir.SequenceEqual(nativeEvir),
+                    "installed Draygon Evir intro upload matches native VRAM with bank-$B1 reads forbidden");
+            }
         }
-        Console.WriteLine($"Frontend ROM-free {roomName} room: 90 native-parity frames with all cartridge reads guarded.");
+        Console.WriteLine($"Frontend {roomName} room: 90 native-parity frames; " +
+            (allCartridgeReadsGuarded
+                ? "all cartridge reads guarded."
+                : "bank-$A5 reads permitted; other cartridge reads guarded."));
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
+        internal int AllowedCartridgeBank { get; set; } = -1;
+
         public byte ReadByte(int address)
         {
             int bank = address >> 16;
-            if (bank is not (0x7e or 0x7f) && (address & 0x8000) != 0)
+            if (bank is not (0x7e or 0x7f) && bank != AllowedCartridgeBank &&
+                (address & 0x8000) != 0)
                 throw new InvalidOperationException(
                     $"Installed frontend reread cartridge byte ${address:X6}.");
             return source.ReadByte(address);

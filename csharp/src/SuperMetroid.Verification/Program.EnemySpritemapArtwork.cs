@@ -259,8 +259,27 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreElevatorFrameCount,
             "Kamer platform adds its four native OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreElevatorFrameCount + 2,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDraygonIntroFrameCount,
             "elevator adds its two native OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreDraygonIntroFrameCount + 4,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Draygon intro adds its four native Evir sprite-object frames");
+        for (int index = 0;
+             index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = RoomSpriteObjectInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xb40000 | operand) |
+                rom.ReadByte(0xb40000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertEqual(native, RoomSpriteObjectVisualDefinitions.FrameAt(operand),
+                $"room sprite-object visual selector $B4:{operand:X4}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => RoomSpriteObjectVisualDefinitions.FrameAt(
+                RoomSpriteObjectDefinitions.InstructionPointer(
+                    RoomSpriteObjectKind.DraygonIntroEvir)),
+            "room sprite-object mechanics are not presentation selectors");
         for (int index = 0; index < ElevatorInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
@@ -479,6 +498,10 @@ internal static partial class Program
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed {frame.Name} OAM matches native at {x:X4},{y:X4}");
             }
+            // Bank-$B4 frames belong to the room sprite-object renderer, not an
+            // enemy slot whose definition selects an $A0-$B3 spritemap bank.
+            if (frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
+                continue;
             var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? RoomEnemySystem.BoyonDefinition
@@ -729,6 +752,11 @@ internal static partial class Program
         {
             OffsetY = elevatorPart.OffsetY + 1,
         };
+        SpriteVisualPart draygonIntroPart = document.Frames["draygon_intro_evir_0"][0];
+        document.Frames["draygon_intro_evir_0"][0] = draygonIntroPart with
+        {
+            OffsetX = draygonIntroPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -736,6 +764,15 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        OamBuffer stockIntroEvir = DrawRoomSpriteObject(stock, new BankB4ReadGuard(rom),
+            RoomSpriteObjectKind.DraygonIntroEvir);
+        OamBuffer editedIntroEvir = DrawRoomSpriteObject(edited, new BankB4ReadGuard(rom),
+            RoomSpriteObjectKind.DraygonIntroEvir);
+        AssertEqual(unchecked((byte)(stockIntroEvir.LowTable[0] + 1)),
+            editedIntroEvir.LowTable[0],
+            "editable Draygon intro Evir offset changes live room sprite-object OAM");
+        AssertEqual(stockIntroEvir.LowTable[1], editedIntroEvir.LowTable[1],
+            "Draygon intro Evir edit leaves vertical placement unchanged");
         OamBuffer stockFune = DrawEnemy(stock, new FrameReadGuard(rom),
             0x94cb, FuneNamiheDefinitions.FuneEnemyDefinition);
         OamBuffer editedFune = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -1123,7 +1160,30 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preElevatorFrames = document.Frames
+        var preDraygonFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("draygon_intro_evir_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreDraygonIntroFrameCount,
+            preDraygonFrames.Count, "pre-Draygon composition schema frame count");
+        var preDraygonBindings = document.DisplayFrames!
+            .Where(pair => preDraygonFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreDraygonIntroVersion,
+                Frames = preDraygonFrames,
+                DisplayFrames = preDraygonBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preDraygonUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (ushort pointer in new ushort[] { 0xdb42, 0xdb80, 0xdbbe, 0xdbfc })
+        {
+            AssertTrue(preDraygonUpgraded.Spritemaps!.TryGetDisplay(
+                    EnemySpritemapDefinitions.RoomSpriteObjectBank, pointer, out _),
+                $"version-thirty override inherits stock Draygon intro frame ${pointer:X4}");
+        }
+        var preElevatorFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreElevatorFrameCount,
@@ -1145,7 +1205,7 @@ internal static partial class Program
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x962f,
                 RoomEnemySystem.ElevatorDefinition).LowTable),
             "version-twenty-nine override inherits stock elevator OAM without ROM reads");
-        var preKamerFrames = document.Frames
+        var preKamerFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal))
             .Where(pair => !pair.Key.StartsWith("elevator_platform_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -1168,7 +1228,7 @@ internal static partial class Program
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0xf468,
                 RoomEnemySystem.KamerVerticalPlatformDefinition).LowTable),
             "version-twenty-eight override inherits stock Kamer OAM without ROM reads");
-        var preFuneFrames = document.Frames
+        var preFuneFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("namihe_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal) &&
@@ -1198,7 +1258,7 @@ internal static partial class Program
             .SequenceEqual(DrawEnemy(edited, new FrameReadGuard(rom), 0x88da,
                 RoomEnemySystem.BoyonDefinition).LowTable),
             "version-twenty-seven override retains existing Boyon edits");
-        var preSbugFrames = document.Frames
+        var preSbugFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("namihe_", StringComparison.Ordinal) &&
@@ -1228,7 +1288,7 @@ internal static partial class Program
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom),
                 0x88e1, RoomEnemySystem.BoyonDefinition).LowTable),
             "version-twenty-six override retains edited display binding");
-        var preHZoomerFrames = document.Frames
+        var preHZoomerFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("hzoomer_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
                            !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
@@ -1966,6 +2026,35 @@ internal static partial class Program
             inspect?.Invoke(slot);
             return oam;
         }
+    }
+
+    private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
+        ISnesAddressSpace bus, RoomSpriteObjectKind kind)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = art };
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
+            .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind,
+                ushort, RoomSpriteObjectSlot?>>();
+        var draw = typeof(RoomEnemySystem).GetMethod("DrawRoomSpriteObjects", flags)!
+            .CreateDelegate<Action<RoomEnemySystem, OamBuffer, ushort, ushort>>();
+        AssertTrue(spawn(enemies, 0x0040, 0x0080, kind, 0x0e00) is not null,
+            "installed room sprite object allocated");
+        var oam = new OamBuffer();
+        draw(enemies, oam, 0, 0);
+        AssertTrue(oam.NextByteOffset > 0, "installed room sprite object drew OAM");
+        return oam;
+    }
+
+    private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    {
+        public byte ReadByte(int address) => (address >> 16) == 0xb4
+            ? throw new InvalidOperationException(
+                $"Installed room sprite object reread bank-$B4 byte ${address:X6}.")
+            : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private sealed class FrameReadGuard(ISnesAddressSpace source,

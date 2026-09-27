@@ -12,7 +12,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DraygonTailDefinition = 0xdebf;
     private const ushort DraygonArmsDefinition = 0xdeff;
 
-    private const int DraygonIntroEvirTiles = 0xb19400;
     private DraygonEnemyState? _draygon;
 
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
@@ -250,10 +249,35 @@ public sealed partial class RoomEnemySystem
         {
             if (state.FunctionTimer == 0)
             {
-                byte[] tiles = new byte[0x0600];
-                for (int index = 0; index < tiles.Length; index++)
-                    tiles[index] = _bus!.ReadByte(DraygonIntroEvirTiles + index);
-                _vram!.LoadBytes(0xda00, tiles); // Native VRAM word destination $6D00.
+                RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EvirDefinition);
+                if ((evir.TileDataSize & 0x7fff) !=
+                    DraygonIntroPresentationDefinitions.EvirTilesByteCount)
+                    throw new InvalidDataException(
+                        "Draygon opening Evir sheet no longer has the compiled transfer length.");
+                if (TileArtwork is { } artwork)
+                {
+                    if (!artwork.TryResolve(evir.TileDataAddress,
+                            DraygonIntroPresentationDefinitions.EvirTilesByteCount,
+                            out ReadOnlyMemory<byte> installedTiles))
+                        throw new InvalidDataException(
+                            "Installed Evir graphics are missing for Draygon's opening transfer.");
+                    _vram!.LoadBytes(
+                        DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
+                        installedTiles.Span);
+                }
+                else
+                {
+                    // The cartridge-backed diagnostic path retains the native
+                    // DMA source; production uses the same indexed enemy PNG as
+                    // Evir's ordinary room-entry graphics-set upload.
+                    byte[] tiles = new byte[
+                        DraygonIntroPresentationDefinitions.EvirTilesByteCount];
+                    for (int index = 0; index < tiles.Length; index++)
+                        tiles[index] = _bus!.ReadByte(evir.TileDataAddress + index);
+                    _vram!.LoadBytes(
+                        DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
+                        tiles);
+                }
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

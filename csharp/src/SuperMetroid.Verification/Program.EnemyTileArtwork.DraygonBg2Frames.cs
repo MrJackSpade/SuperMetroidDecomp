@@ -70,6 +70,7 @@ internal static partial class Program
         AssertEqual(102, writeCount, "all Draygon BG2 command writes are installed");
         VerifyCompiledDraygonBg2Collision(rom);
         VerifyCompiledDraygonOamCollision(rom);
+        VerifyCompiledSporeSpawnCollision(rom);
 
         string stockPath = Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName);
         byte[] original = File.ReadAllBytes(stockPath);

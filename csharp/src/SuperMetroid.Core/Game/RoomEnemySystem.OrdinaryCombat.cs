@@ -2831,6 +2831,38 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
+            SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer))
+        {
+            // These twelve OAM frames are selected by Spore Spawn, despite
+            // their legacy visual asset keys bearing a Draygon prefix. Keep
+            // every rectangle and callback in the compiled gameplay catalog.
+            foreach (SporeSpawnCollisionComponent component in
+                     SporeSpawnCollisionDefinitions.ComponentsAt(
+                         enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (SporeSpawnCollisionHitbox hitbox in
+                         SporeSpawnCollisionDefinitions.HitboxesAt(
+                             component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         if (IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer))
         {
             // Phantoon's extended frame roots include hitbox-list pointers,

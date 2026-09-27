@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Powered and unpowered Work Robot compositions (2026-09-27)
+
+The 227 bank-`$A8` Work Robot presentation operands now map through the
+cartridge-verified generated selector catalog to 27 named, editable OAM
+compositions. Powered walking, laser, recoil, and wall/ledge instruction
+callbacks and the unpowered pose timers remain compiled mechanics. The verifier
+checks all 227 selectors, full OAM parity, each production selection with
+presentation ROM reads forbidden, and version-57 override inheritance. The
+global compiled-selector census now covers 4,384 addresses. Isolated rooms
+`$8F:CC6F` and `$8F:CDF1` each match native pixels for 90 neutral frames with
+all runtime cartridge reads blocked. Other enemy families and the full
+ROM-free integration contract remain open.
+
 ## Evir body, arms, and projectile compositions (2026-09-27)
 
 Evir's 49 bank-`$A8` presentation operands now select 24 named, editable

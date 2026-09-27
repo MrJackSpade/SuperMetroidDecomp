@@ -1,5 +1,9 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>One compiled Work Robot control word at its bank-$A8 address.</summary>
+internal readonly record struct WorkRobotInstructionMechanicsWord(
+    ushort Address, ushort Value);
+
 internal static class WorkRobotInstructionProgramDefinitions
 {
     /// <summary><c>InstList_RobotNoPower_Neutral</c> at $A8:C6D3.</summary>
@@ -109,7 +113,23 @@ internal static class WorkRobotInstructionProgramDefinitions
     ];
 
     internal const int MechanicsWordCount = 367;
-    internal const int PresentationWordCount = 227;
+    internal static int PresentationWordCount => 227;
+
+    internal static WorkRobotInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        for (int wordIndex = 0; wordIndex < Words.Length; wordIndex++)
+        {
+            int value = Words[wordIndex];
+            if (value == PresentationOperand)
+                continue;
+            if (index-- == 0)
+                return new(unchecked((ushort)(FirstWordAddress + wordIndex * 2)),
+                    unchecked((ushort)value));
+        }
+        throw new InvalidOperationException("Work Robot mechanics-word index is inconsistent.");
+    }
 
     /// <summary>Returns compiled Work Robot control data or rejects presentation/data pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
@@ -157,4 +177,3 @@ internal static class WorkRobotInstructionProgramDefinitions
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Work Robot instruction mechanics pointer $A8:{address:X4} is not compiled.");
 }
-

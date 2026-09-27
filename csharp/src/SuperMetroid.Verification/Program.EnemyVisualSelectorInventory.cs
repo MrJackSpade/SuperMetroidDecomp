@@ -154,9 +154,9 @@ internal static partial class Program
                     Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
             }
         }
-        AssertEqual(138, discovered, "instruction catalogs with visual operands");
-        AssertEqual(4158, operands, "counted native sprite-selector occurrences");
-        AssertEqual(4157, keyed.Count, "distinct native sprite-selector addresses");
+        AssertEqual(139, discovered, "instruction catalogs with visual operands");
+        AssertEqual(4385, operands, "counted native sprite-selector occurrences");
+        AssertEqual(4384, keyed.Count, "distinct native sprite-selector addresses");
         if (generateCatalog)
             GenerateCompiledEnemyVisualSelectorCatalog(keyed);
         else
@@ -192,7 +192,7 @@ internal static partial class Program
     {
         var rom = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(4157, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(4384, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
         int previousAddress = -1;
         for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
@@ -226,7 +226,7 @@ internal static partial class Program
                 $"Ceres Baby palette operand $A6:{address:X4} is not a sprite selector");
         }
         Console.WriteLine(
-            "Compiled enemy visuals: 4,157 distinct sprite selectors match the cartridge; " +
+            $"Compiled enemy visuals: {CompiledEnemyVisualSelectors.Count:N0} distinct sprite selectors match the cartridge; " +
             "sorted lookup and unknown-key rejection pass.");
     }
 

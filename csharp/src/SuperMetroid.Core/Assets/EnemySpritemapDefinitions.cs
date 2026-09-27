@@ -11,6 +11,8 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    internal const int PreWorkRobotVersion = 57;
+    internal const int PreWorkRobotFrameCount = 1052;
     internal const int PreEvirVersion = 56;
     internal const int PreEvirFrameCount = 1028;
     internal const int PreMochtroidVersion = 55;
@@ -19,7 +21,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 57;
+    internal const int Version = 58;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -668,6 +670,7 @@ internal static class EnemySpritemapDefinitions
         .. DeadTourianCorpseVisualDefinitions.Frames(),
         .. MochtroidVisualDefinitions.Frames(),
         .. EvirVisualDefinitions.Frames(),
+        .. WorkRobotVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -728,6 +731,9 @@ internal static class EnemySpritemapDefinitions
                 MochtroidVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.EvirDefinition or RoomEnemySystem.EvirProjectileDefinition =>
                 EvirVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.WorkRobotDefinition or
+                RoomEnemySystem.WorkRobotNoPowerDefinition =>
+                WorkRobotVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -822,6 +828,8 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionPointers.Mochtroid or
             RoomEnemySystem.EvirDefinition or
             RoomEnemySystem.EvirProjectileDefinition or
+            RoomEnemySystem.WorkRobotDefinition or
+            RoomEnemySystem.WorkRobotNoPowerDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Authored bank-$A6 palette sources for Lower Norfair Ridley's arena reveal.</summary>
 public static class NorfairRidleyPaletteRomData
 {
+    /// <summary>Bank $A6 base for the arena-reveal palette pointers stored at $A6:A4EB.</summary>
+    public const int RevealSourceBank = 0xa60000;
+
     /// <summary>Thirty-two initial OBJ colors at $A6:E1CF, installed before the hidden palette slots are cleared.</summary>
     public const int InitialColors = EnemyRomTablePointers.Ridley.InitialPaletteWords;
     public const int InitialColorCount = 32;

@@ -409,7 +409,8 @@ public sealed partial class RoomEnemySystem
                 NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
             hasPalette = sourcePointer != 0;
             if (hasPalette)
-                _cgram!.LoadFromBus(_bus!, 0xa60000 | sourcePointer,
+                _cgram!.LoadFromBus(_bus!,
+                    NorfairRidleyPaletteRomData.RevealSourceBank | sourcePointer,
                     NorfairRidleyPaletteRomData.RevealColorCount,
                     NorfairRidleyPaletteRomData.RevealCgramIndex);
         }

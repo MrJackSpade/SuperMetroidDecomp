@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 31;
+    internal const int Version = 32;
+    internal const int PreDraygonBreathVersion = 31;
+    internal const int PreDraygonBreathFrameCount = 463;
     internal const int PreDraygonIntroVersion = 30;
     internal const int PreDraygonIntroFrameCount = 459;
     internal const int PreElevatorVersion = 29;
@@ -574,6 +576,15 @@ internal static class EnemySpritemapDefinitions
         new(RoomSpriteObjectBank, 0xdb80, "draygon_intro_evir_1"),
         new(RoomSpriteObjectBank, 0xdbbe, "draygon_intro_evir_2"),
         new(RoomSpriteObjectBank, 0xdbfc, "draygon_intro_evir_3"),
+        new(RoomSpriteObjectBank, 0xc920, "draygon_breath_bubble_0"),
+        new(RoomSpriteObjectBank, 0xc927, "draygon_breath_bubble_1"),
+        new(RoomSpriteObjectBank, 0xc938, "draygon_breath_bubble_2"),
+        new(RoomSpriteObjectBank, 0xc949, "draygon_breath_bubble_3"),
+        new(RoomSpriteObjectBank, 0xc95a, "draygon_breath_bubble_4"),
+        new(RoomSpriteObjectBank, 0xc96b, "draygon_breath_bubble_5"),
+        new(RoomSpriteObjectBank, 0xc97c, "draygon_breath_bubble_6"),
+        new(RoomSpriteObjectBank, 0xc98d, "draygon_breath_bubble_7"),
+        new(RoomSpriteObjectBank, 0xc999, "draygon_breath_bubble_8"),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =

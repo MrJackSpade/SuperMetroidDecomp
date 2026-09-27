@@ -262,8 +262,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreDraygonIntroFrameCount,
             "elevator adds its two native OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreDraygonIntroFrameCount + 4,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDraygonBreathFrameCount,
             "Draygon intro adds its four native Evir sprite-object frames");
+        AssertEqual(EnemySpritemapDefinitions.PreDraygonBreathFrameCount + 9,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Draygon breath bubble adds its nine native sprite-object frames");
         for (int index = 0;
              index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -1160,12 +1163,36 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preDraygonFrames = document.Frames
+        var preBreathFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("draygon_breath_bubble_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreDraygonBreathFrameCount,
+            preBreathFrames.Count, "pre-Draygon-breath composition schema frame count");
+        var preBreathBindings = document.DisplayFrames!
+            .Where(pair => preBreathFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreDraygonBreathVersion,
+                Frames = preBreathFrames,
+                DisplayFrames = preBreathBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog preBreathUpgraded = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        foreach (ushort pointer in new ushort[]
+                 { 0xc920, 0xc927, 0xc938, 0xc949, 0xc95a, 0xc96b, 0xc97c, 0xc98d, 0xc999 })
+        {
+            AssertTrue(preBreathUpgraded.Spritemaps!.TryGetDisplay(
+                    EnemySpritemapDefinitions.RoomSpriteObjectBank, pointer, out _),
+                $"version-thirty-one override inherits stock Draygon breath frame ${pointer:X4}");
+        }
+        var preDraygonFrames = preBreathFrames
             .Where(pair => !pair.Key.StartsWith("draygon_intro_evir_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDraygonIntroFrameCount,
             preDraygonFrames.Count, "pre-Draygon composition schema frame count");
-        var preDraygonBindings = document.DisplayFrames!
+        var preDraygonBindings = preBreathBindings
             .Where(pair => preDraygonFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(

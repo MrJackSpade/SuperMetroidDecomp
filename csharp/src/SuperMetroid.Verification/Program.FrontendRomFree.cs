@@ -161,19 +161,17 @@ internal static partial class Program
                     "Lower Norfair main hall");
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Phantoon, "Phantoon");
-                // Draygon's remaining collision and other mechanics records
-                // still live in bank $A5. Permit those while comparing 90
-                // native room frames, but keep its now-installed $FFFE visual
-                // streams forbidden alongside every other cartridge bank.
-                guardedBus.AllowedCartridgeBank = 0xa5;
+                // The previous room fixture exempted all bank-$A5 reads while
+                // Draygon's extended hitboxes were still ROM-backed. Both its
+                // BG2 and ordinary-frame collision are now compiled. Require
+                // the same all-bank read guard used by every other room.
                 guardedBus.BlockExtendedBg2Streams(
                     DraygonBg2FrameDefinitions.Bank,
                     DraygonBg2FrameDefinitions.Frames);
                 VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.Draygon, "Draygon (bank-$A5 partial)",
-                    allCartridgeReadsGuarded: false);
-                guardedBus.AllowedCartridgeBank = -1;
-                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded (separate Draygon fixture permits bank $A5).");
+                    RoomHeaderPointers.Draygon, "Draygon room entry, dance and fight handoff",
+                    frameCount: 1550);
+                Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
             if (actual.GameState != SuperMetroidGameState.IntroCinematic)
@@ -270,13 +268,13 @@ internal static partial class Program
     /// </summary>
     private static void VerifyFrontendRomFreeRoom(
         SuperMetroidGame native, SuperMetroidGame installed,
-        ushort roomPointer, string roomName, bool allCartridgeReadsGuarded = true)
+        ushort roomPointer, string roomName, int frameCount = 90)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
         installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
-        for (int frame = 0; frame < 90; frame++)
+        for (int frame = 0; frame < frameCount; frame++)
         {
             FrontendFrame expected = native.Step(0);
             FrontendFrame actual = installed.Step(0);
@@ -301,17 +299,13 @@ internal static partial class Program
                     "installed Draygon Evir intro upload matches native VRAM with bank-$B1 reads forbidden");
             }
         }
-        Console.WriteLine($"Frontend {roomName} room: 90 native-parity frames; " +
-            (allCartridgeReadsGuarded
-                ? "all cartridge reads guarded."
-                : "bank-$A5 mechanics/collision reads permitted; BG2 streams and other cartridge reads guarded."));
+        Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }
 
     private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace
     {
         private readonly HashSet<int> blockedPresentationBytes = [];
-        internal int AllowedCartridgeBank { get; set; } = -1;
 
         internal void BlockExtendedBg2Streams(byte bank,
             ReadOnlySpan<EnemyBg2FrameDefinition> frames)
@@ -361,7 +355,7 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Installed frontend reread BG2 visual stream byte ${address:X6}.");
             int bank = address >> 16;
-            if (bank is not (0x7e or 0x7f) && bank != AllowedCartridgeBank &&
+            if (bank is not (0x7e or 0x7f) &&
                 (address & 0x8000) != 0)
                 throw new InvalidOperationException(
                     $"Installed frontend reread cartridge byte ${address:X6}.");

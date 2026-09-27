@@ -375,6 +375,9 @@ pages are separate `mother-brain-baby-tiles.png`,
 `mother-brain-attack-tiles.png`, and `mother-brain-exploded-door-tiles.png`
 overrides. Each replaces only character pixels; the original page timing and
 VRAM destinations remain compiled.
+Phase-two leg loading also uses `mother-brain-leg-tiles.png` for its first
+eight pages; the following four reuse the attack sheet. Its twelve-record
+timing and destination list remain compiled game definitions.
 Copy any of these to `overrides/enemy-tiles/` to replace those visuals; their
 row timing, collision, and decay mechanics remain compiled.
 

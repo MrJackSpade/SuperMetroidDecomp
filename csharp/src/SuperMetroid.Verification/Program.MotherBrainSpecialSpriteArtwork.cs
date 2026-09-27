@@ -109,9 +109,75 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTileTransferDefinitions.BabyTileTransfer(baby.PageCount),
             "compiled Baby tile transfer rejects a record past the terminator");
+        VerifyMotherBrainLegTileTransfers(stock, rom);
         VerifyMotherBrainInstalledTransferBoundary(stock, rom);
         Console.WriteLine(
-            "  Mother Brain special sprites: Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
+            "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
+    }
+
+    private static void VerifyMotherBrainLegTileTransfers(
+        EnemyTileArtworkCatalog stock, SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem { TileArtwork = stock };
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            new MotherBrainLegTransferReadGuard(
+                SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc")));
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
+            "ProcessMotherBrainSpriteTileTransfer", flags)!;
+        var state = new MotherBrainEnemyState(enemies.Slots[0]);
+
+        for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
+        {
+            int record = MotherBrainLegTileTransferDefinitions.NativeListAddress +
+                page * MotherBrainLegTileTransferDefinitions.RecordByteCount;
+            MotherBrainSpriteTileTransferRequest compiled =
+                MotherBrainLegTileTransferDefinitions.Get(page);
+            AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(rom, record),
+                $"Mother Brain leg transfer {page} size");
+            uint nativeSource = (uint)(RomDataReader.ReadWordFixedBank(rom, record + 2) |
+                rom.ReadByte(record + 4) << 16);
+            AssertEqual(compiled.SourceAddress, nativeSource,
+                $"Mother Brain leg transfer {page} source");
+            AssertEqual(compiled.VramDestination,
+                RomDataReader.ReadWordFixedBank(rom, record + 5),
+                $"Mother Brain leg transfer {page} destination");
+
+            bool completed = (bool)process.Invoke(enemies, [state])!;
+            AssertEqual(page + 1 == MotherBrainLegTileTransferDefinitions.PageCount,
+                completed, $"Mother Brain leg transfer {page} completion frame");
+            ushort expectedPointer = completed ? (ushort)0 : unchecked((ushort)(
+                MotherBrainLegTileTransferDefinitions.NativeListPointer +
+                (page + 1) * MotherBrainLegTileTransferDefinitions.RecordByteCount));
+            AssertEqual(expectedPointer, state.SpriteTileTransferEntryPointer,
+                $"Mother Brain leg transfer {page} next native pointer");
+            byte[] nativePixels = RomDataReader.ReadFixedBank(rom,
+                checked((int)nativeSource), compiled.Size);
+            AssertTrue(vram.Bytes.Slice(compiled.VramDestination * 2, compiled.Size)
+                .SequenceEqual(nativePixels),
+                $"Mother Brain leg transfer {page} VRAM bytes match cartridge");
+        }
+        int terminator = MotherBrainLegTileTransferDefinitions.NativeListAddress +
+            MotherBrainLegTileTransferDefinitions.PageCount *
+            MotherBrainLegTileTransferDefinitions.RecordByteCount;
+        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(rom, terminator),
+            "Mother Brain leg transfer page eleven is followed by native zero terminator");
+
+        state.SpriteTileTransferEntryPointer = unchecked((ushort)(
+            MotherBrainLegTileTransferDefinitions.NativeListPointer + 1));
+        try
+        {
+            process.Invoke(enemies, [state]);
+        }
+        catch (TargetInvocationException error) when
+            (error.InnerException is InvalidDataException)
+        {
+            return;
+        }
+        throw new InvalidOperationException(
+            "Misaligned Mother Brain leg transfer pointer should fail explicitly.");
     }
 
     private static void VerifyMotherBrainInstalledTransferBoundary(
@@ -247,6 +313,24 @@ internal static partial class Program
                 EscapeTimerTileAtlasFormat.SecondByteCount
                 ? throw new InvalidOperationException(
                     $"Mother Brain attempted a timer-art ROM read at ${address:X6}.")
+                : source.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class MotherBrainLegTransferReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        public byte ReadByte(int address) =>
+            address >= MotherBrainLegTileTransferDefinitions.NativeListAddress &&
+            address < MotherBrainLegTileTransferDefinitions.NativeListAddress +
+                MotherBrainLegTileTransferDefinitions.PageCount *
+                MotherBrainLegTileTransferDefinitions.RecordByteCount + sizeof(ushort) ||
+            address >= MotherBrainSpecialSpriteArtworkDefinitions.Legs.SourceAddress &&
+            address < MotherBrainSpecialSpriteArtworkDefinitions.Attack.SourceAddress +
+                MotherBrainSpecialSpriteArtworkDefinitions.Attack.ByteCount
+                ? throw new InvalidOperationException(
+                    $"Mother Brain leg loading reread migrated ROM data at ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

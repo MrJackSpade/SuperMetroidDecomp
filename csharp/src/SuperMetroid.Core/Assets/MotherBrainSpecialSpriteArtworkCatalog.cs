@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Installed editable pages for Baby, attack restoration, and the exploded door.</summary>
+/// <summary>Installed editable pages for legs, Baby, attack restoration, and the exploded door.</summary>
 public sealed class MotherBrainSpecialSpriteArtworkCatalog
 {
     private readonly Dictionary<int, RoomCharacterAtlas> sheets;
@@ -13,7 +13,7 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
             MotherBrainSpecialSpriteArtworkDefinitions.All
                 .Any(definition => !sheets.ContainsKey(definition.SourceAddress)))
             throw new InvalidDataException(
-                "Mother Brain special artwork requires all three native source sheets.");
+                "Mother Brain special artwork requires all four native source sheets.");
         this.sheets = new Dictionary<int, RoomCharacterAtlas>(sheets);
     }
 

@@ -119,7 +119,7 @@ public sealed class EnemyTileArtworkCatalog
     /// <summary>Editable OBJ characters for the Mother Brain escape typewriter transfer.</summary>
     public RoomCharacterAtlas? MotherBrainEscapeText { get; }
 
-    /// <summary>Editable Baby, attack-restoration and exploded-door OBJ pages.</summary>
+    /// <summary>Editable leg, Baby, attack-restoration and exploded-door OBJ pages.</summary>
     public MotherBrainSpecialSpriteArtworkCatalog? MotherBrainSpecialSprites { get; }
 
     /// <summary>Kraid's ordered BG2 tile references; null only for constructed fixtures.</summary>
@@ -218,7 +218,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 44;
+    public const int Version = 45;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

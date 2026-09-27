@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainLegTileTransferList = 0x8f8f;
     private const ushort MotherBrainCrouchedInstruction = 0x9a02;
     private const ushort MotherBrainSlowUncrouchInstruction = 0x99aa;
     private const ushort MotherBrainStretchingHeadInstruction = 0x9b7f;
@@ -249,9 +248,7 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         byte nmiFrameCounter8)
     {
-        if (!ProcessMotherBrainSpriteTileTransfer(
-                state,
-                MotherBrainLegTileTransferList))
+        if (!ProcessMotherBrainSpriteTileTransfer(state))
         {
             return;
         }
@@ -263,38 +260,27 @@ public sealed partial class RoomEnemySystem
         ContinueMotherBrainAscentPause(state);
     }
 
-    private bool ProcessMotherBrainSpriteTileTransfer(
-        MotherBrainEnemyState state,
-        ushort firstEntryPointer)
+    private bool ProcessMotherBrainSpriteTileTransfer(MotherBrainEnemyState state)
     {
-        ushort entry = state.SpriteTileTransferEntryPointer == 0
-            ? firstEntryPointer
-            : state.SpriteTileTransferEntryPointer;
-        int address = 0xa90000 | entry;
-        ushort byteCount = ReadWord(_bus!, address);
-        if (byteCount == 0)
+        int index = state.SpriteTileTransferEntryPointer == 0
+            ? 0
+            : MotherBrainLegTileTransferDefinitions.IndexOf(
+                state.SpriteTileTransferEntryPointer);
+        MotherBrainSpriteTileTransferRequest transfer =
+            MotherBrainLegTileTransferDefinitions.Get(index);
+        ApplyMotherBrainRainbowTileTransfer(transfer);
+
+        // Native checks the next record's zero terminator on the same call as
+        // page eleven. Preserve that same-frame completion and pointer reset.
+        if (index + 1 == MotherBrainLegTileTransferDefinitions.PageCount)
         {
             state.SpriteTileTransferEntryPointer = 0;
             return true;
         }
 
-        int source = _bus!.ReadByte(address + 2) |
-            (_bus.ReadByte(address + 3) << 8) |
-            (_bus.ReadByte(address + 4) << 16);
-        ushort destination = ReadWord(_bus, address + 5);
-        var bytes = new byte[byteCount];
-        for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = _bus.ReadByte(source + index);
-        _vram!.LoadBytes(destination * 2, bytes);
-
-        ushort next = unchecked((ushort)(entry + 7));
-        if (ReadWord(_bus, 0xa90000 | next) == 0)
-        {
-            state.SpriteTileTransferEntryPointer = 0;
-            return true;
-        }
-
-        state.SpriteTileTransferEntryPointer = next;
+        state.SpriteTileTransferEntryPointer = unchecked((ushort)(
+            MotherBrainLegTileTransferDefinitions.NativeListPointer +
+            (index + 1) * MotherBrainLegTileTransferDefinitions.RecordByteCount));
         return false;
     }
 

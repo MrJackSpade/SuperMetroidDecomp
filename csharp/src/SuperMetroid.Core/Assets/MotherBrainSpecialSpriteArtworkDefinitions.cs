@@ -37,6 +37,10 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
 /// <summary>Native visual sources and destinations of the three fixed Mother Brain lists.</summary>
 public static class MotherBrainSpecialSpriteArtworkDefinitions
 {
+    /// <summary>$B7:9000-$9FFF, eight phase-two leg pages loaded by $A9:8F8F.</summary>
+    public static readonly MotherBrainSpecialSpriteSheetDefinition Legs =
+        new("mother-brain-leg-tiles.png", 0xb79000, 8, 0x7400);
+
     /// <summary>$B1:8800-$8FFF, four Baby Metroid pages loaded by $A9:8FE5.</summary>
     public static readonly MotherBrainSpecialSpriteSheetDefinition BabyMetroid =
         new("mother-brain-baby-tiles.png", 0xb18800, 4, 0x7c00);
@@ -49,9 +53,9 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
     public static readonly MotherBrainSpecialSpriteSheetDefinition ExplodedDoor =
         new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 0x7000);
 
-    /// <summary>All three separate editable source sheets.</summary>
+    /// <summary>All four separate editable source sheets.</summary>
     public static IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition> All { get; } =
-        Array.AsReadOnly([BabyMetroid, Attack, ExplodedDoor]);
+        Array.AsReadOnly([Legs, BabyMetroid, Attack, ExplodedDoor]);
 
     /// <summary>Looks up the sheet containing one native source address.</summary>
     public static bool TryForSource(uint sourceAddress,

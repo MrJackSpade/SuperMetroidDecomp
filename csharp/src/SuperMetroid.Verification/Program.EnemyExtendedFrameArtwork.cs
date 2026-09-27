@@ -69,6 +69,38 @@ internal static partial class Program
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Bank == 0xa6),
             "all Ceres/Lower Norfair Ridley body frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Bank == 0xa5),
+            "all selected ordinary-OAM Draygon extended frames are installed");
+        var draygonOamPointers = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            .Where(frame => frame.Bank == 0xa5)
+            .Select(frame => frame.Pointer)
+            .ToHashSet();
+        var draygonBg2Pointers = new HashSet<ushort>();
+        for (int index = 0; index <
+             DraygonInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort operand = DraygonInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort pointer = (ushort)(rom.ReadByte(0xa50000 | operand) |
+                rom.ReadByte(0xa50000 | unchecked((ushort)(operand + 1))) << 8);
+            if (draygonOamPointers.Contains(pointer))
+                continue;
+            draygonBg2Pointers.Add(pointer);
+            int count = rom.ReadByte(0xa50000 | pointer);
+            AssertTrue(Enumerable.Range(0, count).Any(component =>
+            {
+                ushort record = unchecked((ushort)(pointer + 2 + component * 8 + 4));
+                ushort sprite = (ushort)(rom.ReadByte(0xa50000 | record) |
+                    rom.ReadByte(0xa50000 | unchecked((ushort)(record + 1))) << 8);
+                return (rom.ReadByte(0xa50000 | sprite) |
+                    rom.ReadByte(0xa50000 | unchecked((ushort)(sprite + 1))) << 8)
+                    == 0xfffe;
+            }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
+        }
+        AssertEqual(34, draygonBg2Pointers.Count,
+            "Draygon presentation selectors partition into 60 OAM and 34 BG2 frames");
 
         string fileName = EnemyExtendedFrameDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
@@ -88,6 +120,12 @@ internal static partial class Program
         {
             OffsetX = ridleyFirst.OffsetX + 1,
         };
+        const string draygonOamName = "draygon_oam_A2DF";
+        EnemyExtendedVisualComponent draygonFirst = document.Frames[draygonOamName][0];
+        document.Frames[draygonOamName][0] = draygonFirst with
+        {
+            OffsetX = draygonFirst.OffsetX + 1,
+        };
         string ridleyOverrideDirectory = Path.Combine(stockDirectory,
             "ridley-composition-overrides");
         Directory.CreateDirectory(ridleyOverrideDirectory);
@@ -101,6 +139,15 @@ internal static partial class Program
             0xa6, 0xe983, 0x0040, 0x0080);
         OamBuffer movedRidley = DrawExtendedForBank(editedRidley, guard,
             0xa6, 0xe983, 0x0040, 0x0080);
+        OamBuffer stockDraygonOam = DrawExtendedForBank(stock, guard,
+            0xa5, 0xa2df, 0x0040, 0x0080);
+        OamBuffer movedDraygonOam = DrawExtendedForBank(editedRidley, guard,
+            0xa5, 0xa2df, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockDraygonOam.LowTable[0] + 1)),
+            movedDraygonOam.LowTable[0],
+            "editable Draygon extended OAM offset changes live drawing");
+        AssertEqual(stockDraygonOam.LowTable[1], movedDraygonOam.LowTable[1],
+            "Draygon extended visual X edit leaves Y placement unchanged");
         AssertEqual(unchecked((byte)(stockRidley.LowTable[0] + 1)),
             movedRidley.LowTable[0],
             "editable Ridley body component moves live OAM by one pixel");
@@ -213,7 +260,8 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreviousVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("ninja_pirate_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal)).ToDictionary(
+                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -281,8 +329,9 @@ internal static partial class Program
         var preBindings = new EnemyExtendedFrameDocument
         {
             Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
-            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
-                "ridley_body_", StringComparison.Ordinal)).ToDictionary(
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -300,11 +349,13 @@ internal static partial class Program
         var versionFour = new EnemyExtendedFrameDocument
         {
             Version = EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion,
-            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
-                "ridley_body_", StringComparison.Ordinal)).ToDictionary(
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -326,6 +377,33 @@ internal static partial class Program
             "version-four visual binding survives Ridley-frame migration");
         AssertTrue(upgradedVersionFour.ExtendedFrames!.TryGet(0xa6, 0xe983, out _),
             "version-four override inherits stock Ridley body art");
+
+        // The immediately preceding schema includes Ridley but not Draygon.
+        // Keep edited Pirate/Ridley compositions and display bindings while
+        // filling the new boss's OAM-only frames from hash-checked stock.
+        var versionFive = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreDraygonVersion,
+            Frames = document.Frames.Where(entry => !entry.Key.StartsWith(
+                "draygon_oam_", StringComparison.Ordinal)).ToDictionary(
+                    entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("draygon_oam_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        versionFive.DisplayFrames[sourceNameForLegacyBinding] = targetNameForLegacyBinding;
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionFive, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionFive = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(DrawExtended(upgradedVersionFive, guard, legacySourcePointer,
+                0x0040, 0x0080).LowTable.SequenceEqual(DrawExtended(stock, guard,
+                legacyTargetPointer, 0x0040, 0x0080).LowTable),
+            "version-five override retains its authored Pirate display binding");
+        AssertTrue(upgradedVersionFive.ExtendedFrames!.TryGet(0xa5, 0xa2df, out _),
+            "version-five override inherits stock Draygon OAM art");
 
         EnemyExtendedFrameDocument remapped =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -420,9 +498,9 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate and 11 Ridley frames match native OAM " +
-            "at three origins with visual ROM reads forbidden; three-family edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v4 override " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, and 60 Draygon OAM frames match native OAM " +
+            "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v5 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 

@@ -495,10 +495,11 @@ times and VRAM destinations stay fixed; edits are resolved when each queued
 upload reaches NMI, including after restoring an older pending debugger state.
 Walking, wall, and ninja Space Pirates use the separate, historically named
 `game/enemy-tiles/enemy-walking-pirate-compositions.json`. Copy it to
-`overrides/enemy-tiles/` to edit the 131 named extended frames. Each frame contains
+`overrides/enemy-tiles/` to edit the 131 Pirate, 11 Ridley-body, and 60
+ordinary-OAM Draygon extended frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
 OAM fields listed above. Its `displayFrames` table can remap any named visual
-frame to another frame of the same Pirate family, without changing the native
+frame to another frame of the same enemy family, without changing the native
 instruction frame, duration, or hitbox. Component offsets move only the drawing;
 native hitbox geometry and touch/shot callbacks remain engine-owned. Walking,
 wall, and ninja Pirate collision records are compiled and unaffected by JSON edits. A valid
@@ -506,6 +507,10 @@ version-one override retains its walking-Pirate edits while wall and ninja frame
 come from verified stock. A version-two override also retains wall edits and
 inherits the new ninja frames. Version-three overrides retain all their art and
 inherit stock identity bindings; use a version-four copy to edit display bindings.
+Version-four and version-five overrides retain their existing display bindings
+and inherit later boss frames from verified stock. Use a current version-six
+copy to edit Draygon's OAM compositions. Draygon's other 34 selected extended
+frames contain BG2 tilemap commands and are not yet editable in this file.
 The stock file is manifest-hash checked, and missing or malformed override
 frames fail loudly.
 Phantoon's body, eye, tentacles, and mouth use BG2 tilemap writes rather than

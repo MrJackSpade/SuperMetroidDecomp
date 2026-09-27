@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreDraygonVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreDraygonFrameCount,
             EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PirateFrameCount,
@@ -177,12 +180,13 @@ public sealed class EnemyExtendedFrameCatalog
         foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
         var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
-        if (document.Version == EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion)
+        if (document.Version is EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
+            or EnemyExtendedFrameDefinitions.PreDraygonVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
                 throw new InvalidDataException(
-                    "Version-four extended enemy display bindings require every Pirate frame.");
+                    "Legacy extended enemy display bindings require every authored frame.");
             foreach ((string name, int identity) in identities)
             {
                 if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
@@ -190,7 +194,7 @@ public sealed class EnemyExtendedFrameCatalog
                     !identities.TryGetValue(selectedName, out int selected) ||
                     !SameFrameFamily(name, selectedName))
                     throw new InvalidDataException(
-                        $"Version-four extended enemy display binding {name} is invalid.");
+                        $"Legacy extended enemy display binding {name} is invalid.");
                 mergedBindings[identity] = selected;
             }
         }
@@ -198,6 +202,8 @@ public sealed class EnemyExtendedFrameCatalog
 
         static bool SameFrameFamily(string left, string right)
         {
+            if (left.StartsWith("draygon_oam_", StringComparison.Ordinal))
+                return right.StartsWith("draygon_oam_", StringComparison.Ordinal);
             if (left.StartsWith("ridley_body_", StringComparison.Ordinal))
                 return right.StartsWith("ridley_body_", StringComparison.Ordinal);
             int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);

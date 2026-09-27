@@ -17,7 +17,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreviousVersion = 2;
     internal const int PreDisplayBindingsVersion = 3;
     internal const int PirateDisplayBindingsVersion = 4;
-    internal const int Version = 5;
+    internal const int PreDraygonVersion = 5;
+    internal const int PreDraygonFrameCount = 142;
+    internal const int Version = 6;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -25,10 +27,28 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int WallFrameCount = 18;
     internal const int NinjaFrameCount = 76;
     internal const int RidleyFrameCount = 11;
+    internal const int DraygonOamFrameCount = 60;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
-        PirateFrameCount + RidleyFrameCount;
+        PirateFrameCount + RidleyFrameCount + DraygonOamFrameCount;
+
+    // Every bank-$A5 Draygon extended frame selected by a compiled instruction
+    // that contains ordinary OAM components. The other 34 selected frames carry
+    // BG2 tilemap commands and require a separate presentation catalog.
+    private static readonly ushort[] DraygonOamPointers =
+    [
+        0xa2df, 0xa2e9, 0xa2f3, 0xa2fd, 0xa307, 0xa311,
+        0xa3c5, 0xa3cf, 0xa3d9, 0xa3e3,
+        0xa40b, 0xa41d, 0xa42f, 0xa441, 0xa453, 0xa465, 0xa477, 0xa489,
+        0xa4a3, 0xa4c5, 0xa4ef, 0xa521, 0xa55b, 0xa59d,
+        0xa607, 0xa611, 0xa61b, 0xa625, 0xa62f, 0xa639,
+        0xa6ed, 0xa6f7, 0xa701, 0xa70b,
+        0xa779, 0xa78b, 0xa79d, 0xa7af, 0xa7c1, 0xa7d3, 0xa7e5, 0xa7f7,
+        0xa811, 0xa833, 0xa85d, 0xa88f, 0xa8c9, 0xa90b,
+        0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,
+        0xeed3, 0xeee5, 0xef3d, 0xef4f, 0xef61,
+    ];
 
     // Distinct extended body frames selected by Ridley's bank-$A6 instruction
     // programs at $A6:E53E-$E824. These physical identities cover the Ceres
@@ -154,6 +174,12 @@ internal static class EnemyExtendedFrameDefinitions
         foreach (ushort pointer in RidleyBodyPointers)
             frames.Add(new EnemyExtendedFrameDefinition(0xa6, pointer,
                 $"ridley_body_{pointer:X4}"));
+        if (frames.Count != PreDraygonFrameCount ||
+            DraygonOamPointers.Length != DraygonOamFrameCount)
+            throw new InvalidDataException("Draygon OAM frame catalog prefix changed.");
+        foreach (ushort pointer in DraygonOamPointers)
+            frames.Add(new EnemyExtendedFrameDefinition(0xa5, pointer,
+                $"draygon_oam_{pointer:X4}"));
         return frames.ToArray();
     }
 }

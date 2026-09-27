@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreOumVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreOumFrameCount,
             EnemyExtendedFrameDefinitions.PreCeresSteamVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount,
@@ -194,7 +197,8 @@ public sealed class EnemyExtendedFrameCatalog
         if (document.Version is EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
             or EnemyExtendedFrameDefinitions.PreDraygonVersion
             or EnemyExtendedFrameDefinitions.PreSporeIdentityVersion
-            or EnemyExtendedFrameDefinitions.PreCeresSteamVersion)
+            or EnemyExtendedFrameDefinitions.PreCeresSteamVersion
+            or EnemyExtendedFrameDefinitions.PreOumVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -223,6 +227,8 @@ public sealed class EnemyExtendedFrameCatalog
                 return right.StartsWith("ridley_body_", StringComparison.Ordinal);
             if (left.StartsWith("ceres_steam_oam_", StringComparison.Ordinal))
                 return right.StartsWith("ceres_steam_oam_", StringComparison.Ordinal);
+            if (left.StartsWith("oum_oam_", StringComparison.Ordinal))
+                return right.StartsWith("oum_oam_", StringComparison.Ordinal);
             int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);
             int rightEnd = right.IndexOf("_pirate_", StringComparison.Ordinal);
             return leftEnd > 0 && rightEnd > 0 && left.AsSpan(0, leftEnd)

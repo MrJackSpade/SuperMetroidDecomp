@@ -2954,6 +2954,33 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+            enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
+            (MaridiaLargeSnailCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+             TileArtwork is not null))
+        {
+            // Oum's 30 native frames each have one (0,0) component, but the
+            // ordered regions change with roll and attack direction. Keep
+            // those rectangles and callback identities independent of OAM.
+            ushort list = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(
+                enemy.SpritemapPointer);
+            foreach (MaridiaLargeSnailCollisionHitbox hitbox in
+                     MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list))
+            {
+                ushort left = unchecked((ushort)(enemy.XPosition + hitbox.Left));
+                ushort top = unchecked((ushort)(enemy.YPosition + hitbox.Top));
+                ushort right = unchecked((ushort)(enemy.XPosition + hitbox.Right));
+                ushort bottom = unchecked((ushort)(enemy.YPosition + hitbox.Bottom));
+                if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                        targetTop, targetBottom, left, top, right, bottom,
+                        selectShotCallback))
+                    continue;
+                callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

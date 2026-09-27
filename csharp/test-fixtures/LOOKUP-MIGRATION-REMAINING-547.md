@@ -1,5 +1,19 @@
 # Remaining lookup migration inventory (#547)
 
+## Maridia large snail/Oum extended frames and collision (2026-09-27)
+
+Oum's 60 fixed instruction visual operands select 30 distinct bank-$A2 extended
+frames. All 30 now have named editable OAM compositions in the v9 asset schema;
+stock drawing matches native OAM at three origins with frame reads forbidden.
+Installed selector calls cover all 60 operands without ROM reads, while v1-v8
+visual overrides inherit new frames from verified stock. The 30 frames each
+have one zero-offset component and refer to 30 distinct hitbox lists containing
+66 physical rectangles. Those bounds and damaging/non-damaging touch and shot
+callbacks now live in `MaridiaLargeSnailCollisionDefinitions`, separately from
+art. The installed callback walker matches 14,256 native boundary probes at
+three origins, including signed wraparound, with all collision reads forbidden.
+Other enemy families and the broader ROM-free runtime remain open.
+
 ## Ceres steam extended frames and collision (2026-09-27)
 
 All 28 bank-$A6 steam extended frames now have named editable OAM compositions.
@@ -1309,7 +1323,8 @@ separate program/presentation dependencies.
 Maridia's large snail/Oum now compiles all eight mutually-exclusive facing/action
 instruction selectors at `$A2:CB77-$A2:CB86`. Every production install consumes the
 named definition catalog with the pointer table forbidden. The selected mixed
-instruction programs and extended spritemaps remain separate dependencies.
+instruction-program mechanics are compiled separately. Their visual selectors,
+extended-frame drawing, and physical hitboxes are now also migrated as above.
 
 Botwoon's four fixed hole rectangles, 32 fixed path descriptors, and complete 8,316-pair
 signed movement corpus are now compiled in `BotwoonNavigationDefinitions`. The real target

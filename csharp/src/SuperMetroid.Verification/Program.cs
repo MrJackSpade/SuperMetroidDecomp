@@ -1805,6 +1805,11 @@ if (args is ["--verify-ceres-steam-collision"])
     VerifyCeresSteamCollisionDefinitions();
     return 0;
 }
+if (args is ["--verify-oum-collision"])
+{
+    VerifyMaridiaLargeSnailCollisionDefinitions();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
@@ -2829,6 +2834,7 @@ VerifyCompiledEnemyVisualSelectors();
 VerifySpacePirateCollisionDefinitions();
 VerifyRidleyCollisionDefinitions();
 VerifyCeresSteamCollisionDefinitions();
+VerifyMaridiaLargeSnailCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

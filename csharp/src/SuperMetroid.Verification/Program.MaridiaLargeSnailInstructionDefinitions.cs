@@ -144,7 +144,7 @@ internal static partial class Program
             "Maridia Large Snail selector past table");
         AssertEqual(MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount,
             guarded.ObservedPresentationWords.Count,
-            "all Maridia Large Snail extended-spritemap operands remain cartridge reads");
+            "uninstalled Oum fixture retains mutable visual operands");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids compiled Maridia Large Snail mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -166,7 +166,7 @@ internal static partial class Program
         Console.WriteLine(
             "Maridia Large Snail instruction mechanics: all eight native selectors, " +
             "eighty-four compiled mechanics words, all eight programs and callback side " +
-            "effects, and sixty live presentation reads pass with mechanics bytes forbidden.");
+            "effects, and sixty synthetic mutable visual reads pass with mechanics bytes forbidden.");
     }
 
     private static void ExecuteMaridiaLargeSnailProgram(

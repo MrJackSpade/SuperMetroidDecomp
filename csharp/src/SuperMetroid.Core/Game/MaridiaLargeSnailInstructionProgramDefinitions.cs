@@ -6,7 +6,8 @@ internal readonly record struct MaridiaLargeSnailInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Oum's idle, rolling, and attacking programs.
-/// Their sixty extended-spritemap operands remain live cartridge presentation data.
+/// Installed gameplay resolves the sixty extended-spritemap operands through the
+/// compiled selector catalog; uninstalled diagnostic streams may remain mutable.
 /// </summary>
 internal static class MaridiaLargeSnailInstructionProgramDefinitions
 {

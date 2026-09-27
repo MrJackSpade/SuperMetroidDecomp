@@ -14,6 +14,23 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 internal static class MetroidsClearedPlmRomData
 {
+    /// <summary>
+    /// <c>$84:DB42 InstList_PLM_SetsMetroidsClearedStatesWhenRequired</c> is
+    /// the complete one-word resident instruction program. Its setup-selected
+    /// pre-instruction, not this list, observes the enemy quota.
+    /// </summary>
+    internal static bool TryReadInstructionWord(ushort address, out ushort value)
+    {
+        if (address == RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired)
+        {
+            value = RoomPlmInstructionCodes.Sleep;
+            return true;
+        }
+
+        value = 0;
+        return false;
+    }
+
     private static readonly ushort[] PreInstructionByArgumentWord =
     [
         0xdad5,

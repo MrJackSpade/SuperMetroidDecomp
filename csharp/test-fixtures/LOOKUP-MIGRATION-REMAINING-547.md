@@ -1,5 +1,16 @@
 # Remaining lookup migration inventory (#547)
 
+## Tourian Metroids-cleared PLM instruction owner (2026-09-27)
+
+The complete `$84:DB42` resident observer list is one `Sleep` word, now
+compiled in its existing domain catalog. Its pre-instruction still owns the
+room-argument and kill-quota behavior. The synthetic five-observer scenario
+poisons the original list bytes, then verifies all four clear events and
+resident sleep state. The word matches the pinned cartridge, and isolated
+first frames for rooms `$8F:DAE1` and `$8F:DEDE` match native pixels with
+cartridge reads blocked. Six other census rooms failed at the same shared
+source word; their individual post-change frames have not yet been rerun.
+
 ## Speed Booster escape PLM instruction owner (2026-09-27)
 
 The complete nine-word `$84:B88A-$B89B` resident PLM list is compiled as

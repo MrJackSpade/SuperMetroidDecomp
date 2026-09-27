@@ -1283,7 +1283,27 @@ internal static partial class Program
     {
         const ushort population = 0x9500;
         WriteWord(bus, 0x84db46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
-        WriteWord(bus, 0x84db42, RoomPlmInstructionCodes.Sleep);
+        WriteWord(bus, 0x84db42, 0xdead);
+        AssertTrue(MetroidsClearedPlmRomData.TryReadInstructionWord(
+                RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired,
+                out ushort compiledInstruction),
+            "Metroids-cleared resident list is compiled");
+        AssertEqual(RoomPlmInstructionCodes.Sleep, compiledInstruction,
+            "Metroids-cleared resident list sleeps instead of reading poisoned fixture data");
+        AssertTrue(!MetroidsClearedPlmRomData.TryReadInstructionWord(
+                checked((ushort)(RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired + 2)),
+                out _),
+            "Metroids-cleared instruction owner excludes adjacent PLM header");
+        if (File.Exists("Super Metroid.smc"))
+        {
+            SuperMetroidAddressSpace rom = SuperMetroidAddressSpace.LoadRetailRom(
+                "Super Metroid.smc");
+            int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
+            ushort nativeInstruction = (ushort)(rom.ReadByte(source) |
+                rom.ReadByte(source + 1) << 8);
+            AssertEqual(nativeInstruction, compiledInstruction,
+                "Metroids-cleared one-word list matches pinned cartridge");
+        }
         bus.WriteBytes(0x8f0000 | population,
         [
             0x44, 0xdb, 0x01, 0x01, 0x10, 0x00,

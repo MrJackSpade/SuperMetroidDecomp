@@ -7,7 +7,7 @@ internal readonly record struct PlatformInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Tripper and Kamer's moving and vertically-still loops.
-/// Their thirty-two interleaved spritemap operands remain live cartridge presentation data.
+/// Their thirty-two interleaved spritemap operands select installed presentation frames.
 /// </summary>
 internal static class PlatformInstructionProgramDefinitions
 {
@@ -96,6 +96,10 @@ internal static class PlatformInstructionProgramDefinitions
     internal static int PresentationWordCount => PresentationWords.Length;
     internal static PlatformInstructionMechanicsWord MechanicsWord(int index) => Words[index];
     internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+
+    /// <summary>Whether the address selects a native Tripper/Kamer OAM frame.</summary>
+    internal static bool IsPresentationWord(ushort address) =>
+        Array.BinarySearch(PresentationWords, address) >= 0;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {

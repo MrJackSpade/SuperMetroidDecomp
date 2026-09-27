@@ -307,8 +307,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreShaktoolFrameCount,
             "both ordinary-Metroid loops share four distinct body OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreShaktoolFrameCount + 15,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreTripperKamerFrameCount,
             "Shaktool's saw, arm, and head programs select fifteen OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreTripperKamerFrameCount + 18,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Tripper/Kamer add sixteen animated and two frozen OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -744,6 +747,45 @@ internal static partial class Program
             () => ShaktoolVisualDefinitions.FrameAt(
                 ShaktoolInstructionProgramDefinitions.HeadAimingLeft),
             "Shaktool visual selector rejects neighboring mechanics data");
+        HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(18, platformFramePointers.Count,
+            "Tripper/Kamer visual frame identities are distinct");
+        var selectedPlatformFrames = new HashSet<ushort>();
+        for (int index = 0;
+             index < PlatformInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = PlatformInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
+                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            foreach (ushort definition in new[]
+                     { RoomEnemySystem.TripperDefinition, RoomEnemySystem.KamerDefinition })
+            {
+                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                        definition, operand, out ushort selected),
+                    $"platform ${definition:X4} visual operand $A3:{operand:X4} is compiled");
+                AssertEqual(native, selected,
+                    $"platform ${definition:X4} selector $A3:{operand:X4} matches cartridge");
+            }
+            AssertTrue(platformFramePointers.Contains(native),
+                $"platform selector $A3:{operand:X4} has installed art");
+            selectedPlatformFrames.Add(native);
+        }
+        AssertEqual(16, selectedPlatformFrames.Count,
+            "platform programs select sixteen distinct animated compositions");
+        AssertTrue(platformFramePointers.Except(selectedPlatformFrames).ToHashSet()
+                .SetEquals(new[]
+                {
+                    RoomEnemySystem.TripperFrozenMovingLeftSpritemap,
+                    RoomEnemySystem.TripperFrozenMovingRightSpritemap,
+                }),
+            "only Tripper's two direct shot-AI frozen compositions lack animation selectors");
+        AssertThrows<InvalidDataException>(
+            () => TripperKamerVisualDefinitions.FrameAt(
+                PlatformInstructionProgramDefinitions.FirstAdjacentCallback),
+            "platform visual selector rejects neighboring movement callback");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -795,6 +837,10 @@ internal static partial class Program
                         ? RoomEnemySystem.MetroidDefinition
                     : frame.Name.StartsWith("shaktool_", StringComparison.Ordinal)
                         ? RoomEnemySystem.ShaktoolDefinition
+                    : frame.Name.StartsWith("tripper_kamer_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.KamerDefinition
+                    : frame.Name.StartsWith("tripper_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.TripperDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -901,8 +947,31 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var preTripperKamerFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preTripperKamerBindings = document.DisplayFrames!
+            .Where(pair => preTripperKamerFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreTripperKamerFrameCount,
+            preTripperKamerFrames.Count, "version-forty-six composition schema count");
+        using (var preTripperKamerJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreTripperKamerVersion,
+                Frames = preTripperKamerFrames,
+                DisplayFrames = preTripperKamerBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog platformUpgraded = EnemySpritemapCatalog.Load(
+                preTripperKamerJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in TripperKamerVisualDefinitions.Frames())
+                AssertTrue(platformUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-forty-six override inherits platform frame {frame.Name}");
+        }
         var preShaktoolFrames = document.Frames
-            .Where(pair => !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal))
+            .Where(pair => !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preShaktoolBindings = document.DisplayFrames!
             .Where(pair => preShaktoolFrames.ContainsKey(pair.Key))
@@ -1699,7 +1768,8 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         var preMetroidFrames = document.Frames
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal))
+                !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
+                !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount,
             preMetroidFrames.Count, "pre-Metroid composition schema count");
@@ -2927,6 +2997,9 @@ internal static partial class Program
                         ? MetroidVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ShaktoolDefinition
                         ? ShaktoolVisualDefinitions.Bank
+                    : definition is RoomEnemySystem.TripperDefinition or
+                        RoomEnemySystem.KamerDefinition
+                        ? TripperKamerVisualDefinitions.Bank
                     : definition is RoomEnemySystem.GrowingShutterDefinition or
                         RoomEnemySystem.ShootableVerticalShutterDefinition or
                         RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -3082,6 +3155,7 @@ internal static partial class Program
                 >= 0xa893f9 and < 0xa8959d or
                 >= 0xa897b4 and < 0xa899ac or
                 >= 0xaadf5c and < 0xaae03d or
+                >= 0xa39f29 and < 0xa3a051 or
                 >= 0xa2f468 and < 0xa2f498 or
                 >= 0xa3962f and < 0xa3965b)
                 throw new InvalidOperationException(

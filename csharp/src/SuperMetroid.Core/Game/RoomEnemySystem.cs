@@ -2595,6 +2595,15 @@ public sealed partial class RoomEnemySystem
 
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
+        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+            MotherBrainHandBeamBodyInstructionDefinitions.ContainsWord(operandAddress))
+        {
+            return MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector(
+                operandAddress);
+        }
+        if (slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition)
+            return MotherBrainFallingTubeInstructionDefinitions.ReadVisualSelector(
+                operandAddress);
         if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
             MotherBrainHeadInstructionProgramDefinitions.ContainsWord(operandAddress))
         {
@@ -3967,7 +3976,14 @@ public sealed partial class RoomEnemySystem
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition)
+        {
+            if (MotherBrainHandBeamBodyInstructionDefinitions.ContainsWord(address))
+                return MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(address);
             return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
+
+        if (slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition)
+            return MotherBrainFallingTubeInstructionDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
             MotherBrainHeadInstructionProgramDefinitions.ContainsWord(address))

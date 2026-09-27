@@ -2282,6 +2282,8 @@ if (args is ["--ceres-ridley-room-entry"])
 }
 if (args is ["--mother-brain"])
 {
+    VerifyMotherBrainHandBeamBodyInstructionDefinitions();
+    VerifyMotherBrainFallingTubeInstructionDefinitions();
     VerifyMotherBrainHeadInstructionProgramDefinitions();
     VerifyMotherBrainBeamWindow();
     VerifyMotherBrainDeathHandoff();
@@ -2601,6 +2603,8 @@ VerifyMotherBrainDeathHandoff();
 VerifySamusDrainedController();
 VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();
+VerifyMotherBrainHandBeamBodyInstructionDefinitions();
+VerifyMotherBrainFallingTubeInstructionDefinitions();
 VerifyMotherBrainHeadInstructionProgramDefinitions();
 VerifyMotherBrainRainbowBeamAttackSequence();
 VerifyEnemyProjectileInstructionMechanicsDefinitions();

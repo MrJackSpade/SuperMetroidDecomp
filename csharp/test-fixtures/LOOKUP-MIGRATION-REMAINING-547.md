@@ -1,5 +1,26 @@
 # Remaining lookup migration inventory (#547)
 
+## Mother Brain head, falling-tube and hand-beam instruction lists (2026-09-27)
+
+Six disassembly-bounded bank-$A9 head-list data regions now compile 362 exact
+words without copying the intervening native opcode routines. The dedicated
+Baby/neutral/bomb head interpreter and the ordinary enemy dispatcher use the
+same catalog; nine ordinary entry frames and a Baby-attack command path execute
+with all six source regions unreadable. Initial, recoil, corpse, phase-two
+ring/bomb, laser and rainbow-charge list words are included. The selected
+spritemap pointers are compiled identities, not yet independently editable OAM.
+
+The five falling-tube lists at `$A9:8C69-$8C85` compile their one-frame/sleep
+mechanics and five distinct visual selectors. All five real ordinary-enemy
+instruction steps and terminal sleeps run with their source bytes unreadable.
+The hand-beam body list at `$A9:9A42-$9AC6` compiles 52 control/operand words
+and fifteen separate visual selectors; the dust callback no longer rereads its
+three parameters from the ROM. All 67 words match the pinned cartridge. The
+complete Mother Brain diagnostic then reaches Hyper Beam recoil through tube
+destruction, phase-two attacks, hand beam, rainbow beam and Baby events. This
+is a bounded mechanics/selector migration, not completion of the art or broader
+ROM-free runtime contracts in #535/#538/#549.
+
 ## Shared crawler visual selectors (2026-09-26)
 
 Zeela, Sova, Zoomer, and Stone Zoomer use twenty visual operands that point to

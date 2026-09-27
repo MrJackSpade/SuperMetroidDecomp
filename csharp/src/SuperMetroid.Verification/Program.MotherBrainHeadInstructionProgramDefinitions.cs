@@ -5,10 +5,40 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static readonly (ushort Start, ushort End)[] MotherBrainHeadRegions =
+    [
+        (MotherBrainHeadInstructionProgramDefinitions.EarlyStart,
+            MotherBrainHeadInstructionProgramDefinitions.EarlyEnd),
+        (MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoStart,
+            MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoEnd),
+        (MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
+            MotherBrainHeadInstructionProgramDefinitions.NeutralRegionEnd),
+        (MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsStart,
+            MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsEnd),
+        (MotherBrainHeadInstructionProgramDefinitions.BombAndLaserStart,
+            MotherBrainHeadInstructionProgramDefinitions.BombAndLaserEnd),
+        (MotherBrainHeadInstructionProgramDefinitions.RainbowChargeStart,
+            MotherBrainHeadInstructionProgramDefinitions.RainbowChargeEnd),
+    ];
+
     private static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
         var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
-        (ushort Start, ushort ActiveEnd)[] lists =
+        int checkedWords = 0;
+        foreach ((ushort start, ushort end) in MotherBrainHeadRegions)
+        {
+            for (int pointer = start; pointer <= end; pointer += 2)
+            {
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | pointer),
+                    MotherBrainHeadInstructionProgramDefinitions.ReadWord((ushort)pointer),
+                    $"Mother Brain compiled head word $A9:{pointer:X4}");
+                AssertTrue(MotherBrainHeadInstructionProgramDefinitions.ContainsWord(
+                        (ushort)pointer),
+                    $"Mother Brain head word $A9:{pointer:X4} is catalogued");
+                checkedWords++;
+            }
+        }
+        (ushort Start, ushort ActiveEnd)[] dedicatedLists =
         [
             (MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
                 MotherBrainHeadInstructionProgramDefinitions.NeutralActiveEnd),
@@ -17,16 +47,8 @@ internal static partial class Program
             (MotherBrainHeadInstructionProgramDefinitions.BombStart,
                 MotherBrainHeadInstructionProgramDefinitions.BombActiveEnd),
         ];
-        int checkedWords = 0;
-        foreach ((ushort start, ushort activeEnd) in lists)
+        foreach ((ushort start, ushort activeEnd) in dedicatedLists)
         {
-            for (int pointer = start; pointer <= activeEnd + sizeof(ushort); pointer += 2)
-            {
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | pointer),
-                    MotherBrainHeadInstructionProgramDefinitions.ReadWord((ushort)pointer),
-                    $"Mother Brain compiled head word $A9:{pointer:X4}");
-                checkedWords++;
-            }
             AssertTrue(MotherBrainHeadInstructionProgramDefinitions.IsActivePointer(start),
                 $"Mother Brain head list ${start:X4} starts inside its active window");
             AssertTrue(MotherBrainHeadInstructionProgramDefinitions.IsActivePointer(activeEnd),
@@ -35,10 +57,13 @@ internal static partial class Program
                     unchecked((ushort)(activeEnd + sizeof(ushort)))),
                 $"Mother Brain head list ${start:X4} does not execute its padding word");
         }
-        AssertEqual(85, checkedWords, "all three bounded Mother Brain head lists plus operands");
+        AssertEqual(362, checkedWords, "all six bounded Mother Brain head-list regions");
         AssertThrows<InvalidDataException>(
             () => MotherBrainHeadInstructionProgramDefinitions.ReadWord(0x9cba),
             "misaligned neutral-head instruction pointer fails explicitly");
+        AssertThrows<InvalidDataException>(
+            () => MotherBrainHeadInstructionProgramDefinitions.ReadWord(0x9c65),
+            "native head opcode routine is not copied into the data catalog");
         AssertThrows<InvalidDataException>(
             () => MotherBrainHeadInstructionProgramDefinitions.ReadWord(0x9e10),
             "uncatalogued Mother Brain head instruction pointer fails explicitly");
@@ -62,10 +87,20 @@ internal static partial class Program
         MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        foreach (ushort start in new[]
+        foreach ((ushort start, ushort duration, ushort spritemap) in new[]
         {
-            MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
-            MotherBrainHeadInstructionProgramDefinitions.BombStart,
+            ((ushort)0x9c21, (ushort)4, (ushort)0xa586),
+            ((ushort)0x9c77, (ushort)1, (ushort)0xa5f8),
+            ((ushort)0x9c87, (ushort)4, (ushort)0xa586),
+            (MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
+                (ushort)4, (ushort)0xa69b),
+            ((ushort)0x9d25, (ushort)2, (ushort)0xa69b),
+            (MotherBrainHeadInstructionProgramDefinitions.BombAndLaserStart,
+                (ushort)4, (ushort)0xa586),
+            (MotherBrainHeadInstructionProgramDefinitions.BombStart,
+                (ushort)4, (ushort)0xa69b),
+            ((ushort)0x9f34, (ushort)16, (ushort)0xa5bf),
+            ((ushort)0x9f6e, (ushort)4, (ushort)0xa5f8),
         })
         {
             var enemies = new RoomEnemySystem();
@@ -81,15 +116,15 @@ internal static partial class Program
                 [head, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
             AssertEqual((ushort)(start + 4), head.CurrentInstruction,
                 $"ordinary Mother Brain head owner advances ${start:X4} frame cursor");
-            AssertEqual((ushort)4, head.InstructionTimer,
+            AssertEqual(duration, head.InstructionTimer,
                 $"ordinary Mother Brain head owner retains ${start:X4} frame duration");
-            AssertEqual((ushort)0xa69b, head.SpritemapPointer,
+            AssertEqual(spritemap, head.SpritemapPointer,
                 $"ordinary Mother Brain head owner selects ${start:X4} frame artwork");
         }
 
         Console.WriteLine(
-            $"Mother Brain head programs: {checkedWords} native words, strict pointers, " +
-            "guarded Baby-attack and ordinary-enemy execution pass.");
+            $"Mother Brain head programs: {checkedWords} native words, strict data gaps, " +
+            "guarded Baby-attack and nine ordinary-enemy entry frames pass.");
     }
 
     private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :
@@ -104,11 +139,8 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
         private static bool IsCompiledHeadByte(int address) =>
-            address >= (0xa90000 | MotherBrainHeadInstructionProgramDefinitions.NeutralStart) &&
-            address <= (0xa90000 | MotherBrainHeadInstructionProgramDefinitions.NeutralActiveEnd) + 3 ||
-            address >= (0xa90000 | MotherBrainHeadInstructionProgramDefinitions.BabyAttackStart) &&
-            address <= (0xa90000 | MotherBrainHeadInstructionProgramDefinitions.BabyAttackActiveEnd) + 3 ||
-            address >= (0xa90000 | MotherBrainHeadInstructionProgramDefinitions.BombStart) &&
-            address <= (0xa90000 | MotherBrainHeadInstructionProgramDefinitions.BombActiveEnd) + 3;
+            (address >> 16) == 0xa9 && MotherBrainHeadRegions.Any(region =>
+                (address & 0xffff) >= region.Start &&
+                (address & 0xffff) <= region.End + 1);
     }
 }

@@ -684,15 +684,15 @@ public sealed partial class RoomEnemySystem
             case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SpawnDustCloudExplosionProj:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
-                short xOffset = unchecked((short)ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2))));
-                short yOffset = unchecked((short)ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4))));
-                ushort animationIndex = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 6)));
+                short xOffset = unchecked((short)
+                    MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
+                        unchecked((ushort)(cursor + 2))));
+                short yOffset = unchecked((short)
+                    MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
+                        unchecked((ushort)(cursor + 4))));
+                ushort animationIndex =
+                    MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
+                        unchecked((ushort)(cursor + 6)));
                 SpawnRoomGraphicsDustExplosion(
                     unchecked((ushort)(state.Body.XPosition + xOffset)),
                     unchecked((ushort)(state.Body.YPosition + yOffset)),

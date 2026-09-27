@@ -364,7 +364,14 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain room colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles;
-        try { roomFxAnimatedTiles = RoomFxAnimatedTileAtlas.Load(new MemoryStream(Select(RoomFxAnimatedTileAtlasFormat.FileName, stock.RoomFxAnimatedTiles))); }
+        try
+        {
+            RoomFxAnimatedTileAtlas currentStock = RoomFxAnimatedTileAtlas.Load(
+                new MemoryStream(stock.RoomFxAnimatedTiles, writable: false));
+            roomFxAnimatedTiles = RoomFxAnimatedTileAtlas.Load(
+                new MemoryStream(Select(RoomFxAnimatedTileAtlasFormat.FileName,
+                    stock.RoomFxAnimatedTiles), writable: false), currentStock);
+        }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid room-FX animated-tile artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps;
         try { roomFxLayer3Tilemaps = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(Select(RoomFxLayer3TilemapFormat.FileName, stock.RoomFxLayer3Tilemaps))); }

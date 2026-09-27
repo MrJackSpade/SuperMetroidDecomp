@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable two-bit characters for all 23 simple room-FX animation frames.</summary>
+/// <summary>Editable two-bit characters for simple room-FX and Wrecked Ship treadmill frames.</summary>
 public sealed class RoomFxAnimatedTileAtlas : IRomArtworkSource
 {
     private readonly byte[] transfer;
@@ -24,19 +24,48 @@ public sealed class RoomFxAnimatedTileAtlas : IRomArtworkSource
                 throw new InvalidDataException($"Duplicate room-FX artwork source ${source:X6}.");
             offset += definition.TransferByteCount;
         }
+        for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount; frame++)
+        {
+            int source = WreckedShipTreadmillRomData.FrameSource(frame);
+            if (!frames.TryAdd(source, (offset, WreckedShipTreadmillRomData.TransferByteCount)))
+                throw new InvalidDataException($"Duplicate treadmill artwork source ${source:X6}.");
+            offset += WreckedShipTreadmillRomData.TransferByteCount;
+        }
         if (offset != transfer.Length)
             throw new InvalidDataException(
                 $"Room-FX artwork has {transfer.Length} bytes, expected {offset}.");
     }
 
     /// <summary>Compiles indexed pixels back into their ordered native 2-bpp DMA frames.</summary>
-    public static RoomFxAnimatedTileAtlas Load(Stream png)
+    public static RoomFxAnimatedTileAtlas Load(Stream png,
+        RoomFxAnimatedTileAtlas? stockForLegacyOverride = null)
     {
-        IndexedPngImage image = IndexedPng.Read(png,
-            RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
-        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height,
-            RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
-        return new(planar);
+        ArgumentNullException.ThrowIfNull(png);
+        long start = png.CanSeek ? png.Position : 0;
+        try
+        {
+            IndexedPngImage image = IndexedPng.Read(png,
+                RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
+            return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height,
+                RoomFxAnimatedTileAtlasFormat.BitsPerPixel));
+        }
+        catch (InvalidDataException) when (stockForLegacyOverride is not null && png.CanSeek)
+        {
+            // Earlier overrides contain the same 23 frames but predate the four
+            // treadmill frames. Preserve every edited pixel and append only the
+            // newly introduced frames from checked, current stock content.
+            png.Position = start;
+            IndexedPngImage legacy = IndexedPng.Read(png,
+                RoomFxAnimatedTileAtlasFormat.LegacyWidth,
+                RoomFxAnimatedTileAtlasFormat.Height);
+            byte[] legacyPlanar = SnesPlanarTileEncoder.Encode(legacy.Pixels,
+                legacy.Width, legacy.Height, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
+            var combined = new byte[RoomFxAnimatedTileAtlasFormat.TotalByteCount];
+            legacyPlanar.CopyTo(combined, 0);
+            stockForLegacyOverride.transfer.AsSpan(legacyPlanar.Length).CopyTo(
+                combined.AsSpan(legacyPlanar.Length));
+            return new(combined);
+        }
     }
 
     /// <summary>Returns one complete native frame, rejecting altered transfer geometry.</summary>
@@ -66,13 +95,16 @@ public sealed class RoomFxAnimatedTileAtlas : IRomArtworkSource
     }
 }
 
-/// <summary>One ordered strip of 89 native 2-bpp characters (23 animation frames).</summary>
+/// <summary>One ordered strip of 97 native 2-bpp characters (27 animation frames).</summary>
 public static class RoomFxAnimatedTileAtlasFormat
 {
     public const string FileName = "room-fx-animated-tiles.png";
     public const int BitsPerPixel = 2;
     public const int ColorCount = 4;
-    public const int TileCount = 89;
+    public const int LegacyTileCount = 89;
+    public const int TreadmillFrameCount = 4;
+    public const int TileCount = LegacyTileCount + TreadmillFrameCount * 2;
+    public const int LegacyWidth = LegacyTileCount * 8;
     public const int Width = TileCount * 8;
     public const int Height = 8;
     public const int TotalByteCount = TileCount * 16;

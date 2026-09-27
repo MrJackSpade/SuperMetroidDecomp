@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -66,13 +67,47 @@ internal static partial class Program
             }
         }
         AssertEqual(23, frameCount, "all simple room-FX frames are covered");
+        foreach (WreckedShipTreadmillDirection direction in
+                 Enum.GetValues<WreckedShipTreadmillDirection>())
+        {
+            var treadmill = new WreckedShipTreadmillAnimatedTilesState();
+            var treadmillVram = new SnesVram();
+            var treadmillWrites = new VramWriteQueue();
+            treadmill.Start(guarded, direction);
+            treadmill.Step(guarded, areaBossDefeated: false, treadmillWrites);
+            AssertEqual(0, treadmillWrites.Entries.Count,
+                $"{direction} waits for Phantoon's area-boss bit before presenting art");
+            for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount;
+                 frame++)
+            {
+                int nativeFrame = direction == WreckedShipTreadmillDirection.Rightwards
+                    ? frame : 3 - frame;
+                int source = WreckedShipTreadmillRomData.FrameSource(nativeFrame);
+                byte[] native = RomDataReader.ReadFixedBank(rom, source,
+                    WreckedShipTreadmillRomData.TransferByteCount);
+                AssertTrue(atlas.TryResolve(source, native.Length,
+                        out ReadOnlyMemory<byte> installed) &&
+                    installed.Span.SequenceEqual(native),
+                    $"{direction} treadmill frame {frame} preserves every cartridge pixel byte");
+                treadmill.Step(guarded, areaBossDefeated: true, treadmillWrites);
+                AssertEqual(source, treadmill.LastSourceAddress,
+                    $"{direction} frame {frame} selects the compiled artwork identity");
+                AssertEqual(1, treadmillWrites.Entries.Count,
+                    $"{direction} frame {frame} queues exactly one native DMA");
+                treadmillWrites.DrainTo(treadmillVram, guarded, provider);
+                int destination = WreckedShipTreadmillRomData.EncodedVramDestination * 2;
+                for (int index = 0; index < native.Length; index++)
+                    AssertEqual(native[index], treadmillVram.ReadByte(destination + index),
+                        $"{direction} frame {frame} installed NMI pixel byte {index}");
+            }
+        }
         AssertEqual(0, guarded.ForbiddenReads, "installed animations never read bank-$87 ROM data");
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
             RoomFxAnimatedTileArtworkDefinitions.LavaFirstSource, 1, out _),
             "artwork cannot change the native transfer byte count");
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
-        Console.WriteLine("  Room-FX animation artwork: all 23 PNG frames match native bytes and both ROM-free transfer owners.");
+        Console.WriteLine("  Room-FX animation artwork: 23 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
     private static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
@@ -84,6 +119,9 @@ internal static partial class Program
             RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
         byte[] editedPixels = image.Pixels.ToArray();
         editedPixels[0] = (byte)((editedPixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
+        editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] = (byte)(
+            (editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] + 1) %
+            RoomFxAnimatedTileAtlasFormat.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, image.Width, image.Height, editedPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
@@ -105,11 +143,60 @@ internal static partial class Program
         AssertEqual(edited.Span[0], vram.ReadByte(0x1000 * 2),
             "edited room-FX pixel reaches the active animation transfer");
         AssertEqual(0, guarded.ForbiddenReads, "edited room-FX transfer remains ROM-free");
+        int treadmillSource = WreckedShipTreadmillRomData.Frame0Source;
+        AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(treadmillSource,
+                WreckedShipTreadmillRomData.TransferByteCount,
+                out ReadOnlyMemory<byte> editedTreadmill),
+            "edited room-FX atlas resolves the Wrecked Ship treadmill frame");
+        AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(treadmillSource,
+                WreckedShipTreadmillRomData.TransferByteCount,
+                out ReadOnlyMemory<byte> stockTreadmill),
+            "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
+        AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
+            "edited treadmill pixels compile to a distinct installed NMI frame");
+        var runtime = new SuperMetroidRuntime(guarded) { MapPresentation = changed };
+        runtime.WreckedShipTreadmill.Start(guarded,
+            WreckedShipTreadmillDirection.Rightwards);
+        runtime.WreckedShipTreadmill.Step(guarded, areaBossDefeated: true,
+            runtime.VramWrites);
+        runtime.VramWrites.DrainTo(runtime.Vram, guarded, runtime);
+        AssertEqual(editedTreadmill.Span[0], runtime.Vram.ReadByte(
+                WreckedShipTreadmillRomData.EncodedVramDestination * 2),
+            "edited treadmill pixel reaches the production runtime NMI destination");
+        AssertEqual(0, guarded.ForbiddenReads,
+            "edited treadmill animation and queued upload remain ROM-free");
         File.Delete(file);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX override restores stock identity");
-        Console.WriteLine("Room-FX animation override: an edited PNG changes live VRAM, then restores stock identity.");
+
+        // A pre-treadmill 89-character override must keep its original edits after an
+        // update, with only the newly added four frames inherited from checked stock.
+        byte[] legacyPixels = new byte[
+            RoomFxAnimatedTileAtlasFormat.LegacyWidth * RoomFxAnimatedTileAtlasFormat.Height];
+        for (int row = 0; row < RoomFxAnimatedTileAtlasFormat.Height; row++)
+            image.Pixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.Width,
+                    RoomFxAnimatedTileAtlasFormat.LegacyWidth)
+                .CopyTo(legacyPixels.AsSpan(row * RoomFxAnimatedTileAtlasFormat.LegacyWidth,
+                    RoomFxAnimatedTileAtlasFormat.LegacyWidth));
+        legacyPixels[0] = (byte)((legacyPixels[0] + 1) %
+            RoomFxAnimatedTileAtlasFormat.ColorCount);
+        using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
+            IndexedPng.Write(output, RoomFxAnimatedTileAtlasFormat.LegacyWidth,
+                RoomFxAnimatedTileAtlasFormat.Height, legacyPixels,
+                SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
+        AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
+        AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
+                out ReadOnlyMemory<byte> migratedSimple) &&
+            !migratedSimple.Span.SequenceEqual(original.Span),
+            "old-size room-FX override retains its edited liquid/sand pixels");
+        AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(treadmillSource,
+                WreckedShipTreadmillRomData.TransferByteCount,
+                out ReadOnlyMemory<byte> migratedTreadmill) &&
+            migratedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
+            "old-size room-FX override receives only new treadmill frames from stock");
+        File.Delete(file);
+        Console.WriteLine("Room-FX animation override: edited simple/treadmill pixels reach VRAM; legacy overrides retain edits.");
     }
 
     private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner) : ISnesAddressSpace

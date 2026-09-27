@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Exports all five simple bank-$87 room-FX animation strips in native frame order.</summary>
+/// <summary>Exports the five simple bank-$87 strips and four Wrecked Ship treadmill frames.</summary>
 public static class RoomFxAnimatedTileAtlasExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
@@ -20,6 +20,10 @@ public static class RoomFxAnimatedTileAtlasExtractor
                 definition, frame.InstructionPointer);
             planar.Write(RomDataReader.ReadFixedBank(bus, source, definition.TransferByteCount));
         }
+        for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount; frame++)
+            planar.Write(RomDataReader.ReadFixedBank(bus,
+                WreckedShipTreadmillRomData.FrameSource(frame),
+                WreckedShipTreadmillRomData.TransferByteCount));
         if (planar.Length != RoomFxAnimatedTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException(
                 $"Room-FX animation art has {planar.Length} bytes, expected {RoomFxAnimatedTileAtlasFormat.TotalByteCount}.");

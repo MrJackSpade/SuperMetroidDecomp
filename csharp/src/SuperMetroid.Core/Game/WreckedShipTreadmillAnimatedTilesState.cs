@@ -148,11 +148,12 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                         $"frame at $87:{cursor:X4}.");
                 }
                 _instructionTimer = word;
-                ushort sourcePointer = ReadBank87Word(
-                    bus,
-                    unchecked((ushort)(cursor + 2)));
+                int sourceAddress = _compiledMechanics is null
+                    ? AnimatedTileBank | ReadBank87Word(
+                        bus, unchecked((ushort)(cursor + 2)))
+                    : _compiledMechanics.FrameSourceAddress(cursor);
                 _instructionPointer = unchecked((ushort)(cursor + 4));
-                LastSourceAddress = AnimatedTileBank | sourcePointer;
+                LastSourceAddress = sourceAddress;
                 writes.Enqueue(
                     _transferByteCount,
                     LastSourceAddress.Value,
@@ -228,4 +229,14 @@ internal static class WreckedShipTreadmillRomData
 
     /// <summary>VRAM word address in animated-tile objects $87:8275/$827B.</summary>
     public const ushort EncodedVramDestination = 0x00e0;
+
+    /// <summary>Presentation source identity for one of the four native 32-byte frames.</summary>
+    public static int FrameSource(int frameIndex) => frameIndex switch
+    {
+        0 => Frame0Source,
+        1 => Frame1Source,
+        2 => Frame2Source,
+        3 => Frame3Source,
+        _ => throw new ArgumentOutOfRangeException(nameof(frameIndex)),
+    };
 }

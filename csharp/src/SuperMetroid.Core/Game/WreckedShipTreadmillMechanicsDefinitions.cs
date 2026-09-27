@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Game;
 /// Immutable control skeletons for the two Wrecked Ship treadmill animated-tile objects.
 /// </summary>
 /// <remarks>
-/// The four frame-source operands remain cartridge-backed presentation references. This
-/// catalog owns only the object header, boss-wait command, durations, and loop control.
+/// The four frame-source operands are presentation identities resolved to installed art.
+/// This catalog owns the object header, boss-wait command, durations, and loop control.
 /// </remarks>
 public static class WreckedShipTreadmillMechanicsDefinitions
 {
@@ -99,6 +99,21 @@ public sealed class WreckedShipTreadmillObjectDefinition
     /// <summary>The four timed frame-control addresses in execution order.</summary>
     public IReadOnlyList<ushort> FrameInstructionPointers =>
         readOnlyFrameInstructionPointers;
+
+    /// <summary>
+    /// Returns the native artwork identity for a frame-control record without reading
+    /// its bank-$87 presentation operand during installed play.
+    /// </summary>
+    public int FrameSourceAddress(ushort instructionPointer)
+    {
+        int listIndex = Array.IndexOf(frameInstructionPointers, instructionPointer);
+        if (listIndex < 0)
+            throw new InvalidDataException(
+                $"Treadmill $87:{ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
+        return WreckedShipTreadmillRomData.FrameSource(
+            Direction == WreckedShipTreadmillDirection.Rightwards
+                ? listIndex : 3 - listIndex);
+    }
 
     /// <summary>The terminal loop command after the fourth frame.</summary>
     public ushort GotoInstructionPointer =>

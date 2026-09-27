@@ -321,6 +321,16 @@ stock while preserving their edits. Copy this file to
 `overrides/maps/` to recolor those effects. The cartridge bytecode, flash
 cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
+The `game/maps/room-fx-animated-tiles.png` indexed 2-bpp strip contains the
+native lava, acid, rain, and Maridia sand frames followed by Wrecked Ship's
+four 32-byte treadmill frames. Copy it to `overrides/maps/` to change the
+pixels; the boss-bit wait, direction-specific frame order, one-frame cadence,
+and VRAM destination remain compiled. The appended treadmill tiles are also
+used by queued NMI transfers, so installed play does not read their graphics
+or source-pointer operands from bank $87. An older 89-tile override still
+loads: its edited pixels are retained and the new treadmill frames come from
+current checked stock content. Malformed PNGs fail loudly.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

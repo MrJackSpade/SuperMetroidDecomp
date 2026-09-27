@@ -144,8 +144,8 @@ internal static partial class Program
             $"{direction} compiled goto returns to frame zero");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");
-        AssertEqual(10, guarded.PresentationReadCount,
-            $"{direction} retains five live source-pointer reads");
+        AssertEqual(0, guarded.PresentationReadCount,
+            $"{direction} no longer reads frame-source presentation operands");
     }
 
     private static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
@@ -189,6 +189,12 @@ internal static partial class Program
                 AssertTrue(!definition.TryReadMechanicsWord(
                         unchecked((ushort)(framePointer + 2)), out _),
                     $"{definition.Direction} leaves frame source presentation-owned");
+                AssertEqual(definition.FrameSourceAddress(framePointer),
+                    RoomFxRomData.Banks.AnimatedTiles |
+                    RomDataReader.ReadWordFixedBank(bus,
+                        RoomFxRomData.Banks.AnimatedTiles |
+                        unchecked((ushort)(framePointer + 2))),
+                    $"{definition.Direction} frame $87:{framePointer:X4} has exact native artwork identity");
             }
         }
 

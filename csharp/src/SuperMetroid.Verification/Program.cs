@@ -114,6 +114,11 @@ if (args is ["--room-fx-animated-tiles"])
     VerifyRoomFxAnimatedTileArtwork();
     return 0;
 }
+if (args is ["--treadmill-animated-tiles"])
+{
+    VerifyAnimatedTileInstructionCodeCatalog();
+    return 0;
+}
 if (args is ["--room-fx-layer3-tilemaps"])
 {
     VerifyRoomFxLayer3Tilemaps();

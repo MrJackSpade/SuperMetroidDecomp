@@ -32,6 +32,7 @@ internal sealed class IntroCeresFlightState
     private readonly SnesCgram cgram = new();
     private byte[] tilemap;
     [NonSerialized] private CeresFlightSpritePresentation? spriteArtwork;
+    [NonSerialized] private CeresFlightActorLayout? actorLayout;
     private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
@@ -57,6 +58,7 @@ internal sealed class IntroCeresFlightState
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         spriteArtwork = artwork?.Sprites;
+        actorLayout = artwork?.Actors;
 
         byte[] characters = artwork?.Mode7Characters.ToArray() ?? RomDataReader.Decompress(bus,
             CeresFlightRomData.Assets.Mode7Characters,
@@ -94,6 +96,7 @@ internal sealed class IntroCeresFlightState
     public void BindArtwork(CeresFlightArtworkCatalog? artwork)
     {
         spriteArtwork = artwork?.Sprites;
+        actorLayout = artwork?.Actors;
         if (artwork is null) return;
         tilemap = artwork.Mode7Maps.ToArray();
         vram.LoadMode7CharacterBytes(artwork.Mode7Characters.Span);
@@ -274,7 +277,21 @@ internal sealed class IntroCeresFlightState
         // remain cartridge streams; the compiled definitions supply callback identity,
         // initializer results and the physical motion applied by StepRearViewActors.
         rearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
-            .Select(index => CreateActor(CeresFlightActorDefinitions.RearViewActor(index)))
+            .Select(index =>
+            {
+                CeresFlightActorDefinition definition =
+                    CeresFlightActorDefinitions.RearViewActor(index);
+                if (actorLayout is { } layout)
+                {
+                    CeresFlightActorPlacement placement = layout[index];
+                    definition = definition with
+                    {
+                        X = checked((ushort)placement.X),
+                        Y = checked((ushort)placement.Y),
+                    };
+                }
+                return CreateActor(definition);
+            })
             .ToArray();
 
         // CGADSUB=$31 adds the fixed colour to BG1, OBJ, and backdrop. $BE09 begins at

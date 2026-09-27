@@ -464,6 +464,7 @@ public static class IntroCinematicArtworkFiles
             (string objectPath, byte[] objects) = ReadSelected(CeresFlightArtworkFormat.ObjectFileName);
             (string palettePath, byte[] palette) = ReadSelected(CeresFlightPaletteFormat.FileName);
             (string spritesPath, byte[] sprites) = ReadSelected(CeresFlightSpriteFormat.FileName);
+            (string actorsPath, byte[] actors) = ReadSelected(CeresFlightActorLayoutFormat.FileName);
             try
             {
                 return CeresFlightArtworkCatalog.Load(
@@ -471,12 +472,13 @@ public static class IntroCinematicArtworkFiles
                     new MemoryStream(map, writable: false),
                     new MemoryStream(objects, writable: false),
                     new MemoryStream(palette, writable: false),
-                    new MemoryStream(sprites, writable: false));
+                    new MemoryStream(sprites, writable: false),
+                    new MemoryStream(actors, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid Ceres flight artwork ({mode7Path}, {mapPath}, {objectPath}, {palettePath}, {spritesPath}): {error.Message}", error);
+                    $"Invalid Ceres flight artwork ({mode7Path}, {mapPath}, {objectPath}, {palettePath}, {spritesPath}, {actorsPath}): {error.Message}", error);
             }
         }
 
@@ -689,6 +691,7 @@ public static class IntroCinematicArtworkFiles
         CeresFlightArtworkFormat.ObjectFileName,
         CeresFlightPaletteFormat.FileName,
         CeresFlightSpriteFormat.FileName,
+        CeresFlightActorLayoutFormat.FileName,
         CeresDestructionArtworkFormat.CeresMapFileName,
         CeresDestructionArtworkFormat.ZebesMapFileName,
         CeresDestructionArtworkFormat.ZebesCharacterFileName,

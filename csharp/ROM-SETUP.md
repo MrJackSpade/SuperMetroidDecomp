@@ -210,6 +210,12 @@ palette overrides; it does not change actor paths or frame timing. Override thes
 the same `overrides/intro-cinematic/` directory. The two Mode-7 maps share one character
 sheet and palette; the game's camera, scale, rotation, actor movement and letter timing
 remain code. Palette edits also rebind after loading a debugger state.
+`ceres-flight-actors.json` exposes the five rear-view actors' initial 16-bit
+screen X/Y positions, in large-asteroid, station, small-asteroid, vortex, and
+rear-stars order. Their stock values come from the pinned cartridge's initializer
+operands. Keep the IDs and order; edit only `x`/`y` in
+`overrides/intro-cinematic/`, then restart the scene. Actor speed, wrapping,
+instruction timing, and scene handoffs remain compiled.
 
 Ceres destruction reuses those character sheets and the approach's front/rear maps.
 Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`

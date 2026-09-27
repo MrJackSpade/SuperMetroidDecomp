@@ -62,6 +62,7 @@ internal static partial class Program
             "installed flight never reads its cartridge art, palette, or spritemap sources");
 
         VerifyCeresFlightSpriteArtwork(installation, bus, stock, guard);
+        VerifyCeresFlightActorLayout(installation, bus, stock, guard);
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string[] names =
@@ -158,7 +159,86 @@ internal static partial class Program
                 selected.Mode7Maps.Span),
             "stock Ceres art repair preserves the player's external map override");
         File.Delete(invalidMap);
-        Console.WriteLine("Ceres flight art: native front/rear frames, independent PNG/JSON/palette edits, rebind and strict failures pass.");
+        Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements, independent PNG/JSON/palette edits, rebind and strict failures pass.");
+    }
+
+    private static void VerifyCeresFlightActorLayout(GameInstallation installation,
+        SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
+        ISnesAddressSpace guardedBus)
+    {
+        string name = CeresFlightActorLayoutFormat.FileName;
+        string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
+        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
+        CeresFlightActorLayoutDocument document =
+            JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(
+                File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions) ??
+            throw new InvalidDataException("Stock Ceres flight actor layout is empty.");
+        for (int index = 0; index < document.Actors.Length; index++)
+        {
+            var source = CeresFlightActorDefinitions.RearViewPlacementSources[index];
+            AssertEqual(source.Id, document.Actors[index].Id,
+                $"Ceres flight actor {index} retains its native role");
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(bus,
+                    CeresFlightActorDefinitions.NativeBank | source.XAddress),
+                document.Actors[index].X,
+                $"Ceres flight actor {index} X matches the cartridge operand");
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(bus,
+                    CeresFlightActorDefinitions.NativeBank | source.YAddress),
+                document.Actors[index].Y,
+                $"Ceres flight actor {index} Y matches the cartridge operand");
+        }
+
+        int stockAsteroidX = document.Actors[0].X;
+        document.Actors[0] = document.Actors[0] with { X = stockAsteroidX + 16 };
+        using (var output = File.Create(overridePath))
+            CeresFlightActorLayout.Write(output, document);
+        CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
+        var original = new IntroCeresFlightState(guardedBus, stock);
+        var changed = new IntroCeresFlightState(guardedBus, edited);
+        for (int frame = 0; frame < 4000 &&
+            original.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
+        {
+            original.Step();
+            changed.Step();
+        }
+        AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, original.Phase,
+            "Ceres actor-layout fixture reaches the rear-view handoff");
+        AssertEqual(original.Phase, changed.Phase,
+            "edited rear-view position preserves cinematic phase timing");
+        var actorField = typeof(IntroCeresFlightState).GetField("rearViewActors",
+            BindingFlags.Instance | BindingFlags.NonPublic) ??
+            throw new InvalidOperationException("Ceres rear-view actor array is unavailable.");
+        var nativeActors = (IntroDiscoverySprite[]?)actorField.GetValue(original) ??
+            throw new InvalidOperationException("Stock Ceres rear-view actors did not spawn.");
+        var editedActors = (IntroDiscoverySprite[]?)actorField.GetValue(changed) ??
+            throw new InvalidOperationException("Edited Ceres rear-view actors did not spawn.");
+        AssertEqual(unchecked((ushort)(nativeActors[0].XPosition + 16)),
+            editedActors[0].XPosition,
+            "editable layout moves the real rear-view asteroid actor by one tile");
+        for (int frame = 0; frame < 20; frame++)
+        {
+            original.Step();
+            changed.Step();
+        }
+        AssertTrue(!original.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
+                changed.CaptureRenderSnapshot().Memory.Oam),
+            "edited rear-view placement changes production OAM");
+
+        File.WriteAllBytes(stockPath, [0]);
+        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+            "a Ceres flight actor override cannot hide a corrupt stock layout");
+        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root) ??
+            throw new InvalidOperationException("Ceres flight actor repair lost installation.");
+        AssertEqual(stockAsteroidX + 16,
+            repaired.LoadIntroCinematicArt().CeresFlight.Actors[0].X,
+            "rear-view actor override survives stock installation repair");
+        document.Actors[0] = document.Actors[0] with { Id = "wrong-actor" };
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var invalid = new MemoryStream();
+            CeresFlightActorLayout.Write(invalid, document);
+        }, "Ceres flight layout rejects missing or reordered actor identities");
+        File.Delete(overridePath);
     }
 
     private static void VerifyCeresFlightPaletteOverride(GameInstallation installation,

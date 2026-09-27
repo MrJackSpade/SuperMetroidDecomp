@@ -9,6 +9,19 @@ internal static class CeresFlightActorDefinitions
     /// <summary>Number of actors allocated by <c>$8B:BE3B-$8B:BE5C</c>.</summary>
     public const int RearViewActorCount = 5;
 
+    /// <summary>
+    /// Native bank-$8B X/Y initializer operands for the five rear-view actors.
+    /// The final X word is signed -32 represented in its native 16-bit form.
+    /// </summary>
+    public static readonly (string Id, ushort XAddress, ushort YAddress)[] RearViewPlacementSources =
+    [
+        ("large-asteroid", 0xbf23, 0xbf29),
+        ("station-under-attack", 0xbf4d, 0xbf53),
+        ("small-asteroid", 0xbf77, 0xbf7d),
+        ("vortex", 0xbfb4, 0xbfba),
+        ("rear-stars", 0xbea3, 0xbea9),
+    ];
+
     /// <summary><c>$8B:BEC2</c>, signed-8.8 acceleration applied to the opening star field.</summary>
     public const ushort FrontStarAcceleration = 0x0080;
 

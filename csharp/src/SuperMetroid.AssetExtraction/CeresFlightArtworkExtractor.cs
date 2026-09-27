@@ -82,12 +82,41 @@ internal static class CeresFlightArtworkExtractor
             Frames = spriteFrames,
         });
         byte[] spritesFile = spritesJson.ToArray();
+        // These positions are presentation operands in the five native initializers.
+        // Keep their X/Y words editable while retaining each actor's motion in code.
+        var placements = new CeresFlightActorPlacement[
+            CeresFlightActorDefinitions.RearViewActorCount];
+        for (int index = 0; index < placements.Length; index++)
+        {
+            var source = CeresFlightActorDefinitions.RearViewPlacementSources[index];
+            ushort x = RomDataReader.ReadWordFixedBank(bus,
+                CeresFlightActorDefinitions.NativeBank | source.XAddress);
+            ushort y = RomDataReader.ReadWordFixedBank(bus,
+                CeresFlightActorDefinitions.NativeBank | source.YAddress);
+            CeresFlightActorDefinition translated =
+                CeresFlightActorDefinitions.RearViewActor(index);
+            if (x != translated.X || y != translated.Y)
+                throw new InvalidDataException(
+                    $"Ceres flight actor {source.Id} differs from its native initializer operands.");
+            placements[index] = new CeresFlightActorPlacement
+            {
+                Id = source.Id, X = x, Y = y,
+            };
+        }
+        using var actorsJson = new MemoryStream();
+        CeresFlightActorLayout.Write(actorsJson, new CeresFlightActorLayoutDocument
+        {
+            Version = CeresFlightActorLayoutFormat.Version,
+            Actors = placements,
+        });
+        byte[] actorsFile = actorsJson.ToArray();
         CeresFlightArtworkCatalog roundTrip = CeresFlightArtworkCatalog.Load(
             new MemoryStream(mode7Png, writable: false),
             new MemoryStream(mapFile, writable: false),
             new MemoryStream(objectPng, writable: false),
             new MemoryStream(paletteFile, writable: false),
-            new MemoryStream(spritesFile, writable: false));
+            new MemoryStream(spritesFile, writable: false),
+            new MemoryStream(actorsFile, writable: false));
         if (!roundTrip.Mode7Characters.Span.SequenceEqual(characters) ||
             !roundTrip.Mode7Maps.Span.SequenceEqual(map) ||
             !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters) ||
@@ -100,6 +129,7 @@ internal static class CeresFlightArtworkExtractor
             [CeresFlightArtworkFormat.ObjectFileName] = objectPng,
             [CeresFlightPaletteFormat.FileName] = paletteFile,
             [CeresFlightSpriteFormat.FileName] = spritesFile,
+            [CeresFlightActorLayoutFormat.FileName] = actorsFile,
         };
 
         byte[] Read(int address, int expected, string name)

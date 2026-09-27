@@ -11,13 +11,14 @@ public sealed class CeresFlightArtworkCatalog
 {
     private CeresFlightArtworkCatalog(byte[] mode7Characters, byte[] mode7Maps,
         byte[] objectCharacters, CeresFlightPalette palette,
-        CeresFlightSpritePresentation sprites)
+        CeresFlightSpritePresentation sprites, CeresFlightActorLayout actors)
     {
         Mode7Characters = mode7Characters;
         Mode7Maps = mode7Maps;
         ObjectCharacters = objectCharacters;
         Palette = palette;
         Sprites = sprites;
+        Actors = actors;
     }
 
     public ReadOnlyMemory<byte> Mode7Characters { get; }
@@ -26,15 +27,17 @@ public sealed class CeresFlightArtworkCatalog
     public ReadOnlyMemory<byte> ObjectCharacters { get; }
     public CeresFlightPalette Palette { get; }
     public CeresFlightSpritePresentation Sprites { get; }
+    public CeresFlightActorLayout Actors { get; }
 
     public static CeresFlightArtworkCatalog Load(Stream mode7Png, Stream mapJson,
-        Stream objectPng, Stream paletteJson, Stream spritesJson)
+        Stream objectPng, Stream paletteJson, Stream spritesJson, Stream actorsJson)
     {
         ArgumentNullException.ThrowIfNull(mode7Png);
         ArgumentNullException.ThrowIfNull(mapJson);
         ArgumentNullException.ThrowIfNull(objectPng);
         ArgumentNullException.ThrowIfNull(paletteJson);
         ArgumentNullException.ThrowIfNull(spritesJson);
+        ArgumentNullException.ThrowIfNull(actorsJson);
         IndexedPngImage mode7 = IndexedPng.Read(mode7Png,
             CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height);
         IndexedPngImage objects = IndexedPng.Read(objectPng,
@@ -58,7 +61,8 @@ public sealed class CeresFlightArtworkCatalog
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
         return new CeresFlightArtworkCatalog(characters, map, objectCharacters,
             CeresFlightPalette.Load(paletteJson),
-            CeresFlightSpritePresentation.Load(spritesJson));
+            CeresFlightSpritePresentation.Load(spritesJson),
+            CeresFlightActorLayout.Load(actorsJson));
     }
 
     public static void WriteMap(Stream json, CeresFlightMapDocument document)

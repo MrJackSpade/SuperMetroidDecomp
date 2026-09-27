@@ -310,8 +310,11 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreTripperKamerFrameCount,
             "Shaktool's saw, arm, and head programs select fifteen OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreTripperKamerFrameCount + 18,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDragonFrameCount,
             "Tripper/Kamer add sixteen animated and two frozen OAM frames");
+        AssertEqual(EnemySpritemapDefinitions.PreDragonFrameCount + 12,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Dragon adds twelve distinct body and wing OAM frames");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -786,6 +789,33 @@ internal static partial class Program
             () => TripperKamerVisualDefinitions.FrameAt(
                 PlatformInstructionProgramDefinitions.FirstAdjacentCallback),
             "platform visual selector rejects neighboring movement callback");
+        HashSet<ushort> dragonFrames = DragonVisualDefinitions.Frames()
+            .Select(frame => frame.Pointer).ToHashSet();
+        AssertEqual(12, dragonFrames.Count,
+            "Dragon has twelve distinct installed body and wing frames");
+        for (int index = 0;
+             index < DragonInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = DragonInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
+                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.DragonDefinition, operand, out ushort selected),
+                $"Dragon visual selector $A2:{operand:X4} is installed");
+            AssertEqual(native, selected,
+                $"Dragon visual selector $A2:{operand:X4} matches the cartridge");
+            AssertTrue(dragonFrames.Remove(selected) ||
+                DragonVisualDefinitions.Frames().Any(frame => frame.Pointer == selected),
+                $"Dragon visual target $A2:{selected:X4} has installed art");
+        }
+        AssertEqual(0, dragonFrames.Count,
+            "every installed Dragon body and wing frame is selected");
+        AssertThrows<InvalidDataException>(
+            () => DragonVisualDefinitions.FrameAt(
+                DragonInstructionProgramDefinitions.AttackFinishedCallback),
+            "Dragon visual selector rejects neighboring attack callback");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -841,6 +871,8 @@ internal static partial class Program
                         ? RoomEnemySystem.KamerDefinition
                     : frame.Name.StartsWith("tripper_", StringComparison.Ordinal)
                         ? RoomEnemySystem.TripperDefinition
+                    : frame.Name.StartsWith("dragon_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.DragonDefinition
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
                         ? RoomEnemySystem.GrowingShutterDefinition
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
@@ -947,7 +979,29 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preTripperKamerFrames = document.Frames
+        var preDragonFrames = document.Frames
+            .Where(pair => !pair.Key.StartsWith("dragon_", StringComparison.Ordinal))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preDragonBindings = document.DisplayFrames!
+            .Where(pair => preDragonFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreDragonFrameCount,
+            preDragonFrames.Count, "version-forty-seven composition schema count");
+        using (var preDragonJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+            new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreDragonVersion,
+                Frames = preDragonFrames,
+                DisplayFrames = preDragonBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog dragonUpgraded = EnemySpritemapCatalog.Load(
+                preDragonJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in DragonVisualDefinitions.Frames())
+                AssertTrue(dragonUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-forty-seven override inherits Dragon frame {frame.Name}");
+        }
+        var preTripperKamerFrames = preDragonFrames
             .Where(pair => !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preTripperKamerBindings = document.DisplayFrames!
@@ -969,7 +1023,7 @@ internal static partial class Program
                 AssertTrue(platformUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-six override inherits platform frame {frame.Name}");
         }
-        var preShaktoolFrames = document.Frames
+        var preShaktoolFrames = preDragonFrames
             .Where(pair => !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -1228,6 +1282,12 @@ internal static partial class Program
         {
             OffsetX = metroidPart.OffsetX + 1,
         };
+        const string dragonFrameName = "dragon_body_idle_left";
+        SpriteVisualPart dragonPart = document.Frames[dragonFrameName][0];
+        document.Frames[dragonFrameName][0] = dragonPart with
+        {
+            OffsetX = dragonPart.OffsetX + 1,
+        };
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
@@ -1235,6 +1295,17 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
+        OamBuffer stockDragon = DrawEnemy(stock, new FrameReadGuard(rom),
+            DragonVisualDefinitions.FrameAt(
+                DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.DragonDefinition);
+        OamBuffer editedDragon = DrawEnemy(edited, new FrameReadGuard(rom),
+            DragonVisualDefinitions.FrameAt(
+                DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RoomEnemySystem.DragonDefinition);
+        AssertEqual(unchecked((byte)(stockDragon.LowTable[0] + 1)),
+            editedDragon.LowTable[0],
+            "Dragon authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
@@ -1766,7 +1837,10 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
-        var preMetroidFrames = document.Frames
+        IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
+            document.Frames.Where(pair =>
+                !pair.Key.StartsWith("dragon_", StringComparison.Ordinal));
+        var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("tripper_", StringComparison.Ordinal))
@@ -1795,7 +1869,7 @@ internal static partial class Program
             Frames = preMetroidFrames,
             DisplayFrames = preMetroidBindings,
         };
-        var preShutterFrames = document.Frames
+        var preShutterFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("shutter_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreShutterFrameCount,
@@ -1822,7 +1896,7 @@ internal static partial class Program
             Frames = preShutterFrames,
             DisplayFrames = preShutterBindings,
         };
-        var preMorphBallEyeFrames = document.Frames
+        var preMorphBallEyeFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("morph_eye_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
@@ -1849,7 +1923,7 @@ internal static partial class Program
             Frames = preMorphBallEyeFrames,
             DisplayFrames = preMorphBallEyeBindings,
         };
-        var preFaceBlockFrames = document.Frames
+        var preFaceBlockFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("face_block_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreFaceBlockFrameCount,
@@ -1876,7 +1950,7 @@ internal static partial class Program
             Frames = preFaceBlockFrames,
             DisplayFrames = preFaceBlockBindings,
         };
-        var preKagoFrames = document.Frames
+        var preKagoFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("kago_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreKagoFrameCount,
@@ -1903,7 +1977,7 @@ internal static partial class Program
             Frames = preKagoFrames,
             DisplayFrames = preKagoBindings,
         };
-        var preFlyFrames = document.Frames
+        var preFlyFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("fly_shared_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreFlyFrameCount,
@@ -1930,7 +2004,7 @@ internal static partial class Program
             Frames = preFlyFrames,
             DisplayFrames = preFlyBindings,
         };
-        var preSciserFrames = document.Frames
+        var preSciserFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("sciser_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreSciserFrameCount,
@@ -1957,7 +2031,7 @@ internal static partial class Program
             Frames = preSciserFrames,
             DisplayFrames = preSciserBindings,
         };
-        var preRidleyFrames = document.Frames
+        var preRidleyFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("ridley_supplement_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
@@ -1984,7 +2058,7 @@ internal static partial class Program
             Frames = preRidleyFrames,
             DisplayFrames = preRidleyBindings,
         };
-        var preDeadTorizoFrames = document.Frames
+        var preDeadTorizoFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("dead_torizo_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
@@ -2011,7 +2085,7 @@ internal static partial class Program
             Frames = preDeadTorizoFrames,
             DisplayFrames = preDeadTorizoBindings,
         };
-        var preMotherBrainFrames = document.Frames
+        var preMotherBrainFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("mother_brain_a9_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreMotherBrainFrameCount,
@@ -2039,7 +2113,7 @@ internal static partial class Program
             Frames = preMotherBrainFrames,
             DisplayFrames = preMotherBrainBindings,
         };
-        var preHunterFrames = document.Frames
+        var preHunterFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreKiHunterFrameCount,
@@ -2062,7 +2136,7 @@ internal static partial class Program
                     KiHunterVisualDefinitions.Bank, pointer, out _),
                 $"version-thirty-four override inherits KiHunter frame ${pointer:X4}");
         }
-        var preMawFrames = document.Frames
+        var preMawFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
@@ -2086,7 +2160,7 @@ internal static partial class Program
                     YappingMawVisualDefinitions.Bank, pointer, out _),
                 $"version-thirty-three override inherits Yapping Maw frame ${pointer:X4}");
         }
-        var preRoomSpriteFrames = document.Frames
+        var preRoomSpriteFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("room_sprite_b4_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("yapping_maw_a8_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))

@@ -11,7 +11,9 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    internal const int Version = 47;
+    internal const int Version = 48;
+    internal const int PreDragonVersion = 47;
+    internal const int PreDragonFrameCount = 938;
     internal const int PreTripperKamerVersion = 46;
     internal const int PreTripperKamerFrameCount = 920;
     internal const int PreShaktoolVersion = 45;
@@ -638,6 +640,7 @@ internal static class EnemySpritemapDefinitions
         .. MetroidVisualDefinitions.Frames(),
         .. ShaktoolVisualDefinitions.Frames(),
         .. TripperKamerVisualDefinitions.Frames(),
+        .. DragonVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -674,6 +677,8 @@ internal static class EnemySpritemapDefinitions
                 ShaktoolVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.TripperDefinition or RoomEnemySystem.KamerDefinition =>
                 TripperKamerVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.DragonDefinition =>
+                DragonVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -754,6 +759,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.MetroidDefinition or
             RoomEnemySystem.ShaktoolDefinition or
             RoomEnemySystem.TripperDefinition or RoomEnemySystem.KamerDefinition or
+            RoomEnemySystem.DragonDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

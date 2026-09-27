@@ -267,6 +267,6 @@ internal static partial class Program
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
             Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
-            Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, and Tripper/Kamer OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
+            Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, and Dragon OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
     }
 }

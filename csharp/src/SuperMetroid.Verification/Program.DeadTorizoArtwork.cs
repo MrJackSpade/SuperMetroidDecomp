@@ -9,6 +9,8 @@ internal static partial class Program
     private static void VerifyInstalledDeadTorizoArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
+        VerifyDeadTorizoVramTransferDefinitions(stock);
+        VerifyDeadTorizoStationaryVisual(stock);
         // The corpse initializer copies discontinuous portions of the ordinary ED3F
         // enemy sheet to WRAM. Later rotting frames draw sand words from that same
         // sheet. Guard the entire source interval so neither path can accidentally
@@ -75,6 +77,101 @@ internal static partial class Program
             "dead-Torizo PNG edit survives catalog reload");
 
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
+    }
+
+    private static void VerifyDeadTorizoStationaryVisual(
+        EnemyTileArtworkCatalog stock)
+    {
+        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        int selector = 0xa90000 | DeadTorizoArtworkDefinitions.StationaryOperand;
+        ushort nativePointer = unchecked((ushort)(
+            rom.ReadByte(selector) | rom.ReadByte(selector + 1) << 8));
+        AssertEqual(DeadTorizoArtworkDefinitions.StationarySpritemap, nativePointer,
+            "Dead Torizo stationary visual identity matches its native list");
+        AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                RoomEnemySystem.DeadTorizoDefinition,
+                DeadTorizoArtworkDefinitions.StationaryOperand, out ushort compiledPointer),
+            "Dead Torizo stationary visual selector is installed");
+        AssertEqual(nativePointer, compiledPointer,
+            "installed stationary selector preserves the physical frame identity");
+        AssertTrue(stock.Spritemaps!.TryGetDisplay(
+                DeadTorizoArtworkDefinitions.SpritemapBank, nativePointer,
+                out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+            "Dead Torizo stationary OAM has editable installed parts");
+        var nativeOam = new OamBuffer();
+        var installedOam = new OamBuffer();
+        nativeOam.AddEnemySpritemap(rom, DeadTorizoArtworkDefinitions.SpritemapBank,
+            nativePointer, 128, 128, 0, 0);
+        installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+        AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
+                   nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                   nativeOam.NextByteOffset == installedOam.NextByteOffset,
+            "Dead Torizo stationary installed OAM matches all native sprite entries");
+        AssertEqual(25 * 4, installedOam.NextByteOffset,
+            "Dead Torizo stationary map has 25 native OAM parts");
+        Console.WriteLine("  Dead Torizo stationary visual: compiled selector, editable 25-part OAM, and native composition parity pass.");
+    }
+
+    private static void VerifyDeadTorizoVramTransferDefinitions(
+        EnemyTileArtworkCatalog stock)
+    {
+        var rom = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        for (ushort phase = 0; phase < 2; phase++)
+        {
+            ushort table = phase == 0
+                ? DeadTorizoVramTransferDefinitions.EvenTable
+                : DeadTorizoVramTransferDefinitions.OddTable;
+            ReadOnlySpan<DeadTorizoVramTransferDefinition> records =
+                DeadTorizoVramTransferDefinitions.ForPhase(phase);
+            AssertEqual(7, records.Length,
+                $"Dead Torizo phase {phase} compiled descriptor count");
+            for (int index = 0; index < records.Length; index++)
+            {
+                int address = 0xa90000 | unchecked((ushort)(table +
+                    index * DeadTorizoVramTransferDefinitions.RecordByteCount));
+                DeadTorizoVramTransferDefinition record = records[index];
+                AssertEqual(record.SizeInBytes, ReadWord(address),
+                    $"Dead Torizo phase {phase} transfer {index} size");
+                AssertEqual(record.SourceBankWord, ReadWord(address + 2),
+                    $"Dead Torizo phase {phase} transfer {index} source bank");
+                AssertEqual(record.SourceOffset, ReadWord(address + 4),
+                    $"Dead Torizo phase {phase} transfer {index} source offset");
+                AssertEqual(record.EncodedVramDestination, ReadWord(address + 6),
+                    $"Dead Torizo phase {phase} transfer {index} VRAM destination");
+            }
+            AssertEqual((ushort)0, ReadWord(0xa90000 | unchecked((ushort)(
+                table + records.Length *
+                DeadTorizoVramTransferDefinitions.RecordByteCount))),
+                $"Dead Torizo phase {phase} native zero terminator");
+        }
+
+        var nativeBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var installedBus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        RoomEnemySystem native = InitializeDeadTorizoArtwork(nativeBus, null);
+        RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
+            installed, new FrontendCartridgeReadGuard(installedBus));
+        MethodInfo build = typeof(RoomEnemySystem)
+            .GetMethod("BuildDeadTorizoVramTransfers", flags)!;
+        Action<DeadTorizoEnemyState> buildNative =
+            build.CreateDelegate<Action<DeadTorizoEnemyState>>(native);
+        Action<DeadTorizoEnemyState> buildInstalled =
+            build.CreateDelegate<Action<DeadTorizoEnemyState>>(installed);
+        for (int phase = 0; phase < 2; phase++)
+        {
+            buildNative(native.DeadTorizo!);
+            buildInstalled(installed.DeadTorizo!);
+            AssertTrue(native.LastDeadTorizoVramTransfers.SequenceEqual(
+                    installed.LastDeadTorizoVramTransfers),
+                $"Dead Torizo phase {phase} installed queue matches live native descriptors");
+            AssertEqual((phase + 1) * 7, installed.LastDeadTorizoVramTransfers.Count,
+                $"Dead Torizo phase {phase} emits every authored transfer in order");
+        }
+        Console.WriteLine("  Dead Torizo VRAM queues: fourteen native descriptors and both real frame builders match with installed ROM reads forbidden.");
+
+        ushort ReadWord(int address) => unchecked((ushort)(
+            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
     }
 
     private static RoomEnemySystem InitializeDeadTorizoArtwork(

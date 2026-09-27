@@ -15,8 +15,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadTorizoRottingFunction = 0xd3e6;
     private const ushort DeadTorizoNoOperationFunction = 0xd3c7;
     private const ushort DeadTorizoHitbox = 0xd77c;
-    private const ushort DeadTorizoOddVramTable = 0xd583;
-    private const ushort DeadTorizoEvenVramTable = 0xd549;
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
     private const int DeadTorizoWorkBufferSize = 0x1000;
     private const int DeadTorizoSandBufferAddress = 0x7e9500;
@@ -394,11 +392,29 @@ public sealed partial class RoomEnemySystem
     private void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
         state.VramTransferPhase = unchecked((ushort)(state.VramTransferPhase + 1));
-        ushort cursor = (state.VramTransferPhase & 1) != 0
-            ? DeadTorizoOddVramTable
-            : DeadTorizoEvenVramTable;
+        if (TileArtwork?.Spritemaps is not null)
+        {
+            // The descriptor table is immutable cartridge control, while its
+            // $7E sources are the live corpse/sand staging buffers. Keep the
+            // native queue entries so the later DMA still reads current WRAM.
+            foreach (DeadTorizoVramTransferDefinition record in
+                     DeadTorizoVramTransferDefinitions.ForPhase(state.VramTransferPhase))
+            {
+                _deadTorizoFrameVramTransfers.Add(new VramWriteEntry(
+                    record.SizeInBytes, record.SourceAddress,
+                    record.EncodedVramDestination));
+            }
+            return;
+        }
 
-        for (int recordIndex = 0; recordIndex < 64; recordIndex++, cursor += 8)
+        // Constructed no-art fixtures may provide their own bank-$A9 table.
+        ushort cursor = (state.VramTransferPhase & 1) != 0
+            ? DeadTorizoVramTransferDefinitions.OddTable
+            : DeadTorizoVramTransferDefinitions.EvenTable;
+
+        for (int recordIndex = 0;
+             recordIndex < DeadTorizoVramTransferDefinitions.MaximumNativeRecords;
+             recordIndex++, cursor += DeadTorizoVramTransferDefinitions.RecordByteCount)
         {
             int address = 0xa90000 | cursor;
             ushort size = ReadWord(_bus!, address);

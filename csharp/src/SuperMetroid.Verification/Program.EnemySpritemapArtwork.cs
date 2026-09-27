@@ -333,8 +333,11 @@ internal static partial class Program
             "Viola adds eight distinct OAM frames");
         AssertEqual(EnemySpritemapDefinitions.PreRinkaFrameCount +
                 RinkaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount,
             "Rinka adds five OAM frames shared by ordinary and boss loops");
+        AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount + 1,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Dead Torizo adds its stationary corpse composition after version 53");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -1148,10 +1151,33 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        var preRinkaFrames = document.Frames
+        var preStationaryFrames = document.Frames
+            .Where(pair => pair.Key != "dead_torizo_stationary_a9_d6e2")
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preStationaryBindings = document.DisplayFrames!
+            .Where(pair => preStationaryFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount,
+            preStationaryFrames.Count, "version-fifty-three composition schema count");
+        using (var preDeadTorizoJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreDeadTorizoStationaryVersion,
+                Frames = preStationaryFrames,
+                DisplayFrames = preStationaryBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog stationaryUpgraded = EnemySpritemapCatalog.Load(
+                preDeadTorizoJson, stock.Spritemaps);
+            AssertTrue(stationaryUpgraded.TryGetDisplay(
+                    DeadTorizoArtworkDefinitions.SpritemapBank,
+                    DeadTorizoArtworkDefinitions.StationarySpritemap, out _),
+                "version-fifty-three override inherits Dead Torizo stationary OAM");
+        }
+        var preRinkaFrames = preStationaryFrames
             .Where(pair => !pair.Key.StartsWith("rinka_spin_", StringComparison.Ordinal))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preRinkaBindings = document.DisplayFrames!
+        var preRinkaBindings = preStationaryBindings
             .Where(pair => preRinkaFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreRinkaFrameCount, preRinkaFrames.Count,
@@ -2205,6 +2231,7 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
+                pair.Key != "dead_torizo_stationary_a9_d6e2" &&
                 !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal) &&

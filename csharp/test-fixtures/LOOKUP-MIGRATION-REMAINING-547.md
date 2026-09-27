@@ -11,6 +11,24 @@ the real ordinary draw method with ROM reads forbidden. Room `$8F:D95E` now
 matches native pixels for 90 neutral frames with the full installed ROM-read
 guard. Other census failures, including mixed Golden Torizo instructions, remain.
 
+## Dead Torizo alternating VRAM transfers and stationary composition (2026-09-27)
+
+The two seven-record `$A9:D549/$D583` VRAM descriptor tables and their zero
+terminators now live in a typed game-definition catalog. Installed frames use
+those fixed size/source/destination words, but their `$7E` corpse/sand source
+bytes remain mutable and are read by the later DMA. Constructed no-art fixtures
+retain the native descriptor reader. The verifier checks all 56 descriptor
+words and both terminators against the pinned cartridge, then calls both real
+frame builders with ROM reads forbidden and compares the fourteen queued
+entries in native order.
+
+The stationary `$A9:D6DE` visual selector now targets an editable, 25-part
+`$A9:D6E2` OAM composition. Stock drawing matches every native OAM byte;
+version-53 visual overrides inherit the new identity without losing their
+existing edits. Isolated room `$8F:DC65` now matches native pixels for 90
+neutral frames with all runtime cartridge reads denied. This does not complete
+the broader enemy presentation or ROM-free integration tickets.
+
 ## Shaktool-room PLM instruction owner (2026-09-27)
 
 The complete three-word `$84:B8D6-B8DB` resident list now compiles its

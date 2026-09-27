@@ -126,6 +126,43 @@ internal static partial class Program
                 native.HighTable.SequenceEqual(extracted.HighTable),
                 $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads");
         }
+        var torizoFamilies = new (string Name, RoomEnemyProjectileKind Kind, int Count,
+            Func<int, ushort> AddressAt)[]
+        {
+            ("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
+                BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
+                BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress),
+            ("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
+                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount,
+                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress),
+            ("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom,
+                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount,
+                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress),
+            ("landing dust", RoomEnemyProjectileKind.BombTorizoRightFootDust,
+                TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount,
+                TorizoLandingDustInstructionProgramDefinitions.PresentationWordAddress),
+            ("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
+                TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
+                TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress),
+            ("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb,
+                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
+                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress),
+        };
+        foreach ((string family, RoomEnemyProjectileKind kind, int count,
+                     Func<int, ushort> addressAt) in torizoFamilies)
+        {
+            for (int index = 0; index < count; index++)
+            {
+                ushort operand = addressAt(index);
+                OamBuffer native = DrawProgramFrame(null, operand, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind);
+                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
+                    native.LowTable.SequenceEqual(extracted.LowTable) &&
+                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    $"Torizo {family} frame {index} draws stock OAM without visual ROM reads");
+            }
+        }
         OamBuffer nativeShard = DrawNoobTubeShard(null, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             new EnemyProjectileVisualReadGuard(bus));
@@ -197,6 +234,26 @@ internal static partial class Program
             .Single(frame => frame.OperandAddress == goldenEggOperand).Name;
         SpriteVisualPart[] goldenEgg = document.ProgramFrames[goldenEggFrameName];
         goldenEgg[0] = goldenEgg[0] with { OffsetX = goldenEgg[0].OffsetX + 1 };
+        var torizoEditableOperands = new Dictionary<string, ushort>(StringComparer.Ordinal);
+        foreach ((string family, RoomEnemyProjectileKind _, int count,
+                     Func<int, ushort> addressAt) in
+                 torizoFamilies)
+        {
+            for (int index = 0; index < count; index++)
+            {
+                ushort operand = addressAt(index);
+                string frameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                    .Single(frame => frame.OperandAddress == operand).Name;
+                SpriteVisualPart[] frame = document.ProgramFrames[frameName];
+                if (frame.Length == 0)
+                    continue;
+                frame[0] = frame[0] with { OffsetX = frame[0].OffsetX + 1 };
+                torizoEditableOperands.Add(family, operand);
+                break;
+            }
+            AssertTrue(torizoEditableOperands.ContainsKey(family),
+                $"Torizo {family} has an editable OAM part in at least one frame");
+        }
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
@@ -256,6 +313,16 @@ internal static partial class Program
                     new EnemyProjectileVisualReadGuard(bus),
                     RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "edited Golden Torizo egg frame changes production OAM");
+        foreach ((string family, RoomEnemyProjectileKind kind, int _,
+                     Func<int, ushort> _) in torizoFamilies)
+        {
+            ushort operand = torizoEditableOperands[family];
+            AssertTrue(!DrawProgramFrame(stock, operand,
+                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
+                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                $"edited Torizo {family} frame changes production OAM");
+        }
         var incompleteCurrent = document.Frames
             .Where(entry => entry.Key != "skree_debris")
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -445,9 +512,39 @@ internal static partial class Program
                 new EnemyProjectileVisualReadGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "version-six overrides inherit extracted Golden Torizo egg frames");
+        var versionSevenFrames = EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects
+            .ToArray().ToDictionary(frame => frame.Name,
+                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+        byte[] versionSevenJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion,
+                Frames = document.Frames,
+                ProgramFrames = versionSevenFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        File.WriteAllBytes(Path.Combine(overrides,
+            EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
+        EnemyTileArtworkCatalog migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
+        AssertTrue(DrawProgramFrame(migratedV7, goldenEggOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
+            .SequenceEqual(DrawProgramFrame(editedArt, goldenEggOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
+            "version-seven overrides retain their edited Golden Torizo egg frame");
+        foreach ((string family, RoomEnemyProjectileKind kind, int _,
+                     Func<int, ushort> _) in torizoFamilies)
+        {
+            ushort operand = torizoEditableOperands[family];
+            AssertTrue(DrawProgramFrame(migratedV7, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                .SequenceEqual(DrawProgramFrame(stock, operand,
+                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                $"version-seven overrides inherit Torizo {family} frames");
+        }
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameDefinitions.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws, editable frames, and v1-v6 migrations pass.");
+            "match native OAM; installed draws, editable frames, and v1-v7 migrations pass.");
 
         void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
         {

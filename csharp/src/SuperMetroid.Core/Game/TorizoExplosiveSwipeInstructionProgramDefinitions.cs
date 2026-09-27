@@ -6,7 +6,8 @@ internal readonly record struct TorizoExplosiveSwipeInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Bomb Torizo's explosive-swipe projectile at $86:A4AA-$A4C1.
-/// Its five spritemap operands and packed sound ID remain live presentation/audio data.
+/// Its five spritemap operands use extracted presentation art; its packed sound ID
+/// remains cartridge audio data.
 /// </summary>
 internal static class TorizoExplosiveSwipeInstructionProgramDefinitions
 {

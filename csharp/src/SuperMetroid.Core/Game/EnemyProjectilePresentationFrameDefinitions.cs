@@ -8,17 +8,25 @@ namespace SuperMetroid.Core.Game;
 internal static class EnemyProjectilePresentationFrameDefinitions
 {
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
-        Build(includeGoldenTorizo: false, includeGoldenTorizoEgg: false);
+        Build(includeGoldenTorizo: false, includeGoldenTorizoEgg: false,
+            includeTorizoEffects: false);
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
-        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: false);
+        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: false,
+            includeTorizoEffects: false);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreTorizoEffectsFrames =
+        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
+            includeTorizoEffects: false);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
-        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true);
+        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true,
+            includeTorizoEffects: true);
 
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
         PreGoldenTorizoFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEgg =>
         PreGoldenTorizoEggFrames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreTorizoEffects =>
+        PreTorizoEffectsFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
@@ -26,7 +34,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             AddressComparer.Instance) >= 0;
 
     private static EnemyProjectilePresentationFrameDefinition[] Build(bool includeGoldenTorizo,
-        bool includeGoldenTorizoEgg)
+        bool includeGoldenTorizoEgg, bool includeTorizoEffects)
     {
         var frames = new Dictionary<ushort, string>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in
@@ -99,6 +107,27 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "golden_torizo_egg",
                 GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress);
+        }
+        if (includeTorizoEffects)
+        {
+            Add(frames, "torizo_drool",
+                BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
+                BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "torizo_explosive_swipe",
+                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount,
+                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "torizo_sonic_boom",
+                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount,
+                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "torizo_landing_dust",
+                TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount,
+                TorizoLandingDustInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "torizo_explosion",
+                TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
+                TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "torizo_chozo_orb",
+                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
+                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
         }
 
         return frames.OrderBy(entry => entry.Key)

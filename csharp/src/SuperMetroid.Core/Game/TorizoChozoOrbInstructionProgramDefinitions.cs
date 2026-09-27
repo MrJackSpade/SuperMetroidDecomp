@@ -6,7 +6,7 @@ internal readonly record struct TorizoChozoOrbInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Bomb and Golden Torizo's Chozo-orb programs at $86:AB15-$AB89.
-/// Their eighteen interleaved spritemap operands remain live cartridge presentation data.
+/// Their eighteen interleaved spritemap operands use extracted presentation art.
 /// </summary>
 internal static class TorizoChozoOrbInstructionProgramDefinitions
 {

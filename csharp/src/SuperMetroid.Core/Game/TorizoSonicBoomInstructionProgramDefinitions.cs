@@ -6,8 +6,8 @@ internal readonly record struct TorizoSonicBoomInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Bomb and Golden Torizo's sonic-boom programs at
-/// $86:ADBF-$AE15. Their eleven interleaved spritemap operands and two packed sound IDs
-/// remain live cartridge presentation/audio data.
+/// $86:ADBF-$AE15. Their eleven interleaved spritemap operands use extracted artwork;
+/// two packed sound IDs remain cartridge audio data.
 /// </summary>
 internal static class TorizoSonicBoomInstructionProgramDefinitions
 {

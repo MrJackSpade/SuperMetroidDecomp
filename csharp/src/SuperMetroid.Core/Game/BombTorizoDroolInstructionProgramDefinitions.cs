@@ -6,7 +6,7 @@ internal readonly record struct BombTorizoDroolInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Bomb Torizo's low-health drool programs at $86:A46A-$A49D.
-/// The seven interleaved spritemap operands remain live cartridge presentation data.
+/// The seven interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
 internal static class BombTorizoDroolInstructionProgramDefinitions
 {

@@ -6,8 +6,8 @@ internal readonly record struct TorizoExplosionInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Bomb Torizo's low-health and death-explosion programs at
-/// $86:A3CB-$A455. Their fifteen interleaved spritemap operands remain live cartridge
-/// presentation data.
+/// $86:A3CB-$A455. Their fifteen interleaved spritemap operands use extracted
+/// presentation art.
 /// </summary>
 internal static class TorizoExplosionInstructionProgramDefinitions
 {

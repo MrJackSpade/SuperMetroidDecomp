@@ -6,7 +6,7 @@ internal readonly record struct TorizoLandingDustInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Bomb/Golden Torizo's right- and left-foot landing-dust programs
-/// at $86:AF9D-$AFCB. Their eight spritemap operands remain live presentation data.
+/// at $86:AF9D-$AFCB. Their eight spritemap operands use extracted presentation art.
 /// </summary>
 internal static class TorizoLandingDustInstructionProgramDefinitions
 {

@@ -47,7 +47,8 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        bool legacyOverride = document.Version is 1 or 2 or 3 or 4 or 5 or 6 && stock is not null;
+        bool legacyOverride = document.Version is 1 or 2 or 3 or 4 or 5 or 6 or 7 &&
+            stock is not null;
         int expectedFrames = document.Version == 1 && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.Frames.Length;
@@ -145,6 +146,24 @@ public sealed class EnemyProjectileSpritemapCatalog
                 compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
             }
         }
+        else if (document.Version == EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion &&
+                 legacyOverride)
+        {
+            ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> oldDefinitions =
+                EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects;
+            if (document.ProgramFrames is null ||
+                document.ProgramFrames.Count != oldDefinitions.Length)
+                throw new InvalidDataException(
+                    "Version-seven enemy-projectile program frames have the wrong count.");
+            foreach (EnemyProjectilePresentationFrameDefinition frame in oldDefinitions)
+            {
+                if (!document.ProgramFrames.TryGetValue(frame.Name,
+                        out SpriteVisualPart[]? visual) || visual is null)
+                    throw new InvalidDataException(
+                        $"Version-seven enemy-projectile frame {frame.Name} is missing.");
+                compiledPrograms[frame.OperandAddress] = CompileParts(frame.Name, visual);
+            }
+        }
         else if (!legacyOverride)
         {
             ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions =
@@ -232,7 +251,8 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    public const int Version = 7;
+    public const int Version = 8;
+    public const int PreTorizoEffectsVersion = 7;
     public const int PreGoldenTorizoEggVersion = 6;
     public const int PreGoldenTorizoVersion = 5;
     public const int PreAlcoonVersion = 4;

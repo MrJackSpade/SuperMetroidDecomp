@@ -1,5 +1,19 @@
 # Remaining lookup migration inventory (#547)
 
+## Crocomire skeleton character uploads (2026-09-27)
+
+The six `$0200`-byte death-sequence character pages at `$AD:A600-B1FF` are
+now one editable indexed PNG. The six `$A4:99CB/$99D9` destination/source
+pairs and seventh-entry `$FFFF` terminator are compiled into a dedicated
+transfer catalog; source addresses identify extraction bytes only. Installed
+playback uploads the current PNG without reading the tables or character
+bytes from the cartridge. A constructed no-art fixture still follows the
+native read path. The verifier checks every table entry and all 3,072 source
+bytes against the pinned cartridge, compares complete VRAM and cursor state,
+denies installed bus reads, and checks an isolated live PNG edit, reload and
+corrupt-resource failure. Other Crocomire visual records and the wider
+ROM-free runtime remain open.
+
 ## Crocomire tongue extended frames and collision (2026-09-27)
 
 The independently scheduled tongue's four fight and five melting selectors now

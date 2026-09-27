@@ -56,7 +56,8 @@ Within either platform's application-data root:
   pose/frame/transfer-definition JSON.
 - `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
   Mother Brain's separate corpse-decay source PNG,
-  Crocomire's two melting images and two BG2 layouts, Kraid's body and head BG2
+  Crocomire's two melting images, two BG2 layouts, and skeleton-character PNG,
+  Kraid's body and head BG2
   tile-reference maps, room-backdrop character PNG and RGB5 palette file, and
   their manifest.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
@@ -577,6 +578,11 @@ distortion timing, transfer destinations, and collision stay fixed.
 Pixels beyond each native image's written byte range are reserved and must
 remain zero. Stock melt sheets are hash-checked and repaired with the other
 enemy art, while valid overrides survive repair and application updates.
+Crocomire's six skeleton-character uploads share the indexed 4-bpp
+`crocomire-skeleton-tiles.png` sheet in `game/enemy-tiles/`. Copy it to
+`overrides/enemy-tiles/` to replace the pixels used during his death sequence.
+The upload sequence and VRAM destinations remain fixed. Stock bytes are
+manifest-hash checked; malformed overrides fail when the artwork loads.
 Kraid's private BG2 body sources are `kraid-upper-bg2.json` and
 `kraid-lower-bg2.json` in `game/enemy-tiles/`. Each has two ordered 32×32 pages.
 The four animated head layouts are `kraid-head-97C8.json`,

@@ -110,6 +110,29 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
+        byte[] skeletonPlanar = RomDataReader.ReadFixedBank(bus,
+            CrocomireSkeletonTransferDefinitions.Frames[0].SourceAddress,
+            CrocomireSkeletonTransferDefinitions.TotalByteCount);
+        byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
+            RoomCharacterAtlasFormat.TileColumns,
+            out int skeletonWidth, out int skeletonHeight);
+        using var skeletonImage = new MemoryStream();
+        IndexedPng.Write(skeletonImage, skeletonWidth, skeletonHeight,
+            skeletonPixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] skeletonPng = skeletonImage.ToArray();
+        CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(
+            new MemoryStream(skeletonPng, writable: false));
+        for (int index = 0; index < CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
+        {
+            ReadOnlySpan<byte> expected = skeletonPlanar.AsSpan(
+                index * CrocomireSkeletonTransferDefinitions.ChunkByteCount,
+                CrocomireSkeletonTransferDefinitions.ChunkByteCount);
+            if (!skeletonRoundtrip.Chunk(index).Span.SequenceEqual(expected))
+                throw new InvalidDataException(
+                    $"Crocomire skeleton PNG changed native chunk {index} during extraction.");
+        }
+        File.WriteAllBytes(Path.Combine(directory,
+            CrocomireSkeletonTransferDefinitions.FileName), skeletonPng);
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
             spritemapJson);
@@ -305,7 +328,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)),
             Convert.ToHexString(SHA256.HashData(zebetiteColors)),
             Convert.ToHexString(SHA256.HashData(norfairRidleyColors)),
-            Convert.ToHexString(SHA256.HashData(tourianStatueColors)));
+            Convert.ToHexString(SHA256.HashData(tourianStatueColors)),
+            Convert.ToHexString(SHA256.HashData(skeletonPng)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -334,6 +358,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondTilemapSha256) ||
+            string.IsNullOrWhiteSpace(manifest.CrocomireSkeletonSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyProjectileCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
@@ -437,6 +462,21 @@ public static class EnemyTileArtworkFiles
         byte[] secondTilemap = ReadCrocomireAsset(
             CrocomireMeltingArtworkFormat.SecondTilemapFileName,
             manifest.CrocomireSecondTilemapSha256);
+        byte[] skeletonPng = ReadStockOrOverride(
+            CrocomireSkeletonTransferDefinitions.FileName,
+            manifest.CrocomireSkeletonSha256);
+        CrocomireSkeletonArtwork skeleton;
+        try
+        {
+            skeleton = CrocomireSkeletonArtwork.Load(
+                new MemoryStream(skeletonPng, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Crocomire skeleton artwork in {overrideDirectory ?? stockDirectory}: " +
+                error.Message, error);
+        }
         CrocomireMeltingArtwork crocomire;
         try
         {
@@ -916,7 +956,7 @@ public static class EnemyTileArtworkFiles
             babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
-            motherBrainEscapeText, motherBrainSpecialSprites);
+            motherBrainEscapeText, motherBrainSpecialSprites, skeleton);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1136,7 +1176,8 @@ public static class EnemyTileArtworkFiles
         string MotherBrainDeathColorsSha256,
         string ZebetiteColorsSha256,
         string NorfairRidleyColorsSha256,
-        string TourianStatueColorsSha256);
+        string TourianStatueColorsSha256,
+        string CrocomireSkeletonSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

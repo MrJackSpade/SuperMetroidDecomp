@@ -607,6 +607,23 @@ public sealed partial class RoomEnemySystem
     private void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
         int entry = death.TargetHeightOrSkeletonTileIndex >> 1;
+        if (TileArtwork?.CrocomireSkeleton is { } artwork)
+        {
+            if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
+                    CrocomireSkeletonTransferDefinition frame))
+                return;
+            // The native OBSEL base contributes $6000 words. Only character
+            // pixels are editable; the transfer order and VRAM position are not.
+            _vram!.LoadBytes((CrocomireSkeletonTransferDefinitions.ObselBaseWord +
+                frame.DestinationOffset) * 2, artwork.Chunk(entry).Span);
+            death.TargetHeightOrSkeletonTileIndex += 2;
+            return;
+        }
+        if (TileArtwork?.Spritemaps is not null)
+            throw new InvalidDataException(
+                "Installed Crocomire artwork is missing its skeleton characters.");
+
+        // A constructed no-art fixture retains the original bus-backed transfer.
         ushort destinationOffset = ReadWord(
             _bus!, EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + entry * 2);
         if (destinationOffset == 0xffff)

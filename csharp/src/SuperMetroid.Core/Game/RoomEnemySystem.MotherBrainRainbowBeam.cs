@@ -19,7 +19,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        var sequence = new MotherBrainRainbowBeamAttackSequence(MotherBrainCorpseArtwork);
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;

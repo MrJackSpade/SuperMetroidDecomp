@@ -44,6 +44,9 @@ public static class RoomHeaderPointers
     /// <summary>Dead-Torizo corpse room at $8F:DC65 in Tourian.</summary>
     public const ushort DeadTorizoCorpse = 0xdc65;
 
+    /// <summary>Mother Brain's chamber at $8F:DD58; its live state loads population $A1:E321.</summary>
+    public const ushort MotherBrainChamber = 0xdd58;
+
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 

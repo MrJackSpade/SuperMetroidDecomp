@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.Core.Rooms;
@@ -25,6 +26,11 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain => _motherBrain;
+
+    private RoomCharacterAtlas? MotherBrainCorpseArtwork => TileArtwork is null
+        ? null
+        : TileArtwork.MotherBrainCorpse ?? throw new InvalidDataException(
+            "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
     private static bool IsMotherBrainDefinition(ushort definition) =>
         definition is MotherBrainBodyDefinition or MotherBrainHeadDefinition;
@@ -104,7 +110,7 @@ public sealed partial class RoomEnemySystem
         // The cartridge seeds the complete future corpse effect during room load, not when
         // Mother Brain dies. Keeping this eager call preserves the exact WRAM state visible
         // throughout every earlier phase and prevents the death sequence from inventing it.
-        state.CorpseRotting.Initialize(_bus!);
+        state.CorpseRotting.Initialize(_bus!, MotherBrainCorpseArtwork);
 
         head.Health = 0x0bb8;
         head.CurrentInstruction = MotherBrainInitialHeadInstruction;

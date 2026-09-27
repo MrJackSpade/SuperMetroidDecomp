@@ -39,7 +39,8 @@ public sealed class EnemyTileArtworkCatalog
         NorfairRidleyColorCatalog? norfairRidleyColors = null,
         TourianStatueColorCatalog? tourianStatueColors = null,
         PhantoonBg2FrameCatalog? phantoonBg2Frames = null,
-        DraygonBg2FrameCatalog? draygonBg2Frames = null)
+        DraygonBg2FrameCatalog? draygonBg2Frames = null,
+        RoomCharacterAtlas? motherBrainCorpse = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -90,6 +91,7 @@ public sealed class EnemyTileArtworkCatalog
         TourianStatueColors = tourianStatueColors;
         PhantoonBg2Frames = phantoonBg2Frames;
         DraygonBg2Frames = draygonBg2Frames;
+        MotherBrainCorpse = motherBrainCorpse;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -106,6 +108,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Editable Draygon BG2 tilemap frames; collision remains engine-owned.</summary>
     public DraygonBg2FrameCatalog? DraygonBg2Frames { get; }
+
+    /// <summary>Editable source tile sheet for Mother Brain's corpse-rotting WRAM staging.</summary>
+    public RoomCharacterAtlas? MotherBrainCorpse { get; }
 
     /// <summary>Kraid's ordered BG2 tile references; null only for constructed fixtures.</summary>
     public KraidBackgroundArtwork? KraidBackground { get; }
@@ -203,7 +208,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 41;
+    public const int Version = 42;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

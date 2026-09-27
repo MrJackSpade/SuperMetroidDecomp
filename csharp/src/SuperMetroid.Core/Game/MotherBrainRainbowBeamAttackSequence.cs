@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -117,6 +118,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
     private readonly MotherBrainCorpseRottingState _corpseRotting = new();
+    private readonly RoomCharacterAtlas? _corpseArtwork;
+
+    /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
+    public MotherBrainRainbowBeamAttackSequence(RoomCharacterAtlas? corpseArtwork = null) =>
+        _corpseArtwork = corpseArtwork;
 
     /// <summary>
     /// Body enemy-slot animation state. The caller advances its enemy-instruction stage
@@ -403,7 +409,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// Executes the corpse-table and graphics-buffer half of head initialization
     /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
     /// </summary>
-    public void InitializeCorpseRotting(ISnesAddressSpace bus) => _corpseRotting.Initialize(bus);
+    public void InitializeCorpseRotting(ISnesAddressSpace bus) =>
+        _corpseRotting.Initialize(bus, _corpseArtwork);
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.

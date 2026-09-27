@@ -55,6 +55,7 @@ Within either platform's application-data root:
 - `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
   pose/frame/transfer-definition JSON.
 - `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
+  Mother Brain's separate corpse-decay source PNG,
   Crocomire's two melting images and two BG2 layouts, Kraid's body and head BG2
   tile-reference maps, room-backdrop character PNG and RGB5 palette file, and
   their manifest.
@@ -361,6 +362,13 @@ retain its old pixels until the next room load.
 Ninja Space Pirates also copy the shared gold-Pirate colors from
 `enemy-F413-colors.json` into OBJ palette seven when initialized; edit that file
 to change the target colors without changing their behavior.
+
+The ordinary `enemy-ED3F-tiles.png` sheet also supplies Dead Torizo's corpse
+and falling-sand rows. `enemy-ED7F-tiles.png` supplies the dead sidehopper,
+Zoomer, Ripper, and Skree corpse layouts. Mother Brain's decaying body instead
+uses `mother-brain-corpse-tiles.png`, a separate indexed 4bpp source sheet.
+Copy any of these to `overrides/enemy-tiles/` to replace those visuals; their
+row timing, collision, and decay mechanics remain compiled.
 
 Magdollite's separate four-frame OBJ color cycle is in
 `game/enemy-tiles/magdollite-palette-cycle.json`; copy it to

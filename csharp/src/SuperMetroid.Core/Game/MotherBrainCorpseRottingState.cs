@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -79,11 +80,15 @@ public sealed class MotherBrainCorpseRottingState
     public uint FinishedEntryCount { get; private set; }
 
     /// <summary>
-    /// Builds the native rot table and extracts the working corpse frame from ROM into WRAM.
+    /// Builds the native rot table and extracts the working corpse frame into WRAM.
+    /// Installed play uses the editable PNG; cartridge-only fixtures retain native reads.
     /// </summary>
-    public void Initialize(ISnesAddressSpace bus)
+    public void Initialize(ISnesAddressSpace bus, RoomCharacterAtlas? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ReadOnlySpan<byte> installedTiles = artwork is null ? [] : artwork.Transfer.Span;
+        if (artwork is not null && installedTiles.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
+            throw new InvalidDataException("Installed Mother Brain corpse PNG has the wrong tile count.");
 
         // `$DC40` starts at height-1 and writes four bytes per entry. Y decreases from the
         // corpse's bottom row to its top while the delay grows by two calls per entry.
@@ -95,9 +100,12 @@ public sealed class MotherBrainCorpseRottingState
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
+                int sourceAddress = checked((int)copy.SourceAddress) + byteIndex;
                 bus.WriteByte(
                     GraphicsBufferAddress + copy.DestinationOffset + byteIndex,
-                    bus.ReadByte(checked((int)copy.SourceAddress) + byteIndex));
+                    installedTiles.IsEmpty
+                        ? bus.ReadByte(sourceAddress)
+                        : installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
             }
         }
 

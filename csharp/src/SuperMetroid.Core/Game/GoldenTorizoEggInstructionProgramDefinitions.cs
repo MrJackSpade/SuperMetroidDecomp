@@ -6,8 +6,9 @@ internal readonly record struct GoldenTorizoEggInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Golden Torizo's egg programs at $86:B104-$B1C0. Their twenty-six
-/// interleaved spritemap operands and two packed sound IDs remain live cartridge
-/// presentation/audio data. The shot path reuses the compiled Torizo-orb wall-break list.
+/// interleaved spritemap operands are extracted presentation data; two packed sound IDs
+/// remain live cartridge audio data. The shot path reuses the compiled Torizo-orb
+/// wall-break list.
 /// </summary>
 internal static class GoldenTorizoEggInstructionProgramDefinitions
 {

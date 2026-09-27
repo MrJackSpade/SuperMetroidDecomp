@@ -8,20 +8,25 @@ namespace SuperMetroid.Core.Game;
 internal static class EnemyProjectilePresentationFrameDefinitions
 {
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
-        Build(includeGoldenTorizo: false);
+        Build(includeGoldenTorizo: false, includeGoldenTorizoEgg: false);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
+        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: false);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
-        Build(includeGoldenTorizo: true);
+        Build(includeGoldenTorizo: true, includeGoldenTorizoEgg: true);
 
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
         PreGoldenTorizoFrames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEgg =>
+        PreGoldenTorizoEggFrames;
 
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
             new EnemyProjectilePresentationFrameDefinition(operandAddress, string.Empty),
             AddressComparer.Instance) >= 0;
 
-    private static EnemyProjectilePresentationFrameDefinition[] Build(bool includeGoldenTorizo)
+    private static EnemyProjectilePresentationFrameDefinition[] Build(bool includeGoldenTorizo,
+        bool includeGoldenTorizoEgg)
     {
         var frames = new Dictionary<ushort, string>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in
@@ -88,6 +93,12 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "golden_torizo_eye_beam",
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress);
+        }
+        if (includeGoldenTorizoEgg)
+        {
+            Add(frames, "golden_torizo_egg",
+                GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
+                GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress);
         }
 
         return frames.OrderBy(entry => entry.Key)

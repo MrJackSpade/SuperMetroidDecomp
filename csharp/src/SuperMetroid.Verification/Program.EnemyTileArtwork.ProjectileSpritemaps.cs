@@ -107,8 +107,24 @@ internal static partial class Program
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
-                    $"{family} frame {index} draws stock OAM without visual ROM reads");
+                $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
+        }
+        for (int index = 0;
+             index < GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = GoldenTorizoEggInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            OamBuffer native = DrawProgramFrame(null, operand, bus,
+                RoomEnemyProjectileKind.GoldenTorizoEgg);
+            OamBuffer extracted = DrawProgramFrame(stock, operand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoEgg);
+            AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
+                native.LowTable.SequenceEqual(extracted.LowTable) &&
+                native.HighTable.SequenceEqual(extracted.HighTable),
+                $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads");
         }
         OamBuffer nativeShard = DrawNoobTubeShard(null, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
@@ -175,6 +191,12 @@ internal static partial class Program
             .Single(frame => frame.OperandAddress == goldenEyeOperand).Name;
         SpriteVisualPart[] goldenEye = document.ProgramFrames[goldenEyeFrameName];
         goldenEye[0] = goldenEye[0] with { OffsetX = goldenEye[0].OffsetX + 1 };
+        ushort goldenEggOperand = GoldenTorizoEggInstructionProgramDefinitions
+            .PresentationWordAddress(0);
+        string goldenEggFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+            .Single(frame => frame.OperandAddress == goldenEggOperand).Name;
+        SpriteVisualPart[] goldenEgg = document.ProgramFrames[goldenEggFrameName];
+        goldenEgg[0] = goldenEgg[0] with { OffsetX = goldenEgg[0].OffsetX + 1 };
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
@@ -227,6 +249,13 @@ internal static partial class Program
                         new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
                 $"edited Golden Torizo {family} frame changes production OAM");
         }
+        AssertTrue(!DrawProgramFrame(stock, goldenEggOperand,
+                    new EnemyProjectileVisualReadGuard(bus),
+                    RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
+                .SequenceEqual(DrawProgramFrame(editedArt, goldenEggOperand,
+                    new EnemyProjectileVisualReadGuard(bus),
+                    RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
+            "edited Golden Torizo egg frame changes production OAM");
         var incompleteCurrent = document.Frames
             .Where(entry => entry.Key != "skree_debris")
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -389,9 +418,36 @@ internal static partial class Program
                     new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
                 $"version-five overrides inherit extracted Golden Torizo {family} frames");
         }
+        var versionSixFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg
+            .ToArray().ToDictionary(frame => frame.Name,
+                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+        byte[] versionSixJson = JsonSerializer.SerializeToUtf8Bytes(
+            new EnemyProjectileSpritemapDocument
+            {
+                Version = EnemyProjectileSpritemapDefinitions.PreGoldenTorizoEggVersion,
+                Frames = document.Frames,
+                ProgramFrames = versionSixFrames,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        File.WriteAllBytes(Path.Combine(overrides,
+            EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
+        EnemyTileArtworkCatalog migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
+        AssertTrue(DrawProgramFrame(migratedV6, goldenMissileOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable
+            .SequenceEqual(DrawProgramFrame(editedArt, goldenMissileOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable),
+            "version-six overrides retain their edited Golden Torizo missile frame");
+        AssertTrue(DrawProgramFrame(migratedV6, goldenEggOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
+            .SequenceEqual(DrawProgramFrame(stock, goldenEggOperand,
+                new EnemyProjectileVisualReadGuard(bus),
+                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
+            "version-six overrides inherit extracted Golden Torizo egg frames");
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameDefinitions.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws, editable frames, and v1-v5 migrations pass.");
+            "match native OAM; installed draws, editable frames, and v1-v6 migrations pass.");
 
         void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
         {

@@ -94,6 +94,7 @@ internal static partial class Program
         var visualLayouts = installation.LoadRoomVisualLayouts();
         var backgrounds = installation.LoadRoomBackgroundTilemaps();
         var sky = installation.LoadRoomSkyTilemaps();
+        var samusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         return (game, bindIntro) =>
         {
@@ -114,6 +115,7 @@ internal static partial class Program
             game.BindRoomVisualLayouts(visualLayouts);
             game.BindRoomBackgroundTilemapArt(backgrounds);
             game.BindRoomSkyTilemapArt(sky);
+            game.BindRoomPlmSamusEaterVisuals(samusEaterVisuals);
             game.BindBeamArtwork(projectiles.BeamTiles);
             game.BindProjectileCompositions(projectiles.Catalog);
             game.BindProjectileFrameBindings(projectiles.FrameBindings);

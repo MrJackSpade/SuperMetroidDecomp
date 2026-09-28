@@ -24,6 +24,7 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
+    [NonSerialized] private RoomPlmSamusEaterVisualCatalog? roomPlmSamusEaterVisuals;
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     [NonSerialized] private RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
     [NonSerialized] private RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
@@ -172,6 +173,13 @@ public sealed partial class SuperMetroidGame
     {
         roomPlmSporeSpawnCeilingVisuals = catalog;
         if (runtime is not null) runtime.RoomPlmSporeSpawnCeilingVisuals = catalog;
+    }
+
+    /// <summary>Binds Samus Eater tile art after startup or state restoration.</summary>
+    public void BindRoomPlmSamusEaterVisuals(RoomPlmSamusEaterVisualCatalog? catalog)
+    {
+        roomPlmSamusEaterVisuals = catalog;
+        if (runtime is not null) runtime.RoomPlmSamusEaterVisuals = catalog;
     }
 
     /// <summary>Binds Botwoon wall-clear art after startup or state restoration.</summary>

@@ -127,6 +127,7 @@ public static class GameAssetInstaller
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(installation.RoomPlmSpeedBoosterVisualDirectory);
             RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(installation.RoomPlmMaridiaElevatubeVisualDirectory);
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(installation.RoomPlmSporeSpawnCeilingVisualDirectory);
+            RoomPlmSamusEaterVisualFiles.ValidateStock(installation.RoomPlmSamusEaterVisualDirectory);
             RoomPlmBotwoonWallVisualFiles.ValidateStock(installation.RoomPlmBotwoonWallVisualDirectory);
             RoomPlmKraidVisualFiles.ValidateStock(installation.RoomPlmKraidVisualDirectory);
             RoomPlmCrocomireVisualFiles.ValidateStock(installation.RoomPlmCrocomireVisualDirectory);
@@ -395,6 +396,13 @@ public static class GameAssetInstaller
             RoomPlmSporeSpawnCeilingVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
                 sporeCeilingVisuals, SupportedCartridge.Sha256);
             RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(sporeCeilingVisuals);
+            progress?.Report("Extracting Samus Eater plant visuals...");
+            cancellationToken.ThrowIfCancellationRequested();
+            string samusEaterVisuals = Path.Combine(staging,
+                GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName);
+            RoomPlmSamusEaterVisualFiles.Extract(new SuperMetroidAddressSpace(rom),
+                samusEaterVisuals, SupportedCartridge.Sha256);
+            RoomPlmSamusEaterVisualFiles.ValidateStock(samusEaterVisuals);
             progress?.Report("Extracting Botwoon wall visuals...");
             cancellationToken.ThrowIfCancellationRequested();
             string botwoonWallVisuals = Path.Combine(staging,

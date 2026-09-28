@@ -50,6 +50,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
+    private readonly SuperMetroid.Core.Rooms.RoomPlmSamusEaterVisualCatalog? roomPlmSamusEaterVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
     private readonly SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
@@ -176,6 +177,9 @@ internal sealed class AndroidSessionData : IDisposable
         roomPlmSporeSpawnCeilingVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmSporeSpawnCeilingVisuals() : null;
         Game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
+        roomPlmSamusEaterVisuals = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmSamusEaterVisuals() : null;
+        Game.BindRoomPlmSamusEaterVisuals(roomPlmSamusEaterVisuals);
         roomPlmBotwoonWallVisuals = cartridgePath is null
             ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadRoomPlmBotwoonWallVisuals() : null;
         Game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
@@ -318,6 +322,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
         Game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
         Game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
+        Game.BindRoomPlmSamusEaterVisuals(roomPlmSamusEaterVisuals);
         Game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
         Game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
         Game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);

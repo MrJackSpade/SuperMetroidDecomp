@@ -1025,6 +1025,11 @@ if (args is ["--spore-spawn-ceiling-visuals"])
     VerifySporeSpawnCeilingVisuals();
     return 0;
 }
+if (args is ["--samus-eater-visuals"])
+{
+    VerifySamusEaterVisuals();
+    return 0;
+}
 if (args is ["--botwoon-wall-plms"])
 {
     VerifyCompiledBotwoonWallPlms();
@@ -2767,6 +2772,7 @@ VerifyMotherBrainFakeDeathVisuals();
 VerifyCrocomireArenaVisuals();
 VerifyKraidRoomVisuals();
 VerifySporeSpawnCeilingVisuals();
+VerifySamusEaterVisuals();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

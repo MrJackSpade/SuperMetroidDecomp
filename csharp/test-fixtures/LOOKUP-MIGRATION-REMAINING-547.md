@@ -7,10 +7,15 @@ bank-`$84` instruction programs from application-owned definitions. This
 preserves the native odd-byte timer and sound operands, five-frame chewing
 cadence, damage callbacks, branch target, and physical draw-list selectors.
 Every byte and every bounded word read matches the pinned cartridge. The
-90-frame ROM-free sweep first exposed the floor plant in Hellway at frame 61;
-after compiling instruction control, the same frame advances to a blocked
-`$84:9E61` draw-list read. Plant appearance migration is the next, separate
-presentation slice; this mechanics change alone does not make the room pass.
+90-frame ROM-free sweep first exposed the floor plant in Hellway at frame 61.
+The eight floor/ceiling draw lists are now compiled with their native physical
+level words, run directions, and signed offsets, while their visual block IDs
+are extracted to replaceable `room-plm-samus-eater/samus-eater.json`. Extraction
+compares every word with the pinned cartridge. A live override changes floor
+and ceiling drawing without changing collision or reading cartridge draw data.
+The exact Hellway replay now matches native pixels for 90 neutral frames with
+all installed cartridge reads blocked. This is not a claim of complete PLM
+coverage or input-driven playthrough parity.
 
 ## Crocomire body collision and multi-frame room census (2026-09-27)
 

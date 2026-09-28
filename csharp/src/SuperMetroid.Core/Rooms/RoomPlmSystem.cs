@@ -51,6 +51,7 @@ public sealed partial class RoomPlmSystem
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals;
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals;
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals;
+    [NonSerialized] private RoomPlmSamusEaterVisualCatalog? samusEaterVisuals;
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
     [NonSerialized] private RoomPlmKraidVisualCatalog? kraidVisuals;
     [NonSerialized] private RoomPlmCrocomireVisualCatalog? crocomireVisuals;
@@ -193,6 +194,13 @@ public sealed partial class RoomPlmSystem
     {
         get => sporeSpawnCeilingVisuals;
         set => sporeSpawnCeilingVisuals = value;
+    }
+
+    /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
+    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals
+    {
+        get => samusEaterVisuals;
+        set => samusEaterVisuals = value;
     }
 
     public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals
@@ -1938,6 +1946,15 @@ public sealed partial class RoomPlmSystem
                 sporeSpawnCeilingVisuals: sporeSpawnCeilingVisuals);
             return;
         }
+        if (SamusEaterPlmDrawDefinitions.TryGet(drawPointer, out var samusEater))
+        {
+            DrawCompiledBlockInstruction(
+                level, streamer, samusEater, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset,
+                useShotBlockVisuals: false,
+                samusEaterVisuals: samusEaterVisuals);
+            return;
+        }
         if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)
         {
             DrawCompiledBlockInstruction(
@@ -2162,6 +2179,7 @@ public sealed partial class RoomPlmSystem
         RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals = null,
         RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
         RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
+        RoomPlmSamusEaterVisualCatalog? samusEaterVisuals = null,
         RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals = null,
         RoomPlmKraidVisualCatalog? kraidVisuals = null,
         RoomPlmCrocomireVisualCatalog? crocomireVisuals = null,
@@ -2203,6 +2221,7 @@ public sealed partial class RoomPlmSystem
                     ?? speedBoosterVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? maridiaElevatubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
+                    ?? samusEaterVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? botwoonWallVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? kraidVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)

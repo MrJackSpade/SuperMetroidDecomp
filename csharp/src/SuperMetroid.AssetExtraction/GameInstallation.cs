@@ -189,6 +189,12 @@ public sealed record GameInstallation(string Root)
     public RoomPlmSporeSpawnCeilingVisualCatalog LoadRoomPlmSporeSpawnCeilingVisuals() =>
         RoomPlmSporeSpawnCeilingVisualFiles.Load(RoomPlmSporeSpawnCeilingVisualDirectory,
             RoomPlmSporeSpawnCeilingVisualOverrideDirectory);
+    public string RoomPlmSamusEaterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName);
+    public string RoomPlmSamusEaterVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName);
+    /// <summary>Editable floor/ceiling plant tiles; physical draw geometry stays compiled.</summary>
+    public RoomPlmSamusEaterVisualCatalog LoadRoomPlmSamusEaterVisuals() =>
+        RoomPlmSamusEaterVisualFiles.Load(RoomPlmSamusEaterVisualDirectory,
+            RoomPlmSamusEaterVisualOverrideDirectory);
     public string RoomPlmBotwoonWallVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
     public string RoomPlmBotwoonWallVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
     /// <summary>Editable Botwoon wall-clear tiles; collision and crumble timing stay compiled.</summary>
@@ -296,6 +302,7 @@ public static class GameInstallationLayout
     public const string RoomPlmSpeedBoosterVisualDirectoryName = "room-plm-speed-booster";
     public const string RoomPlmMaridiaElevatubeVisualDirectoryName = "room-plm-maridia-elevatube";
     public const string RoomPlmSporeSpawnCeilingVisualDirectoryName = "room-plm-spore-spawn-ceiling";
+    public const string RoomPlmSamusEaterVisualDirectoryName = "room-plm-samus-eater";
     public const string RoomPlmBotwoonWallVisualDirectoryName = "room-plm-botwoon-wall";
     public const string RoomPlmKraidVisualDirectoryName = "room-plm-kraid";
     public const string RoomPlmCrocomireVisualDirectoryName = "room-plm-crocomire";

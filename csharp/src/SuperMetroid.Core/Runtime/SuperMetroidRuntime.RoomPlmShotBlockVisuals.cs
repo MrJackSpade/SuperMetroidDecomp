@@ -141,6 +141,12 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.SporeSpawnCeilingVisuals = value;
     }
 
+    public RoomPlmSamusEaterVisualCatalog? RoomPlmSamusEaterVisuals
+    {
+        get => Plms.SamusEaterVisuals;
+        set => Plms.SamusEaterVisuals = value;
+    }
+
     public RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals
     {
         get => Plms.BotwoonWallVisuals;

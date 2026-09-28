@@ -140,7 +140,7 @@ public static class IntroNarrationExtractor
     }
 
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadByte((int)new SnesAddress(
+        bus.ReadCartridgeByte((int)new SnesAddress(
             IntroNarrationDefinitions.Native.ScriptBank, pointer));
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>

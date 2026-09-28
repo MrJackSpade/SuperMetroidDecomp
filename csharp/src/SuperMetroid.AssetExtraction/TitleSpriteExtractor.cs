@@ -61,7 +61,7 @@ internal static class TitleSpriteExtractor
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,
-                OffsetY = unchecked((sbyte)bus.ReadByte(source + 2)),
+                OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(source + 2)),
                 TileColumn = attributes.TileNumber % TitleGraphicsFormat.ObjectTileColumns,
                 TileRow = attributes.TileNumber / TitleGraphicsFormat.ObjectTileColumns,
                 Size = x.IsLarge ? 16 : 8,

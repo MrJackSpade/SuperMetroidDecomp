@@ -19,7 +19,7 @@ public static class HyperBeamFxColorExtractor
             for (int color = 0; color < frames[frame].Length; color++)
             {
                 int address = SamusPaletteRomData.Banks.PaletteFx | (pointer + color * sizeof(ushort));
-                ushort word = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+                ushort word = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
                 frames[frame][color] = new PaletteRgb5
                 {
                     Red = word & 31,

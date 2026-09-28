@@ -112,7 +112,7 @@ public static class IntroCinematicArtworkFiles
         {
             var native = new byte[SnesCgram.ByteCount];
             for (int index = 0; index < native.Length; index++)
-                native[index] = bus.ReadByte(IntroCinematicRomData.Assets.Palette + index);
+                native[index] = bus.ReadCartridgeByte(IntroCinematicRomData.Assets.Palette + index);
             var colors = new PaletteRgb5[SnesCgram.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
@@ -150,8 +150,8 @@ public static class IntroCinematicArtworkFiles
             for (int index = 0; index < native.Length; index++)
             {
                 int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
-                var word = new SnesBgTilemapWord((ushort)(bus.ReadByte(source) |
-                    bus.ReadByte(source + 1) << 8));
+                var word = new SnesBgTilemapWord((ushort)(bus.ReadCartridgeByte(source) |
+                    bus.ReadCartridgeByte(source + 1) << 8));
                 native[index] = word.Raw;
                 cells[index] = new RoomBackgroundTilemapCell
                 {
@@ -188,18 +188,18 @@ public static class IntroCinematicArtworkFiles
                 ushort pointer = (ushort)(IntroEyeAnimationDefinitions.FrameStartPointer +
                     frame * IntroEyeAnimationDefinitions.FrameStride);
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
-                ushort function = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+                ushort function = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
                 if (function != CinematicCodePointers.IndirectInstruction_DrawToPortraitTilemap ||
-                    bus.ReadByte(source + 2) != IntroEyeTilemapFormat.Columns ||
-                    bus.ReadByte(source + 3) != IntroEyeTilemapFormat.Rows)
+                    bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
+                    bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
                     throw new InvalidDataException($"Opening eye frame {frame} changed its native draw shape.");
                 native[frame] = new ushort[IntroEyeTilemapFormat.CellsPerFrame];
                 var cells = new RoomBackgroundTilemapCell[IntroEyeTilemapFormat.CellsPerFrame];
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    var word = new SnesBgTilemapWord((ushort)(bus.ReadByte(wordSource) |
-                        bus.ReadByte(wordSource + 1) << 8));
+                    var word = new SnesBgTilemapWord((ushort)(bus.ReadCartridgeByte(wordSource) |
+                        bus.ReadCartridgeByte(wordSource + 1) << 8));
                     native[frame][cellIndex] = word.Raw;
                     cells[cellIndex] = new RoomBackgroundTilemapCell
                     {

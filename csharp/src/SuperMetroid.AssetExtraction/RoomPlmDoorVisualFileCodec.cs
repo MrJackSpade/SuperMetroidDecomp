@@ -189,8 +189,8 @@ internal static class RoomPlmDoorVisualFileCodec
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        (ushort)(bus.ReadByte(0x840000 | pointer) |
-            bus.ReadByte(0x840000 | checked((ushort)(pointer + 1))) << 8);
+        (ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
+            bus.ReadCartridgeByte(0x840000 | checked((ushort)(pointer + 1))) << 8);
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

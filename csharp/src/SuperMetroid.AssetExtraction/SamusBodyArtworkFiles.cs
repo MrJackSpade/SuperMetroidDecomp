@@ -42,7 +42,7 @@ public static class SamusBodyArtworkFiles
             SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers,
             SamusBodyArtworkCatalog.PoseCount);
         sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
-            .Select(pose => unchecked((sbyte)bus.ReadByte(
+            .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusMovementRomData.Poses.Definitions +
                 pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)))
             .ToArray();
@@ -50,8 +50,8 @@ public static class SamusBodyArtworkFiles
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusBodyArtworkCatalog.FirstFrameAddress + index * 4;
-            frames[index] = new SamusBodyFrameSelection(bus.ReadByte(address),
-                bus.ReadByte(address + 1), bus.ReadByte(address + 2), bus.ReadByte(address + 3));
+            frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
+                bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
         }
 
         ushort[] allPointers = topPointers.Concat(bottomPointers).OrderBy(value => value).ToArray();
@@ -69,15 +69,15 @@ public static class SamusBodyArtworkFiles
             .Select(pointer => ReadSpritemap(bus, pointer)).ToArray();
         ushort[] landingYOffsets = Enumerable.Range(0,
             SamusRenderingRomData.Body.LandingVerticalOffsetByteCount)
-            .Select(index => (ushort)bus.ReadByte(
+            .Select(index => (ushort)bus.ReadCartridgeByte(
                 SamusRenderingRomData.Body.LandingVerticalOffsets + index)).ToArray();
         sbyte[] postureYOffsets = Enumerable.Range(0,
             SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount)
-            .Select(index => unchecked((sbyte)bus.ReadByte(
+            .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusRenderingRomData.Body.PostureTransitionVerticalOffsets + index))).ToArray();
         sbyte[] drainedYOffsets = Enumerable.Range(0,
             SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount)
-            .Select(index => unchecked((sbyte)bus.ReadByte(
+            .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusRenderingRomData.Body.DrainedVerticalOffsets + index))).ToArray();
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topPointers, bottomPointers, posePointers, graphicsYOffsets,
@@ -151,7 +151,7 @@ public static class SamusBodyArtworkFiles
             {
                 int definitionAddress = 0x920000 | (start + position * 7);
                 ushort sourceOffset = ReadWord(bus, definitionAddress);
-                byte sourceBank = bus.ReadByte(definitionAddress + 2);
+                byte sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
                 ushort firstSize = ReadWord(bus, definitionAddress + 3);
                 ushort secondSize = ReadWord(bus, definitionAddress + 5);
                 int byteCount = firstSize + secondSize;
@@ -162,7 +162,7 @@ public static class SamusBodyArtworkFiles
                 int sourceAddress = sourceBank << 16 | sourceOffset;
                 for (int i = 0; i < byteCount; i++)
                     planar[position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot + i] =
-                        bus.ReadByte(sourceAddress + i);
+                        bus.ReadCartridgeByte(sourceAddress + i);
                 sets[set][position] = new DefinitionEntry(sourceAddress, firstSize, secondSize);
             }
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, TileWidth / 8,
@@ -287,14 +287,14 @@ public static class SamusBodyArtworkFiles
         for (int i = 0; i < count; i++)
         {
             int part = address + 2 + i * 5;
-            parts[i] = new SamusSpritePart(ReadWord(bus, part), bus.ReadByte(part + 2),
+            parts[i] = new SamusSpritePart(ReadWord(bus, part), bus.ReadCartridgeByte(part + 2),
                 ReadWord(bus, part + 3));
         }
         return new SamusSpritemapDefinition(pointer, parts);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";

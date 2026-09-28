@@ -119,6 +119,6 @@ internal static class MotherBrainRainbowPaletteExtractor
             Blue = word >> 10 & 31,
         };
 
-        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 }

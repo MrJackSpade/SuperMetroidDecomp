@@ -50,7 +50,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         {
             for (int offset = 0; offset < graphic.Tiles.Length; offset++)
             {
-                if (bus.ReadByte(0x890000 | (graphic.GraphicsPointer + offset)) !=
+                if (bus.ReadCartridgeByte(0x890000 | (graphic.GraphicsPointer + offset)) !=
                     graphic.Tiles.Span[offset])
                     throw new InvalidDataException(
                         $"Native item {graphic.Kind} tile {offset} differs from the compiled definition.");

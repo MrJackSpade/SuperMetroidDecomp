@@ -54,7 +54,7 @@ public static class EscapeTimerPresentationExtractor
             parts[index] = new()
             {
                 OffsetX = x.SignedOffset,
-                OffsetY = unchecked((sbyte)bus.ReadByte(source + 2)),
+                OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(source + 2)),
                 TileNumber = attributes.TileNumber,
                 Size = x.IsLarge ? 16 : 8,
                 Priority = attributes.Priority,

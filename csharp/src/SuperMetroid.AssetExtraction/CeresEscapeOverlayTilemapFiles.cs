@@ -17,8 +17,8 @@ internal static class CeresEscapeOverlayTilemapFiles
             for (int index = 0; index < source.Length; index++)
             {
                 int address = page.SourceAddress + index * sizeof(ushort);
-                source[index] = (ushort)(bus.ReadByte(address) |
-                    bus.ReadByte(address + 1) << 8);
+                source[index] = (ushort)(bus.ReadCartridgeByte(address) |
+                    bus.ReadCartridgeByte(address + 1) << 8);
             }
             words.Add(page.Name, source);
         }
@@ -39,7 +39,7 @@ internal static class CeresEscapeOverlayTilemapFiles
                 throw new InvalidDataException(
                     $"Ceres escape tilemap {page.Name} did not reload.");
             for (int offset = 0; offset < data.Length; offset++)
-                if (data.Span[offset] != bus.ReadByte(page.SourceAddress + offset))
+                if (data.Span[offset] != bus.ReadCartridgeByte(page.SourceAddress + offset))
                     throw new InvalidDataException(
                         $"Ceres escape tilemap {page.Name} changed byte {offset:X2} during export.");
         }

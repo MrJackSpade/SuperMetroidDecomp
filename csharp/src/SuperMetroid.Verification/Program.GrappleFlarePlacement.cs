@@ -120,8 +120,11 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
-    private sealed class GrappleFlareReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace
+    private sealed class GrappleFlareReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace,
+        IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2)

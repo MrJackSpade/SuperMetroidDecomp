@@ -26,7 +26,7 @@ public static class SamusArmCannonArtworkFiles
             .Select(pose => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2)).ToArray();
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
-            .Select(index => (int)bus.ReadByte(SamusRenderingRomData.Banks.Movement |
+            .Select(index => (int)bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
                 (SamusArmCannonArtworkFormat.DrawingDataStart + index))).ToArray();
         int[] attributes = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
             .Select(direction => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -53,7 +53,7 @@ public static class SamusArmCannonArtworkFiles
         for (int tile = 0; tile < SamusArmCannonArtworkFormat.TileSourcePointers.Length; tile++)
         for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileUploadByteCount; offset++)
             planar[tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount + offset] =
-                bus.ReadByte(SamusRenderingRomData.Banks.CharacterData |
+                bus.ReadCartridgeByte(SamusRenderingRomData.Banks.CharacterData |
                     (SamusArmCannonArtworkFormat.TileSourcePointers[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             SamusArmCannonArtworkFormat.TileSourcePointers.Length,

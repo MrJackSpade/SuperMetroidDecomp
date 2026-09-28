@@ -143,8 +143,8 @@ public static class RoomPlmCollectibleVisualFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadByte(0x840000 | pointer) |
-            bus.ReadByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
+            bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

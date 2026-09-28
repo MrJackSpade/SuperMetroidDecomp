@@ -66,8 +66,8 @@ public static class GameplayBasePaletteFiles
         var colors = new PaletteRgb5[count];
         for (int color = 0; color < count; color++)
         {
-            ushort word = (ushort)(bus.ReadByte(address + color * 2) |
-                bus.ReadByte(address + color * 2 + 1) << 8);
+            ushort word = (ushort)(bus.ReadCartridgeByte(address + color * 2) |
+                bus.ReadCartridgeByte(address + color * 2 + 1) << 8);
             colors[color] = new PaletteRgb5
             {
                 Red = word & 31,

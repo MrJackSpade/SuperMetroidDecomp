@@ -26,12 +26,12 @@ internal static class MotherBrainHealthPaletteExtractor
             {
                 int pointer = table + state * sizeof(ushort);
                 int source = MotherBrainRainbowPaletteRomData.SourceBank |
-                    bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
+                    bus.ReadCartridgeByte(pointer) | bus.ReadCartridgeByte(pointer + 1) << 8;
                 states[state] = new PaletteRgb5[MotherBrainRainbowPaletteRomData.ColorCount];
                 for (int color = 0; color < states[state].Length; color++)
                 {
                     int address = source + color * sizeof(ushort);
-                    ushort word = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+                    ushort word = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
                     states[state][color] = new PaletteRgb5
                     {
                         Red = word & 31,

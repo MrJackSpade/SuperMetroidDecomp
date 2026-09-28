@@ -158,8 +158,11 @@ internal static partial class Program
         Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, 655360 launch/late-origin cases, 131072 held launches, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
-    private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
+        IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte GraphicsY, Direction;
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
         public bool ReplaceFlare;

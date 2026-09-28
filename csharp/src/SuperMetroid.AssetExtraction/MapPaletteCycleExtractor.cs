@@ -13,7 +13,7 @@ internal static class MapPaletteCycleExtractor
         var frames = new List<MapPaletteCycleFrame>();
         for (int frame = 0; frame <= MapPaletteCycleFormat.MaximumFrames; frame++)
         {
-            byte duration = bus.ReadByte(MapAnimationRomData.PaletteTiming + frame * MapAnimationRomData.PaletteTimingStride);
+            byte duration = bus.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * MapAnimationRomData.PaletteTimingStride);
             if (duration == byte.MaxValue)
             {
                 using var json = new MemoryStream();

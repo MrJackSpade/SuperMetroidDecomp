@@ -50,7 +50,7 @@ public static class EscapeTypewriterExtractor
             {
                 command = ReadWord(bus, cursor);
                 if (command is EscapeTypewriterRomData.End or EscapeTypewriterRomData.Destination) break;
-                char character = (char)bus.ReadByte(cursor++);
+                char character = (char)bus.ReadCartridgeByte(cursor++);
                 if (character is not (' ' or '!' or >= 'A' and <= 'Z'))
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} has unsupported byte ${(byte)character:X2} at ${cursor - 1:X6}.");
@@ -62,5 +62,5 @@ public static class EscapeTypewriterExtractor
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

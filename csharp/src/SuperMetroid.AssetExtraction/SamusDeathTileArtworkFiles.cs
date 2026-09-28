@@ -29,7 +29,7 @@ public static class SamusDeathTileArtworkFiles
         for (int segment = 0; segment < segments.Length; segment++)
         for (int offset = 0; offset < SamusSpecialSequenceRomData.Death.TileSegmentByteCount; offset++)
             planar[segment * SamusSpecialSequenceRomData.Death.TileSegmentByteCount + offset] =
-                bus.ReadByte(segments[segment].SourceAddress + offset);
+                bus.ReadCartridgeByte(segments[segment].SourceAddress + offset);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,
             SamusDeathTileAtlasFormat.BitsPerPixel, SamusDeathTileAtlasFormat.Width / 8,
             out int width, out int height);

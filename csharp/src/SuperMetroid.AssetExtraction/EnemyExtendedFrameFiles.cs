@@ -21,8 +21,8 @@ internal static class EnemyExtendedFrameFiles
             byte bank = definition.Bank;
             ushort pointer = definition.Pointer;
             int baseAddress = (bank << 16) | pointer;
-            int count = bus.ReadByte(baseAddress);
-            byte padding = bus.ReadByte((bank << 16) |
+            int count = bus.ReadCartridgeByte(baseAddress);
+            byte padding = bus.ReadCartridgeByte((bank << 16) |
                 unchecked((ushort)(pointer + 1)));
             // Ceres steam's header is $1001: the generic drawing/collision
             // walkers consume its low byte as one component and retain the
@@ -85,6 +85,6 @@ internal static class EnemyExtendedFrameFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
-        (ushort)(bus.ReadByte((bank << 16) | address) |
-            bus.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);
+        (ushort)(bus.ReadCartridgeByte((bank << 16) | address) |
+            bus.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);
 }

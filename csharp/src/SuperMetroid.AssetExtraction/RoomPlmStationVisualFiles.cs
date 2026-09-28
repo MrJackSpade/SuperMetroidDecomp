@@ -96,8 +96,8 @@ public static class RoomPlmStationVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadByte(0x840000 | cursor) != unchecked((byte)run.NextX) ||
-                    bus.ReadByte(0x840000 | unchecked((ushort)(cursor + 1))) !=
+                if (bus.ReadCartridgeByte(0x840000 | cursor) != unchecked((byte)run.NextX) ||
+                    bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(cursor + 1))) !=
                         unchecked((byte)run.NextY))
                     throw new InvalidDataException(
                         $"Station draw list ${list.Pointer:X4} differs in next-record offset.");
@@ -158,8 +158,8 @@ public static class RoomPlmStationVisualFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadByte(0x840000 | pointer) |
-            bus.ReadByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
+            bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

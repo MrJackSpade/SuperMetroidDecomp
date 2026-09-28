@@ -48,7 +48,7 @@ internal static class EnemySpritemapFiles
         {
             ushort address = unchecked((ushort)(pointer + 2 + index * 5));
             var x = new SnesSpritemapXWord(ReadWord(bus, bank, address));
-            byte y = bus.ReadByte((bank << 16) |
+            byte y = bus.ReadCartridgeByte((bank << 16) |
                 unchecked((ushort)(address + 2)));
             var attributes = new SnesObjAttributeWord(ReadWord(bus,
                 bank, unchecked((ushort)(address + 3))));
@@ -69,6 +69,6 @@ internal static class EnemySpritemapFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
-        (ushort)(bus.ReadByte((bank << 16) | address) |
-            bus.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);
+        (ushort)(bus.ReadCartridgeByte((bank << 16) | address) |
+            bus.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);
 }

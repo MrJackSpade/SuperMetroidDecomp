@@ -82,8 +82,11 @@ internal static partial class Program
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production uploads preserve native OAM, full state and full VRAM; all sixteen edited tiles map exactly.");
     }
 
-    private sealed class GrappleTileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GrappleTileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
+        IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x9bc342 and < 0x9bc3c6) throw new InvalidOperationException("Grapple still reads tile pointer ROM.");

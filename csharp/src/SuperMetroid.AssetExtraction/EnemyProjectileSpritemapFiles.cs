@@ -18,8 +18,8 @@ internal static class EnemyProjectileSpritemapFiles
                  EnemyProjectilePresentationFrameDefinitions.All)
         {
             ushort pointer = unchecked((ushort)(
-                bus.ReadByte(0x860000 | frame.OperandAddress) |
-                bus.ReadByte(0x860000 | unchecked((ushort)(frame.OperandAddress + 1))) << 8));
+                bus.ReadCartridgeByte(0x860000 | frame.OperandAddress) |
+                bus.ReadCartridgeByte(0x860000 | unchecked((ushort)(frame.OperandAddress + 1))) << 8));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument

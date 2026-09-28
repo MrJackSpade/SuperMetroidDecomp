@@ -12,7 +12,7 @@ internal static class IntroCinematicSpriteFrameExtractor
         ushort pointer, int expectedParts, string name)
     {
         int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
-        int count = bus.ReadByte(source) | bus.ReadByte(source + 1) << 8;
+        int count = bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8;
         if (count != expectedParts)
             throw new InvalidDataException(
                 $"Opening sprite frame {name} has {count} OAM parts, expected {expectedParts}.");
@@ -20,11 +20,11 @@ internal static class IntroCinematicSpriteFrameExtractor
         for (int index = 0; index < count; index++)
         {
             int entry = source + 2 + index * 5;
-            var x = new SnesSpritemapXWord((ushort)(bus.ReadByte(entry) |
-                bus.ReadByte(entry + 1) << 8));
-            byte y = bus.ReadByte(entry + 2);
-            var attributes = new SnesObjAttributeWord((ushort)(bus.ReadByte(entry + 3) |
-                bus.ReadByte(entry + 4) << 8));
+            var x = new SnesSpritemapXWord((ushort)(bus.ReadCartridgeByte(entry) |
+                bus.ReadCartridgeByte(entry + 1) << 8));
+            byte y = bus.ReadCartridgeByte(entry + 2);
+            var attributes = new SnesObjAttributeWord((ushort)(bus.ReadCartridgeByte(entry + 3) |
+                bus.ReadCartridgeByte(entry + 4) << 8));
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,

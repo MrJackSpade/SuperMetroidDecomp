@@ -60,7 +60,7 @@ internal static class MotherBrainRoomColorExtractor
             return colors;
         }
 
-        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
-            bus.ReadByte(address + 1) << 8);
+        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) |
+            bus.ReadCartridgeByte(address + 1) << 8);
     }
 }

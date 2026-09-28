@@ -180,7 +180,7 @@ public static class EnemyTileArtworkFiles
                 GunshipLiftoffTransferDefinitions.Frames[index];
             var planar = new byte[GunshipLiftoffTransferDefinitions.ByteCount];
             for (int offset = 0; offset < planar.Length; offset++)
-                planar[offset] = bus.ReadByte(transfer.SourceAddress + offset);
+                planar[offset] = bus.ReadCartridgeByte(transfer.SourceAddress + offset);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
                 RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
             using var image = new MemoryStream();
@@ -1137,7 +1137,7 @@ public static class EnemyTileArtworkFiles
             int destination = copy.DestinationWord - 0x4000;
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
             {
-                planar[destination + index] = bus.ReadByte(
+                planar[destination + index] = bus.ReadCartridgeByte(
                     (pass.SourceBank << 16) | unchecked((ushort)(copy.SourceWord + index)));
             }
         }
@@ -1249,7 +1249,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < cells.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort raw = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            ushort raw = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
             var word = new SnesBgTilemapWord(raw);
             cells[index] = new CrocomireMeltingTilemapCell
             {
@@ -1261,7 +1261,7 @@ public static class EnemyTileArtworkFiles
             };
         }
         int terminator = sourceAddress + cells.Length * 2;
-        if ((ushort)(bus.ReadByte(terminator) | bus.ReadByte(terminator + 1) << 8) != 0xffff)
+        if ((ushort)(bus.ReadCartridgeByte(terminator) | bus.ReadCartridgeByte(terminator + 1) << 8) != 0xffff)
             throw new InvalidDataException(
                 $"Crocomire melt tilemap ${sourceAddress:X6} lacks its native terminator.");
         using var json = new MemoryStream();

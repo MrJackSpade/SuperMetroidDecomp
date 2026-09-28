@@ -20,11 +20,11 @@ internal static class EnemyBg2FrameFiles
         foreach (EnemyBg2FrameDefinition frame in definitions)
         {
             int root = (bank << 16) | frame.Pointer;
-            int componentCount = bus.ReadByte(root);
+            int componentCount = bus.ReadCartridgeByte(root);
             if (componentCount < 1 ||
                 componentCount > maximumComponents ||
                 componentCount > EnemyBg2FrameLayout.MaximumComponents ||
-                bus.ReadByte(root + 1) != 0)
+                bus.ReadCartridgeByte(root + 1) != 0)
                 throw new InvalidDataException(
                     $"{family} frame ${bank:X2}:{frame.Pointer:X4} has an invalid extended header.");
             var writes = new List<EnemyBg2WriteDocument>();
@@ -104,5 +104,5 @@ internal static class EnemyBg2FrameFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

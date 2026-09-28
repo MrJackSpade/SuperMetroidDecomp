@@ -252,8 +252,8 @@ public static class XrayRevealVisualFiles
     {
         if (pointer < 0x8000 || pointer >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return unchecked((ushort)(bus.ReadByte(XrayRevealCodePointers.Bank | pointer) |
-            bus.ReadByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
+        return unchecked((ushort)(bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | pointer) |
+            bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
     }
 
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
@@ -279,7 +279,7 @@ public static class XrayRevealVisualFiles
     }
 
     private static ushort ReadAbsoluteWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static T ReadJson<T>(string path) where T : class =>
         ReadJson<T>(File.ReadAllBytes(path), path);

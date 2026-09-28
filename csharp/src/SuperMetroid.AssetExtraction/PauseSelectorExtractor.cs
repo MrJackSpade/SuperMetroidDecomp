@@ -29,9 +29,9 @@ public static class PauseSelectorExtractor
         var phases = new List<PauseSelectorPhase>();
         for (int i = 0; ; i++)
         {
-            int duration = bus.ReadByte(animation + i * 3);
+            int duration = bus.ReadCartridgeByte(animation + i * 3);
             if (duration == byte.MaxValue) break;
-            if (i >= PauseSelectorDefinitions.MaximumPhases || bus.ReadByte(animation + i * 3 + 2) != 0)
+            if (i >= PauseSelectorDefinitions.MaximumPhases || bus.ReadCartridgeByte(animation + i * 3 + 2) != 0)
                 throw new InvalidDataException("Unexpected native selector frame offset or missing terminator.");
             phases.Add(new() { DurationTicks = duration, Reserve = "Reserve", Beam = "Beam", Equipment = "Equipment" });
         }
@@ -39,7 +39,7 @@ public static class PauseSelectorExtractor
         if (palette.Raw != palette.PaletteBits) throw new InvalidDataException("Invalid native selector palette word.");
         using var output = new MemoryStream();
         PauseSelectorPresentation.Write(output, new() { Version = PauseSelectorDefinitions.Version,
-            InitialDurationTicks = bus.ReadByte(PauseSelectorDefinitions.InitialTimer), Palette = palette.PaletteIndex,
+            InitialDurationTicks = bus.ReadCartridgeByte(PauseSelectorDefinitions.InitialTimer), Palette = palette.PaletteIndex,
             Anchors = anchors, Frames = frames, Animation = phases.ToArray() });
         return output.ToArray();
     }

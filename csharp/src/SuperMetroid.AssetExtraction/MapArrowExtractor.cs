@@ -25,12 +25,12 @@ public static class MapArrowExtractor
             for (int phase = 0; ; phase++)
             {
                 int address = FileSelectMapRomData.MenuObjectBank | (program + phase * 3);
-                byte duration = bus.ReadByte(address);
+                byte duration = bus.ReadCartridgeByte(address);
                 if (duration == byte.MaxValue) break;
                 if (phase == MapArrowFormat.MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");
                 // Native ignores the middle byte and uses only the final byte as
                 // a shape offset. All four retail arrows use their one fixed shape.
-                if (bus.ReadByte(address + 2) != 0) throw new InvalidDataException("Unexpected varying map arrow shape.");
+                if (bus.ReadCartridgeByte(address + 2) != 0) throw new InvalidDataException("Unexpected varying map arrow shape.");
                 durations.Add(duration);
             }
             arrows.Add(direction.ToString(), new() { X = Read(record), Y = Read(record + 2) - 1, DurationTicks = durations.ToArray() });

@@ -49,7 +49,7 @@ public static class SamusDeathPaletteArtworkFiles
                 SamusPaletteRomData.Death.WhiteoutShades + shade * sizeof(ushort));
         var selectors = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         for (int frame = 0; frame < selectors.Length; frame++)
-            selectors[frame] = bus.ReadByte(
+            selectors[frame] = bus.ReadCartridgeByte(
                 SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + frame * 2 + 1);
         var document = new ArtworkDocument(FormatVersion, suited, suitless, whiteout, selectors);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -99,7 +99,7 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static T Read<T>(byte[] bytes)
     {

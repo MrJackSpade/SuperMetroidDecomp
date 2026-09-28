@@ -81,16 +81,16 @@ public static class LibraryBackgroundSourceInventory
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
     {
         int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-        return unchecked((ushort)(bus.ReadByte(address) |
-            (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+        return unchecked((ushort)(bus.ReadCartridgeByte(address) |
+            (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
                 unchecked((ushort)(pointer + 1))) << 8)));
     }
 
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
-        (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+        bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
+        (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
             unchecked((ushort)(pointer + 1))) << 8) |
-        (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+        (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
             unchecked((ushort)(pointer + 2))) << 16);
 }
 

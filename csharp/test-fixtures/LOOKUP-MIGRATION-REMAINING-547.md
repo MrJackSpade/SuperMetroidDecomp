@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Samus Eater plant instruction control (2026-09-27)
+
+Both floor and ceiling Samus Eater PLMs now read their complete 64-byte
+bank-`$84` instruction programs from application-owned definitions. This
+preserves the native odd-byte timer and sound operands, five-frame chewing
+cadence, damage callbacks, branch target, and physical draw-list selectors.
+Every byte and every bounded word read matches the pinned cartridge. The
+90-frame ROM-free sweep first exposed the floor plant in Hellway at frame 61;
+after compiling instruction control, the same frame advances to a blocked
+`$84:9E61` draw-list read. Plant appearance migration is the next, separate
+presentation slice; this mechanics change alone does not make the room pass.
+
 ## Crocomire body collision and multi-frame room census (2026-09-27)
 
 Crocomire's fifty selected fight-body frames now use engine-owned physical

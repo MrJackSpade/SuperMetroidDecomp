@@ -2297,7 +2297,9 @@ public sealed partial class RoomPlmSystem
     // compiled family claims only its own exact control addresses; all other bank-$84
     // programs continue through the cartridge interpreter.
     private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
-        TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
+        SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort value)
+            ? value
+            : TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
             : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out value)
             ? value
@@ -2360,7 +2362,9 @@ public sealed partial class RoomPlmSystem
             : ReadBank84Word(bus, address);
 
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
-        TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
+        SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out byte value)
+            ? value
+            : TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
             ? value
             : SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value)
             ? value

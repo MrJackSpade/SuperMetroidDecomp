@@ -8,6 +8,35 @@ internal static partial class Program
     {
         ReadOnlySpan<SamusEaterPlmDefinition> definitions = SamusEaterPlmDefinitions.All;
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
+        AssertEqual(definitions[0].InstructionListPointer,
+            SamusEaterPlmProgramDefinitions.FloorStart,
+            "floor plant header enters its compiled instruction program");
+        AssertEqual(definitions[1].InstructionListPointer,
+            SamusEaterPlmProgramDefinitions.CeilingStart,
+            "ceiling plant header enters its compiled instruction program");
+        AssertEqual(0xad38, SamusEaterPlmProgramDefinitions.EndExclusive,
+            "plant program ends before the Wrecked Ship treadmill");
+        for (int address = SamusEaterPlmProgramDefinitions.FloorStart;
+             address < SamusEaterPlmProgramDefinitions.EndExclusive; address++)
+        {
+            AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(
+                    (ushort)address, out byte compiledByte),
+                $"Samus Eater program byte $84:{address:X4} is compiled");
+            AssertEqual(rom.ReadByte(0x840000 | address), compiledByte,
+                $"Samus Eater program byte $84:{address:X4} matches cartridge");
+            if (address + 1 == SamusEaterPlmProgramDefinitions.EndExclusive)
+                continue;
+            AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(
+                    (ushort)address, out ushort compiledWord),
+                $"Samus Eater program word $84:{address:X4} is compiled");
+            AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | address), compiledWord,
+                $"Samus Eater program word $84:{address:X4} matches cartridge");
+        }
+        AssertTrue(!SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(
+                0xacb7, out _) &&
+            !SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(0xad38, out _) &&
+            !SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(0xad37, out _),
+            "Samus Eater program excludes adjacent bank-$84 code");
 
         foreach (SamusEaterPlmDefinition definition in definitions)
         {
@@ -60,7 +89,7 @@ internal static partial class Program
             () => SamusEaterPlmDefinitions.Resolve(0xb6d3),
             "map-station header cannot enter Samus Eater domain");
         Console.WriteLine(
-            "Samus Eater PLMs: both native header/list identities and real aligned spawns pass without runtime header reads.");
+            "Samus Eater PLMs: both header/list identities, 128 compiled control bytes, and real aligned spawns match cartridge.");
     }
 
     private static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>

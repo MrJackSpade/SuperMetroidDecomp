@@ -387,7 +387,8 @@ internal static partial class Program
     }
 
     private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source,
-        RoomPaletteFxPresentation effectColors) : ISnesAddressSpace
+        RoomPaletteFxPresentation effectColors) :
+        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
         private static readonly (EndingPaletteId Id, int Start, int End)[] Ranges =
             Enum.GetValues<EndingPaletteId>()
@@ -427,5 +428,23 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadCartridgeByte(int address)
+        {
+            _ = ReadByte(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Ending palette guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Ending palette guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Ending palette guard requires SRAM."))
+            .ReadSaveRamByte(address);
     }
 }

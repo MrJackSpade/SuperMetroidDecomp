@@ -235,15 +235,17 @@ static void VerifyVramWriteQueue()
     var dirtyVram = new byte[SnesVram.ByteCount];
     Array.Fill(dirtyVram, (byte)0x7e);
     fullDmaVram.LoadBytes(0, dirtyVram);
-    bus.WriteByte(0x80fffe, 0xa0);
-    bus.WriteByte(0x80ffff, 0xa1);
-    bus.WriteByte(0x800000, 0xa2);
-    bus.WriteByte(0x800001, 0xa3);
-    bus.WriteByte(0x80fffc, 0xfe);
-    bus.WriteByte(0x80fffd, 0xff);
+    // A full 64-KiB transfer must stay in a fully mapped source bank. The
+    // separate routing check below covers a ROM-bank wrap into the WRAM mirror.
+    bus.WriteByte(0x7efffe, 0xa0);
+    bus.WriteByte(0x7effff, 0xa1);
+    bus.WriteByte(0x7e0000, 0xa2);
+    bus.WriteByte(0x7e0001, 0xa3);
+    bus.WriteByte(0x7efffc, 0xfe);
+    bus.WriteByte(0x7efffd, 0xff);
     fullDmaVram.ExecuteHardwareDmaWrite(
         bus,
-        sourceAddress: 0x80fffe,
+        sourceAddress: 0x7efffe,
         dmaSize: 0,
         encodedDestination: 0);
     AssertEqual(0xa0, fullDmaVram.ReadByte(0), "DAS-zero first source byte");

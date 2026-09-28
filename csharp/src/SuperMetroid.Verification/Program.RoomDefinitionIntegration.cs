@@ -198,7 +198,8 @@ internal static partial class Program
 
     private sealed class CompiledRoomDefinitionReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) :
+        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -216,5 +217,23 @@ internal static partial class Program
 
         public void WriteByte(int address, byte value) =>
             source.WriteByte(address, value);
+
+        public byte ReadCartridgeByte(int address)
+        {
+            _ = ReadByte(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Room-definition guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Room-definition guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Room-definition guard requires SRAM."))
+            .ReadSaveRamByte(address);
     }
 }

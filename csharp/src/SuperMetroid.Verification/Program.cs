@@ -2145,6 +2145,17 @@ if (args is ["--hardware-windows"])
     VerifyProductionMagicNumberAudit();
     return 0;
 }
+if (args is ["--dma-source-routing"])
+{
+    VerifyVramWriteQueue();
+    VerifyDmaSourceRouting();
+    return 0;
+}
+if (args is ["--intro-artwork-post-slices", var postSliceRom])
+{
+    VerifyIntroArtworkPostSlices(postSliceRom);
+    return 0;
+}
 if (args is ["--power-bomb-fuse"])
 {
     VerifyPowerBombFuse();

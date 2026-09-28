@@ -36,12 +36,28 @@ public sealed class SnesCgram
         if (colorCount < 0 || destinationIndex < 0 || destinationIndex + colorCount > ColorCount)
             throw new ArgumentOutOfRangeException(nameof(colorCount), "CGRAM load must remain within 256 colors.");
 
+        ISnesMutableMemory? memory = bus as ISnesMutableMemory;
+        IImportCartridgeSource? cartridge = bus as IImportCartridgeSource;
+
+        byte ReadSource(SnesAddress address) => SnesDmaSourceMap.Classify(address) switch
+        {
+            SnesDmaSourceKind.WorkRam => (memory ?? throw new InvalidOperationException(
+                "CGRAM DMA source requires WRAM.")).ReadWorkRamByte((int)address),
+            SnesDmaSourceKind.SaveRam => (memory ?? throw new InvalidOperationException(
+                "CGRAM DMA source requires SRAM.")).ReadSaveRamByte((int)address),
+            SnesDmaSourceKind.Cartridge => (cartridge ?? throw new InvalidOperationException(
+                "CGRAM DMA source requires a cartridge import source."))
+                .ReadCartridgeByte((int)address),
+            _ => throw new InvalidOperationException(
+                $"CGRAM DMA source ${address.Bank:X2}:{address.Offset:X4} is unmapped."),
+        };
+
         for (int color = 0; color < colorCount; color++)
         {
             SnesAddress lowAddress = sourceAddress.AddWithinBank(color * 2);
             SnesAddress highAddress = sourceAddress.AddWithinBank(color * 2 + 1);
             _colors[destinationIndex + color] = (ushort)(
-                bus.ReadByte((int)lowAddress) | (bus.ReadByte((int)highAddress) << 8));
+                ReadSource(lowAddress) | (ReadSource(highAddress) << 8));
         }
     }
 

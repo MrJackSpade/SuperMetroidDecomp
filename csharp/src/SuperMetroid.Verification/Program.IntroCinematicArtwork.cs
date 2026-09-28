@@ -1011,7 +1011,8 @@ internal static partial class Program
         bool blockIntroDiscoveryActors = false,
         bool blockIntroScientistSprites = false,
         bool blockCeresFlightSprites = false,
-        bool blockCeresDestructionSprites = false) : ISnesAddressSpace
+        bool blockCeresDestructionSprites = false) :
+        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -1235,5 +1236,25 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadCartridgeByte(int address)
+        {
+            // Reuse the existing forbidden-range check so typed DMA imports cannot
+            // bypass this audit's cartridge-read guard.
+            _ = ReadByte(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Intro artwork guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Intro artwork guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Intro artwork guard requires SRAM."))
+            .ReadSaveRamByte(address);
     }
 }

@@ -189,6 +189,8 @@ public sealed class SnesVram
         // harmless when written to VMADD because VRAM contains only 15 address bits.
         int destinationWord = encodedDestination & 0x7fff;
         int wordIncrement = (encodedDestination & 0x8000) == 0 ? 1 : 32;
+        ISnesMutableMemory? memory = bus as ISnesMutableMemory;
+        IImportCartridgeSource? cartridge = bus as IImportCartridgeSource;
 
         for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
         {
@@ -200,7 +202,18 @@ public sealed class SnesVram
             // A-bus DMA increments its 16-bit source offset but leaves the bank register
             // fixed. Explicit wrapping here matters for a transfer beginning at xx:FFFF.
             SnesAddress currentSource = sourceAddress.AddWithinBank(byteIndex);
-            _bytes[vramByteOffset] = bus.ReadByte((int)currentSource);
+            _bytes[vramByteOffset] = SnesDmaSourceMap.Classify(currentSource) switch
+            {
+                SnesDmaSourceKind.WorkRam => (memory ?? throw new InvalidOperationException(
+                    "VRAM DMA source requires WRAM.")).ReadWorkRamByte((int)currentSource),
+                SnesDmaSourceKind.SaveRam => (memory ?? throw new InvalidOperationException(
+                    "VRAM DMA source requires SRAM.")).ReadSaveRamByte((int)currentSource),
+                SnesDmaSourceKind.Cartridge => (cartridge ?? throw new InvalidOperationException(
+                    "VRAM DMA source requires a cartridge import source."))
+                    .ReadCartridgeByte((int)currentSource),
+                _ => throw new InvalidOperationException(
+                    $"VRAM DMA source ${currentSource.Bank:X2}:{currentSource.Offset:X4} is unmapped."),
+            };
 
             if (writesHighByte)
             {

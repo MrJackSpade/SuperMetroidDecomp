@@ -45,7 +45,8 @@ public sealed class EnemyTileArtworkCatalog
         MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
         CrocomireSkeletonArtwork? crocomireSkeleton = null,
         CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
-        TorizoInstructionVramArtwork? torizoInstructionVram = null)
+        TorizoInstructionVramArtwork? torizoInstructionVram = null,
+        CeresEscapeTileArtwork? ceresEscapeTiles = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -102,6 +103,7 @@ public sealed class EnemyTileArtworkCatalog
         MotherBrainSpecialSprites = motherBrainSpecialSprites;
         CrocomireSkeleton = crocomireSkeleton;
         TorizoInstructionVram = torizoInstructionVram;
+        CeresEscapeTiles = ceresEscapeTiles;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -112,6 +114,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Editable tile pages for Bomb/Golden Torizo instruction-time VRAM uploads.</summary>
     public TorizoInstructionVramArtwork? TorizoInstructionVram { get; }
+
+    /// <summary>Editable warning-text and door character pages for Ceres escape.</summary>
+    public CeresEscapeTileArtwork? CeresEscapeTiles { get; }
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
     public EnemySpritemapCatalog? Spritemaps { get; }
@@ -205,6 +210,8 @@ public sealed class EnemyTileArtworkCatalog
             data = atlas.Transfer;
             return true;
         }
+        if (CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         data = default;
         return false;
     }
@@ -233,7 +240,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 60;
+    public const int Version = 61;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

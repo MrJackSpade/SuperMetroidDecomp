@@ -176,6 +176,11 @@ public sealed partial class RoomEnemySystem
                 EscapeTimerTileRomData.SecondSourceAddress)
             throw new InvalidDataException(
                 "Installed Ceres escape timer has no editable sprite tile artwork.");
+        if (TileArtwork is { } installed &&
+            CeresEscapeTileArtworkDefinitions.Contains(sourceAddress, byteCount) &&
+            installed.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out _) != true)
+            throw new InvalidDataException(
+                $"Installed Ceres escape has no editable character page for ${sourceAddress:X6}.");
 
         if (EscapeTimerArtwork?.TryQueueNativeTransfer(
             vramWriteQueue, sourceAddress, byteCount, destination) != true)

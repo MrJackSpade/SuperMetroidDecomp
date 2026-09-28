@@ -1,5 +1,19 @@
 # Remaining lookup migration inventory (#547)
 
+## Ceres escape warning and door characters (2026-09-27)
+
+The fixed `$B7:DA00-E2FF` warning-text and `$B0:BA00-BFFF` door-character
+sources are now two named indexed PNGs in the enemy-art installation. Their
+native transfer descriptors stay compiled separately. The runtime's existing
+VRAM queue resolves all thirteen warning/door entries from those PNGs, including
+the shared warning characters' two different VRAM destinations. Extraction
+roundtrips every source byte, and a guarded production queue/drain matches the
+full native VRAM image across both fifteen-record Ceres timer lists. A live PNG
+edit changes the queued VRAM byte, survives reload, and malformed/missing
+installed artwork fails loudly. The four Japanese subtitle tilemaps and other
+Ceres escape presentation data remain to migrate; these two PNGs do not finish
+the cinematic-art or whole-game ROM-free contract.
+
 ## Ceres escape fixed VRAM transfer metadata (2026-09-27)
 
 The seven timer-sprite, eight timer-background/door, and four Japanese-overlay
@@ -11,9 +25,9 @@ cartridge, then executes both real timer-list dispatches and the Japanese
 overlay queue with descriptor reads forbidden. The existing Ceres-Ridley
 fixture continues to test its separate native-data path. Missing installed
 timer artwork fails explicitly instead of silently returning to ROM art. The
-two sprite-timer pages remain editable PNGs, while the other escape graphics sources still
-need presentation-asset migration; this does not complete the full ROM-free
-escape sequence.
+two sprite-timer pages remain editable PNGs. The later warning and door
+character pages are covered by the separate migration above; the Japanese
+subtitle tilemaps and other presentation sources remain incomplete.
 
 Separately, the retail-room ROM-free first-frame census passed all 262 isolated
 rooms after the Torizo entry migration. That proof does not cover subsequent

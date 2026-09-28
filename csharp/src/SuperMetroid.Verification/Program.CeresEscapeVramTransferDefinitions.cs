@@ -39,11 +39,18 @@ internal static partial class Program
 
         using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
             writable: false);
+        RoomCharacterAtlas[] escapePages =
+            CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
+                RoomCharacterAtlas.Load(new MemoryStream(
+                    IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
+                        page.ByteCount, page.FileName), writable: false),
+                    page.ByteCount)).ToArray();
         var system = new RoomEnemySystem
         {
             TileArtwork = new EnemyTileArtworkCatalog(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
-                new Dictionary<ushort, EnemyPaletteSheet>()),
+                new Dictionary<ushort, EnemyPaletteSheet>(),
+                ceresEscapeTiles: new CeresEscapeTileArtwork(escapePages)),
             EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng),
         };
         typeof(RoomEnemySystem).GetField("_bus",
@@ -137,7 +144,7 @@ internal static partial class Program
         : ISnesAddressSpace
     {
         public byte ReadByte(int address) =>
-            address is >= 0xa6c3b8 and < 0xa6c3d6 or >= 0xa6c4cb and < 0xa6c538
+            CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address)
                 ? throw new InvalidOperationException(
                     $"Installed Ceres transfer read native descriptor ${address:X6}.")
                 : source.ReadByte(address);

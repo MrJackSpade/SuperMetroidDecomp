@@ -151,6 +151,16 @@ public static class EnemyTileArtworkFiles
             torizoInstructionHashes.Add(page.FileName,
                 Convert.ToHexString(SHA256.HashData(png)));
         }
+        var ceresEscapeTileHashes = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (CeresEscapeTileSheetDefinition page in
+                 CeresEscapeTileArtworkDefinitions.All)
+        {
+            byte[] png = IndexedTilePageExtractor.Extract(bus, page.SourceAddress,
+                page.ByteCount, $"Ceres escape page {page.FileName}");
+            File.WriteAllBytes(Path.Combine(directory, page.FileName), png);
+            ceresEscapeTileHashes.Add(page.FileName,
+                Convert.ToHexString(SHA256.HashData(png)));
+        }
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),
             phantoonBg2Json);
@@ -319,6 +329,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(crocomireBg2Json)),
             gunshipLiftoffHashes,
             torizoInstructionHashes,
+            ceresEscapeTileHashes,
             Convert.ToHexString(SHA256.HashData(corpsePng)),
             Convert.ToHexString(SHA256.HashData(escapeTextPng)),
             motherBrainSpecialHashes,
@@ -385,6 +396,9 @@ public static class EnemyTileArtworkFiles
             manifest.TorizoInstructionTilesSha256 is null ||
             manifest.TorizoInstructionTilesSha256.Count !=
                 TorizoInstructionVramArtworkDefinitions.All.Length ||
+            manifest.CeresEscapeTilesSha256 is null ||
+            manifest.CeresEscapeTilesSha256.Count !=
+                CeresEscapeTileArtworkDefinitions.All.Length ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainCorpseSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainEscapeTextSha256) ||
             manifest.MotherBrainSpecialSpritesSha256 is null ||
@@ -424,6 +438,11 @@ public static class EnemyTileArtworkFiles
                     .Select(page => page.FileName).Order(StringComparer.Ordinal)))
             throw new InvalidDataException(
                 "Enemy tile manifest omits or substitutes a Torizo instruction tile page.");
+        if (!manifest.CeresEscapeTilesSha256.Keys.Order(StringComparer.Ordinal)
+                .SequenceEqual(CeresEscapeTileArtworkDefinitions.All.ToArray()
+                    .Select(page => page.FileName).Order(StringComparer.Ordinal)))
+            throw new InvalidDataException(
+                "Enemy tile manifest omits or substitutes a Ceres escape tile page.");
 
         var sheets = new Dictionary<ushort, RoomCharacterAtlas>();
         var palettes = new Dictionary<ushort, EnemyPaletteSheet>();
@@ -680,6 +699,30 @@ public static class EnemyTileArtworkFiles
             }
         }
         var torizoInstructionVram = new TorizoInstructionVramArtwork(torizoPages);
+        var ceresEscapePages = new RoomCharacterAtlas[
+            CeresEscapeTileArtworkDefinitions.All.Length];
+        for (int index = 0; index < ceresEscapePages.Length; index++)
+        {
+            CeresEscapeTileSheetDefinition page =
+                CeresEscapeTileArtworkDefinitions.All[index];
+            if (!manifest.CeresEscapeTilesSha256.TryGetValue(page.FileName,
+                    out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
+                throw new InvalidDataException(
+                    $"Enemy tile manifest omits Ceres escape page {page.FileName}.");
+            byte[] selected = ReadStockOrOverride(page.FileName, expectedHash);
+            try
+            {
+                ceresEscapePages[index] = RoomCharacterAtlas.Load(
+                    new MemoryStream(selected, writable: false), page.ByteCount);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid Ceres escape PNG {page.FileName}: {error.Message}",
+                    error);
+            }
+        }
+        var ceresEscapeTiles = new CeresEscapeTileArtwork(ceresEscapePages);
         RoomCharacterAtlas motherBrainCorpse;
         try
         {
@@ -1019,7 +1062,7 @@ public static class EnemyTileArtworkFiles
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
             motherBrainEscapeText, motherBrainSpecialSprites, skeleton,
-            crocomireBg2Frames, torizoInstructionVram);
+            crocomireBg2Frames, torizoInstructionVram, ceresEscapeTiles);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1140,23 +1183,9 @@ public static class EnemyTileArtworkFiles
     }
 
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
-        TorizoInstructionTileSheetDefinition page)
-    {
-        byte[] native = RomDataReader.ReadFixedBank(bus,
-            page.SourceAddress, page.ByteCount);
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
-            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
-        using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
-            SnesGraphics.DiagnosticPalette(16));
-        byte[] png = output.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
-            new MemoryStream(png, writable: false), page.ByteCount);
-        if (!roundtrip.Transfer.Span.SequenceEqual(native))
-            throw new InvalidDataException(
-                $"Torizo instruction page {page.FileName} changed native tile bytes.");
-        return png;
-    }
+        TorizoInstructionTileSheetDefinition page) =>
+        IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
+            $"Torizo instruction page {page.FileName}");
 
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
         KraidColorCatalog.Write(new KraidColorDocument
@@ -1237,6 +1266,7 @@ public static class EnemyTileArtworkFiles
         string CrocomireBg2FramesSha256,
         Dictionary<int, string> GunshipLiftoffSha256,
         Dictionary<string, string> TorizoInstructionTilesSha256,
+        Dictionary<string, string> CeresEscapeTilesSha256,
         string MotherBrainCorpseSha256,
         string MotherBrainEscapeTextSha256,
         Dictionary<int, string> MotherBrainSpecialSpritesSha256,

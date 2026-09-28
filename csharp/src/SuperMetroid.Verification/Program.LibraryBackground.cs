@@ -138,6 +138,32 @@ static void VerifyLibraryBackgroundLoader()
     AssertEqual(0x2211, vram.ReadWord(0x4c00), "library background second BG2 page word");
     AssertEqual(0x4433, vram.ReadWord(0x4c01), "library background second BG2 page tail");
 
+    var typed = new LibraryBackgroundTypedReadGuard(bus);
+    var nativeVram = new SnesVram();
+    LibraryBackgroundExecutionResult native =
+        LibraryBackgroundLoader.ExecuteNativeForVerification(typed, nativeVram,
+            0xe000, activeDoorPointer: 0);
+    AssertEqual(result, native, "typed source routing preserves native command execution");
+    AssertTrue(nativeVram.Bytes.SequenceEqual(vram.Bytes),
+        "typed native library-background reads preserve the complete VRAM result");
+    AssertTrue(typed.CartridgeReads > 0 && typed.WorkRamReads > 0,
+        "native library-background command and decompression reads use typed ROM/WRAM");
+
+    // The list cursor is sixteen-bit. Reading a command word at $8F:FFFF fetches
+    // its second byte from the $8F:0000 WRAM mirror, not from the next ROM bank.
+    WriteLibraryByte(rom, 0xffff, 0);
+    var wrappedBus = new SuperMetroidAddressSpace(rom);
+    wrappedBus.WriteByte(0x8f0000, 0);
+    var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
+    native = LibraryBackgroundLoader.ExecuteNativeForVerification(
+        wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
+    AssertEqual(1, native.ExecutedCommandCount,
+        "bank-end native library-background terminator executes once");
+    AssertEqual(1, wrapped.CartridgeReads,
+        "bank-end command low byte comes from cartridge");
+    AssertEqual(1, wrapped.WorkRamReads,
+        "bank-end command high byte comes from the WRAM mirror");
+
     // Command A is the actual starting-Ceres list shape and must overwrite stale VRAM on
     // both pages with the native blank tile rather than relying on a fresh host array.
     WriteLibraryWord(rom, 0xe040, 0x000a);
@@ -150,7 +176,29 @@ static void VerifyLibraryBackgroundLoader()
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 
     Console.WriteLine(
-        "  Library BG: decompression, both Ceres BG2 pages, and native clear agree.");
+        "  Library BG: typed ROM/WRAM command reads, decompression, Ceres BG2 pages, and native clear agree.");
+}
+
+private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
+    ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+{
+    public int CartridgeReads { get; private set; }
+    public int WorkRamReads { get; private set; }
+
+    public byte ReadByte(int address) => throw new InvalidOperationException(
+        $"Library background used the untyped CPU reader at ${address:X6}.");
+    public byte ReadCartridgeByte(int address)
+    {
+        CartridgeReads++;
+        return source.ReadCartridgeByte(address);
+    }
+    public byte ReadWorkRamByte(int address)
+    {
+        WorkRamReads++;
+        return source.ReadWorkRamByte(address);
+    }
+    public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
+    public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
 private static void WriteLibraryWord(byte[] rom, ushort pointer, ushort value)

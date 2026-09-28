@@ -281,18 +281,41 @@ internal static partial class Program
     }
 
     private sealed class RoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadByte(int address)
         {
-            if (address == RoomAssetRomData.Tilesets.CreCharactersAddress ||
-                address == areaCharacters)
-                throw new InvalidOperationException(
-                    $"Installed room loader reread character source ${address:X6}.");
+            RejectCharacterRead(address);
             return source.ReadByte(address);
         }
 
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectCharacterRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Room character guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Room character guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Room character guard requires SRAM."))
+            .ReadSaveRamByte(address);
+
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private void RejectCharacterRead(int address)
+        {
+            if (address != RoomAssetRomData.Tilesets.CreCharactersAddress &&
+                address != areaCharacters) return;
+            throw new InvalidOperationException(
+                $"Installed room loader reread character source ${address:X6}.");
+        }
     }
 
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)

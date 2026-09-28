@@ -334,17 +334,34 @@ public static class LibraryBackgroundLoader
     {
         int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
         return unchecked((ushort)(
-            bus.ReadByte(address) |
-            (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+            ReadCommandByte(bus, address) |
+            (ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank |
                 unchecked((ushort)(pointer + 1))) << 8)));
     }
 
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
-        (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+        ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
+        (ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank |
             unchecked((ushort)(pointer + 1))) << 8) |
-        (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+        (ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank |
             unchecked((ushort)(pointer + 2))) << 16);
+
+    private static byte ReadCommandByte(ISnesAddressSpace bus, int address) =>
+        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Wrapped library-background commands require WRAM."))
+                .ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Library-background save-bank commands require SRAM."))
+                .ReadSaveRamByte(address),
+            SnesDmaSourceKind.Cartridge =>
+                CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+            _ => throw new InvalidDataException(
+                $"Library-background command byte ${address:X6} is outside mapped data."),
+        };
 }
 
 /// <summary>

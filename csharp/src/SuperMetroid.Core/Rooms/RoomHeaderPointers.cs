@@ -11,6 +11,8 @@ public static class RoomHeaderPointers
     public const ushort Crocomire = 0xa98d;
     /// <summary>RoomHeader_Kraid at $8F:A59F; its live state relocates BG3 HUD characters to VRAM word $2000.</summary>
     public const ushort Kraid = 0xa59f;
+    /// <summary>RoomHeader_GoldenTorizo at $8F:B283; lower-right Samus position triggers statue awakening.</summary>
+    public const ushort GoldenTorizo = 0xb283;
     /// <summary>RoomHeader_RedTower at $8F:A253, Brinstar room $20.</summary>
     public const ushort RedTower = 0xa253;
 

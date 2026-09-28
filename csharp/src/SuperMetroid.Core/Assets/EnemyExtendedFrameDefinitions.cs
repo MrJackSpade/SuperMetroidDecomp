@@ -9,8 +9,8 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
 /// Maridia's Oum snail, Crocomire's tongue and fight-body composite frames,
-/// Bomb Torizo's dormant statue frame, Golden Torizo's initial pose, and
-/// Kraid's independently animated arm.
+/// Bomb Torizo's dormant statue frame, Golden Torizo's initial and awakening
+/// poses, and Kraid's independently animated arm.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -37,7 +37,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreGoldenTorizoFrameCount = 320;
     internal const int PreKraidArmVersion = 13;
     internal const int PreKraidArmFrameCount = 321;
-    internal const int Version = 14;
+    internal const int PreGoldenTorizoAwakeningVersion = 14;
+    internal const int PreGoldenTorizoAwakeningFrameCount = 343;
+    internal const int Version = 15;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -54,6 +56,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int BombTorizoDormantFrameCount = 1;
     internal const int GoldenTorizoInitialFrameCount = 1;
     internal const int KraidArmFrameCount = 22;
+    internal const int GoldenTorizoAwakeningFrameCount = 6;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
@@ -61,7 +64,8 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonOamFrameCount + SporeSpawnOamFrameCount +
         CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
         CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
-        GoldenTorizoInitialFrameCount + KraidArmFrameCount;
+        GoldenTorizoInitialFrameCount + KraidArmFrameCount +
+        GoldenTorizoAwakeningFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -278,6 +282,27 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Kraid arm selects {kraidArmPointers.Count} distinct visual frames, " +
                 $"expected {KraidArmFrameCount}.");
+        if (frames.Count != PreGoldenTorizoAwakeningFrameCount)
+            throw new InvalidDataException("Golden Torizo awakening extended-frame prefix changed.");
+        var goldenAwakeningPointers = new HashSet<ushort> { 0xaa30 };
+        for (int index = 0;
+             index < GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = GoldenTorizoAwakeningInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
+                    out ushort pointer))
+                throw new InvalidDataException(
+                    $"Golden Torizo awakening visual operand $AA:{operand:X4} is not compiled.");
+            if (goldenAwakeningPointers.Add(pointer))
+                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                    $"golden_torizo_awake_{pointer:X4}"));
+        }
+        if (goldenAwakeningPointers.Count - 1 != GoldenTorizoAwakeningFrameCount)
+            throw new InvalidDataException(
+                $"Golden Torizo awakening selects {goldenAwakeningPointers.Count - 1} " +
+                $"new visual frames, expected {GoldenTorizoAwakeningFrameCount}.");
         return frames.ToArray();
     }
 }

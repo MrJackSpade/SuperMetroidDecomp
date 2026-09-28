@@ -206,6 +206,18 @@ internal static partial class Program
                     RoomHeaderPointers.Kraid, "Kraid arm rising/sinking",
                     frameCount: 700);
                 VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo waking",
+                    frameCount: 700,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        // Enter the authored lower-right wake rectangle on both
+                        // independently stepped games, without crossing a door.
+                        nativeRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
+                        nativeRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
+                        installedRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
+                        installedRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
+                    });
+                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Phantoon, "Phantoon");
                 // The previous room fixture exempted all bank-$A5 reads while
                 // Draygon's extended hitboxes were still ROM-backed. Both its
@@ -379,12 +391,23 @@ internal static partial class Program
     /// </summary>
     private static void VerifyFrontendRomFreeRoom(
         SuperMetroidGame native, SuperMetroidGame installed,
-        ushort roomPointer, string roomName, int frameCount = 90)
+        ushort roomPointer, string roomName, int frameCount = 90,
+        Action<SuperMetroidGame, SuperMetroidGame>? setup = null)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
         installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
+        setup?.Invoke(native, installed);
+        RoomEnemySlot? awakenedGoldenTorizo = roomPointer == RoomHeaderPointers.GoldenTorizo &&
+            setup is not null
+            ? installed.RuntimeForVerification.Enemies.Slots.FirstOrDefault(slot =>
+                slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition)
+            : null;
+        if (roomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
+            AssertTrue(awakenedGoldenTorizo is not null,
+                "Golden Torizo wake-up fixture loaded its live boss slot");
+        bool goldenWakeObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -411,6 +434,10 @@ internal static partial class Program
                 $"installed {roomName} game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed {roomName} phase at frame {frame}");
+            if (awakenedGoldenTorizo is not null &&
+                awakenedGoldenTorizo.CurrentInstruction >
+                    GoldenTorizoInitialInstructionProgramDefinitions.Sleep)
+                goldenWakeObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -483,6 +510,9 @@ internal static partial class Program
                     "installed Draygon Evir intro upload matches native VRAM with bank-$B1 reads forbidden");
             }
         }
+        if (awakenedGoldenTorizo is not null)
+            AssertTrue(goldenWakeObserved,
+                "Golden Torizo wake-up fixture actually advances beyond the initial sleep");
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }
 

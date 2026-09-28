@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount,
             EnemyExtendedFrameDefinitions.PreKraidArmVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreKraidArmFrameCount,
@@ -218,7 +221,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion
             or EnemyExtendedFrameDefinitions.PreBombTorizoVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion
-            or EnemyExtendedFrameDefinitions.PreKraidArmVersion)
+            or EnemyExtendedFrameDefinitions.PreKraidArmVersion
+            or EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)

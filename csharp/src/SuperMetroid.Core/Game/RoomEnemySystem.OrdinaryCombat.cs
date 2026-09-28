@@ -3037,25 +3037,32 @@ public sealed partial class RoomEnemySystem
         }
 
         if (enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            enemy.Definition.Bank == GoldenTorizoInitialFrameDefinitions.Bank &&
-            enemy.SpritemapPointer == GoldenTorizoInitialFrameDefinitions.Frame)
+            enemy.Definition.Bank == GoldenTorizoAwakeningCollisionDefinitions.Bank &&
+            GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
+                enemy.SpritemapPointer, out var goldenComponents))
         {
-            ushort left = unchecked((ushort)(enemy.XPosition +
-                GoldenTorizoInitialFrameDefinitions.Left));
-            ushort top = unchecked((ushort)(enemy.YPosition +
-                GoldenTorizoInitialFrameDefinitions.Top));
-            ushort right = unchecked((ushort)(enemy.XPosition +
-                GoldenTorizoInitialFrameDefinitions.Right));
-            ushort bottom = unchecked((ushort)(enemy.YPosition +
-                GoldenTorizoInitialFrameDefinitions.Bottom));
-            if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                    targetTop, targetBottom, left, top, right, bottom,
-                    selectShotCallback))
-                return false;
-            callback = selectShotCallback
-                ? GoldenTorizoInitialFrameDefinitions.ShotAi
-                : GoldenTorizoInitialFrameDefinitions.TouchAi;
-            return true;
+            // Keep the cartridge's component and hitbox order. Empty belly/face
+            // lists are real physical no-ops even when both art components draw.
+            foreach (GoldenTorizoCollisionComponent component in goldenComponents.Span)
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (GoldenTorizoCollisionHitbox hitbox in
+                         GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(component.HitboxList))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
         }
 
         int bank = enemy.Definition.Bank << 16;

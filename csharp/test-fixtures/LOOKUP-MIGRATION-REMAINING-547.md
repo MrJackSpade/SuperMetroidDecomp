@@ -1,5 +1,21 @@
 # Remaining lookup migration inventory (#547)
 
+## Golden Torizo wake-up handoff (2026-09-28)
+
+An installed-assets room replay places Samus inside the cartridge's lower-right
+Golden Torizo wake rectangle. It reproduced an unowned `$AA:C9E2` instruction
+read, then a physical hitbox read from `$AA:AA26` after instruction compilation.
+The bounded `$AA:C9E2-CACD` continuation now has 69 compiled control words,
+21 compiled visual selectors, and eight pre-existing installed VRAM transfers.
+Six additional distinct extended OAM frames are editable, while the seven
+selected physical frame layouts and nine hitbox lists remain compiled engine
+data. Every field is checked against the pinned cartridge. A version-fourteen
+enemy-art override inherits the new frames without discarding older edits.
+The real wake-up fixture now advances beyond the statue's initial sleep and
+matches native pixels for 700 frames with installed cartridge reads blocked.
+Later Golden Torizo combat lists, other input paths, and full ROM-free runtime
+coverage remain open.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead
@@ -106,8 +122,9 @@ Torizo PNG changes VRAM, and rejects corrupt art. Golden Torizo's initial
 program through its first sleep, first extended visual frame, and one engine-
 owned collision rectangle are compiled; version-12 overrides inherit its art.
 Isolated room `$8F:B283` matches native pixels for 90 neutral frames with all
-runtime cartridge reads blocked. Later falling, awakening, and combat programs
-and the full ROM-free contract remain open.
+runtime cartridge reads blocked. The later falling/awakening continuation is
+covered by the 2026-09-28 slice above; combat programs and the full ROM-free
+contract remain open.
 
 ## Bomb Torizo dormant entry and initial extended frame (2026-09-27)
 
@@ -120,7 +137,8 @@ at three origins, and empty collision identity to the pinned cartridge; a
 version-11 override inherits the new stock frame without losing an older edit.
 Isolated Bomb Torizo room `$8F:9804` matches native pixels for 90 neutral
 frames with every runtime cartridge read blocked. This covers only the dormant
-entry. The awakening/fight scripts and Golden Torizo remain uncompiled.
+entry. Bomb Torizo's own awakening/fight scripts remain ROM-backed; Golden
+Torizo's bounded awakening was migrated in the later slice above.
 
 ## Yard crawling, turning, hiding, and airborne compositions (2026-09-27)
 

@@ -4,8 +4,8 @@ internal readonly record struct GoldenTorizoInitialMechanicsWord(ushort Address,
 
 /// <summary>
 /// Golden Torizo's initial bank-$AA entry through its first sleep. The initial
-/// tile upload uses the shared compiled $814B descriptor/artwork path; later
-/// falling, awakening, and combat programs retain separate ownership.
+/// tile upload uses the shared compiled $814B descriptor/artwork path. The
+/// following fall/awakening list and later combat lists have separate owners.
 /// </summary>
 internal static class GoldenTorizoInitialInstructionProgramDefinitions
 {

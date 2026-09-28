@@ -36,6 +36,10 @@ public sealed partial class RoomEnemySystem
                     GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
                         unchecked((ushort)operandAddress), out ushort goldenOperand)
                     ? goldenOperand
+                    : torizo.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+                        GoldenTorizoAwakeningInstructionProgramDefinitions.TryReadMechanicsWord(
+                            unchecked((ushort)operandAddress), out ushort awakeningOperand)
+                        ? awakeningOperand
                     : ReadWord(_bus!, operandAddress);
 
         switch (opcode)

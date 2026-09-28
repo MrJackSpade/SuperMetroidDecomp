@@ -93,6 +93,10 @@ internal static partial class Program
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("kraid_arm_oam_", StringComparison.Ordinal)),
             "all Kraid arm visual frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoAwakeningFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("golden_torizo_awake_", StringComparison.Ordinal)),
+            "all Golden Torizo awakening visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
@@ -727,11 +731,13 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreKraidArmVersion,
             Frames = document.Frames.Where(entry =>
-                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -753,6 +759,67 @@ internal static partial class Program
                 editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-thirteen migration retains an edited Pirate frame");
+
+        var versionFourteen = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion,
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount,
+            versionFourteen.Frames.Count,
+            "version-fourteen extended-frame schema count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionFourteen, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionFourteen = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer stockAwakeGoldenTorizo = DrawExtendedForBank(stock, guard,
+            0xaa, 0xaa5e, 0x0040, 0x0080);
+        OamBuffer inheritedAwakeGoldenTorizo = DrawExtendedForBank(
+            upgradedVersionFourteen, guard, 0xaa, 0xaa5e, 0x0040, 0x0080);
+        AssertTrue(stockAwakeGoldenTorizo.LowTable.SequenceEqual(
+                       inheritedAwakeGoldenTorizo.LowTable) &&
+                   stockAwakeGoldenTorizo.HighTable.SequenceEqual(
+                       inheritedAwakeGoldenTorizo.HighTable),
+            "version-fourteen override inherits verified Golden Torizo awakening art");
+        AssertTrue(DrawExtended(upgradedVersionFourteen, guard,
+                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedOam.LowTable),
+            "version-fourteen migration retains an edited Pirate frame");
+
+        EnemyExtendedFrameDocument goldenAwakeningOverride =
+            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        const string goldenAwakeningName = "golden_torizo_awake_AA5E";
+        EnemyExtendedVisualComponent originalGoldenComponent =
+            goldenAwakeningOverride.Frames[goldenAwakeningName][0];
+        goldenAwakeningOverride.Frames[goldenAwakeningName][0] =
+            originalGoldenComponent with
+            {
+                OffsetX = originalGoldenComponent.OffsetX + 1,
+            };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            goldenAwakeningOverride, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog editedGoldenAwakening = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer movedGoldenAwakening = DrawExtendedForBank(
+            editedGoldenAwakening, guard, 0xaa, 0xaa5e, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockAwakeGoldenTorizo.LowTable[0] + 1)),
+            movedGoldenAwakening.LowTable[0],
+            "editable Golden Torizo awakening component changes live OAM");
+        AssertTrue(GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
+                0xaa5e, out var unchangedGoldenCollision) &&
+                   unchangedGoldenCollision.Span[0].X == -5 &&
+                   unchangedGoldenCollision.Span[0].HitboxList == 0x886a,
+            "Golden Torizo cosmetic edit cannot move the engine-owned physical component");
 
         EnemyExtendedFrameDocument kraidArmOverride =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -974,9 +1041,9 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire and 22 Kraid arm OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire, 22 Kraid arm and 6 Golden Torizo awakening OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v13 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v14 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 

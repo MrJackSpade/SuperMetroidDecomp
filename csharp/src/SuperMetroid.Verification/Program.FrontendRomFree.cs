@@ -18,8 +18,13 @@ internal static partial class Program
         string sourceRom)
     {
         var nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
-        var guardedBus = new FrontendCartridgeReadGuard(
-            SuperMetroidAddressSpace.LoadRetailRom(sourceRom));
+        // Installed gameplay gets real WRAM/SRAM but no ROM allocation at all.
+        // The native reference remains available only to the development probe
+        // that identifies the exact BG2 source ranges to forbid.
+        var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        AssertEqual(0, installedMemory.Rom.Length,
+            "installed frontend starts with no cartridge allocation");
+        var guardedBus = new FrontendCartridgeReadGuard(installedMemory, nativeBus);
         AssertThrows<InvalidOperationException>(
             () => guardedBus.ReadByte(TitleSequenceRomData.Assets.Mode7CharactersAddress),
             "startup ROM guard rejects an otherwise valid title graphics source");
@@ -476,7 +481,8 @@ internal static partial class Program
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }
 
-    private sealed class FrontendCartridgeReadGuard(ISnesAddressSpace source) :
+    private sealed class FrontendCartridgeReadGuard(
+        ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) :
         ISnesAddressSpace
     {
         private readonly HashSet<int> blockedPresentationBytes = [];
@@ -484,22 +490,23 @@ internal static partial class Program
         internal void BlockExtendedBg2Streams(byte bank,
             ReadOnlySpan<EnemyBg2FrameDefinition> frames)
         {
+            ISnesAddressSpace catalogueSource = lookupSource ?? source;
             foreach (EnemyBg2FrameDefinition frame in frames)
             {
                 int root = (bank << 16) | frame.Pointer;
-                int components = source.ReadByte(root);
+                int components = catalogueSource.ReadByte(root);
                 for (int component = 0; component < components; component++)
                 {
                     int record = root + 2 + component * 8;
-                    ushort stream = (ushort)(source.ReadByte(record + 4) |
-                        source.ReadByte(record + 5) << 8);
+                    ushort stream = (ushort)(catalogueSource.ReadByte(record + 4) |
+                        catalogueSource.ReadByte(record + 5) << 8);
                     ushort cursor = stream;
                     for (int command = 0;
                          command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                     {
                         int address = (bank << 16) | cursor;
-                        ushort first = (ushort)(source.ReadByte(address) |
-                            source.ReadByte(address + 1) << 8);
+                        ushort first = (ushort)(catalogueSource.ReadByte(address) |
+                            catalogueSource.ReadByte(address + 1) << 8);
                         if (command == 0)
                         {
                             AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
@@ -513,8 +520,8 @@ internal static partial class Program
                         blockedPresentationBytes.Add(address + 1);
                         if (first == 0xffff)
                             break;
-                        int count = source.ReadByte(address + 2) |
-                            source.ReadByte(address + 3) << 8;
+                        int count = catalogueSource.ReadByte(address + 2) |
+                            catalogueSource.ReadByte(address + 3) << 8;
                         for (int offset = 2; offset < 4 + count * 2; offset++)
                             blockedPresentationBytes.Add(address + offset);
                         cursor = unchecked((ushort)(cursor + 4 + count * 2));

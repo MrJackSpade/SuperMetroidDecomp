@@ -1,5 +1,15 @@
 # Remaining lookup migration inventory (#547)
 
+## Cartridge-free frontend proof (2026-09-27)
+
+The installed frontend verifier now constructs a zero-ROM address space instead
+of wrapping another complete cartridge image behind a read guard. The reference
+game alone owns the pinned source ROM; its bytes are available to the verifier
+only for independent native comparisons and BG2 source-range discovery. Title,
+file select, intro, Ceres input, the 2,600-frame Draygon room and other sampled
+rooms retain exact native pixels with no installed cartridge allocation. Host
+startup and all unsampled controller routes still need their own integration.
+
 ## Samus Eater plant instruction control (2026-09-27)
 
 Both floor and ceiling Samus Eater PLMs now read their complete 64-byte

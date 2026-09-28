@@ -109,6 +109,15 @@ The zero-ROM installed-assets run now matches native pixels for 850 active
 Golden Torizo frames, including that attack. This is not a full-fight proof:
 other branches and controller-driven combat remain untested.
 
+The callable Golden Torizo stun script at `$AA:D193-D1E6` now has 28 compiled
+control words, with its four existing `$814B` transfer descriptors still
+separate from their editable Torizo tile art. It has no spritemap operands.
+The verifier compares every word and descriptor field to the pinned cartridge.
+A focused 80-frame real-room setup enters the stun list with cartridge reads
+blocked, matches native pixels each frame, and observes the shot lock and
+stunned flag clear before active gameplay continues. Naturally triggering the
+stun by combat input and all later boss branches remain outside this proof.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

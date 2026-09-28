@@ -365,7 +365,8 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_UnmarkStunned:
-                torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 & ~0x2000));
+                torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 &
+                    ~GoldenTorizoBehavioralProperties.Stunned));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -427,7 +428,8 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_IfStunHealthGreaterThan2A31:
-                if (torizo.Health <= 0x2a30 || (torizo.Parameter2 & 0x2000) == 0)
+                if (torizo.Health <= 0x2a30 ||
+                    (torizo.Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
                     cursor = unchecked((ushort)(cursor + 4));
                 else
                 {

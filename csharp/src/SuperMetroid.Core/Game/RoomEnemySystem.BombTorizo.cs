@@ -159,7 +159,7 @@ public sealed partial class RoomEnemySystem
             // reaches that same counterattack bit.
             if ((torizo.Parameter2 & 0x1000) == 0)
                 state.CapturedProjectileFamily = SamusBombProjectileSystem.NormalBombType;
-            torizo.Parameter2 |= 0x2000;
+            torizo.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
         }
 
         ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);

@@ -84,6 +84,7 @@ internal static partial class Program
         VerifyGoldenTorizoRightOrbDefinitions(rom);
         VerifyGoldenTorizoRightSonicDefinitions(rom);
         VerifyGoldenTorizoEyeBeamAttackDefinitions(rom);
+        VerifyGoldenTorizoStunnedDefinitions(rom);
 
         ushort ReadWord(ushort address) =>
             (ushort)(rom.ReadByte((bank << 16) | address) |

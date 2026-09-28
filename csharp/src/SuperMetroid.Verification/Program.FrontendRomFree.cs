@@ -300,6 +300,24 @@ internal static partial class Program
                     },
                     forcedGoldenSonicStart:
                         GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward);
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo stunned tile loop",
+                    frameCount: 80,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
+                        {
+                            RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
+                            RoomEnemySlot boss = enemies.Slots.Single(slot =>
+                                slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                            boss.CurrentInstruction = GoldenTorizoStunnedInstructionProgramDefinitions.Start;
+                            boss.InstructionTimer = 1;
+                            boss.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
+                            enemies.GoldenTorizo!.ReturnInstruction =
+                                GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
+                        }
+                    },
+                    forcedGoldenStun: true);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
@@ -438,7 +456,8 @@ internal static partial class Program
         SuperMetroidGame native, SuperMetroidGame installed,
         ushort roomPointer, string roomName, int frameCount = 90,
         Action<SuperMetroidGame, SuperMetroidGame>? setup = null,
-        ushort? forcedGoldenSonicStart = null)
+        ushort? forcedGoldenSonicStart = null,
+        bool forcedGoldenStun = false)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
@@ -475,6 +494,7 @@ internal static partial class Program
         bool goldenRightOrbObserved = false;
         bool goldenEyeBeamAttackObserved = false;
         bool forcedGoldenSonicObserved = false;
+        bool forcedGoldenStunObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -543,6 +563,12 @@ internal static partial class Program
                         ? GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward
                         : GoldenTorizoRightSonicInstructionProgramDefinitions.End))
                 forcedGoldenSonicObserved = true;
+            if (awakenedGoldenTorizo is not null && forcedGoldenStun &&
+                awakenedGoldenTorizo.CurrentInstruction >=
+                    GoldenTorizoStunnedInstructionProgramDefinitions.Start &&
+                awakenedGoldenTorizo.CurrentInstruction <
+                    GoldenTorizoStunnedInstructionProgramDefinitions.End)
+                forcedGoldenStunObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -622,6 +648,17 @@ internal static partial class Program
                 AssertTrue(forcedGoldenSonicObserved &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
                     "forced Golden Torizo fixture executes the sonic program in active gameplay");
+                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                return;
+            }
+            if (forcedGoldenStun)
+            {
+                AssertTrue(forcedGoldenStunObserved &&
+                           installed.RuntimeForVerification!.Enemies.GoldenTorizo!.ShotGuard == 0 &&
+                           (awakenedGoldenTorizo.Parameter2 &
+                            GoldenTorizoBehavioralProperties.Stunned) == 0 &&
+                           installed.GameState == SuperMetroidGameState.MainGameplay,
+                    "forced Golden Torizo stun loops its tiles and clears its lock and stun flag");
                 Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }

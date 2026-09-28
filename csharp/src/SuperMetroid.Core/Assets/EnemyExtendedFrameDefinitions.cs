@@ -45,7 +45,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreGoldenTorizoRightwardFrameCount = 359;
     internal const int PreTorizoJumpBackVersion = 17;
     internal const int PreTorizoJumpBackFrameCount = 370;
-    internal const int Version = 18;
+    internal const int PreGoldenTorizoRightOrbVersion = 18;
+    internal const int PreGoldenTorizoRightOrbFrameCount = 373;
+    internal const int Version = 19;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -66,6 +68,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int GoldenTorizoWalkingFrameCount = 10;
     internal const int GoldenTorizoRightwardFrameCount = 11;
     internal const int TorizoJumpBackFrameCount = 3;
+    internal const int GoldenTorizoRightOrbFrameCount = 6;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
@@ -75,7 +78,8 @@ internal static class EnemyExtendedFrameDefinitions
         CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
         GoldenTorizoInitialFrameCount + KraidArmFrameCount +
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
-        GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount;
+        GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
+        GoldenTorizoRightOrbFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -376,6 +380,27 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Torizo jump-back selects {jumpBackPointers.Count} " +
                 $"distinct visual frames, expected {TorizoJumpBackFrameCount}.");
+        if (frames.Count != PreGoldenTorizoRightOrbFrameCount)
+            throw new InvalidDataException("Golden Torizo right-orb frame prefix changed.");
+        var rightOrbPointers = new HashSet<ushort>();
+        for (int index = 0;
+             index < GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = GoldenTorizoRightOrbInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
+                    out ushort pointer))
+                throw new InvalidDataException(
+                    $"Golden Torizo right-orb visual operand $AA:{operand:X4} is not compiled.");
+            if (rightOrbPointers.Add(pointer))
+                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                    $"golden_torizo_right_orb_{pointer:X4}"));
+        }
+        if (rightOrbPointers.Count != GoldenTorizoRightOrbFrameCount)
+            throw new InvalidDataException(
+                $"Golden Torizo right-orb selects {rightOrbPointers.Count} " +
+                $"distinct visual frames, expected {GoldenTorizoRightOrbFrameCount}.");
         return frames.ToArray();
     }
 }

@@ -3713,6 +3713,14 @@ public sealed partial class RoomEnemySystem
                 address, out ushort sharedJumpBackWord))
             return sharedJumpBackWord;
         if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            GoldenTorizoJumpLandingInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort goldenJumpLandingWord))
+            return goldenJumpLandingWord;
+        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            GoldenTorizoRightOrbInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort goldenRightOrbWord))
+            return goldenRightOrbWord;
+        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
             GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort goldenInitialWord))
             return goldenInitialWord;

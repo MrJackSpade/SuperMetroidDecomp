@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount,
             EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount,

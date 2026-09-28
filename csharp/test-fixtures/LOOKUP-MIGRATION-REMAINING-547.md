@@ -71,6 +71,19 @@ the next uncompiled control word is `$AA:CDC3`, reached through the jump-back
 landing callback; this is the next bounded migration target. The result still
 does not establish full combat or alternate-input parity.
 
+The four Golden Torizo backward-jump landing lists at `$AA:CDAF-CDD6` now
+compile their 20 control words, including both attack choices and each return
+to walking. The first observed choice calls the right-facing Chozo-orb list
+at `$AA:CC99-CCDA`: its 23 instruction-control words and ten visual selector
+occurrences are compiled separately from six editable OAM frames and seven
+engine-owned hitbox lists. The verifier compares all fields to the pinned
+cartridge, checks that version-eighteen artwork overrides inherit the new
+frames, and confirms an art edit cannot move a physical component. The
+installed-assets replay now observes that orb program and matches native
+pixels for 568 active gameplay frames. At frame 568 it reaches the other
+landing choice, `$AA:CCDB`, the right-facing sonic-boom program. That alternate
+branch and the remaining battle are not yet ROM-free.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

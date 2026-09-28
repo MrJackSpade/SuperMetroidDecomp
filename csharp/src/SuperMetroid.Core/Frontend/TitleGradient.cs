@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -8,13 +9,13 @@ public readonly record struct TitleGradientLine(byte Red, byte Green, byte Blue,
 /// <summary>Expands the two native direct-mode HDMA tables installed by $88:EB58.</summary>
 public static class TitleGradient
 {
-    public static TitleGradientLine[] Decode(ISnesAddressSpace bus, ushort zoom)
+    public static TitleGradientLine[] Decode(IImportCartridgeSource cartridge, ushort zoom)
     {
         int pointer = TitleGradientRomData.FixedColorPointers + ((zoom & 0xf0) >> 3);
         int table = TitleGradientRomData.FixedColorBank |
-            (bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8);
-        byte[] fixedWrites = Expand(bus, table);
-        byte[] control = Expand(bus, TitleGradientRomData.ControlTable);
+            (cartridge.ReadCartridgeByte(pointer) | cartridge.ReadCartridgeByte(pointer + 1) << 8);
+        byte[] fixedWrites = Expand(cartridge, table);
+        byte[] control = Expand(cartridge, TitleGradientRomData.ControlTable);
         var result = new TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
         byte red = 0, green = 0, blue = 0;
         for (int line = 0; line < result.Length; line++)
@@ -28,14 +29,14 @@ public static class TitleGradient
         return result;
     }
 
-    private static byte[] Expand(ISnesAddressSpace bus, int cursor)
+    private static byte[] Expand(IImportCartridgeSource cartridge, int cursor)
     {
         var result = new byte[SnesPpuLayout.ScreenHeightPixels];
         int line = 0;
         byte previous = 0;
         while (line < result.Length)
         {
-            byte header = bus.ReadByte(cursor++);
+            byte header = cartridge.ReadCartridgeByte(cursor++);
             if (header == 0)
             {
                 result.AsSpan(line).Fill(previous);
@@ -43,10 +44,10 @@ public static class TitleGradient
             }
             int count = (header & 127) == 0 ? 128 : header & 127;
             bool transferEveryLine = (header & 128) != 0;
-            if (!transferEveryLine) previous = bus.ReadByte(cursor++);
+            if (!transferEveryLine) previous = cartridge.ReadCartridgeByte(cursor++);
             for (int tick = 0; tick < count && line < result.Length; tick++)
             {
-                if (transferEveryLine) previous = bus.ReadByte(cursor++);
+                if (transferEveryLine) previous = cartridge.ReadCartridgeByte(cursor++);
                 result[line++] = previous;
             }
         }

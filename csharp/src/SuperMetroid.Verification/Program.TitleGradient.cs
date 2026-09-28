@@ -361,7 +361,8 @@ internal static partial class Program
             new MemoryStream(extracted, writable: false));
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
-            if (!presentation.Resolve(zoom).SequenceEqual(TitleGradient.Decode(bus, zoom)))
+            if (!presentation.Resolve(zoom).SequenceEqual(
+                    TitleGradient.Decode(CartridgeImportSource.Require(bus), zoom)))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
         }
         VerifyTitleGradientValidation(extracted);
@@ -470,11 +471,23 @@ internal static partial class Program
     private sealed class TitlePresentationReadBus(
         ISnesAddressSpace source,
         HashSet<int> addresses,
-        bool forbidReads) : ISnesAddressSpace
+        bool forbidReads) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            TrackRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            TrackRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void TrackRead(int address)
         {
             if (forbidReads && addresses.Contains(address))
             {
@@ -484,7 +497,6 @@ internal static partial class Program
             }
             if (!forbidReads)
                 addresses.Add(address);
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

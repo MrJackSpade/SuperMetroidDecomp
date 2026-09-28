@@ -69,7 +69,7 @@ public static class RomDataReader
     /// <summary>
     /// Reads and decompresses one Super Metroid command stream beginning at a CPU address.
     /// </summary>
-    /// <param name="bus">Mapped cartridge address space.</param>
+    /// <param name="cartridge">Source of immutable cartridge bytes.</param>
     /// <param name="sourceAddress">First compressed byte in the upper LoROM window.</param>
     /// <param name="maximumCompressedBytes">
     /// Defensive input cap. Compressed data follows consecutive LoROM storage and may cross

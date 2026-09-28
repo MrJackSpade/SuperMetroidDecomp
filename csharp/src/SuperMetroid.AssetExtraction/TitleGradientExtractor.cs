@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -13,7 +14,8 @@ internal static class TitleGradientExtractor
         var variants = new TitleGradientVariant[TitleGradientFormat.VariantCount];
         for (int variant = 0; variant < variants.Length; variant++)
         {
-            TitleGradientLine[] decoded = TitleGradient.Decode(bus, checked((ushort)(variant << 4)));
+            TitleGradientLine[] decoded = TitleGradient.Decode(
+                CartridgeImportSource.Require(bus), checked((ushort)(variant << 4)));
             variants[variant] = new TitleGradientVariant
             {
                 ZoomHighNibble = variant,

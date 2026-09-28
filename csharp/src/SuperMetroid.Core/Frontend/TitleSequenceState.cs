@@ -439,7 +439,7 @@ public sealed class TitleSequenceState
 
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient() =>
         titleGradientPresentation is null
-            ? TitleGradient.Decode(bus, (ushort)zoom)
+            ? TitleGradient.Decode(CartridgeImportSource.Require(bus), (ushort)zoom)
             : titleGradientPresentation.Resolve((ushort)zoom);
 
     private void PrepareRenderOam()

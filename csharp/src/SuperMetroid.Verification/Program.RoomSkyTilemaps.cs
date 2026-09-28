@@ -242,9 +242,29 @@ internal static partial class Program
     }
 
     private sealed class SkyPageReadGuard(ISnesAddressSpace source,
-        bool blockLandingList = false) : ISnesAddressSpace
+        bool blockLandingList = false) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadByte(int address)
+        {
+            CheckRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            CheckRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Sky verification source requires WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Sky verification source requires SRAM.")).ReadSaveRamByte(address);
+
+        private void CheckRead(int address)
         {
             if (address >= RoomSkyTilemapFormat.FirstSourceAddress &&
                 address < RoomSkyTilemapFormat.FirstSourceAddress +
@@ -259,7 +279,6 @@ internal static partial class Program
                         .NativeByteCount)
                 throw new InvalidOperationException(
                     $"Landing Site entry reread compiled transfer list ${address:X6}.");
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

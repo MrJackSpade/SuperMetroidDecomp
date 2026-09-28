@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -36,10 +37,10 @@ public static class LandingSiteStreamingData
         ArgumentNullException.ThrowIfNull(bus);
 
         byte[] creDefinitions = metatileArt?.Cre.Transfer.ToArray() ??
-            DecompressExact(bus, RoomAssetRomData.LandingSite.CreBlockDefinitions);
+            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.CreBlockDefinitions);
         byte[] areaDefinitions = metatileArt?.Get(
                 RoomAssetRomData.LandingSite.AreaBlockDefinitions.Address).Transfer.ToArray() ??
-            DecompressExact(bus, RoomAssetRomData.LandingSite.AreaBlockDefinitions);
+            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.AreaBlockDefinitions);
         if (creDefinitions.Length != RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount)
             throw new InvalidDataException($"CRE block table expanded to ${creDefinitions.Length:X}, expected $800.");
 
@@ -48,7 +49,7 @@ public static class LandingSiteStreamingData
         areaDefinitions.CopyTo(combinedDefinitions, creDefinitions.Length);
 
         byte[] levelStream = visualLayouts is null
-            ? DecompressExact(bus, RoomAssetRomData.LandingSite.LevelData)
+            ? DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.LevelData)
             : RoomLevelStreamDefinitions.Get(RoomAssetRomData.LandingSite.LevelData.Address)
                 .ToArray();
         if (levelStream.Length < 2)
@@ -108,10 +109,10 @@ public static class LandingSiteStreamingData
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(entry);
         byte[] creTiles = characterArt?.Cre.Transfer.ToArray() ??
-            DecompressExact(bus, RoomAssetRomData.LandingSite.CreCharacters);
+            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.CreCharacters);
         byte[] areaTiles = characterArt?.Get(
                 RoomAssetRomData.LandingSite.AreaCharacters.Address).Transfer.ToArray() ??
-            DecompressExact(bus, RoomAssetRomData.LandingSite.AreaCharacters);
+            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.AreaCharacters);
         vram.LoadBytes(RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset, creTiles);
         vram.LoadBytes(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset, areaTiles);
 
@@ -129,20 +130,21 @@ public static class LandingSiteStreamingData
         }
         else
         {
+            IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
             var skyTilemap = new byte[entry.SkyByteCount];
             for (int index = 0; index < skyTilemap.Length; index++)
-                skyTilemap[index] = bus.ReadByte(entry.SkySourceAddress + index);
+                skyTilemap[index] = cartridge.ReadCartridgeByte(entry.SkySourceAddress + index);
             vram.LoadBytes(entry.SkyVramDestination * 2, skyTilemap);
         }
     }
 
     private static byte[] DecompressExact(
-        ISnesAddressSpace bus,
+        IImportCartridgeSource cartridge,
         RoomAssetRomData.BoundedCompressedAsset asset)
     {
         var stored = new byte[asset.StoredByteCount];
         for (int index = 0; index < stored.Length; index++)
-            stored[index] = bus.ReadByte(asset.Address + index);
+            stored[index] = cartridge.ReadCartridgeByte(asset.Address + index);
         return SmCompression.Decompress(stored);
     }
 

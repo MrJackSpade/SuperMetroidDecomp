@@ -11,11 +11,16 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public interface ISnesAddressSpace
 {
+#if !NO_UNTYPED_BUS_READS
+    // Temporary migration gate: build Core with NO_UNTYPED_BUS_READS to expose
+    // every remaining caller of the old ROM/WRAM/SRAM-multiplexed read API.
+    // Remove this member entirely when all callers use typed memory or assets.
     /// <summary>
     /// Reads a byte from a bank:offset CPU address in the inclusive range
     /// <c>$00:0000-$FF:FFFF</c>.
     /// </summary>
     byte ReadByte(int address);
+#endif
 
     /// <summary>
     /// Writes a byte to a mutable mapped region. Implementations must reject ROM and

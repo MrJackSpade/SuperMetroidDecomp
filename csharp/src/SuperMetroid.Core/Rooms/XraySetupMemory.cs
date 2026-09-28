@@ -19,11 +19,12 @@ public static class XraySetupMemory
     public const int RevealTilemap = 0x7E4000;
 
     /// <summary>Reads the frozen reveal map, never rebuilding it from subsequently changed room/VRAM data.</summary>
-    public static ushort[] ReadReveal(ISnesAddressSpace bus)
+    public static ushort[] ReadReveal(ISnesMutableMemory memory)
     {
         var words = new ushort[XrayTilemapLayout.BufferWords];
         for (int i = 0; i < words.Length; i++)
-            words[i] = (ushort)(bus.ReadByte(RevealTilemap + i * 2) | bus.ReadByte(RevealTilemap + i * 2 + 1) << 8);
+            words[i] = (ushort)(memory.ReadWorkRamByte(RevealTilemap + i * 2) |
+                memory.ReadWorkRamByte(RevealTilemap + i * 2 + 1) << 8);
         return words;
     }
 }

@@ -6,9 +6,10 @@ namespace SuperMetroid.Core.Audio;
 public static class SpcUploadStreamReader
 {
     /// <summary>Copies one terminated upload stream from contiguous LoROM file order.</summary>
-    public static byte[] Read(ISnesAddressSpace bus, int sourceAddress, bool includeExecutionAddress = false)
+    public static byte[] Read(IImportCartridgeSource cartridge, int sourceAddress,
+        bool includeExecutionAddress = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cartridge);
         if ((uint)sourceAddress > AudioRomData.SpcUpload.MaximumSnesAddress ||
             (sourceAddress & AudioRomData.SpcUpload.LoRomUpperWindowBit) == 0)
         {
@@ -22,21 +23,21 @@ public static class SpcUploadStreamReader
         int cursor = sourceAddress;
         while (bytes.Count < AudioRomData.SpcUpload.MaximumStreamBytes)
         {
-            ushort byteCount = ReadWord(bus, ref cursor, bytes);
+            ushort byteCount = ReadWord(cartridge, ref cursor, bytes);
             if (byteCount == 0)
             {
                 // Extraction retains the final SPC execution word; the managed driver
                 // does not need it when consuming an upload at runtime.
-                if (includeExecutionAddress) ReadWord(bus, ref cursor, bytes);
+                if (includeExecutionAddress) ReadWord(cartridge, ref cursor, bytes);
                 return [.. bytes];
             }
 
             // The destination word belongs to the wire stream even though only the SPC
             // player interprets it. Keep it byte-for-byte identical to ROM.
-            ReadByte(bus, ref cursor, bytes);
-            ReadByte(bus, ref cursor, bytes);
+            ReadByte(cartridge, ref cursor, bytes);
+            ReadByte(cartridge, ref cursor, bytes);
             for (int index = 0; index < byteCount; index++)
-                ReadByte(bus, ref cursor, bytes);
+                ReadByte(cartridge, ref cursor, bytes);
         }
 
         throw new InvalidDataException(
@@ -44,16 +45,18 @@ public static class SpcUploadStreamReader
             $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, ref int cursor, List<byte> bytes)
+    private static ushort ReadWord(IImportCartridgeSource cartridge, ref int cursor,
+        List<byte> bytes)
     {
-        byte low = ReadByte(bus, ref cursor, bytes);
-        byte high = ReadByte(bus, ref cursor, bytes);
+        byte low = ReadByte(cartridge, ref cursor, bytes);
+        byte high = ReadByte(cartridge, ref cursor, bytes);
         return unchecked((ushort)(low | (high << 8)));
     }
 
-    private static byte ReadByte(ISnesAddressSpace bus, ref int cursor, List<byte> bytes)
+    private static byte ReadByte(IImportCartridgeSource cartridge, ref int cursor,
+        List<byte> bytes)
     {
-        byte value = bus.ReadByte(cursor);
+        byte value = cartridge.ReadCartridgeByte(cursor);
         bytes.Add(value);
         cursor = AdvanceLoRom(cursor);
         return value;

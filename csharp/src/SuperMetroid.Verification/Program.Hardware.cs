@@ -565,6 +565,15 @@ static void VerifySuperMetroidAddressSpace()
     AssertEqual(0x80, bus.ReadByte(0x808000), "FastROM mirror first LoROM byte");
     AssertEqual(0x81, bus.ReadByte(0x818000), "next FastROM bank advances $8000 bytes");
     AssertEqual(0xc0, bus.ReadByte(0xc08000), "bank C0 maps to physical ROM $200000");
+    IImportCartridgeSource cartridge = bus;
+    AssertEqual(0x80, cartridge.ReadCartridgeByte(0x808000),
+        "import-only ROM reader returns the pinned upper-window byte");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => cartridge.ReadCartridgeByte(0x7e8000),
+        "import-only ROM reader rejects the physical WRAM bank");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => cartridge.ReadCartridgeByte(0x001234),
+        "import-only ROM reader rejects lower-window RAM mirrors");
     AssertEqual(0x200000, SuperMetroidAddressSpace.ToRomOffset(0xc08000), "native RomPtr mask mapping");
 
     bus.WriteByte(0x7e1234, 0x55);
@@ -573,10 +582,37 @@ static void VerifySuperMetroidAddressSpace()
     bus.WriteByte(0x7f1234, 0x66);
     AssertEqual(0x66, bus.ReadByte(0x7f1234), "second physical WRAM bank");
     AssertEqual(0x55, bus.ReadByte(0x7e1234), "WRAM banks remain independent");
+    ISnesMutableMemory mutable = bus;
+    AssertEqual(0x55, mutable.ReadWorkRamByte(0x7e1234),
+        "typed WRAM read returns the physical first bank");
+    AssertEqual(0x66, mutable.ReadWorkRamByte(0x7f1234),
+        "typed WRAM read returns the physical second bank");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => mutable.ReadWorkRamByte(0x808000),
+        "typed WRAM read rejects cartridge ROM");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => mutable.ReadWorkRamByte(0x001234),
+        "typed WRAM read requires an explicit physical bank, not an implicit mirror");
 
     bus.WriteByte(0x700123, 0x77);
     AssertEqual(0x77, bus.ReadByte(0x702123), "8 KiB SRAM offset mirror");
     AssertEqual(0x77, bus.ReadByte(0xf00123), "8 KiB SRAM bank mirror");
+    AssertEqual(0x77, mutable.ReadSaveRamByte(0x702123),
+        "typed SRAM read retains the physical 8 KiB mirror");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => mutable.ReadSaveRamByte(0x7e1234),
+        "typed SRAM read rejects WRAM");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => mutable.ReadSaveRamByte(0x708000),
+        "typed SRAM read rejects the bank's cartridge upper window");
+
+    var noCartridge = SuperMetroidAddressSpace.CreateWithoutCartridge();
+    noCartridge.WriteByte(0x7e1234, 0x98);
+    AssertEqual(0x98, ((ISnesMutableMemory)noCartridge).ReadWorkRamByte(0x7e1234),
+        "typed WRAM read works without a cartridge allocation");
+    AssertThrows<InvalidOperationException>(
+        () => ((IImportCartridgeSource)noCartridge).ReadCartridgeByte(0x808000),
+        "missing cartridge cannot be masked by the import-only reader");
 
     AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x808000, 0), "ROM writes rejected");
     AssertThrows<InvalidOperationException>(() => bus.ReadByte(0x004000), "unimplemented register/expansion read rejected");

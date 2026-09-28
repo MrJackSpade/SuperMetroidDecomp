@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Hardware;
 /// 3 MiB inside that possible 4 MiB LoROM window. An address falling in the unused final
 /// MiB throws rather than reading invented padding.
 /// </remarks>
-public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
+public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
+    IImportCartridgeSource
 {
     /// <summary>Super Metroid's unheadered retail ROM size.</summary>
     public const int RetailRomByteCount = 0x300000;
@@ -106,6 +107,7 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
         return new SuperMetroidAddressSpace(romBytes);
     }
 
+#if !NO_UNTYPED_BUS_READS
     /// <inheritdoc />
     public byte ReadByte(int address)
     {
@@ -152,6 +154,45 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
         // is therefore requesting an invalid mapping.
         throw new InvalidOperationException(
             $"CPU read ${bank:X2}:{offset:X4} is outside the runtime address map.");
+    }
+#endif
+
+    /// <inheritdoc />
+    public byte ReadWorkRamByte(int cpuAddress)
+    {
+        ValidateAddress(cpuAddress);
+        int bank = cpuAddress >> 16;
+        if (bank is not (0x7e or 0x7f))
+            throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
+                "Physical WRAM reads require bank $7E or $7F.");
+        return _workRam[(bank - 0x7e) * 0x10000 + (cpuAddress & 0xffff)];
+    }
+
+    /// <inheritdoc />
+    public byte ReadSaveRamByte(int cpuAddress)
+    {
+        ValidateAddress(cpuAddress);
+        int bank = cpuAddress >> 16;
+        int offset = cpuAddress & 0xffff;
+        if (!IsSaveRamBank(bank) || offset >= 0x8000)
+            throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
+                "SRAM reads require a lower-window bank $70-$7D or $F0-$FF address.");
+        return _saveRam[offset & 0x1fff];
+    }
+
+    /// <inheritdoc />
+    public byte ReadCartridgeByte(int cpuAddress)
+    {
+        ValidateAddress(cpuAddress);
+        int bank = cpuAddress >> 16;
+        if (bank is 0x7e or 0x7f || (cpuAddress & 0x8000) == 0)
+            throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
+                "Cartridge reads require an upper-window LoROM address outside WRAM banks.");
+        int offset = ToRomOffset(cpuAddress);
+        if ((uint)offset >= _rom.Length)
+            throw new InvalidOperationException(
+                $"Cartridge address ${bank:X2}:{cpuAddress & 0xffff:X4} is not populated.");
+        return _rom[offset];
     }
 
     /// <summary>

@@ -24,7 +24,10 @@ public static partial class GameplayDisplayCapture
         var registers = ordinary.Registers;
         if (reveal)
         {
-            ushort[] map = XraySetupMemory.ReadReveal(runtime.AddressSpace);
+            ISnesMutableMemory mutableMemory = runtime.AddressSpace as ISnesMutableMemory ??
+                throw new InvalidOperationException(
+                    "X-ray display requires a WRAM-capable runtime address space.");
+            ushort[] map = XraySetupMemory.ReadReveal(mutableMemory);
             for (int i = 0; i < map.Length; i++)
             {
                 int offset = (SnesPpuLayout.GameplayBg2TilemapWord + i) * 2;

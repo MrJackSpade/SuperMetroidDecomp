@@ -2484,6 +2484,11 @@ if (args is ["--xray-input"])
     VerifyXrayInput();
     return 0;
 }
+if (args is ["--mutable-memory-boundary"])
+{
+    VerifySuperMetroidAddressSpace();
+    return 0;
+}
 if (args is ["--xray-setup"])
 {
     VerifyXraySetupBuffers();

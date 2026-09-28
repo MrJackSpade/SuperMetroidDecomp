@@ -80,9 +80,24 @@ engine-owned hitbox lists. The verifier compares all fields to the pinned
 cartridge, checks that version-eighteen artwork overrides inherit the new
 frames, and confirms an art edit cannot move a physical component. The
 installed-assets replay now observes that orb program and matches native
-pixels for 568 active gameplay frames. At frame 568 it reaches the other
-landing choice, `$AA:CCDB`, the right-facing sonic-boom program. That alternate
-branch and the remaining battle are not yet ROM-free.
+pixels for 568 active gameplay frames. A later audit found that the apparent
+`$AA:CCDB` boundary at frame 568 was an eager read of the word after the
+operand-free `$AA:CCD9` return, not an actual sonic-boom attack. The dispatcher
+now reads Torizo operands only when their callbacks use them, and a synthetic
+zero-ROM return at `$AA:F000` rejects the old erroneous `$AA:F002` prefetch.
+
+Both right-facing sonic-boom lists at `$AA:CCDB-CDAE` now have 66 compiled
+instruction-control words and 40 separate visual-selector occurrences. Their
+22 distinct selected frames include the already-editable orb frame `$AA:AC88`;
+the other 21 have newly editable OAM definitions and independent compiled
+physical components. Fourteen hitbox lists are checked field-by-field against
+the pinned ROM. Version-nineteen artwork overrides inherit the new frames,
+and a visual edit leaves the physical component unchanged. The neutral-input
+zero-ROM Golden Torizo replay matches native pixels for 624 active gameplay
+frames, but does not enter either sonic-boom list; at frame 624 it reaches
+the uncompiled eye-beam attack at `$AA:D10D`. Separate 90-frame zero-ROM
+comparisons explicitly seed each right-facing sonic-boom list and assert its
+execution with native pixel parity. Other choices and the full fight remain.
 
 ## Cartridge-free frontend proof (2026-09-27)
 

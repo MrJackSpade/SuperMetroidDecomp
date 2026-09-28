@@ -3721,6 +3721,10 @@ public sealed partial class RoomEnemySystem
                 address, out ushort goldenRightOrbWord))
             return goldenRightOrbWord;
         if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            GoldenTorizoRightSonicInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort goldenRightSonicWord))
+            return goldenRightSonicWord;
+        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
             GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort goldenInitialWord))
             return goldenInitialWord;

@@ -27,13 +27,27 @@ public sealed partial class RoomEnemySystem
             return false;
 
         TorizoEnemyState state = RequireBombTorizoState(torizo);
-        ushort operand0 = ReadEnemyInstructionMechanicsWord(
-            torizo, unchecked((ushort)(cursor + 2)));
+        // A large fraction of bank-$AA callbacks have no operands. Reading the
+        // following word before dispatch also reads the next list after a
+        // return, and makes a cartridge-free run depend on an unrelated list.
+        // Capture this address before any branch mutates the ref cursor.
+        ushort operandAddress = unchecked((ushort)(cursor + 2));
+        ushort operand0 = 0;
+        bool operand0Read = false;
+        ushort ReadOperand0()
+        {
+            if (!operand0Read)
+            {
+                operand0 = ReadEnemyInstructionMechanicsWord(torizo, operandAddress);
+                operand0Read = true;
+            }
+            return operand0;
+        }
 
         switch (opcode)
         {
             case TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY:
-                state.PreInstruction = operand0;
+                state.PreInstruction = ReadOperand0();
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -43,7 +57,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_FunctionInY:
-                state.Function = operand0;
+                state.Function = ReadOperand0();
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -116,7 +130,7 @@ public sealed partial class RoomEnemySystem
                 ushort operand1 = ReadEnemyInstructionMechanicsWord(
                     torizo, unchecked((ushort)(cursor + 4)));
                 if ((torizo.Parameter2 & 0x4000) != 0)
-                    cursor = operand0;
+                    cursor = ReadOperand0();
                 else if (state.IsGolden)
                     cursor = operand1;
                 else
@@ -125,7 +139,7 @@ public sealed partial class RoomEnemySystem
             }
 
             case TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY:
-                state.ReturnInstruction = operand0;
+                state.ReturnInstruction = ReadOperand0();
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -139,7 +153,7 @@ public sealed partial class RoomEnemySystem
 
             case TorizoInstructionCodes.Instruction_Torizo_Spawn5LowHealthExplosion_SleepFor28Frames:
                 for (int explosion = 0; explosion < 6; explosion++)
-                    SpawnBombTorizoLowHealthExplosion(torizo, operand0);
+                    SpawnBombTorizoLowHealthExplosion(torizo, ReadOperand0());
                 torizo.CurrentInstruction = unchecked((ushort)(cursor + 4));
                 torizo.FlashTimer = 40;
                 torizo.InstructionTimer = 40;
@@ -199,12 +213,12 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_StandingUpMovement_IndexInY:
-                ApplyBombTorizoMapOffset(torizo, operand0, subtract: false);
+                ApplyBombTorizoMapOffset(torizo, ReadOperand0(), subtract: false);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SittingDownMovement_IndexInY:
-                ApplyBombTorizoMapOffset(torizo, operand0, subtract: true);
+                ApplyBombTorizoMapOffset(torizo, ReadOperand0(), subtract: true);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -215,7 +229,7 @@ public sealed partial class RoomEnemySystem
                     samus,
                     RequireBombTorizoLevel(level),
                     cursor,
-                    operand0,
+                    ReadOperand0(),
                     collisionFacingRight: 0xb962,
                     collisionFacingLeft: 0xbdd8);
                 return true;
@@ -227,14 +241,14 @@ public sealed partial class RoomEnemySystem
                     samus,
                     RequireBombTorizoLevel(level),
                     cursor,
-                    operand0,
+                    ReadOperand0(),
                     collisionFacingRight: 0xbd0e,
                     collisionFacingLeft: 0xc188);
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_GotoY_IfRising:
                 cursor = unchecked((short)state.VerticalVelocity) < 0
-                    ? operand0
+                    ? ReadOperand0()
                     : unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -244,7 +258,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     samus,
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_GotoYAndJumpBackwardsIfLessThan20Pixels:
@@ -253,7 +267,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     samus,
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack:
@@ -265,7 +279,7 @@ public sealed partial class RoomEnemySystem
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
                 bool chooseFirst = samus.Missiles < 5 ||
                     ((nmiFrameCounter8 + (samus.XPosition & 1) + (samus.XPosition >> 1)) & 8) != 0;
-                cursor = chooseFirst ? operand0 : operand1;
+                cursor = chooseFirst ? ReadOperand0() : operand1;
                 return true;
             }
 
@@ -277,17 +291,17 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SpawnBombTorizoSonicBoomWithParameterY:
-                SpawnBombTorizoSonicBoom(torizo, operand0);
+                SpawnBombTorizoSonicBoom(torizo, ReadOperand0());
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SpawnGoldenTorizoSonicBoomWithParameterY:
-                SpawnGoldenTorizoSonicBoom(torizo, operand0);
+                SpawnGoldenTorizoSonicBoom(torizo, ReadOperand0());
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SpawnBombTorizoExplosiveSwipeWithParamY:
-                SpawnBombTorizoExplosiveSwipe(torizo, operand0);
+                SpawnBombTorizoExplosiveSwipe(torizo, ReadOperand0());
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -306,7 +320,7 @@ public sealed partial class RoomEnemySystem
             case TorizoInstructionCodes.Instruction_Torizo_GotoY_IfNotHitGround:
                 cursor = torizo.YPosition == 375
                     ? unchecked((ushort)(cursor + 4))
-                    : operand0;
+                    : ReadOperand0();
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_LoadGoldenTorizoPalettes:
@@ -336,7 +350,7 @@ public sealed partial class RoomEnemySystem
             case TorizoInstructionCodes.Instruction_GoldenTorizo_EyeBeamAttack_0:
                 cursor = EnemyProjectiles.Any(projectile =>
                         projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
-                    ? operand0
+                    ? ReadOperand0()
                     : unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -384,11 +398,11 @@ public sealed partial class RoomEnemySystem
                     state,
                     samus,
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnEyeBeam:
-                SpawnGoldenTorizoEyeBeam(torizo, operand0);
+                SpawnGoldenTorizoEyeBeam(torizo, ReadOperand0());
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -398,7 +412,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     samus,
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789:
@@ -408,7 +422,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.DecisionCounter = 0;
                     state.ReturnInstruction = unchecked((ushort)(cursor + 4));
-                    cursor = operand0;
+                    cursor = ReadOperand0();
                 }
                 return true;
 
@@ -418,7 +432,7 @@ public sealed partial class RoomEnemySystem
                 else
                 {
                     state.ReturnInstruction = unchecked((ushort)(cursor + 4));
-                    cursor = operand0;
+                    cursor = ReadOperand0();
                 }
                 return true;
 
@@ -429,7 +443,7 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput,
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnChozoOrbs:
@@ -443,7 +457,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     samus,
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack:
@@ -455,7 +469,7 @@ public sealed partial class RoomEnemySystem
                 bool chooseFirst = activeSamus.Missiles < 0x20 ||
                     ((nmiFrameCounter8 + (activeSamus.XPosition & 1) +
                         (activeSamus.XPosition >> 1)) & 8) != 0;
-                cursor = chooseFirst ? operand0 : operand1;
+                cursor = chooseFirst ? ReadOperand0() : operand1;
                 return true;
             }
 
@@ -466,7 +480,7 @@ public sealed partial class RoomEnemySystem
                     samus,
                     RequireBombTorizoLevel(level),
                     cursor,
-                    operand0);
+                    ReadOperand0());
                 return true;
 
             default:

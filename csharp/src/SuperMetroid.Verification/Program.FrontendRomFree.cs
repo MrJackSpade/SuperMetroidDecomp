@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
+using System.Reflection;
 
 internal static partial class Program
 {
@@ -254,8 +255,8 @@ internal static partial class Program
                 // lists. The older 700-frame low-health check reached Game Over
                 // and its trailing pixel matches did not exercise the room.
                 VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo wake and first orb attack",
-                    frameCount: 568,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo wake and right-facing attacks",
+                    frameCount: 624,
                     setup: (nativeRoom, installedRoom) =>
                     {
                         // Enter the authored lower-right wake rectangle on both
@@ -268,6 +269,37 @@ internal static partial class Program
                         nativeRoom.RuntimeForVerification.ApplyHostOptions(options);
                         installedRoom.RuntimeForVerification.ApplyHostOptions(options);
                     });
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo left-foot right-sonic program",
+                    frameCount: 90,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
+                        {
+                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
+                                slot => slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                            boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
+                            boss.InstructionTimer = 1;
+                        }
+                    },
+                    forcedGoldenSonicStart:
+                        GoldenTorizoRightSonicInstructionProgramDefinitions.Start);
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo right-foot right-sonic program",
+                    frameCount: 90,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
+                        {
+                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
+                                slot => slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                            boss.CurrentInstruction =
+                                GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
+                            boss.InstructionTimer = 1;
+                        }
+                    },
+                    forcedGoldenSonicStart:
+                        GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
@@ -405,7 +437,8 @@ internal static partial class Program
     private static void VerifyFrontendRomFreeRoom(
         SuperMetroidGame native, SuperMetroidGame installed,
         ushort roomPointer, string roomName, int frameCount = 90,
-        Action<SuperMetroidGame, SuperMetroidGame>? setup = null)
+        Action<SuperMetroidGame, SuperMetroidGame>? setup = null,
+        ushort? forcedGoldenSonicStart = null)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
@@ -429,13 +462,18 @@ internal static partial class Program
                 slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition)
             : null;
         if (roomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
+        {
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
+            VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
+                installed.RuntimeForVerification.Enemies, awakenedGoldenTorizo!);
+        }
         bool goldenWakeObserved = false;
         bool goldenWalkingObserved = false;
         bool goldenRightwardObserved = false;
         bool goldenJumpBackObserved = false;
         bool goldenRightOrbObserved = false;
+        bool forcedGoldenSonicObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -490,6 +528,14 @@ internal static partial class Program
                 awakenedGoldenTorizo.CurrentInstruction <
                     GoldenTorizoRightOrbInstructionProgramDefinitions.End)
                 goldenRightOrbObserved = true;
+            if (awakenedGoldenTorizo is not null &&
+                forcedGoldenSonicStart is ushort sonicStart &&
+                awakenedGoldenTorizo.CurrentInstruction >= sonicStart &&
+                awakenedGoldenTorizo.CurrentInstruction <
+                    (sonicStart == GoldenTorizoRightSonicInstructionProgramDefinitions.Start
+                        ? GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward
+                        : GoldenTorizoRightSonicInstructionProgramDefinitions.End))
+                forcedGoldenSonicObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -564,15 +610,45 @@ internal static partial class Program
         }
         if (awakenedGoldenTorizo is not null)
         {
+            if (forcedGoldenSonicStart is not null)
+            {
+                AssertTrue(forcedGoldenSonicObserved &&
+                           installed.GameState == SuperMetroidGameState.MainGameplay,
+                    "forced Golden Torizo fixture executes the sonic program in active gameplay");
+                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                return;
+            }
             AssertTrue(goldenWakeObserved,
                 "Golden Torizo wake-up fixture actually advances beyond the initial sleep");
             AssertTrue(goldenWalkingObserved && goldenRightwardObserved &&
                        goldenJumpBackObserved && goldenRightOrbObserved &&
                        installed.GameState == SuperMetroidGameState.MainGameplay,
                 "Golden Torizo wake-up parity crosses walking-left and turning-right " +
-                "and jump-back orb attack while gameplay remains active");
+                "and the first right-facing orb attack while gameplay remains active");
         }
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+    }
+
+    /// <summary>
+    /// A synthetic return cursor intentionally sits outside all compiled
+    /// Torizo lists. A previous eager operand prefetch tried to read the
+    /// nonexistent following word even though this opcode has no operand.
+    /// The installed room's zero-ROM bus makes that exact mistake observable.
+    /// </summary>
+    private static void VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
+        RoomEnemySystem enemies, RoomEnemySlot torizo)
+    {
+        MethodInfo callback = typeof(RoomEnemySystem).GetMethod(
+            "TryProcessBombTorizoInstruction",
+            BindingFlags.Instance | BindingFlags.NonPublic) ??
+            throw new InvalidOperationException("Torizo callback dispatcher was not found.");
+        object?[] arguments =
+        [
+            torizo, null, null, TorizoInstructionCodes.Instruction_Torizo_Return,
+            (ushort)0xf000, (ushort)0, (byte)0, false,
+        ];
+        AssertTrue(callback.Invoke(enemies, arguments) is true,
+            "operand-free Torizo return executes without reading $AA:F002");
     }
 
     private sealed class FrontendCartridgeReadGuard(

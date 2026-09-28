@@ -47,7 +47,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreTorizoJumpBackFrameCount = 370;
     internal const int PreGoldenTorizoRightOrbVersion = 18;
     internal const int PreGoldenTorizoRightOrbFrameCount = 373;
-    internal const int Version = 19;
+    internal const int PreGoldenTorizoRightSonicVersion = 19;
+    internal const int PreGoldenTorizoRightSonicFrameCount = 379;
+    internal const int Version = 20;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -69,6 +71,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int GoldenTorizoRightwardFrameCount = 11;
     internal const int TorizoJumpBackFrameCount = 3;
     internal const int GoldenTorizoRightOrbFrameCount = 6;
+    internal const int GoldenTorizoRightSonicFrameCount = 21;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
@@ -79,7 +82,7 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoInitialFrameCount + KraidArmFrameCount +
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
-        GoldenTorizoRightOrbFrameCount;
+        GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -401,6 +404,29 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Golden Torizo right-orb selects {rightOrbPointers.Count} " +
                 $"distinct visual frames, expected {GoldenTorizoRightOrbFrameCount}.");
+        if (frames.Count != PreGoldenTorizoRightSonicFrameCount)
+            throw new InvalidDataException("Golden Torizo right-sonic frame prefix changed.");
+        // AC88 is already the orb attack's editable frame; the sonic list
+        // intentionally reuses that identity instead of adding a duplicate.
+        var rightSonicPointers = new HashSet<ushort> { 0xac88 };
+        for (int index = 0;
+             index < GoldenTorizoRightSonicInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = GoldenTorizoRightSonicInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
+                    out ushort pointer))
+                throw new InvalidDataException(
+                    $"Golden Torizo right-sonic visual operand $AA:{operand:X4} is not compiled.");
+            if (rightSonicPointers.Add(pointer))
+                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                    $"golden_torizo_right_sonic_{pointer:X4}"));
+        }
+        if (rightSonicPointers.Count - 1 != GoldenTorizoRightSonicFrameCount)
+            throw new InvalidDataException(
+                $"Golden Torizo right-sonic selects {rightSonicPointers.Count - 1} " +
+                $"new visual frames, expected {GoldenTorizoRightSonicFrameCount}.");
         return frames.ToArray();
     }
 }

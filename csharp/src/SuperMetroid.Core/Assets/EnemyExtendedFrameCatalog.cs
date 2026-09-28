@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount,
             EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount,
@@ -237,7 +240,9 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardVersion
-            or EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion)
+            or EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion
+            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion
+            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)

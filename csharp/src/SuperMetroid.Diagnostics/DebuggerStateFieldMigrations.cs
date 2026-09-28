@@ -131,6 +131,18 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy projectile slot lacks combo auxiliary phase; restoring its initial phase.");
             return current.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField").ToArray();
         }
+        if (type == typeof(RoomEnemyProjectileSlot) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<PresentationOperandAddress>k__BackingField"))
+        {
+            // The installed bank-$8D artwork identity was added after older captures.
+            // Zero keeps their saved native spritemap pointer authoritative until the
+            // next projectile instruction selects a new visual operand.
+            Console.Error.WriteLine(
+                "WARNING: Legacy enemy projectile lacks installed visual-frame identity; " +
+                "retaining its saved native spritemap until the next instruction.");
+            return current.Where(field =>
+                field.Name != "<PresentationOperandAddress>k__BackingField").ToArray();
+        }
         if (type == typeof(SamusProjectileSystem) && count == 16 && current.Length == 17)
         {
             Console.Error.WriteLine("WARNING: Legacy projectile owner predates charge-combo state; restoring no combo pending.");
@@ -202,6 +214,19 @@ internal static class DebuggerStateFieldMigrations
             // setup supplies the coordinates if the player is subsequently caught.
             Console.Error.WriteLine("WARNING: Legacy PLM slot lacks plant-held coordinates; restoring zero until a new capture setup.");
             return current.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not "<PlantHeldY>k__BackingField").ToArray();
+        }
+        if (type.FullName == "SuperMetroid.Core.Rooms.RoomPlmSystem+ScrollPlmState" &&
+            count == 1 && current.Length == 2 &&
+            current.Any(field => field.Name == "<UseCompiledRetailProgram>k__BackingField"))
+        {
+            // Older snapshots still retain their cartridge and used the native
+            // byte-pair reader. Do not claim compiled ownership for a PLM state
+            // that was created before the population classifier existed.
+            Console.Error.WriteLine(
+                "WARNING: Legacy scroll PLM predates compiled retail data; " +
+                "retaining its cartridge-backed instruction path.");
+            return current.Where(field =>
+                field.Name != "<UseCompiledRetailProgram>k__BackingField").ToArray();
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
             count == 47 && current.Length == 48 && current.Any(field => field.Name == "menuRandom"))

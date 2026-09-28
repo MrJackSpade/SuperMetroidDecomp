@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Yard crawling, turning, hiding, and airborne compositions (2026-09-27)
+
+Yard's 112 bank-`$A3` presentation operands now select 104 distinct, named
+and editable OAM compositions. Asset names follow the native instruction-list
+pose and frame order; eight repeated pointers reuse their first stable name.
+Movement, turning, hiding, and jump callbacks and all durations remain compiled
+mechanics. The verifier checks every selector and complete OAM output against
+the pinned cartridge, executes all 112 real selection paths with visual ROM
+reads forbidden, and checks version-58 override inheritance. The compiled
+selector census now covers 4,496 addresses. Isolated room `$8F:D5A7` matches
+native pixels for 90 neutral frames with all runtime cartridge reads blocked.
+This does not complete the broader enemy-art or ROM-free integration issues.
+
 ## Powered and unpowered Work Robot compositions (2026-09-27)
 
 The 227 bank-`$A8` Work Robot presentation operands now map through the

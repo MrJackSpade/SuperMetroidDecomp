@@ -352,8 +352,12 @@ internal static partial class Program
             "Evir adds 24 body, arms, and projectile compositions");
         AssertEqual(EnemySpritemapDefinitions.PreWorkRobotFrameCount +
                 WorkRobotVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreYardFrameCount,
             "Work Robot adds 27 powered and unpowered compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreYardFrameCount +
+                YardVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Yard adds 104 crawling, turn, hiding, and airborne compositions");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -626,6 +630,7 @@ internal static partial class Program
         VerifyInstalledMochtroidVisuals(rom, stock);
         VerifyInstalledEvirVisuals(rom, stock);
         VerifyInstalledWorkRobotVisuals(rom, stock);
+        VerifyInstalledYardVisuals(rom, stock);
         VerifyInstalledBeetomInstructionFrames(rom, stock);
         VerifyInstalledHopperInstructionFrames(rom, stock);
         VerifyInstalledChootInstructionFrames(rom, stock);
@@ -1044,6 +1049,8 @@ internal static partial class Program
                         ? RoomEnemySystem.WorkRobotNoPowerDefinition
                     : frame.Name.StartsWith("work_robot_", StringComparison.Ordinal)
                         ? RoomEnemySystem.WorkRobotDefinition
+                    : frame.Name.StartsWith("yard_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.YardDefinition
                     : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
                         ? RoomEnemySystem.SciserDefinition
                     : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
@@ -1180,12 +1187,36 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        HashSet<string> yardNames = YardVisualDefinitions.Frames()
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
+        var preYardFrames = document.Frames
+            .Where(pair => !yardNames.Contains(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var preYardBindings = document.DisplayFrames!
+            .Where(pair => preYardFrames.ContainsKey(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        AssertEqual(EnemySpritemapDefinitions.PreYardFrameCount,
+            preYardFrames.Count, "version-fifty-eight composition schema count");
+        using (var preYardJson = new MemoryStream(
+            JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
+            {
+                Version = EnemySpritemapDefinitions.PreYardVersion,
+                Frames = preYardFrames,
+                DisplayFrames = preYardBindings,
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
+        {
+            EnemySpritemapCatalog yardUpgraded = EnemySpritemapCatalog.Load(
+                preYardJson, stock.Spritemaps);
+            foreach (EnemySpritemapDefinition frame in YardVisualDefinitions.Frames())
+                AssertTrue(yardUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+                    $"version-fifty-eight override inherits {frame.Name}");
+        }
         HashSet<string> robotNames = WorkRobotVisualDefinitions.Frames()
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        var preRobotFrames = document.Frames
+        var preRobotFrames = preYardFrames
             .Where(pair => !robotNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var preRobotBindings = document.DisplayFrames!
+        var preRobotBindings = preYardBindings
             .Where(pair => preRobotFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreWorkRobotFrameCount,
@@ -2357,6 +2388,7 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
+                !pair.Key.StartsWith("yard_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("work_robot_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("evir_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("mochtroid_", StringComparison.Ordinal) &&
@@ -3608,6 +3640,8 @@ internal static partial class Program
                     : definition is RoomEnemySystem.WorkRobotDefinition or
                         RoomEnemySystem.WorkRobotNoPowerDefinition
                         ? WorkRobotVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.YardDefinition
+                        ? YardVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ShaktoolDefinition
                         ? ShaktoolVisualDefinitions.Bank
                     : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer

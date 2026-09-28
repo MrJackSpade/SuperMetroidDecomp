@@ -47,16 +47,11 @@ internal static class WorkRobotVisualDefinitions
     /// <summary>Resolves only the 227 authored Work Robot presentation operands.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
-        for (int index = 0;
-             index < WorkRobotInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            if (WorkRobotInstructionProgramDefinitions.PresentationWordAddress(index) ==
-                    operandAddress &&
-                CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                    out ushort frame))
-                return frame;
-        }
+        if (WorkRobotInstructionProgramDefinitions.IsPresentationWordAddress(
+                operandAddress) &&
+            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
+                out ushort frame))
+            return frame;
         throw new InvalidDataException(
             $"Work Robot visual operand $A8:{operandAddress:X4} is not compiled.");
     }

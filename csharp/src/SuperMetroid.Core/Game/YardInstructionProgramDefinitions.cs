@@ -1,5 +1,9 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>One compiled Yard control word at its bank-$A3 address.</summary>
+internal readonly record struct YardInstructionMechanicsWord(
+    ushort Address, ushort Value);
+
 /// <summary>
 /// Compiled simulation control for Yard's bank-$A3 crawling, turn, hiding, and airborne
 /// instruction programs. Interleaved spritemap operands remain live cartridge presentation.
@@ -129,7 +133,23 @@ internal static class YardInstructionProgramDefinitions
     ];
 
     internal const int MechanicsWordCount = 328;
-    internal const int PresentationWordCount = 112;
+    internal static int PresentationWordCount => 112;
+
+    internal static YardInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        for (int wordIndex = 0; wordIndex < Words.Length; wordIndex++)
+        {
+            int value = Words[wordIndex];
+            if (value == PresentationOperand)
+                continue;
+            if (index-- == 0)
+                return new(unchecked((ushort)(FirstWordAddress + wordIndex * 2)),
+                    unchecked((ushort)value));
+        }
+        throw new InvalidOperationException("Yard mechanics-word index is inconsistent.");
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
@@ -154,6 +174,15 @@ internal static class YardInstructionProgramDefinitions
                 return unchecked((ushort)(FirstWordAddress + wordIndex * 2));
         }
         throw new InvalidOperationException("Yard presentation-word index is inconsistent.");
+    }
+
+    /// <summary>Tests one native operand without scanning the full dense program.</summary>
+    internal static bool IsPresentationWordAddress(ushort address)
+    {
+        int byteOffset = address - FirstWordAddress;
+        return byteOffset >= 0 && address < EndAddress &&
+               (byteOffset & 1) == 0 &&
+               Words[byteOffset >> 1] == PresentationOperand;
     }
 
     internal static bool IsCompiledMechanicsByte(int address)

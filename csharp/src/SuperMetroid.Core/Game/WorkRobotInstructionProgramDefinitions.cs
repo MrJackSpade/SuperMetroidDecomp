@@ -160,6 +160,15 @@ internal static class WorkRobotInstructionProgramDefinitions
         throw new InvalidOperationException("Work Robot presentation-word index is inconsistent.");
     }
 
+    /// <summary>Tests one native operand without scanning the full dense program.</summary>
+    internal static bool IsPresentationWordAddress(ushort address)
+    {
+        int byteOffset = address - FirstWordAddress;
+        return byteOffset >= 0 && address < EndAddress &&
+               (byteOffset & 1) == 0 &&
+               Words[byteOffset >> 1] == PresentationOperand;
+    }
+
     internal static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)

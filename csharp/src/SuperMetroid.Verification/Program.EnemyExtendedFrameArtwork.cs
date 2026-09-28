@@ -327,7 +327,7 @@ internal static partial class Program
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -400,7 +400,7 @@ internal static partial class Program
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -423,14 +423,14 @@ internal static partial class Program
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("ridley_body_", StringComparison.Ordinal) &&
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key))
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -463,13 +463,13 @@ internal static partial class Program
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !IsBankA5ExtendedFrameName(entry.Key) &&
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key))
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -497,13 +497,13 @@ internal static partial class Program
         var versionSixFrames = beforeSporeIdentity.Frames
             .Where(entry => !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key))
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key))
             .ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
                 entry => entry.Value, StringComparer.Ordinal);
         var versionSixBindings = beforeSporeIdentity.DisplayFrames!
             .Where(entry => !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key))
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key))
             .ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
                 entry => LegacyExtendedFrameName(entry.Value),
                 StringComparer.Ordinal);
@@ -547,12 +547,12 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !IsCeresSteamExtendedFrameName(entry.Key) &&
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -574,11 +574,11 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreOumVersion,
             Frames = document.Frames.Where(entry =>
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !IsOumExtendedFrameName(entry.Key) &&
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -599,10 +599,10 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreCrocomireVersion,
             Frames = document.Frames.Where(entry =>
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !IsCrocomireExtendedFrameName(entry.Key)).ToDictionary(
+                !IsCrocomireOrNewerExtendedFrameName(entry.Key)).ToDictionary(
                     entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -623,11 +623,13 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion,
             Frames = document.Frames.Where(entry =>
-                !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -640,6 +642,39 @@ internal static partial class Program
             stockDirectory, overrideDirectory);
         AssertTrue(upgradedVersionTen.ExtendedFrames!.TryGetDisplay(0xa4, 0xc2ec, out _),
             "version-ten override inherits Crocomire's mixed fight-body OAM");
+
+        var versionEleven = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreBombTorizoVersion,
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        AssertEqual(EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount,
+            versionEleven.Frames.Count, "version-eleven extended-frame schema count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionEleven, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionEleven = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer stockDormantTorizo = DrawExtendedForBank(stock, guard,
+            0xaa, 0x87d0, 0x0040, 0x0080);
+        OamBuffer inheritedDormantTorizo = DrawExtendedForBank(
+            upgradedVersionEleven, guard, 0xaa, 0x87d0, 0x0040, 0x0080);
+        AssertTrue(stockDormantTorizo.LowTable.SequenceEqual(
+                       inheritedDormantTorizo.LowTable) &&
+                   stockDormantTorizo.HighTable.SequenceEqual(
+                       inheritedDormantTorizo.HighTable),
+            "version-eleven override inherits verified stock dormant Torizo art");
+        AssertTrue(DrawExtended(upgradedVersionEleven, guard,
+                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedOam.LowTable),
+            "version-eleven migration retains an edited Pirate frame");
 
         EnemyExtendedFrameDocument sporeVisualRemap =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -857,9 +892,10 @@ internal static partial class Program
     private static bool IsOumExtendedFrameName(string name) =>
         name.StartsWith("oum_oam_", StringComparison.Ordinal);
 
-    private static bool IsCrocomireExtendedFrameName(string name) =>
+    private static bool IsCrocomireOrNewerExtendedFrameName(string name) =>
         name.StartsWith("crocomire_oam_", StringComparison.Ordinal) ||
-        name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal);
+        name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) ||
+        name.StartsWith("bomb_torizo_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)

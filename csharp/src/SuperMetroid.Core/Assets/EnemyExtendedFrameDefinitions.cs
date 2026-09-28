@@ -8,7 +8,8 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
-/// Maridia's Oum snail, and Crocomire's tongue and fight-body composite frames.
+/// Maridia's Oum snail, Crocomire's tongue and fight-body composite frames,
+/// and Bomb Torizo's dormant statue frame.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -29,7 +30,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreCrocomireFrameCount = 260;
     internal const int PreCrocomireBodyVersion = 10;
     internal const int PreCrocomireBodyFrameCount = 269;
-    internal const int Version = 11;
+    internal const int PreBombTorizoVersion = 11;
+    internal const int PreBombTorizoFrameCount = 319;
+    internal const int Version = 12;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -43,13 +46,14 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int OumFrameCount = 30;
     internal const int CrocomireOamFrameCount = 9;
     internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
+    internal const int BombTorizoDormantFrameCount = 1;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
         PirateFrameCount + RidleyFrameCount +
         DraygonOamFrameCount + SporeSpawnOamFrameCount +
         CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
-        CrocomireBodyFrameCount;
+        CrocomireBodyFrameCount + BombTorizoDormantFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -237,6 +241,10 @@ internal static class EnemyExtendedFrameDefinitions
             frames.Add(new EnemyExtendedFrameDefinition(
                 CrocomireBodyVisualDefinitions.Bank,
                 pointer, $"crocomire_body_oam_{pointer:X4}"));
+        if (frames.Count != PreBombTorizoFrameCount)
+            throw new InvalidDataException("Bomb Torizo extended-frame prefix changed.");
+        frames.Add(new EnemyExtendedFrameDefinition(0xaa, 0x87d0,
+            "bomb_torizo_dormant"));
         return frames.ToArray();
     }
 }

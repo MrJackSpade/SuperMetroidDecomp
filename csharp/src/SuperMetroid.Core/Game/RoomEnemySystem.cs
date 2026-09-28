@@ -3666,6 +3666,14 @@ public sealed partial class RoomEnemySystem
         Justification = "The instance interpreter owns this dispatcher and tests replace it by reflection.")]
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
+        // The dormant entry is compiled independently from Torizo's later
+        // awakening/combat lists. Those still use the cartridge until their
+        // complete control-flow and visual-frame catalogs are installed.
+        if (slot.EnemyDefinitionPointer == BombTorizoDefinition &&
+            BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort dormantWord))
+            return dormantWord;
+
         if (slot.EnemyDefinitionPointer is
             GunshipEnemyDefinitions.Top or
             GunshipEnemyDefinitions.BottomEntrance)

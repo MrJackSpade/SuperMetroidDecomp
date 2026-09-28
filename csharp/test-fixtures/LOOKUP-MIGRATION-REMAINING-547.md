@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Bomb Torizo dormant entry and initial extended frame (2026-09-27)
+
+The six mechanics words in the initial bank-`$AA:B879` program through its
+first sleep are compiled separately from the later fight lists. Its one visual
+operand selects a named, editable `$AA:87D0` extended OAM frame. The frame's
+empty `$AA:87C7` hitbox list is engine-owned collision data, not part of the
+editable art. The test compares all six control words, selector, extended OAM
+at three origins, and empty collision identity to the pinned cartridge; a
+version-11 override inherits the new stock frame without losing an older edit.
+Isolated Bomb Torizo room `$8F:9804` matches native pixels for 90 neutral
+frames with every runtime cartridge read blocked. This covers only the dormant
+entry. The awakening/fight scripts and Golden Torizo remain uncompiled.
+
 ## Yard crawling, turning, hiding, and airborne compositions (2026-09-27)
 
 Yard's 112 bank-`$A3` presentation operands now select 104 distinct, named

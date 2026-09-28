@@ -2996,6 +2996,16 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
+            enemy.Definition.Bank == BombTorizoDormantFrameDefinitions.Bank &&
+            enemy.SpritemapPointer == BombTorizoDormantFrameDefinitions.Frame)
+        {
+            // The shared initial extended frame has one visual component, but
+            // its $AA:87C7 hitbox list is empty. Do not read the art payload
+            // or invent a touch/shot callback for a dormant boss.
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

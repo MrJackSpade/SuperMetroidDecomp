@@ -28,7 +28,11 @@ public sealed partial class RoomEnemySystem
 
         TorizoEnemyState state = RequireBombTorizoState(torizo);
         int operandAddress = 0xaa0000 | unchecked((ushort)(cursor + 2));
-        ushort operand0 = ReadWord(_bus!, operandAddress);
+        ushort operand0 = torizo.EnemyDefinitionPointer == BombTorizoDefinition &&
+            BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
+                unchecked((ushort)operandAddress), out ushort dormantOperand)
+                ? dormantOperand
+                : ReadWord(_bus!, operandAddress);
 
         switch (opcode)
         {

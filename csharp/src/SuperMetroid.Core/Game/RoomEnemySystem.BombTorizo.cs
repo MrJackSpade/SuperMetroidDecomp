@@ -82,9 +82,9 @@ public readonly record struct TorizoOrbDropRequest(
     ushort ItemDropChancesPointer);
 
 /// <summary>
-/// Cartridge-faithful translation of enemy definition $EEFF. Animation duration, extended
-/// spritemaps, branches, and attack selection remain in the original bank-$AA instruction
-/// lists; this file translates only the native callbacks those lists invoke.
+/// Cartridge-faithful translation of enemy definition $EEFF. The dormant entry through
+/// its first sleep is compiled separately; later animation, branch, and attack lists
+/// still use their original bank-$AA instructions. This file translates their callbacks.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {

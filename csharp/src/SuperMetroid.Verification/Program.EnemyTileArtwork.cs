@@ -16,6 +16,7 @@ internal static partial class Program
             return;
         }
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        VerifyBombTorizoDormantDefinitions(bus);
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
             "enemy-tiles-" + Guid.NewGuid().ToString("N"));
         try

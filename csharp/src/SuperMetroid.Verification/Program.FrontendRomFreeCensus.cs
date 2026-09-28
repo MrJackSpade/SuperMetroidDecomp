@@ -87,8 +87,8 @@ internal static partial class Program
                     CultureInfo.InvariantCulture, out frameCount) &&
                 frameCount is >= 1 and <= 3600,
                 "ROM-free census frame count must be 1..3600");
-            AssertTrue(selectedRoom is not null || frameCount <= 90,
-                "whole-cartridge ROM-free room census is limited to 90 neutral frames per room");
+            AssertTrue(selectedRoom is not null || frameCount <= 120,
+                "whole-cartridge ROM-free room census is limited to 120 neutral frames per room");
         }
         var failures = new List<string>();
         int checkedRooms = 0;

@@ -56,7 +56,7 @@ internal static class TitleGraphicsExtractor
 
         byte[] Read(int address, int count, string name)
         {
-            byte[] decompressed = RomDataReader.Decompress(bus, address);
+            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address);
             if (decompressed.Length < count)
                 throw new InvalidDataException($"Title {name} stream is shorter than {count} bytes.");
             return decompressed.AsSpan(0, count).ToArray();

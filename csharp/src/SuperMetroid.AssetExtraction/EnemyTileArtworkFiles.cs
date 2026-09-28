@@ -1158,7 +1158,7 @@ public static class EnemyTileArtworkFiles
 
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
-        byte[] native = RomDataReader.Decompress(bus, sourceAddress,
+        byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
             KraidBackgroundRomData.DecompressedTilemapBytes);
         return RoomBackgroundTilemapExtractor.Encode(native);
     }

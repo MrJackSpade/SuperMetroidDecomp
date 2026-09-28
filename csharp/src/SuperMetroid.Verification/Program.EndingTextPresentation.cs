@@ -15,7 +15,7 @@ internal static partial class Program
             new MemoryStream(extracted, writable: false));
         byte[] fontPng = SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(nativeBus);
         EndingFontAtlas font = EndingFontAtlas.Load(new MemoryStream(fontPng, writable: false));
-        byte[] nativeFont = RomDataReader.Decompress(nativeBus,
+        byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(nativeBus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
             EndingCreditsRomData.Rendering.Mode7Bytes);
         AssertTrue(font.Transfer.Span.SequenceEqual(

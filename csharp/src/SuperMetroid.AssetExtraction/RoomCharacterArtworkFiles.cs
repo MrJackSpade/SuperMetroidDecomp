@@ -32,7 +32,7 @@ public static class RoomCharacterArtworkFiles
             int nativeByteCount = sourceAddress ==
                 RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress
                 ? RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount
-                : RomDataReader.Decompress(bus, sourceAddress).Length;
+                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);

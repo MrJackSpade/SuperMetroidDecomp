@@ -189,26 +189,26 @@ public sealed partial class IntroCinematicState
         cgram.Colors.CopyTo(introPalette);
 
         byte[] bgCharacters = characterArtwork?.BackgroundCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.BackgroundCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundCharacterBytes);
         byte[] fontOne = introFont?.Transfer.ToArray() ?? RomDataReader.Decompress(
-            bus, IntroCinematicRomData.Assets.FontOne,
+            CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.FontOne,
             maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
         byte[] samusHeadTilemap = characterArtwork?.PortraitTilemap.ToArray() ?? RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.SamusHeadTilemap,
             maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes);
         byte[] bg1Pages = characterArtwork?.BackgroundPages.ToArray() ?? RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes);
         byte[] introObjects = characterArtwork?.CinematicObjectCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.ObjectCharacters,
             maximumOutputBytes: IntroCinematicRomData.Vram.ObjectCharacterBytes);
         byte[] firstNarrationTilemap = characterArtwork?.InitialNarrationTilemap.ToArray() ?? RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.FirstNarrationTilemap,
             maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes);
 

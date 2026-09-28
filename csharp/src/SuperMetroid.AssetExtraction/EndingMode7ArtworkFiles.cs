@@ -23,9 +23,9 @@ public static class EndingMode7ArtworkFiles
         foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
         {
             (int characterSource, int packedMapSource) = Sources(id);
-            byte[] characters = RomDataReader.Decompress(bus, characterSource,
+            byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
-            byte[] packedMap = RomDataReader.Decompress(bus, packedMapSource,
+            byte[] packedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
             if (characters.Length < EndingMode7ArtworkFormat.CharacterByteCount ||
                 packedMap.Length < EndingMode7ArtworkFormat.CharacterByteCount)
@@ -66,7 +66,7 @@ public static class EndingMode7ArtworkFiles
             Write(EndingMode7ArtworkFormat.MapFileName(id), mapFile);
             Write(EndingMode7ArtworkFormat.CharacterFileName(id), pngFile);
         }
-        byte[] reward = RomDataReader.Decompress(bus,
+        byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
         if (reward.Length < EndingRewardIconArtworkFormat.TransferBytes)

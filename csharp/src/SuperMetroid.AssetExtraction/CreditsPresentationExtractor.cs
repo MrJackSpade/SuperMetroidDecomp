@@ -39,7 +39,7 @@ public static class CreditsPresentationExtractor
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte[] source = RomDataReader.Decompress(bus, CreditsPresentationDefinitions.Native.Tilemap);
+        byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CreditsPresentationDefinitions.Native.Tilemap);
         if (source.Length < CreditsPresentationDefinitions.Native.TilemapBytes)
         {
             throw new InvalidDataException(

@@ -29,13 +29,13 @@ internal static partial class Program
         var vram = new SnesVram();
         var expected = Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray();
         vram.LoadBytes(0, expected);
-        byte[] font = RomDataReader.Decompress(bus, 0x97e7de, 0x8000);
+        byte[] font = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontAtlas fontAtlas = EndingFontAtlas.Load(fontPng);
         var shot = new EndingPostShot(guardedBus, cgram, fontAtlas);
-        byte[] tiles = RomDataReader.Decompress(bus, 0x99e089, 0x8000);
-        byte[] map = RomDataReader.Decompress(bus, 0x99ecc4, 0x8000);
+        byte[] tiles = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
+        byte[] map = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
         {
             shot.Step(vram, cgram);

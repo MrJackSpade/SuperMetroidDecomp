@@ -54,7 +54,7 @@ public sealed class CartridgeRoomAssets
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
         byte[] roomBlockDefinitions = metatileArt?.Get(tileset.BlockDefinitionsAddress)
-            .Transfer.ToArray() ?? RomDataReader.Decompress(bus, tileset.BlockDefinitionsAddress);
+            .Transfer.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus), tileset.BlockDefinitionsAddress);
         byte[] blockDefinitions;
         if (header.AreaIndex == AreaId.Ceres)
         {
@@ -65,7 +65,7 @@ public sealed class CartridgeRoomAssets
         else
         {
             byte[] creDefinitions = metatileArt?.Cre.Transfer.ToArray() ??
-                RomDataReader.Decompress(bus, RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
+                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
             blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
             creDefinitions.CopyTo(blockDefinitions, 0);
             roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
@@ -82,7 +82,7 @@ public sealed class CartridgeRoomAssets
         // native overread allocation are immutable application data; only the low
         // visual tile bits come from the separately replaceable layout catalog.
         byte[] levelStream = visualLayouts is null
-            ? RomDataReader.Decompress(bus, header.State.CompressedLevelDataAddress)
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), header.State.CompressedLevelDataAddress)
             : RoomLevelStreamDefinitions.Get(header.State.CompressedLevelDataAddress).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
             visualLayouts?.Get(header.State.CompressedLevelDataAddress));
@@ -92,11 +92,11 @@ public sealed class CartridgeRoomAssets
             levelData,
             scrolls,
             characterArt?.Cre.Transfer.ToArray() ??
-                RomDataReader.Decompress(bus, RoomAssetRomData.Tilesets.CreCharactersAddress),
+                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomAssetRomData.Tilesets.CreCharactersAddress),
             characterArt?.Get(tileset.CharacterAddress).Transfer.ToArray() ??
-                RomDataReader.Decompress(bus, tileset.CharacterAddress),
+                RomDataReader.Decompress(CartridgeImportSource.Require(bus), tileset.CharacterAddress),
             paletteArt?.Get(tileset.PaletteAddress).Transfer.ToArray() ??
-                RomDataReader.Decompress(bus, tileset.PaletteAddress),
+                RomDataReader.Decompress(CartridgeImportSource.Require(bus), tileset.PaletteAddress),
             tileset);
     }
 

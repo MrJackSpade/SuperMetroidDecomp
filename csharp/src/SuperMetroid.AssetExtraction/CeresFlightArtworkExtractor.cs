@@ -16,7 +16,7 @@ internal static class CeresFlightArtworkExtractor
             CeresFlightArtworkFormat.Mode7ByteCount, "Mode-7 characters");
         byte[] objectCharacters = Read(CeresFlightRomData.Assets.ObjectCharacters,
             CeresFlightArtworkFormat.ObjectByteCount, "OBJ characters");
-        byte[] decompressedMap = RomDataReader.Decompress(bus, CeresFlightRomData.Assets.Mode7Maps,
+        byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresFlightRomData.Assets.Mode7Maps,
             maximumOutputBytes: 0x1000);
         if (decompressedMap.Length < CeresFlightRomData.Vram.Mode7MapByteCount)
             throw new InvalidDataException("Ceres flight lacks its front and rear Mode-7 map slices.");
@@ -134,7 +134,7 @@ internal static class CeresFlightArtworkExtractor
 
         byte[] Read(int address, int expected, string name)
         {
-            byte[] decompressed = RomDataReader.Decompress(bus, address,
+            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address,
                 maximumOutputBytes: expected);
             if (decompressed.Length != expected)
                 throw new InvalidDataException($"Ceres flight {name} has {decompressed.Length} bytes, expected {expected}.");

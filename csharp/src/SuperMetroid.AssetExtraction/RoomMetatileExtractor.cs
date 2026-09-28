@@ -25,7 +25,7 @@ public static class RoomMetatileExtractor
 
         void Add(string name, int source)
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
             int count = RoomMetatileFormat.ValidateBlockCount(native.Length);
             var blocks = new RoomMetatileDefinition[count];
             for (int index = 0; index < count; index++)

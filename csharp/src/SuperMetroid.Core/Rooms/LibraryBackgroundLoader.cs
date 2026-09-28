@@ -261,7 +261,7 @@ public static class LibraryBackgroundLoader
         ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
     {
         byte[] decompressed = tilemapArt?.Get(sourceAddress).Transfer.ToArray() ??
-            RomDataReader.Decompress(bus, sourceAddress);
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress);
         if (destination + decompressed.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
         {
             throw new InvalidDataException(

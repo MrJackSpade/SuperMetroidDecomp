@@ -12,7 +12,7 @@ public static class EndingFontAtlasExtractor
     {
         ArgumentNullException.ThrowIfNull(bus);
         byte[] decoded = RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
             EndingCreditsRomData.Rendering.Mode7Bytes);
         if (decoded.Length < EndingFontAtlasFormat.ByteCount)

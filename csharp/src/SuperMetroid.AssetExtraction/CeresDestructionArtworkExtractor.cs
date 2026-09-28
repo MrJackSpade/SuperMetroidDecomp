@@ -11,7 +11,7 @@ internal static class CeresDestructionArtworkExtractor
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte[] allCeresMaps = RomDataReader.Decompress(bus,
+        byte[] allCeresMaps = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresDestructionRomData.Assets.CeresTilemaps,
             maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
         int firstDestructionByte = 2 * CeresFlightArtworkFormat.MapCellsPerView;
@@ -32,7 +32,7 @@ internal static class CeresDestructionArtworkExtractor
             Views = views,
         });
 
-        byte[] zebesMap = RomDataReader.Decompress(bus,
+        byte[] zebesMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresDestructionRomData.Assets.ZebesTilemap,
             maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
         if (zebesMap.Length < CeresDestructionArtworkFormat.ZebesMapByteCount)
@@ -40,7 +40,7 @@ internal static class CeresDestructionArtworkExtractor
         byte[] zebesMapJson = RoomBackgroundTilemapExtractor.Encode(
             zebesMap.AsSpan(0, CeresDestructionArtworkFormat.ZebesMapByteCount));
 
-        byte[] zebesCharacters = RomDataReader.Decompress(bus,
+        byte[] zebesCharacters = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresDestructionRomData.Assets.ZebesCharacters,
             maximumOutputBytes: CeresDestructionArtworkFormat.ZebesCharacterByteCount);
         if (zebesCharacters.Length != CeresDestructionArtworkFormat.ZebesCharacterByteCount)

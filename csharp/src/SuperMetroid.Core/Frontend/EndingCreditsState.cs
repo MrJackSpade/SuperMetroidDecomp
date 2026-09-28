@@ -539,7 +539,7 @@ internal sealed partial class EndingCreditsState
         if (endingFont is not null)
             return endingFont;
         byte[] decoded = RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
             EndingCreditsRomData.Rendering.Mode7Bytes);
         return EndingFontAtlas.FromPlanarBytes(
@@ -631,9 +631,9 @@ internal sealed partial class EndingCreditsState
                 (EndingCreditsRomData.Assets.ExplosionMap, EndingCreditsRomData.Assets.ExplosionCharacters),
             _ => throw new ArgumentOutOfRangeException(nameof(scene)),
         };
-        byte[] map = RomDataReader.Decompress(bus, characterSource,
+        byte[] map = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
             EndingCreditsRomData.Rendering.DecompressionLimit);
-        byte[] characters = RomDataReader.Decompress(bus, packedMapSource,
+        byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
             EndingCreditsRomData.Rendering.DecompressionLimit);
         RequireMinimum(map, EndingCreditsRomData.Rendering.Mode7Bytes, "ending Mode-7 map");
         RequireMinimum(characters, EndingCreditsRomData.Rendering.Mode7Bytes,
@@ -657,7 +657,7 @@ internal sealed partial class EndingCreditsState
     private void LoadEscapeCloudCharacters()
     {
         byte[] clouds = objectArtwork is null
-            ? RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.EscapeCloudCharacters,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.EscapeCloudCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : objectArtwork.Clouds.Transfer.ToArray();
         RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
@@ -668,7 +668,7 @@ internal sealed partial class EndingCreditsState
     private void LoadEndingObjectCharacters()
     {
         byte[] main = objectArtwork is null
-            ? RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.EndingObjectCharacters,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.EndingObjectCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : objectArtwork.Explosion.Transfer.ToArray();
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
@@ -705,7 +705,7 @@ internal sealed partial class EndingCreditsState
         EndingObjectFragmentId fragmentId)
     {
         byte[] fragment = objectArtwork is null
-            ? RomDataReader.Decompress(bus, sourceAddress,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
                 EndingCreditsRomData.Rendering.ObjectFragmentLimit)
             : objectArtwork.Fragment(fragmentId).Transfer.ToArray();
         RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
@@ -742,33 +742,33 @@ internal sealed partial class EndingCreditsState
     private void LoadCreditsCharacterArt()
     {
         byte[] waiting = objectArtwork is null
-            ? RomDataReader.Decompress(bus,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : objectArtwork.WaitingSamus.Transfer.ToArray();
         byte[] shooting = objectArtwork is null
-            ? RomDataReader.Decompress(bus,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Assets.ShootingScreenCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : objectArtwork.ShootingScreen.Transfer.ToArray();
         byte[] waitingMap = objectArtwork is null
-            ? RomDataReader.Decompress(bus,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
                 EndingCreditsRomData.Rendering.ObjectFragmentLimit)
             : objectArtwork.WaitingTilemap.Transfer.ToArray();
         byte[] fragmentA = objectArtwork is null
-            ? RomDataReader.Decompress(bus,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
                 EndingCreditsRomData.Rendering.ObjectFragmentLimit)
             : objectArtwork.PostCreditsFragmentA.Transfer.ToArray();
         byte[] fragmentB = objectArtwork is null
-            ? RomDataReader.Decompress(bus,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
                 EndingCreditsRomData.Rendering.ObjectFragmentLimit)
             : objectArtwork.PostCreditsFragmentB.Transfer.ToArray();
         byte[] result = EndingReward == EndingReward.Suitless
             ? objectArtwork is null
-                ? RomDataReader.Decompress(bus,
+                ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                     EndingCreditsRomData.Assets.SuitlessSamusCharacters,
                     EndingCreditsRomData.Rendering.DecompressionLimit)
                 : objectArtwork.SuitlessSamus.Transfer.ToArray()

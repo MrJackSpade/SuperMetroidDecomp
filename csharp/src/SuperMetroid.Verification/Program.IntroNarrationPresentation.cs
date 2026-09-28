@@ -18,7 +18,7 @@ internal static partial class Program
         byte[] fontPng = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(nativeBus);
         IntroFontAtlas font = IntroFontAtlas.Load(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(
-            nativeBus,
+            SuperMetroid.Core.Rom.CartridgeImportSource.Require(nativeBus),
             IntroCinematicRomData.Assets.FontOne,
             maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
         AssertTrue(font.Transfer.Span.SequenceEqual(

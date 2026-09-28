@@ -29,7 +29,7 @@ public static class RoomCharacterAtlasExtractor
         void Add(string fileName, int sourceAddress, bool compressed = true)
         {
             byte[] planar = compressed
-                ? RomDataReader.Decompress(bus, sourceAddress)
+                ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress)
                 : RomDataReader.ReadFixedBank(bus, sourceAddress,
                     RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
             int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);

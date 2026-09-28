@@ -19,7 +19,7 @@ internal static partial class Program
             "one tilemap resource per distinct retail compressed background source");
         foreach (int source in sources)
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), source);
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
                     writable: false), native.Length);
@@ -30,7 +30,7 @@ internal static partial class Program
         var compiled = new Dictionary<int, RoomBackgroundTilemapAtlas>();
         foreach (int source in sources)
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), source);
             compiled.Add(source, RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
                     writable: false), native.Length));
@@ -48,7 +48,7 @@ internal static partial class Program
         AssertTrue(nativeVram.Bytes.SequenceEqual(selectedVram.Bytes),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
-        byte[] original = RomDataReader.Decompress(bus, ceresSource);
+        byte[] original = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), ceresSource);
         JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapFormat.SourceFileName(ceresSource)])
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
         JsonNode firstCell = edited["pages"]![0]!["cells"]![0]!;

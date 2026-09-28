@@ -24,7 +24,7 @@ public static class RoomMetatileArtworkFiles
         foreach ((string name, int address) in ExpectedSources())
         {
             byte[] json = files[name];
-            int nativeLength = RomDataReader.Decompress(bus, address).Length;
+            int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
             RoomMetatileFormat.ValidateBlockCount(nativeLength);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);

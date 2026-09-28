@@ -731,11 +731,11 @@ internal static class KraidAudit
         KraidEnemyState state)
     {
         byte[] upper = RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             KraidBackgroundRomData.UpperTilemap,
             KraidBackgroundRomData.DecompressedTilemapBytes);
         byte[] lower = RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             KraidBackgroundRomData.LowerTilemap,
             KraidBackgroundRomData.DecompressedTilemapBytes);
         if (upper.Length != KraidBackgroundRomData.DecompressedTilemapBytes ||

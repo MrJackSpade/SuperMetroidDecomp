@@ -15,7 +15,7 @@ internal sealed class EndingRewardGraphicsUpload
     {
         ArgumentNullException.ThrowIfNull(bus);
         graphics = artwork is null
-            ? RomDataReader.Decompress(bus,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Assets.PostCreditsMode7Characters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : artwork.Transfer.ToArray();

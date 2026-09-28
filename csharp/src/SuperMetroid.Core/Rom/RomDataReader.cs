@@ -77,13 +77,13 @@ public static class RomDataReader
     /// </param>
     /// <param name="maximumOutputBytes">Defensive decompressed-size cap.</param>
     public static byte[] Decompress(
-        ISnesAddressSpace bus,
+        IImportCartridgeSource cartridge,
         int sourceAddress,
         int maximumCompressedBytes = 0x8000,
         int maximumOutputBytes = 4 * 1024 * 1024)
     {
         return Decompress(
-            bus,
+            cartridge,
             SnesAddress.FromBusAddress(sourceAddress),
             maximumCompressedBytes,
             maximumOutputBytes);
@@ -91,12 +91,12 @@ public static class RomDataReader
 
     /// <summary>Typed overload for one compressed upper-LoROM stream.</summary>
     public static byte[] Decompress(
-        ISnesAddressSpace bus,
+        IImportCartridgeSource cartridge,
         SnesAddress sourceAddress,
         int maximumCompressedBytes = 0x8000,
         int maximumOutputBytes = 4 * 1024 * 1024)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cartridge);
         if (!sourceAddress.IsUpperLoRomWindow)
         {
             throw new ArgumentOutOfRangeException(
@@ -117,7 +117,7 @@ public static class RomDataReader
         {
             if (length == stored.Length)
                 throw new InvalidDataException($"Compressed stream at {sourceAddress} exceeds ${maximumCompressedBytes:X} input bytes.");
-            byte value = bus.ReadByte((int)currentAddress);
+            byte value = cartridge.ReadCartridgeByte((int)currentAddress);
             stored[length++] = value;
             currentAddress = currentAddress.NextLoRomByte();
             return value;

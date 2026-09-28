@@ -37,11 +37,11 @@ internal sealed partial class EndingCreditsState
     private void PrepareFlyawayStreams()
     {
         flyawayCharacters = flightArtwork is null
-            ? RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.FlyawayCharacters,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.FlyawayCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : flightArtwork.Mode7Characters.ToArray();
         byte[] decodedMap = flightArtwork is null
-            ? RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.FlyawayMap,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.FlyawayMap,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
             : flightArtwork.Mode7Maps.ToArray();
         RequireMinimum(flyawayCharacters, EndingCreditsRomData.Rendering.Mode7Bytes, "flyaway characters");

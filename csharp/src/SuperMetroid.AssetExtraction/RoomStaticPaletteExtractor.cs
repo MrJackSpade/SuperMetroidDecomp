@@ -19,7 +19,7 @@ public static class RoomStaticPaletteExtractor
             string name = RoomStaticPaletteFormat.SourceFileName(address);
             if (files.ContainsKey(name)) continue;
 
-            byte[] decompressed = RomDataReader.Decompress(bus, address);
+            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address);
             if (decompressed.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
                 throw new InvalidDataException(
                     $"Room palette ${address:X6} has only ${decompressed.Length:X} bytes.");

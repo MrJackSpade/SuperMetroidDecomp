@@ -175,7 +175,7 @@ internal static partial class Program
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
         {
-            byte[] source = RomDataReader.Decompress(bus, address);
+            byte[] source = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), address);
             if (!source.AsSpan(0, count).SequenceEqual(actual))
                 throw new InvalidDataException($"Extracted {description} differ from cartridge data.");
         }

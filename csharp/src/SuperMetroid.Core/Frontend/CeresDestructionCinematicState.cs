@@ -126,7 +126,7 @@ internal sealed partial class CeresDestructionCinematicState
     private byte[] LoadCeresTilemaps()
     {
         if (artwork is null)
-            return RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.CeresTilemaps,
+            return RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.CeresTilemaps,
                 maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
         var maps = new byte[CeresDestructionRomData.Vram.CeresMinimumTilemapBytes];
         artwork.CeresFlight.Mode7Maps.Span.CopyTo(maps);
@@ -332,11 +332,11 @@ internal sealed partial class CeresDestructionCinematicState
     private void SetupCeresDestruction()
     {
         byte[] characters = artwork is null
-            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.Mode7Characters,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.Mode7Characters,
                 maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
             : artwork.CeresFlight.Mode7Characters.ToArray();
         byte[] objectCharacters = artwork is null
-            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.CeresObjectCharacters,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.CeresObjectCharacters,
                 maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
             : artwork.CeresFlight.ObjectCharacters.ToArray();
         RequireMinimum(characters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
@@ -405,11 +405,11 @@ internal sealed partial class CeresDestructionCinematicState
     private void SetupZebesReveal()
     {
         byte[] zebesTilemap = artwork is null
-            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.ZebesTilemap,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.ZebesTilemap,
                 maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit)
             : artwork.CeresDestruction.ZebesMap.Transfer.ToArray();
         byte[] zebesCharacters = artwork is null
-            ? RomDataReader.Decompress(bus, CeresDestructionRomData.Assets.ZebesCharacters,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.ZebesCharacters,
                 maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
             : artwork.CeresDestruction.ZebesCharacters.Transfer.ToArray();
         RequireMinimum(zebesTilemap, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,

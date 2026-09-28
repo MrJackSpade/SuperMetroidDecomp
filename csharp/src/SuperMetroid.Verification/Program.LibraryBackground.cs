@@ -38,7 +38,7 @@ static void VerifyLibraryBackgroundSourceInventory()
         .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
         .Select(source => source.SourceAddress).Distinct())
         RoomBackgroundTilemapFormat.ValidatePageCount(
-            RomDataReader.Decompress(bus, source).Length);
+            RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), source).Length);
     VerifyKraidLibraryHudArtwork(bus, romTransfers);
     Console.WriteLine($"  Library BG inventory: {sources.Count} source operands, " +
         $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +

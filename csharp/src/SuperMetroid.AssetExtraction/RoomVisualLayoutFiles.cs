@@ -152,7 +152,7 @@ public static class RoomVisualLayoutFiles
     private static RoomVisualLayoutDocument Decode(ISnesAddressSpace bus,
         int sourceAddress, int widthInBlocks)
     {
-        byte[] stream = RomDataReader.Decompress(bus, sourceAddress);
+        byte[] stream = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress);
         if (stream.Length < 2)
             throw new InvalidDataException($"Room level ${sourceAddress:X6} has no size word.");
         int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(stream);

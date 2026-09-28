@@ -60,12 +60,12 @@ internal sealed class IntroCeresFlightState
         spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
 
-        byte[] characters = artwork?.Mode7Characters.ToArray() ?? RomDataReader.Decompress(bus,
+        byte[] characters = artwork?.Mode7Characters.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresFlightRomData.Assets.Mode7Characters,
             maximumOutputBytes: CeresFlightRomData.Vram.Mode7CharacterByteCount);
-        tilemap = artwork?.Mode7Maps.ToArray() ?? RomDataReader.Decompress(bus,
+        tilemap = artwork?.Mode7Maps.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresFlightRomData.Assets.Mode7Maps, maximumOutputBytes: 0x1000);
-        byte[] objectCharacters = artwork?.ObjectCharacters.ToArray() ?? RomDataReader.Decompress(bus,
+        byte[] objectCharacters = artwork?.ObjectCharacters.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             CeresFlightRomData.Assets.ObjectCharacters,
             maximumOutputBytes: CeresFlightRomData.Vram.ObjectCharacterByteCount);
         RequireMinimum(characters, CeresFlightRomData.Vram.Mode7CharacterByteCount,

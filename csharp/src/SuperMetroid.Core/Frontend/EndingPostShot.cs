@@ -133,6 +133,6 @@ internal sealed class EndingPostShot
         vram.LoadBytes(destination * sizeof(ushort), bytes);
     }
 
-    private byte[] Decode(int address) => RomDataReader.Decompress(bus, address,
+    private byte[] Decode(int address) => RomDataReader.Decompress(CartridgeImportSource.Require(bus), address,
         EndingCreditsRomData.Rendering.DecompressionLimit);
 }

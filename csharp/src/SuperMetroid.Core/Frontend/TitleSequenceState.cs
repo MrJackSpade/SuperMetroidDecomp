@@ -90,14 +90,14 @@ public sealed class TitleSequenceState
         if (titleGraphicsPresentation is null)
         {
             mode7Characters = RomDataReader.Decompress(
-                bus,
+                CartridgeImportSource.Require(bus),
                 TitleSequenceRomData.Assets.Mode7CharactersAddress);
-            mode7Map = RomDataReader.Decompress(bus, TitleSequenceRomData.Assets.Mode7MapAddress);
+            mode7Map = RomDataReader.Decompress(CartridgeImportSource.Require(bus), TitleSequenceRomData.Assets.Mode7MapAddress);
             objectCharacters = RomDataReader.Decompress(
-                bus,
+                CartridgeImportSource.Require(bus),
                 TitleSequenceRomData.Assets.ObjectCharactersAddress);
             babyMetroidCharacters = RomDataReader.Decompress(
-                bus,
+                CartridgeImportSource.Require(bus),
                 TitleSequenceRomData.Assets.BabyMetroidCharactersAddress);
         }
         else

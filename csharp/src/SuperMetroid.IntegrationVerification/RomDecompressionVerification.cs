@@ -58,13 +58,14 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Malformed/truncated compressed stream was accepted.");
     }
 
-    private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace
+    private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource
     {
         // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.
         public const int Start = 0x94fffc;
         private SnesAddress next = SnesAddress.FromBusAddress(Start);
         public int Reads { get; private set; }
-        public byte ReadByte(int address)
+        public byte ReadByte(int address) => throw new InvalidOperationException("Decompression must use the typed cartridge source.");
+        public byte ReadCartridgeByte(int address)
         {
             if (address != (int)next || Reads >= bytes.Length)
                 throw new InvalidDataException("Reader crossed the stream boundary or changed LoROM traversal.");

@@ -595,7 +595,7 @@ public sealed class GameOptionsMenuState
     private byte[] DecompressOptionsPage(GameOptionsPageResource resource)
     {
         byte[] tilemap = RomDataReader.Decompress(
-            bus,
+            CartridgeImportSource.Require(bus),
             resource.Address,
             maximumOutputBytes: GameOptionsRomData.TilemapByteCount);
         if (tilemap.Length != GameOptionsRomData.TilemapByteCount)

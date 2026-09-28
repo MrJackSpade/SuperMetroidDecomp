@@ -20,7 +20,7 @@ public static class RoomBackgroundTilemapExtractor
         var files = new Dictionary<string, byte[]>();
         foreach (int source in addresses)
         {
-            byte[] native = RomDataReader.Decompress(bus, source);
+            byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
             files.Add(RoomBackgroundTilemapFormat.SourceFileName(source), Encode(native));
         }
         return files;

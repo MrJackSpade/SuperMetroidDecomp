@@ -22,7 +22,7 @@ public static class IntroCinematicArtworkFiles
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
-            RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.BackgroundCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount),
             IntroCinematicArtworkFormat.BackgroundByteCount);
         WriteSheet(IntroCinematicArtworkFormat.IntroObjectFileName,
@@ -30,16 +30,16 @@ public static class IntroCinematicArtworkFiles
                 IntroCinematicArtworkFormat.IntroObjectByteCount),
             IntroCinematicArtworkFormat.IntroObjectByteCount);
         WriteSheet(IntroCinematicArtworkFormat.CinematicObjectFileName,
-            RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.ObjectCharacters,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.ObjectCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount),
             IntroCinematicArtworkFormat.CinematicObjectByteCount);
         WritePage(IntroCinematicArtworkFormat.PortraitTilemapFileName,
-            RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.SamusHeadTilemap,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.SamusHeadTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WritePage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-            RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.FirstNarrationTilemap,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.FirstNarrationTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
-        byte[] backgroundPages = RomDataReader.Decompress(bus,
+        byte[] backgroundPages = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageCount *
                 IntroCinematicArtworkFormat.BackgroundPageByteCount);

@@ -21,11 +21,11 @@ public sealed partial class RoomEnemySystem
             TileArtwork.KraidBackground ?? throw new InvalidDataException(
                 "Installed enemy artwork has no Kraid BG2 tilemaps.");
         byte[] upper = art is null
-            ? RomDataReader.Decompress(_bus!, KraidBackgroundRomData.UpperTilemap,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(_bus!), KraidBackgroundRomData.UpperTilemap,
                 KraidBackgroundRomData.DecompressedTilemapBytes)
             : art.Upper.Transfer.ToArray();
         byte[] lower = art is null
-            ? RomDataReader.Decompress(_bus!, KraidBackgroundRomData.LowerTilemap,
+            ? RomDataReader.Decompress(CartridgeImportSource.Require(_bus!), KraidBackgroundRomData.LowerTilemap,
                 KraidBackgroundRomData.DecompressedTilemapBytes)
             : art.Lower.Transfer.ToArray();
         if (upper.Length != KraidBackgroundRomData.DecompressedTilemapBytes ||

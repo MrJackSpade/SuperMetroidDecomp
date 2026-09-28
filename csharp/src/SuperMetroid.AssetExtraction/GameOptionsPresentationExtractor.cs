@@ -113,7 +113,7 @@ public static class GameOptionsPresentationExtractor
 
         MapPresentationCell[] Page(GameOptionsPageResource resource)
         {
-            byte[] bytes = RomDataReader.Decompress(bus, resource.Address,
+            byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(bus), resource.Address,
                 maximumOutputBytes: GameOptionsRomData.TilemapByteCount);
             if (bytes.Length != GameOptionsRomData.TilemapByteCount)
             {

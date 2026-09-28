@@ -11,8 +11,12 @@ Six additional distinct extended OAM frames are editable, while the seven
 selected physical frame layouts and nine hitbox lists remain compiled engine
 data. Every field is checked against the pinned cartridge. A version-fourteen
 enemy-art override inherits the new frames without discarding older edits.
-The real wake-up fixture now advances beyond the statue's initial sleep and
-matches native pixels for 700 frames with installed cartridge reads blocked.
+The real wake-up fixture advances beyond the statue's initial sleep and
+matches native pixels for 380 active-gameplay frames with installed cartridge
+reads blocked. The earlier 700-frame claim was too broad: low-health Samus
+entered Game Over, so its later matching frames did not exercise the room.
+The verifier now requires active gameplay at each room fixture's start and
+asserts the Golden Torizo fixture ends before the uncompiled combat handoff.
 Later Golden Torizo combat lists, other input paths, and full ROM-free runtime
 coverage remain open.
 

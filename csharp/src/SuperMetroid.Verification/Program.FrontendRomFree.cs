@@ -206,29 +206,7 @@ internal static partial class Program
                     RoomHeaderPointers.Kraid, "Kraid arm rising/sinking",
                     frameCount: 700);
                 VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo waking",
-                    frameCount: 700,
-                    setup: (nativeRoom, installedRoom) =>
-                    {
-                        // Enter the authored lower-right wake rectangle on both
-                        // independently stepped games, without crossing a door.
-                        nativeRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-                        nativeRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
-                        installedRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-                        installedRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
-                    });
-                VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Phantoon, "Phantoon");
-                // The previous room fixture exempted all bank-$A5 reads while
-                // Draygon's extended hitboxes were still ROM-backed. Both its
-                // BG2 and ordinary-frame collision are now compiled. Require
-                // the same all-bank read guard used by every other room.
-                guardedBus.BlockExtendedBg2Streams(
-                    DraygonBg2FrameDefinitions.Bank,
-                    DraygonBg2FrameDefinitions.Frames);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.Draygon, "Draygon room entry, dance and fight handoff",
-                    frameCount: 2600);
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.GauntletEast, "Gauntlet east Yapping Maw", frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
@@ -255,6 +233,41 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.MotherBrainChamber, "Mother Brain chamber",
                     frameCount: 90);
+                // The long neutral Draygon fight can fatally damage Samus;
+                // all shorter room checks must execute while gameplay is live.
+                guardedBus.BlockExtendedBg2Streams(
+                    DraygonBg2FrameDefinitions.Bank,
+                    DraygonBg2FrameDefinitions.Frames);
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.Draygon, "Draygon room entry, dance and fight handoff",
+                    frameCount: 2600,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        // Keep the fight actor alive through the long neutral
+                        // comparison without letting damage switch the frontend
+                        // into a death screen before the next room is loaded.
+                        var options = new SuperMetroidGameOptions { Invincibility = true };
+                        nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
+                        installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
+                    });
+                // Stop before the still-uncompiled walking-combat handoff. The
+                // older 700-frame low-health check reached Game Over and its
+                // trailing pixel matches did not exercise the loaded room.
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo waking",
+                    frameCount: 380,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        // Enter the authored lower-right wake rectangle on both
+                        // independently stepped games, without crossing a door.
+                        nativeRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
+                        nativeRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
+                        installedRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
+                        installedRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
+                        var options = new SuperMetroidGameOptions { Invincibility = false };
+                        nativeRoom.RuntimeForVerification.ApplyHostOptions(options);
+                        installedRoom.RuntimeForVerification.ApplyHostOptions(options);
+                    });
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
@@ -398,6 +411,17 @@ internal static partial class Program
             roomPointer);
         installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
+        AssertEqual(SuperMetroidGameState.MainGameplay, native.GameState,
+            $"native {roomName} fixture begins in active gameplay");
+        AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
+            $"installed {roomName} fixture begins in active gameplay");
+        // These isolated rooms are not one continuous playthrough. Refill on
+        // entry so damage in an earlier room cannot turn a later comparison
+        // into two identical death screens.
+        native.RuntimeForVerification.Samus!.MaxHealth = 1499;
+        native.RuntimeForVerification.Samus.Health = 1499;
+        installed.RuntimeForVerification.Samus!.MaxHealth = 1499;
+        installed.RuntimeForVerification.Samus.Health = 1499;
         setup?.Invoke(native, installed);
         RoomEnemySlot? awakenedGoldenTorizo = roomPointer == RoomHeaderPointers.GoldenTorizo &&
             setup is not null
@@ -511,8 +535,15 @@ internal static partial class Program
             }
         }
         if (awakenedGoldenTorizo is not null)
+        {
             AssertTrue(goldenWakeObserved,
                 "Golden Torizo wake-up fixture actually advances beyond the initial sleep");
+            AssertTrue(awakenedGoldenTorizo.CurrentInstruction <
+                GoldenTorizoAwakeningInstructionProgramDefinitions.End &&
+                installed.GameState == SuperMetroidGameState.MainGameplay,
+                "Golden Torizo wake-up parity ends before the uncompiled combat " +
+                "handoff while gameplay remains active");
+        }
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }
 

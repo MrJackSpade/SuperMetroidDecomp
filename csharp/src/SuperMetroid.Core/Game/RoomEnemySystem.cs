@@ -3708,6 +3708,10 @@ public sealed partial class RoomEnemySystem
             BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort dormantWord))
             return dormantWord;
+        if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
+            TorizoJumpBackInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort sharedJumpBackWord))
+            return sharedJumpBackWord;
         if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
             GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort goldenInitialWord))

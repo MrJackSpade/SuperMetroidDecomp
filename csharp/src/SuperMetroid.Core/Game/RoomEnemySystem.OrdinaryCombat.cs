@@ -3043,6 +3043,8 @@ public sealed partial class RoomEnemySystem
              GoldenTorizoWalkingCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out goldenComponents) ||
              GoldenTorizoRightwardCollisionDefinitions.TryGetComponents(
+                 enemy.SpritemapPointer, out goldenComponents) ||
+             TorizoJumpBackCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out goldenComponents)))
         {
             // Keep the cartridge's component and hitbox order. Empty belly/face
@@ -3050,6 +3052,8 @@ public sealed partial class RoomEnemySystem
             bool walkingFrame = GoldenTorizoWalkingCollisionDefinitions.HasFrame(
                 enemy.SpritemapPointer);
             bool rightwardFrame = GoldenTorizoRightwardCollisionDefinitions.HasFrame(
+                enemy.SpritemapPointer);
+            bool jumpBackFrame = TorizoJumpBackCollisionDefinitions.HasFrame(
                 enemy.SpritemapPointer);
             foreach (GoldenTorizoCollisionComponent component in goldenComponents.Span)
             {
@@ -3061,6 +3065,9 @@ public sealed partial class RoomEnemySystem
                                  component.HitboxList)
                              : rightwardFrame
                                  ? GoldenTorizoRightwardCollisionDefinitions.HitboxesAt(
+                                     component.HitboxList)
+                             : jumpBackFrame
+                                 ? TorizoJumpBackCollisionDefinitions.HitboxesAt(
                                      component.HitboxList)
                              : GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(
                                  component.HitboxList))

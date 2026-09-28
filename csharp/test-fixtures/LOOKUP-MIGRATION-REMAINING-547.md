@@ -60,6 +60,17 @@ input paths, and later collision behavior still require bounded compilation
 and longer input-driven parity tests. The 850-frame cartridge-backed fallback
 check continues to guard the native-ROM compatibility path.
 
+The shared Bomb/Golden Torizo jump-back lists at `$AA:C110-C187` now compile
+52 instruction-control words, eight visual selector operands, three editable
+OAM frames, and four engine-owned physical hitbox lists. Verification compares
+each field to the pinned cartridge. Version-seventeen enemy-art overrides
+inherit the new frames, and visual edits do not change physical placement.
+The Golden Torizo zero-ROM room replay observes the jump-back sequence and
+matches cartridge-backed pixels for 496 active gameplay frames. At frame 496,
+the next uncompiled control word is `$AA:CDC3`, reached through the jump-back
+landing callback; this is the next bounded migration target. The result still
+does not establish full combat or alternate-input parity.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

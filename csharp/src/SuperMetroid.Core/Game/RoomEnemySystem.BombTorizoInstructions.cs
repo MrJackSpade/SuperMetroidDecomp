@@ -27,28 +27,8 @@ public sealed partial class RoomEnemySystem
             return false;
 
         TorizoEnemyState state = RequireBombTorizoState(torizo);
-        int operandAddress = 0xaa0000 | unchecked((ushort)(cursor + 2));
-        ushort operand0 = torizo.EnemyDefinitionPointer == BombTorizoDefinition &&
-            BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
-                unchecked((ushort)operandAddress), out ushort dormantOperand)
-                ? dormantOperand
-                : torizo.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-                    GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
-                        unchecked((ushort)operandAddress), out ushort goldenOperand)
-                    ? goldenOperand
-                    : torizo.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-                    GoldenTorizoAwakeningInstructionProgramDefinitions.TryReadMechanicsWord(
-                            unchecked((ushort)operandAddress), out ushort awakeningOperand)
-                        ? awakeningOperand
-                    : torizo.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-                        GoldenTorizoWalkingInstructionProgramDefinitions.TryReadMechanicsWord(
-                            unchecked((ushort)operandAddress), out ushort walkingOperand)
-                        ? walkingOperand
-                    : torizo.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-                        GoldenTorizoRightwardInstructionProgramDefinitions.TryReadMechanicsWord(
-                            unchecked((ushort)operandAddress), out ushort rightwardOperand)
-                        ? rightwardOperand
-                    : ReadWord(_bus!, operandAddress);
+        ushort operand0 = ReadEnemyInstructionMechanicsWord(
+            torizo, unchecked((ushort)(cursor + 2)));
 
         switch (opcode)
         {
@@ -133,8 +113,8 @@ public sealed partial class RoomEnemySystem
 
             case TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden:
             {
-                ushort operand1 = ReadWord(_bus!, 0xaa0000 |
-                    unchecked((ushort)(cursor + 4)));
+                ushort operand1 = ReadEnemyInstructionMechanicsWord(
+                    torizo, unchecked((ushort)(cursor + 4)));
                 if ((torizo.Parameter2 & 0x4000) != 0)
                     cursor = operand0;
                 else if (state.IsGolden)
@@ -280,8 +260,8 @@ public sealed partial class RoomEnemySystem
             {
                 if (samus is null)
                     throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
-                ushort operand1 = ReadWord(_bus!, 0xaa0000 |
-                    unchecked((ushort)(cursor + 4)));
+                ushort operand1 = ReadEnemyInstructionMechanicsWord(
+                    torizo, unchecked((ushort)(cursor + 4)));
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
                 bool chooseFirst = samus.Missiles < 5 ||
                     ((nmiFrameCounter8 + (samus.XPosition & 1) + (samus.XPosition >> 1)) & 8) != 0;
@@ -469,8 +449,8 @@ public sealed partial class RoomEnemySystem
             case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack:
             {
                 SamusState activeSamus = RequireGoldenTorizoSamus(samus);
-                ushort operand1 = ReadWord(_bus!, 0xaa0000 |
-                    unchecked((ushort)(cursor + 4)));
+                ushort operand1 = ReadEnemyInstructionMechanicsWord(
+                    torizo, unchecked((ushort)(cursor + 4)));
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
                 bool chooseFirst = activeSamus.Missiles < 0x20 ||
                     ((nmiFrameCounter8 + (activeSamus.XPosition & 1) +

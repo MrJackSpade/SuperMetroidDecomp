@@ -105,6 +105,10 @@ internal static partial class Program
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal)),
             "all Golden Torizo turning/walking-right visual frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.TorizoJumpBackFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("torizo_jump_back_", StringComparison.Ordinal)),
+            "all shared Torizo jump-back visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
@@ -642,6 +646,7 @@ internal static partial class Program
                 !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
@@ -649,6 +654,7 @@ internal static partial class Program
                 !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
@@ -669,12 +675,14 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
@@ -705,11 +713,13 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
@@ -742,14 +752,16 @@ internal static partial class Program
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -778,13 +790,15 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("golden_torizo_awake_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -815,12 +829,14 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -850,11 +866,13 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardVersion,
             Frames = document.Frames.Where(entry =>
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -879,6 +897,67 @@ internal static partial class Program
                 editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-sixteen migration retains an edited Pirate frame");
+
+        var versionSeventeen = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion,
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        AssertEqual(EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount,
+            versionSeventeen.Frames.Count,
+            "version-seventeen extended-frame schema count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionSeventeen, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionSeventeen = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer stockJumpBackTorizo = DrawExtendedForBank(stock, guard,
+            0xaa, 0xb048, 0x0040, 0x0080);
+        OamBuffer inheritedJumpBackTorizo = DrawExtendedForBank(
+            upgradedVersionSeventeen, guard, 0xaa, 0xb048, 0x0040, 0x0080);
+        AssertTrue(stockJumpBackTorizo.LowTable.SequenceEqual(
+                       inheritedJumpBackTorizo.LowTable) &&
+                   stockJumpBackTorizo.HighTable.SequenceEqual(
+                       inheritedJumpBackTorizo.HighTable),
+            "version-seventeen override inherits Torizo jump-back art");
+        AssertTrue(DrawExtended(upgradedVersionSeventeen, guard,
+                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedOam.LowTable),
+            "version-seventeen migration retains an edited Pirate frame");
+
+        EnemyExtendedFrameDocument jumpBackOverride =
+            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        const string jumpBackName = "torizo_jump_back_B048";
+        EnemyExtendedVisualComponent originalJumpBackComponent =
+            jumpBackOverride.Frames[jumpBackName][0];
+        jumpBackOverride.Frames[jumpBackName][0] =
+            originalJumpBackComponent with
+            {
+                OffsetX = originalJumpBackComponent.OffsetX + 1,
+            };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            jumpBackOverride, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog editedJumpBack = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer movedJumpBack = DrawExtendedForBank(
+            editedJumpBack, guard, 0xaa, 0xb048, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockJumpBackTorizo.LowTable[0] + 1)),
+            movedJumpBack.LowTable[0],
+            "editable Torizo jump-back component changes live OAM");
+        AssertTrue(TorizoJumpBackCollisionDefinitions.TryGetComponents(
+                0xb048, out var unchangedJumpBackCollision) &&
+                   unchangedJumpBackCollision.Span[0].X == 15 &&
+                   unchangedJumpBackCollision.Span[0].HitboxList == 0x87c7,
+            "Torizo jump-back cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenRightwardOverride =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -1181,9 +1260,9 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire, 22 Kraid arm, 6 Golden Torizo awakening, 10 walking-left and 11 rightward OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire, 22 Kraid arm, 6 Golden Torizo awakening, 10 walking-left, 11 rightward and 3 shared jump-back OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v16 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v17 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 
@@ -1202,6 +1281,7 @@ internal static partial class Program
         name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) ||
         name.StartsWith("bomb_torizo_", StringComparison.Ordinal) ||
         name.StartsWith("golden_torizo_", StringComparison.Ordinal) ||
+        name.StartsWith("torizo_jump_back_", StringComparison.Ordinal) ||
         name.StartsWith("kraid_arm_oam_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>

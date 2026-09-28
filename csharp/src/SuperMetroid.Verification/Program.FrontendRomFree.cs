@@ -767,7 +767,7 @@ internal static partial class Program
 
     private sealed class FrontendCartridgeReadGuard(
         ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) :
-        ISnesAddressSpace
+        ISnesAddressSpace, ISnesMutableMemory
     {
         private readonly HashSet<int> blockedPresentationBytes = [];
 
@@ -828,5 +828,15 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Installed frontend guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Installed frontend guard requires SRAM."))
+            .ReadSaveRamByte(address);
     }
 }

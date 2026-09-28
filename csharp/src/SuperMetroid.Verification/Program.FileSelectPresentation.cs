@@ -179,7 +179,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, ISnesMutableMemory
     {
         public byte ReadByte(int address)
         {
@@ -190,6 +191,16 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "File-select presentation audit source must expose WRAM."))
+                .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "File-select presentation audit source must expose SRAM."))
+                .ReadSaveRamByte(address);
 
         private static bool IsPresentationAddress(int address) =>
             In(address, FileSelectMapRomData.InitialMenuBackground,

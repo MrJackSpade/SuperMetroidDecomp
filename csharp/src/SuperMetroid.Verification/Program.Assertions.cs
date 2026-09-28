@@ -31,7 +31,8 @@ static ushort ReferenceNextRandom(ushort seed)
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
-sealed class TestAddressSpace : ISnesAddressSpace, IImportCartridgeSource,
+sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
+    IImportCartridgeSource,
     IRoomEnemyFixtureSource
 {
     private readonly Dictionary<int, byte> _bytes = [];
@@ -52,6 +53,13 @@ sealed class TestAddressSpace : ISnesAddressSpace, IImportCartridgeSource,
                 "Synthetic cartridge bytes require an upper LoROM address.");
         return ReadByte(address);
     }
+
+    // This sparse fixture stores exactly the CPU addresses written by its test setup.
+    // It deliberately does not synthesize bank mirrors; callers can assert that a
+    // translated routine chooses the intended mutable alias itself.
+    public byte ReadWorkRamByte(int address) => ReadByte(address);
+
+    public byte ReadSaveRamByte(int address) => ReadByte(address);
 
     public void WriteByte(int address, byte value)
     {

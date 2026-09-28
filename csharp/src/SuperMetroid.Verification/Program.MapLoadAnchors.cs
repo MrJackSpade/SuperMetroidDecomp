@@ -171,17 +171,41 @@ internal static partial class Program
             (value.Horizontal, value.Vertical, value.MinimumX, value.MaximumX, value.MinimumY, value.MaximumY, value.Direction);
     }
 
-    private sealed class MapLoadMetadataReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class MapLoadMetadataReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
         public bool BlockReads { get; set; } = true;
         public byte ReadByte(int address)
+        {
+            RejectForbiddenRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectForbiddenRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Map metadata audit requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map metadata audit requires WRAM."))
+                .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map metadata audit requires SRAM."))
+                .ReadSaveRamByte(address);
+
+        private void RejectForbiddenRead(int address)
         {
             // Bank-$8F room headers/state selection and the bank-$80 load-station
             // lists are not presentation inputs after selecting compiled anchors.
             if (BlockReads && ((address >> 16) == 0x8f || address is >= 0x80c4b5 and < 0x80cb00 ||
                 (uint)(address - FileSelectMapRomData.DisplayAreaIndices) < FileSelectMapRomData.AreaCount * 2))
                 throw new InvalidOperationException($"Installed map read load/display metadata from ROM at {address:X6}.");
-            return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

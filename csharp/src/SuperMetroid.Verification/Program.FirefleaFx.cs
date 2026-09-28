@@ -80,7 +80,8 @@ internal static partial class Program
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
 
-    private sealed class FirefleaFxDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FirefleaFxDefinitionReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, ISnesMutableMemory
     {
         public byte ReadByte(int address)
         {
@@ -90,6 +91,16 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Fireflea FX audit source must expose WRAM."))
+                .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Fireflea FX audit source must expose SRAM."))
+                .ReadSaveRamByte(address);
     }
 
     private static ushort ReadFirefleaWord(SuperMetroidAddressSpace bus, int address) =>

@@ -70,6 +70,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, 0x8000),
             "Kraid head tilemap resolver rejects unrelated upper-ROM code");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, 0x3ffe),
+            "Kraid head low-half alias rejects unmapped expansion space");
 
         Console.WriteLine(
             "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
@@ -177,7 +180,7 @@ internal static partial class Program
                 body.VariableC, "Second-phase roar timer loads only on thinker expiry");
 
             body.Health = 1;
-            body.VariableB = 0x4000;
+            body.VariableB = 0x1000;
             guard.MutableTilemap = (ushort)raw;
             AssertTrue(growth(body, state), "Growth threshold admits timer setup");
             KraidHeadResumeDefinition expected =
@@ -203,20 +206,25 @@ internal static partial class Program
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");
+        AssertEqual(0, guard.UntypedLowHalfReadAttempts,
+            "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
     private sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, ISnesMutableMemory
     {
         public ushort MutableTilemap { get; set; }
         public int ForbiddenReadAttempts { get; private set; }
+        public int UntypedLowHalfReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (address == 0xa74002)
-                return (byte)MutableTilemap;
-            if (address == 0xa74003)
-                return (byte)(MutableTilemap >> 8);
+            if (address is 0xa71002 or 0xa71003)
+            {
+                UntypedLowHalfReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Kraid read live WRAM alias ${address:X6} through the generic bus.");
+            }
             if (address is >= 0xa796d2 and < 0xa79788)
             {
                 ForbiddenReadAttempts++;
@@ -225,6 +233,18 @@ internal static partial class Program
             }
             return source.ReadByte(address);
         }
+
+        public byte ReadWorkRamByte(int address) => address switch
+        {
+            0xa71002 => (byte)MutableTilemap,
+            0xa71003 => (byte)(MutableTilemap >> 8),
+            _ => (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
+        };
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

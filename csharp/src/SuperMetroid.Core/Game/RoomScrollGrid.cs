@@ -50,11 +50,13 @@ public sealed class RoomScrollGrid
     {
         ArgumentNullException.ThrowIfNull(bus);
         SnesAddress source = SnesAddress.FromBusAddress(sourceAddress);
+        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
+            throw new ArgumentException("Explicit scroll tables require a cartridge import source.", nameof(bus));
 
         var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
         for (int index = 0; index < StorageByteCount; index++)
         {
-            byte value = bus.ReadByte((int)source.AddWithinBank(index));
+            byte value = cartridge.ReadCartridgeByte((int)source.AddWithinBank(index));
             grid._cells[index] = value;
             bus.WriteByte(WorkRamAddress + index, value);
         }
@@ -149,7 +151,9 @@ public sealed class RoomScrollGrid
             throw new ArgumentOutOfRangeException(nameof(index));
         return index < StorageByteCount
             ? _cells[index]
-            : _bus.ReadByte(WorkRamAddress + index);
+            : (_bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Native scroll edge reads require WRAM."))
+                .ReadWorkRamByte(WorkRamAddress + index);
     }
 
     /// <summary>

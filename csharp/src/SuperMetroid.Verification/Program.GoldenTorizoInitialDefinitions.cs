@@ -77,6 +77,7 @@ internal static partial class Program
             "Golden Torizo initial entry: seven mechanics words, one visual frame, " +
             "and one native collision rectangle match the pinned cartridge.");
         VerifyGoldenTorizoAwakeningDefinitions(rom);
+        VerifyGoldenTorizoWalkingDefinitions(rom);
 
         ushort ReadWord(ushort address) =>
             (ushort)(rom.ReadByte((bank << 16) | address) |

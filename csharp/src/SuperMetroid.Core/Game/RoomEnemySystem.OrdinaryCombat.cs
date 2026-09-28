@@ -3038,17 +3038,25 @@ public sealed partial class RoomEnemySystem
 
         if (enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
             enemy.Definition.Bank == GoldenTorizoAwakeningCollisionDefinitions.Bank &&
-            GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
-                enemy.SpritemapPointer, out var goldenComponents))
+            (GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
+                 enemy.SpritemapPointer, out var goldenComponents) ||
+             GoldenTorizoWalkingCollisionDefinitions.TryGetComponents(
+                 enemy.SpritemapPointer, out goldenComponents)))
         {
             // Keep the cartridge's component and hitbox order. Empty belly/face
             // lists are real physical no-ops even when both art components draw.
+            bool walkingFrame = GoldenTorizoWalkingCollisionDefinitions.HasFrame(
+                enemy.SpritemapPointer);
             foreach (GoldenTorizoCollisionComponent component in goldenComponents.Span)
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
                 foreach (GoldenTorizoCollisionHitbox hitbox in
-                         GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(component.HitboxList))
+                         walkingFrame
+                             ? GoldenTorizoWalkingCollisionDefinitions.HitboxesAt(
+                                 component.HitboxList)
+                             : GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(
+                                 component.HitboxList))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));

@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Game;
 internal static class GoldenTorizoCombatInstructionPointers
 {
     /// <summary>
+    /// <c>InstList_GoldenTorizo_WalkingLeft_RightLegMoving</c> at $AA:D20D;
+    /// the return target after one left-leg walking cycle.
+    /// </summary>
+    internal const ushort WalkingLeftRightLeg = 0xd20d;
+
+    /// <summary>
     /// <c>InstList_GoldenTorizo_WalkingLeft_LeftLegMoving</c> at $AA:D259;
     /// the awakened statue's first ordinary combat destination.
     /// </summary>

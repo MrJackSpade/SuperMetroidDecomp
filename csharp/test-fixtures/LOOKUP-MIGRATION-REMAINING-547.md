@@ -15,8 +15,8 @@ The real wake-up fixture advances beyond the statue's initial sleep and
 matches native pixels for 380 active-gameplay frames with installed cartridge
 reads blocked. The earlier 700-frame claim was too broad: low-health Samus
 entered Game Over, so its later matching frames did not exercise the room.
-The verifier now requires active gameplay at each room fixture's start and
-asserts the Golden Torizo fixture ends before the uncompiled combat handoff.
+The verifier now requires active gameplay at each room fixture's start; a
+subsequent bounded slice extends that fixture across the first combat handoff.
 Later Golden Torizo combat lists, other input paths, and full ROM-free runtime
 coverage remain open.
 
@@ -36,10 +36,18 @@ rejected its `$D267` visual selector when installed enemy artwork was bound.
 The cartridge-backed host now reads remaining uncompiled Torizo instruction
 words and selectors from the original ROM. An independent installed-art runtime
 replay survives 850 wake/combat frames and asserts it enters the walking list.
-The zero-ROM installation still cannot cross this boundary; no ROM-free combat
-or pixel parity is claimed. Migrate its walking/turning/attack programs together
-with their editable frame selectors and independent physical hitboxes, then
-rerun the long input-driven replay with exact pixel and gameplay assertions.
+Both linked walking-left lists at `$AA:D20D-D2AC` now have 70 compiled control
+words, ten compiled visual selectors, ten distinct editable extended OAM frames,
+and ten independent physical component records referencing eleven hitbox lists.
+The new records are compared field-for-field against the pinned cartridge.
+Version-fifteen artwork overrides inherit the new frames; editing a walking
+component changes OAM without changing its engine-owned physical placement.
+The zero-ROM installed-assets replay now crosses the first walking handoff and
+matches native pixels for 390 active gameplay frames with cartridge reads
+forbidden. This is not proof of a full fight: other walking directions, turns,
+attacks and later collision branches still require bounded compilation and
+longer input-driven parity tests. The 850-frame cartridge-backed fallback
+check continues to guard the native-ROM compatibility path.
 
 ## Cartridge-free frontend proof (2026-09-27)
 

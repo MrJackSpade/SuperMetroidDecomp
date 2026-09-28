@@ -3717,6 +3717,10 @@ public sealed partial class RoomEnemySystem
             GoldenTorizoAwakeningInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort goldenAwakeningWord))
             return goldenAwakeningWord;
+        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            GoldenTorizoWalkingInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort goldenWalkingWord))
+            return goldenWalkingWord;
         if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
         {
             // The cartridge-backed host must remain playable while the other Torizo

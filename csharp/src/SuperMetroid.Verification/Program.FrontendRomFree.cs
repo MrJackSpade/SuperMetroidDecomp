@@ -250,12 +250,12 @@ internal static partial class Program
                         nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
                         installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
                     });
-                // Stop before the still-uncompiled walking-combat handoff. The
-                // older 700-frame low-health check reached Game Over and its
-                // trailing pixel matches did not exercise the loaded room.
+                // Cross the wake/combat handoff into the first linked walking
+                // lists. The older 700-frame low-health check reached Game Over
+                // and its trailing pixel matches did not exercise the room.
                 VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo waking",
-                    frameCount: 380,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo wake and first walk",
+                    frameCount: 390,
                     setup: (nativeRoom, installedRoom) =>
                     {
                         // Enter the authored lower-right wake rectangle on both
@@ -432,6 +432,7 @@ internal static partial class Program
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
         bool goldenWakeObserved = false;
+        bool goldenWalkingObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -462,6 +463,12 @@ internal static partial class Program
                 awakenedGoldenTorizo.CurrentInstruction >
                     GoldenTorizoInitialInstructionProgramDefinitions.Sleep)
                 goldenWakeObserved = true;
+            if (awakenedGoldenTorizo is not null &&
+                awakenedGoldenTorizo.CurrentInstruction >=
+                    GoldenTorizoWalkingInstructionProgramDefinitions.Start &&
+                awakenedGoldenTorizo.CurrentInstruction <
+                    GoldenTorizoWalkingInstructionProgramDefinitions.End)
+                goldenWalkingObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -538,10 +545,9 @@ internal static partial class Program
         {
             AssertTrue(goldenWakeObserved,
                 "Golden Torizo wake-up fixture actually advances beyond the initial sleep");
-            AssertTrue(awakenedGoldenTorizo.CurrentInstruction <
-                GoldenTorizoAwakeningInstructionProgramDefinitions.End &&
-                installed.GameState == SuperMetroidGameState.MainGameplay,
-                "Golden Torizo wake-up parity ends before the uncompiled combat " +
+            AssertTrue(goldenWalkingObserved &&
+                       installed.GameState == SuperMetroidGameState.MainGameplay,
+                "Golden Torizo wake-up parity crosses the first walking-combat " +
                 "handoff while gameplay remains active");
         }
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");

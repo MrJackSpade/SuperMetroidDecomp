@@ -1,5 +1,24 @@
 # Remaining lookup migration inventory (#547)
 
+## Ceres escape fixed VRAM transfer metadata (2026-09-27)
+
+The seven timer-sprite, eight timer-background/door, and four Japanese-overlay
+seven-byte descriptor records now have one bank-$A6 definition catalog. An
+installed game queues the compiled count/source/destination values and checks
+compiled terminators; constructed cartridge fixtures retain their authored
+lists. The verifier compares all 19 records and three terminators to the pinned
+cartridge, then executes both real timer-list dispatches and the Japanese
+overlay queue with descriptor reads forbidden. The existing Ceres-Ridley
+fixture continues to test its separate native-data path. Missing installed
+timer artwork fails explicitly instead of silently returning to ROM art. The
+two sprite-timer pages remain editable PNGs, while the other escape graphics sources still
+need presentation-asset migration; this does not complete the full ROM-free
+escape sequence.
+
+Separately, the retail-room ROM-free first-frame census passed all 262 isolated
+rooms after the Torizo entry migration. That proof does not cover subsequent
+room frames or scripted sequences such as this escape dispatcher.
+
 ## Torizo instruction-time VRAM transfers and Golden Torizo entry (2026-09-27)
 
 All 52 authored `$814B` descriptors in bank `$AA`'s Torizo instruction

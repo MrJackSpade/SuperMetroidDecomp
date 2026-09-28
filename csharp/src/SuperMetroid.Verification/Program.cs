@@ -761,6 +761,12 @@ if (args is ["--ceres-door-artwork"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--ceres-escape-transfers"])
+{
+    VerifyCeresEscapeVramTransferDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--fake-kraid-instruction-mechanics"])
 {
     VerifyFakeKraidInstructionProgramDefinitions();
@@ -2877,6 +2883,8 @@ VerifyPostCeresGunshipLanding();
 VerifyCeresElevatorPlatformAnimation();
 VerifyCeresDoorBossBranch();
 VerifyCeresRidleyRoomEntry();
+VerifyCeresEscapeVramTransferDefinitions(
+    SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 VerifyCeresEscapeHandoff();
 VerifyCeresDestructionCinematic();
 

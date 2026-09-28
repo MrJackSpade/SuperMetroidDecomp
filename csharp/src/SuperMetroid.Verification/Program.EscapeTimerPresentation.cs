@@ -9,6 +9,8 @@ internal static partial class Program
     private static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original)
     {
+        VerifyEscapeTimerPointerDefinitions(bus);
+
         string stockPath = Path.Combine(stock, EscapeTimerPresentationDefinitions.FileName);
         string stockTilePath = Path.Combine(stock, EscapeTimerTileAtlasFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(bus);
@@ -166,5 +168,69 @@ internal static partial class Program
                 result[index] = vram.ReadByte(byteAddress + index);
             return result;
         }
+    }
+
+    private static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
+    {
+        for (int digit = 0; digit < 10; digit++)
+        {
+            ushort nativePointer = RomDataReader.ReadWordFixedBank(
+                CartridgeImportSource.Require(bus),
+                EscapeTimerPresentationDefinitions.DigitPointerTable + digit * sizeof(ushort));
+            AssertEqual(nativePointer,
+                EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit),
+                $"compiled escape-timer digit pointer {digit}");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EscapeTimerPresentationDefinitions.DigitSpritemapPointer(10),
+            "escape-timer digit pointer rejects non-decimal values");
+
+        byte[] nativeExtraction = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(bus);
+        byte[] guardedExtraction = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(
+            new EscapeTimerPointerReadGuard(bus));
+        AssertTrue(nativeExtraction.AsSpan().SequenceEqual(guardedExtraction),
+            "timer extraction selects the same visual records without rereading the pointer table");
+
+        var timer = new EscapeTimer();
+        timer.Clear();
+        timer.SetTime(0x01, 0x23, 0x45);
+        var native = new OamBuffer();
+        var guarded = new OamBuffer();
+        native.BeginFrame();
+        guarded.BeginFrame();
+        EscapeTimerRenderer.Draw(timer, native, bus);
+        EscapeTimerRenderer.Draw(timer, guarded, new EscapeTimerPointerReadGuard(bus));
+        AssertEqual(native.NextByteOffset, guarded.NextByteOffset,
+            "compiled timer pointers preserve native OAM part count");
+        AssertTrue(native.LowTable.SequenceEqual(guarded.LowTable) &&
+            native.HighTable.SequenceEqual(guarded.HighTable),
+            "native timer draw no longer rereads the immutable digit pointer table");
+        Console.WriteLine("Escape timer digit pointers: ten cartridge words, exact extraction and OAM, no runtime pointer-table reads.");
+    }
+
+    private sealed class EscapeTimerPointerReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, IImportCartridgeSource
+    {
+        private static void RejectPointerTable(int address)
+        {
+            if (address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
+                address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort))
+                throw new InvalidOperationException(
+                    $"Escape timer reread compiled digit pointer at ${address:X6}.");
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectPointerTable(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectPointerTable(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

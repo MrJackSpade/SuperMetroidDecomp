@@ -45,14 +45,10 @@ public static class EscapeTimerRenderer
         if (tens > 9 || ones > 9)
             throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${packedBcd:X2}.");
 
-        DrawAtOffset(timer, oam, bus, xOffset, ReadDigitSpritemapPointer(bus, tens));
-        DrawAtOffset(timer, oam, bus, unchecked((short)(xOffset + 8)), ReadDigitSpritemapPointer(bus, ones));
-    }
-
-    private static ushort ReadDigitSpritemapPointer(ISnesAddressSpace bus, int digit)
-    {
-        int pointerAddress = EscapeTimerPresentationDefinitions.DigitPointerTable + digit * 2;
-        return (ushort)(bus.ReadByte(pointerAddress) | (bus.ReadByte(pointerAddress + 1) << 8));
+        DrawAtOffset(timer, oam, bus, xOffset,
+            EscapeTimerPresentationDefinitions.DigitSpritemapPointer(tens));
+        DrawAtOffset(timer, oam, bus, unchecked((short)(xOffset + 8)),
+            EscapeTimerPresentationDefinitions.DigitSpritemapPointer(ones));
     }
 
     private static void DrawAtOffset(

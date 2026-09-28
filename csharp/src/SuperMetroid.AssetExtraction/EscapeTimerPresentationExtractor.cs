@@ -17,8 +17,7 @@ public static class EscapeTimerPresentationExtractor
         };
         for (int digit = 0; digit < 10; digit++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                EscapeTimerPresentationDefinitions.DigitPointerTable + digit * sizeof(ushort));
+            ushort pointer = EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit);
             frames.Add(EscapeTimerPresentationDefinitions.DigitFrame(digit),
                 ReadSpritemap(bus, EscapeTimerPresentationDefinitions.SpritemapBank | pointer));
         }

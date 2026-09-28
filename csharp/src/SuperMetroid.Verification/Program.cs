@@ -1784,6 +1784,12 @@ if (args is ["--map-presentation"])
     VerifyMapPresentation();
     return 0;
 }
+if (args is ["--escape-timer-pointer-definitions", var timerRom])
+{
+    VerifyEscapeTimerPointerDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath(timerRom)));
+    return 0;
+}
 if (args is ["--load-station-definitions"])
 {
     VerifyCompiledLoadStationDefinitions();

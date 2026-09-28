@@ -54,19 +54,22 @@ public static class RomDataReader
         return (ushort)(low | (bus.ReadByte((int)address.AddWithinBank(1)) << 8));
     }
 
-    /// <summary>Reads one little-endian 24-bit pointer without carrying out of its data bank.</summary>
-    public static int ReadLongFixedBank(ISnesAddressSpace bus, int address)
+    /// <summary>Reads one little-endian 24-bit cartridge pointer without carrying out of its data bank.</summary>
+    public static int ReadLongFixedBank(IImportCartridgeSource cartridge, int address)
     {
-        return ReadLongFixedBank(bus, SnesAddress.FromBusAddress(address));
+        return ReadLongFixedBank(cartridge, SnesAddress.FromBusAddress(address));
     }
 
-    /// <summary>Typed 24-bit pointer read with native fixed-bank wrapping.</summary>
-    public static int ReadLongFixedBank(ISnesAddressSpace bus, SnesAddress address)
+    /// <summary>Typed 24-bit cartridge pointer read; a low-window wrap is not a cartridge import.</summary>
+    public static int ReadLongFixedBank(IImportCartridgeSource cartridge, SnesAddress address)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte((int)address) |
-               (bus.ReadByte((int)address.AddWithinBank(1)) << 8) |
-               (bus.ReadByte((int)address.AddWithinBank(2)) << 16);
+        ArgumentNullException.ThrowIfNull(cartridge);
+        if (!address.IsUpperLoRomWindow || address.Offset > 0xfffd)
+            throw new ArgumentOutOfRangeException(nameof(address),
+                "A 24-bit cartridge pointer must remain in the upper bank window.");
+        return cartridge.ReadCartridgeByte((int)address) |
+               (cartridge.ReadCartridgeByte((int)address.AddWithinBank(1)) << 8) |
+               (cartridge.ReadCartridgeByte((int)address.AddWithinBank(2)) << 16);
     }
 
     /// <summary>

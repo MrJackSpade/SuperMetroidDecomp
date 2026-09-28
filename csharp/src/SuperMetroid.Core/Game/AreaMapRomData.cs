@@ -28,7 +28,7 @@ public static class AreaMapRomData
         ArgumentNullException.ThrowIfNull(bus);
         int areaIndex = AreaIds.ToIndex(area);
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             TilemapPointerTable + areaIndex * 3);
         ushort revealPointer = RomDataReader.ReadWordFixedBank(
             bus,

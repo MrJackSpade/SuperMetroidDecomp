@@ -81,15 +81,15 @@ internal static partial class Program
             int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
             AssertEqual(pointer, compiled.Pointer,
                 $"graphics set ${graphicsSet:X2} compiled definition pointer");
-            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+            AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset),
                 compiled.BlockDefinitionsAddress,
                 $"graphics set ${graphicsSet:X2} compiled block source");
-            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+            AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomAssetRomData.Tilesets.CharacterAddressOffset),
                 compiled.CharacterAddress,
                 $"graphics set ${graphicsSet:X2} compiled character source");
-            AssertEqual(RomDataReader.ReadLongFixedBank(bus,
+            AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomAssetRomData.Tilesets.PaletteAddressOffset),
                 compiled.PaletteAddress,
                 $"graphics set ${graphicsSet:X2} compiled palette source");
@@ -104,13 +104,13 @@ internal static partial class Program
             ushort definitionPointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
             int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | definitionPointer;
             int blockAddress = RomDataReader.ReadLongFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 definitionAddress + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset);
             int characterAddress = RomDataReader.ReadLongFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 definitionAddress + RoomAssetRomData.Tilesets.CharacterAddressOffset);
             int paletteAddress = RomDataReader.ReadLongFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 definitionAddress + RoomAssetRomData.Tilesets.PaletteAddressOffset);
 
             AssertTrue(RomDataReader.Decompress(bus, blockAddress).Length > 0,
@@ -295,9 +295,22 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadByte(int address)
+        {
+            RejectDefinitionRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectDefinitionRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectDefinitionRead(int address)
         {
             int first = RoomAssetRomData.Tilesets.DefinitionBank | RoomTilesetDefinitions.Get(0).Pointer;
             int end = RoomAssetRomData.Tilesets.PointerTableAddress +
@@ -305,7 +318,6 @@ internal static partial class Program
             if (address >= first && address < end)
                 throw new InvalidOperationException(
                     $"Room loader reread compiled tileset definition data at ${address:X6}.");
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

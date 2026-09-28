@@ -26,6 +26,12 @@ internal static class RomDecompressionVerification
             throw new InvalidDataException("Fixed-bank import did not use the typed cartridge source.");
         RejectRange(() => RomDataReader.ReadFixedBank(
             new StreamBus([0x12, 0x34, 0x56, 0x78, 0x9a]), StreamBus.Start, 5));
+        var longPointerBus = new StreamBus([0x12, 0x34, 0x56]);
+        if (RomDataReader.ReadLongFixedBank(longPointerBus, StreamBus.Start) != 0x563412 ||
+            longPointerBus.Reads != 3)
+            throw new InvalidDataException("24-bit pointer import did not use the typed cartridge source.");
+        RejectRange(() => RomDataReader.ReadLongFixedBank(
+            new StreamBus([0x12, 0x34, 0x56]), StreamBus.Start + 2));
         long before = GC.GetAllocatedBytesForCurrentThread();
         byte[] output = RomDataReader.Decompress(bus, StreamBus.Start, bytes.Length);
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;

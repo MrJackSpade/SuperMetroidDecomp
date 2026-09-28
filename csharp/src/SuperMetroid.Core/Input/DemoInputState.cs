@@ -317,10 +317,16 @@ public sealed class DemoInputState
         }
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort address) =>
-        unchecked((ushort)(bus.ReadByte(DemoInputRomData.BankBase | address) |
-            (bus.ReadByte(DemoInputRomData.BankBase |
-                unchecked((ushort)(address + 1))) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, ushort address)
+    {
+        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
+            throw new ArgumentException(
+                "Uncompiled demo-input lists require a cartridge import source.", nameof(bus));
+        return unchecked((ushort)(
+            cartridge.ReadCartridgeByte(DemoInputRomData.BankBase | address) |
+            cartridge.ReadCartridgeByte(DemoInputRomData.BankBase |
+                unchecked((ushort)(address + 1))) << 8));
+    }
 
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
         new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");

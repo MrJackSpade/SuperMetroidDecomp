@@ -812,6 +812,11 @@ if (args is ["--acid-statue-first-entry"])
     VerifyAcidStatueFirstEntry();
     return 0;
 }
+if (args is ["--demo-input-object"])
+{
+    VerifyDemoInputObject();
+    return 0;
+}
 if (args is ["--door-alignment"])
 {
     VerifyDoorAlignmentParity();

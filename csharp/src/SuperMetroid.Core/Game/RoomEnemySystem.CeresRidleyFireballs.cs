@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -1670,7 +1671,7 @@ public sealed partial class RoomEnemySystem
                         unchecked((ushort)(cursor + 2)));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Y:
-                    cursor = unchecked((ushort)(cursor + 2 + unchecked((sbyte)_bus!.ReadByte(
+                    cursor = unchecked((ushort)(cursor + 2 + unchecked((sbyte)CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                         0x860000 | unchecked((ushort)(cursor + 2))))));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero:
@@ -1690,7 +1691,7 @@ public sealed partial class RoomEnemySystem
                     projectile.GeneralTimer = unchecked((ushort)(before - 1));
                     cursor = before == 1
                         ? unchecked((ushort)(cursor + 3))
-                        : unchecked((ushort)(cursor + 2 + unchecked((sbyte)_bus!.ReadByte(
+                        : unchecked((ushort)(cursor + 2 + unchecked((sbyte)CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                             0x860000 | unchecked((ushort)(cursor + 2))))));
                     break;
                 }

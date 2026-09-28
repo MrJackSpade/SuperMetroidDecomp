@@ -2,6 +2,7 @@ using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -3154,7 +3155,7 @@ public sealed partial class RoomEnemySystem
         // Ceres steam, for example, stores `$1001` for one component. Treating the whole
         // word as 4097 components walks into adjacent ROM and eventually selects garbage
         // callbacks such as `$F880` instead of the authored `$F03F/$804C` pair.
-        int componentCount = _bus!.ReadByte(extendedMap);
+        int componentCount = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(extendedMap);
 
         for (int componentIndex = 0; componentIndex < componentCount; componentIndex++)
         {

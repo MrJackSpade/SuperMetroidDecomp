@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
@@ -1265,7 +1266,7 @@ public static partial class SnesGameplayFrameRenderer
             int shapeLine = Math.Abs(yFromCenter);
             if ((uint)shapeLine >= 192)
                 return -1;
-            byte halfWidth = bus.ReadByte(
+            byte halfWidth = CartridgeImportSource.Require(bus).ReadCartridgeByte(
                 (int)new SnesAddress(0x88, unchecked((ushort)(shapePointer + shapeLine))));
             return halfWidth == 0 ? -1 : halfWidth;
         }

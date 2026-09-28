@@ -316,8 +316,10 @@ internal static partial class Program
 
     private sealed class CrocomireMeltingDefinitionReadGuard(
         ISnesAddressSpace source, bool blockGraphics = false) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rom;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>ROM-table loading, per-column erasure, and BG2 distortion for both melts.</summary>
@@ -100,7 +102,7 @@ public sealed partial class RoomEnemySystem
                 }
                 for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
                 {
-                    graphics[destinationOffset + byteIndex] = _bus!.ReadByte(
+                    graphics[destinationOffset + byteIndex] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                         (sourceBank << 16) | unchecked((ushort)(source + byteIndex)));
                 }
             }

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -632,7 +633,7 @@ public sealed partial class RoomEnemySystem
             _bus!, EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + entry * 2);
         byte[] bytes = new byte[0x0200];
         for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = _bus!.ReadByte(
+            bytes[index] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                 (int)new SnesAddress(0xad, unchecked((ushort)(source + index))));
 
         // OBSEL is $03 in ordinary gameplay, so its low-three-bit base contributes $6000

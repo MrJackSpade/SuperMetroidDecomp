@@ -110,8 +110,10 @@ internal static partial class Program
 
     private sealed class CeresDoorQuakeReadGuard(
         ISnesAddressSpace source, bool blockOverlay = false)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa6a321 and < 0xa6a325 ||
             (blockOverlay && address is >= 0xa6a329 and < 0xa6a353)

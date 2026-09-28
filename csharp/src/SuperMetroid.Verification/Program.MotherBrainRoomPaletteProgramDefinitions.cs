@@ -84,8 +84,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainRoomPaletteReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenMechanicsReadAttempts { get; private set; }
 

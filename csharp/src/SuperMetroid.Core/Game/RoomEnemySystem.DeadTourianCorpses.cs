@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -274,7 +275,7 @@ public sealed partial class RoomEnemySystem
                 _bus!.WriteByte(
                     DeadMonsterWorkBufferAddress + copy.DestinationOffset + byteIndex,
                     installedTiles.IsEmpty
-                        ? _bus.ReadByte(DeadTourianCorpseArtworkDefinitions.SourceAddress + sourceOffset)
+                        ? CartridgeImportSource.Require(_bus).ReadCartridgeByte(DeadTourianCorpseArtworkDefinitions.SourceAddress + sourceOffset)
                         : installedTiles[sourceOffset]);
             }
         }

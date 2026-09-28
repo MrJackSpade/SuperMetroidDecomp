@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -787,7 +788,7 @@ public sealed partial class RoomEnemySystem
     private RidleyCollisionComponent[] ReadNativeRidleyCollisionComponents(ushort frame)
     {
         int root = RidleyCollisionDefinitions.Bank << 16 | frame;
-        int count = _bus!.ReadByte(root);
+        int count = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(root);
         if (count > 64)
             throw new InvalidDataException("Synthetic Ridley frame has more than 64 components.");
         var result = new RidleyCollisionComponent[count];
@@ -795,9 +796,9 @@ public sealed partial class RoomEnemySystem
         {
             int record = AdvanceBankAddress(root, 2 + index * 8);
             result[index] = new(
-                unchecked((short)ReadWord(_bus, record)),
-                unchecked((short)ReadWord(_bus, AdvanceBankAddress(record, 2))),
-                ReadWord(_bus, AdvanceBankAddress(record, 6)));
+                unchecked((short)ReadWord(_bus!, record)),
+                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 2))),
+                ReadWord(_bus!, AdvanceBankAddress(record, 6)));
         }
         return result;
     }

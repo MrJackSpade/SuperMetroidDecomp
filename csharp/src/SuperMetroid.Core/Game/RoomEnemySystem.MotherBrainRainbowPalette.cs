@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -29,8 +30,8 @@ public sealed partial class RoomEnemySystem
             _cgram.LoadFromBus(_bus!, fadeSource + count * 2, MotherBrainDrainedPaletteRomData.BackLegCount,
                 MotherBrainDrainedPaletteRomData.BackLegColor);
             int tail = fadeSource + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * 2;
-            _bus!.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, _bus.ReadByte(tail));
-            _bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, _bus.ReadByte(tail + 1));
+            _bus!.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, CartridgeImportSource.Require(_bus).ReadCartridgeByte(tail));
+            _bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, CartridgeImportSource.Require(_bus).ReadCartridgeByte(tail + 1));
             return;
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&

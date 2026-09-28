@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -166,7 +167,7 @@ public sealed partial class RoomEnemySystem
             if (byteCount == 0)
                 return true;
             ushort sourceOffset = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
-            byte sourceBank = _bus!.ReadByte(
+            byte sourceBank = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                 (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
             destination = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
             sourceAddress = (sourceBank << 16) | sourceOffset;
@@ -226,9 +227,9 @@ public sealed partial class RoomEnemySystem
                 if (byteCount == 0)
                     return;
                 ushort sourceOffset = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
-                byte sourceBank = _bus!.ReadByte(
+                byte sourceBank = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                     (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
-                ushort destination = ReadWord(_bus, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
+                ushort destination = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
                 vramWriteQueue.Enqueue(byteCount, (sourceBank << 16) | sourceOffset, destination);
             }
         }

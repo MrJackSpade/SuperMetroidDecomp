@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rom;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -273,7 +275,7 @@ public sealed partial class RoomEnemySystem
                     byte[] tiles = new byte[
                         DraygonIntroPresentationDefinitions.EvirTilesByteCount];
                     for (int index = 0; index < tiles.Length; index++)
-                        tiles[index] = _bus!.ReadByte(evir.TileDataAddress + index);
+                        tiles[index] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(evir.TileDataAddress + index);
                     _vram!.LoadBytes(
                         DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
                         tiles);

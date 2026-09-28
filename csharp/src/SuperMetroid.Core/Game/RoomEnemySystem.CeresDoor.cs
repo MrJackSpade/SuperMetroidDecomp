@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -84,7 +85,7 @@ public sealed partial class RoomEnemySystem
             {
                 byte[] tileBytes = new byte[CeresDoorVisualRomData.TileByteCount];
                 for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                    tileBytes[byteIndex] = _bus!.ReadByte(
+                    tileBytes[byteIndex] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
                         CeresDoorVisualRomData.TileSource + byteIndex);
                 _vram!.LoadBytes(CeresDoorVisualRomData.TileVramDestination, tileBytes);
             }

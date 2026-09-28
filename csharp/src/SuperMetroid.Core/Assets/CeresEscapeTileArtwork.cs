@@ -9,11 +9,13 @@ internal static class CeresEscapeTileArtworkDefinitions
 {
     /// <summary>Escape timer warning-text characters at $B7:DA00-E2FF.</summary>
     internal static readonly CeresEscapeTileSheetDefinition WarningText =
-        new(0xb7da00, 0x0900, "ceres-escape-warning-tiles.png");
+        new(CeresEscapeTileRomData.WarningTextSource,
+            CeresEscapeTileRomData.WarningTextByteCount, "ceres-escape-warning-tiles.png");
 
     /// <summary>Ceres escape door characters at $B0:BA00-BFFF.</summary>
     internal static readonly CeresEscapeTileSheetDefinition Doors =
-        new(0xb0ba00, 0x0600, "ceres-escape-door-tiles.png");
+        new(CeresEscapeTileRomData.DoorSource,
+            CeresEscapeTileRomData.DoorByteCount, "ceres-escape-door-tiles.png");
 
     private static readonly CeresEscapeTileSheetDefinition[] Pages =
         [WarningText, Doors];

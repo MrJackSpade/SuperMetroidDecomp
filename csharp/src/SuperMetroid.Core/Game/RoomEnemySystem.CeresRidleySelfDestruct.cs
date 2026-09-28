@@ -162,13 +162,13 @@ public sealed partial class RoomEnemySystem
         {
             // Constructed cartridge fixtures may author their own transfer
             // records. Only the installed game owns the immutable native list.
-            byteCount = ReadWord(_bus!, 0xa60000 | pointer);
+            byteCount = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | pointer);
             if (byteCount == 0)
                 return true;
-            ushort sourceOffset = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 2)));
+            ushort sourceOffset = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
             byte sourceBank = _bus!.ReadByte(
                 (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
-            destination = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 5)));
+            destination = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
             sourceAddress = (sourceBank << 16) | sourceOffset;
         }
         if (vramWriteQueue is null)
@@ -195,7 +195,7 @@ public sealed partial class RoomEnemySystem
         return TileArtwork is not null
             ? CeresEscapeVramTransferDefinitions.IsTerminator(
                 state.CeresEscapeTransferListPointer)
-            : ReadWord(_bus!, 0xa60000 | state.CeresEscapeTransferListPointer) == 0;
+            : ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | state.CeresEscapeTransferListPointer) == 0;
     }
 
     /// <summary>Queues every record in the one-shot Japanese overlay list at $A6:C3B8.</summary>
@@ -222,13 +222,13 @@ public sealed partial class RoomEnemySystem
             }
             else
             {
-                ushort byteCount = ReadWord(_bus!, 0xa60000 | pointer);
+                ushort byteCount = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | pointer);
                 if (byteCount == 0)
                     return;
-                ushort sourceOffset = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 2)));
+                ushort sourceOffset = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
                 byte sourceBank = _bus!.ReadByte(
                     (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
-                ushort destination = ReadWord(_bus, 0xa60000 | unchecked((ushort)(pointer + 5)));
+                ushort destination = ReadWord(_bus, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
                 vramWriteQueue.Enqueue(byteCount, (sourceBank << 16) | sourceOffset, destination);
             }
         }
@@ -262,20 +262,20 @@ public sealed partial class RoomEnemySystem
         ushort pointer = state.CeresEscapeTextPointer;
         while (true)
         {
-            ushort command = ReadWord(_bus!, 0xa60000 | pointer);
+            ushort command = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | pointer);
             if (command == 0)
                 return true;
             if (command == 1)
             {
                 state.CeresEscapeTextDelay = ReadWord(
-                    _bus!, 0xa60000 | unchecked((ushort)(pointer + 2)));
+                    _bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
                 pointer = unchecked((ushort)(pointer + 4));
                 continue;
             }
             if (command == 13)
             {
                 state.CeresEscapeTextDestination = ReadWord(
-                    _bus!, 0xa60000 | unchecked((ushort)(pointer + 2)));
+                    _bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
                 pointer = unchecked((ushort)(pointer + 4));
                 continue;
             }

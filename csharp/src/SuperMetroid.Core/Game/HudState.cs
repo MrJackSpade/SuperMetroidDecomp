@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -233,10 +234,7 @@ public sealed class HudState
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
         int areaMapPointerAddress = AreaMapRomData.TilemapPointerTable + areaTableIndex * 3;
-        int areaMapAddress = presentationMap is null ?
-            bus.ReadByte(areaMapPointerAddress) |
-            (bus.ReadByte(areaMapPointerAddress + 1) << 8) |
-            (bus.ReadByte(areaMapPointerAddress + 2) << 16) : 0;
+        int areaMapAddress = presentationMap is null ? ReadRomLong(bus, areaMapPointerAddress) : 0;
         ushort mapDataPointer = presentationMap is null ? ReadRomWord(
             bus,
             AreaMapRomData.StationRevealMaskPointerTable + areaTableIndex * 2) : (ushort)0;
@@ -486,20 +484,30 @@ public sealed class HudState
         _tiles[destination + 1] = ReadRomWord(bus, digitTable + value % 10 * 2);
     }
 
+    private static int ReadRomLong(ISnesAddressSpace bus, int address)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        return cartridge.ReadCartridgeByte(address) |
+            cartridge.ReadCartridgeByte(address + 1) << 8 |
+            cartridge.ReadCartridgeByte(address + 2) << 16;
+    }
+
     private static ushort ReadRomWord(ISnesAddressSpace bus, int address)
     {
         // Every table used here remains within bank $80, but wrapping the offset documents
         // the 65C816 absolute/long access behavior and avoids accidental linear-bank reads.
         SnesAddress source = SnesAddress.FromBusAddress(address);
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         return (ushort)(
-            bus.ReadByte((int)source) |
-            (bus.ReadByte((int)source.AddWithinBank(1)) << 8));
+            cartridge.ReadCartridgeByte((int)source) |
+            (cartridge.ReadCartridgeByte((int)source.AddWithinBank(1)) << 8));
     }
 
     private static bool ReadMapBit(ISnesAddressSpace bus, int mapDataAddress, int mapX, int mapY)
     {
         int byteIndex = AreaMapLayout.GetBitByteIndex(mapX, mapY);
-        return (bus.ReadByte(mapDataAddress + byteIndex) & AreaMapLayout.GetBitMask(mapX)) != 0;
+        return (CartridgeImportSource.Require(bus).ReadCartridgeByte(mapDataAddress + byteIndex) &
+            AreaMapLayout.GetBitMask(mapX)) != 0;
     }
 }
 

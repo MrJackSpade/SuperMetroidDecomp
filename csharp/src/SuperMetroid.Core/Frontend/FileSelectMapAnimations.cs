@@ -44,7 +44,8 @@ public sealed class FileSelectMapAnimations
                 replacement = new Arrow(Read(record), unchecked((ushort)(Read(record + 2) - 1)),
                     program, Read(FileSelectMapRomData.MenuObjectBank | bases));
                 phaseCount = 0;
-                while (bus.ReadByte(FileSelectMapRomData.MenuObjectBank | (program + phaseCount * 3)) != byte.MaxValue)
+                while (CartridgeImportSource.Require(bus).ReadCartridgeByte(
+                    FileSelectMapRomData.MenuObjectBank | (program + phaseCount * 3)) != byte.MaxValue)
                     if (++phaseCount > MapArrowFormat.MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");
                 if (phaseCount == 0) throw new InvalidDataException("Map arrow animation has no frames.");
             }
@@ -107,7 +108,7 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    private byte AnimationByte(Arrow arrow, int offset) => bus.ReadByte(
+    private byte AnimationByte(Arrow arrow, int offset) => CartridgeImportSource.Require(bus).ReadCartridgeByte(
         FileSelectMapRomData.MenuObjectBank | unchecked((ushort)(arrow.Program + arrow.Frame * 3 + offset)));
     private ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 

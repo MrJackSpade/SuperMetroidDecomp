@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
@@ -155,7 +156,8 @@ public sealed partial class SuperMetroidGame
             return AttractDemoRomData.DefaultSetCount;
         ReadOnlySpan<byte> marker = AttractDemoRomData.CompletionMarker;
         for (int index = 0; index < marker.Length; index++)
-            if (bus.ReadByte(AttractDemoRomData.CompletionMarkerAddress + index) != marker[index])
+            if (CartridgeImportSource.Require(bus).ReadCartridgeByte(
+                    AttractDemoRomData.CompletionMarkerAddress + index) != marker[index])
                 return AttractDemoRomData.DefaultSetCount;
         return AttractDemoRomData.SetCount;
     }

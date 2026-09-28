@@ -192,9 +192,10 @@ internal sealed class EndingBackgroundTextState
                 $"Ending BG indirect function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");
         }
 
-        byte width = bus.ReadByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        byte width = cartridge.ReadCartridgeByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
             Add(dataPointer, 2)));
-        byte height = bus.ReadByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
+        byte height = cartridge.ReadCartridgeByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
             Add(dataPointer, 3)));
         int x = packedPosition & EndingCreditsRomData.Text.PackedPositionXMask;
         int y = packedPosition >> 8;

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -206,11 +207,23 @@ internal static partial class Program
 
     private sealed class AttractDefinitionReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, ISnesMutableMemory
+        HashSet<int> forbidden) : ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            RejectCompiledSource(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectCompiledSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectCompiledSource(int address)
         {
             if (forbidden.Contains(address))
             {
@@ -218,7 +231,6 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Production attract playback read compiled source byte ${address >> 16:X2}:{address & 0xffff:X4}.");
             }
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

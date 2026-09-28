@@ -764,7 +764,8 @@ internal sealed partial class PauseMenuState
     private void ResetItemSelectorAnimation()
     {
         itemSelectorAnimationFrame = 0;
-        itemSelectorAnimationTimer = mapPresentation?.PauseSelectors.InitialDurationTicks ?? bus.ReadByte(PauseMenuRomData.ItemSelectorAnimationTimer);
+        itemSelectorAnimationTimer = mapPresentation?.PauseSelectors.InitialDurationTicks ??
+            CartridgeImportSource.Require(bus).ReadCartridgeByte(PauseMenuRomData.ItemSelectorAnimationTimer);
     }
 
     private void StepItemSelectorAnimation()
@@ -789,12 +790,12 @@ internal sealed partial class PauseMenuState
             CartridgeImportSource.Require(bus),
             PauseMenuRomData.ItemSelectorAnimationPointer);
         itemSelectorAnimationFrame++;
-        byte duration = bus.ReadByte(
+        byte duration = CartridgeImportSource.Require(bus).ReadCartridgeByte(
             0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff));
         if (duration == 0xff)
         {
             itemSelectorAnimationFrame = 0;
-            duration = bus.ReadByte((int)new SnesAddress(0x82, animationPointer));
+            duration = CartridgeImportSource.Require(bus).ReadCartridgeByte((int)new SnesAddress(0x82, animationPointer));
         }
         itemSelectorAnimationTimer = duration;
     }
@@ -828,7 +829,7 @@ internal sealed partial class PauseMenuState
             CartridgeImportSource.Require(bus),
             PauseMenuRomData.ItemSelectorAnimationPointer);
         int animationEntry = 0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff);
-        byte spritemapOffset = bus.ReadByte(animationEntry + 2);
+        byte spritemapOffset = CartridgeImportSource.Require(bus).ReadCartridgeByte(animationEntry + 2);
 
         // The third variable pointer used by DrawPauseScreenSpriteAnim is WRAM $0755, the
         // packed equipment selector. The important 65C816 detail is operand width: unlike
@@ -962,7 +963,7 @@ internal sealed partial class PauseMenuState
     {
         int source = 0x820000 | sourcePointer;
         for (int index = 0; index < destination.Length; index++)
-            destination[index] = bus.ReadByte(
+            destination[index] = CartridgeImportSource.Require(bus).ReadCartridgeByte(
                 (int)new SnesAddress(0x82, unchecked((ushort)(source + index))));
     }
 

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -136,5 +137,5 @@ public sealed class EscapeTypewriterState
 
     private void Advance(int count) => Pointer = (Pointer & ~ushort.MaxValue) | unchecked((ushort)(Pointer + count));
     private static ushort Word(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte((address & ~ushort.MaxValue) | unchecked((ushort)(address + 1))) << 8);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

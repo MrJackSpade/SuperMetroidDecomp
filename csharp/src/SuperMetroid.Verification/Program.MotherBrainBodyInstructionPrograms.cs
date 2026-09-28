@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -98,13 +99,25 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainBodyMechanicsReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public int AllowedReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            RejectMechanicsRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectMechanicsRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectMechanicsRead(int address)
         {
             ushort bankAddress = unchecked((ushort)address);
             bool forbidden = (address & 0xff0000) == 0xa90000 &&
@@ -120,7 +133,6 @@ internal static partial class Program
             }
 
             AllowedReadAttempts++;
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

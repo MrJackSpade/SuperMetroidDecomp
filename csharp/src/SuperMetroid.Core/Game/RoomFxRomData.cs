@@ -409,7 +409,7 @@ public static class RoomFxRomData
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         if (useCompiledRecords)
             return RoomFxRecordDefinitions.Get(record).ReadByte(fieldOffset);
-        return bus.ReadByte(
+        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
             Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
     }
 

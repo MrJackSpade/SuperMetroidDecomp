@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -137,6 +138,6 @@ public sealed class MotherBrainRainbowBeamHdmaState
     private ushort ReadColorWord(ISnesAddressSpace bus, int cursor) =>
         presentationColors is { } colors
             ? colors.BeamColorWord(cursor)
-            : (ushort)(bus.ReadByte(MotherBrainBeamRomData.ColorTable + cursor) |
-                bus.ReadByte(MotherBrainBeamRomData.ColorTable + cursor + 1) << 8);
+            : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                MotherBrainBeamRomData.ColorTable + cursor);
 }

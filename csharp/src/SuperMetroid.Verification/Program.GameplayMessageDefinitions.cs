@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -55,11 +56,23 @@ internal static partial class Program
     }
 
     private sealed class GameplayMessageDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            RejectDefinitionRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectDefinitionRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectDefinitionRead(int address)
         {
             int start = GameplayMessageRomData.Assets.DefinitionTable;
             int end = start + GameplayMessageDefinitions.NativeDefinitionCount *
@@ -70,7 +83,6 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Gameplay message reread compiled definition byte ${address:X6}.");
             }
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

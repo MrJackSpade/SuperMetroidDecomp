@@ -80,11 +80,24 @@ internal static partial class Program
         unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
     private sealed class HyperBeamPaletteFxControlReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            RejectControlRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectControlRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Hyper Beam test source requires cartridge data.")).ReadCartridgeByte(address);
+        }
+
+        private void RejectControlRead(int address)
         {
             if (IsControlByte(address))
             {
@@ -92,8 +105,6 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Hyper Beam palette-FX attempted control read ${address:X6}.");
             }
-
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

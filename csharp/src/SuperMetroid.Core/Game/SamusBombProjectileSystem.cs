@@ -3,6 +3,7 @@ using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -1173,7 +1174,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
 }
 

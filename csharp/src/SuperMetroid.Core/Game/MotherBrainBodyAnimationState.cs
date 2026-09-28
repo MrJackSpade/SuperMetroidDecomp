@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -297,10 +298,8 @@ public sealed class MotherBrainBodyAnimationState
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort address)
     {
-        int cpuAddress = InstructionBank | address;
-        byte low = bus.ReadByte(cpuAddress);
-        byte high = bus.ReadByte(InstructionBank | unchecked((ushort)(address + 1)));
-        return (ushort)(low | (high << 8));
+        return RomDataReader.ReadWordFixedBank(
+            CartridgeImportSource.Require(bus), InstructionBank | address);
     }
 }
 

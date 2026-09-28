@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -462,7 +463,7 @@ public sealed class GameplayMessageBoxState
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>Coroutine phase for <see cref="GameplayMessageBoxState"/>.</summary>

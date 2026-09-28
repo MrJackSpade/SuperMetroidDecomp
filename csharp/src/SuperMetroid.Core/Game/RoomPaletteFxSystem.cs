@@ -561,7 +561,8 @@ public sealed class RoomPaletteFxSystem
             return compiled;
         }
 
-        return bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer);
+        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
+            RoomFxRomData.Banks.PaletteFx | pointer);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

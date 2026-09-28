@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -671,5 +672,5 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 : damage;
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

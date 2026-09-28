@@ -183,12 +183,27 @@ internal static partial class Program
 
     private sealed class RoomPaletteFxDefinitionReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
-        public byte ReadByte(int address) => forbidden.Contains(address)
-            ? throw new InvalidOperationException(
-                $"Palette-FX runtime reread compiled metadata byte ${address:X6}.")
-            : source.ReadByte(address);
+        public byte ReadByte(int address)
+        {
+            RejectMetadataRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectMetadataRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Palette-FX test source requires cartridge data.")).ReadCartridgeByte(address);
+        }
+
+        private void RejectMetadataRead(int address)
+        {
+            if (forbidden.Contains(address))
+                throw new InvalidOperationException(
+                    $"Palette-FX runtime reread compiled metadata byte ${address:X6}.");
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

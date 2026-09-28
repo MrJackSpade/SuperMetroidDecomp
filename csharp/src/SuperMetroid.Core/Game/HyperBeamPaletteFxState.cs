@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -138,8 +139,8 @@ public sealed class HyperBeamPaletteFxState
     private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort address) =>
         ReadWord(bus, SamusPaletteRomData.Banks.PaletteFx | address);
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>Debugger-visible result of one Hyper Beam palette-object handler call.</summary>

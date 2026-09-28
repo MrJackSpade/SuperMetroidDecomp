@@ -222,12 +222,26 @@ internal static partial class Program
     }
 
     private sealed class RoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
-        public byte ReadByte(int address) => address == levelSource
-            ? throw new InvalidOperationException(
-                $"Installed room reread native level source ${address:X6}.")
-            : source.ReadByte(address);
+        public byte ReadByte(int address)
+        {
+            RejectLevelSource(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectLevelSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectLevelSource(int address)
+        {
+            if (address == levelSource)
+                throw new InvalidOperationException(
+                    $"Installed room reread native level source ${address:X6}.");
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

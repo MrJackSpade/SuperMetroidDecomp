@@ -48,7 +48,7 @@ public static class CeresRidleyColorExtractor
 
         PaletteRgb5[] ReadColors(int source, int count)
         {
-            byte[] bytes = RomDataReader.ReadFixedBank(bus, source, count * sizeof(ushort));
+            byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, count * sizeof(ushort));
             var result = new PaletteRgb5[count];
             for (int color = 0; color < count; color++)
             {

@@ -28,7 +28,7 @@ internal static partial class Program
             for (int row = 0; row < 2; row++)
             {
                 int destination = RomDataReader.ReadWordFixedBank(bus, 0x82c068 + row * 2) - 0x3800;
-                RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap + destination, 14)
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemap + destination, 14)
                     .CopyTo(expectedVram, 0x6000 + destination);
             }
             if (capacity != 0)
@@ -38,7 +38,7 @@ internal static partial class Program
                 {
                     int destination = RomDataReader.ReadWordFixedBank(bus, 0x82c068 + row * 2) - 0x3800;
                     int source = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c088 + row * 2);
-                    RomDataReader.ReadFixedBank(bus, source, 14).CopyTo(expectedVram, 0x6000 + destination);
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, 14).CopyTo(expectedVram, 0x6000 + destination);
                 }
                 // AB47 preserves attributes while inserting four mode tiles at word 327.
                 if (mode != 0)

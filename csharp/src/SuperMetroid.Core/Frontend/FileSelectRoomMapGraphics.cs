@@ -51,11 +51,11 @@ public sealed partial class FileSelectRoomMapGraphics
             return;
         }
         var frame = new byte[FileSelectMapRomData.TilemapBytes];
-        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrame, FileSelectMapRomData.RoomFrameHeaderWords * 2).CopyTo(frame, 0);
+        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrame, FileSelectMapRomData.RoomFrameHeaderWords * 2).CopyTo(frame, 0);
         for (int word = FileSelectMapRomData.RoomFrameHeaderWords; word < frame.Length / 2; word++)
             BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), FileSelectMapRomData.RoomFrameBlank);
         // Native copies backwards from footer word 160 through word 1, not word 0.
-        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrameFooter + 2, FileSelectMapRomData.RoomFrameFooterWords * 2).CopyTo(frame, FileSelectMapRomData.RoomFrameHeaderWords * 2);
+        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + 2, FileSelectMapRomData.RoomFrameFooterWords * 2).CopyTo(frame, FileSelectMapRomData.RoomFrameHeaderWords * 2);
         ushort label = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomLabelPointers + (int)area * 2);
         for (int word = 0; word < FileSelectMapRomData.RoomLabelWords; word++)
             BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((FileSelectMapRomData.RoomLabelDestinationWord + word) * 2),
@@ -78,7 +78,7 @@ public sealed partial class FileSelectRoomMapGraphics
                     Cgram.SetColor(color, catalog.Palettes.FileSelect[color]);
         if (catalog is not null) catalog.Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
         else Vram.LoadBytes(FileSelectMapRomData.RoomCharacters * 2,
-            RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
         var system = icons.MapSystem;
         var area = icons.MapArea;
         ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);

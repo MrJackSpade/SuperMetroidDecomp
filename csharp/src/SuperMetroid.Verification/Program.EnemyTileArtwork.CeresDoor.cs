@@ -14,7 +14,7 @@ internal static partial class Program
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
         var vram = new SnesVram();
         visual.LoadTiles(vram);
-        byte[] nativeTiles = RomDataReader.ReadFixedBank(bus,
+        byte[] nativeTiles = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
         AssertTrue(vram.Bytes.Slice(CeresDoorVisualRomData.TileVramDestination,
                 CeresDoorVisualRomData.TileByteCount).SequenceEqual(nativeTiles),
@@ -65,7 +65,7 @@ internal static partial class Program
                 $"Ceres-door Mode-7 transfer {frame} increment mode");
             AssertEqual((byte)0, bus.ReadByte(record + 9),
                 $"Ceres-door Mode-7 transfer {frame} terminator");
-            byte[] nativeFrame = RomDataReader.ReadFixedBank(bus, source,
+            byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
                 CeresDoorVisualRomData.Mode7FrameByteCount);
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();

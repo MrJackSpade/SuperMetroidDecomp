@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using System.Buffers.Binary;
 
 namespace SuperMetroid.Core.Frontend;
@@ -13,10 +14,10 @@ internal sealed partial class PauseMenuState
         paletteAnimation.Bind(catalog?.HighlightCycle);
         if (catalog is not null) catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
         else vram.LoadBytes(PauseTileAtlasFormat.DestinationByte,
-            SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount));
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount));
         if (catalog is not null) catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
         else vram.LoadBytes(MapSpriteFormat.PauseDestination,
-            SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
         if (catalog is not null)
             for (int color = 0; color < SuperMetroid.Core.Hardware.SnesCgram.ColorCount; color++)
                 // Live highlights and reserve-arrow colors belong to their animation
@@ -25,11 +26,11 @@ internal sealed partial class PauseMenuState
                     color != PauseReserveArrowRomData.Color6Index && color != PauseReserveArrowRomData.Color11Index)
                     cgram.SetColor(color, catalog.Palettes.Pause[color]);
         if (catalog is not null) catalog.Tiles.LoadTo(vram, 0);
-        else vram.LoadBytes(0, SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+        else vram.LoadBytes(0, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
         if (catalog is not null) catalog.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
         else vram.LoadBytes(HudTileAtlasFormat.DestinationWord * 2,
-            SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount));
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
@@ -88,7 +89,7 @@ internal sealed partial class PauseMenuState
         else
         {
             vram.LoadBytes(PauseMenuLayout.Bg2TilemapWord * 2,
-                SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount));
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount));
             LoadNativePauseAreaLabel();
         }
     }
@@ -96,7 +97,7 @@ internal sealed partial class PauseMenuState
     private void RefreshPauseButtonArtwork()
     {
         byte[] replacement = mapPresentation?.PauseBackdrops.CreateButtonTilemap() ??
-            SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2);
         // Only these palette bits are owned by the live menu. Carry them forward
         // word-by-word (including restored historical states) rather than inferring

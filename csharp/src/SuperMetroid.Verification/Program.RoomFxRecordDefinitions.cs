@@ -155,7 +155,7 @@ internal static partial class Program
                 }
                 else
                 {
-                    byte[] native = RomDataReader.ReadFixedBank(bus, source,
+                    byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
                         RoomFxRomData.Record.ByteCount);
                     static ushort Word(byte[] bytes, int offset) =>
                         (ushort)(bytes[offset] | bytes[offset + 1] << 8);
@@ -190,7 +190,7 @@ internal static partial class Program
         // therefore cannot discover them from room-state FX pointers alone.
         foreach (ushort pointer in MotherBrainFxRecordPointers.DirectRecords)
         {
-            byte[] native = RomDataReader.ReadFixedBank(bus,
+            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxRomData.Banks.RoomDefinitions | pointer,
                 RoomFxRomData.Record.ByteCount);
             static ushort Word(byte[] bytes, int offset) =>

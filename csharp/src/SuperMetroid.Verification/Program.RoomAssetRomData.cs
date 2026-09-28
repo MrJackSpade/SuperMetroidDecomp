@@ -185,7 +185,7 @@ internal static partial class Program
         foreach ((string name, int sourceAddress) in sources)
         {
             byte[] native = sourceAddress == ghostSource
-                ? RomDataReader.ReadFixedBank(bus, sourceAddress,
+                ? RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
                     RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount)
                 : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];

@@ -17,7 +17,7 @@ internal static partial class Program
         string path = Path.Combine(overrides, PauseEquipmentBaseDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseEquipmentBaseDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
-        byte[] nativeBase = RomDataReader.ReadFixedBank(bus, PauseEquipmentBaseDefinitions.Source,
+        byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentBaseDefinitions.Source,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         AssertTrue(nativeBase.AsSpan().SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match native words");

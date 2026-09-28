@@ -29,7 +29,7 @@ public static class SamusFullBodyCycleColorExtractor
                 for (int shade = 0; shade < suits[suit].Length; shade++)
                 {
                     ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
-                    byte[] source = RomDataReader.ReadFixedBank(bus,
+                    byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                         SamusPaletteRomData.Banks.Palette | pointer,
                         SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort));
                     var colors = new PaletteRgb5[SamusFullBodyCycleColorFormat.ColorsPerPalette];

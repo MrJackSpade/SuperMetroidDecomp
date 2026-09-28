@@ -47,7 +47,7 @@ internal static class CeresFlightArtworkExtractor
                 .ToArray().Select(value => (int)value).ToArray(),
         });
         byte[] mapFile = mapJson.ToArray();
-        byte[] nativePalette = RomDataReader.ReadFixedBank(bus,
+        byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount);
         var colors = new PaletteRgb5[SnesCgram.ColorCount];
         for (int index = 0; index < colors.Length; index++)

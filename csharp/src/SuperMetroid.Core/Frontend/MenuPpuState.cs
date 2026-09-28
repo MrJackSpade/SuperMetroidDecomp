@@ -39,8 +39,8 @@ internal sealed class MenuPpuState
     {
         if (worldArtwork is null)
         {
-            Vram.LoadBytes(WorldMapArtworkFormat.ForegroundDestination, RomDataReader.ReadFixedBank(bus, WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes));
-            Vram.LoadBytes(WorldMapArtworkFormat.BackgroundDestination, RomDataReader.ReadFixedBank(bus, WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes));
+            Vram.LoadBytes(WorldMapArtworkFormat.ForegroundDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes));
+            Vram.LoadBytes(WorldMapArtworkFormat.BackgroundDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes));
         }
         else worldArtwork.LoadTo(Vram);
     }
@@ -51,14 +51,14 @@ internal sealed class MenuPpuState
     {
         if (mapTiles is null)
             Vram.LoadBytes(0x6000, RomDataReader.ReadFixedBank(
-                bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
+                CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
         else
             mapTiles.LoadTo(Vram, 0x6000);
     }
 
     public void BindMapSprites(ISnesAddressSpace bus, MapSpriteCatalog? sprites)
     {
-        if (sprites is null) Vram.LoadBytes(MapSpriteFormat.FileSelectDestination, RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
+        if (sprites is null) Vram.LoadBytes(MapSpriteFormat.FileSelectDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
         else sprites.LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
     }
 
@@ -74,7 +74,7 @@ internal sealed class MenuPpuState
     public SnesCgram Cgram { get; } = new();
 
     public void LoadInitialBackground(ISnesAddressSpace bus) =>
-        Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus,
+        Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             FileSelectMapRomData.InitialMenuBackground, FileSelectMapRomData.TilemapBytes));
 
     public void LoadBg1(ReadOnlySpan<byte> tilemapBytes)

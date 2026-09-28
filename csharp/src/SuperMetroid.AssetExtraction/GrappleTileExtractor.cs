@@ -11,14 +11,14 @@ public static class GrappleTileExtractor
     {
         using var planar = new MemoryStream();
         foreach (var transfer in GrappleTileDefinitions.Transfers)
-            planar.Write(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount));
+            planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar.ToArray(), 4, GrappleTileDefinitions.Width / 8, out int width, out int height);
         using var png = new MemoryStream();
         IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] result = png.ToArray();
         var verified = GrappleTileAtlas.Load(new MemoryStream(result));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
-            if (!verified.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount)))
+            if (!verified.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)))
                 throw new InvalidDataException("Grapple PNG roundtrip changed native characters.");
         return result;
     }

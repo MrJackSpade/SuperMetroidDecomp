@@ -43,7 +43,7 @@ public static class EnemyTileArtworkFiles
                 RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, definitionPointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
-                byte[] planar = RomDataReader.ReadFixedBank(bus, definition.TileDataAddress, byteCount);
+                byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
                 byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
                     out int width, out int height);
@@ -56,7 +56,7 @@ public static class EnemyTileArtworkFiles
                     throw new InvalidDataException($"Enemy ${definitionPointer:X4} tile PNG changed native pixels.");
 
                 File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
-                byte[] nativeColors = RomDataReader.ReadFixedBank(bus,
+                byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     (definition.Bank << 16) | definition.PalettePointer,
                     EnemyPaletteSheet.ColorCount * sizeof(ushort));
                 var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
@@ -110,7 +110,7 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
-        byte[] skeletonPlanar = RomDataReader.ReadFixedBank(bus,
+        byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CrocomireSkeletonTransferDefinitions.Frames[0].SourceAddress,
             CrocomireSkeletonTransferDefinitions.TotalByteCount);
         byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
@@ -200,7 +200,7 @@ public static class EnemyTileArtworkFiles
         // This bank-$B7 range is not in any ordinary enemy definition's VRAM set.
         // Preserve the complete tile-aligned source around the right-hand corpse
         // frame so edits can feed the native row-by-row WRAM decay processor.
-        byte[] corpsePlanar = RomDataReader.ReadFixedBank(bus,
+        byte[] corpsePlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
         byte[] corpsePixels = SnesGraphics.DecodePlanarTiles(corpsePlanar, 4,
@@ -218,7 +218,7 @@ public static class EnemyTileArtworkFiles
             corpsePng);
         // The following bank-$B7 pages are a different visual owner: the escape
         // typewriter characters. Keep their override separate from corpse decay.
-        byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(bus,
+        byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
             MotherBrainEscapeTextArtworkDefinitions.ByteCount);
         byte[] escapeTextPixels = SnesGraphics.DecodePlanarTiles(escapeTextPlanar, 4,
@@ -257,7 +257,7 @@ public static class EnemyTileArtworkFiles
         var kraidHeadHashes = new Dictionary<ushort, string>();
         foreach (ushort pointer in headPointers)
         {
-            byte[] native = RomDataReader.ReadFixedBank(bus,
+            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 KraidBackgroundRomData.NativeBank | pointer,
                 KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
             byte[] json = KraidHeadTilemapAtlas.Encode(native);
@@ -1165,7 +1165,7 @@ public static class EnemyTileArtworkFiles
 
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
-        byte[] planar = RomDataReader.ReadFixedBank(bus,
+        byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             KraidBackgroundRomData.RoomBackgroundTileAddress,
             KraidBackgroundRomData.RoomBackgroundTileBytes);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
@@ -1186,7 +1186,7 @@ public static class EnemyTileArtworkFiles
     private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        byte[] native = RomDataReader.ReadFixedBank(bus,
+        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             sheet.SourceAddress, sheet.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
@@ -1222,7 +1222,7 @@ public static class EnemyTileArtworkFiles
         KraidPaletteSource source)
     {
         int count = KraidPaletteRomData.ColorCount(source);
-        byte[] native = RomDataReader.ReadFixedBank(bus,
+        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             KraidPaletteRomData.SourceAddress(source), count * sizeof(ushort));
         var colors = new PaletteRgb5[count];
         for (int index = 0; index < count; index++)

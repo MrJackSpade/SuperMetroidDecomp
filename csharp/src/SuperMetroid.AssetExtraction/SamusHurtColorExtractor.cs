@@ -20,7 +20,7 @@ public static class SamusHurtColorExtractor
 
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address)
     {
-        byte[] source = RomDataReader.ReadFixedBank(bus,
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             address, SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort));
         var colors = new PaletteRgb5[SamusHurtColorFormat.ColorsPerPalette];
         for (int index = 0; index < colors.Length; index++)

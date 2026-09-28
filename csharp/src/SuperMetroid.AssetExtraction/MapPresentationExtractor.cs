@@ -37,7 +37,7 @@ public static class MapPresentationExtractor
             file.Write(revealBytes);
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
         byte[] tilePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out int atlasWidth, out int atlasHeight);
         using var atlas = new MemoryStream();
         // Palette indexes are tile content; runtime CGRAM supplies the selected map
@@ -48,7 +48,7 @@ public static class MapPresentationExtractor
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(bus, PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out int pauseWidth, out int pauseHeight);
         using var pauseAtlas = new MemoryStream();
         IndexedPng.Write(pauseAtlas, pauseWidth, pauseHeight, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
@@ -57,7 +57,7 @@ public static class MapPresentationExtractor
             file.Write(pauseBytes);
         hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
             2, MapTileAtlasFormat.TileColumns, out int hudWidth, out int hudHeight);
         using var hudAtlas = new MemoryStream();
         IndexedPng.Write(hudAtlas, hudWidth, hudHeight, hudPixels, SnesGraphics.DiagnosticPalette(4));

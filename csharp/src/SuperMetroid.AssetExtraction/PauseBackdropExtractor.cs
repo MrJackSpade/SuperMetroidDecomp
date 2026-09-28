@@ -11,17 +11,17 @@ public static class PauseBackdropExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] frame = RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount);
+        byte[] frame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount);
         var areas = new Dictionary<string, PauseBackdropCell[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             byte[] image = frame.ToArray();
             ushort label = RomDataReader.ReadWordFixedBank(bus, PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
-            RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.LabelBank | label, PauseBackdropDefinitions.LabelWords * 2)
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelBank | label, PauseBackdropDefinitions.LabelWords * 2)
                 .CopyTo(image, PauseBackdropDefinitions.LabelCell * 2);
             areas.Add(area.ToString(), Cells(image, area.ToString()));
         }
-        var buttons = Cells(RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.ButtonSource,
+        var buttons = Cells(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.ButtonSource,
             PauseBackdropDefinitions.ButtonCells * 2), "Buttons");
         using var output = new MemoryStream();
         PauseBackdropPresentation.Write(output, new() { Version = PauseBackdropDefinitions.Version, Areas = areas, Buttons = buttons });

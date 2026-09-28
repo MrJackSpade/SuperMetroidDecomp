@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
@@ -96,7 +97,7 @@ internal static partial class Program
             int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
             string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
             string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
-            byte[] nativeGhost = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+            byte[] nativeGhost = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 ghostSource, RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
             AssertTrue(stock.Get(ghostSource).Transfer.Span.SequenceEqual(nativeGhost),
                 "installed statue-ghost PNG preserves every native character byte");
@@ -276,7 +277,7 @@ internal static partial class Program
             string skyName = RoomSkyTilemapFormat.FileName(skyPage);
             string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
             AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");
-            byte[] nativeSky = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+            byte[] nativeSky = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 landingEntry.SkySourceAddress, landingEntry.SkyByteCount);
             AssertTrue(stockSky.TryResolve(landingEntry.SkySourceAddress,
                     landingEntry.SkyByteCount, out ReadOnlyMemory<byte> installedSky) &&

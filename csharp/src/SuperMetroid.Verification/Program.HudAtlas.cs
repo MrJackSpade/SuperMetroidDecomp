@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
-        byte[] source = RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount);
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount);
         AssertTrue(source.AsSpan().SequenceEqual(original.Resolve(VramAssetId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native transfer bytes");
         var guard = new MapDataGuard(bus, rules);
         var native = new SuperMetroidRuntime(bus);

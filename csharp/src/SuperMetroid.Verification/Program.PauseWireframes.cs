@@ -22,7 +22,7 @@ internal static partial class Program
             byte[] expected = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
             ushort pointer = RomDataReader.ReadWordFixedBank(bus, 0x82b25f + (int)kind * 2);
             for (int row = 0; row < 17; row++)
-                RomDataReader.ReadFixedBank(bus, 0x820000 | (pointer + row * 16), 16).CopyTo(expected, 472 + row * 64);
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16).CopyTo(expected, 472 + row * 64);
             byte[] actual = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
             original.PauseWireframes.ApplyTo(actual, kind);
             AssertTrue(expected.AsSpan().SequenceEqual(actual), "all 136 native wireframe words and untouched surrounding bytes match");

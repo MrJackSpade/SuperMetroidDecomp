@@ -19,6 +19,13 @@ internal static class RomDecompressionVerification
         byte[] bytes = encoded.ToArray();
         var bus = new StreamBus(bytes);
         RomDataReader.Decompress(new StreamBus([0, 1, 0xff]), StreamBus.Start, 3);
+        var fixedBankBus = new StreamBus([0x12, 0x34, 0x56, 0x78]);
+        if (!RomDataReader.ReadFixedBank(fixedBankBus, StreamBus.Start, 4)
+                .SequenceEqual(new byte[] { 0x12, 0x34, 0x56, 0x78 }) ||
+            fixedBankBus.Reads != 4)
+            throw new InvalidDataException("Fixed-bank import did not use the typed cartridge source.");
+        RejectRange(() => RomDataReader.ReadFixedBank(
+            new StreamBus([0x12, 0x34, 0x56, 0x78, 0x9a]), StreamBus.Start, 5));
         long before = GC.GetAllocatedBytesForCurrentThread();
         byte[] output = RomDataReader.Decompress(bus, StreamBus.Start, bytes.Length);
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
@@ -56,6 +63,13 @@ internal static class RomDecompressionVerification
         try { action(); }
         catch (InvalidDataException) { return; }
         throw new InvalidDataException("Malformed/truncated compressed stream was accepted.");
+    }
+
+    private static void RejectRange(Action action)
+    {
+        try { action(); }
+        catch (ArgumentOutOfRangeException) { return; }
+        throw new InvalidDataException("Fixed-bank cartridge import crossed into a mutable low window.");
     }
 
     private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource

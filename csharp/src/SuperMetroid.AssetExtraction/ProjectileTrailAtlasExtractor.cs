@@ -9,8 +9,8 @@ public static class ProjectileTrailAtlasExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] first = RomDataReader.ReadFixedBank(bus, ProjectileTrailAtlasDefinitions.IceWaveSource, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
-        byte[] second = RomDataReader.ReadFixedBank(bus, ProjectileTrailAtlasDefinitions.MissileSource, ProjectileTrailAtlasDefinitions.MissileByteCount);
+        byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), ProjectileTrailAtlasDefinitions.IceWaveSource, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
+        byte[] second = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), ProjectileTrailAtlasDefinitions.MissileSource, ProjectileTrailAtlasDefinitions.MissileByteCount);
         byte[] planar = first.Concat(second).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, ProjectileTrailAtlasDefinitions.Width / 8, out int width, out int height);
         using var png = new MemoryStream();

@@ -35,7 +35,7 @@ public static class CrystalFlashColorExtractor
 
         PaletteRgb5[] ReadColors(ushort pointer, int count)
         {
-            byte[] source = RomDataReader.ReadFixedBank(bus,
+            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusPaletteRomData.Banks.Palette | pointer, count * sizeof(ushort));
             var result = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)

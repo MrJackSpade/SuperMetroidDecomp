@@ -58,7 +58,7 @@ internal static partial class Program
         var json = new byte[pages.Length][];
         for (int page = 0; page < pages.Length; page++)
         {
-            byte[] native = RomDataReader.ReadFixedBank(bus,
+            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomSkyTilemapFormat.SourceAddress(page), RoomSkyTilemapFormat.PageByteCount);
             json[page] = RoomBackgroundTilemapExtractor.Encode(native);
             pages[page] = RoomBackgroundTilemapAtlas.Load(
@@ -136,7 +136,7 @@ internal static partial class Program
                 $"Landing Site door {index} uses compiled sky selection without list ROM reads");
             var expectedVram = new SnesVram();
             expectedVram.LoadBytes(compiled.Destination * 2,
-                RomDataReader.ReadFixedBank(bus, compiled.SourceAddress, compiled.ByteCount));
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), compiled.SourceAddress, compiled.ByteCount));
             var compiledVram = new SnesVram();
             LibraryBackgroundExecutionResult result = LibraryBackgroundLoader.Execute(
                 new SkyPageReadGuard(bus, blockLandingList: true), compiledVram,

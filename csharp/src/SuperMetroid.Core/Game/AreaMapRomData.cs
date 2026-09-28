@@ -34,9 +34,9 @@ public static class AreaMapRomData
             bus,
             StationRevealMaskPointerTable + areaIndex * sizeof(ushort));
         int revealAddress = StationRevealMaskBank | revealPointer;
-        byte[] tilemapBytes = RomDataReader.ReadFixedBank(bus, tilemapAddress, TilemapByteCount);
+        byte[] tilemapBytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), tilemapAddress, TilemapByteCount);
         byte[] revealBytes = RomDataReader.ReadFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             revealAddress,
             StationRevealMaskByteCount);
         var tilemap = new MapTileWord[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];

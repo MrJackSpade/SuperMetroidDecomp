@@ -120,7 +120,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class SuitColorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class SuitColorReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         private static readonly int[] Sources =
         [
@@ -132,6 +133,26 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
+            RejectSuitColorRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectSuitColorRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Suit-color verification source requires WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Suit-color verification source requires SRAM.")).ReadSaveRamByte(address);
+
+        private void RejectSuitColorRead(int address)
+        {
             foreach (int sourceAddress in Sources)
             {
                 if (address >= sourceAddress &&
@@ -141,7 +162,6 @@ internal static partial class Program
                     throw new InvalidOperationException($"Production reread suit color ${address:X6}.");
                 }
             }
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

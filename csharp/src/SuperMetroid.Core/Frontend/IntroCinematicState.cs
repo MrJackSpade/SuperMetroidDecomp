@@ -239,7 +239,7 @@ public sealed partial class IntroCinematicState
             bg1Pages.AsSpan(0, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
         vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
             characterArtwork?.IntroObjectCharacters.Transfer.ToArray() ?? RomDataReader.ReadFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 IntroCinematicRomData.Assets.IntroObjectCharacters,
                 IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
         vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,

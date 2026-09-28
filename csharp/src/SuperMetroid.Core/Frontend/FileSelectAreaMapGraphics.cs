@@ -52,7 +52,7 @@ public sealed partial class FileSelectAreaMapGraphics
 
     private void LoadForeground()
     {
-        if (screens is null) ppu.LoadBg1(RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
+        if (screens is null) ppu.LoadBg1(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
         else screens.LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
     }
 
@@ -60,7 +60,7 @@ public sealed partial class FileSelectAreaMapGraphics
     {
         if (screens is not null) screens.LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2, MapScreenDefinitions.WorldBackground((AreaId)selectedArea));
         else ppu.Vram.LoadBytes(FileSelectMapRomData.AreaBackgroundVram * 2,
-            RomDataReader.ReadFixedBank(bus,
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 FileSelectMapRomData.AreaBackgrounds + selectedArea * FileSelectMapRomData.TilemapBytes,
                 FileSelectMapRomData.TilemapBytes));
     }

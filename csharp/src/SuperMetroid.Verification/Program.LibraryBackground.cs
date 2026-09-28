@@ -65,7 +65,7 @@ static void VerifyKraidLibraryHudArtwork(
     AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, transfer.TransferByteCount!.Value,
         "Kraid HUD upload contains characters without the normal clearing half");
 
-    byte[] planar = RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress,
+    byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress,
         HudTileAtlasFormat.CharacterByteCount);
     byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
         out int width, out int height);

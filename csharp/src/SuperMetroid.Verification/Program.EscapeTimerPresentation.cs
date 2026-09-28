@@ -2,6 +2,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -18,9 +19,9 @@ internal static partial class Program
             "installed timer PNG is the deterministic cartridge extraction");
 
         var tileAtlas = EscapeTimerTileAtlas.Load(new MemoryStream(extractedTiles));
-        byte[] nativeFirstTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+        byte[] nativeFirstTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
-        byte[] nativeSecondTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
+        byte[] nativeSecondTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
         AssertTrue(nativeFirstTiles.AsSpan().SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "first timer PNG page compiles to exact native characters");

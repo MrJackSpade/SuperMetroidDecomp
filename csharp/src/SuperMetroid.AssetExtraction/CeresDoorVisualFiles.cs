@@ -14,7 +14,7 @@ public static class CeresDoorVisualFiles
         string directory)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte[] planar = RomDataReader.ReadFixedBank(bus,
+        byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
@@ -40,11 +40,11 @@ public static class CeresDoorVisualFiles
                     CeresDoorVisualRomData.AnimationColorCount)).ToArray(),
             Mode7DoorFrames =
             [
-                RomDataReader.ReadFixedBank(bus,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     CeresDoorVisualRomData.Mode7FirstFrameSource,
                     CeresDoorVisualRomData.Mode7FrameByteCount)
                     .Select(value => (int)value).ToArray(),
-                RomDataReader.ReadFixedBank(bus,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     CeresDoorVisualRomData.Mode7SecondFrameSource,
                     CeresDoorVisualRomData.Mode7FrameByteCount)
                     .Select(value => (int)value).ToArray(),
@@ -64,7 +64,7 @@ public static class CeresDoorVisualFiles
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int sourceAddress,
         int count)
     {
-        byte[] source = RomDataReader.ReadFixedBank(bus, sourceAddress,
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
             count * sizeof(ushort));
         var colors = new PaletteRgb5[count];
         for (int index = 0; index < count; index++)

@@ -27,7 +27,7 @@ internal static partial class Program
         AssertTrue(stock.Mode7Maps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightRomData.Vram.Mode7MapByteCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
-        AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(RomDataReader.ReadFixedBank(bus,
+        AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount)),
             "installed Ceres palette preserves all 256 native colors");
 

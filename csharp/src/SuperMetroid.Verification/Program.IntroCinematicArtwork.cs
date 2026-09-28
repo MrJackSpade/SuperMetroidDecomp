@@ -35,7 +35,7 @@ internal static partial class Program
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "installed intro BG PNG preserves every native tile byte");
             AssertTrue(stock.IntroObjectCharacters.Transfer.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.IntroObjectCharacters,
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
             AssertTrue(stock.CinematicObjectCharacters.Transfer.Span.SequenceEqual(
@@ -92,7 +92,7 @@ internal static partial class Program
             VerifyIntroScientistSpriteArtwork(bus, stock, installation);
             VerifyIntroMotherBrainDemoInput(bus, stock);
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.Palette,
+                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
@@ -793,7 +793,7 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainCollision(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
-        byte[] native = RomDataReader.ReadFixedBank(bus,
+        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.MotherBrainLevelData,
             IntroCinematicRomData.Flashback.MotherBrainLevelByteCount);
         AssertTrue(IntroMotherBrainCollisionDefinitions.SourceBytes.SequenceEqual(native),

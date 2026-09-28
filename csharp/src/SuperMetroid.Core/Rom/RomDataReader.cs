@@ -15,25 +15,28 @@ namespace SuperMetroid.Core.Rom;
 public static class RomDataReader
 {
     /// <summary>
-    /// Copies a fixed-length ROM range while retaining the source bank during 16-bit
-    /// address wrap, matching the A-bus address behavior used by the game's DMA helpers.
+    /// Copies a fixed-length cartridge range without crossing into the bank's mutable
+    /// low window. Mixed-source DMA uses the typed PPU transfer path instead.
     /// </summary>
-    public static byte[] ReadFixedBank(ISnesAddressSpace bus, int sourceAddress, int byteCount)
+    public static byte[] ReadFixedBank(IImportCartridgeSource cartridge, int sourceAddress, int byteCount)
     {
-        return ReadFixedBank(bus, SnesAddress.FromBusAddress(sourceAddress), byteCount);
+        return ReadFixedBank(cartridge, SnesAddress.FromBusAddress(sourceAddress), byteCount);
     }
 
-    /// <summary>Typed overload of <see cref="ReadFixedBank(ISnesAddressSpace,int,int)"/>.</summary>
-    public static byte[] ReadFixedBank(ISnesAddressSpace bus, SnesAddress sourceAddress, int byteCount)
+    /// <summary>Typed overload of <see cref="ReadFixedBank(IImportCartridgeSource,int,int)"/>.</summary>
+    public static byte[] ReadFixedBank(IImportCartridgeSource cartridge, SnesAddress sourceAddress, int byteCount)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cartridge);
         if (!sourceAddress.IsUpperLoRomWindow)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
         ArgumentOutOfRangeException.ThrowIfNegative(byteCount);
+        if (byteCount > 0x10000 - sourceAddress.Offset)
+            throw new ArgumentOutOfRangeException(nameof(byteCount),
+                "A cartridge import cannot continue through the bank's low memory window.");
 
         var bytes = new byte[byteCount];
         for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = bus.ReadByte((int)sourceAddress.AddWithinBank(index));
+            bytes[index] = cartridge.ReadCartridgeByte((int)sourceAddress.AddWithinBank(index));
         return bytes;
     }
 

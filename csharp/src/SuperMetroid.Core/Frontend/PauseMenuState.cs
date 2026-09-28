@@ -81,16 +81,16 @@ internal sealed partial class PauseMenuState
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
-        if (mapPresentation is null) vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.BackgroundTiles, 0x4000));
+        if (mapPresentation is null) vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.BackgroundTiles, 0x4000));
         else
         {
             mapPresentation.Tiles.LoadTo(vram, 0);
             mapPresentation.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
         }
         if (mapPresentation is null)
-            vram.LoadBytes(MapSpriteFormat.PauseDestination, RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
+            vram.LoadBytes(MapSpriteFormat.PauseDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
         else mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
-        if (mapPresentation is null) vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.SamusObjectTiles, 0x2000));
+        if (mapPresentation is null) vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.SamusObjectTiles, 0x2000));
         else mapPresentation.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
         LoadPauseBackdrop();
         if (gameplayVram is not null)
@@ -129,14 +129,14 @@ internal sealed partial class PauseMenuState
         // like missing HUD. Keep the complete mutable source so every native word index
         // below remains directly comparable with bank $82.
         pauseButtonTilemap = mapPresentation?.PauseBackdrops.CreateButtonTilemap() ??
-            RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2);
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2);
         SetPauseButtonLabelMode(0);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         // Preserve it as a byte array because the cartridge's offset tables contain WRAM
         // byte addresses rather than tilemap word indexes.
         equipmentTilemap = mapPresentation?.PauseEquipmentBase.CreateTilemap() ??
-            RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, 0x0800);
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemap, 0x0800);
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
@@ -503,7 +503,7 @@ internal sealed partial class PauseMenuState
         if (mapPresentation is not null)
             mapPresentation.PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
         else
-            RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
                 .CopyTo(equipmentTilemap, 0);
 
         if (mapPresentation is not null)
@@ -630,7 +630,7 @@ internal sealed partial class PauseMenuState
             bus,
             PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
         vram.LoadBytes((PauseMenuLayout.Bg2TilemapWord + PauseBackdropDefinitions.LabelCell) * 2,
-            RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.LabelBank | labelPointer, PauseBackdropDefinitions.LabelWords * 2));
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelBank | labelPointer, PauseBackdropDefinitions.LabelWords * 2));
     }
 
     private void SetupMapScrolling()

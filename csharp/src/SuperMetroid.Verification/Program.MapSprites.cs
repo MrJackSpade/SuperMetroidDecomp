@@ -52,7 +52,7 @@ internal static partial class Program
         }
         var vram = new SnesVram(); original.Sprites.LoadArtworkTo(vram, MapSpriteFormat.FileSelectDestination);
         AssertTrue(vram.Bytes.Slice(MapSpriteFormat.FileSelectDestination, MapSpriteFormat.ByteCount).SequenceEqual(
-            RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         VerifyInstalledFileSelectMenu(bus, new MapSpriteReadGuard(bus), original, original);
 
         Directory.CreateDirectory(overrides);

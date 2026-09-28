@@ -26,7 +26,7 @@ public static class IntroCinematicArtworkFiles
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount),
             IntroCinematicArtworkFormat.BackgroundByteCount);
         WriteSheet(IntroCinematicArtworkFormat.IntroObjectFileName,
-            RomDataReader.ReadFixedBank(bus, IntroCinematicRomData.Assets.IntroObjectCharacters,
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.IntroObjectCharacters,
                 IntroCinematicArtworkFormat.IntroObjectByteCount),
             IntroCinematicArtworkFormat.IntroObjectByteCount);
         WriteSheet(IntroCinematicArtworkFormat.CinematicObjectFileName,

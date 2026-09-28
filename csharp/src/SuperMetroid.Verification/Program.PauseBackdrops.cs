@@ -34,12 +34,12 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
         AssertTrue(original.PauseBackdrops.CreateButtonTilemap().AsSpan().SequenceEqual(
-            RomDataReader.ReadFixedBank(bus, 0xb6e400, 0x400)), "all native mutable button words survive extraction");
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400)), "all native mutable button words survive extraction");
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            byte[] expected = RomDataReader.ReadFixedBank(bus, 0xb6e000, 0x800);
+            byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
             ushort label = RomDataReader.ReadWordFixedBank(bus, 0x82965f + (int)area * 2);
-            RomDataReader.ReadFixedBank(bus, 0x820000 | label, 24).CopyTo(expected, 170 * 2);
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
             var vram = new SnesVram(); original.PauseBackdrops.LoadTo(vram, 0, area);
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes[..0x800]), "all 1024 backdrop words match native frame plus unmasked area lettering");
             var native = Create(bus, area, null);

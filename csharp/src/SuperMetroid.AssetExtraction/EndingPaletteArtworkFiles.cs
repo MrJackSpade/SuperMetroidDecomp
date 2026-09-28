@@ -130,7 +130,7 @@ public static class EndingPaletteArtworkFiles
         int count)
     {
         if (id != EndingPaletteId.LogoCrossfade)
-            return RomDataReader.ReadFixedBank(bus,
+            return RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 EndingPaletteDefinitions.SourceAddress(id), count * sizeof(ushort));
 
         var native = new byte[count * sizeof(ushort)];

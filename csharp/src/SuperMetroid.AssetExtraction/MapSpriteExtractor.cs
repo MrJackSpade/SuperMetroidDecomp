@@ -16,7 +16,7 @@ public static class MapSpriteExtractor
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in MapSpriteDefinitions.Frames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, definition.NativeId));
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out int width, out int height);
         using var png = new MemoryStream();
         IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));

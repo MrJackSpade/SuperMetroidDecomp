@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
@@ -179,9 +180,29 @@ internal static partial class Program
 
     private sealed class LibraryBackgroundVisualReadGuard(
         ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadByte(int address)
+        {
+            CheckVisualRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            CheckVisualRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Library-background source requires WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Library-background source requires SRAM.")).ReadSaveRamByte(address);
+
+        private void CheckVisualRead(int address)
         {
             foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
             {
@@ -207,7 +228,6 @@ internal static partial class Program
                     throw new InvalidOperationException(
                         $"Installed background reread direct visual source ${address:X6}.");
             }
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -18,13 +18,13 @@ public static class RoomFxAnimatedTileAtlasExtractor
         {
             int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
                 definition, frame.InstructionPointer);
-            planar.Write(RomDataReader.ReadFixedBank(bus, source, definition.TransferByteCount));
+            planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, definition.TransferByteCount));
         }
         for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount; frame++)
-            planar.Write(RomDataReader.ReadFixedBank(bus,
+            planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 WreckedShipTreadmillRomData.FrameSource(frame),
                 WreckedShipTreadmillRomData.TransferByteCount));
-        planar.Write(RomDataReader.ReadFixedBank(bus,
+        planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             TourianStatueAnimatedTileArtworkDefinitions.FirstSource,
             TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount));
         if (planar.Length != RoomFxAnimatedTileAtlasFormat.TotalByteCount)

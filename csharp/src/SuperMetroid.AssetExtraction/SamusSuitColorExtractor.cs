@@ -21,7 +21,7 @@ public static class SamusSuitColorExtractor
 
         PaletteRgb5[] Read(int address)
         {
-            byte[] source = RomDataReader.ReadFixedBank(bus, address,
+            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address,
                 SamusSuitColorFormat.ColorsPerSuit * sizeof(ushort));
             var result = new PaletteRgb5[SamusSuitColorFormat.ColorsPerSuit];
             for (int index = 0; index < result.Length; index++)

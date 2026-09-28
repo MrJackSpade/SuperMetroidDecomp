@@ -53,7 +53,7 @@ public static class SamusChargeColorExtractor
 
         PaletteRgb5[] ReadColors(ushort pointer)
         {
-            byte[] source = RomDataReader.ReadFixedBank(bus,
+            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusProjectileRomData.Banks.PaletteAndTrailData | pointer,
                 SamusChargeColorFormat.ColorsPerPalette * sizeof(ushort));
             var result = new PaletteRgb5[SamusChargeColorFormat.ColorsPerPalette];

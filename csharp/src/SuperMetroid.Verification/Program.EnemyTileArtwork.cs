@@ -91,7 +91,7 @@ internal static partial class Program
                 ushort pointer = Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16);
                 RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
-                byte[] native = RomDataReader.ReadFixedBank(bus, definition.TileDataAddress, byteCount);
+                byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
                 AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
                     $"enemy ${pointer:X4} queued VRAM DMA resolves its installed PNG");

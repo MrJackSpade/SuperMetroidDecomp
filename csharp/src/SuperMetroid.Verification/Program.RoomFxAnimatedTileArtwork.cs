@@ -244,17 +244,37 @@ internal static partial class Program
         Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
-    private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner) : ISnesAddressSpace
+    private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public int ForbiddenReads { get; private set; }
         public byte ReadByte(int address)
+        {
+            RejectArtworkRead(address);
+            return inner.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectArtworkRead(address);
+            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Room-FX verification source requires WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Room-FX verification source requires SRAM.")).ReadSaveRamByte(address);
+
+        private void RejectArtworkRead(int address)
         {
             if ((address >> 16) == 0x87)
             {
                 ForbiddenReads++;
                 throw new InvalidOperationException($"Installed room-FX artwork read ROM ${address:X6}.");
             }
-            return inner.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }

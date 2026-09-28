@@ -13,7 +13,7 @@ internal static partial class Program
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormat.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
-            RomDataReader.ReadFixedBank(bus, PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseTileAtlasFormat.FileName);
         string path = Path.Combine(overrides, PauseTileAtlasFormat.FileName);

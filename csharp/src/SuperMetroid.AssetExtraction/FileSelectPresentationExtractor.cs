@@ -55,7 +55,7 @@ public static class FileSelectPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [FileSelectPresentationDefinitions.BackgroundPage] = Cells(
-                RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.InitialMenuBackground,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.InitialMenuBackground,
                     FileSelectMapRomData.TilemapBytes)),
             [FileSelectPresentationDefinitions.MainWithDataPage] = Cells(mainWithData),
             [FileSelectPresentationDefinitions.MainEmptyPage] = Cells(mainEmpty),

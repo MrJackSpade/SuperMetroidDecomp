@@ -18,7 +18,7 @@ public static class GameOptionsPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.BackgroundPage] = Cells(
-                RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.InitialMenuBackground,
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.InitialMenuBackground,
                     GameOptionsRomData.TilemapByteCount)),
             [GameOptionsPresentationDefinitions.PrimaryPage] = Page(GameOptionsRomData.Pages.Primary),
             [GameOptionsPresentationDefinitions.ControllerEnglishPage] = Page(GameOptionsRomData.Pages.ControllerEnglish),
@@ -32,7 +32,7 @@ public static class GameOptionsPresentationExtractor
         for (int index = 0; index < sources.Length; index++)
         {
             labels.Add(GameOptionsPresentationDefinitions.ControllerLabelName(index), Cells(
-                RomDataReader.ReadFixedBank(bus, GameOptionsRomData.MenuBank | sources[index],
+                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), GameOptionsRomData.MenuBank | sources[index],
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 

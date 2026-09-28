@@ -65,3 +65,27 @@ dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-fr
 The frame setting is rejected for an all-room census to avoid an accidental
 hours-long run. This checks neutral frames only; it does not substitute for
 controller sequences, door transitions, combat, or a complete room state graph.
+
+## Direct-room probe without a debugger snapshot
+
+For a single retail room, use the direct-room verifier instead of capturing
+and later deserializing the intro gameplay graph:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-direct-room 'Super Metroid.smc' A59F 900
+```
+
+The hexadecimal argument is a compiled retail room-header pointer. The last
+argument is 1..5000 neutral frames. The verifier imports a fresh temporary
+installation, initializes both reference and installed games through the same
+new-game room setup, and applies the same host invincibility option to both so
+later frames are not disguised by matching Game Over screens. The installed
+game has no cartridge allocation; every attempted cartridge read fails. Each
+frame compares game state, phase and native pixels, and the temporary import is
+removed on exit. This path does not depend on the version-sensitive debugger
+graphs above. It is still a one-room neutral-input sample, not a door,
+controller-driven fight or whole-game ROM-free proof.
+
+On 2026-09-28 the direct verifier passed 900 Kraid-room frames (`A59F`),
+1,000 Crocomire-room frames (`A98D`), and 1,500 Phantoon-room frames (`CD13`)
+with installed cartridge reads blocked.

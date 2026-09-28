@@ -1879,6 +1879,13 @@ if (args is ["--rom-free-room-census", var censusRom, var censusSnapshotDirector
     VerifyFrontendRomFreeRoomCensusFromSnapshots(censusRom, censusSnapshotDirectory);
     return 0;
 }
+if (args is ["--rom-free-direct-room", var directRoomRom,
+        var directRoomPointerText, var directRoomFrameText])
+{
+    VerifyFrontendRomFreeDirectRoom(directRoomRom, directRoomPointerText,
+        directRoomFrameText);
+    return 0;
+}
 if (args is ["--gameplay-base-palettes", var gameplayPaletteRom])
 {
     VerifyGameplayBasePalettes(gameplayPaletteRom);

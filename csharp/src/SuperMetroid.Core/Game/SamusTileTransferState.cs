@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Game;
@@ -65,10 +66,11 @@ public sealed class SamusTileTransferState
             animationFrame * SamusRenderingRomData.TileTransfers.AnimationRecordByteCount));
         int animationRecord = SamusRenderingRomData.Banks.GraphicsDefinitions | animationRecordOffset;
 
-        byte topSet = bus.ReadByte(animationRecord);
-        byte topPosition = bus.ReadByte(AddWithinBank(animationRecord, 1));
-        byte bottomSet = bus.ReadByte(AddWithinBank(animationRecord, 2));
-        byte bottomPosition = bus.ReadByte(AddWithinBank(animationRecord, 3));
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        byte topSet = cartridge.ReadCartridgeByte(animationRecord);
+        byte topPosition = cartridge.ReadCartridgeByte(AddWithinBank(animationRecord, 1));
+        byte bottomSet = cartridge.ReadCartridgeByte(AddWithinBank(animationRecord, 2));
+        byte bottomPosition = cartridge.ReadCartridgeByte(AddWithinBank(animationRecord, 3));
 
         // Each set-table word points to a list of seven-byte definitions. Assembly computes
         // position*7 as position*8-position, a detail made explicit here for readability.
@@ -153,7 +155,8 @@ public sealed class SamusTileTransferState
     {
         // Definition layout: 24-bit source, 16-bit part-1 size, 16-bit part-2 size.
         ushort sourceOffset = ReadWord(bus, definitionAddress);
-        byte sourceBank = bus.ReadByte(AddWithinBank(definitionAddress, 2));
+        byte sourceBank = CartridgeImportSource.Require(bus).ReadCartridgeByte(
+            AddWithinBank(definitionAddress, 2));
         int sourceAddress = sourceBank << 16 | sourceOffset;
         ushort part1Size = ReadWord(bus, AddWithinBank(definitionAddress, 3));
         ushort part2Size = ReadWord(bus, AddWithinBank(definitionAddress, 5));
@@ -182,7 +185,11 @@ public sealed class SamusTileTransferState
             vram.LoadBytes(destinations.Second * 2, planar[definition.FirstSize..]);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        return (ushort)(cartridge.ReadCartridgeByte(address) |
+            cartridge.ReadCartridgeByte(AddWithinBank(address, 1)) << 8);
+    }
 
 }

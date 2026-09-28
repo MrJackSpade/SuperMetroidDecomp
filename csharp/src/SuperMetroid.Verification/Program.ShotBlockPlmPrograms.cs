@@ -276,8 +276,10 @@ internal static partial class Program
     }
 
     private sealed class ShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)

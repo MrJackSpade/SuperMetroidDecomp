@@ -102,8 +102,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainGlassProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)

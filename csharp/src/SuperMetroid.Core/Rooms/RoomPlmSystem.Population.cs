@@ -130,10 +130,10 @@ public sealed partial class RoomPlmSystem
                 HeaderPointer: header,
                 BlockX: useCompiledRetailPopulation
                     ? compiledPopulation.Span[compiledOffset + 2]
-                    : bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 2)))),
+                    : ReadNativeBankByte(bus, new SnesAddress(0x8f, unchecked((ushort)(cursor + 2)))),
                 BlockY: useCompiledRetailPopulation
                     ? compiledPopulation.Span[compiledOffset + 3]
-                    : bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 3)))),
+                    : ReadNativeBankByte(bus, new SnesAddress(0x8f, unchecked((ushort)(cursor + 3)))),
                 RoomArgument: useCompiledRetailPopulation
                     ? BinaryPrimitives.ReadUInt16LittleEndian(
                         compiledPopulation.Span.Slice(compiledOffset + 4))

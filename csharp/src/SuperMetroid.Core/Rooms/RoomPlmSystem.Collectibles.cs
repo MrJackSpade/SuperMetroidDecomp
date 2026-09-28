@@ -261,13 +261,13 @@ public sealed partial class RoomPlmSystem
             var suppliedGraphics = new byte[0x100];
             for (int index = 0; index < suppliedGraphics.Length; index++)
             {
-                suppliedGraphics[index] = bus.ReadByte(
-                    0x890000 | unchecked((ushort)(graphicsPointer + index)));
+                suppliedGraphics[index] = ReadNativeBankByte(bus,
+                    new SnesAddress(0x89, unchecked((ushort)(graphicsPointer + index))));
             }
             var suppliedPalettes = new byte[8];
             for (int child = 0; child < suppliedPalettes.Length; child++)
-                suppliedPalettes[child] = bus.ReadByte(
-                    Bank84(unchecked((ushort)(instructionList + 4 + child))));
+                suppliedPalettes[child] = ReadNativeBankByte(bus,
+                    new SnesAddress(0x84, unchecked((ushort)(instructionList + 4 + child))));
             graphics = suppliedGraphics;
             paletteOffsets = suppliedPalettes;
         }

@@ -64,7 +64,7 @@ public sealed partial class RoomPlmSystem
                     $"Compiled scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
             byte scrollIndex = compiledRetail
                 ? compiledProgram.Span[offset]
-                : bus.ReadByte((int)new SnesAddress(0x8f, cursor));
+                : ReadNativeBankByte(bus, new SnesAddress(0x8f, cursor));
             if ((scrollIndex & 0x80) != 0)
             {
                 // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
@@ -85,8 +85,8 @@ public sealed partial class RoomPlmSystem
                     $"Compiled scroll PLM program $8F:{slot.RoomArgument:X4} lacks a state byte.");
             byte value = compiledRetail
                 ? compiledProgram.Span[offset + 1]
-                : bus.ReadByte(
-                    (int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
+                : ReadNativeBankByte(bus,
+                    new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
             scrolls.SetStorage(
                 scrollIndex,
                 RoomScrollStates.FromCartridge(

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -2137,8 +2138,8 @@ public sealed partial class RoomPlmSystem
                     layer1XPosition, layer1YPosition, bg1XOffset);
             }
 
-            byte relativeX = bus.ReadByte(Bank84(cursor));
-            byte relativeY = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 1))));
+            byte relativeX = ReadNativeBankByte(bus, new SnesAddress(0x84, cursor));
+            byte relativeY = ReadNativeBankByte(bus, new SnesAddress(0x84, unchecked((ushort)(cursor + 1))));
             if (relativeX == 0 && relativeY == 0)
                 return;
 
@@ -2309,8 +2310,8 @@ public sealed partial class RoomPlmSystem
 
     private static ushort ReadBank84Word(ISnesAddressSpace bus, ushort address) =>
         unchecked((ushort)(
-            bus.ReadByte(Bank84(address)) |
-            (bus.ReadByte(Bank84(unchecked((ushort)(address + 1)))) << 8)));
+            ReadNativeBankByte(bus, new SnesAddress(0x84, address)) |
+            (ReadNativeBankByte(bus, new SnesAddress(0x84, unchecked((ushort)(address + 1)))) << 8)));
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84
@@ -2429,7 +2430,27 @@ public sealed partial class RoomPlmSystem
                 ? value
             : MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value)
                 ? value
-            : bus.ReadByte(Bank84(address));
+            : ReadNativeBankByte(bus, new SnesAddress(0x84, address));
+
+    /// <summary>
+    /// Reads a native PLM pointer after its 16-bit bank offset wraps. The usual
+    /// upper-bank source is cartridge data; a low-window wrap reaches WRAM or an
+    /// unmapped CPU window, not more cartridge bytes.
+    /// </summary>
+    private static byte ReadNativeBankByte(ISnesAddressSpace bus, SnesAddress address) =>
+        SnesDmaSourceMap.Classify(address) switch
+        {
+            SnesDmaSourceKind.WorkRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Low-window PLM data requires WRAM.")).ReadWorkRamByte((int)address),
+            SnesDmaSourceKind.SaveRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "PLM data in an SRAM window requires SRAM.")).ReadSaveRamByte((int)address),
+            SnesDmaSourceKind.Cartridge =>
+                CartridgeImportSource.Require(bus).ReadCartridgeByte((int)address),
+            _ => throw new InvalidDataException(
+                $"PLM data read {address} is outside mapped cartridge/WRAM/SRAM data."),
+        };
 
     /// <summary>Explicit CPU-bus boundary for native bank-$84 PLM pointers.</summary>
     private static int Bank84(ushort offset) => (int)new SnesAddress(0x84, offset);

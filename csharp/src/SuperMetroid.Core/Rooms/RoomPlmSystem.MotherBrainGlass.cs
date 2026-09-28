@@ -254,8 +254,8 @@ public sealed partial class RoomPlmSystem
 
     private static ushort ReadBank8fWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(
-            bus.ReadByte((int)new SnesAddress(0x8f, pointer)) |
-            (bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(pointer + 1)))) << 8)));
+            ReadNativeBankByte(bus, new SnesAddress(0x8f, pointer)) |
+            (ReadNativeBankByte(bus, new SnesAddress(0x8f, unchecked((ushort)(pointer + 1)))) << 8)));
 }
 
 /// <summary>One <c>SpawnEprojWithRoomGfx($CEFC, parameter)</c> emitted by glass bytecode.</summary>

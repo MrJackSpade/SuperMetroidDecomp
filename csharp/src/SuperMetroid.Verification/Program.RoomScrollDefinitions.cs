@@ -122,8 +122,12 @@ internal static partial class Program
     }
 
     private sealed class RoomScrollNoReadAddressSpace(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+        public byte ReadWorkRamByte(int address) => ReadByte(address);
+        public byte ReadSaveRamByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException(
             $"Compiled room-scroll construction read address ${address:X6}.");
 
@@ -132,8 +136,14 @@ internal static partial class Program
 
     private sealed class RoomScrollSourceReadGuard(
         ISnesAddressSpace source,
-        ushort scrollPointer) : ISnesAddressSpace
+        ushort scrollPointer) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
+
         private readonly int _start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
 
         public byte ReadByte(int address)

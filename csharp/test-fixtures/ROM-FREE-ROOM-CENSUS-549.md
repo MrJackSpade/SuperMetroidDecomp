@@ -1,5 +1,17 @@
 # ROM-free retail-room census (#549)
 
+## Current one-frame baseline (2026-09-28)
+
+A fresh gameplay snapshot and a full rerun now pass **all 262 retail rooms**
+for one isolated neutral frame each: native pixels match and the installed
+game performs no cartridge reads. The older failure inventory below describes
+the 2026-09-27 baseline, not current open first-frame failures. The snapshots
+are private, version-sensitive debugger graphs in ignored `csharp/test-temp`;
+stale graphs cannot establish a current census. Separate direct-room probes
+also pass held right+fire for 1,500 Kraid-room frames, 1,000 Crocomire-room
+frames, and 1,500 Phantoon-room frames. These results do not prove every later
+room event, controller sequence, door transition, or complete fight.
+
 An earlier 2026-09-27 all-room pass found 32 first-frame failures among 262 retail
 rooms. One was room `$8F:ACF0` reading the Speed Booster escape PLM list; eight
 Tourian rooms read the same Metroids-cleared PLM `Sleep` word at `$84:DB42`;

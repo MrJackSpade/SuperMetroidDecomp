@@ -176,13 +176,39 @@ internal static partial class Program
             source.ReadByte(0xa50000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class SporeSpawnInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
         internal bool DenyPresentationReads { get; init; }
 
         public byte ReadByte(int address)
+        {
+            CheckRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            CheckRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Spore Spawn instruction guard requires cartridge data."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Spore Spawn instruction guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Spore Spawn instruction guard requires SRAM."))
+            .ReadSaveRamByte(address);
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private void CheckRead(int address)
         {
             if (SporeSpawnInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
             {
@@ -215,9 +241,6 @@ internal static partial class Program
                 }
             }
 
-            return source.ReadByte(address);
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

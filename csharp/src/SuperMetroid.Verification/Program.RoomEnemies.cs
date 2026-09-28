@@ -1,3 +1,4 @@
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -229,7 +230,8 @@ static void VerifyRoomEnemyLoading()
 }
 
 private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
-    ISnesAddressSpace, IRoomEnemyFixtureSource
+    ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
+    ISnesMutableMemory
 {
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         source.ReadEnemyDefinition(pointer);
@@ -242,12 +244,85 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
 
     public byte ReadByte(int address)
     {
-        if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or
-            >= 0xa29000 and < 0xa29020 or >= 0xa39300 and < 0xa39320)
-            throw new InvalidDataException($"Installed enemy tile upload read ROM ${address:X6}.");
+        RejectTileSource(address);
         return source.ReadByte(address);
     }
 
+    public byte ReadCartridgeByte(int address)
+    {
+        RejectTileSource(address);
+        return source.ReadCartridgeByte(address);
+    }
+
+    public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
+
+    public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
+
+    public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+    private static void RejectTileSource(int address)
+    {
+        if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or
+            >= 0xa29000 and < 0xa29020 or >= 0xa39300 and < 0xa39320)
+            throw new InvalidDataException($"Installed enemy tile upload read ROM ${address:X6}.");
+    }
+}
+
+private static void VerifyEnemyMappedSourceRouting()
+{
+    var source = new TestAddressSpace();
+    source.WriteByte(0xa08000, 0xa1);
+    source.WriteByte(0x800100, 0xb2);
+    source.WriteByte(0x702000, 0xc3);
+    var guarded = new EnemyMappedSourceReadGuard(source);
+    MethodInfo reader = typeof(RoomEnemySystem).GetMethod("ReadEnemySourceByte",
+        BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    byte Read(int address) => (byte)reader.Invoke(null, [guarded, address])!;
+    AssertEqual((byte)0xa1, Read(0xa08000),
+        "enemy definition upper-window byte comes from cartridge");
+    AssertEqual((byte)0xb2, Read(0x800100),
+        "enemy low-window mirror byte comes from live WRAM");
+    AssertEqual((byte)0xc3, Read(0x702000),
+        "enemy save-bank byte comes from SRAM");
+    AssertEqual(1, guarded.CartridgeReads, "enemy cartridge source used once");
+    AssertEqual(1, guarded.WorkRamReads, "enemy WRAM source used once");
+    AssertEqual(1, guarded.SaveRamReads, "enemy SRAM source used once");
+    try
+    {
+        _ = Read(0x804000);
+        throw new InvalidOperationException("Unmapped enemy data was accepted.");
+    }
+    catch (TargetInvocationException error) when (error.InnerException is InvalidDataException)
+    {
+        // The hardware window must not become a zero-filled substitute for data.
+    }
+}
+
+private sealed class EnemyMappedSourceReadGuard(TestAddressSpace source) :
+    ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+{
+    public int CartridgeReads { get; private set; }
+    public int WorkRamReads { get; private set; }
+    public int SaveRamReads { get; private set; }
+
+    public byte ReadByte(int address) => throw new InvalidOperationException(
+        $"Enemy source used the untyped CPU reader at ${address:X6}.");
+    public byte ReadCartridgeByte(int address)
+    {
+        CartridgeReads++;
+        return source.ReadCartridgeByte(address);
+    }
+    public byte ReadWorkRamByte(int address)
+    {
+        WorkRamReads++;
+        return source.ReadWorkRamByte(address);
+    }
+    public byte ReadSaveRamByte(int address)
+    {
+        SaveRamReads++;
+        return source.ReadSaveRamByte(address);
+    }
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 

@@ -221,26 +221,76 @@ internal static partial class Program
     }
 
     private sealed class DeadTorizoArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        public byte ReadByte(int address) =>
-            address is >= 0xb7a800 and < 0xb7c000
-                ? throw new InvalidOperationException(
-                    $"Dead Torizo read installed artwork from ROM at ${address:X6}.")
-                : source.ReadByte(address);
+        public byte ReadByte(int address)
+        {
+            RejectArtworkRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectArtworkRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Dead Torizo artwork guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Dead Torizo artwork guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Dead Torizo artwork guard requires SRAM."))
+            .ReadSaveRamByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private static void RejectArtworkRead(int address)
+        {
+            if (address is >= 0xb7a800 and < 0xb7c000)
+                throw new InvalidOperationException(
+                    $"Dead Torizo read installed artwork from ROM at ${address:X6}.");
+        }
     }
 
     private sealed class DeadTorizoOamReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        public byte ReadByte(int address) =>
-            address is >= 0xa9d761 and < 0xa9d77c
-                ? throw new InvalidOperationException(
-                    $"Dead Torizo drew native OAM from ROM at ${address:X6}.")
-                : source.ReadByte(address);
+        public byte ReadByte(int address)
+        {
+            RejectOamRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectOamRead(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Dead Torizo OAM guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Dead Torizo OAM guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Dead Torizo OAM guard requires SRAM."))
+            .ReadSaveRamByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private static void RejectOamRead(int address)
+        {
+            if (address is >= 0xa9d761 and < 0xa9d77c)
+                throw new InvalidOperationException(
+                    $"Dead Torizo drew native OAM from ROM at ${address:X6}.");
+        }
     }
 }

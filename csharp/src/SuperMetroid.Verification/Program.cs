@@ -1828,7 +1828,13 @@ if (args is ["--oam-source-routing"])
 if (args is ["--enemy-tile-artwork"])
 {
     VerifyEnemyTileArtwork();
+    VerifyEnemyMappedSourceRouting();
     VerifyRoomEnemyLoading();
+    return 0;
+}
+if (args is ["--enemy-source-routing"])
+{
+    VerifyEnemyMappedSourceRouting();
     return 0;
 }
 if (args is ["--enemy-visual-selector-inventory"])
@@ -2961,6 +2967,7 @@ VerifyMamaTurtleEnemyDefinitions();
 VerifyPaletteFxInstructionCodeCatalogs();
 VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
+VerifyEnemyMappedSourceRouting();
 VerifyRoomEnemyLoading();
 VerifyEnemyTileArtwork();
 VerifyCompiledEnemyVisualSelectors();

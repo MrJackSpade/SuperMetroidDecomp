@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -950,21 +951,21 @@ public sealed partial class RoomEnemySystem
                 // retaining the native list format is necessary for bosses and composite
                 // enemies that share this bank-$A0 draw path.
                 int extendedAddress = (slot.Definition.Bank << 16) | slot.SpritemapPointer;
-                int componentCount = _bus!.ReadByte(extendedAddress);
+                int componentCount = ReadEnemySourceByte(_bus!, extendedAddress);
                 ushort componentPointer = unchecked((ushort)(slot.SpritemapPointer + 2));
                 for (int component = 0; component < componentCount; component++)
                 {
                     int componentAddress = (slot.Definition.Bank << 16) | componentPointer;
-                    ushort componentX = unchecked((ushort)(originX + ReadWord(_bus, componentAddress)));
-                    ushort componentY = unchecked((ushort)(originY + ReadWord(_bus, AddWithinBank(componentAddress, 2))));
-                    ushort ordinarySpritemap = ReadWord(_bus, AddWithinBank(componentAddress, 4));
+                    ushort componentX = unchecked((ushort)(originX + ReadWord(_bus!, componentAddress)));
+                    ushort componentY = unchecked((ushort)(originY + ReadWord(_bus!, AddWithinBank(componentAddress, 2))));
+                    ushort ordinarySpritemap = ReadWord(_bus!, AddWithinBank(componentAddress, 4));
 
                     // $FFFE names ProcessExtendedTilemap's command stream. Extra-property
                     // $8000 is the native producer gate: Crocomire clears it while sinking
                     // so the last BG2 image can be erased row-by-row without being restored
                     // by the still-current extended spritemap on every draw pass.
                     ushort componentMarker = ReadWord(
-                        _bus,
+                        _bus!,
                         (slot.Definition.Bank << 16) | ordinarySpritemap);
                     if (componentMarker == 0xfffe)
                     {
@@ -1091,7 +1092,8 @@ public sealed partial class RoomEnemySystem
             {
                 var tileBytes = new byte[byteCount];
                 for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                    tileBytes[byteIndex] = bus.ReadByte(AddWithinBank(definition.TileDataAddress, byteIndex));
+                    tileBytes[byteIndex] = ReadEnemySourceByte(bus,
+                        AddWithinBank(definition.TileDataAddress, byteIndex));
                 vram.LoadBytes(vramByteOffset, tileBytes);
             }
 
@@ -3680,15 +3682,15 @@ public sealed partial class RoomEnemySystem
         int descriptor = (slot.Definition.Bank << 16) |
             unchecked((ushort)(instruction + 2));
         ushort byteCount = ReadWord(_bus!, descriptor);
-        int sourceAddress = _bus!.ReadByte(descriptor + 2) |
-            (_bus.ReadByte(descriptor + 3) << 8) |
-            (_bus.ReadByte(descriptor + 4) << 16);
+        int sourceAddress = ReadEnemySourceByte(_bus!, descriptor + 2) |
+            (ReadEnemySourceByte(_bus!, descriptor + 3) << 8) |
+            (ReadEnemySourceByte(_bus!, descriptor + 4) << 16);
         ushort vramDestination = unchecked((ushort)(
-            _bus.ReadByte(descriptor + 5) |
-            (_bus.ReadByte(descriptor + 6) << 8)));
+            ReadEnemySourceByte(_bus!, descriptor + 5) |
+            (ReadEnemySourceByte(_bus!, descriptor + 6) << 8)));
         var bytes = new byte[byteCount];
         for (int byteIndex = 0; byteIndex < bytes.Length; byteIndex++)
-            bytes[byteIndex] = _bus.ReadByte(sourceAddress + byteIndex);
+            bytes[byteIndex] = ReadEnemySourceByte(_bus!, sourceAddress + byteIndex);
         _vram!.LoadBytes(vramDestination * 2, bytes);
     }
 
@@ -4216,8 +4218,8 @@ public sealed partial class RoomEnemySystem
             Damage: ReadWord(bus, AddWithinBank(address, 6)),
             XRadius: ReadWord(bus, AddWithinBank(address, 8)),
             YRadius: ReadWord(bus, AddWithinBank(address, 10)),
-            Bank: bus.ReadByte(AddWithinBank(address, 12)),
-            HurtAiTime: bus.ReadByte(AddWithinBank(address, 13)),
+            Bank: ReadEnemySourceByte(bus, AddWithinBank(address, 12)),
+            HurtAiTime: ReadEnemySourceByte(bus, AddWithinBank(address, 13)),
             HurtSoundEffect: ReadWord(bus, AddWithinBank(address, 14)),
             BossId: ReadWord(bus, AddWithinBank(address, 16)),
             InitializationAiPointer: ReadWord(bus, AddWithinBank(address, 18)),
@@ -4239,7 +4241,7 @@ public sealed partial class RoomEnemySystem
             ShotAiPointer: ReadWord(bus, AddWithinBank(address, 50)),
             InitialSpritemapPointer: ReadWord(bus, AddWithinBank(address, 52)),
             TileDataAddress: ReadLong(bus, AddWithinBank(address, 54)),
-            Layer: bus.ReadByte(AddWithinBank(address, 57)),
+            Layer: ReadEnemySourceByte(bus, AddWithinBank(address, 57)),
             ItemDropChancesPointer: ReadWord(bus, AddWithinBank(address, 58)),
             VulnerabilityPointer: ReadWord(bus, AddWithinBank(address, 60)),
             NamePointer: ReadWord(bus, AddWithinBank(address, 62)));
@@ -4266,12 +4268,30 @@ public sealed partial class RoomEnemySystem
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
+        (ushort)(ReadEnemySourceByte(bus, address) |
+            (ReadEnemySourceByte(bus, AddWithinBank(address, 1)) << 8));
 
     private static int ReadLong(ISnesAddressSpace bus, int address) =>
-        bus.ReadByte(address) |
-        (bus.ReadByte(AddWithinBank(address, 1)) << 8) |
-        (bus.ReadByte(AddWithinBank(address, 2)) << 16);
+        ReadEnemySourceByte(bus, address) |
+        (ReadEnemySourceByte(bus, AddWithinBank(address, 1)) << 8) |
+        (ReadEnemySourceByte(bus, AddWithinBank(address, 2)) << 16);
+
+    private static byte ReadEnemySourceByte(ISnesAddressSpace bus, int address) =>
+        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Enemy data in a WRAM window requires mutable memory."))
+                .ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Enemy data in an SRAM window requires mutable memory."))
+                .ReadSaveRamByte(address),
+            SnesDmaSourceKind.Cartridge =>
+                CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+            _ => throw new InvalidDataException(
+                $"Enemy data read ${address:X6} is outside mapped cartridge/WRAM/SRAM data."),
+        };
 
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 }

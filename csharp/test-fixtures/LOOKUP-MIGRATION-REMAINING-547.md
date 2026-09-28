@@ -16,6 +16,23 @@ matches native pixels for 700 frames with installed cartridge reads blocked.
 Later Golden Torizo combat lists, other input paths, and full ROM-free runtime
 coverage remain open.
 
+### Next observed Golden Torizo ROM-free boundary
+
+An extended version of the same room replay raised Samus's health to 1499 so
+the boss could finish awakening rather than ending the fixture at Game Over.
+The first subsequent missing compiled owner is the walking-left, left-leg
+program at `$AA:D259`: the last awakening instruction is the cartridge's
+`$80ED,$D259` branch at `$AA:CACA`. The pinned ROM begins that target with
+`$C3A0,$B09C,$D5E6,$806B,$D5F1,$C618,$0008,$A5A4` (step state,
+normal movement, walking movement, footstep sound, and its first visual
+frame). These values agree with Patrick Johnston's bank-$AA annotated source.
+The runtime currently rejects the unowned `$D259` mechanics word even when a
+native ROM is available, so increasing this fixture's duration/health without
+compiling the combat family would turn the mandatory verifier red. No combat
+parity is claimed. Migrate its walking/turning/attack programs together with
+their editable frame selectors and independent physical hitboxes, then rerun
+the long input-driven replay with exact pixel and gameplay assertions.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

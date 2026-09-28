@@ -64,13 +64,38 @@ internal static partial class Program
         Console.WriteLine("World-map labels: native pixels/window timing, blocked ROM reads, visible edits, availability isolation and override preservation pass.");
     }
 
-    private sealed class WorldLabelReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class WorldLabelReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        public byte ReadByte(int address) =>
-            (address >= FileSelectMapRomData.LabelPositions && address < FileSelectMapRomData.LabelPositions + FileSelectMapRomData.AreaCount * 4) ||
+        private static void RejectLabelSource(int address)
+        {
+            if ((address >= FileSelectMapRomData.LabelPositions && address < FileSelectMapRomData.LabelPositions + FileSelectMapRomData.AreaCount * 4) ||
             (address >= FileSelectMapRomData.WindowVelocities && address < FileSelectMapRomData.WindowVelocities + FileSelectMapRomData.AreaCount * FileSelectMapRomData.VelocityRecordBytes) ||
-            (address >= FileSelectMapRomData.WindowTimers && address < FileSelectMapRomData.WindowTimers + FileSelectMapRomData.AreaCount * 2)
-            ? throw new InvalidOperationException("Installed world labels/windows read cartridge coordinate or motion tables.") : source.ReadByte(address);
+            (address >= FileSelectMapRomData.WindowTimers && address < FileSelectMapRomData.WindowTimers + FileSelectMapRomData.AreaCount * 2))
+                throw new InvalidOperationException(
+                    "Installed world labels/windows read cartridge coordinate or motion tables.");
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectLabelSource(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectLabelSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "World-label guard source does not expose WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "World-label guard source does not expose SRAM.")).ReadSaveRamByte(address);
+
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

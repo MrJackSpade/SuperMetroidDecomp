@@ -1235,9 +1235,10 @@ internal static partial class Program
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
-    private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) : ISnesAddressSpace
+    private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) :
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        public byte ReadByte(int address)
+        private void RejectMapSource(int address)
         {
             if ((address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
                 (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + SnesCgram.ByteCount) ||
@@ -1257,8 +1258,28 @@ internal static partial class Program
                 maps.Any(map => (address >= map.TilemapAddress && address < map.TilemapAddress + AreaMapRomData.TilemapByteCount) ||
                     (address >= map.StationRevealMaskAddress && address < map.StationRevealMaskAddress + AreaMapRomData.StationRevealMaskByteCount)))
                 throw new InvalidOperationException($"Live presentation read map ROM at {address:X6}.");
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectMapSource(address);
             return source.ReadByte(address);
         }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectMapSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-data guard source does not expose WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-data guard source does not expose SRAM.")).ReadSaveRamByte(address);
+
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

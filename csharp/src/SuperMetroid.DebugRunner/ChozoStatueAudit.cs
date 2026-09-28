@@ -39,7 +39,7 @@ internal static class ChozoStatueAudit
         return 0;
     }
 
-    private static void VerifyRetailHeadersPopulationsAndStates(ISnesAddressSpace bus)
+    private static void VerifyRetailHeadersPopulationsAndStates(SuperMetroidAddressSpace bus)
     {
         RoomEnemyDefinition cracks = RoomEnemySystem.ReadDefinition(bus, N00bTubeDefinition);
         AssertDefinition(

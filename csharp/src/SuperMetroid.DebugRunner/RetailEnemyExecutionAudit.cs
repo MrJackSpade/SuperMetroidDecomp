@@ -331,7 +331,7 @@ internal static partial class RetailEnemyExecutionAudit
     /// consumer). Trying the real selector with each one-hot boss mask avoids room/enemy IDs.
     /// </summary>
     private static bool IsBossSelectedRoomState(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         ushort roomPointer,
         ushort statePointer)
     {

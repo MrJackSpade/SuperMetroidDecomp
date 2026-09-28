@@ -1784,6 +1784,11 @@ if (args is ["--room-header-definitions"])
     VerifyCompiledRoomHeaderDefinitions();
     return 0;
 }
+if (args is ["--cartridge-room-state-selection"])
+{
+    VerifyCartridgeRoomStateSelection();
+    return 0;
+}
 if (args is ["--room-tileset-definitions"])
 {
     VerifyRoomAssetRomData();

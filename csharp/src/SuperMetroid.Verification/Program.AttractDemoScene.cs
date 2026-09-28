@@ -206,7 +206,7 @@ internal static partial class Program
 
     private sealed class AttractDefinitionReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) : ISnesAddressSpace, ISnesMutableMemory
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -222,5 +222,15 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        // The guard denies cartridge definition reads, not the live mutable memory
+        // owned by the attract room. Keep that memory visible through its typed API.
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Attract audit source must expose WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Attract audit source must expose SRAM.")).ReadSaveRamByte(address);
     }
 }

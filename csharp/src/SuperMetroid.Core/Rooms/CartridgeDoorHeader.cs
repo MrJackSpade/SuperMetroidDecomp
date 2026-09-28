@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -31,19 +32,15 @@ public sealed record CartridgeDoorHeader(
         int address = DoorHeaderRomData.BankAddress | pointer;
         return new CartridgeDoorHeader(
             pointer,
-            DestinationRoomPointer: ReadWord(address),
+            DestinationRoomPointer: CartridgeImportWords.ReadWord(cartridge, address),
             BitFlags: cartridge.ReadCartridgeByte(address + 2),
             Orientation: cartridge.ReadCartridgeByte(address + 3),
             PlmX: cartridge.ReadCartridgeByte(address + 4),
             PlmY: cartridge.ReadCartridgeByte(address + 5),
             DestinationScreenX: cartridge.ReadCartridgeByte(address + 6),
             DestinationScreenY: cartridge.ReadCartridgeByte(address + 7),
-            SamusDistance: ReadWord(address + 8),
-            SetupCodePointer: ReadWord(address + 10));
-
-        ushort ReadWord(int wordAddress) => unchecked((ushort)(
-            cartridge.ReadCartridgeByte(wordAddress) |
-            cartridge.ReadCartridgeByte(SnesAddressMath.AddWithinBank(wordAddress, 1)) << 8));
+            SamusDistance: CartridgeImportWords.ReadWord(cartridge, address + 8),
+            SetupCodePointer: CartridgeImportWords.ReadWord(cartridge, address + 10));
     }
 
     /// <summary>

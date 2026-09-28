@@ -643,7 +643,9 @@ internal static class KiHunterAudit
         ushort statePointer,
         ushort populationPointer)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, roomPointer);
+        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
+            throw new InvalidOperationException("Ki Hunter cartridge audit requires a ROM source.");
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(cartridge, roomPointer);
         AssertExpectedState(room, statePointer, populationPointer);
         return room;
     }

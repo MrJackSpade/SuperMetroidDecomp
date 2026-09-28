@@ -174,7 +174,7 @@ internal static class WreckedShipGhostAudit
             throw new InvalidDataException("Ghost power-beam vulnerability is not retail value two.");
     }
 
-    private static void VerifyRetailPopulations(ISnesAddressSpace bus)
+    private static void VerifyRetailPopulations(SuperMetroidAddressSpace bus)
     {
         foreach (GhostPopulation expected in RetailPopulations)
         {

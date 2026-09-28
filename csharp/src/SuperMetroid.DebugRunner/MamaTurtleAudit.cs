@@ -519,7 +519,9 @@ internal static class MamaTurtleAudit
 
     private static LoadedTurtles Load(ISnesAddressSpace bus)
     {
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
+            throw new InvalidOperationException("Mama Turtle cartridge audit requires a ROM source.");
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(cartridge, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();

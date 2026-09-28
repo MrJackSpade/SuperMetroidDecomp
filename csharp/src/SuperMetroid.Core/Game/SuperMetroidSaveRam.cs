@@ -316,7 +316,8 @@ public sealed class SuperMetroidSaveRam
     }
 
     private byte ReadSramByte(int offset) =>
-        mutableMemory.ReadSaveRamByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)));
+        mutableMemory.ReadSaveRamByte((int)new SnesAddress(
+            SaveRamLayout.SramBank, (ushort)(offset & SaveRamLayout.SramOffsetMask)));
 
     private ushort ReadSramWord(int offset) => unchecked((ushort)(
         ReadSramByte(offset) | (ReadSramByte(offset + 1) << 8)));

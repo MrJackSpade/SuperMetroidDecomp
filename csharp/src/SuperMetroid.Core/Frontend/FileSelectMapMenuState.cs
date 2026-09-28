@@ -59,7 +59,7 @@ public sealed partial class FileSelectMapMenuState
         if (mapPresentation is null)
         {
             station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
-            room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+            room = CartridgeRoomHeader.Load(RequireReferenceCartridge(bus), station.RoomPointer);
         }
         areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.Screens, mapPresentation?.WorldArtwork, mapPresentation?.Sprites);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
@@ -109,11 +109,18 @@ public sealed partial class FileSelectMapMenuState
         // invoke the retained legacy closure: a newly installed/restored menu may
         // intentionally have no room or load-station objects captured in it.
         LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)stationIndex));
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            RequireReferenceCartridge(bus), station.RoomPointer);
         return new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), roomGraphics.MapSystem,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
             (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
     }
+
+    // The unbound menu exists only for cartridge-reference diagnostics. Installed menus
+    // take their anchors from MapPresentation and never request a native room header.
+    private static IImportCartridgeSource RequireReferenceCartridge(ISnesAddressSpace bus) =>
+        bus as IImportCartridgeSource ?? throw new InvalidOperationException(
+            "Unbound file-map diagnostics require an explicit cartridge import source.");
 
     public void Step(ushort input)
     {

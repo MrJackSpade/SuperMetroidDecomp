@@ -8,7 +8,7 @@ internal static partial class Program
     {
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
@@ -28,7 +28,7 @@ internal static partial class Program
         {
             CartridgeRoomHeader native = CartridgeRoomHeader.Load(bus, roomPointer, context);
             CartridgeRoomHeader compiled = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                bus, roomPointer, context);
+                roomPointer, context);
             AssertEqual(native, compiled,
                 $"compiled room-state selection for $8F:{roomPointer:X4}");
             statePointers.Add(compiled.State.Pointer);

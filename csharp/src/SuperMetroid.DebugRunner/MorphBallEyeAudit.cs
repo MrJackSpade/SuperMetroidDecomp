@@ -125,7 +125,7 @@ internal static partial class MorphBallEyeAudit
     }
 
     private static void VerifyRoomPopulation(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         ushort roomPointer,
         ushort statePointer,
         ushort populationPointer,

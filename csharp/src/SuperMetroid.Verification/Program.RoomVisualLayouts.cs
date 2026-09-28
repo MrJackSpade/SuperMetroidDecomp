@@ -14,7 +14,7 @@ internal static partial class Program
     /// installed override changes both rendered planes without changing collision/BTS.
     /// </summary>
     private static void VerifyRoomVisualLayouts(GameInstallation installed,
-        ISnesAddressSpace bus, CartridgeRoomHeader landing)
+        SuperMetroidAddressSpace bus, CartridgeRoomHeader landing)
     {
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailSources.Count,
@@ -74,7 +74,7 @@ internal static partial class Program
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                bus, header.Pointer);
+                header.Pointer);
             foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(
                 header.Pointer))
             {

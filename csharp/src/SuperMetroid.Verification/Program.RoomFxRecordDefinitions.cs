@@ -50,7 +50,7 @@ internal static partial class Program
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count} room states match every native field.");
     }
 
-    private static void VerifyCompiledCeresRoomFxConsumers(ISnesAddressSpace bus)
+    private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);

@@ -33,26 +33,24 @@ public sealed record CartridgeRoomHeader(
 
     /// <summary>Reads a room and resolves the same selector bytecode consumed by $8F:E5D2.</summary>
     public static CartridgeRoomHeader Load(
-        ISnesAddressSpace bus,
+        IImportCartridgeSource cartridge,
         ushort roomPointer,
         RoomStateSelectionContext selection = default)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cartridge);
         ushort statePointer = SelectState(
-            bus,
+            cartridge,
             roomPointer,
             unchecked((ushort)(roomPointer + RoomHeaderRomData.FixedHeaderByteCount)),
             selection);
-        return LoadSelectedFromCartridgeHeader(bus, roomPointer, statePointer);
+        return LoadSelectedFromCartridgeHeader(cartridge, roomPointer, statePointer);
     }
 
     /// <summary>Builds a room entirely from compiled fixed metadata, selection, and state payloads.</summary>
     public static CartridgeRoomHeader LoadUsingCompiledSelection(
-        ISnesAddressSpace bus,
         ushort roomPointer,
         RoomStateSelectionContext selection = default)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
         ushort statePointer = RoomStateSelectionDefinitions.Select(roomPointer, selection);
         return new CartridgeRoomHeader(
@@ -75,31 +73,31 @@ public sealed record CartridgeRoomHeader(
         RoomHeaderDefinitions.Get(roomPointer).AreaIndex;
 
     private static CartridgeRoomHeader LoadSelectedFromCartridgeHeader(
-        ISnesAddressSpace bus,
+        IImportCartridgeSource cartridge,
         ushort roomPointer,
         ushort statePointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cartridge);
         int address = RoomHeaderRomData.BankAddress | roomPointer;
         return new CartridgeRoomHeader(
             roomPointer,
-            RoomIndex: bus.ReadByte(address),
+            RoomIndex: cartridge.ReadCartridgeByte(address),
             AreaIndex: AreaIds.FromCartridge(
-                bus.ReadByte(address + 1),
+                cartridge.ReadCartridgeByte(address + 1),
                 $"Room header $8F:{roomPointer:X4}"),
-            MapX: bus.ReadByte(address + 2),
-            MapY: bus.ReadByte(address + 3),
-            WidthInScreens: bus.ReadByte(address + 4),
-            HeightInScreens: bus.ReadByte(address + 5),
-            UpScroller: bus.ReadByte(address + 6),
-            DownScroller: bus.ReadByte(address + 7),
-            CreBitset: bus.ReadByte(address + 8),
-            DoorListPointer: ReadWord(bus, address + 9),
-            State: CartridgeRoomState.Load(bus, statePointer));
+            MapX: cartridge.ReadCartridgeByte(address + 2),
+            MapY: cartridge.ReadCartridgeByte(address + 3),
+            WidthInScreens: cartridge.ReadCartridgeByte(address + 4),
+            HeightInScreens: cartridge.ReadCartridgeByte(address + 5),
+            UpScroller: cartridge.ReadCartridgeByte(address + 6),
+            DownScroller: cartridge.ReadCartridgeByte(address + 7),
+            CreBitset: cartridge.ReadCartridgeByte(address + 8),
+            DoorListPointer: CartridgeImportWords.ReadWord(cartridge, address + 9),
+            State: CartridgeRoomState.Load(cartridge, statePointer));
     }
 
     private static ushort SelectState(
-        ISnesAddressSpace bus,
+        IImportCartridgeSource cartridge,
         ushort roomPointer,
         ushort selectorPointer,
         RoomStateSelectionContext selection)
@@ -107,7 +105,7 @@ public sealed record CartridgeRoomHeader(
         ushort cursor = selectorPointer;
         for (int guard = 0; guard < 32; guard++)
         {
-            ushort selector = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
+            ushort selector = CartridgeImportWords.ReadWord(cartridge, RoomHeaderRomData.BankAddress | cursor);
             cursor += 2;
             switch (selector)
             {
@@ -118,7 +116,7 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.MainAreaBossIsDead:
                 {
-                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
+                    ushort selectedPointer = CartridgeImportWords.ReadWord(cartridge, RoomHeaderRomData.BankAddress | cursor);
                     if (selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss))
                         return selectedPointer;
                     cursor += 2;
@@ -127,8 +125,8 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.EventHasBeenSet:
                 {
-                    byte eventIndex = bus.ReadByte(RoomHeaderRomData.BankAddress | cursor);
-                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | unchecked((ushort)(cursor + 1)));
+                    byte eventIndex = cartridge.ReadCartridgeByte(RoomHeaderRomData.BankAddress | cursor);
+                    ushort selectedPointer = CartridgeImportWords.ReadWord(cartridge, RoomHeaderRomData.BankAddress | unchecked((ushort)(cursor + 1)));
                     if (selection.IsEventSet(eventIndex))
                         return selectedPointer;
                     cursor += 3;
@@ -138,9 +136,9 @@ public sealed record CartridgeRoomHeader(
                 case RoomStateSelectorCodes.BossIsDead:
                 {
                     BossBits bossMask = BossBitMasks.FromCartridge(
-                        bus.ReadByte(RoomHeaderRomData.BankAddress | cursor),
+                        cartridge.ReadCartridgeByte(RoomHeaderRomData.BankAddress | cursor),
                         $"Room $8F:{roomPointer:X4} state selector $8F:{selector:X4}");
-                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | unchecked((ushort)(cursor + 1)));
+                    ushort selectedPointer = CartridgeImportWords.ReadWord(cartridge, RoomHeaderRomData.BankAddress | unchecked((ushort)(cursor + 1)));
                     if (selection.IsBossDead(bossMask))
                         return selectedPointer;
                     cursor += 3;
@@ -149,7 +147,7 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.MorphBallAndMissiles:
                 {
-                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
+                    ushort selectedPointer = CartridgeImportWords.ReadWord(cartridge, RoomHeaderRomData.BankAddress | cursor);
                     if (selection.HasMorphBallAndMissiles)
                         return selectedPointer;
                     cursor += 2;
@@ -158,7 +156,7 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.PowerBombs:
                 {
-                    ushort selectedPointer = ReadWord(bus, RoomHeaderRomData.BankAddress | cursor);
+                    ushort selectedPointer = CartridgeImportWords.ReadWord(cartridge, RoomHeaderRomData.BankAddress | cursor);
                     if (selection.HasPowerBombs)
                         return selectedPointer;
                     cursor += 2;
@@ -181,8 +179,6 @@ public sealed record CartridgeRoomHeader(
             $"Room $8F:{roomPointer:X4} did not terminate its state-selector list.");
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(bus, address);
 }
 
 /// <summary>The fields copied by <c>LoadStateHeader</c> at $82:DEF2.</summary>
@@ -212,27 +208,27 @@ public sealed record CartridgeRoomState(
     public RoomSetupCallback SetupCallback =>
         RoomCallbackDefinitions.ResolveSetup(SetupCodePointer);
 
-    internal static CartridgeRoomState Load(ISnesAddressSpace bus, ushort pointer)
+    internal static CartridgeRoomState Load(IImportCartridgeSource cartridge, ushort pointer)
     {
         int address = RoomHeaderRomData.BankAddress | pointer;
-        ushort packedLayer2Scrolls = RomDataReader.ReadWordFixedBank(bus, address + 12);
+        ushort packedLayer2Scrolls = CartridgeImportWords.ReadWord(cartridge, address + 12);
         return new CartridgeRoomState(
             pointer,
-            CompressedLevelDataAddress: RomDataReader.ReadLongFixedBank(bus, address),
-            GraphicsSet: bus.ReadByte(address + 3),
-            MusicDataIndex: bus.ReadByte(address + 4),
-            MusicTrackIndex: bus.ReadByte(address + 5),
-            FxPointer: RomDataReader.ReadWordFixedBank(bus, address + 6),
-            EnemyPopulationPointer: RomDataReader.ReadWordFixedBank(bus, address + 8),
-            EnemyTilesetPointer: RomDataReader.ReadWordFixedBank(bus, address + 10),
+            CompressedLevelDataAddress: CartridgeImportWords.ReadLong(cartridge, address),
+            GraphicsSet: cartridge.ReadCartridgeByte(address + 3),
+            MusicDataIndex: cartridge.ReadCartridgeByte(address + 4),
+            MusicTrackIndex: cartridge.ReadCartridgeByte(address + 5),
+            FxPointer: CartridgeImportWords.ReadWord(cartridge, address + 6),
+            EnemyPopulationPointer: CartridgeImportWords.ReadWord(cartridge, address + 8),
+            EnemyTilesetPointer: CartridgeImportWords.ReadWord(cartridge, address + 10),
             Layer2ScrollX: (byte)packedLayer2Scrolls,
             Layer2ScrollY: (byte)(packedLayer2Scrolls >> 8),
-            ScrollPointer: RomDataReader.ReadWordFixedBank(bus, address + 14),
-            XrayPointer: RomDataReader.ReadWordFixedBank(bus, address + 16),
-            MainCodePointer: RomDataReader.ReadWordFixedBank(bus, address + 18),
-            PlmPointer: RomDataReader.ReadWordFixedBank(bus, address + 20),
-            BackgroundDataPointer: RomDataReader.ReadWordFixedBank(bus, address + 22),
-            SetupCodePointer: RomDataReader.ReadWordFixedBank(bus, address + 24));
+            ScrollPointer: CartridgeImportWords.ReadWord(cartridge, address + 14),
+            XrayPointer: CartridgeImportWords.ReadWord(cartridge, address + 16),
+            MainCodePointer: CartridgeImportWords.ReadWord(cartridge, address + 18),
+            PlmPointer: CartridgeImportWords.ReadWord(cartridge, address + 20),
+            BackgroundDataPointer: CartridgeImportWords.ReadWord(cartridge, address + 22),
+            SetupCodePointer: CartridgeImportWords.ReadWord(cartridge, address + 24));
     }
 }
 

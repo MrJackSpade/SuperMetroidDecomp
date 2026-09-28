@@ -120,7 +120,7 @@ internal static class EvirAudit
     }
 
     private static void VerifyRoomAndPopulation(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         ushort roomPointer,
         ushort statePointer,
         ushort populationPointer,

@@ -177,7 +177,7 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
         ValidateAddress(cpuAddress);
         int bank = cpuAddress >> 16;
         int offset = cpuAddress & 0xffff;
-        if (!IsSaveRamBank(bank) || offset >= 0x8000)
+        if (!IsSaveRamBank(bank) || offset >= LoRomExpansionReadMap.RomStart)
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "SRAM reads require a lower-window bank $70-$7D or $F0-$FF address.");
         return _saveRam[offset & 0x1fff];

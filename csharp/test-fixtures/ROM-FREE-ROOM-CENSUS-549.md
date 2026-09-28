@@ -7,17 +7,21 @@ The `NO_UNTYPED_BUS_READS` build symbol removes the old multiplexed
 time. Build Core with
 `dotnet build csharp/src/SuperMetroid.Core/SuperMetroid.Core.csproj --no-restore -p:DefineConstants=NO_UNTYPED_BUS_READS`
 to enumerate unresolved callers. This strict build **currently fails** with
-216 compiler errors, down from 233 before the typed conversions so far; it is
+202 compiler errors, down from 233 before the typed conversions so far; it is
 a migration gate, not a green ROM-free guarantee. Normal builds retain the
 old member until all callers have been classified and converted. The first
 conversions give X-ray setup/display, Fireflea FX, and mutable Samus animation
 aliases a WRAM-only reader, save-slot decoding an SRAM-only reader, and the SPC
-upload importer and diagnostic door-header loader cartridge-only readers. Each
-rejects addresses from the wrong memory region. The import-only contract must
+upload importer and diagnostic door/room-header loaders cartridge-only readers.
+Each rejects addresses from the wrong memory region. The import-only contract must
 ultimately stay outside the gameplay
 runtime, and direct ROM/file APIs must be audited before removing the old
 member permanently. Tests remain necessary to verify value and timing parity,
 but not as the primary way of discovering direct bus-read call sites.
+
+The compiled room-header/state-selection path no longer accepts an address
+space at all. Diagnostic native room parsing requires `IImportCartridgeSource`;
+the installed file-map path remains on its separate compiled-map branch.
 
 ## Current one-frame baseline (2026-09-28)
 

@@ -27,7 +27,7 @@ internal static partial class Program
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
             CartridgeRoomHeader header = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                bus, roomPointer, context);
+                roomPointer, context);
             if (!auditedStates.Add(header.State.Pointer))
                 continue;
 
@@ -87,7 +87,7 @@ internal static partial class Program
 
         ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;
         CartridgeRoomHeader ceres = CartridgeRoomHeader.LoadUsingCompiledSelection(
-            bus, ceresPointer);
+            ceresPointer);
         var guardedCeres = new SuperMetroidRuntime(new RoomScrollSourceReadGuard(
             bus, ceres.State.ScrollPointer));
         guardedCeres.InitializeStartingCeresRoom();

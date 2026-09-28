@@ -31,7 +31,8 @@ static ushort ReferenceNextRandom(ushort seed)
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
-sealed class TestAddressSpace : ISnesAddressSpace, IRoomEnemyFixtureSource
+sealed class TestAddressSpace : ISnesAddressSpace, IImportCartridgeSource,
+    IRoomEnemyFixtureSource
 {
     private readonly Dictionary<int, byte> _bytes = [];
 
@@ -41,6 +42,15 @@ sealed class TestAddressSpace : ISnesAddressSpace, IRoomEnemyFixtureSource
             throw new ArgumentOutOfRangeException(nameof(address));
 
         return _bytes.GetValueOrDefault(address);
+    }
+
+    public byte ReadCartridgeByte(int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        if (!source.IsUpperLoRomWindow || source.Bank is 0x7e or 0x7f)
+            throw new ArgumentOutOfRangeException(nameof(address), address,
+                "Synthetic cartridge bytes require an upper LoROM address.");
+        return ReadByte(address);
     }
 
     public void WriteByte(int address, byte value)

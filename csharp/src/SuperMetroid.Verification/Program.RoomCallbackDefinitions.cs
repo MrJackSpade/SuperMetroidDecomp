@@ -24,7 +24,7 @@ internal static partial class Program
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
             CartridgeRoomState state = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                bus, roomPointer, context).State;
+                roomPointer, context).State;
             if (!states.Add(state.Pointer))
                 continue;
 

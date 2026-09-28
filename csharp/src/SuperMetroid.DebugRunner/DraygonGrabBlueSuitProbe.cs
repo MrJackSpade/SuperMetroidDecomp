@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 /// <summary>Real chase admission and D-pad escape around controller-earned spark activation.</summary>
-internal sealed class DraygonGrabBlueSuitProbe(ISnesAddressSpace bus, SamusState samus, bool left, int mode)
+internal sealed class DraygonGrabBlueSuitProbe(SuperMetroidAddressSpace bus, SamusState samus, bool left, int mode)
 {
     private ushort _ownerX;
     private static int GrabFrame(int mode) => 150 + mode % 4;

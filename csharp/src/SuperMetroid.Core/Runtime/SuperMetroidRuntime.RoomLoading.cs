@@ -1063,7 +1063,7 @@ public sealed partial class SuperMetroidRuntime
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
                 samus.MaxMissiles != 0,
             HasPowerBombs: samus?.MaxPowerBombs != 0);
-        return CartridgeRoomHeader.LoadUsingCompiledSelection(_addressSpace, roomPointer, selection);
+        return CartridgeRoomHeader.LoadUsingCompiledSelection(roomPointer, selection);
     }
 
     /// <summary>

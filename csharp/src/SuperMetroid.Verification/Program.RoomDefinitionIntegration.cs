@@ -176,12 +176,20 @@ internal static partial class Program
 
     private sealed class DefinitionAddressCollectingBus(
         ISnesAddressSpace source,
-        HashSet<int> addresses) : ISnesAddressSpace
+        HashSet<int> addresses) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {
             addresses.Add(address);
             return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            addresses.Add(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Definition collection requires a cartridge import source."))
+                .ReadCartridgeByte(address);
         }
 
         public void WriteByte(int address, byte value) =>

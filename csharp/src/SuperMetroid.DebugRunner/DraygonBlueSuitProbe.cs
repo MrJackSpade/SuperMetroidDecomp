@@ -20,7 +20,7 @@ internal static class DraygonBlueSuitProbe
         return frame == 150 ? (ushort)0x80 : frame <= 185 ? (ushort)0x880 : (ushort)0;
     }
 
-    public static void KillThroughEye(ISnesAddressSpace bus, SamusState samus)
+    public static void KillThroughEye(SuperMetroidAddressSpace bus, SamusState samus)
     {
         // Only the boss/shot boundary is constructed. Samus's entire movement state
         // is the result of the preceding controller sequence and is never reseeded.

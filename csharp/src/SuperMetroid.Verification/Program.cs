@@ -1886,6 +1886,13 @@ if (args is ["--rom-free-direct-room", var directRoomRom,
         directRoomFrameText);
     return 0;
 }
+if (args is ["--rom-free-direct-room", var inputRoomRom,
+        var inputRoomPointerText, var inputRoomFrameText, var heldInputText])
+{
+    VerifyFrontendRomFreeDirectRoom(inputRoomRom, inputRoomPointerText,
+        inputRoomFrameText, heldInputText);
+    return 0;
+}
 if (args is ["--gameplay-base-palettes", var gameplayPaletteRom])
 {
     VerifyGameplayBasePalettes(gameplayPaletteRom);

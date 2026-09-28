@@ -481,7 +481,8 @@ internal static partial class Program
         ushort? forcedGoldenSonicStart = null,
         bool forcedGoldenStun = false,
         ushort? forcedGoldenLeftTurnStart = null,
-        bool expectGoldenLeftFootOrb = false)
+        bool expectGoldenLeftFootOrb = false,
+        ushort heldInput = 0)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
@@ -531,11 +532,11 @@ internal static partial class Program
             firstLoadVram++;
         for (int frame = 0; frame < frameCount; frame++)
         {
-            FrontendFrame expected = native.Step(0);
+            FrontendFrame expected = native.Step(heldInput);
             FrontendFrame actual;
             try
             {
-                actual = installed.Step(0);
+                actual = installed.Step(heldInput);
             }
             catch (Exception error)
             {

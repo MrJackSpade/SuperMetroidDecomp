@@ -12,7 +12,7 @@ internal static partial class Program
     /// starts with no cartridge allocation, so any uncompiled source read fails.
     /// </summary>
     private static void VerifyFrontendRomFreeDirectRoom(string sourceRom,
-        string roomPointerText, string frameCountText)
+        string roomPointerText, string frameCountText, string? heldInputText = null)
     {
         if (!ushort.TryParse(roomPointerText.TrimStart('$'), NumberStyles.HexNumber,
                 CultureInfo.InvariantCulture, out ushort roomPointer) ||
@@ -23,7 +23,13 @@ internal static partial class Program
                 CultureInfo.InvariantCulture, out int frameCount) ||
             frameCount is < 1 or > 5000)
             throw new ArgumentOutOfRangeException(nameof(frameCountText),
-                "Direct-room comparison requires 1 through 5000 neutral frames.");
+                "Direct-room comparison requires 1 through 5000 frames.");
+        ushort heldInput = 0;
+        if (heldInputText is not null &&
+            !ushort.TryParse(heldInputText.TrimStart('$'), NumberStyles.HexNumber,
+                CultureInfo.InvariantCulture, out heldInput))
+            throw new ArgumentOutOfRangeException(nameof(heldInputText),
+                "Held SNES input must be a hexadecimal 16-bit word.");
 
         string testDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         string installationRoot = Path.Combine(testDirectory,
@@ -45,7 +51,8 @@ internal static partial class Program
             native.RuntimeForVerification!.ApplyHostOptions(options);
             installed.RuntimeForVerification!.ApplyHostOptions(options);
             VerifyFrontendRomFreeRoom(native, installed, roomPointer,
-                $"direct retail room $8F:{roomPointer:X4}", frameCount);
+                $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}",
+                frameCount, heldInput: heldInput);
         }
         finally
         {

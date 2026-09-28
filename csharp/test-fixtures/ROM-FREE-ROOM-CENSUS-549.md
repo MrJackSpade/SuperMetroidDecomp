@@ -76,16 +76,28 @@ dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-fr
 ```
 
 The hexadecimal argument is a compiled retail room-header pointer. The last
-argument is 1..5000 neutral frames. The verifier imports a fresh temporary
+argument is 1..5000 neutral frames. A fifth hexadecimal argument can hold the
+same 16-bit SNES controller word throughout the probe. For example, `0040`
+holds X (the default fire button):
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-direct-room 'Super Metroid.smc' A59F 900 0040
+```
+
+The verifier imports a fresh temporary
 installation, initializes both reference and installed games through the same
 new-game room setup, and applies the same host invincibility option to both so
 later frames are not disguised by matching Game Over screens. The installed
 game has no cartridge allocation; every attempted cartridge read fails. Each
 frame compares game state, phase and native pixels, and the temporary import is
 removed on exit. This path does not depend on the version-sensitive debugger
-graphs above. It is still a one-room neutral-input sample, not a door,
-controller-driven fight or whole-game ROM-free proof.
+graphs above. Its fixed-input mode checks an in-room gameplay route, but it
+does not encode a full controller sequence, door transition, complete fight,
+or whole-game ROM-free proof. A transition leaving the selected room fails
+explicitly rather than extending this test across a room boundary.
 
 On 2026-09-28 the direct verifier passed 900 Kraid-room frames (`A59F`),
 1,000 Crocomire-room frames (`A98D`), and 1,500 Phantoon-room frames (`CD13`)
-with installed cartridge reads blocked.
+with installed cartridge reads blocked. The fixed-input variant also passed
+900 Kraid-room frames while holding X (`0040`); the older focused Golden
+Torizo fixture still passed its 500-frame zero-input route.

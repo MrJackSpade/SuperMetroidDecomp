@@ -86,7 +86,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class StationLayoutReadGuard : ISnesAddressSpace
+    private sealed class StationLayoutReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = new();
@@ -109,8 +109,25 @@ internal static partial class Program
                 }
             }
         }
-        public byte ReadByte(int address) => blocked.Contains(address)
-            ? throw new InvalidOperationException("Installed station drawing read ROM coordinates/discovery tables.") : source.ReadByte(address);
+        private void RejectStationSource(int address)
+        {
+            if (blocked.Contains(address))
+                throw new InvalidOperationException(
+                    "Installed station drawing read ROM coordinates/discovery tables.");
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectStationSource(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectStationSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

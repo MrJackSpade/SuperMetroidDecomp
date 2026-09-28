@@ -2,6 +2,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -158,9 +159,10 @@ internal static partial class Program
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");
     }
 
-    private sealed class GameplayHudReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GameplayHudReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        public byte ReadByte(int address)
+        private static void RejectHudSource(int address)
         {
             if (InRange(address, GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowByteCount) ||
                 InRange(address, GameplayHudDefinitions.TemplateAddress, GameplayHudDefinitions.CellCount * 2) ||
@@ -169,8 +171,27 @@ internal static partial class Program
                 InRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
                 InRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24))
                 throw new InvalidOperationException($"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectHudSource(address);
             return source.ReadByte(address);
         }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectHudSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Gameplay HUD guard source does not expose WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Gameplay HUD guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
         private static bool InRange(int address, int start, int length) =>

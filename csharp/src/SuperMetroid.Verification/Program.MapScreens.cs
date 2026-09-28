@@ -166,7 +166,7 @@ internal static partial class Program
         AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
-    private sealed class MapScreenReadGuard : ISnesAddressSpace
+    private sealed class MapScreenReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();
@@ -185,8 +185,27 @@ internal static partial class Program
                 Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
             void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         }
-        public byte ReadByte(int address) => forbidden.Contains(address)
-            ? throw new InvalidOperationException($"Installed map screens read cartridge presentation at {address:X6}.") : source.ReadByte(address);
+        private void RejectScreenSource(int address)
+        {
+            if (forbidden.Contains(address))
+                throw new InvalidOperationException($"Installed map screens read cartridge presentation at {address:X6}.");
+        }
+        public byte ReadByte(int address)
+        {
+            RejectScreenSource(address);
+            return source.ReadByte(address);
+        }
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectScreenSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-screen guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-screen guard source does not expose SRAM.")).ReadSaveRamByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

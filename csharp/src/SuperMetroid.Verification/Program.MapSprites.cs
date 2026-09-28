@@ -136,7 +136,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class MapSpriteReadGuard : ISnesAddressSpace
+    private sealed class MapSpriteReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();
@@ -153,8 +153,27 @@ internal static partial class Program
             }
             void Add(int start, int count) { for (int index = 0; index < count; index++) forbidden.Add(start + index); }
         }
-        public byte ReadByte(int address) => forbidden.Contains(address)
-            ? throw new InvalidOperationException($"Installed map read migrated sprite data at {address:X6}.") : source.ReadByte(address);
+        private void RejectSpriteSource(int address)
+        {
+            if (forbidden.Contains(address))
+                throw new InvalidOperationException($"Installed map read migrated sprite data at {address:X6}.");
+        }
+        public byte ReadByte(int address)
+        {
+            RejectSpriteSource(address);
+            return source.ReadByte(address);
+        }
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectSpriteSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-sprite guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-sprite guard source does not expose SRAM.")).ReadSaveRamByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

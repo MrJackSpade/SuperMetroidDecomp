@@ -100,7 +100,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class MapArrowReadGuard : ISnesAddressSpace
+    private sealed class MapArrowReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();
@@ -122,8 +122,27 @@ internal static partial class Program
             }
             void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         }
-        public byte ReadByte(int address) => forbidden.Contains(address)
-            ? throw new InvalidOperationException($"Installed arrows read visual metadata from ROM at {address:X6}.") : source.ReadByte(address);
+        private void RejectArrowSource(int address)
+        {
+            if (forbidden.Contains(address))
+                throw new InvalidOperationException($"Installed arrows read visual metadata from ROM at {address:X6}.");
+        }
+        public byte ReadByte(int address)
+        {
+            RejectArrowSource(address);
+            return source.ReadByte(address);
+        }
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectArrowSource(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-arrow guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Map-arrow guard source does not expose SRAM.")).ReadSaveRamByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

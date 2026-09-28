@@ -794,8 +794,66 @@ static void VerifyOamSpritemapPacking()
     AssertEqual(0x01, oam.GetEntry(1).Y,
         "extended enemy off-screen origin admits positive piece crossing onto screen");
 
+    // A spritemap pointer is bank-local, not synonymous with ROM. A zero-entry
+    // record is enough to exercise the source routing without involving OAM packing.
+    bus.WriteBytes(0x808800, [0, 0]);
+    bus.WriteBytes(0x800100, [0, 0]);
+    bus.WriteBytes(0x702000, [0, 0]);
+    var typed = new OamTypedSourceReadGuard(bus);
+    oam.AddOnScreenSpritemap(typed, 0x808800, 0, 0, 0);
+    oam.AddOnScreenSpritemap(typed, 0x800100, 0, 0, 0);
+    oam.AddOnScreenSpritemap(typed, 0x702000, 0, 0, 0);
+    AssertEqual(2, typed.CartridgeReads, "upper-window OAM records use cartridge reads");
+    AssertEqual(2, typed.WorkRamReads, "low-window OAM records use WRAM reads");
+    AssertEqual(2, typed.SaveRamReads, "save-bank OAM records use SRAM reads");
+    bus.WriteBytes(0x80fffe, [1, 0]);
+    bus.WriteBytes(0x800000, [0, 0, 0, 0, 0]);
+    oam.BeginFrame();
+    oam.AddOnScreenSpritemap(typed, 0x80fffe, 0, 0, 0);
+    AssertEqual(4, typed.CartridgeReads,
+        "bank-end spritemap count still comes from upper-window cartridge bytes");
+    AssertEqual(7, typed.WorkRamReads,
+        "bank-local OAM entry wrap changes the five data bytes to live WRAM");
+    AssertEqual(4, oam.NextByteOffset, "wrapped spritemap emits its one entry");
+    try
+    {
+        oam.AddOnScreenSpritemap(typed, 0x804000, 0, 0, 0);
+        throw new InvalidOperationException("Unmapped OAM source was accepted.");
+    }
+    catch (InvalidDataException)
+    {
+        // Unmapped CPU windows must fail explicitly, not read zero or use ROM.
+    }
+
     Console.WriteLine(
-        "  OAM: spritemap packing, enemy/enemy-projectile arithmetic, extended clipping, wrap, and finalization agree.");
+        "  OAM: spritemap packing, mapped cartridge/WRAM/SRAM reads, enemy arithmetic, clipping, wrap, and finalization agree.");
+}
+
+private sealed class OamTypedSourceReadGuard(TestAddressSpace source) :
+    ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+{
+    public int CartridgeReads { get; private set; }
+    public int WorkRamReads { get; private set; }
+    public int SaveRamReads { get; private set; }
+
+    public byte ReadByte(int address) => throw new InvalidOperationException(
+        $"OAM used the untyped CPU reader at ${address:X6}.");
+    public byte ReadCartridgeByte(int address)
+    {
+        CartridgeReads++;
+        return source.ReadCartridgeByte(address);
+    }
+    public byte ReadWorkRamByte(int address)
+    {
+        WorkRamReads++;
+        return source.ReadWorkRamByte(address);
+    }
+    public byte ReadSaveRamByte(int address)
+    {
+        SaveRamReads++;
+        return source.ReadSaveRamByte(address);
+    }
+    public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
 /// <summary>

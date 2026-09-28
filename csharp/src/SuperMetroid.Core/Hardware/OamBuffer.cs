@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Hardware;
@@ -90,7 +91,7 @@ public sealed class OamBuffer
         for (int entryIndex = 0; entryIndex < entryCount && NextByteOffset < LowTableByteCount; entryIndex++)
         {
             SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             AppendGenericSprite(encodedXOffset, encodedYOffset,
@@ -190,7 +191,7 @@ public sealed class OamBuffer
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
             SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             AddSamusPart(encodedXOffset, encodedYOffset, attributes, originX, originY);
@@ -244,7 +245,7 @@ public sealed class OamBuffer
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
             SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             AddProjectileSpritePart(encodedXOffset, encodedYOffset,
@@ -327,7 +328,7 @@ public sealed class OamBuffer
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
             SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
@@ -392,7 +393,7 @@ public sealed class OamBuffer
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
             SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
             AppendEnemySpritemapPart(new EnemySpritemapPart(encodedXOffset,
                     encodedYOffset, new SnesObjAttributeWord(sourceAttributes)),
@@ -625,9 +626,29 @@ public sealed class OamBuffer
 
     private static ushort ReadWordInFixedBank(ISnesAddressSpace bus, int address)
     {
-        byte low = bus.ReadByte(address);
-        byte high = bus.ReadByte(AddWithinBank(address, 1));
+        byte low = ReadSpritemapByte(bus, address);
+        byte high = ReadSpritemapByte(bus, AddWithinBank(address, 1));
         return (ushort)(low | (high << 8));
+    }
+
+    private static byte ReadSpritemapByte(ISnesAddressSpace bus, int address)
+    {
+        // Each record byte is independently mapped after the native bank-local offset
+        // wrap. Most authored parts live in upper-LoROM; a pointer into the low mirror
+        // must instead observe live WRAM rather than treating it as cartridge artwork.
+        return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Low-window spritemap data requires WRAM.")).ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam =>
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "Save-bank spritemap data requires SRAM.")).ReadSaveRamByte(address),
+            SnesDmaSourceKind.Cartridge =>
+                CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+            _ => throw new InvalidDataException(
+                $"Spritemap byte ${address:X6} is outside mapped cartridge/WRAM/SRAM data."),
+        };
     }
 
     private static void ValidateAddress(int address)

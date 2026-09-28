@@ -1815,6 +1815,11 @@ if (args is ["--room-character-atlases"])
     VerifyRoomCharacterAtlases();
     return 0;
 }
+if (args is ["--oam-source-routing"])
+{
+    VerifyOamSpritemapPacking();
+    return 0;
+}
 if (args is ["--enemy-tile-artwork"])
 {
     VerifyEnemyTileArtwork();

@@ -59,6 +59,7 @@ internal static class RomlessDesktopStartupTest
                 "LoadDebuggerState", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new InvalidOperationException("Windows host has no debugger state load.");
             long savedFrame = game.FrameNumber;
+            var savedPixels = game.CurrentFrame.Pixels.ToArray();
             saveState.Invoke(host, [0]);
             if (!File.Exists(Path.Combine(root, "debug-states",
                     "SuperMetroid-debug-slot-0.smstate")))
@@ -81,12 +82,49 @@ internal static class RomlessDesktopStartupTest
             if (game.FrameNumber != savedFrame + 1)
                 throw new InvalidOperationException(
                     "Windows host did not resume frames after zero-ROM state loading.");
+
+            // Disposal flushes the reset-time input journal. Replay must recover
+            // the same stock pixels from its SRAM seed and exact input words,
+            // without falling back to the intentionally absent ROM file.
+            host.Dispose();
+            string[] recordings = Directory.GetFiles(
+                Path.Combine(root, "input-recordings"), "*.smrec");
+            ControllerInputRecording recordedReset = recordings
+                .Select(ControllerInputRecording.Read)
+                .OrderByDescending(recording => recording.ControllerInputs.Length)
+                .FirstOrDefault() ?? throw new InvalidOperationException(
+                    "Windows host did not flush a replayable input recording.");
+            if (recordedReset.ControllerInputs.Length < 7)
+                throw new InvalidOperationException(
+                    "Windows host recording omitted the reset or six title frames.");
+            using var replayHost = new PlayableGameControl(installation.RomPath,
+                new SuperMetroidGameOptions
+                {
+                    AudioEnabled = false,
+                    Renderer = RendererSelection.Software,
+                },
+                replay: recordedReset,
+                dataDirectory: root);
+            for (int frame = 0; frame < 6; frame++)
+                step.Invoke(replayHost, [(ushort?)null]);
+            var replayMemory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
+                .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(replayHost) ?? throw new InvalidOperationException(
+                    "Replay host has no address space."));
+            var replayGame = (SuperMetroidGame)(typeof(PlayableGameControl)
+                .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(replayHost) ?? throw new InvalidOperationException(
+                    "Replay host has no game."));
+            if (!replayMemory.Rom.IsEmpty || replayGame.FrameNumber != savedFrame ||
+                !replayGame.CurrentFrame.Pixels.AsSpan().SequenceEqual(savedPixels))
+                throw new InvalidOperationException(
+                    "Zero-ROM Windows input replay diverged from the captured frame.");
         }
         finally
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
         Console.WriteLine(
-            "PASS Windows host boots extracted content without a ROM copy, saves/loads state, and resumes frames.");
+            "PASS Windows host boots extracted content without a ROM copy, saves/loads state, and replays exact pixels.");
     }
 }

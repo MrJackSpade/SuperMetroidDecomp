@@ -118,6 +118,17 @@ blocked, matches native pixels each frame, and observes the shot lock and
 stunned flag clear before active gameplay continues. Naturally triggering the
 stun by combat input and all later boss branches remain outside this proof.
 
+Both left-turn lists at `$AA:D1F1-D20C` now compile twelve control words and
+two visual selectors. Both selectors reuse the existing editable/physical
+`$AA:A4F0` facing-screen frame; no duplicate asset or hitbox was created.
+The verifier checks the control and selector words against the pinned ROM and
+compares the two visible held poses in an awakened real room with cartridge
+reads denied (24 dodge-turn frames and eight ordinary-turn frames). Advancing
+the dodge case one further frame reaches the currently unowned left-facing
+falling list at `$AA:BC78`. That linked list, its `$AA:B014` frame and the
+rest of the left-facing path remain the next migration boundary, not a passing
+full-handoff test.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

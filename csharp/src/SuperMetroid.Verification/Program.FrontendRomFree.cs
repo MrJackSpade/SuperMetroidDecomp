@@ -318,6 +318,38 @@ internal static partial class Program
                         }
                     },
                     forcedGoldenStun: true);
+                foreach (ushort leftTurnStart in new ushort[]
+                {
+                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
+                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Turn,
+                })
+                {
+                    VerifyFrontendRomFreeRoom(native, installed,
+                        RoomHeaderPointers.GoldenTorizo,
+                        $"Golden Torizo left turn $AA:{leftTurnStart:X4}",
+                        // These visible holds end immediately before the
+                        // linked $AA:BC78 falling list, whose separate visual
+                        // and physical records are not migrated yet.
+                        frameCount: leftTurnStart ==
+                            GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge
+                                ? 24 : 8,
+                        setup: (nativeRoom, installedRoom) =>
+                        {
+                            PrimeGoldenTorizoAwakenedRoom(nativeRoom, installedRoom);
+                            foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
+                            {
+                                RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
+                                    slot => slot.EnemyDefinitionPointer ==
+                                        RoomEnemySystem.GoldenTorizoDefinition);
+                                AssertTrue(boss.SpritemapPointer !=
+                                        GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame,
+                                    "forced left-turn starts before the shared facing-screen frame");
+                                boss.CurrentInstruction = leftTurnStart;
+                                boss.InstructionTimer = 1;
+                            }
+                        },
+                        forcedGoldenLeftTurnStart: leftTurnStart);
+                }
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
@@ -457,7 +489,8 @@ internal static partial class Program
         ushort roomPointer, string roomName, int frameCount = 90,
         Action<SuperMetroidGame, SuperMetroidGame>? setup = null,
         ushort? forcedGoldenSonicStart = null,
-        bool forcedGoldenStun = false)
+        bool forcedGoldenStun = false,
+        ushort? forcedGoldenLeftTurnStart = null)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             roomPointer);
@@ -495,6 +528,7 @@ internal static partial class Program
         bool goldenEyeBeamAttackObserved = false;
         bool forcedGoldenSonicObserved = false;
         bool forcedGoldenStunObserved = false;
+        bool forcedGoldenLeftTurnObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -569,6 +603,11 @@ internal static partial class Program
                 awakenedGoldenTorizo.CurrentInstruction <
                     GoldenTorizoStunnedInstructionProgramDefinitions.End)
                 forcedGoldenStunObserved = true;
+            if (awakenedGoldenTorizo is not null &&
+                forcedGoldenLeftTurnStart is not null &&
+                awakenedGoldenTorizo.SpritemapPointer ==
+                    GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame)
+                forcedGoldenLeftTurnObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -659,6 +698,14 @@ internal static partial class Program
                             GoldenTorizoBehavioralProperties.Stunned) == 0 &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
                     "forced Golden Torizo stun loops its tiles and clears its lock and stun flag");
+                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                return;
+            }
+            if (forcedGoldenLeftTurnStart is not null)
+            {
+                AssertTrue(forcedGoldenLeftTurnObserved &&
+                           installed.GameState == SuperMetroidGameState.MainGameplay,
+                    "forced Golden Torizo left turn selects its shared facing-screen frame");
                 Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }

@@ -209,21 +209,43 @@ internal static partial class Program
     }
 
     private sealed class TourianStatueColorReadGuard(ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource,
+        ISnesMutableMemory
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
         {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Installed Tourian statue color reread ROM byte ${address:X6}.");
-            }
+            RejectForbidden(address);
             return source.ReadByte(address);
         }
 
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectForbidden(address);
+            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "Tourian statue color guard requires a cartridge import source."))
+                .ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Tourian statue color guard requires WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Tourian statue color guard requires SRAM."))
+            .ReadSaveRamByte(address);
+
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private void RejectForbidden(int address)
+        {
+            if (!forbidden.Contains(address)) return;
+            ForbiddenReadAttempts++;
+            throw new InvalidOperationException(
+                $"Installed Tourian statue color reread ROM byte ${address:X6}.");
+        }
     }
 }

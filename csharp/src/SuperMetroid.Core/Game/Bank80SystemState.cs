@@ -145,16 +145,18 @@ public sealed class Bank80SystemState
     public void LoadPersistentMirror(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ReadBytes(bus, SaveRamLayout.EventsWramAddress, _events);
-        ReadBytes(bus, SaveRamLayout.BossBitsWramAddress, _bossBitsByArea);
-        ReadBytes(bus, SaveRamLayout.RoomChozoBitsWramAddress, _roomChozoBits);
-        ReadBytes(bus, SaveRamLayout.CollectedItemBitsWramAddress, _collectedItemBits);
-        ReadBytes(bus, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
-        ReadBytes(bus, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
-        ReadBytes(bus, SaveRamLayout.MapStationsWramAddress, _mapStations);
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
+            throw new ArgumentException("Persistent mirror loading requires WRAM.", nameof(bus));
+        ReadBytes(memory, SaveRamLayout.EventsWramAddress, _events);
+        ReadBytes(memory, SaveRamLayout.BossBitsWramAddress, _bossBitsByArea);
+        ReadBytes(memory, SaveRamLayout.RoomChozoBitsWramAddress, _roomChozoBits);
+        ReadBytes(memory, SaveRamLayout.CollectedItemBitsWramAddress, _collectedItemBits);
+        ReadBytes(memory, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
+        ReadBytes(memory, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
+        ReadBytes(memory, SaveRamLayout.MapStationsWramAddress, _mapStations);
         SavedLoadingGameState = unchecked((ushort)(
-            bus.ReadByte(SaveRamLayout.LoadingGameStateWramAddress) |
-            bus.ReadByte(SaveRamLayout.LoadingGameStateWramAddress + 1) << 8));
+            memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress) |
+            memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress + 1) << 8));
     }
 
     private static void WriteBytes(ISnesAddressSpace bus, int address, ReadOnlySpan<byte> bytes)
@@ -163,10 +165,10 @@ public sealed class Bank80SystemState
             bus.WriteByte(address + index, bytes[index]);
     }
 
-    private static void ReadBytes(ISnesAddressSpace bus, int address, Span<byte> bytes)
+    private static void ReadBytes(ISnesMutableMemory memory, int address, Span<byte> bytes)
     {
         for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = bus.ReadByte(address + index);
+            bytes[index] = memory.ReadWorkRamByte(address + index);
     }
 
     /// <summary>

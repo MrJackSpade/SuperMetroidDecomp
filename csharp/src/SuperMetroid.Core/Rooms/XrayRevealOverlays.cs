@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -77,5 +78,5 @@ public static class XrayRevealOverlays
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

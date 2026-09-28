@@ -514,10 +514,11 @@ internal sealed class IntroCinematicObjectSystem
         if (drawFunction == CinematicCodePointers.IndirectInstruction_DoNothing)
             return;
 
-        byte width = bus.ReadByte((int)new SnesAddress(
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        byte width = cartridge.ReadCartridgeByte((int)new SnesAddress(
             IntroCinematicRomData.Banks.Spritemaps,
             Add(dataPointer, 2)));
-        byte height = bus.ReadByte((int)new SnesAddress(
+        byte height = cartridge.ReadCartridgeByte((int)new SnesAddress(
             IntroCinematicRomData.Banks.Spritemaps,
             Add(dataPointer, 3)));
         if (width == 0 || height == 0)
@@ -585,14 +586,14 @@ internal sealed class IntroCinematicObjectSystem
         if ((nextDurationOrOpcode & CinematicCodePointers.InstructionCommandBit) == 0)
         {
             caretX = unchecked((ushort)(
-                bus.ReadByte((int)new SnesAddress(
+                CartridgeImportSource.Require(bus).ReadCartridgeByte((int)new SnesAddress(
                     IntroCinematicRomData.Banks.Spritemaps,
                     Add(
                         instructionRecordPointer,
                         IntroCinematicRomData.ObjectSystem.NextRecordPositionXByteOffset))) *
                 IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
             caretY = unchecked((ushort)(
-                bus.ReadByte((int)new SnesAddress(
+                CartridgeImportSource.Require(bus).ReadCartridgeByte((int)new SnesAddress(
                     IntroCinematicRomData.Banks.Spritemaps,
                     Add(
                         instructionRecordPointer,

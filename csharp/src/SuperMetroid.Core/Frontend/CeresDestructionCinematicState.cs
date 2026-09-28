@@ -370,7 +370,7 @@ internal sealed partial class CeresDestructionCinematicState
         vram.LoadBytes(
             CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
             artwork is null
-                ? ReadBusBytes(CeresDestructionRomData.Assets.SharedObjectCharacters,
+                ? ReadCartridgeBytes(CeresDestructionRomData.Assets.SharedObjectCharacters,
                     CeresDestructionRomData.Vram.SharedObjectCharacterBytes)
                 : artwork.IntroObjectCharacters.Transfer.Span
                     [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
@@ -509,11 +509,12 @@ internal sealed partial class CeresDestructionCinematicState
     private bool MusicQueueFinished() =>
         audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
 
-    private byte[] ReadBusBytes(int address, int count)
+    private byte[] ReadCartridgeBytes(int address, int count)
     {
         var result = new byte[count];
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         for (int index = 0; index < result.Length; index++)
-            result[index] = bus.ReadByte(address + index);
+            result[index] = cartridge.ReadCartridgeByte(address + index);
         return result;
     }
 

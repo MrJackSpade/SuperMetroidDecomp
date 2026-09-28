@@ -645,7 +645,7 @@ public sealed class TitleSequenceState
 
     private ushort ReadWord(int address) => titleGraphicsPresentation is not null
         ? TitleSequenceInstructionDefinitions.ReadWord(address)
-        : (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
+        : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private static int AddWithinBank(int address, int bytes) =>
         (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);

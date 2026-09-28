@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -398,15 +399,12 @@ public sealed class SamusDeathSequenceState
     }
 
     private static ushort ReadExplosionPaletteIndex(ISnesAddressSpace bus, ushort index) =>
-        bus.ReadByte(
+        CartridgeImportSource.Require(bus).ReadCartridgeByte(
             SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + index * 2 + 1);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address)
     {
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        return unchecked((ushort)(
-            bus.ReadByte((int)source) |
-            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
     }
 }
 

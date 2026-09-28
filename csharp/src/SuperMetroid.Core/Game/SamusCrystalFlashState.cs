@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -449,7 +450,7 @@ public sealed class SamusCrystalFlashState
         unchecked((short)(left - right)) < 0;
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private void PublishSharedPaletteWords(SamusState samus)
     {

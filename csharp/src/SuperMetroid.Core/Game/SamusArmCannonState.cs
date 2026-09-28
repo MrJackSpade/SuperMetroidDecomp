@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -195,7 +196,7 @@ public sealed class SamusArmCannonState
             SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2);
 
     private byte ReadDrawingByte(ISnesAddressSpace bus, ushort address) =>
-        Artwork?.ReadDrawingByte(address) ?? bus.ReadByte(
+        Artwork?.ReadDrawingByte(address) ?? CartridgeImportSource.Require(bus).ReadCartridgeByte(
             SamusRenderingRomData.Banks.Movement | address);
 
     private void AdvanceFrame()
@@ -230,10 +231,7 @@ public sealed class SamusArmCannonState
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address)
     {
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        return unchecked((ushort)(
-            bus.ReadByte((int)source) |
-            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
     }
 }
 

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -29,11 +30,23 @@ internal static partial class Program
     }
 
     private sealed class SamusDeathExplosionTimingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            RejectTimerRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectTimerRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectTimerRead(int address)
         {
             int relative = address -
                 SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress;
@@ -46,8 +59,6 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Samus death sequence attempted timer read ${address:X6}.");
             }
-
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

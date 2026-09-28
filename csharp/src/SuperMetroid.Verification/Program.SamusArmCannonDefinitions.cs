@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -53,9 +54,21 @@ internal static partial class Program
             "Arm-cannon policy: all six HUD selections match the cartridge and the real update path rejects runtime policy-table reads.");
     }
 
-    private sealed class ArmCannonPolicyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ArmCannonPolicyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadByte(int address)
+        {
+            RejectPolicyRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectPolicyRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private static void RejectPolicyRead(int address)
         {
             if (address >= SamusArmCannonDefinitions.OpenFlagTable &&
                 address < SamusArmCannonDefinitions.OpenFlagTable +
@@ -64,8 +77,6 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     "Runtime arm-cannon HUD policy read from cartridge ROM.");
             }
-
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -446,8 +447,8 @@ public sealed class SamusDrainedState
         samus.Kinematics.YSubspeed = 0;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>Named host equivalents for the otherwise opaque drain pose/handler state.</summary>

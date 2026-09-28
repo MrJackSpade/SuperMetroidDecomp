@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -491,9 +492,10 @@ public sealed class SamusPowerBombExplosionState
 
         int address = PowerBombFixedColorFormat.SourceAddress(sequence) +
             colorIndex * SamusPaletteRomData.PowerBomb.BytesPerColor;
-        FixedColorRed = (byte)(bus.ReadByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask);
-        FixedColorGreen = (byte)(bus.ReadByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask);
-        FixedColorBlue = (byte)(bus.ReadByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask);
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        FixedColorRed = (byte)(cartridge.ReadCartridgeByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask);
+        FixedColorGreen = (byte)(cartridge.ReadCartridgeByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask);
+        FixedColorBlue = (byte)(cartridge.ReadCartridgeByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask);
     }
 }
 

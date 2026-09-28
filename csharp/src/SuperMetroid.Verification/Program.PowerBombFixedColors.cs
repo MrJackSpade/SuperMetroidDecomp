@@ -125,11 +125,24 @@ internal static partial class Program
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");
     }
 
-    private sealed class ForbiddenPowerBombColorBus(ISnesAddressSpace inner) : ISnesAddressSpace
+    private sealed class ForbiddenPowerBombColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReads { get; private set; }
 
         public byte ReadByte(int address)
+        {
+            RejectNativeColorRead(address);
+            return inner.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectNativeColorRead(address);
+            return (inner as IImportCartridgeSource ?? throw new InvalidOperationException(
+                "The wrapped source has no cartridge import contract.")).ReadCartridgeByte(address);
+        }
+
+        private void RejectNativeColorRead(int address)
         {
             foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
             {
@@ -142,7 +155,6 @@ internal static partial class Program
                     throw new InvalidOperationException($"Installed explosion read color ROM ${address:X6}.");
                 }
             }
-            return inner.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);

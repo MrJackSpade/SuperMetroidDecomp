@@ -188,8 +188,6 @@ public static class SamusHurtFlashPalette
         return SamusHurtFlashRecoveryAction.GrappleSound;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }
 
 /// <summary>Palette write (or intentional non-write) performed by one hurt-counter call.</summary>

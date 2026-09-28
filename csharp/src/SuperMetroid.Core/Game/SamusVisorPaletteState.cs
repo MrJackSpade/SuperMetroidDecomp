@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -124,10 +125,7 @@ public sealed class SamusVisorPaletteState
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address)
     {
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        return unchecked((ushort)(
-            bus.ReadByte((int)source) |
-            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
     }
 }
 

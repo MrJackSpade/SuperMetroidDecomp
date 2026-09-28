@@ -1,9 +1,9 @@
 # Install game data from your ROM
 
 Desktop and Android use the same `SuperMetroid.AssetExtraction` library. Application
-packages contain no ROM or extracted audio. Most graphics and room data are still read
-from the installed ROM; setup extracts room-character and opening-cinematic PNGs, base room palettes, other selected presentation
-assets, and the audio catalog/112 PCM WAVs. No upstream disassembly checkout is needed.
+packages contain no ROM or extracted audio. Initial setup imports the supported ROM
+into a private installation and extracts the current presentation catalogs, including
+indexed PNGs, JSON, and 112 PCM WAVs. No upstream disassembly checkout is needed.
 
 Supported image: Super Metroid Japan/USA NTSC v1.0, 3 MiB, SHA-256
 `12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72`.
@@ -17,6 +17,13 @@ Run `SuperMetroid.Game` and choose a `.smc` or `.sfc` file when prompted. You ca
 pass one ROM path or set `SUPERMETROID_ROM`. Setup installs into
 `%LOCALAPPDATA%/SuperMetroid/`; later launches reuse that installation, so the original
 file no longer needs to be available. Setup errors leave the picker available to retry.
+
+If the installed ROM copy is absent but every extracted asset passes validation,
+the desktop host can start with no cartridge bytes in memory. This is an
+**experimental ROM-free route**, not a claim that every later gameplay path has
+been migrated: an unported cartridge lookup still fails loudly. Setup retains
+the private ROM copy by default and never removes it automatically. Without that
+copy, damaged or missing extracted assets require re-importing the source ROM.
 
 An existing `SuperMetroid.ini` beside the executable takes precedence over the AppData
 copy (the executable directory, not the shell's working directory). This is a complete
@@ -40,6 +47,9 @@ validates it, and installs a private copy under its `files/` directory. Broad st
 permission and a permanently accessible source URI are unnecessary. Cancelling the
 picker returns to setup. Updating the APK with `adb install -r` preserves app data.
 
+Android also accepts a complete, validated extracted installation when its private
+ROM copy is absent. Its ROM-free play scope has the same experimental limitation.
+
 Existing installations with a private ROM but no installation receipt automatically
 extract and validate their audio on startup. No ROM is copied out of the APK.
 
@@ -47,7 +57,8 @@ extract and validate their audio on startup. No ROM is copied out of the APK.
 
 Within either platform's application-data root:
 
-- `game/SuperMetroid.smc`: validated, unheadered ROM copy.
+- `game/SuperMetroid.smc`: validated, unheadered ROM copy retained by default;
+  optional only while all extracted assets remain complete and valid.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/maps/gameplay-hud.json`: editable HUD tilemap and icons, including the
   32-cell immutable BG3 top row. Copy to `overrides/maps/` to preserve edits.

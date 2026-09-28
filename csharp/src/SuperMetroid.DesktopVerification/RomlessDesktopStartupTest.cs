@@ -1,0 +1,62 @@
+using System.Reflection;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Desktop;
+
+/// <summary>
+/// Exercises the real Windows host with a complete extracted installation but
+/// no installed ROM. Only a test-owned copy is moved; the source file is intact.
+/// </summary>
+internal static class RomlessDesktopStartupTest
+{
+    public static void Run(string sourceRom)
+    {
+        string tempRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
+        string root = Path.GetFullPath(Path.Combine(tempRoot,
+            "romless-desktop-" + Guid.NewGuid().ToString("N")));
+        if (!root.StartsWith(tempRoot + Path.DirectorySeparatorChar,
+                StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ROM-less desktop test escaped test-temp.");
+        try
+        {
+            GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
+            File.Move(installation.RomPath, Path.Combine(root, "held-rom.smc"));
+            if (GameAssetInstaller.OpenOrRepair(root) is null)
+                throw new InvalidOperationException(
+                    "Windows startup did not accept valid extracted content without a ROM.");
+            using var host = new PlayableGameControl(installation.RomPath,
+                new SuperMetroidGameOptions
+                {
+                    AudioEnabled = false,
+                    Renderer = RendererSelection.Software,
+                },
+                dataDirectory: root);
+            var memory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
+                .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(host) ?? throw new InvalidOperationException("Host has no address space."));
+            if (!memory.Rom.IsEmpty)
+                throw new InvalidOperationException(
+                    "Windows host retained cartridge bytes after ROM-less startup.");
+            var game = (SuperMetroidGame)(typeof(PlayableGameControl)
+                .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(host) ?? throw new InvalidOperationException("Host has no game."));
+            long startFrame = game.FrameNumber;
+            MethodInfo step = typeof(PlayableGameControl).GetMethod("StepFrame",
+                BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException("Windows host has no frame step.");
+            for (int frame = 0; frame < 6; frame++)
+                step.Invoke(host, [(ushort?)0]);
+            if (game.FrameNumber != startFrame + 6)
+                throw new InvalidOperationException(
+                    "Windows host did not advance six title frames without its ROM copy.");
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+        Console.WriteLine(
+            "PASS Windows host boots complete extracted content without a ROM copy and advances six title frames.");
+    }
+}

@@ -260,6 +260,13 @@ internal sealed class DebuggerSaveStateStore
 
     private void EnsureRomMatches(SuperMetroidAddressSpace addressSpace)
     {
+        // An installed session can carry only mutable WRAM/SRAM. Its immutable
+        // source revision is represented by the validated installation receipt
+        // and the debugger state's digest/content-identity header, not by a
+        // redundant cartridge allocation in the live object graph. Legacy
+        // states that still contain ROM bytes continue through the exact hash.
+        if (addressSpace.Rom.IsEmpty && contentIdentity is not null)
+            return;
         byte[] actual = SHA256.HashData(addressSpace.Rom);
         if (!CryptographicOperations.FixedTimeEquals(actual, romDigest))
             throw new InvalidDataException("Live address space does not match the configured ROM digest.");

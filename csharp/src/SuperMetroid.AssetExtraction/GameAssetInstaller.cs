@@ -44,9 +44,23 @@ public static class GameAssetInstaller
     }
 
     /// <summary>
+    /// Host startup: repair from the installed ROM when available, otherwise
+    /// accept only a complete, validated extracted-content installation.
+    /// Repair without a cartridge is impossible, but valid assets can still run.
+    /// </summary>
+    public static GameInstallation? OpenOrRepair(string root,
+        CancellationToken cancellationToken = default, IProgress<string>? progress = null)
+    {
+        GameInstallation? repaired = EnsureInstalled(root, cancellationToken, progress);
+        if (repaired is not null) return repaired;
+        cancellationToken.ThrowIfCancellationRequested();
+        return TryOpenExtractedContent(root);
+    }
+
+    /// <summary>
     /// Opens a complete extracted-content installation without requiring the private ROM copy.
-    /// This validates presentation assets and their source-revision receipt only; it does not
-    /// imply that the current ROM-backed gameplay hosts can start without a cartridge.
+    /// This validates presentation assets and their source-revision receipt. Hosts can start
+    /// from these assets, although later gameplay paths may still require untranslated ROM data.
     /// </summary>
     public static GameInstallation? TryOpenExtractedContent(string root)
     {

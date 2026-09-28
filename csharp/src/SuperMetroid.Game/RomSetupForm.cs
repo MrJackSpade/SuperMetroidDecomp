@@ -68,7 +68,7 @@ internal sealed class RomSetupForm : Form
         try
         {
             Installation = await Task.Run(() => source is null
-                ? GameAssetInstaller.EnsureInstalled(GameAssetInstaller.DesktopRoot, stopping.Token, progress)
+                ? GameAssetInstaller.OpenOrRepair(GameAssetInstaller.DesktopRoot, stopping.Token, progress)
                 : GameAssetInstaller.Install(source, GameAssetInstaller.DesktopRoot, stopping.Token, progress));
             status.Text = Installation is null ? "Select a ROM to continue. Your original file will be kept." : "Ready to play.";
         }

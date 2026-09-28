@@ -75,7 +75,9 @@ internal sealed class AndroidSessionData : IDisposable
         string ini = Path.Combine(root, "SuperMetroid.ini");
         if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
         Options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
-        Bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        Bus = cartridgePath is null
+            ? new SuperMetroid.AssetExtraction.GameInstallation(root).OpenRuntimeAddressSpace()
+            : SuperMetroidAddressSpace.LoadRetailRom(romPath);
         GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"));
         AndroidFileImport.ActivatePendingSave(root, Bus, savePath);
         Game = new SuperMetroidGame(Bus, Options);

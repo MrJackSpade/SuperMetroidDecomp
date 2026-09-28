@@ -20,6 +20,11 @@ internal static class DesktopSmokeAuditCommands
             HostToolbarControlsTest.Run(rom);
             return true;
         }
+        if (args is ["--romless-desktop-startup", var romlessSource])
+        {
+            RomlessDesktopStartupTest.Run(romlessSource);
+            return true;
+        }
         if (args is ["--configuration-package-audit", var configuredGameAssembly])
         {
             GameConfigurationPackageVerification.Run(configuredGameAssembly);

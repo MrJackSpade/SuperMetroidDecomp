@@ -40,7 +40,8 @@ public sealed partial class MainActivity : Activity
             string root = FilesDir?.AbsolutePath ?? throw new IOException("Android did not provide private storage.");
             CancellationToken token = setupStopping.Token;
             var progress = new Progress<string>(message => { if (!destroyed) status.Text = message; });
-            GameInstallation? installed = await Task.Run(() => GameAssetInstaller.EnsureInstalled(root, token, progress), token);
+            GameInstallation? installed = await Task.Run(() =>
+                GameAssetInstaller.OpenOrRepair(root, token, progress), token);
             if (destroyed) return;
             if (installed is null) ShowRomSetup();
             else StartInstalledGame(root);

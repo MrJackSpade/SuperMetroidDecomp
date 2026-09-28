@@ -209,7 +209,9 @@ public sealed partial class PlayableGameControl : UserControl
         // Restart must retain host configuration. Re-reading the INI here would make an
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
-        addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        addressSpace = playerDataDirectory is null
+            ? SuperMetroidAddressSpace.LoadRetailRom(romPath)
+            : new GameInstallation(playerDataDirectory).OpenRuntimeAddressSpace();
         ExtractedAudioAssetCatalog? selectedAudioAssets =
             gameOptions.AudioEnabled || playerDataDirectory is not null ? LoadAudioAssets() : null;
         if (gameOptions.AudioEnabled)

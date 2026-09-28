@@ -51,8 +51,36 @@ try
         GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(root);
         Check(romFreeContent is not null && romFreeContent.LoadAudio().CanonicalSampleCount == 112,
             "installed presentation assets remain usable without the private ROM copy");
+        Check(GameAssetInstaller.OpenOrRepair(root) is not null,
+            "normal host startup accepts complete extracted content without a ROM copy");
+        SuperMetroidAddressSpace romFreeMemory = (romFreeContent ??
+            throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
+            .OpenRuntimeAddressSpace();
+        Check(romFreeMemory.Rom.IsEmpty &&
+            romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount &&
+            romFreeMemory.SaveRam.Length == SuperMetroidAddressSpace.SaveRamByteCount,
+            "installed runtime starts with mutable memory but no cartridge allocation");
+        using (var romFreeSession = new SuperMetroid.Android.AndroidSessionData(root))
+        {
+            Check(romFreeSession.Bus.Rom.IsEmpty,
+                "installed Android host boots from extracted assets with no ROM copy");
+            for (int frame = 0; frame < 90; frame++)
+            {
+                romFreeSession.Game.SetAudioAcknowledgements(
+                    romFreeSession.Audio.ReadAcknowledgements());
+                var captured = romFreeSession.Game.StepCaptured(0, frame + 1,
+                    romFreeSession.Generation);
+                romFreeSession.Audio.RenderFrame(captured.Frame.AudioCommands);
+            }
+            string saved = romFreeSession.SaveSlot(0);
+            string loaded = romFreeSession.LoadSlot(0);
+            Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
+                loaded.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
+                romFreeSession.Bus.Rom.IsEmpty,
+                "installed Android state save/load retains cartridge-free memory");
+        }
         Check(GameAssetInstaller.EnsureInstalled(root) is null,
-            "ROM-backed gameplay startup still refuses an installation without its ROM");
+            "repair requires a ROM even though validated extracted content can boot");
     }
     finally
     {
@@ -105,6 +133,17 @@ try
     File.WriteAllBytes(waveform, "broken wave"u8.ToArray());
     Check(GameAssetInstaller.TryOpenExtractedContent(root) is null,
         "a damaged extracted asset is not mistaken for valid ROM-free content");
+    File.Move(installed.RomPath, heldRom);
+    try
+    {
+        Check(GameAssetInstaller.OpenOrRepair(root) is null,
+            "startup rejects damaged extracted content when no ROM can repair it");
+        Reject<InvalidDataException>(() => installed.OpenRuntimeAddressSpace());
+    }
+    finally
+    {
+        File.Move(heldRom, installed.RomPath);
+    }
     File.Delete(input);
     Check(GameAssetInstaller.EnsureInstalled(root) is not null, "repair works after the original selected document is gone");
     Check(File.ReadAllBytes(waveform).AsSpan().SequenceEqual(waveBefore), "damaged waveform is regenerated exactly");

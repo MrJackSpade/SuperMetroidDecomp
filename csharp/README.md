@@ -1,6 +1,8 @@
 # C# port workspace
 
-This directory contains the actively developed, cartridge-backed C# translation. It targets
+This directory contains the actively developed C# translation. Most player installations
+retain a private ROM copy; a complete extracted installation can now start experimentally
+without that copy, but not every gameplay route is ROM-independent yet. It targets
 `.NET 10` on Windows and treats warnings as errors. Open `SuperMetroid.slnx` in Visual Studio
 or use the commands below from this directory. The playable build is fully managed and requires
 the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.

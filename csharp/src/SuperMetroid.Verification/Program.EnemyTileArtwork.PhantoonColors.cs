@@ -19,7 +19,7 @@ internal static partial class Program
             PhantoonColorRomData.PowerOnCount, native.ResolvePowerOn, "power-on");
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     PhantoonColorRomData.HealthBandsSource +
                     (band * PhantoonColorRomData.HealthBandColorCount + color) *
                         sizeof(ushort)),
@@ -149,7 +149,7 @@ internal static partial class Program
         void VerifyBand(int source, int count, Func<int, ushort> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Phantoon {name} color {color} preserves native RGB5");
         }

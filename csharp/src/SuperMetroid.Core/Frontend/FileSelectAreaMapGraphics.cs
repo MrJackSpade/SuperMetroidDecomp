@@ -90,14 +90,14 @@ public sealed partial class FileSelectAreaMapGraphics
     private void LoadAreaPalette(int area, bool active)
     {
         int offsets = active ? FileSelectMapRomData.ActivePaletteOffsets : FileSelectMapRomData.InactivePaletteOffsets;
-        int cursor = FileSelectMapRomData.PalettePrograms + RomDataReader.ReadWordFixedBank(bus, offsets + area * 2);
+        int cursor = FileSelectMapRomData.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + area * 2);
         // At most one whole bank of four-byte records can exist. Retain a corruption
         // guard instead of silently accepting an unterminated palette program.
         for (int records = 0; records < 16384; records++, cursor += 4)
         {
-            ushort source = RomDataReader.ReadWordFixedBank(bus, cursor);
+            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
             if (source == ushort.MaxValue) return;
-            ushort destination = RomDataReader.ReadWordFixedBank(bus, cursor + 2);
+            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + 2);
             if ((destination & 1) != 0 || destination / 2 + 5 > SnesCgram.ColorCount)
                 throw new InvalidDataException("Area-map palette program addresses invalid CGRAM colors.");
             ppu.Cgram.LoadFromBus(bus, FileSelectMapRomData.PaletteColors + source, 5, destination / 2);
@@ -149,11 +149,11 @@ public sealed partial class FileSelectAreaMapGraphics
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         var oam = new OamBuffer();
         oam.BeginFrame();
-        ushort title = sprites is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelSpritemapBase) : MapSpriteDefinitions.WorldTitle;
+        ushort title = sprites is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelSpritemapBase) : MapSpriteDefinitions.WorldTitle;
         Draw(title, 128, 16, 0);
         for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
         {
-            ushort area = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.DisplayAreaIndices + displayArea * 2)
+            ushort area = labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.DisplayAreaIndices + displayArea * 2)
                 : (ushort)FileSelectMapAreaOrder.Get(displayArea);
             if (area >= FileSelectMapRomData.AreaCount)
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
@@ -162,10 +162,10 @@ public sealed partial class FileSelectAreaMapGraphics
                 if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area])) DrawArea(area);
                 continue;
             }
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.SavePointMapPointers + area * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SavePointMapPointers + area * 2);
             for (int station = 0; station < 16; station++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (ushort)(pointer + station * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (ushort)(pointer + station * 4));
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1 || (usedStationMasks[area] & (1 << station)) == 0) continue;
                 DrawArea(area);
@@ -178,14 +178,14 @@ public sealed partial class FileSelectAreaMapGraphics
         void DrawArea(ushort area)
         {
             int label = FileSelectMapRomData.LabelPositions + area * 4;
-            Draw((ushort)(title + area + 1), labels is null ? RomDataReader.ReadWordFixedBank(bus, label) : (ushort)labels.Get(area).X,
-                labels is null ? RomDataReader.ReadWordFixedBank(bus, label + 2) : (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
+            Draw((ushort)(title + area + 1), labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), label) : (ushort)labels.Get(area).X,
+                labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), label + 2) : (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
         }
 
         void Draw(ushort id, ushort x, ushort y, ushort palette)
         {
             if (sprites is not null) { sprites.Draw(id, oam, x, y, palette); return; }
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + id * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);
             oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer, x, y, palette);
         }
     }

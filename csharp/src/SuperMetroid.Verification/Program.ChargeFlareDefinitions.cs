@@ -11,7 +11,7 @@ internal static partial class Program
         {
             AssertEqual(bus.ReadByte(address), ChargeFlareAnimationDefinitions.ReadByte(address), "Compiled flare cadence byte matches cartridge");
             if (address < 0x90c4b4)
-                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ChargeFlareAnimationDefinitions.ReadWord(address), "Compiled flare cadence word matches cartridge");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ChargeFlareAnimationDefinitions.ReadWord(address), "Compiled flare cadence word matches cartridge");
         }
         foreach (int address in new[] { 0x908000, 0x90c480, 0x90c4b5, 0x90ffff })
             AssertThrows<InvalidDataException>(
@@ -49,7 +49,7 @@ internal static partial class Program
         {
             timer = unchecked((ushort)(timer - 1));
             if ((short)timer >= 0) return;
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, 0x90c481 + component * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x90c481 + component * 2);
             frame = unchecked((ushort)(frame + 1));
             byte Delay(int selected) => bus.ReadByte(0x900000 | unchecked((ushort)(pointer + selected)));
             byte delay = Delay(frame);

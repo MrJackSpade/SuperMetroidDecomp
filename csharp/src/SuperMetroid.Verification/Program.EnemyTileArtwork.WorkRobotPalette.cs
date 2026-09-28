@@ -18,7 +18,7 @@ internal static partial class Program
             int address = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
                 color * sizeof(ushort);
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, address),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
                 native.Resolve(record, color),
                 $"installed Work Robot frame {record} color {color} preserves ROM RGB5");
         }

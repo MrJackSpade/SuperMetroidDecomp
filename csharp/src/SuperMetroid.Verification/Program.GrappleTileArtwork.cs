@@ -22,7 +22,7 @@ internal static partial class Program
         var guard = new GrappleTileReadGuard(bus);
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            ushort expected = RomDataReader.ReadWordFixedBank(bus, SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
+            ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
             int actual = GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor((ushort)angle)).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
             var queue = new VramWriteQueue();

@@ -40,18 +40,21 @@ public static class RomDataReader
         return bytes;
     }
 
-    /// <summary>Reads one little-endian word without carrying out of its native data bank.</summary>
-    public static ushort ReadWordFixedBank(ISnesAddressSpace bus, int address)
+    /// <summary>Reads one little-endian cartridge word without carrying out of its native data bank.</summary>
+    public static ushort ReadWordFixedBank(IImportCartridgeSource cartridge, int address)
     {
-        return ReadWordFixedBank(bus, SnesAddress.FromBusAddress(address));
+        return ReadWordFixedBank(cartridge, SnesAddress.FromBusAddress(address));
     }
 
-    /// <summary>Typed little-endian word read with native fixed-bank wrapping.</summary>
-    public static ushort ReadWordFixedBank(ISnesAddressSpace bus, SnesAddress address)
+    /// <summary>Typed cartridge word read; a low-window wrap is not a cartridge import.</summary>
+    public static ushort ReadWordFixedBank(IImportCartridgeSource cartridge, SnesAddress address)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        byte low = bus.ReadByte((int)address);
-        return (ushort)(low | (bus.ReadByte((int)address.AddWithinBank(1)) << 8));
+        ArgumentNullException.ThrowIfNull(cartridge);
+        if (!address.IsUpperLoRomWindow || address.Offset == 0xffff)
+            throw new ArgumentOutOfRangeException(nameof(address),
+                "A cartridge word must remain in the upper bank window.");
+        byte low = cartridge.ReadCartridgeByte((int)address);
+        return (ushort)(low | (cartridge.ReadCartridgeByte((int)address.AddWithinBank(1)) << 8));
     }
 
     /// <summary>Reads one little-endian 24-bit cartridge pointer without carrying out of its data bank.</summary>

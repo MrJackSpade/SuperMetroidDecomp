@@ -14,7 +14,7 @@ internal static partial class Program
         var installed = new OamBuffer();
         foreach (var frame in MapSpriteDefinitions.Frames)
         {
-            int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(bus,
+            int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 MenuPpuState.SpritemapPointerTableAddress + frame.NativeId * 2);
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255, 65535 })
@@ -148,8 +148,8 @@ internal static partial class Program
             foreach (var frame in MapSpriteDefinitions.Frames)
             {
                 int entry = MenuPpuState.SpritemapPointerTableAddress + frame.NativeId * 2;
-                int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(source, entry);
-                Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(source, pointer));
+                int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
+                Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer));
             }
             void Add(int start, int count) { for (int index = 0; index < count; index++) forbidden.Add(start + index); }
         }

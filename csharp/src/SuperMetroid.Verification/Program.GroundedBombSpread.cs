@@ -41,7 +41,7 @@ internal static partial class Program
                 for (int slotIndex = 0; slotIndex < bombs.Slots.Count; slotIndex++)
                 {
                     var slot = bombs.Slots[slotIndex];
-                    ushort Read(int address) => RomDataReader.ReadWordFixedBank(bus, address + slotIndex * 2);
+                    ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + slotIndex * 2);
                     ushort encodedX = Read(SamusBombSpreadRomData.XVelocities);
                     long initialY = -(Read(SamusBombSpreadRomData.YSpeeds) + (hold >> 6 & 3)) * 65536L + Read(SamusBombSpreadRomData.YSubspeeds);
                     long expectedX = 512L * 65536 + tick * (encodedX & 0x7fff) * 256L * ((encodedX & 0x8000) == 0 ? 1 : -1);

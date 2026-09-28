@@ -56,10 +56,10 @@ public sealed partial class FileSelectRoomMapGraphics
             BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), FileSelectMapRomData.RoomFrameBlank);
         // Native copies backwards from footer word 160 through word 1, not word 0.
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + 2, FileSelectMapRomData.RoomFrameFooterWords * 2).CopyTo(frame, FileSelectMapRomData.RoomFrameHeaderWords * 2);
-        ushort label = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomLabelPointers + (int)area * 2);
+        ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomLabelPointers + (int)area * 2);
         for (int word = 0; word < FileSelectMapRomData.RoomLabelWords; word++)
             BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((FileSelectMapRomData.RoomLabelDestinationWord + word) * 2),
-                (ushort)(RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (label + word * 2))
+                (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (label + word * 2))
                     & FileSelectMapRomData.RoomLabelMask));
         ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
     }

@@ -351,7 +351,7 @@ internal static partial class Program
                 int address = source + color * sizeof(ushort);
                 forbidden.Add(address);
                 forbidden.Add(address + 1);
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, address), resolve(color),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address), resolve(color),
                     $"Ceres Ridley source ${source:X6} color {color}");
             }
         }

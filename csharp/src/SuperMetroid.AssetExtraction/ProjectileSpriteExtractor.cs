@@ -21,14 +21,14 @@ public static class ProjectileSpriteExtractor
         foreach (ushort id in requiredPointers)
         {
             int address = 0x930000 | id;
-            int count = RomDataReader.ReadWordFixedBank(bus, address);
+            int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id:X4} exceeds OAM capacity.");
             var parts = new SpriteVisualPart[count];
             for (int i = 0; i < count; i++)
             {
                 int part = address + 2 + i * 5;
-                var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, part));
-                var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, part + 3));
+                var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), part));
+                var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), part + 3));
                 parts[i] = new() { OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadByte(part + 2)),
                     TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns, TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
                     Size = x.IsLarge ? 16 : 8, Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically };

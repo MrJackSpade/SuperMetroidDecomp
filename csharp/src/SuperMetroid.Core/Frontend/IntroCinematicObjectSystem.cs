@@ -695,14 +695,14 @@ internal sealed class IntroCinematicObjectSystem
         IntroCaretInstructionDefinitions.TryReadWord(pointer, out ushort word)
             ? word
             : RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private ushort ReadBank8C(ushort pointer) =>
         eyeArtwork is not null && IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
             ? word
             : RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer));
 
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));

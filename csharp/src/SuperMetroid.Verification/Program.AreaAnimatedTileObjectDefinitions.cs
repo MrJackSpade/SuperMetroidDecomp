@@ -27,7 +27,7 @@ internal static partial class Program
         {
             ushort expectedList = AreaAnimatedTileObjectDefinitions.NativeListPointer(areaIndex);
             ushort actualList = RomDataReader.ReadWordFixedBank(
-                rom,
+                CartridgeImportSource.Require(rom),
                 AreaAnimatedTileObjectDefinitions.NativeListPointerTable +
                     areaIndex * sizeof(ushort));
             AssertEqual(expectedList, actualList,
@@ -40,7 +40,7 @@ internal static partial class Program
                 ushort expectedObject =
                     AreaAnimatedTileObjectDefinitions.NativeObjectPointer(areaIndex, bit);
                 ushort actualObject = RomDataReader.ReadWordFixedBank(
-                    rom,
+                    CartridgeImportSource.Require(rom),
                     RoomFxRomData.Banks.RoomDefinitions |
                         unchecked((ushort)(actualList + bit * sizeof(ushort))));
                 AssertEqual(expectedObject, actualObject,

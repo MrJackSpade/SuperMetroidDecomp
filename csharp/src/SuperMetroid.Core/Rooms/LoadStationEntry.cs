@@ -24,7 +24,7 @@ public sealed record LoadStationEntry(
         ArgumentNullException.ThrowIfNull(bus);
         int areaTableIndex = AreaIds.ToIndex(areaIndex);
         ushort listPointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             LoadStationRomData.PointerTable + areaTableIndex * 2);
         int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * LoadStationRomData.EntryByteCount));
         return new LoadStationEntry(
@@ -47,5 +47,5 @@ public sealed record LoadStationEntry(
     public ushort SamusY => unchecked((ushort)(CameraY + SamusYOffset));
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(bus, address);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

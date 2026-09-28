@@ -77,7 +77,7 @@ internal static partial class Program
             TilesetDefinition compiled = RoomTilesetDefinitions.Get(graphicsSet);
             int pointerAddress = RoomAssetRomData.Tilesets.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
             AssertEqual(pointer, compiled.Pointer,
                 $"graphics set ${graphicsSet:X2} compiled definition pointer");
@@ -101,7 +101,7 @@ internal static partial class Program
         {
             int pointerAddress = RoomAssetRomData.Tilesets.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
-            ushort definitionPointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+            ushort definitionPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | definitionPointer;
             int blockAddress = RomDataReader.ReadLongFixedBank(
                 CartridgeImportSource.Require(bus),

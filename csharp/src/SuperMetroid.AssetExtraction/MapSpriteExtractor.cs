@@ -11,7 +11,7 @@ public static class MapSpriteExtractor
 {
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        if (RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelSpritemapBase) != MapSpriteDefinitions.WorldTitle)
+        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelSpritemapBase) != MapSpriteDefinitions.WorldTitle)
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in MapSpriteDefinitions.Frames)

@@ -184,7 +184,7 @@ internal static class RoomPaletteFxPresentationExtractor
                 {
                     ushort pointer = definition.ColorPointer(frame, index);
                     ushort bgr555 = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer);
                     frames[frame][index] = new PaletteRgb5
                     {
@@ -210,7 +210,7 @@ internal static class RoomPaletteFxPresentationExtractor
                 {
                     ushort pointer = definition.ColorPointer(frame, index);
                     ushort bgr555 = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer);
                     frames[frame][index] = new PaletteRgb5
                     {
@@ -235,7 +235,7 @@ internal static class RoomPaletteFxPresentationExtractor
                 for (int index = 0; index < colorCount; index++)
                 {
                     ushort bgr555 = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | colorPointer(frame, index));
                     frames[frame][index] = new PaletteRgb5
                     {

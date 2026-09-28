@@ -17,15 +17,15 @@ internal static partial class Program
         {
             int source = MotherBrainDeathRomData.BodyFadeSource(frame);
             AssertEqual(unchecked((ushort)source),
-                RomDataReader.ReadWordFixedBank(rom,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     MotherBrainDeathRomData.BodyFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain body death-fade selector {frame}");
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.BodyColor(frame, color),
                     $"installed Mother Brain body death frame {frame} color {color}");
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                         source + (MotherBrainDeathRomData.BodyColorCount + color) * 2),
                     native.LegColor(frame, color),
                     $"installed Mother Brain leg death frame {frame} color {color}");
@@ -35,16 +35,16 @@ internal static partial class Program
         {
             int source = MotherBrainDeathRomData.CorpseFadeSource(frame);
             AssertEqual(unchecked((ushort)source),
-                RomDataReader.ReadWordFixedBank(rom,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     MotherBrainDeathRomData.CorpseFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain corpse death-fade selector {frame}");
             for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.CorpseColor(frame, color),
                     $"installed Mother Brain corpse death frame {frame} color {color}");
         }
         for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     MotherBrainDeathRomData.DoorPalette + color * 2),
                 native.ExplodedDoorColor(color),
                 $"installed Mother Brain exploded-door color {color}");

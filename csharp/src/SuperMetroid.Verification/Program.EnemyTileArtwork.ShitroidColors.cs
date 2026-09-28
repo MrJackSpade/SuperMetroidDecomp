@@ -15,7 +15,7 @@ internal static partial class Program
             throw new InvalidDataException("Installed enemy art has no Shitroid colors.");
         for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
         for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     ShitroidColorRomData.NormalCycle +
                     (frame * ShitroidColorRomData.NormalColorsPerFrame + color) * 2),
                 native.NormalColor(frame, color),
@@ -112,7 +112,7 @@ internal static partial class Program
         void VerifyTarget(ShitroidColorTarget target, int source)
         {
             for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
                     native.TargetColor(target, color),
                     $"installed Shitroid {target} target color {color}");
         }

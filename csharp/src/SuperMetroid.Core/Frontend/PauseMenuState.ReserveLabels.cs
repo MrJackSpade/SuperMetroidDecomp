@@ -26,9 +26,9 @@ internal sealed partial class PauseMenuState
         }
         for (int row = 0; row < PauseReserveLabelRomData.LabelCount; row++)
         {
-            int destination = RomDataReader.ReadWordFixedBank(bus,
+            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseReserveLabelRomData.DestinationTable + row * sizeof(ushort)) - PauseReserveLabelRomData.TilemapBase;
-            ushort source = RomDataReader.ReadWordFixedBank(bus,
+            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseReserveLabelRomData.SourceTable + row * sizeof(ushort));
             CopyBank82Words(source, equipmentTilemap.AsSpan(destination, PauseReserveLabelRomData.LabelByteCount));
         }
@@ -41,7 +41,7 @@ internal sealed partial class PauseMenuState
         {
             Span<byte> destination = equipmentTilemap.AsSpan(PauseReserveLabelRomData.ModeByteOffset + index * sizeof(ushort), sizeof(ushort));
             ushort before = BinaryPrimitives.ReadUInt16LittleEndian(destination);
-            ushort source = RomDataReader.ReadWordFixedBank(bus, modeSource + index * sizeof(ushort));
+            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), modeSource + index * sizeof(ushort));
             BinaryPrimitives.WriteUInt16LittleEndian(destination,
                 (ushort)((before & PauseReserveLabelRomData.AttributeMask) | source));
         }

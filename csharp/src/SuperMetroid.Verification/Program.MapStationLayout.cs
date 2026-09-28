@@ -98,13 +98,13 @@ internal static partial class Program
             {
                 int entry = table + area * 2;
                 blocked.Add(entry); blocked.Add(entry + 1);
-                int list = RomDataReader.ReadWordFixedBank(source, entry);
+                int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
                 if (list == 0) continue;
                 for (int record = 0; ; record++)
                 {
                     int address = FileSelectMapRomData.MenuObjectBank | (list + record * 4);
                     blocked.Add(address); blocked.Add(address + 1);
-                    if ((short)RomDataReader.ReadWordFixedBank(source, address) < 0) break;
+                    if ((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address) < 0) break;
                     blocked.Add(address + 2); blocked.Add(address + 3);
                 }
             }

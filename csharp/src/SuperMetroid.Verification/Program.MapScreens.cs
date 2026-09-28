@@ -182,7 +182,7 @@ internal static partial class Program
             Add(FileSelectMapRomData.RoomFrameFooter, 322);
             Add(FileSelectMapRomData.RoomLabelPointers, MapScreenDefinitions.ZebesAreas * 2);
             for (int area = 0; area < MapScreenDefinitions.ZebesAreas; area++)
-                Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(source, FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
+                Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
             void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         }
         public byte ReadByte(int address) => forbidden.Contains(address)

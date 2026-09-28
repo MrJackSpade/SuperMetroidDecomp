@@ -17,7 +17,7 @@ public static class EscapeTimerPresentationExtractor
         };
         for (int digit = 0; digit < 10; digit++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus,
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EscapeTimerPresentationDefinitions.DigitPointerTable + digit * sizeof(ushort));
             frames.Add(EscapeTimerPresentationDefinitions.DigitFrame(digit),
                 ReadSpritemap(bus, EscapeTimerPresentationDefinitions.SpritemapBank | pointer));
@@ -43,15 +43,15 @@ public static class EscapeTimerPresentationExtractor
 
     private static EscapeTimerVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int address)
     {
-        int count = RomDataReader.ReadWordFixedBank(bus, address);
+        int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > EscapeTimerPresentationDefinitions.MaximumParts)
             throw new InvalidDataException($"Escape timer spritemap ${address:X6} exceeds OAM capacity.");
         var parts = new EscapeTimerVisualPart[count];
         for (int index = 0; index < count; index++)
         {
             int source = address + sizeof(ushort) + index * 5;
-            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, source));
-            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, source + 3));
+            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source));
+            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source + 3));
             parts[index] = new()
             {
                 OffsetX = x.SignedOffset,

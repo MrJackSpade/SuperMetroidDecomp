@@ -565,7 +565,7 @@ public sealed class RoomPaletteFxSystem
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(bus, address);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private sealed class PaletteFxSlot
     {

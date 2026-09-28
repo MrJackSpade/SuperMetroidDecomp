@@ -18,8 +18,8 @@ public static class GrappleFlarePlacementExtractor
             int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
             offsets.Add(ChargeFlarePlacementDefinitions.Key(running, direction), new()
             {
-                X = unchecked((short)RomDataReader.ReadWordFixedBank(bus, x + direction * 2)),
-                Y = unchecked((short)RomDataReader.ReadWordFixedBank(bus, y + direction * 2)),
+                X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),
+                Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + direction * 2)),
             });
         }
         return ChargeFlarePlacementCatalog.Write(new() { Version = ChargeFlarePlacementDefinitions.Version, Offsets = offsets });

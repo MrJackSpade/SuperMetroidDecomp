@@ -25,7 +25,7 @@ internal static partial class Program
         ushort[] offsets = [0, 2, 4];
         for (int suit = 0; suit < offsets.Length; suit++)
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, sourceAddresses[suit] + color * 2),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddresses[suit] + color * 2),
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 

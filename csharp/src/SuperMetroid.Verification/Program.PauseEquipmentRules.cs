@@ -15,7 +15,7 @@ internal static partial class Program
         {
             var definition = PauseEquipmentCategories.Definitions[category];
             ushort[] masks = Enumerable.Range(0, definition.ItemCount)
-                .Select(item => RomDataReader.ReadWordFixedBank(bus, definition.BitmaskTableAddress + item * 2)).ToArray();
+                .Select(item => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.BitmaskTableAddress + item * 2)).ToArray();
             for (int item = 0; item < masks.Length; item++)
             {
                 AssertEqual(masks[item], PauseEquipmentRules.Mask(category, item), "compiled pause mask matches native ordered table");
@@ -43,7 +43,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentRules.Mask(category, definition.ItemCount), "out-of-category index rejected");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentRules.Mask(0, 0), "reserve subdispatcher is not an equipment bit table");
-        ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(bus,
+        ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
         for (int word = 0; word <= ushort.MaxValue; word++)
             AssertEqual(Array.IndexOf(wireframeMasks, (ushort)(word & 0x0101)), PauseEquipmentRules.WireframeIndex((ushort)word),
@@ -52,15 +52,15 @@ internal static partial class Program
         {
             var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
-            int pointer = RomDataReader.ReadWordFixedBank(bus, PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Memory;
             for (int row = 0; row < 17; row++)
             for (int column = 0; column < 8; column++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x820000 | (pointer + (row * 8 + column) * 2)),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + (row * 8 + column) * 2)),
                     BinaryPrimitives.ReadUInt16LittleEndian(memory.Vram.Slice(PauseMenuLayout.Bg1TilemapWord * 2 + 472 + row * 64 + column * 2)),
                     "selected native wireframe artwork reaches the actual equipment tilemap");
         }
-        ushort nativeAmount = RomDataReader.ReadWordFixedBank(bus, PauseReserveTransferRomData.TransferAmount);
+        ushort nativeAmount = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTransferRomData.TransferAmount);
         AssertEqual(nativeAmount, PauseEquipmentRules.ReserveEnergyPerFrame, "manual reserve rate matches native word");
         foreach (var scenario in new[] { (Health: 20, Reserve: 10), (Health: 98, Reserve: 10), (Health: 99, Reserve: 1) })
         {

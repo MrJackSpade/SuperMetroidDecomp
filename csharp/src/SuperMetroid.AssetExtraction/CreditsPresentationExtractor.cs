@@ -179,7 +179,8 @@ public static class CreditsPresentationExtractor
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
-            bus, new SnesAddress(CreditsPresentationDefinitions.Native.InstructionBank, pointer));
+            CartridgeImportSource.Require(bus),
+            new SnesAddress(CreditsPresentationDefinitions.Native.InstructionBank, pointer));
 
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));

@@ -41,14 +41,14 @@ internal static partial class Program
         int markers = 0;
         for (int area = 0; area < 6; area++)
         {
-            ushort list = RomDataReader.ReadWordFixedBank(bus, FileSelectMapIconRomData.BossLists + area * 2);
+            ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapIconRomData.BossLists + area * 2);
             if (list == 0) continue;
             for (int record = 0; record < 8; record++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (list + record * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4));
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1) continue;
-                ushort y = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
+                ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
                 var pause = new PauseMenuState(bus, new SamusState(), system, (AreaId)area, 0, 0);

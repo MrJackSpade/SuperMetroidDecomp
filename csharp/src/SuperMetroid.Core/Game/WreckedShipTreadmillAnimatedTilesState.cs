@@ -206,7 +206,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     }
 
     private static ushort ReadBank87Word(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, AnimatedTileBank | pointer);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), AnimatedTileBank | pointer);
 }
 
 /// <summary>Cartridge-owned constants for Wrecked Ship entrance treadmill animation.</summary>

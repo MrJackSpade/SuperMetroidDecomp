@@ -19,9 +19,9 @@ internal static partial class Program
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            ushort source = RomDataReader.ReadWordFixedBank(bus,
+            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointers.Gunship.LiftoffGraphicsSourceWords + index * 2);
-            ushort destination = RomDataReader.ReadWordFixedBank(bus,
+            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointers.Gunship.LiftoffVramDestinationWords + index * 2);
             AssertEqual(0x940000 | source, transfer.SourceAddress,
                 $"gunship frame {index} compiled source matches the cartridge");

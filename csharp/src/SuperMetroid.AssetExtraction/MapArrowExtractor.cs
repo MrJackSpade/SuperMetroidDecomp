@@ -38,6 +38,6 @@ public static class MapArrowExtractor
         using var stream = new MemoryStream();
         MapArrowPresentation.Write(stream, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         return stream.ToArray();
-        ushort Read(int address) => RomDataReader.ReadWordFixedBank(bus, address);
+        ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
     }
 }

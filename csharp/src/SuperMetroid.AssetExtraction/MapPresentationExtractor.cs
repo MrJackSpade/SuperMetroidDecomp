@@ -77,8 +77,8 @@ public static class MapPresentationExtractor
         for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelectMapRomData.AreaCount; area++)
         {
             int address = SuperMetroid.Core.Frontend.FileSelectMapRomData.LabelPositions + area * 4;
-            labelPoints.Add(((AreaId)area).ToString(), new(RomDataReader.ReadWordFixedBank(bus, address),
-                RomDataReader.ReadWordFixedBank(bus, address + 2)));
+            labelPoints.Add(((AreaId)area).ToString(), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
         using var labels = new MemoryStream();
         WorldMapLabelLayout.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });

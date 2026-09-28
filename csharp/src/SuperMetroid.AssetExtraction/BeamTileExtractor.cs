@@ -13,7 +13,7 @@ public static class BeamTileExtractor
         var files = new Dictionary<string, byte[]>();
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Beams.TilePointers + selection * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Beams.TilePointers + selection * 2);
             byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusProjectileRomData.Banks.CharacterData | pointer, BeamTileAtlasDefinitions.ByteCount);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,

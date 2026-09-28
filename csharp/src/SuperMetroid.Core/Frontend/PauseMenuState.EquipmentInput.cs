@@ -76,13 +76,13 @@ internal sealed partial class PauseMenuState
                 equipmentTilemap, categoryIndex, item, wordCount, disabled);
             return;
         }
-        int offset = RomDataReader.ReadWordFixedBank(bus, category.OffsetTableAddress + item * 2) -
+        int offset = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), category.OffsetTableAddress + item * 2) -
             PauseEquipmentCategories.TilemapWramBase;
         Span<byte> label = equipmentTilemap.AsSpan(offset, wordCount * 2);
         if (disabled)
             RecolorLabel(label);
         else
-            CopyBank82Words(RomDataReader.ReadWordFixedBank(bus, category.TilemapPointerTableAddress + item * 2), label);
+            CopyBank82Words(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), category.TilemapPointerTableAddress + item * 2), label);
     }
 
     private bool TrySelectEquipment(int categoryIndex, int start, int step)

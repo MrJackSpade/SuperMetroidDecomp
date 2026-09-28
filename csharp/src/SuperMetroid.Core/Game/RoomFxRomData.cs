@@ -387,7 +387,7 @@ public static class RoomFxRomData
         for (int guard = 0; guard < 256; guard++)
         {
             ushort candidateDoor = RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 Banks.RoomDefinitions | unchecked((ushort)(record + Record.DoorPointerOffset)));
             if (candidateDoor == 0 || candidateDoor == doorPointer)
                 return record;
@@ -423,7 +423,7 @@ public static class RoomFxRomData
         if (useCompiledRecords)
             return RoomFxRecordDefinitions.Get(record).ReadWord(fieldOffset);
         return RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
     }
 }

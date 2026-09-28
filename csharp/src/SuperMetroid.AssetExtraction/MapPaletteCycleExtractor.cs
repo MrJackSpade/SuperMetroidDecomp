@@ -25,7 +25,7 @@ internal static class MapPaletteCycleExtractor
             var colors = new PaletteRgb5[MapPaletteCycleFormat.ColorCount];
             for (int color = 0; color < colors.Length; color++)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(bus,
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     MapAnimationRomData.PaletteColors + (frame * colors.Length + color) * sizeof(ushort));
                 colors[color] = new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
             }

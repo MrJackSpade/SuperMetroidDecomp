@@ -57,7 +57,7 @@ internal static partial class Program
                     // Native compares DOUBLED quotient with seven, not quotient.
                     if (q * 2 < 7 && supply % 100 % 14 != 0 && (phase & 4) == 0) q++;
                     int table = 0x82b3d9 + (supply >= 100 ? 16 : 0);
-                    Draw(RomDataReader.ReadWordFixedBank(bus, table + q * 2), tank++);
+                    Draw(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + q * 2), tank++);
                 }
                 for (; tank < capacity / 100; tank++) Draw(0x20, tank);
                 if (capacity != 0) Draw(0x1f, tank);
@@ -90,9 +90,9 @@ internal static partial class Program
 
                 void Draw(ushort id, int index)
                 {
-                    int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c569 + id * 2);
-                    ushort x = RomDataReader.ReadWordFixedBank(bus, 0x82c1d6 + index * 2);
-                    ushort y = (ushort)(RomDataReader.ReadWordFixedBank(bus, 0x82c1e2) - 1);
+                    int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + id * 2);
+                    ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1d6 + index * 2);
+                    ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
                     native.AddOnScreenSpritemap(bus, pointer, x, y, 0x0600);
                 }
             }

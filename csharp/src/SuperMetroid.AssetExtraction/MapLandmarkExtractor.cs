@@ -48,7 +48,7 @@ public static class MapLandmarkExtractor
         MapLandmarkLayout.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
         return stream.ToArray();
 
-        ushort Pointer(int table, AreaId area) => RomDataReader.ReadWordFixedBank(bus, table + AreaIds.ToIndex(area) * 2);
-        ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | pointer);
+        ushort Pointer(int table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
+        ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | pointer);
     }
 }

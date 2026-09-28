@@ -60,7 +60,7 @@ internal static partial class Program
                     foreach (int start in new[] { 208, 240 })
                     for (int i = start; i < start + 16; i++)
                     {
-                        ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8cebe9 + i * 2);
+                        ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8cebe9 + i * 2);
                         int step = elapsed / 2;
                         ushort expectedColor = (ushort)(((source & 31) * step / 32)
                             | (((source >> 5 & 31) * step / 32) << 5)
@@ -82,7 +82,7 @@ internal static partial class Program
                     var colors = legacy.CaptureRenderSnapshot().Memory.Cgram;
                     for (int i = 32; i < 48; i++)
                     {
-                        ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
+                        ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
                         int expectedColor = ((source & 31) * elapsed / 32)
                             | (((source >> 5 & 31) * elapsed / 32) << 5)
                             | (((source >> 10 & 31) * elapsed / 32) << 10);
@@ -206,7 +206,7 @@ internal static partial class Program
                         int factor = start == 32 ? 32 - fadeStep : fadeStep;
                         for (int i = start; i < start + 16; i++)
                         {
-                            ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
+                            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
                             ushort expectedColor = (ushort)(((source & 31) * factor / 32)
                                 | (((source >> 5 & 31) * factor / 32) << 5)
                                 | (((source >> 10 & 31) * factor / 32) << 10));
@@ -295,7 +295,7 @@ internal static partial class Program
                 {
                     var memory = legacy.CaptureRenderSnapshot().Memory;
                     for (int color = 4; color < 256; color++)
-                        AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + color * 2),
+                        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2),
                             memory.Cgram[color], "native end-credits Intro4 palette");
                     byte[] reward = RomDataReader.Decompress(bus, hours < 3 ? 0x97b957 : 0x979803, 0x8000);
                     AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(memory.Vram[..0x4000]),

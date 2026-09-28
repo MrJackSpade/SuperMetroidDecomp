@@ -47,7 +47,7 @@ internal static partial class Program
                     $"production Mother Brain hand-beam visual selector $A9:{pointer:X4}");
                 visualWords++;
             }
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | pointer),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), 0xa90000 | pointer),
                 compiled, $"Mother Brain hand-beam source word $A9:{pointer:X4}");
         }
         AssertEqual(67, mechanicsWords + visualWords,

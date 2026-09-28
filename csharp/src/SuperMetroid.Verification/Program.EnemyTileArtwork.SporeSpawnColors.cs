@@ -143,7 +143,7 @@ internal static partial class Program
         void VerifyFrame(int source, Func<int, ushort> resolve, string name)
         {
             for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed {name} color {color} matches cartridge");
         }

@@ -29,7 +29,7 @@ internal static partial class Program
         {
             for (int pointer = start; pointer <= end; pointer += 2)
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | pointer),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), 0xa90000 | pointer),
                     MotherBrainHeadInstructionProgramDefinitions.ReadWord((ushort)pointer),
                     $"Mother Brain compiled head word $A9:{pointer:X4}");
                 AssertTrue(MotherBrainHeadInstructionProgramDefinitions.ContainsWord(

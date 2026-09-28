@@ -49,7 +49,7 @@ internal static class TitlePaletteExtractor
                         definition.FramePointer(frame) + sizeof(ushort) +
                         color * sizeof(ushort)));
                     ushort bgr555 = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer);
                     frames[frame][color] = new PaletteRgb5
                     {

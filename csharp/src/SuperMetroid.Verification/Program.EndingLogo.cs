@@ -9,7 +9,7 @@ internal static partial class Program
         VerifyEndingLogoDefinitions(bus);
         for (int pointer = EndingLogoInstructionDefinitions.Start;
              pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),
                 EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
                 $"ending logo instruction $8B:{pointer:X4} matches cartridge");
         AssertThrows<InvalidDataException>(() =>
@@ -46,11 +46,11 @@ internal static partial class Program
             if (logo.PaletteStep > 0)
                 for (int p = 0; p < 2; p++)
                 {
-                    int pointer = RomDataReader.ReadWordFixedBank(bus,
+                    int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                         EndingLogoPalettePointerDefinitions.NativeTableAddress +
                         (logo.PaletteStep - 1) * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
-                        AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | (pointer - 30 + i * 2)),
+                        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
                             cgram.Colors[(p == 0 ? 16 : 240) + i], "native logo crossfade palette table entry");
                 }
             poses.Add(Convert.ToHexString(logo.Draw().LowTable));

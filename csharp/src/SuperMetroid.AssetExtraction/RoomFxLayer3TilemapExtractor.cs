@@ -16,7 +16,7 @@ public static class RoomFxLayer3TilemapExtractor
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
             int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus,
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxRomData.Tables.Layer3TilemapPointers + (int)type);
             if ((RoomFxRomData.Banks.Tilemaps | pointer) != source)
                 throw new InvalidDataException(

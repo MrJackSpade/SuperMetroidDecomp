@@ -22,17 +22,17 @@ public static class MapStationLayoutExtractor
                 MapStationKind.Map => FileSelectMapIconRomData.MapStationLists,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind))
             };
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, table + AreaIds.ToIndex(area) * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
             var rules = MapStationDiscoveryRules.Get(area, kind).ToArray();
             int count = 0;
             if (pointer != 0)
                 for (; count <= rules.Length; count++)
                 {
                     int address = FileSelectMapRomData.MenuObjectBank | (pointer + count * 4);
-                    ushort x = RomDataReader.ReadWordFixedBank(bus, address);
+                    ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                     if ((short)x < 0) break;
                     if (count == rules.Length) throw new InvalidDataException($"Unexpected {area}/{kind} station record.");
-                    ushort y = RomDataReader.ReadWordFixedBank(bus, address + 2);
+                    ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
                     var rule = rules[count];
                     if ((x >> 3) != rule.CellX || (y >> 3) != rule.CellY)
                         throw new InvalidDataException($"Station discovery definition differs from cartridge: {rule.Id}.");

@@ -21,7 +21,7 @@ internal static partial class Program
             int address = SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(pointer + 2));
             blocked.Add(address);
             blocked.Add(SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(pointer + 3)));
-            ushort native = RomDataReader.ReadWordFixedBank(rom, address);
+            ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
             AssertEqual(native, stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
         }

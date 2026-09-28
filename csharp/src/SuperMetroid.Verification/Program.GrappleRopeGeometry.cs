@@ -28,8 +28,8 @@ internal static partial class Program
             }
             // Equal-magnitude up/right and up/left vectors select $20/$E0.
             int angle = direction > 0 ? 32 : 224;
-            int dx = (short)RomDataReader.ReadWordFixedBank(bus, 0xa0b443 + angle * 2) * 2048;
-            int dy = (short)RomDataReader.ReadWordFixedBank(bus, 0xa0b3c3 + angle * 2) * 2048;
+            int dx = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b443 + angle * 2) * 2048;
+            int dy = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) * 2048;
             int x = unchecked((origin - 4) << 16), y = 124 << 16;
             var expected = new List<(byte X, byte Y)>();
             int visited = 0;

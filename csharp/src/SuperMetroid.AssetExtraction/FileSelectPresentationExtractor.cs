@@ -216,7 +216,7 @@ public static class FileSelectPresentationExtractor
         int x = 0, y = 0;
         while (true)
         {
-            ushort word = RomDataReader.ReadWordFixedBank(bus, address);
+            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | ((address + 2) & 0xffff);
             if (word == FileSelectTilemapFormat.End)
                 return new(cells.ToArray());

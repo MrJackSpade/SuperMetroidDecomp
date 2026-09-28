@@ -25,7 +25,7 @@ internal static partial class Program
                 RoomFxLayer3TilemapFormat.PageByteCount);
             AssertTrue(catalog.Resolve(type).Span.SequenceEqual(native),
                 $"room-FX {type} preserves every bank-$8A tilemap word");
-            ushort pointer = RomDataReader.ReadWordFixedBank(rom,
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                 RoomFxRomData.Tables.Layer3TilemapPointers + (int)type);
             AssertEqual(source, RoomFxRomData.Banks.Tilemaps | pointer,
                 $"room-FX {type} compiled page identity matches the native pointer table");

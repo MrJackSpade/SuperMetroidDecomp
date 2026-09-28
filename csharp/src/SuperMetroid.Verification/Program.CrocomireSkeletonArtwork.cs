@@ -18,9 +18,9 @@ internal static partial class Program
         for (int index = 0; index < frames.Length; index++)
         {
             CrocomireSkeletonTransferDefinition frame = frames[index];
-            ushort destination = RomDataReader.ReadWordFixedBank(rom,
+            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                 EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + index * 2);
-            ushort source = RomDataReader.ReadWordFixedBank(rom,
+            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                 EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + index * 2);
             AssertEqual(destination, frame.DestinationOffset,
                 $"Crocomire skeleton destination {index} matches the cartridge");
@@ -34,7 +34,7 @@ internal static partial class Program
                     artwork.Chunk(index).Span[offset],
                     $"Crocomire skeleton chunk {index} byte {offset} matches cartridge art");
         }
-        AssertEqual((ushort)0xffff, RomDataReader.ReadWordFixedBank(rom,
+        AssertEqual((ushort)0xffff, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                 EnemyRomTablePointers.Crocomire.DeathVramDestinationWords +
                 frames.Length * 2),
             "Crocomire skeleton seventh destination is the native terminator");

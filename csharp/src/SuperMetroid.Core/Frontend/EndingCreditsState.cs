@@ -977,7 +977,7 @@ internal sealed partial class EndingCreditsState
         for (int index = 0; index < count; index++)
         {
             postCreditsTilemap[destination + index] = RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 EndingCreditsRomData.Instructions.Bank.AddWithinBank(
                     unchecked((ushort)(sourcePointer + index * sizeof(ushort)))));
         }

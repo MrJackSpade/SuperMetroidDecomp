@@ -546,7 +546,7 @@ public sealed class GameOptionsMenuState
                 for (int column = 0; column < GameOptionsRomData.ControllerLabels.WidthInTiles; column++)
                 {
                     ushort tile = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         source +
                         (row * GameOptionsRomData.ControllerLabels.WidthInTiles + column) * 2);
                     WriteWord(
@@ -623,7 +623,7 @@ public sealed class GameOptionsMenuState
     private void DrawMenuSpritemap(ushort id, ushort x, ushort y)
     {
         ushort pointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             MenuPpuState.SpritemapPointerTableAddress + id * 2);
         oam.AddOnScreenSpritemap(
             bus,

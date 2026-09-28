@@ -127,9 +127,9 @@ internal static class RetailKraidCaptureTests
         // Match the established audit: stage a missile at the ROM-authored open-mouth
         // hitbox, then use the real collision/damage dispatcher to initiate growth.
         int address = KraidBackgroundRomData.NativeBank | boss.InvulnerableMouthHitbox;
-        short left = unchecked((short)RomDataReader.ReadWordFixedBank(bus, address));
-        short top = unchecked((short)RomDataReader.ReadWordFixedBank(bus, address + 2));
-        short bottom = unchecked((short)RomDataReader.ReadWordFixedBank(bus, address + 6));
+        short left = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address));
+        short top = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2));
+        short bottom = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6));
         var shots = new SamusProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;

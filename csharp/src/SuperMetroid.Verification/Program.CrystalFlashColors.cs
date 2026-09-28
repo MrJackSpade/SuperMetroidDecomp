@@ -17,7 +17,7 @@ internal static partial class Program
             ushort pointer = ReadWord(rom, SamusPaletteRomData.CrystalFlash.BodyRecords +
                 frame * SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                         SamusPaletteRomData.Banks.Palette | (pointer + color * 2)),
                     native.ResolveBody(frame, color),
                     $"Crystal Flash body frame {frame}, color {color} matches cartridge");
@@ -27,7 +27,7 @@ internal static partial class Program
             ushort pointer = ReadWord(rom, SamusPaletteRomData.CrystalFlash.BubblePointers +
                 frame * sizeof(ushort));
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                         SamusPaletteRomData.Banks.Palette | (pointer + color * 2)),
                     native.ResolveBubble(frame, color),
                     $"Crystal Flash bubble frame {frame}, color {color} matches cartridge");
@@ -127,7 +127,7 @@ internal static partial class Program
         }
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            RomDataReader.ReadWordFixedBank(bus, address);
+            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
         SamusState StartCrystalFlash()
         {
@@ -163,7 +163,7 @@ internal static partial class Program
             {
                 int address = SamusPaletteRomData.CrystalFlash.BodyRecords +
                     frame * SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
-                ushort pointer = RomDataReader.ReadWordFixedBank(source, address);
+                ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
                 forbidden.Add(address);
                 forbidden.Add(address + 1);
                 BlockColors(pointer, CrystalFlashColorFormat.BodyColorCount);
@@ -172,7 +172,7 @@ internal static partial class Program
             {
                 int address = SamusPaletteRomData.CrystalFlash.BubblePointers +
                     frame * sizeof(ushort);
-                ushort pointer = RomDataReader.ReadWordFixedBank(source, address);
+                ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
                 forbidden.Add(address);
                 forbidden.Add(address + 1);
                 BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);

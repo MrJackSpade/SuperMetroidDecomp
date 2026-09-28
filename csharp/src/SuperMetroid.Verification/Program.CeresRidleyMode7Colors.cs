@@ -28,7 +28,7 @@ internal static partial class Program
                 int address = rowAddress + color * sizeof(ushort);
                 forbidden.Add(address);
                 forbidden.Add(address + 1);
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, address), native.Resolve(row, color),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address), native.Resolve(row, color),
                     $"Ceres Ridley Mode-7 zoom row {row}, color {color} matches cartridge");
             }
         }
@@ -93,7 +93,7 @@ internal static partial class Program
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
             {
                 int source = 0xa60000 | unchecked((ushort)(nativePointer + color * sizeof(ushort)));
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source),
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source),
                     cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],
                     $"non-catalogued zoom ${unusualZoom:X4} retains native wrapped read");
             }

@@ -31,7 +31,7 @@ public static class AreaMapRomData
             CartridgeImportSource.Require(bus),
             TilemapPointerTable + areaIndex * 3);
         ushort revealPointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             StationRevealMaskPointerTable + areaIndex * sizeof(ushort));
         int revealAddress = StationRevealMaskBank | revealPointer;
         byte[] tilemapBytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), tilemapAddress, TilemapByteCount);

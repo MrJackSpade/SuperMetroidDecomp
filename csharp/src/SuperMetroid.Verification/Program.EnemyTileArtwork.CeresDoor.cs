@@ -45,7 +45,7 @@ internal static partial class Program
         }
         for (int frame = 0; frame < CeresDoorVisualRomData.Mode7FrameCount; frame++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus,
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointers.Ceres.DoorTransferPointers + frame * sizeof(ushort));
             int record = 0xa60000 | pointer;
             AssertEqual((byte)0x80, bus.ReadByte(record),
@@ -56,10 +56,10 @@ internal static partial class Program
                     CeresDoorVisualRomData.Mode7SecondFrameSource,
                 source, $"Ceres-door Mode-7 transfer {frame} source");
             AssertEqual(CeresDoorVisualRomData.Mode7FrameByteCount,
-                RomDataReader.ReadWordFixedBank(bus, record + 4),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 4),
                 $"Ceres-door Mode-7 transfer {frame} length");
             AssertEqual(CeresDoorVisualRomData.Mode7DestinationWord,
-                RomDataReader.ReadWordFixedBank(bus, record + 6),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6),
                 $"Ceres-door Mode-7 transfer {frame} destination");
             AssertEqual((byte)0, bus.ReadByte(record + 8),
                 $"Ceres-door Mode-7 transfer {frame} increment mode");

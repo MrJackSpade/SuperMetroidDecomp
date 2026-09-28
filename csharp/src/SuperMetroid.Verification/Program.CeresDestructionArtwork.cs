@@ -104,11 +104,11 @@ internal static partial class Program
             var source = CeresDestructionActorDefinitions.ZebesPlacementSources[index];
             AssertEqual(source.Id, actorsDocument.Actors[index].Id,
                 $"Zebes reveal actor {index} retains its native identity");
-            AssertEqual((int)RomDataReader.ReadWordFixedBank(bus,
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CeresDestructionActorDefinitions.NativeBank | source.XAddress),
                 actorsDocument.Actors[index].X,
                 $"Zebes reveal actor {index} X matches the cartridge operand");
-            AssertEqual((int)RomDataReader.ReadWordFixedBank(bus,
+            AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CeresDestructionActorDefinitions.NativeBank | source.YAddress),
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");

@@ -17,8 +17,8 @@ internal static partial class Program
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             int address = FileSelectMapRomData.LabelPositions + area * 4;
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), original.Labels.Get(area).X, "stock label X");
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address + 2), original.Labels.Get(area).Y, "stock label Y");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), original.Labels.Get(area).X, "stock label X");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2), original.Labels.Get(area).Y, "stock label Y");
             native.SelectArea(area); installed.SelectArea(area);
             AssertTrue(native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
             var nativeWindow = new FileSelectMapWindow(bus, area, ReadCartridgeMapWindowMotion(bus, area));

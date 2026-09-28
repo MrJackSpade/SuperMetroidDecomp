@@ -21,7 +21,7 @@ internal static partial class Program
         for (int row = 0; row < NorfairRidleyPaletteRomData.RevealRowCount; row++)
         {
             int pointerAddress = NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             AssertTrue(pointer >= 0x8000, $"Norfair Ridley reveal row {row} has a bank-$A6 source");
@@ -31,7 +31,7 @@ internal static partial class Program
         }
         int terminatorAddress = NorfairRidleyPaletteRomData.RevealSourcePointers +
             NorfairRidleyPaletteRomData.RevealRowCount * sizeof(ushort);
-        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(bus, terminatorAddress),
+        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), terminatorAddress),
             "Norfair Ridley reveal pointer table ends after fifteen color rows");
         forbidden.Add(terminatorAddress);
         forbidden.Add(terminatorAddress + 1);
@@ -131,7 +131,7 @@ internal static partial class Program
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), expected,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), expected,
                 $"Norfair Ridley color source ${address:X6}");
         }
 

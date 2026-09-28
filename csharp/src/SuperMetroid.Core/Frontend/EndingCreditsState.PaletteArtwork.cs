@@ -52,6 +52,6 @@ internal sealed partial class EndingCreditsState
     private ushort StaticPaletteColor(EndingPaletteId id, int color)
         => paletteArtwork is { } artwork
             ? artwork[id].Color(color)
-            : RomDataReader.ReadWordFixedBank(bus,
+            : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EndingPaletteDefinitions.SourceAddress(id) + color * sizeof(ushort));
 }

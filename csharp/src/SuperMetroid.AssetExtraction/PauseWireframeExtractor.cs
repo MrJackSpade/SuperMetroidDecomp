@@ -13,11 +13,11 @@ public static class PauseWireframeExtractor
         var frames = new Dictionary<string, PauseBackdropCell[]>();
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, PauseWireframeDefinitions.Pointers + (int)kind * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseWireframeDefinitions.Pointers + (int)kind * 2);
             var cells = new PauseBackdropCell[PauseWireframeDefinitions.Cells];
             for (int index = 0; index < cells.Length; index++)
             {
-                var word = new MapTileWord(RomDataReader.ReadWordFixedBank(bus, PauseWireframeDefinitions.Bank | (pointer + index * 2)));
+                var word = new MapTileWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseWireframeDefinitions.Bank | (pointer + index * 2)));
                 int character = word.CharacterIndex;
                 if (character >= PauseBackdropDefinitions.AtlasTileCount * 2)
                     throw new InvalidDataException($"Wireframe {kind} cell {index} references an unloaded character {character}.");

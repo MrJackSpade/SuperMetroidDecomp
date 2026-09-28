@@ -179,7 +179,7 @@ internal static partial class Program
                 AssertEqual(expected, compiled,
                     $"{definition.Direction} compiled $87:{pointer:X4}");
                 AssertEqual(expected, RomDataReader.ReadWordFixedBank(
-                        bus, RoomFxRomData.Banks.AnimatedTiles | pointer),
+                        CartridgeImportSource.Require(bus), RoomFxRomData.Banks.AnimatedTiles | pointer),
                     $"{definition.Direction} cartridge $87:{pointer:X4}");
                 wordCount++;
             }
@@ -191,7 +191,7 @@ internal static partial class Program
                     $"{definition.Direction} leaves frame source presentation-owned");
                 AssertEqual(definition.FrameSourceAddress(framePointer),
                     RoomFxRomData.Banks.AnimatedTiles |
-                    RomDataReader.ReadWordFixedBank(bus,
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.AnimatedTiles |
                         unchecked((ushort)(framePointer + 2))),
                     $"{definition.Direction} frame $87:{framePointer:X4} has exact native artwork identity");

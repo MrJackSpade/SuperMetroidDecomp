@@ -16,7 +16,7 @@ public static class PauseBackdropExtractor
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             byte[] image = frame.ToArray();
-            ushort label = RomDataReader.ReadWordFixedBank(bus, PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelBank | label, PauseBackdropDefinitions.LabelWords * 2)
                 .CopyTo(image, PauseBackdropDefinitions.LabelCell * 2);
             areas.Add(area.ToString(), Cells(image, area.ToString()));

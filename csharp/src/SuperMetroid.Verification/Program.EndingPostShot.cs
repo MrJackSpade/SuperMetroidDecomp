@@ -12,13 +12,13 @@ internal static partial class Program
             int address = EndingPostShotUploadDefinitions.TableAddress +
                 index * EndingPostShotUploadDefinitions.RecordBytes;
             EndingPostShotUploadDefinition compiled = EndingPostShotUploadDefinitions.Get(index);
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), compiled.Length,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), compiled.Length,
                 $"post-shot upload {index} length matches cartridge");
-            int nativeSource = RomDataReader.ReadWordFixedBank(bus, address + 2) |
+            int nativeSource = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2) |
                 bus.ReadByte(address + 4) << 16;
             AssertEqual(nativeSource, compiled.SourceAddress,
                 $"post-shot upload {index} source matches cartridge");
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address + 6),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6),
                 compiled.DestinationWord,
                 $"post-shot upload {index} destination matches cartridge");
         }

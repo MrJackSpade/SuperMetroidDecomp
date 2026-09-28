@@ -22,7 +22,7 @@ internal static partial class Program
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, ChargeFlareSpriteDefinitions.SelectorTable + selector * 2),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ChargeFlareSpriteDefinitions.SelectorTable + selector * 2),
                 ChargeFlareSpriteDefinitions.Selectors[selector], "Compiled charge-flare selector matches pinned cartridge");
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })

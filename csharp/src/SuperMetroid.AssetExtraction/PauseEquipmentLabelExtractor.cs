@@ -16,8 +16,8 @@ public static class PauseEquipmentLabelExtractor
             PauseEquipmentCategoryDefinition definition = PauseEquipmentCategories.Definitions[category];
             for (int item = 0; item < definition.ItemCount; item++)
             {
-                ushort destination = RomDataReader.ReadWordFixedBank(bus, definition.OffsetTableAddress + item * 2);
-                ushort source = RomDataReader.ReadWordFixedBank(bus, definition.TilemapPointerTableAddress + item * 2);
+                ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.OffsetTableAddress + item * 2);
+                ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.TilemapPointerTableAddress + item * 2);
                 labels.Add(PauseEquipmentLabelDefinitions.Key(category, item), new()
                 {
                     Column = ((destination - PauseEquipmentCategories.TilemapWramBase) / 2) % PauseEquipmentLabelDefinitions.TilemapColumns,
@@ -28,11 +28,11 @@ public static class PauseEquipmentLabelExtractor
             }
         }
 
-        ushort hyper = RomDataReader.ReadWordFixedBank(bus, PauseEquipmentLabelDefinitions.HyperPointerTable +
+        ushort hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentLabelDefinitions.HyperPointerTable +
             PauseEquipmentLabelDefinitions.HyperBeamItem * sizeof(ushort));
         for (int index = 0; index < PauseEquipmentLabelDefinitions.Keys[1].Length; index++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus,
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseEquipmentLabelDefinitions.HyperPointerTable + index * sizeof(ushort));
             ushort expected = index == PauseEquipmentLabelDefinitions.HyperBeamItem
                 ? hyper : PauseEquipmentLabelDefinitions.BlankSource;
@@ -61,7 +61,7 @@ public static class PauseEquipmentLabelExtractor
 
     private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, ushort source, int count, string name) =>
         Enumerable.Range(0, count)
-            .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(bus,
+            .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 0x820000 | unchecked((ushort)(source + index * 2))), $"{name}.{index}"))
             .ToArray();
 }

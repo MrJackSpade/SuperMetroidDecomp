@@ -116,7 +116,7 @@ internal static partial class Program
             if (blockGunship)
             {
                 int table = FileSelectMapRomData.SavePointMapPointers;
-                int pointer = RomDataReader.ReadWordFixedBank(source, table);
+                int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), table);
                 blocked.Add(table); blocked.Add(table + 1);
                 for (int i = 0; i < 4; i++) blocked.Add(FileSelectMapRomData.MenuObjectBank | (pointer + i));
             }
@@ -125,13 +125,13 @@ internal static partial class Program
         {
             int entry = table + AreaIds.ToIndex(area) * 2;
             blocked.Add(entry); blocked.Add(entry + 1);
-            int list = RomDataReader.ReadWordFixedBank(source, entry);
+            int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
             if (list == 0) return;
             for (int record = 0; ; record++)
             {
                 int address = FileSelectMapRomData.MenuObjectBank | (list + record * stride);
                 blocked.Add(address); blocked.Add(address + 1);
-                if (RomDataReader.ReadWordFixedBank(source, address) == ushort.MaxValue) break;
+                if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address) == ushort.MaxValue) break;
                 for (int i = 2; i < stride; i++) blocked.Add(address + i);
             }
         }

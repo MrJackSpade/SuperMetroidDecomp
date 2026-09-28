@@ -13,7 +13,7 @@ public static class ProjectileTrailExtractor
         var frames = new Dictionary<string, ProjectileTrailAppearance>();
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         {
-            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Banks.Movement | (frame + 2)));
+            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2)));
             frames.Add(ProjectileTrailVisualDefinitions.Name(frame), new()
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,

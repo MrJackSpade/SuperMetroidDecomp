@@ -15,7 +15,7 @@ internal static partial class Program
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     BotwoonHealthPaletteDefinitions.NativePaletteAddress +
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) * 2),
                 native.HealthColor(band, color),
@@ -66,7 +66,7 @@ internal static partial class Program
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         {
             ushort phase = (ushort)(band * sizeof(ushort));
-            ushort threshold = RomDataReader.ReadWordFixedBank(rom,
+            ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                 BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase);
             state.PalettePhaseByteOffset = phase;
             head.Health = unchecked((ushort)(threshold - 1));

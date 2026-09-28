@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
@@ -50,8 +51,8 @@ internal static partial class Program
         for (int frame = 0; frame < 4; frame++)
         {
             int index = state.EscapeTimer & 3;
-            ushort expectedX = unchecked((ushort)(target.XPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, 0xa3ea3f + index * 2)));
-            ushort expectedY = unchecked((ushort)(target.YPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, 0xa3ea3f + (index + 4) * 2)));
+            ushort expectedX = unchecked((ushort)(target.XPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + index * 2)));
+            ushort expectedY = unchecked((ushort)(target.YPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
             // Homing state. The escape routine itself ignores her new position.
             samus.XPosition = 32;

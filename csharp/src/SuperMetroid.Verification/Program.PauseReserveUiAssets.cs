@@ -125,7 +125,7 @@ internal static partial class Program
             Block(0x82ad5d, 64); Block(0x82ad9d, 64);
             for (int index = 0; index < 2; index++)
             {
-                int sourceAddress = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c088 + index * 2);
+                int sourceAddress = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c088 + index * 2);
                 Block(sourceAddress, 14);
             }
         }

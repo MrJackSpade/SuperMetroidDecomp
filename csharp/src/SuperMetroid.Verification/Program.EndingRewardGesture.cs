@@ -20,11 +20,11 @@ internal static partial class Program
         graphicsVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray());
         for (int chunk = 0; chunk < 16; chunk++)
         {
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.SourceTable + chunk * sizeof(ushort)),
                 EndingRewardGraphicsUploadDefinitions.SourceWord(chunk),
                 $"reward graphics source address {chunk} matches pinned cartridge");
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
                 EndingRewardGraphicsUploadDefinitions.DestinationWord(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");

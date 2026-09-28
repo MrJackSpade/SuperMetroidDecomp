@@ -262,7 +262,7 @@ internal sealed class EndingBackgroundTextState
 
     private ushort ReadWord(ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Instructions.Bank.AddWithinBank(pointer));
 
     private static ushort Add(ushort pointer, int bytes) =>

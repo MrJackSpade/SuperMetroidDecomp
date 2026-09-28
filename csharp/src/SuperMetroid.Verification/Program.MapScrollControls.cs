@@ -12,8 +12,8 @@ internal static partial class Program
         for (int index = 0; index < buttons.Length; index++)
         {
             int record = FileSelectMapRomData.ScrollArrows + index * 10;
-            buttons[index] = RomDataReader.ReadWordFixedBank(bus, record + 6);
-            AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(bus, record + 8), "compiled map direction order matches native records");
+            buttons[index] = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6);
+            AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8), "compiled map direction order matches native records");
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
         }
         var guard = new MapScrollControlReadGuard(bus);

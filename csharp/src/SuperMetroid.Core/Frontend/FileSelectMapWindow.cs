@@ -23,8 +23,8 @@ public sealed class FileSelectMapWindow
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ushort x = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4) : (ushort)labels.Get(area).X;
-        ushort y = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4 + 2) : (ushort)labels.Get(area).Y;
+        ushort x = labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelPositions + area * 4) : (ushort)labels.Get(area).X;
+        ushort y = labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelPositions + area * 4 + 2) : (ushort)labels.Get(area).Y;
         edges[0] = edges[1] = (uint)x << 16;
         edges[2] = edges[3] = (uint)y << 16;
         timer = motion.Timer;

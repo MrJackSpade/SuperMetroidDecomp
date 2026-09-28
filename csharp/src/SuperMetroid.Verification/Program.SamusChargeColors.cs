@@ -152,7 +152,7 @@ internal static partial class Program
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            return RomDataReader.ReadWordFixedBank(rom, address);
+            return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
         }
         static void Paint(PaletteRgb5[] colors)
         {

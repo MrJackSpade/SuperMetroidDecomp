@@ -20,7 +20,7 @@ public static class MagdollitePaletteCycleExtractor
                 int source = MagdollitePaletteRomData.Source +
                     (frame * MagdollitePaletteRomData.SourceColorsPerFrame +
                      MagdollitePaletteRomData.FirstAnimatedColor + color) * sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(bus, source);
+                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 if ((native & 0x8000) != 0)
                     throw new InvalidDataException(
                         $"Magdollite color ${source:X6} has an unrepresentable high bit.");

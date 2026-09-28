@@ -175,6 +175,6 @@ internal sealed class RoomFxAnimatedTilesState
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             RoomFxRomData.Banks.AnimatedTiles | pointer);
 }

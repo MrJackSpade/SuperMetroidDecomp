@@ -29,9 +29,9 @@ internal static partial class Program
             }
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
             int angle = unchecked((byte)(random - 32));
-            ushort nativeX = RomDataReader.ReadWordFixedBank(bus, 0xa0b3c3 + (angle + 64) * 2);
+            ushort nativeX = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + (angle + 64) * 2);
             AssertEqual(nativeX, particle!.XVelocity, $"native launch velocity for random {random}");
-            ushort nativeY = unchecked((ushort)(4 * RomDataReader.ReadWordFixedBank(bus, 0xa0b3c3 + angle * 2) + 16));
+            ushort nativeY = unchecked((ushort)(4 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) + 16));
             AssertEqual(nativeY, particle.YVelocity, $"native launch gravity for random {random}");
             // Children run later in the same descending pool pass, so seed the
             // subsequent integration from the already-advanced production position.

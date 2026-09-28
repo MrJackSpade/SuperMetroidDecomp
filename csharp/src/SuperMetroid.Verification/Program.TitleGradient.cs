@@ -106,7 +106,7 @@ internal static partial class Program
             ?? throw new InvalidDataException("Extracted title map document is null.");
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
         SpriteVisualPart originalPart = year.Parts[0];
@@ -247,7 +247,7 @@ internal static partial class Program
                         definition.FramePointer(frame) + sizeof(ushort) +
                         color * sizeof(ushort)));
                     ushort expected = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer);
                     if (!presentation.TryReadColor(pointer, out ushort actual) ||
                         actual != expected)

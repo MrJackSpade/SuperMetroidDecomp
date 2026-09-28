@@ -27,7 +27,7 @@ internal sealed partial class PauseMenuState
             if (samus.ReserveEnergy >= PauseReserveTankRomData.EnergyPerTank)
                 tableOffset += PauseReserveTankRomData.SecondTableOffset;
             Draw(mapPresentation is not null ? PauseReserveTankDefinitions.PartialMap(tableOffset / sizeof(ushort)) :
-                RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.PartialMaps + tableOffset), tank++);
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTankRomData.PartialMaps + tableOffset), tank++);
         }
         for (; tank < samus.MaxReserveEnergy / PauseReserveTankRomData.EnergyPerTank; tank++)
             Draw(PauseReserveTankRomData.EmptyMap, tank);
@@ -40,8 +40,8 @@ internal sealed partial class PauseMenuState
                 mapPresentation.PauseReserveTanks.Draw(oam, map, index);
                 return;
             }
-            ushort x = RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.XPositions + index * sizeof(ushort));
-            ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.YPosition) - 1));
+            ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTankRomData.XPositions + index * sizeof(ushort));
+            ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveTankRomData.YPosition) - 1));
             DrawMenuSpritemap(map, x, y, PauseReserveTankRomData.PaletteBits);
         }
     }

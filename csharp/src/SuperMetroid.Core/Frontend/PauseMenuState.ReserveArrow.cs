@@ -29,10 +29,10 @@ internal sealed partial class PauseMenuState
         }
         int offset = (nmiFrameCounter8 & PauseReserveArrowRomData.FrameMask) * sizeof(ushort);
         cgram.SetColor(PauseReserveArrowRomData.Color6Index, animated
-            ? RomDataReader.ReadWordFixedBank(bus, PauseReserveArrowRomData.Color6Table + offset)
+            ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveArrowRomData.Color6Table + offset)
             : PauseReserveArrowRomData.SolidColor6);
         cgram.SetColor(PauseReserveArrowRomData.Color11Index, animated
-            ? RomDataReader.ReadWordFixedBank(bus, PauseReserveArrowRomData.Color11Table + offset)
+            ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveArrowRomData.Color11Table + offset)
             : PauseReserveArrowRomData.SolidColor11);
         int palette = enabled ? PauseReserveArrowRomData.EnabledPalette : PauseReserveArrowRomData.DisabledPalette;
         for (int row = 0; row < PauseReserveArrowRomData.VerticalCount; row++)

@@ -31,20 +31,20 @@ public sealed class FileSelectStationMarker
             MapY = (ushort)point.Y;
             return;
         }
-        ushort list = RomDataReader.ReadWordFixedBank(bus,
+        ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             FileSelectMapRomData.SavePointMapPointers + areaIndex * 2);
         // Do not walk through the end sentinel into the next area's list when a bad
         // save selects a station that does not exist. Unused entries retain their index.
         for (int station = 0; station <= stationIndex; station++)
         {
             int address = FileSelectMapRomData.MenuObjectBank | unchecked((ushort)(list + station * 4));
-            ushort x = RomDataReader.ReadWordFixedBank(bus, address);
+            ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if (x == ushort.MaxValue || (station == stationIndex && x == ushort.MaxValue - 1))
                 throw new InvalidDataException($"Area {area} has no map coordinate for station {stationIndex}.");
             if (station == stationIndex)
             {
                 MapX = x;
-                MapY = RomDataReader.ReadWordFixedBank(bus, address + 2);
+                MapY = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
             }
         }
     }
@@ -81,7 +81,7 @@ public sealed class FileSelectStationMarker
         void Add(ushort id)
         {
             if (sprites is not null) { sprites.Draw(id, oam, x, y, FileSelectMapRomData.StationMarkerPalette); return; }
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + id * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);
             oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
                 x, y, FileSelectMapRomData.StationMarkerPalette);
         }

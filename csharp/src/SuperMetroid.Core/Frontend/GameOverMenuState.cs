@@ -342,7 +342,7 @@ public sealed class GameOverMenuState
         int sourceAddress = GameOverRomData.TextBank | stream.SourcePointer;
         while (true)
         {
-            ushort word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
+            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
             sourceAddress = GameOverRomData.TextBank | ((sourceAddress + 2) & 0xffff);
             if (word == GameOverRomData.TextEnd)
                 return;
@@ -368,13 +368,13 @@ public sealed class GameOverMenuState
         ushort paletteBits)
     {
         ushort pointer = RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             MenuPpuState.SpritemapPointerTableAddress + spritemapId * 2);
         oam.AddOnScreenSpritemap(bus, GameOverRomData.SpriteBank | pointer, x, y, paletteBits);
     }
 
     private ushort ReadBank82Word(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, GameOverRomData.SpriteBank | pointer);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
 
     private void StepMissileAnimation()
     {

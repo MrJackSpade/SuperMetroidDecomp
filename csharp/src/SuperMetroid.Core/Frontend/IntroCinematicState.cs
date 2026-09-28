@@ -1488,7 +1488,7 @@ public sealed partial class IntroCinematicState
             {
                 textTilemap[IntroCinematicRomData.Text.FinalLineDestinationStart + index] =
                     RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort));
             }
         }

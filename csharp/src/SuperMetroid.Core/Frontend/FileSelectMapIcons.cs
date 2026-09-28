@@ -147,11 +147,11 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
         }
     }
 
-    private ushort Pointer(int table) => RomDataReader.ReadWordFixedBank(bus, table + AreaIds.ToIndex(area) * 2);
+    private ushort Pointer(int table) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
     private ushort Read(ushort list, int offset)
     {
         if (offset >= 65536) throw new InvalidDataException("Map icon list wrapped its bank without a terminator.");
-        return RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | unchecked((ushort)(list + offset)));
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | unchecked((ushort)(list + offset)));
     }
     private void Add(OamBuffer oam, ushort id, ushort x, ushort y, ushort scrollX, ushort scrollY, ushort palette)
     {
@@ -160,7 +160,7 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
             sprites.Draw(id, oam, unchecked((ushort)(x - scrollX)), unchecked((ushort)(y - scrollY)), palette);
             return;
         }
-        ushort pointer = RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + id * 2);
+        ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);
         oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
             unchecked((ushort)(x - scrollX)), unchecked((ushort)(y - scrollY)), palette);
     }

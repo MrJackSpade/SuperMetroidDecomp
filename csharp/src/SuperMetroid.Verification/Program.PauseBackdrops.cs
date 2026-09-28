@@ -38,7 +38,7 @@ internal static partial class Program
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
-            ushort label = RomDataReader.ReadWordFixedBank(bus, 0x82965f + (int)area * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
             var vram = new SnesVram(); original.PauseBackdrops.LoadTo(vram, 0, area);
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes[..0x800]), "all 1024 backdrop words match native frame plus unmasked area lettering");
@@ -153,7 +153,7 @@ internal static partial class Program
         {
             this.source = source;
             Add(0xb6e000, 0x800); Add(0x82965f, 14);
-            for (int area = 0; area < 7; area++) Add(0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82965f + area * 2), 24);
+            for (int area = 0; area < 7; area++) Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82965f + area * 2), 24);
         }
         private void Add(int address, int size) { for (int i = 0; i < size; i++) blocked.Add(address + i); }
         public byte ReadByte(int address) => blocked.Contains(address)

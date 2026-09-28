@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -36,8 +37,8 @@ internal static partial class Program
             AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneXVelocity, "kick whole word");
             AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneXSubvelocity, "kick fraction negates independently");
             int index = Math.Min((int)whole, 15);
-            ushort expectedFraction = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, 0xA3D517 + index * 4);
-            ushort expectedWhole = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, 0xA3D519 + index * 4);
+            ushort expectedFraction = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4);
+            ushort expectedWhole = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4);
             AssertEqual(expectedFraction, state.AirborneYSubvelocity, "vertical kick table capped independently of horizontal speed");
             AssertEqual(expectedWhole, state.AirborneYVelocity, "vertical kick table whole word");
             AssertEqual((ushort)4, state.Behavior, "touch installs kicked behavior");

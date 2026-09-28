@@ -119,7 +119,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"standalone palette-FX compiled word at $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"standalone palette-FX cartridge word at $8D:{pointer:X4}");
         }
 
@@ -174,7 +174,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} compiled word $8D:{pointer:X4}");
                 AssertEqual(value,
-                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -235,7 +235,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Nintendo-logo fade compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Nintendo-logo fade cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -308,7 +308,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"title-logo fade compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"title-logo fade cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -381,7 +381,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"post-credits icon glare compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"post-credits icon glare cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -458,7 +458,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} loading compiled word $8D:{pointer:X4}");
                 AssertEqual(value,
-                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} loading cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -560,7 +560,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"unused cinematic fade compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"unused cinematic fade cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -631,7 +631,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Zebes explosion gunship compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Zebes explosion gunship cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -703,7 +703,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} explosion fade compiled word $8D:{pointer:X4}");
                 AssertEqual(value,
-                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} explosion fade cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -770,7 +770,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} explosion ambience compiled word $8D:{pointer:X4}");
                 AssertEqual(value,
-                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} explosion ambience cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -830,7 +830,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Zebes explosion whiteout compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Zebes explosion whiteout cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -896,7 +896,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Zebes explosion finale compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Zebes explosion finale cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -968,7 +968,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Zebes explosion foreground compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Zebes explosion foreground cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -1041,7 +1041,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"exploding-Zebes fade compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"exploding-Zebes fade cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -1109,7 +1109,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} glow compiled word $8D:{pointer:X4}");
                 AssertEqual(value,
-                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} glow cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -1168,7 +1168,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} PLANET ZEBES fade compiled word $8D:{pointer:X4}");
                 AssertEqual(value,
-                    RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} PLANET ZEBES fade cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -1239,7 +1239,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Ceres cinematic lights compiled word $8D:{pointer:X4}");
             AssertEqual(value,
-                RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Ceres cinematic lights cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -1329,7 +1329,7 @@ internal static partial class Program
                 AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled),
                     $"{definition.Owner} catalogs word $8D:{pointer:X4}");
                 AssertEqual(value, compiled, $"{definition.Owner} compiled word $8D:{pointer:X4}");
-                AssertEqual(value, RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+                AssertEqual(value, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} cartridge word $8D:{pointer:X4}");
                 actualWords++;
                 mechanicsWords++;
@@ -1374,7 +1374,7 @@ internal static partial class Program
             AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled),
                 $"upper-Crateria escape flash catalogs word $8D:{pointer:X4}");
             AssertEqual(value, compiled, $"upper-Crateria escape flash compiled word $8D:{pointer:X4}");
-            AssertEqual(value, RomDataReader.ReadWordFixedBank(bus, RoomFxRomData.Banks.PaletteFx | pointer),
+            AssertEqual(value, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomData.Banks.PaletteFx | pointer),
                 $"upper-Crateria escape flash cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
         }
@@ -1422,7 +1422,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} compiled word $8D:{pointer:X4}");
                 AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} cartridge word $8D:{pointer:X4}");
                 actualWords++;
@@ -1496,7 +1496,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"old-Tourian red flash compiled word $8D:{pointer:X4}");
             AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer),
                 $"old-Tourian red flash cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
@@ -1577,7 +1577,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"shared Tourian escape red flash compiled word $8D:{pointer:X4}");
             AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer),
                 $"shared Tourian escape red flash cartridge word $8D:{pointer:X4}");
             mechanicsWords++;
@@ -1652,7 +1652,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} compiled word $8D:{pointer:X4}");
                 AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} cartridge word $8D:{pointer:X4}");
                 actualWords++;
@@ -2099,7 +2099,7 @@ internal static partial class Program
                 AssertEqual(word.Value, compiled,
                     $"{definition.Owner} compiled word $8D:{word.Pointer:X4}");
                 AssertEqual(word.Value, RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | word.Pointer),
                     $"{definition.Owner} cartridge word $8D:{word.Pointer:X4}");
                 mechanicsWords++;
@@ -2240,7 +2240,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Red Brinstar glow compiled word $8D:{pointer:X4}");
             AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Red Brinstar glow cartridge word $8D:{pointer:X4}");
         }
@@ -2339,7 +2339,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} blue-spore compiled word $8D:{pointer:X4}");
                 AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} blue-spore cartridge word $8D:{pointer:X4}");
                 mechanicsWords++;
@@ -2445,7 +2445,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} belly compiled word $8D:{pointer:X4}");
                 AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} belly cartridge word $8D:{pointer:X4}");
                 mechanicsWords++;
@@ -2558,7 +2558,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Tourian statue grey compiled word $8D:{pointer:X4}");
             AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Tourian statue grey cartridge word $8D:{pointer:X4}");
         }
@@ -2653,7 +2653,7 @@ internal static partial class Program
             AssertEqual(value, compiled,
                 $"Wrecked Ship green-light compiled word $8D:{pointer:X4}");
             AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer),
                 $"Wrecked Ship green-light cartridge word $8D:{pointer:X4}");
         }
@@ -2738,7 +2738,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Suit} compiled heat word $8D:{pointer:X4}");
                 AssertEqual(value, RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Suit} cartridge heat word $8D:{pointer:X4}");
                 mechanicsWords++;
@@ -2813,7 +2813,7 @@ internal static partial class Program
                     suit,
                     phase);
                 ushort expected = RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | source);
                 AssertEqual(expected,
                     PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase),

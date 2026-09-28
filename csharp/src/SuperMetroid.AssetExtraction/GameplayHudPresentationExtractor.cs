@@ -64,7 +64,7 @@ public static class GameplayHudPresentationExtractor
 
     private static GameplayHudCell[] ReadCells(ISnesAddressSpace bus, int address, int count) =>
         Enumerable.Range(0, count)
-            .Select(index => Cell(RomDataReader.ReadWordFixedBank(bus, address + index * sizeof(ushort))))
+            .Select(index => Cell(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * sizeof(ushort))))
             .ToArray();
 
     private static GameplayHudCell Cell(ushort raw)

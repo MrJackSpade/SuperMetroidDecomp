@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Rom;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -192,8 +193,8 @@ static void VerifyHudStateAndBg3Rendering()
         var slopeSystem = new Bank80SystemState();
         int currentAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(x, 5) * 2;
         int aboveAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(x, 4) * 2;
-        ushort savedCurrent = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, currentAddress);
-        ushort savedAbove = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, aboveAddress);
+        ushort savedCurrent = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), currentAddress);
+        ushort savedAbove = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), aboveAddress);
         WriteTestWord(bus, currentAddress, slope);
         WriteTestWord(bus, aboveAddress, 0x0029);
         hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8);
@@ -208,7 +209,7 @@ static void VerifyHudStateAndBg3Rendering()
     // Character $029 is adjacent in the graphics catalog but must not get the $028
     // exploration side effect; this also rejects indiscriminate upper-cell revealing.
     int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(30, 5) * 2;
-    ushort ordinarySaved = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, ordinaryAddress);
+    ushort ordinarySaved = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ordinaryAddress);
     WriteTestWord(bus, ordinaryAddress, 0x0029);
     hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, 30, 4, 16, 16, 128, 128, 8);
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, 30, 4), "ordinary map character does not explore upper corner");

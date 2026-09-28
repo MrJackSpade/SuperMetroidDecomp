@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -72,7 +73,7 @@ internal static partial class Program
             AssertEqual((ushort)0, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.
-            ushort speed = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, 0xa3e5f0 + actor.Parameter1 * 2);
+            ushort speed = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + actor.Parameter1 * 2);
             AssertEqual(facing == 0 ? unchecked((ushort)-speed) : speed, state.CrawlingXVelocity,
                 $"landed Yard direction {direction}, facing {facing}: native X reset");
             AssertEqual(speed, state.CrawlingYVelocity, "landed Yard probes downward");

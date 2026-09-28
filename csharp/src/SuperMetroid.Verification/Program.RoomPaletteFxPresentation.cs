@@ -28,7 +28,7 @@ internal static partial class Program
                 {
                     ushort pointer = definition.ColorPointer(frame, color);
                     ushort expected = RomDataReader.ReadWordFixedBank(
-                        bus,
+                        CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer);
                     AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
                         $"installed Norfair color resolves $8D:{pointer:X4}");
@@ -379,7 +379,7 @@ internal static partial class Program
             {
                 ushort pointer = unchecked((ushort)(frame.FirstColorPointer +
                     index * sizeof(ushort)));
-                ushort nativeColor = RomDataReader.ReadWordFixedBank(bus,
+                ushort nativeColor = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer);
                 AssertTrue(presentation.TryReadColor(pointer, out ushort installedColor),
                     $"installed {definition.Suit} heat color resolves $8D:{pointer:X4}");
@@ -437,7 +437,7 @@ internal static partial class Program
         {
             ushort pointer = colorPointer(frame, color);
             ushort expected = RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 RoomFxRomData.Banks.PaletteFx | pointer);
             AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
                 $"installed {description} color resolves $8D:{pointer:X4}");
@@ -492,7 +492,7 @@ internal static partial class Program
                 WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer(
                     frame, color);
             ushort expected = RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 RoomFxRomData.Banks.PaletteFx | pointer);
             AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
                 $"installed Wrecked Ship color resolves $8D:{pointer:X4}");
@@ -546,7 +546,7 @@ internal static partial class Program
             {
                 ushort pointer = definition.ColorPointer(frame, color);
                 ushort expected = RomDataReader.ReadWordFixedBank(
-                    bus,
+                    CartridgeImportSource.Require(bus),
                     RoomFxRomData.Banks.PaletteFx | pointer);
                 AssertTrue(presentation.TryReadColor(pointer, out ushort actual),
                     $"installed Maridia color resolves $8D:{pointer:X4}");

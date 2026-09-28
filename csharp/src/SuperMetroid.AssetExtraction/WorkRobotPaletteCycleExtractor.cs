@@ -20,7 +20,7 @@ public static class WorkRobotPaletteCycleExtractor
                 int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                     frame * WorkRobotPaletteTimingDefinitions.RecordByteCount +
                     color * sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(bus, source);
+                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 if ((native & 0x8000) != 0)
                     throw new InvalidDataException(
                         $"Work Robot color ${source:X6} has an unrepresentable high bit.");

@@ -20,7 +20,7 @@ internal static partial class Program
         {
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                         SamusPaletteRomData.Banks.Palette | (pointer + color * 2)),
                     native.Resolve(pointer, color),
                     $"{family} suit {suit}, shade {shade}, color {color} agrees with cartridge");

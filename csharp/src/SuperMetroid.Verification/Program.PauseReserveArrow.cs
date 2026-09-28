@@ -22,8 +22,8 @@ internal static partial class Program
         for (byte frame = 0; frame < 32; frame++)
         {
             pause.Step(0, 0, nmiFrameCounter8: frame);
-            CheckArrow(true, RomDataReader.ReadWordFixedBank(bus, 0x82ad5d + frame * 2),
-                RomDataReader.ReadWordFixedBank(bus, 0x82ad9d + frame * 2), $"AUTO phase {frame}");
+            CheckArrow(true, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82ad5d + frame * 2),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82ad9d + frame * 2), $"AUTO phase {frame}");
             if (frame == 0) first = pause.Render();
             if (frame == 15)
             {

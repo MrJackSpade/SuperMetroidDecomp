@@ -27,10 +27,10 @@ internal static class TitleSpriteExtractor
             int entry = sequence.InstructionAddress;
             while (true)
             {
-                ushort durationOrCommand = RomDataReader.ReadWordFixedBank(bus, entry);
+                ushort durationOrCommand = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), entry);
                 if ((durationOrCommand & TitleSequenceRomData.TextSequences.CommandBit) != 0)
                     break;
-                ushort pointer = RomDataReader.ReadWordFixedBank(bus, entry + 2);
+                ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), entry + 2);
                 if (pointer != TitleSequenceRomData.Sprites.Blank)
                     pointers.Add(pointer);
                 entry += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
@@ -49,15 +49,15 @@ internal static class TitleSpriteExtractor
     private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, ushort pointer)
     {
         int address = (TitleSequenceRomData.Sprites.Bank << 16) | pointer;
-        int count = RomDataReader.ReadWordFixedBank(bus, address);
+        int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > TitleGraphicsFormat.MaximumSpriteParts)
             throw new InvalidDataException($"Title sprite $8C:{pointer:X4} exceeds OAM capacity.");
         var parts = new SpriteVisualPart[count];
         for (int index = 0; index < count; index++)
         {
             int source = address + 2 + index * 5;
-            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, source));
-            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, source + 3));
+            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source));
+            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source + 3));
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,

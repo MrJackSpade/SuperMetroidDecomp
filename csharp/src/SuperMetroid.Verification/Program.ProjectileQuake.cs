@@ -32,8 +32,8 @@ internal static partial class Program
             short dx = 0, dy = 0;
             if (timer != 0 && type < 36 && !frozen)
             {
-                dx = unchecked((short)RomDataReader.ReadWordFixedBank(bus, 0x86846b + type * 4));
-                dy = unchecked((short)RomDataReader.ReadWordFixedBank(bus, 0x86846d + type * 4));
+                dx = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x86846b + type * 4));
+                dy = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x86846d + type * 4));
                 if ((timer & 2) != 0) { dx = unchecked((short)-dx); dy = unchecked((short)-dy); }
             }
             ushort x = unchecked((ushort)(position + dx)), y = unchecked((ushort)(position + dy));

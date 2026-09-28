@@ -25,7 +25,7 @@ public static class ChozoAndTubeColorExtractor
             for (int color = 0; color < colors.Length; color++)
             {
                 int address = source + color * sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(bus, address);
+                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if ((native & 0x8000) != 0)
                     throw new InvalidDataException(
                         $"Chozo/tube color ${address:X6} has an unrepresentable high bit.");

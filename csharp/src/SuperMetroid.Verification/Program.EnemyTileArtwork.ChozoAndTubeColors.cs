@@ -82,7 +82,7 @@ internal static partial class Program
         void VerifyBand(int source, Func<int, ushort> resolve, string name)
         {
             for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed {name} color {color} preserves native RGB5");
         }

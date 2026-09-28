@@ -24,10 +24,10 @@ internal static partial class Program
         {
             var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
             for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(12, 34, 56); actual.AddRawSmallSprite(12, 34, 56); }
-            ushort x = RomDataReader.ReadWordFixedBank(bus, 0x82c1d6 + index * 2);
-            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(bus, 0x82c1e2) - 1);
+            ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1d6 + index * 2);
+            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
             AssertEqual(new MapLabelPoint(x, y), catalog.PauseReserveTanks.Anchor(index), "reserve anchor matches native X and decremented Y");
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c569 + frame.Id * 2);
+            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + frame.Id * 2);
             expected.AddOnScreenSpritemap(bus, pointer, x, y, 0x600);
             catalog.PauseReserveTanks.Draw(actual, frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
@@ -118,8 +118,8 @@ internal static partial class Program
             foreach (ushort id in new ushort[] { 0x1b, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27 })
             {
                 Add(0x82c569 + id * 2, 2);
-                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c569 + id * 2);
-                Add(pointer, 2 + RomDataReader.ReadWordFixedBank(source, pointer) * 5);
+                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c569 + id * 2);
+                Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
             }
         }
         private void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }

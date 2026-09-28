@@ -139,7 +139,7 @@ public static class EndingPaletteArtworkFiles
         for (int color = 0; color < 16; color++)
         {
             int pointer = EndingLogoPalettePointerDefinitions.Source(step, palette);
-            ushort word = RomDataReader.ReadWordFixedBank(bus,
+            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 0x8c0000 | (pointer - (15 - color) * sizeof(ushort)));
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(

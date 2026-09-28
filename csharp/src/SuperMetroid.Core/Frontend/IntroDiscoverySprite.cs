@@ -203,7 +203,7 @@ internal sealed class IntroDiscoverySprite
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
-            bus,
+            CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private static ushort Add(ushort pointer, int bytes) =>

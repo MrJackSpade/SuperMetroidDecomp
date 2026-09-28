@@ -17,7 +17,7 @@ internal static partial class Program
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.DisplayAreaIndices + area * 2),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.DisplayAreaIndices + area * 2),
                 (ushort)FileSelectMapAreaOrder.Get(area), "compiled display order matches cartridge word");
             for (int stationIndex = 0; stationIndex < MapSaveMarkerDefinitions.SlotsPerArea; stationIndex++)
             {
@@ -81,12 +81,12 @@ internal static partial class Program
         {
             // Independent literal native layout: no production LoadStationEntry or
             // CartridgeRoomHeader/state-selection call participates in this oracle.
-            int list = RomDataReader.ReadWordFixedBank(bus, 0x80c4b5 + (int)area * 2);
+            int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x80c4b5 + (int)area * 2);
             int record = 0x800000 | (list + station * 14);
-            int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(bus, record);
+            int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record);
             AssertEqual((byte)area, bus.ReadByte(room + 1), "valid saved-map station remains in its requested area");
-            int worldX = (RomDataReader.ReadWordFixedBank(bus, record + 6) + 128 + RomDataReader.ReadWordFixedBank(bus, record + 12)) & ushort.MaxValue;
-            int worldY = (RomDataReader.ReadWordFixedBank(bus, record + 8) + RomDataReader.ReadWordFixedBank(bus, record + 10)) & ushort.MaxValue;
+            int worldX = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6) + 128 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 12)) & ushort.MaxValue;
+            int worldY = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10)) & ushort.MaxValue;
             return new((ushort)((bus.ReadByte(room + 2) + (worldX >> 8)) << 3),
                 (ushort)((bus.ReadByte(room + 3) + (worldY >> 8) + 1) << 3));
         }

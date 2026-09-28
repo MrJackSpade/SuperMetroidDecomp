@@ -17,20 +17,20 @@ internal static partial class Program
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new PauseSelectorReadGuard(bus);
-        AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x82c100), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
+        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c100), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
         AssertEqual((int)bus.ReadByte(0x82c10c), catalog.PauseSelectors.InitialDurationTicks, "selector initial delay matches native initialization");
-        int animation = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c0ec);
+        int animation = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c0ec);
         for (int phase = 0; phase < 14; phase++)
             AssertEqual((int)bus.ReadByte(animation + phase * 3), catalog.PauseSelectors.Duration(phase), "all native selector phase durations preserved");
         AssertEqual(14, catalog.PauseSelectors.PhaseCount, "native selector terminator resolves exactly fourteen phases");
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
-            int positions = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c18e + anchor.Category * 2);
-            ushort x = (ushort)(RomDataReader.ReadWordFixedBank(bus, positions + anchor.Item * 4) - 1);
-            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(bus, positions + anchor.Item * 4 + 2) - 1);
+            int positions = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c18e + anchor.Category * 2);
+            ushort x = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positions + anchor.Item * 4) - 1);
+            ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positions + anchor.Item * 4 + 2) - 1);
             AssertEqual(new MapLabelPoint(x, y), catalog.PauseSelectors.Anchor(anchor.Category, anchor.Item), "authored anchor retains both native minus-one offsets");
             ushort id = (ushort)(anchor.Category == 0 ? 0x14 : anchor.Category == 1 ? 0x15 : 0x16);
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c569 + id * 2);
+            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + id * 2);
             foreach (int occupied in new[] { 0, 127, 128 })
             for (int phase = 0; phase < 14; phase++)
             {
@@ -159,15 +159,15 @@ internal static partial class Program
         {
             this.source = source;
             Add(0x82c0da, 2); Add(0x82c0ec, 2); Add(0x82c100, 2); Add(0x82c10c, 1); Add(0x82c18e, 8); Add(0x82c1e8, 2);
-            Add(0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c0ec), 43);
-            Add(0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c1e8), 8);
+            Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c0ec), 43);
+            Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c1e8), 8);
             foreach (var anchor in PauseSelectorDefinitions.Anchors())
-                Add((0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c18e + anchor.Category * 2)) + anchor.Item * 4, 4);
+                Add((0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c18e + anchor.Category * 2)) + anchor.Item * 4, 4);
             foreach (int id in new[] { 0x14, 0x15, 0x16 })
             {
                 Add(0x82c569 + id * 2, 2);
-                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c569 + id * 2);
-                Add(pointer, 2 + RomDataReader.ReadWordFixedBank(source, pointer) * 5);
+                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c569 + id * 2);
+                Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
             }
         }
         private void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }

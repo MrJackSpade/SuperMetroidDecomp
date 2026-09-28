@@ -14,14 +14,14 @@ public static class NorfairRidleyColorExtractor
         var reveal = new PaletteRgb5[NorfairRidleyPaletteRomData.RevealRowCount][];
         for (int row = 0; row < reveal.Length; row++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus,
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
             if (pointer < 0x8000)
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} has invalid source ${pointer:X4}.");
             reveal[row] = ReadColors(bus, 0xa60000 | pointer,
                 NorfairRidleyPaletteRomData.RevealColorCount);
         }
-        ushort terminator = RomDataReader.ReadWordFixedBank(bus,
+        ushort terminator = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             NorfairRidleyPaletteRomData.RevealSourcePointers +
             reveal.Length * sizeof(ushort));
         if (terminator != 0)
@@ -41,7 +41,7 @@ public static class NorfairRidleyColorExtractor
         for (int color = 0; color < count; color++)
         {
             int address = source + color * sizeof(ushort);
-            ushort word = RomDataReader.ReadWordFixedBank(bus, address);
+            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if ((word & 0x8000) != 0)
                 throw new InvalidDataException($"Norfair Ridley color ${address:X6} has bit 15 set.");
             colors[color] = new PaletteRgb5

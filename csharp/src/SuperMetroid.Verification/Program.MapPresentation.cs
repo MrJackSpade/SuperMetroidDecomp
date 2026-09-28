@@ -1140,7 +1140,7 @@ internal static partial class Program
         TitleMode7MapDocument document = JsonSerializer.Deserialize<TitleMode7MapDocument>(
             File.ReadAllBytes(Path.Combine(stock, name)), MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Extracted title layout is null.");
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
         TitleSpriteFrame year = document.Sprites.Single(frame => frame.Pointer == yearPointer);
         year.Parts[0] = year.Parts[0] with { OffsetX = year.Parts[0].OffsetX + 8 };

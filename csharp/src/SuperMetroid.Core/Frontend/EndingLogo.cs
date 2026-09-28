@@ -59,7 +59,7 @@ internal sealed class EndingLogo
                         paletteArtwork is { } artwork
                             ? artwork[EndingPaletteId.LogoCrossfade].Color(
                                 (PaletteStep * 2 + palette) * 16 + i)
-                            : RomDataReader.ReadWordFixedBank(bus,
+                            : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                                 (IntroCinematicRomData.Banks.Spritemaps << 16) |
                                 (pointer - (15 - i) * 2)));
             }

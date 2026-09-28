@@ -147,7 +147,7 @@ internal static partial class Program
                 if (pointer < 0x8000)
                     throw new InvalidDataException($"Room state $8F:{state.Pointer:X4} FX list crossed below the LoROM window.");
                 int source = RoomFxRomData.Banks.RoomDefinitions | pointer;
-                ushort door = RomDataReader.ReadWordFixedBank(bus, source);
+                ushort door = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 RoomFxRecordDefinition record;
                 if (door == RoomFxRomData.Record.TerminatorDoorPointer)
                 {

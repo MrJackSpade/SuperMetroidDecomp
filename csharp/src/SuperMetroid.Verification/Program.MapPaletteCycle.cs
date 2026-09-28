@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -15,7 +16,7 @@ internal static partial class Program
         arrows.StepArrows(_ => true);
         var arrowOam = new OamBuffer();
         arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam);
-        ushort nativeArrowPalette = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, MapAnimationRomData.AnimatedSpritePalette);
+        ushort nativeArrowPalette = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual((byte)(nativeArrowPalette >> 8), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");

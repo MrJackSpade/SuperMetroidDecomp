@@ -343,7 +343,7 @@ public sealed partial class FileSelectMenuState
         int sourceAddress = FileSelectTilemapFormat.Bank | sourcePointer;
         while (true)
         {
-            ushort word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
+            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
             sourceAddress = FileSelectTilemapFormat.Bank | ((sourceAddress + 2) & 0xffff);
             if (word == FileSelectTilemapFormat.End)
                 return;
@@ -368,7 +368,7 @@ public sealed partial class FileSelectMenuState
         // is doubled before following bank $82. AddOnScreenSpritemap then applies the same
         // `$F1FF | $0E00` attribute replacement as the native r3 argument.
         int pointerAddress = MenuPpuState.SpritemapPointerTableAddress + spritemapId * 2;
-        ushort pointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
+        ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
         oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, MenuPpuState.ObjectPaletteBits);
     }
 

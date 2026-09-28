@@ -47,7 +47,7 @@ public sealed class MapPaletteAnimation(ISnesAddressSpace bus)
         timer = delay;
         for (int color = 0; color < 16; color++)
             cgram.SetColor(MapAnimationRomData.PaletteDestination + color,
-                RomDataReader.ReadWordFixedBank(bus, MapAnimationRomData.PaletteColors + frame * 32 + color * 2));
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.PaletteColors + frame * 32 + color * 2));
         return looped;
     }
 }

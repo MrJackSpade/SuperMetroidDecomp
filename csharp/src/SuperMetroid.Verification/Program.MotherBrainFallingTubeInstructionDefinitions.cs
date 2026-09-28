@@ -19,14 +19,14 @@ internal static partial class Program
             ushort start = unchecked((ushort)(
                 MotherBrainFallingTubeInstructionDefinitions.FirstList +
                 index * MotherBrainFallingTubeInstructionDefinitions.ListStride));
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | start),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), 0xa90000 | start),
                 MotherBrainFallingTubeInstructionDefinitions.ReadMechanicsWord(start),
                 $"Mother Brain falling tube {index} duration");
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | (start + 2)),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), 0xa90000 | (start + 2)),
                 MotherBrainFallingTubeInstructionDefinitions.ReadVisualSelector(
                     unchecked((ushort)(start + 2))),
                 $"Mother Brain falling tube {index} visual identity");
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, 0xa90000 | (start + 4)),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), 0xa90000 | (start + 4)),
                 MotherBrainFallingTubeInstructionDefinitions.ReadMechanicsWord(
                     unchecked((ushort)(start + 4))),
                 $"Mother Brain falling tube {index} terminal opcode");

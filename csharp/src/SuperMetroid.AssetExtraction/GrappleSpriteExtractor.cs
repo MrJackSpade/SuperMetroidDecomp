@@ -11,7 +11,7 @@ public static class GrappleSpriteExtractor
     {
         GrappleSpriteStyle Read(int address)
         {
-            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, address));
+            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address));
             return new()
             {
                 TileColumn = attributes.TileNumber % ProjectileSpriteDefinitions.TileColumns,

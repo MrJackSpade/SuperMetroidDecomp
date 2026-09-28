@@ -15,11 +15,11 @@ internal static partial class Program
         var guard = new SaveMarkerReadGuard(bus);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.SavePointMapPointers + area * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SavePointMapPointers + area * 2);
             int nativeMask = 0;
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
-                ushort x = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (pointer + index * 4));
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (pointer + index * 4));
                 if (x == ushort.MaxValue) break;
                 if (x != ushort.MaxValue - 1) nativeMask |= 1 << index;
             }
@@ -127,7 +127,7 @@ internal static partial class Program
             for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
             {
                 int entry = FileSelectMapRomData.SavePointMapPointers + area * 2;
-                int list = RomDataReader.ReadWordFixedBank(source, entry);
+                int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
                 blocked.Add(entry); blocked.Add(entry + 1);
                 for (int offset = 0; offset < MapSaveMarkerDefinitions.SlotsPerArea * 4; offset++)
                     blocked.Add(FileSelectMapRomData.MenuObjectBank | (list + offset));

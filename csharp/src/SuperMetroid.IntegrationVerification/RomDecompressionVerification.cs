@@ -26,6 +26,12 @@ internal static class RomDecompressionVerification
             throw new InvalidDataException("Fixed-bank import did not use the typed cartridge source.");
         RejectRange(() => RomDataReader.ReadFixedBank(
             new StreamBus([0x12, 0x34, 0x56, 0x78, 0x9a]), StreamBus.Start, 5));
+        var wordBus = new StreamBus([0x12, 0x34]);
+        if (RomDataReader.ReadWordFixedBank(wordBus, StreamBus.Start) != 0x3412 ||
+            wordBus.Reads != 2)
+            throw new InvalidDataException("16-bit word import did not use the typed cartridge source.");
+        RejectRange(() => RomDataReader.ReadWordFixedBank(new StreamBus([0x12, 0x34]),
+            StreamBus.Start + 3));
         var longPointerBus = new StreamBus([0x12, 0x34, 0x56]);
         if (RomDataReader.ReadLongFixedBank(longPointerBus, StreamBus.Start) != 0x563412 ||
             longPointerBus.Reads != 3)

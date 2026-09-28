@@ -13,11 +13,11 @@ public static class BeamPaletteExtractor
         var palettes = new Dictionary<string, PaletteRgb5[]>();
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Beams.PalettePointers + selection * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Beams.PalettePointers + selection * 2);
             var colors = new PaletteRgb5[BeamPaletteDefinitions.ColorCount];
             for (int i = 0; i < colors.Length; i++)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Banks.Movement | (pointer + i * 2));
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (pointer + i * 2));
                 colors[i] = new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
             }
             palettes.Add(BeamPaletteDefinitions.Key(selection), colors);

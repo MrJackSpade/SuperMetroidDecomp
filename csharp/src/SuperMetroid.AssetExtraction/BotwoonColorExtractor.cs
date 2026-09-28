@@ -20,7 +20,7 @@ public static class BotwoonColorExtractor
                 int address = BotwoonHealthPaletteDefinitions.NativePaletteAddress +
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) *
                     sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(bus, address);
+                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if ((native & 0x8000) != 0)
                     throw new InvalidDataException(
                         $"Botwoon color ${address:X6} has an unrepresentable high bit.");

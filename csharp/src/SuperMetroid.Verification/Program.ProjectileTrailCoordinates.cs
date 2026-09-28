@@ -15,7 +15,7 @@ internal static partial class Program
             int next = (address & 0xff0000) | ((address + 1) & 0xffff);
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
                 ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
-                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
             else
             {
                 int rejectedAddress = address;
@@ -77,8 +77,8 @@ internal static partial class Program
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
         {
             int family = (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
-            ushort directions = RomDataReader.ReadWordFixedBank(bus, family + (type & 15) * 2);
-            ushort offsets = RomDataReader.ReadWordFixedBank(bus, 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
+            ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), family + (type & 15) * 2);
+            ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
             ushort y = unchecked((ushort)(offsets + frame * 4));
             byte Read(ushort operand, ushort index) => (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, operand, index) >> 8);
             ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));

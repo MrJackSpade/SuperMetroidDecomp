@@ -19,7 +19,7 @@ internal static partial class Program
             int address = MagdollitePaletteRomData.Source +
                 (frame * MagdollitePaletteRomData.SourceColorsPerFrame +
                  MagdollitePaletteRomData.FirstAnimatedColor + color) * sizeof(ushort);
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom, address),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
                 native.Resolve(frame, color),
                 $"Magdollite palette frame {frame} color {color} preserves native RGB5");
         }

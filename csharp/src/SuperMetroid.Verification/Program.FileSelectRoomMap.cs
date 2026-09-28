@@ -51,16 +51,16 @@ internal static partial class Program
                 AssertEqual(explored, system.IsMapTileExplored(area, x, y), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomLabelPointers + areaIndex * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomLabelPointers + areaIndex * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800
-                    ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomFrame + word * 2)
+                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrame + word * 2)
                     : word < 960
-                        ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomFrameFooter + (word - 799) * 2)
+                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + (word - 799) * 2)
                         : (ushort)0x2801;
                 if (word >= 170 && word < 182)
-                    expected = (ushort)(RomDataReader.ReadWordFixedBank(bus, 0x820000 | (label + (word - 170) * 2)) & 0xefff);
+                    expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
             Rgba32[] pixels = graphics.RenderBackgrounds(0, unchecked((ushort)-40));

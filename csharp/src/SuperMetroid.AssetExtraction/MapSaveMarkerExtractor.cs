@@ -15,16 +15,16 @@ public static class MapSaveMarkerExtractor
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
-            int pointer = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.SavePointMapPointers + area * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SavePointMapPointers + area * 2);
             for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
             {
                 int address = FileSelectMapRomData.MenuObjectBank | (pointer + index * 4);
-                ushort x = RomDataReader.ReadWordFixedBank(bus, address);
+                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 bool usable = MapSaveMarkerDefinitions.Indices(typedArea).Contains(index);
                 if (usable)
                 {
                     if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing save marker {typedArea}/{index}.");
-                    points.Add(MapSaveMarkerDefinitions.Id(typedArea, index), new(x, RomDataReader.ReadWordFixedBank(bus, address + 2)));
+                    points.Add(MapSaveMarkerDefinitions.Id(typedArea, index), new(x, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
                 }
                 else if (x != ushort.MaxValue - 1) throw new InvalidDataException($"Expected unused save marker {typedArea}/{index}.");
             }

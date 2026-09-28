@@ -109,7 +109,7 @@ public sealed class FileSelectMapAnimations
 
     private byte AnimationByte(Arrow arrow, int offset) => bus.ReadByte(
         FileSelectMapRomData.MenuObjectBank | unchecked((ushort)(arrow.Program + arrow.Frame * 3 + offset)));
-    private ushort Read(int address) => RomDataReader.ReadWordFixedBank(bus, address);
+    private ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private sealed class Arrow(ushort x, ushort y, ushort program, ushort spriteBase)
     {

@@ -12,9 +12,9 @@ internal static partial class Program
         byte[] json = GrappleSpriteExtractor.Extract(bus);
         byte[] png = GrappleTileExtractor.Extract(bus);
         var catalog = GrappleSpriteCatalog.Load(new MemoryStream(json));
-        AssertEqual(RomDataReader.ReadWordFixedBank(bus, GrappleSpriteDefinitions.EndpointAttributeAddress), catalog.Endpoint, "Extracted endpoint attributes match native immediate");
+        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.EndpointAttributeAddress), catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, GrappleSpriteDefinitions.SegmentAttributeAddresses[i]), catalog.Segment(i), "Extracted segment attributes match timed native record");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.SegmentAttributeAddresses[i]), catalog.Segment(i), "Extracted segment attributes match timed native record");
         var document = JsonNode.Parse(json)!;
         Change(document["endpoint"]!);
         foreach (var segment in document["segments"]!.AsArray()) Change(segment!);

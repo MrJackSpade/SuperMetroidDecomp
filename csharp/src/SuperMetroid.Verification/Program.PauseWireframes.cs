@@ -20,7 +20,7 @@ internal static partial class Program
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
             byte[] expected = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
-            ushort pointer = RomDataReader.ReadWordFixedBank(bus, 0x82b25f + (int)kind * 2);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b25f + (int)kind * 2);
             for (int row = 0; row < 17; row++)
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16).CopyTo(expected, 472 + row * 64);
             byte[] actual = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
@@ -133,7 +133,7 @@ internal static partial class Program
             this.source = source;
             for (int kind = 0; kind < 4; kind++)
             {
-                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82b25f + kind * 2);
+                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82b25f + kind * 2);
                 for (int i = 0; i < 272; i++) blocked.Add(pointer + i);
             }
             for (int i = 0; i < 8; i++) blocked.Add(0x82b25f + i);

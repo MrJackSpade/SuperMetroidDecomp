@@ -21,13 +21,13 @@ internal static class MapStaticPalettesExtractor
             for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
             {
                 int offsets = area == selected ? FileSelectMapRomData.ActivePaletteOffsets : FileSelectMapRomData.InactivePaletteOffsets;
-                int cursor = FileSelectMapRomData.PalettePrograms + RomDataReader.ReadWordFixedBank(bus, offsets + area * sizeof(ushort));
+                int cursor = FileSelectMapRomData.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + area * sizeof(ushort));
                 bool terminated = false;
                 for (int record = 0; record < MapStaticPalettesRomData.MaximumCopyRecords; record++, cursor += MapStaticPalettesRomData.CopyRecordBytes)
                 {
-                    ushort source = RomDataReader.ReadWordFixedBank(bus, cursor);
+                    ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
                     if (source == ushort.MaxValue) { terminated = true; break; }
-                    ushort destination = RomDataReader.ReadWordFixedBank(bus, cursor + sizeof(ushort));
+                    ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
                     if ((destination & 1) != 0 || destination / 2 + MapStaticPalettesRomData.CopyColorCount > SnesCgram.ColorCount)
                         throw new InvalidDataException("World-map palette copy exceeds the color range.");
                     colors.LoadFromBus(bus, FileSelectMapRomData.PaletteColors + source, MapStaticPalettesRomData.CopyColorCount, destination / 2);

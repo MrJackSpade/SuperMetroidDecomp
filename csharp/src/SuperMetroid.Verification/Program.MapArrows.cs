@@ -111,12 +111,12 @@ internal static partial class Program
             {
                 int record = FileSelectMapRomData.ScrollArrows + index * 10;
                 Add(record, 10);
-                int animation = RomDataReader.ReadWordFixedBank(source, record + 4);
+                int animation = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), record + 4);
                 int pointer = MapAnimationRomData.SpritePrograms + (animation - 1) * 2;
                 int bases = MapAnimationRomData.SpriteBases + (animation - 1) * 2;
                 Add(pointer, 2); Add(bases, 2);
-                Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(source, bases), 2);
-                int program = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(source, pointer);
+                Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), bases), 2);
+                int program = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer);
                 while (source.ReadByte(program) != byte.MaxValue) { Add(program, 3); program += 3; }
                 Add(program, 1);
             }

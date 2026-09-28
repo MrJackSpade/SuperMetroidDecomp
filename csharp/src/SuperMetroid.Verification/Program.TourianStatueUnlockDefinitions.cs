@@ -90,7 +90,7 @@ internal static partial class Program
                         $"$87:{pointer:X4} presentation-owned");
                     int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
                         definition, pointer);
-                    AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                    AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                             RoomFxRomData.Banks.AnimatedTiles | pointer),
                         (ushort)source,
                         $"statue $87:{definition.ObjectPointer:X4} compiled frame selection $87:{pointer:X4}");
@@ -164,7 +164,7 @@ internal static partial class Program
             $"statue $87:{definition.ObjectPointer:X4} catalogs $87:{pointer:X4}");
         AssertEqual(
             RomDataReader.ReadWordFixedBank(
-                rom, RoomFxRomData.Banks.AnimatedTiles | pointer),
+                CartridgeImportSource.Require(rom), RoomFxRomData.Banks.AnimatedTiles | pointer),
             compiled,
             $"statue $87:{definition.ObjectPointer:X4} cartridge $87:{pointer:X4}");
     }

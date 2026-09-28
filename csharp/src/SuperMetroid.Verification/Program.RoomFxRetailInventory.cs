@@ -456,15 +456,15 @@ internal static partial class Program
         string name)
     {
         int header = RoomFxRomData.Banks.AnimatedTiles | objectPointer;
-        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(bus, header),
+        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header),
             $"retail {name} animated-tile instruction list");
-        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(bus, header + 2),
+        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 2),
             $"retail {name} animated-tile frame size");
-        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(bus, header + 4),
+        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 4),
             $"retail {name} animated-tile VRAM destination");
         AssertEqual(expectedFirstSource,
             RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 RoomFxRomData.Banks.AnimatedTiles | expectedInstruction + 2),
             $"retail {name} animated-tile first source frame");
     }
@@ -659,13 +659,13 @@ internal static partial class Program
         int table = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
             RoomFxRomData.Earthquake.RisingLiquidType *
             RoomFxRomData.Earthquake.BytesPerType;
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
             firstActiveShake.Bg1X, "room $02/$28 first shake BG1 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 2)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
             firstActiveShake.Bg1Y, "room $02/$28 first shake BG1 Y");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 4)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
             firstActiveShake.Bg2X, "room $02/$28 first shake BG2 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 6)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
             firstActiveShake.Bg2Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);

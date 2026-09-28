@@ -21,8 +21,8 @@ internal static partial class Program
             var offset = stock.Resolve(running, direction);
             int x = running ? SamusGrappleRomData.Firing.RunningFlareX : SamusGrappleRomData.Firing.DefaultFlareX;
             int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(rom, x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
-            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(rom, y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
+            AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
             var editedOffset = document["offsets"]![ChargeFlarePlacementDefinitions.Key(running, direction)]!;
             editedOffset["x"] = unchecked((short)(offset.X + 7));
             editedOffset["y"] = unchecked((short)(offset.Y - 9));

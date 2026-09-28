@@ -23,7 +23,7 @@ internal static partial class Program
             DraygonColorRomData.WhiteFlashCount, native.ResolveWhiteFlash, "white flash");
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DraygonColorRomData.HealthBandsSource +
                     (band * DraygonColorRomData.HealthBandColorCount + color) * sizeof(ushort)),
                 native.ResolveHealthBand(band, color),
@@ -150,7 +150,7 @@ internal static partial class Program
         void VerifyBand(int source, int count, Func<int, ushort> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Draygon {name} color {color} preserves native RGB5");
         }

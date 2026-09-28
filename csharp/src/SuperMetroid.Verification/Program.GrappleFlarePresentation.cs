@@ -12,7 +12,7 @@ internal static partial class Program
     {
         var guard = new GrappleFlarePresentationGuard(new ChargeFlareCompositionGuard(bus));
         foreach (int address in new[] { SamusGrappleRomData.Firing.RightFlareSpritemapOffsets, SamusGrappleRomData.Firing.LeftFlareSpritemapOffsets })
-            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;
         foreach (GrapplePhase phase in Enum.GetValues<GrapplePhase>())
         foreach (byte pose in new byte[] { 1, 2, 9, 10 })

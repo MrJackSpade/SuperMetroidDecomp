@@ -91,7 +91,7 @@ public static class GameOverPresentationExtractor
             int sourceAddress = GameOverRomData.TextBank | stream.SourcePointer;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
                 sourceAddress = GameOverRomData.TextBank | ((sourceAddress + 2) & 0xffff);
                 if (word == GameOverRomData.TextEnd)
                     return;
@@ -112,7 +112,7 @@ public static class GameOverPresentationExtractor
         }
 
         ushort ReadBank82Word(ushort pointer) =>
-            RomDataReader.ReadWordFixedBank(bus, GameOverRomData.SpriteBank | pointer);
+            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
     }
 
     private static void VerifyCompiledAnimation(ISnesAddressSpace bus)
@@ -123,16 +123,16 @@ public static class GameOverPresentationExtractor
         {
             GameOverBabyInstruction instruction = instructions[index];
             int address = GameOverRomData.SpriteBank | instruction.Pointer;
-            ushort duration = RomDataReader.ReadWordFixedBank(bus, address);
-            ushort sprite = RomDataReader.ReadWordFixedBank(bus, address + 2);
-            ushort palette = RomDataReader.ReadWordFixedBank(bus, address + 4);
+            ushort duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            ushort sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
+            ushort palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
             if (duration != instruction.Duration ||
                 sprite != GameOverBabyAnimationDefinitions.NativeSpritemap(instruction.Frame) ||
                 palette != GameOverBabyAnimationDefinitions.NativePalettePointer(instruction.Palette))
                 throw new InvalidDataException(
                     $"Compiled game-over Baby instruction $82:{instruction.Pointer:X4} does not match the cartridge.");
 
-            ushort nextWord = RomDataReader.ReadWordFixedBank(bus, address + 6);
+            ushort nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
             if (instruction.RestartAfter)
             {
                 if (nextWord != GameOverRomData.BabyAnimation.End)
@@ -142,7 +142,7 @@ public static class GameOverPresentationExtractor
             else if (instruction.SoundAfter != GameOverBabySound.None)
             {
                 if (nextWord != GameOverBabyAnimationDefinitions.NativeSoundOpcode(instruction.SoundAfter) ||
-                    RomDataReader.ReadWordFixedBank(bus, address + 8) !=
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 8) !=
                     GameOverBabyAnimationDefinitions.Get(instruction.NextPointer).Duration)
                     throw new InvalidDataException(
                         $"Game-over Baby sound handoff at $82:{instruction.Pointer:X4} does not match the cartridge.");

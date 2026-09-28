@@ -32,7 +32,7 @@ public static class CrocomireColorExtractor
             for (int index = 0; index < count; index++)
             {
                 int address = source + index * sizeof(ushort);
-                ushort native = RomDataReader.ReadWordFixedBank(bus, address);
+                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if ((native & 0x8000) != 0)
                     throw new InvalidDataException(
                         $"Crocomire color ${address:X6} has an unrepresentable high bit.");

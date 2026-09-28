@@ -752,7 +752,7 @@ public sealed class RoomLayer3FxState
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(bus, address);
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase

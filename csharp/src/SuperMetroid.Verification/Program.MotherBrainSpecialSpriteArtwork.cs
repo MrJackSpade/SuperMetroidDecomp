@@ -87,22 +87,22 @@ internal static partial class Program
             int record = MotherBrainTileTransferDefinitions.BabyTileList +
                 page * MotherBrainTileTransferDefinitions.RecordSize;
             AssertEqual(MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-                RomDataReader.ReadWordFixedBank(rom, record),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Baby tile record {page} size");
-            uint source = (uint)(RomDataReader.ReadWordFixedBank(rom, record + 2) |
+            uint source = (uint)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2) |
                 rom.ReadByte(record + 4) << 16);
             AssertEqual((uint)(baby.SourceAddress +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
             AssertEqual((ushort)(baby.FirstDestinationWord +
                 page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride),
-                RomDataReader.ReadWordFixedBank(rom, record + 5),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5),
                 $"Baby tile record {page} destination");
             AssertEqual(new MotherBrainSpriteTileTransferRequest(
                     (ushort)page,
-                    RomDataReader.ReadWordFixedBank(rom, record),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                     source,
-                    RomDataReader.ReadWordFixedBank(rom, record + 5)),
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5)),
                 MotherBrainTileTransferDefinitions.BabyTileTransfer(page),
                 $"compiled Baby tile transfer {page} matches the source record");
         }
@@ -135,14 +135,14 @@ internal static partial class Program
                 page * MotherBrainLegTileTransferDefinitions.RecordByteCount;
             MotherBrainSpriteTileTransferRequest compiled =
                 MotherBrainLegTileTransferDefinitions.Get(page);
-            AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(rom, record),
+            AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Mother Brain leg transfer {page} size");
-            uint nativeSource = (uint)(RomDataReader.ReadWordFixedBank(rom, record + 2) |
+            uint nativeSource = (uint)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2) |
                 rom.ReadByte(record + 4) << 16);
             AssertEqual(compiled.SourceAddress, nativeSource,
                 $"Mother Brain leg transfer {page} source");
             AssertEqual(compiled.VramDestination,
-                RomDataReader.ReadWordFixedBank(rom, record + 5),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5),
                 $"Mother Brain leg transfer {page} destination");
 
             bool completed = (bool)process.Invoke(enemies, [state])!;
@@ -162,7 +162,7 @@ internal static partial class Program
         int terminator = MotherBrainLegTileTransferDefinitions.NativeListAddress +
             MotherBrainLegTileTransferDefinitions.PageCount *
             MotherBrainLegTileTransferDefinitions.RecordByteCount;
-        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(rom, terminator),
+        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
             "Mother Brain leg transfer page eleven is followed by native zero terminator");
 
         state.SpriteTileTransferEntryPointer = unchecked((ushort)(

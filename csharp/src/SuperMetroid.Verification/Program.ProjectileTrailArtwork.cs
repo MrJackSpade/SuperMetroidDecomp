@@ -19,7 +19,7 @@ internal static partial class Program
             ushort cursor = start;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Banks.Movement | cursor);
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | cursor);
                 if (word == 0) break;
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
@@ -52,7 +52,7 @@ internal static partial class Program
         {
             if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
@@ -69,7 +69,7 @@ internal static partial class Program
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         foreach (int preceding in new[] { 0, 127, 128 })
         {
-            ushort attributes = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Banks.Movement | (frame + 2));
+            ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
             var system = new SamusProjectileSystem();
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 3;

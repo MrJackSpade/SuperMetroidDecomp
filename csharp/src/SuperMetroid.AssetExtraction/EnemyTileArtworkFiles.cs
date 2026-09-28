@@ -34,7 +34,7 @@ public static class EnemyTileArtworkFiles
             int cursor = RoomEnemyRomLayout.TilesetBank | graphicsSetPointer;
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
             {
-                ushort definitionPointer = RomDataReader.ReadWordFixedBank(bus, cursor);
+                ushort definitionPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
                 if (definitionPointer == 0xffff) break;
                 if (slot == 4)
                     throw new InvalidDataException($"Enemy graphics set ${graphicsSetPointer:X4} exceeds four entries.");

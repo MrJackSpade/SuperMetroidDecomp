@@ -21,12 +21,12 @@ internal static partial class Program
             VerifyFrame(DachoraPalettePhase.Shine, frame);
             AssertEqual(unchecked((ushort)DachoraColorRomData.Source(
                     DachoraPalettePhase.Speed, frame)),
-                RomDataReader.ReadWordFixedBank(rom,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DachoraColorRomData.SpeedPointerTable + frame * sizeof(ushort)),
                 $"native Dachora speed selector {frame}");
             AssertEqual(unchecked((ushort)DachoraColorRomData.Source(
                     DachoraPalettePhase.Shine, frame)),
-                RomDataReader.ReadWordFixedBank(rom,
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DachoraColorRomData.ShinePointerTable + frame * sizeof(ushort)),
                 $"native Dachora shine selector {frame}");
         }
@@ -125,7 +125,7 @@ internal static partial class Program
         {
             int source = DachoraColorRomData.Source(phase, frame);
             for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),
                     $"installed Dachora {phase} frame {frame} color {color}");

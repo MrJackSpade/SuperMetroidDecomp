@@ -118,7 +118,7 @@ internal static partial class Program
             foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
             {
                 int address = 0x930000 | pointer;
-                int size = 2 + 5 * RomDataReader.ReadWordFixedBank(source, address);
+                int size = 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
                 for (int i = 0; i < size; i++) forbidden.Add(address + i);
             }
         }

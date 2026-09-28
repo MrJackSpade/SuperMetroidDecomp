@@ -46,7 +46,7 @@ internal static partial class Program
                 int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
                     definition, frame.InstructionPointer);
                 AssertEqual((ushort)sourceAddress,
-                    RomDataReader.ReadWordFixedBank(bus,
+                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.AnimatedTiles | frame.SourceOperandPointer),
                     $"object $87:{definition.ObjectPointer:X4} compiled artwork-source identity");
                 mechanicsWordCount++;
@@ -105,7 +105,7 @@ internal static partial class Program
             $"object $87:{definition.ObjectPointer:X4} compiled {label}");
         AssertEqual(expected,
             RomDataReader.ReadWordFixedBank(
-                bus,
+                CartridgeImportSource.Require(bus),
                 RoomFxRomData.Banks.AnimatedTiles | pointer),
             $"object $87:{definition.ObjectPointer:X4} cartridge {label}");
     }

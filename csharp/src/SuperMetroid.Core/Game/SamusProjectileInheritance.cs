@@ -56,8 +56,13 @@ internal static class SamusProjectileInheritance
         WriteWord(bus, address + 2, unchecked((ushort)signedDisplacement));
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Projectile inheritance requires live WRAM.");
+        return (ushort)(memory.ReadWorkRamByte(address) |
+            memory.ReadWorkRamByte(address + 1) << 8);
+    }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {

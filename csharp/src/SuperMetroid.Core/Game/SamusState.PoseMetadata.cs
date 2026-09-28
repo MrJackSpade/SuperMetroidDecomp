@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -142,7 +143,7 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         return TileTransfers.Artwork?.GraphicsYOffset(Pose) ??
-            unchecked((sbyte)bus.ReadByte(AddWithinBank(
+            unchecked((sbyte)CartridgeImportSource.Require(bus).ReadCartridgeByte(AddWithinBank(
             SamusMovementRomData.Poses.Definitions,
             Pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)));
     }

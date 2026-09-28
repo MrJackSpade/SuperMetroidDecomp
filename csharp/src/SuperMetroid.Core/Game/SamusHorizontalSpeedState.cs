@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -1054,7 +1055,23 @@ public sealed class SamusHorizontalSpeedState
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(ReadMappedByte(bus, address) |
+            (ReadMappedByte(bus, address + 1) << 8)));
+
+    private static byte ReadMappedByte(ISnesAddressSpace bus, int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return SnesDmaSourceMap.Classify(source) switch
+        {
+            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Samus speed table requires live WRAM.")).ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Samus speed table requires live SRAM.")).ReadSaveRamByte(address),
+            SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+            _ => throw new InvalidOperationException(
+                $"CPU read ${source.Bank:X2}:{source.Offset:X4} is outside the runtime address map."),
+        };
+    }
 }
 
 /// <summary>One native 12-byte <c>SamusSpeedTableEntry</c> from cartridge bank $90.</summary>

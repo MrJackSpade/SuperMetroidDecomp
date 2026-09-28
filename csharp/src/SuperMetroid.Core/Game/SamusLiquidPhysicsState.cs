@@ -779,9 +779,6 @@ public sealed partial class SamusLiquidPhysicsState
         _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
-
     /// <summary>
     /// Native movement routines distinguish water from lava by the sign of `$195E`, then
     /// perform signed 16-bit subtraction against the selected surface. Retain that exact

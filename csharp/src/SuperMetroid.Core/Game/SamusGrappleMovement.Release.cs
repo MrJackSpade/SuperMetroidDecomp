@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -38,7 +39,8 @@ public static partial class SamusGrappleMovement
         // Keep the authored physical mapping compiled so a visual-frame override cannot
         // move the collision body. Stock art still selects the same native frame.
         byte artFrame = grapple.SwingFrames?.Resolve(grapple.MirroredAngle.TableIndex)
-            ?? bus.ReadByte(SamusGrappleRomData.Rendering.SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
+            ?? CartridgeImportSource.Require(bus).ReadCartridgeByte(
+                SamusGrappleRomData.Rendering.SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
         var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.TableIndex,
             SamusState.IsFacingLeft(bus, samus.Pose));
 
@@ -146,5 +148,5 @@ public static partial class SamusGrappleMovement
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

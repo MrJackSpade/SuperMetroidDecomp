@@ -276,6 +276,11 @@ static void VerifySamusRenderingSlice()
     // authored pose record, so production correctly cannot reach that dispatcher slot.
     samus.InvincibilityTimer = 0;
     samus.KnockbackTimer = 0;
+    // Every diagnostic pose below must have a valid upper-LoROM tile-animation record.
+    // A zero pointer would address $92:0000, which the actual cartridge does not map.
+    // Keep tile selection constant so this matrix tests body-half routing only.
+    for (int frame = 0; frame < 4; frame++)
+        bus.WriteBytes(0x92e100 + frame * 4, [7, 12, 0xff, 0]);
     foreach ((byte pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
     {
         ((byte)0xd7, (byte)0x0a, (ushort)0, 1, "$D7 frame zero top-only"),
@@ -299,6 +304,9 @@ static void VerifySamusRenderingSlice()
     })
     {
         WritePoseDefinition(bus, pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
+        WriteTestWord(bus,
+            SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + pose * 2,
+            0xe100);
         AssertEqual(movementType, (byte)SamusState.ReadMovementType(bus, pose), "Rendering fixture uses native movement identity");
         WriteTestWord(bus, 0x929263 + pose * 2, 0);
         WriteTestWord(bus, 0x92945d + pose * 2, 0);
@@ -343,6 +351,9 @@ static void VerifySamusRenderingSlice()
         "morph transition frame one reads signed minus-two table byte");
 
     WritePoseDefinition(bus, 0x39, [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
+    WriteTestWord(bus,
+        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + 0x39 * 2,
+        0xe100);
     WriteTestWord(bus, 0x929263 + 0x39 * 2, 0);
     WriteTestWord(bus, 0x92945d + 0x39 * 2, 0);
     samus.Pose = 0x39;
@@ -357,6 +368,9 @@ static void VerifySamusRenderingSlice()
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
     samus.Pose = SamusPoseIds.ForwardFacingPowerSuitPose;
+    WriteTestWord(bus,
+        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + samus.Pose * 2,
+        0xe100);
     samus.AnimationFrame = 2;
     samus.YPosition = 0x0086;
     oam.BeginFrame();
@@ -377,6 +391,9 @@ static void VerifySamusRenderingSlice()
         0,
     ]);
     WritePoseDefinition(bus, 0xa4, [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
+    WriteTestWord(bus,
+        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + 0xa4 * 2,
+        0xe100);
     WriteTestWord(bus, 0x929263 + 0xa4 * 2, 0);
     WriteTestWord(bus, 0x92945d + 0xa4 * 2, 0);
     samus.Pose = 0xa4;

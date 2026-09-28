@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -578,7 +579,7 @@ public sealed partial class SamusState
                     (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame,
                     out sbyte installedPosture)
                 ? installedPosture
-                : unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
+                : unchecked((sbyte)CartridgeImportSource.Require(bus).ReadCartridgeByte(transitionOffsetAddress));
             SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
         }
         else if (Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
@@ -590,7 +591,7 @@ public sealed partial class SamusState
             sbyte drainedOffset = TileTransfers.Artwork is { } drainedArt &&
                 drainedArt.TryDrainedYOffset(AnimationFrame, out sbyte installedDrained)
                 ? installedDrained
-                : unchecked((sbyte)bus.ReadByte(AddWithinBank(
+                : unchecked((sbyte)CartridgeImportSource.Require(bus).ReadCartridgeByte(AddWithinBank(
                     SamusRenderingRomData.Body.DrainedVerticalOffsets, AnimationFrame)));
             SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
@@ -872,6 +873,6 @@ public sealed partial class SamusState
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
 }

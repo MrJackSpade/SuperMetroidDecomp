@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class MotherBrainRainbowBeamAttackSequence
 {
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
     private void BeginExtendingNeckForAttack()
     {
         // `$A9:B8EB-$B916` resets the neutral phase-two head program and selects the

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -942,7 +943,7 @@ public sealed class SamusShinesparkState
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     /// <summary>
     /// Mutable storage corresponding to one of native fixed projectile slots three/four.

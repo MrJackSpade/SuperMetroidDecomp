@@ -51,12 +51,42 @@ internal static class RomlessDesktopStartupTest
             if (game.FrameNumber != startFrame + 6)
                 throw new InvalidOperationException(
                     "Windows host did not advance six title frames without its ROM copy.");
+
+            MethodInfo saveState = typeof(PlayableGameControl).GetMethod(
+                "SaveDebuggerState", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException("Windows host has no debugger state save.");
+            MethodInfo loadState = typeof(PlayableGameControl).GetMethod(
+                "LoadDebuggerState", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException("Windows host has no debugger state load.");
+            long savedFrame = game.FrameNumber;
+            saveState.Invoke(host, [0]);
+            if (!File.Exists(Path.Combine(root, "debug-states",
+                    "SuperMetroid-debug-slot-0.smstate")))
+                throw new InvalidOperationException(
+                    "Windows host did not save a debugger state without its ROM copy.");
+            step.Invoke(host, [(ushort?)0]);
+            ((Task)(loadState.Invoke(host, [0]) ?? throw new InvalidOperationException(
+                "Windows host did not start debugger state loading.")))
+                .GetAwaiter().GetResult();
+            memory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
+                .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(host) ?? throw new InvalidOperationException("Restored host has no address space."));
+            game = (SuperMetroidGame)(typeof(PlayableGameControl)
+                .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(host) ?? throw new InvalidOperationException("Restored host has no game."));
+            if (!memory.Rom.IsEmpty || game.FrameNumber != savedFrame)
+                throw new InvalidOperationException(
+                    "Windows debugger state did not restore the zero-ROM frame exactly.");
+            step.Invoke(host, [(ushort?)0]);
+            if (game.FrameNumber != savedFrame + 1)
+                throw new InvalidOperationException(
+                    "Windows host did not resume frames after zero-ROM state loading.");
         }
         finally
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
         Console.WriteLine(
-            "PASS Windows host boots complete extracted content without a ROM copy and advances six title frames.");
+            "PASS Windows host boots extracted content without a ROM copy, saves/loads state, and resumes frames.");
     }
 }

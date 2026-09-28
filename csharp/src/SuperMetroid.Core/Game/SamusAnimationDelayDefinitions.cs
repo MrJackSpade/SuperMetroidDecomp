@@ -223,7 +223,9 @@ internal static class SamusAnimationDelayDefinitions
         // Invalid pose bytes $FD-$FF select $0302 through the native table overread.
         // Bank $91's lower half aliases mutable WRAM and must not be compiled.
         if (address < 0x918000)
-            return bus.ReadByte(address);
+            return (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Mutable animation-delay alias requires WRAM access."))
+                .ReadWorkRamByte(address);
         throw new InvalidDataException(
             $"Samus animation delay byte ${address:X6} is outside the compiled pose streams.");
     }

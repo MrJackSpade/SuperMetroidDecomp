@@ -47,8 +47,13 @@ internal static class FirefleaRoomFx
         bus.WriteByte(PpuFixedColorMirrors.Red, (byte)(shade | 0x20));
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
+            throw new InvalidOperationException("Fireflea FX requires WRAM access.");
+        return (ushort)(memory.ReadWorkRamByte(address) |
+            memory.ReadWorkRamByte(address + 1) << 8);
+    }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {

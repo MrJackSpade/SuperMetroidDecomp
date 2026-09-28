@@ -69,7 +69,9 @@ internal static class SamusRunningCadenceDefinitions
         // delay comes from the mutable low half of bank $91, not immutable cadence data.
         SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
         if (sourceAddress.Bank == 0x91 && !sourceAddress.IsUpperLoRomWindow)
-            return bus.ReadByte(address);
+            return (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Mutable running-cadence alias requires WRAM access."))
+                .ReadWorkRamByte(address);
 
         throw new InvalidDataException(
             $"Samus running-cadence byte {sourceAddress} is not compiled cadence data " +

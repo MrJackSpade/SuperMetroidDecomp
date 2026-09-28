@@ -1280,6 +1280,14 @@ if (args is ["--explored-map-packing-definitions"])
     VerifyExploredMapPackingDefinitions();
     return 0;
 }
+if (args is ["--mutable-animation-aliases"])
+{
+    string sourceRom = Path.GetFullPath("Super Metroid.smc");
+    SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+    VerifySamusAnimationDelayDefinitions(bus, sourceRom);
+    VerifyRunningCadence(bus);
+    return 0;
+}
 if (args is ["--enemy-death-explosion-definitions"])
 {
     VerifyEnemyDeathExplosionDefinitions(

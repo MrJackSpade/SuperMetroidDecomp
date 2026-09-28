@@ -157,7 +157,8 @@ internal static partial class Program
         Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");
     }
 
-    private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, ISnesMutableMemory
     {
         public byte MutableDelay = 0x35;
         public byte ReadByte(int address)
@@ -170,6 +171,12 @@ internal static partial class Program
         // signature checks exact fallback routing, not native I/O-register semantics.
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
             address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ (address >> 8))) : source.ReadByte(address);
+        public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay :
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Running-cadence guard requires WRAM.")).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Running-cadence guard requires SRAM.")).ReadSaveRamByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

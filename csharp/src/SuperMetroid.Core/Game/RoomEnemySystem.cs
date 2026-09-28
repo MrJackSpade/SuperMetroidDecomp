@@ -2632,6 +2632,13 @@ public sealed partial class RoomEnemySystem
             if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
                     operandAddress, out ushort installedSelector))
                 return installedSelector;
+            if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
+            {
+                // The later combat lists have not yet been extracted. Stock
+                // cartridge-backed play must use their real selector words until
+                // both the selected art and mechanics have installed owners.
+                return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
+            }
             throw new InvalidDataException(
                 $"Installed enemy ${slot.EnemyDefinitionPointer:X4} has no compiled visual selector " +
                 $"${slot.Definition.Bank:X2}:{operandAddress:X4}.");
@@ -3710,6 +3717,13 @@ public sealed partial class RoomEnemySystem
             GoldenTorizoAwakeningInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort goldenAwakeningWord))
             return goldenAwakeningWord;
+        if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
+        {
+            // The cartridge-backed host must remain playable while the other Torizo
+            // lists are migrated. A zero-ROM installation still fails at this exact
+            // source read, keeping the missing owner visible to ROM-free verification.
+            return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
+        }
 
         if (slot.EnemyDefinitionPointer is
             GunshipEnemyDefinitions.Top or

@@ -28,6 +28,7 @@ internal static partial class Program
             // visual-only overrides are selected; otherwise movement correctly shows
             // the edit and falsely fails stock pixel parity.
             VerifyFrontendRomFreeStartup(installation, sourceRom);
+            VerifyGoldenTorizoCartridgeCombatFallback(sourceRom, installation);
             VerifySamusBodyArtwork(bus, installation);
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,

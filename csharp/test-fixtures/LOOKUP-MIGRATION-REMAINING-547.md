@@ -26,12 +26,16 @@ program at `$AA:D259`: the last awakening instruction is the cartridge's
 `$C3A0,$B09C,$D5E6,$806B,$D5F1,$C618,$0008,$A5A4` (step state,
 normal movement, walking movement, footstep sound, and its first visual
 frame). These values agree with Patrick Johnston's bank-$AA annotated source.
-The runtime currently rejects the unowned `$D259` mechanics word even when a
-native ROM is available, so increasing this fixture's duration/health without
-compiling the combat family would turn the mandatory verifier red. No combat
-parity is claimed. Migrate its walking/turning/attack programs together with
-their editable frame selectors and independent physical hitboxes, then rerun
-the long input-driven replay with exact pixel and gameplay assertions.
+That initially exposed a compatibility regression: the interpreter rejected
+the unowned `$D259` mechanics word even when a native ROM was available, then
+rejected its `$D267` visual selector when installed enemy artwork was bound.
+The cartridge-backed host now reads remaining uncompiled Torizo instruction
+words and selectors from the original ROM. An independent installed-art runtime
+replay survives 850 wake/combat frames and asserts it enters the walking list.
+The zero-ROM installation still cannot cross this boundary; no ROM-free combat
+or pixel parity is claimed. Migrate its walking/turning/attack programs together
+with their editable frame selectors and independent physical hitboxes, then
+rerun the long input-driven replay with exact pixel and gameplay assertions.
 
 ## Cartridge-free frontend proof (2026-09-27)
 

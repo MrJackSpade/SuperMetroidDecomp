@@ -3006,6 +3006,28 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            enemy.Definition.Bank == GoldenTorizoInitialFrameDefinitions.Bank &&
+            enemy.SpritemapPointer == GoldenTorizoInitialFrameDefinitions.Frame)
+        {
+            ushort left = unchecked((ushort)(enemy.XPosition +
+                GoldenTorizoInitialFrameDefinitions.Left));
+            ushort top = unchecked((ushort)(enemy.YPosition +
+                GoldenTorizoInitialFrameDefinitions.Top));
+            ushort right = unchecked((ushort)(enemy.XPosition +
+                GoldenTorizoInitialFrameDefinitions.Right));
+            ushort bottom = unchecked((ushort)(enemy.YPosition +
+                GoldenTorizoInitialFrameDefinitions.Bottom));
+            if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                    targetTop, targetBottom, left, top, right, bottom,
+                    selectShotCallback))
+                return false;
+            callback = selectShotCallback
+                ? GoldenTorizoInitialFrameDefinitions.ShotAi
+                : GoldenTorizoInitialFrameDefinitions.TouchAi;
+            return true;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

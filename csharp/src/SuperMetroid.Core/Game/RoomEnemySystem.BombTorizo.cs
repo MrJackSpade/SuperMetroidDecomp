@@ -82,9 +82,10 @@ public readonly record struct TorizoOrbDropRequest(
     ushort ItemDropChancesPointer);
 
 /// <summary>
-/// Cartridge-faithful translation of enemy definition $EEFF. The dormant entry through
-/// its first sleep is compiled separately; later animation, branch, and attack lists
-/// still use their original bank-$AA instructions. This file translates their callbacks.
+/// Cartridge-faithful translation of enemy definition $EEFF. Bomb Torizo's dormant
+/// entry and Golden Torizo's first entry through sleep are compiled separately;
+/// later animation, branch, and attack lists still use their original bank-$AA
+/// instructions. This file translates their callbacks.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {

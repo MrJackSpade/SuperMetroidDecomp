@@ -44,7 +44,8 @@ public sealed class EnemyTileArtworkCatalog
         RoomCharacterAtlas? motherBrainEscapeText = null,
         MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
         CrocomireSkeletonArtwork? crocomireSkeleton = null,
-        CrocomireBg2FrameCatalog? crocomireBg2Frames = null)
+        CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
+        TorizoInstructionVramArtwork? torizoInstructionVram = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -100,6 +101,7 @@ public sealed class EnemyTileArtworkCatalog
         MotherBrainEscapeText = motherBrainEscapeText;
         MotherBrainSpecialSprites = motherBrainSpecialSprites;
         CrocomireSkeleton = crocomireSkeleton;
+        TorizoInstructionVram = torizoInstructionVram;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -107,6 +109,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Six editable skeleton character uploads; death timing and VRAM positions stay fixed.</summary>
     public CrocomireSkeletonArtwork? CrocomireSkeleton { get; }
+
+    /// <summary>Editable tile pages for Bomb/Golden Torizo instruction-time VRAM uploads.</summary>
+    public TorizoInstructionVramArtwork? TorizoInstructionVram { get; }
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
     public EnemySpritemapCatalog? Spritemaps { get; }
@@ -228,7 +233,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 59;
+    public const int Version = 60;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

@@ -624,12 +624,14 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -647,11 +649,13 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreBombTorizoVersion,
             Frames = document.Frames.Where(entry =>
-                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -675,6 +679,39 @@ internal static partial class Program
                 editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-eleven migration retains an edited Pirate frame");
+
+        var versionTwelve = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion,
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount,
+            versionTwelve.Frames.Count, "version-twelve extended-frame schema count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionTwelve, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionTwelve = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer stockInitialGoldenTorizo = DrawExtendedForBank(stock, guard,
+            0xaa, 0xaa30, 0x0040, 0x0080);
+        OamBuffer inheritedInitialGoldenTorizo = DrawExtendedForBank(
+            upgradedVersionTwelve, guard, 0xaa, 0xaa30, 0x0040, 0x0080);
+        AssertTrue(stockInitialGoldenTorizo.LowTable.SequenceEqual(
+                       inheritedInitialGoldenTorizo.LowTable) &&
+                   stockInitialGoldenTorizo.HighTable.SequenceEqual(
+                       inheritedInitialGoldenTorizo.HighTable),
+            "version-twelve override inherits verified stock initial Golden Torizo art");
+        AssertTrue(DrawExtended(upgradedVersionTwelve, guard,
+                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedOam.LowTable),
+            "version-twelve migration retains an edited Pirate frame");
 
         EnemyExtendedFrameDocument sporeVisualRemap =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -895,7 +932,8 @@ internal static partial class Program
     private static bool IsCrocomireOrNewerExtendedFrameName(string name) =>
         name.StartsWith("crocomire_oam_", StringComparison.Ordinal) ||
         name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) ||
-        name.StartsWith("bomb_torizo_", StringComparison.Ordinal);
+        name.StartsWith("bomb_torizo_", StringComparison.Ordinal) ||
+        name.StartsWith("golden_torizo_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)

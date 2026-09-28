@@ -2842,19 +2842,7 @@ public sealed partial class RoomEnemySystem
                     return;
                 case CommonEnemyInstructionCodes.CopyToVram:
                 {
-                    int descriptor = (slot.Definition.Bank << 16) |
-                        unchecked((ushort)(cursor + 2));
-                    ushort byteCount = ReadWord(_bus!, descriptor);
-                    int sourceAddress = _bus!.ReadByte(descriptor + 2) |
-                        (_bus.ReadByte(descriptor + 3) << 8) |
-                        (_bus.ReadByte(descriptor + 4) << 16);
-                    ushort vramDestination = unchecked((ushort)(
-                        _bus.ReadByte(descriptor + 5) |
-                        (_bus.ReadByte(descriptor + 6) << 8)));
-                    var bytes = new byte[byteCount];
-                    for (int byteIndex = 0; byteIndex < bytes.Length; byteIndex++)
-                        bytes[byteIndex] = _bus.ReadByte(sourceAddress + byteIndex);
-                    _vram!.LoadBytes(vramDestination * 2, bytes);
+                    ApplyEnemyInstructionVramTransfer(slot, cursor);
 
                     // The descriptor is seven bytes rather than words. The next command is
                     // therefore at opcode+2+7, an odd bank address used intentionally by
@@ -3657,6 +3645,47 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
+    /// Applies the bank-$A0 common $814B command. Installed Torizo tile art
+    /// resolves by the compiled descriptor; cartridge-backed diagnostics and
+    /// other enemy families retain the native packed-descriptor reader.
+    /// </summary>
+    private void ApplyEnemyInstructionVramTransfer(RoomEnemySlot slot,
+        ushort instruction)
+    {
+        if (TileArtwork is { } installed &&
+            slot.EnemyDefinitionPointer is
+                BombTorizoDefinition or GoldenTorizoDefinition)
+        {
+            if (!TorizoInstructionVramTransferDefinitions.TryGet(
+                    instruction, out TorizoInstructionVramTransferDefinition transfer))
+                throw new InvalidDataException(
+                    $"Torizo tile transfer $AA:{instruction:X4} has no compiled descriptor.");
+            if (installed.TorizoInstructionVram is null ||
+                !installed.TorizoInstructionVram.TryResolve(
+                    transfer.SourceAddress, transfer.ByteCount,
+                    out ReadOnlyMemory<byte> characters))
+                throw new InvalidDataException(
+                    $"Torizo tile transfer $AA:{instruction:X4} has no installed art.");
+            _vram!.LoadBytes(transfer.DestinationWord * 2, characters.Span);
+            return;
+        }
+
+        int descriptor = (slot.Definition.Bank << 16) |
+            unchecked((ushort)(instruction + 2));
+        ushort byteCount = ReadWord(_bus!, descriptor);
+        int sourceAddress = _bus!.ReadByte(descriptor + 2) |
+            (_bus.ReadByte(descriptor + 3) << 8) |
+            (_bus.ReadByte(descriptor + 4) << 16);
+        ushort vramDestination = unchecked((ushort)(
+            _bus.ReadByte(descriptor + 5) |
+            (_bus.ReadByte(descriptor + 6) << 8)));
+        var bytes = new byte[byteCount];
+        for (int byteIndex = 0; byteIndex < bytes.Length; byteIndex++)
+            bytes[byteIndex] = _bus.ReadByte(sourceAddress + byteIndex);
+        _vram!.LoadBytes(vramDestination * 2, bytes);
+    }
+
+    /// <summary>
     /// Resolves simulation-owned enemy instruction words from compiled definitions while
     /// leaving frame spritemap operands on their explicit cartridge read path.
     /// </summary>
@@ -3673,6 +3702,10 @@ public sealed partial class RoomEnemySystem
             BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort dormantWord))
             return dormantWord;
+        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort goldenInitialWord))
+            return goldenInitialWord;
 
         if (slot.EnemyDefinitionPointer is
             GunshipEnemyDefinitions.Top or

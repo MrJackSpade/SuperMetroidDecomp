@@ -142,6 +142,15 @@ public static class EnemyTileArtworkFiles
         byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
+        var torizoInstructionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (TorizoInstructionTileSheetDefinition page in
+                 TorizoInstructionVramArtworkDefinitions.All)
+        {
+            byte[] png = ExtractTorizoInstructionPage(bus, page);
+            File.WriteAllBytes(Path.Combine(directory, page.FileName), png);
+            torizoInstructionHashes.Add(page.FileName,
+                Convert.ToHexString(SHA256.HashData(png)));
+        }
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),
             phantoonBg2Json);
@@ -309,6 +318,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(draygonBg2Json)),
             Convert.ToHexString(SHA256.HashData(crocomireBg2Json)),
             gunshipLiftoffHashes,
+            torizoInstructionHashes,
             Convert.ToHexString(SHA256.HashData(corpsePng)),
             Convert.ToHexString(SHA256.HashData(escapeTextPng)),
             motherBrainSpecialHashes,
@@ -372,6 +382,9 @@ public static class EnemyTileArtworkFiles
             manifest.GunshipLiftoffSha256 is null ||
             manifest.GunshipLiftoffSha256.Count !=
                 GunshipLiftoffTransferDefinitions.Frames.Length ||
+            manifest.TorizoInstructionTilesSha256 is null ||
+            manifest.TorizoInstructionTilesSha256.Count !=
+                TorizoInstructionVramArtworkDefinitions.All.Length ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainCorpseSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainEscapeTextSha256) ||
             manifest.MotherBrainSpecialSpritesSha256 is null ||
@@ -406,6 +419,11 @@ public static class EnemyTileArtworkFiles
             .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
         if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(expectedHeadPointers))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
+        if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
+                .SequenceEqual(TorizoInstructionVramArtworkDefinitions.All.ToArray()
+                    .Select(page => page.FileName).Order(StringComparer.Ordinal)))
+            throw new InvalidDataException(
+                "Enemy tile manifest omits or substitutes a Torizo instruction tile page.");
 
         var sheets = new Dictionary<ushort, RoomCharacterAtlas>();
         var palettes = new Dictionary<ushort, EnemyPaletteSheet>();
@@ -638,6 +656,30 @@ public static class EnemyTileArtworkFiles
             }
         }
         var gunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunshipFrames);
+        var torizoPages = new RoomCharacterAtlas[
+            TorizoInstructionVramArtworkDefinitions.All.Length];
+        for (int index = 0; index < torizoPages.Length; index++)
+        {
+            TorizoInstructionTileSheetDefinition page =
+                TorizoInstructionVramArtworkDefinitions.All[index];
+            if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
+                    out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
+                throw new InvalidDataException(
+                    $"Enemy tile manifest omits Torizo page {page.FileName}.");
+            byte[] selected = ReadStockOrOverride(page.FileName, expectedHash);
+            try
+            {
+                torizoPages[index] = RoomCharacterAtlas.Load(
+                    new MemoryStream(selected, writable: false), page.ByteCount);
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException(
+                    $"Invalid Torizo instruction PNG {page.FileName}: {error.Message}",
+                    error);
+            }
+        }
+        var torizoInstructionVram = new TorizoInstructionVramArtwork(torizoPages);
         RoomCharacterAtlas motherBrainCorpse;
         try
         {
@@ -977,7 +1019,7 @@ public static class EnemyTileArtworkFiles
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
             motherBrainEscapeText, motherBrainSpecialSprites, skeleton,
-            crocomireBg2Frames);
+            crocomireBg2Frames, torizoInstructionVram);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1097,6 +1139,25 @@ public static class EnemyTileArtworkFiles
         return png;
     }
 
+    private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
+        TorizoInstructionTileSheetDefinition page)
+    {
+        byte[] native = RomDataReader.ReadFixedBank(bus,
+            page.SourceAddress, page.ByteCount);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
+            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+        using var output = new MemoryStream();
+        IndexedPng.Write(output, width, height, pixels,
+            SnesGraphics.DiagnosticPalette(16));
+        byte[] png = output.ToArray();
+        RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
+            new MemoryStream(png, writable: false), page.ByteCount);
+        if (!roundtrip.Transfer.Span.SequenceEqual(native))
+            throw new InvalidDataException(
+                $"Torizo instruction page {page.FileName} changed native tile bytes.");
+        return png;
+    }
+
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
         KraidColorCatalog.Write(new KraidColorDocument
         {
@@ -1175,6 +1236,7 @@ public static class EnemyTileArtworkFiles
         string DraygonBg2FramesSha256,
         string CrocomireBg2FramesSha256,
         Dictionary<int, string> GunshipLiftoffSha256,
+        Dictionary<string, string> TorizoInstructionTilesSha256,
         string MotherBrainCorpseSha256,
         string MotherBrainEscapeTextSha256,
         Dictionary<int, string> MotherBrainSpecialSpritesSha256,

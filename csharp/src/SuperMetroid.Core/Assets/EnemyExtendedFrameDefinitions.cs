@@ -9,7 +9,7 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
 /// Maridia's Oum snail, Crocomire's tongue and fight-body composite frames,
-/// and Bomb Torizo's dormant statue frame.
+/// Bomb Torizo's dormant statue frame, and Golden Torizo's initial pose.
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
@@ -32,7 +32,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreCrocomireBodyFrameCount = 269;
     internal const int PreBombTorizoVersion = 11;
     internal const int PreBombTorizoFrameCount = 319;
-    internal const int Version = 12;
+    internal const int PreGoldenTorizoVersion = 12;
+    internal const int PreGoldenTorizoFrameCount = 320;
+    internal const int Version = 13;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -47,13 +49,15 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int CrocomireOamFrameCount = 9;
     internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
     internal const int BombTorizoDormantFrameCount = 1;
+    internal const int GoldenTorizoInitialFrameCount = 1;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
         PirateFrameCount + RidleyFrameCount +
         DraygonOamFrameCount + SporeSpawnOamFrameCount +
         CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
-        CrocomireBodyFrameCount + BombTorizoDormantFrameCount;
+        CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
+        GoldenTorizoInitialFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -245,6 +249,10 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException("Bomb Torizo extended-frame prefix changed.");
         frames.Add(new EnemyExtendedFrameDefinition(0xaa, 0x87d0,
             "bomb_torizo_dormant"));
+        if (frames.Count != PreGoldenTorizoFrameCount)
+            throw new InvalidDataException("Golden Torizo extended-frame prefix changed.");
+        frames.Add(new EnemyExtendedFrameDefinition(0xaa, 0xaa30,
+            "golden_torizo_initial"));
         return frames.ToArray();
     }
 }

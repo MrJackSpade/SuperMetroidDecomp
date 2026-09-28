@@ -32,7 +32,11 @@ public sealed partial class RoomEnemySystem
             BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
                 unchecked((ushort)operandAddress), out ushort dormantOperand)
                 ? dormantOperand
-                : ReadWord(_bus!, operandAddress);
+                : torizo.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+                    GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
+                        unchecked((ushort)operandAddress), out ushort goldenOperand)
+                    ? goldenOperand
+                    : ReadWord(_bus!, operandAddress);
 
         switch (opcode)
         {

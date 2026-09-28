@@ -1,5 +1,21 @@
 # Remaining lookup migration inventory (#547)
 
+## Torizo instruction-time VRAM transfers and Golden Torizo entry (2026-09-27)
+
+All 52 authored `$814B` descriptors in bank `$AA`'s Torizo instruction
+region now have compiled byte count, source, and destination records. Seven
+named indexed PNG pages supply their tile bytes; the common interpreter uses
+installed art without reading packed descriptors or source bytes from the
+cartridge. The verifier scans the native region for missed valid descriptors,
+compares every record and transferred byte to the pinned ROM, invokes every
+production upload with a bus that forbids reads, checks an edited Golden
+Torizo PNG changes VRAM, and rejects corrupt art. Golden Torizo's initial
+program through its first sleep, first extended visual frame, and one engine-
+owned collision rectangle are compiled; version-12 overrides inherit its art.
+Isolated room `$8F:B283` matches native pixels for 90 neutral frames with all
+runtime cartridge reads blocked. Later falling, awakening, and combat programs
+and the full ROM-free contract remain open.
+
 ## Bomb Torizo dormant entry and initial extended frame (2026-09-27)
 
 The six mechanics words in the initial bank-`$AA:B879` program through its

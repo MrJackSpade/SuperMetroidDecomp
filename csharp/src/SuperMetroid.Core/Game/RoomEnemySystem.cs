@@ -3702,9 +3702,8 @@ public sealed partial class RoomEnemySystem
         Justification = "The instance interpreter owns this dispatcher and tests replace it by reflection.")]
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        // Initial and wake-up lists have separate bounded owners; later combat
-        // lists still use the cartridge until their full control and visual
-        // catalogs are installed.
+        // Initial, wake-up, and both walking directions have bounded owners;
+        // other combat lists still use the cartridge until migrated.
         if (slot.EnemyDefinitionPointer == BombTorizoDefinition &&
             BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort dormantWord))
@@ -3721,6 +3720,10 @@ public sealed partial class RoomEnemySystem
             GoldenTorizoWalkingInstructionProgramDefinitions.TryReadMechanicsWord(
                 address, out ushort goldenWalkingWord))
             return goldenWalkingWord;
+        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            GoldenTorizoRightwardInstructionProgramDefinitions.TryReadMechanicsWord(
+                address, out ushort goldenRightwardWord))
+            return goldenRightwardWord;
         if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
         {
             // The cartridge-backed host must remain playable while the other Torizo

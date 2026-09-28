@@ -44,9 +44,20 @@ Version-fifteen artwork overrides inherit the new frames; editing a walking
 component changes OAM without changing its engine-owned physical placement.
 The zero-ROM installed-assets replay now crosses the first walking handoff and
 matches native pixels for 390 active gameplay frames with cartridge reads
-forbidden. This is not proof of a full fight: other walking directions, turns,
-attacks and later collision branches still require bounded compilation and
-longer input-driven parity tests. The 850-frame cartridge-backed fallback
+forbidden. The next guarded read appeared at `$AA:D2BF` on frame 421, in the
+cartridge's turning-right list.
+
+The two turning-right and two linked walking-right lists at `$AA:D2AD-D368`
+now compile 82 control words and twelve visual operands. Their eleven distinct
+editable frames remain separate from eleven compiled physical hitbox lists.
+Every control word, selector, physical component, and hitbox field is compared
+with the pinned cartridge; version-sixteen artwork overrides inherit the new
+frames without losing edits. The zero-ROM replay now crosses the rightward
+handoff and matches native pixels for 437 active gameplay frames. Extending
+that fixture further reaches an uncompiled jump-back list at `$AA:C110` on
+frame 437. This is not proof of a full fight: attacks, jump branches, other
+input paths, and later collision behavior still require bounded compilation
+and longer input-driven parity tests. The 850-frame cartridge-backed fallback
 check continues to guard the native-ROM compatibility path.
 
 ## Cartridge-free frontend proof (2026-09-27)

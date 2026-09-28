@@ -78,6 +78,7 @@ internal static partial class Program
             "and one native collision rectangle match the pinned cartridge.");
         VerifyGoldenTorizoAwakeningDefinitions(rom);
         VerifyGoldenTorizoWalkingDefinitions(rom);
+        VerifyGoldenTorizoRightwardDefinitions(rom);
 
         ushort ReadWord(ushort address) =>
             (ushort)(rom.ReadByte((bank << 16) | address) |

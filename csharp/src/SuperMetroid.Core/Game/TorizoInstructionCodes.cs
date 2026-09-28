@@ -227,8 +227,8 @@ internal static class TorizoInstructionLists
     public const ushort CaughtMissileFacingLeft = 0xd1f1;
     /// <summary>Golden Torizo caught-missile reaction facing right at $AA:D2AD.</summary>
     public const ushort CaughtMissileFacingRight = 0xd2ad;
-    /// <summary>Golden Torizo landing list facing right at $AA:D203.</summary>
+    /// <summary>Golden Torizo turning-left list at $AA:D203; this landing-path alias is retained for callers.</summary>
     public const ushort GoldenLandingFacingRight = 0xd203;
-    /// <summary>Golden Torizo landing list facing left at $AA:D2BF.</summary>
+    /// <summary>Golden Torizo turning-right list at $AA:D2BF; this landing-path alias is retained for callers.</summary>
     public const ushort GoldenLandingFacingLeft = 0xd2bf;
 }

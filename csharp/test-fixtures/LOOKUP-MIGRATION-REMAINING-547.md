@@ -1,5 +1,20 @@
 # Remaining lookup migration inventory (#547)
 
+## Kraid arm extended collision (2026-09-28)
+
+The `--rom-free-direct-room 'Super Metroid.smc' A59F 1500 0140`
+controller probe (held right and fire) reproduced an installed-ROM read of
+`$A7:9127` on frame 7. Stationary fire and neutral input did not exercise
+this path: a moving shot reached the arm's extended hitbox walker. The 22
+selected arm frames now retain their physical component offsets and hitbox
+list pointers in an immutable catalog, independent of their editable OAM.
+All 16 referenced hitbox lists (24 ordered rectangles with native touch and
+shot callbacks) are compiled. A verifier compares every field against the
+pinned retail ROM. The exact 1,500-frame moving-shot room probe now matches
+the cartridge-backed renderer with installed ROM reads blocked. This is one
+bounded Kraid collision family and one held-input path, not a full-fight or
+whole-game ROM-free claim.
+
 ## Golden Torizo wake-up handoff (2026-09-28)
 
 An installed-assets room replay places Samus inside the cartridge's lower-right

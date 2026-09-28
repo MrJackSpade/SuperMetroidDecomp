@@ -3117,6 +3117,37 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == KraidArmDefinition &&
+            enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
+            KraidArmCollisionDefinitions.TryGetComponents(
+                enemy.SpritemapPointer, out var kraidComponents))
+        {
+            // Kraid's arm art is editable, but the native extended spritemap
+            // also carries a separate, ordered physical component stream.
+            // Read that stream from the immutable cartridge definition catalog.
+            foreach (KraidArmCollisionComponent component in kraidComponents.Span)
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (KraidArmCollisionHitbox hitbox in
+                         KraidArmCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
         // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;

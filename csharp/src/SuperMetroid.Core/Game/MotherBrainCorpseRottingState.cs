@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -104,7 +105,7 @@ public sealed class MotherBrainCorpseRottingState
                 bus.WriteByte(
                     GraphicsBufferAddress + copy.DestinationOffset + byteIndex,
                     installedTiles.IsEmpty
-                        ? bus.ReadByte(sourceAddress)
+                        ? CartridgeImportSource.Require(bus).ReadCartridgeByte(sourceAddress)
                         : installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
             }
         }
@@ -239,8 +240,13 @@ public sealed class MotherBrainCorpseRottingState
         }
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Mother Brain corpse graphics reads require live WRAM.");
+        return unchecked((ushort)(memory.ReadWorkRamByte(address) |
+            (memory.ReadWorkRamByte(address + 1) << 8)));
+    }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {

@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -650,7 +651,7 @@ internal static partial class Program
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
     private sealed class EnemyProjectileMechanicsReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly HashSet<int> _handBeamPresentationReadBytes = [];
 
@@ -658,6 +659,18 @@ internal static partial class Program
         public int HandBeamPresentationReadBytes => _handBeamPresentationReadBytes.Count;
 
         public byte ReadByte(int address)
+        {
+            RejectCompiledMechanicsRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectCompiledMechanicsRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        private void RejectCompiledMechanicsRead(int address)
         {
             if (EnemyProjectileInstructionMechanicsDefinitions.IsCompiledMechanicsByte(address) ||
                 MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
@@ -669,8 +682,6 @@ internal static partial class Program
 
             if (MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address))
                 _handBeamPresentationReadBytes.Add(address);
-
-            return source.ReadByte(address);
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

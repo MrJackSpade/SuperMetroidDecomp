@@ -138,15 +138,36 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainCorpseArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
-        public byte ReadByte(int address) =>
-            address is >= MotherBrainCorpseArtworkDefinitions.SourceAddress and
+        public byte ReadByte(int address)
+        {
+            RejectCorpseArtRead(address);
+            return source.ReadByte(address);
+        }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectCorpseArtRead(address);
+            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Mother Brain corpse test source requires WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Mother Brain corpse test source requires SRAM.")).ReadSaveRamByte(address);
+
+        private static void RejectCorpseArtRead(int address)
+        {
+            if (address is >= MotherBrainCorpseArtworkDefinitions.SourceAddress and
                 < MotherBrainCorpseArtworkDefinitions.SourceAddress +
-                    MotherBrainCorpseArtworkDefinitions.ByteCount
-                ? throw new InvalidOperationException(
-                    $"Mother Brain corpse attempted a visual ROM read at ${address:X6}.")
-                : source.ReadByte(address);
+                    MotherBrainCorpseArtworkDefinitions.ByteCount)
+                throw new InvalidOperationException(
+                    $"Mother Brain corpse attempted a visual ROM read at ${address:X6}.");
+        }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

@@ -121,8 +121,13 @@ public static class CorpseRottingTableProcessor
         return true;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Corpse-rotting table reads require live WRAM.");
+        return unchecked((ushort)(memory.ReadWorkRamByte(address) |
+            (memory.ReadWorkRamByte(address + 1) << 8)));
+    }
 
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {

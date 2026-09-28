@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -411,8 +413,20 @@ public sealed partial class RoomEnemySystem
                 $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
         }
         var bytes = new byte[transfer.Size];
-        for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = _bus!.ReadByte(unchecked((int)transfer.SourceAddress + index));
+        int sourceBank = unchecked((int)(transfer.SourceAddress >> 16));
+        if (sourceBank is 0x7e or 0x7f)
+        {
+            ISnesMutableMemory memory = _bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Mother Brain's mutable sprite transfer requires WRAM.");
+            for (int index = 0; index < bytes.Length; index++)
+                bytes[index] = memory.ReadWorkRamByte(unchecked((int)transfer.SourceAddress + index));
+        }
+        else
+        {
+            IImportCartridgeSource cartridge = CartridgeImportSource.Require(_bus!);
+            for (int index = 0; index < bytes.Length; index++)
+                bytes[index] = cartridge.ReadCartridgeByte(unchecked((int)transfer.SourceAddress + index));
+        }
         _vram!.LoadBytes(transfer.VramDestination * 2, bytes);
     }
 

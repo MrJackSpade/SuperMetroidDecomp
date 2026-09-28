@@ -7,6 +7,41 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyMotherBrainSpriteTransferSources()
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var source = new TestAddressSpace();
+        source.WriteByte(MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x5a);
+        source.WriteByte(0xa0c000, 0x6b);
+        var enemies = new RoomEnemySystem();
+        var vram = new SnesVram();
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
+            new MotherBrainTypedTransferReadGuard(source));
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
+            "ApplyMotherBrainRainbowTileTransfer", flags)!;
+
+        transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
+            MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
+        transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
+            0xa0c000, 0x7001)]);
+        AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
+            "Mother Brain corpse tile transfer reads mutable WRAM");
+        AssertEqual((byte)0x6b, vram.ReadByte(0x7001 * 2),
+            "Mother Brain cartridge fallback reads the cartridge source");
+    }
+
+    private sealed class MotherBrainTypedTransferReadGuard(TestAddressSpace source) :
+        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    {
+        public byte ReadByte(int address) => throw new InvalidOperationException(
+            $"Mother Brain tile transfer used the untyped CPU reader at ${address:X6}.");
+        public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
+        public byte ReadCartridgeByte(int address) => source.ReadCartridgeByte(address);
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
     private static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -305,17 +340,28 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainTimerArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, ISnesMutableMemory
     {
         public byte ReadByte(int address) =>
-            address >= EscapeTimerTileRomData.FirstSourceAddress &&
-            address < EscapeTimerTileRomData.SecondSourceAddress +
-                EscapeTimerTileAtlasFormat.SecondByteCount
+            address == MotherBrainCorpseRottingState.GraphicsBufferAddress ||
+            (address >= EscapeTimerTileRomData.FirstSourceAddress &&
+             address < EscapeTimerTileRomData.SecondSourceAddress +
+                 EscapeTimerTileAtlasFormat.SecondByteCount)
                 ? throw new InvalidOperationException(
                     $"Mother Brain attempted a timer-art ROM read at ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Mother Brain transfer guard requires mutable WRAM."))
+            .ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Mother Brain transfer guard requires mutable SRAM."))
+            .ReadSaveRamByte(address);
     }
 
     private sealed class MotherBrainLegTransferReadGuard(ISnesAddressSpace source) :

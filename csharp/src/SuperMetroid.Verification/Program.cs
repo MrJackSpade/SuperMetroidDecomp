@@ -2425,6 +2425,11 @@ if (args is ["--mother-brain"])
     VerifyBabyMetroidCutsceneEntrance();
     return 0;
 }
+if (args is ["--mother-brain-transfer-sources"])
+{
+    VerifyMotherBrainSpriteTransferSources();
+    return 0;
+}
 if (args is ["--grapple-movement"])
 {
     VerifySamusGrappleRomData();

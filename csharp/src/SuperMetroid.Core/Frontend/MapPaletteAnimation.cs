@@ -33,12 +33,15 @@ public sealed class MapPaletteAnimation(ISnesAddressSpace bus)
             return wrapped;
         }
         frame++;
-        byte delay = bus.ReadByte(MapAnimationRomData.PaletteTiming + frame * 3);
+        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
+            throw new InvalidOperationException(
+                "Uncompiled map palette animation requires a cartridge import source.");
+        byte delay = cartridge.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3);
         bool looped = delay == byte.MaxValue;
         if (looped)
         {
             frame = 0;
-            delay = bus.ReadByte(MapAnimationRomData.PaletteTiming);
+            delay = cartridge.ReadCartridgeByte(MapAnimationRomData.PaletteTiming);
             if (delay == byte.MaxValue) throw new InvalidDataException("Map palette animation has no frames.");
         }
         timer = delay;

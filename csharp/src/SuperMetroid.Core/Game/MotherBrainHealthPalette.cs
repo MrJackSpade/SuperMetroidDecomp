@@ -17,6 +17,9 @@ public static class MotherBrainHealthPalette
             presentation.Apply(cgram, index);
             return;
         }
+        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
+            throw new InvalidOperationException(
+                "Uncompiled Mother Brain health palettes require a cartridge import source.");
         int body = ReadPointer(MotherBrainHealthPaletteRomData.BrainTable);
         int leg = ReadPointer(MotherBrainHealthPaletteRomData.BackLegTable);
         cgram.LoadFromBus(bus, body, MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BodyColor);
@@ -26,7 +29,9 @@ public static class MotherBrainHealthPalette
         int ReadPointer(int table)
         {
             int address = table + index * 2;
-            return MotherBrainRainbowPaletteRomData.SourceBank | bus.ReadByte(address) | bus.ReadByte(address + 1) << 8;
+            return MotherBrainRainbowPaletteRomData.SourceBank |
+                cartridge.ReadCartridgeByte(address) |
+                cartridge.ReadCartridgeByte(address + 1) << 8;
         }
     }
 }

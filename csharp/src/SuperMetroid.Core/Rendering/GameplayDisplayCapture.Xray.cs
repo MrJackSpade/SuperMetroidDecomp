@@ -17,6 +17,8 @@ public static partial class GameplayDisplayCapture
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         var room = runtime.ActiveRoom ?? throw new InvalidOperationException("X-ray has no room.");
+        ISnesMutableMemory mutableMemory = runtime.AddressSpace as ISnesMutableMemory ??
+            throw new InvalidOperationException("X-ray display requires WRAM access.");
         var ppu = runtime.DisplayedGameplayPpu;
         var mode = XrayRoomDisplayRules.Select(room.Pointer, runtime.RoomLayer3Fx.Type, runtime.Enemies.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
@@ -24,9 +26,6 @@ public static partial class GameplayDisplayCapture
         var registers = ordinary.Registers;
         if (reveal)
         {
-            ISnesMutableMemory mutableMemory = runtime.AddressSpace as ISnesMutableMemory ??
-                throw new InvalidOperationException(
-                    "X-ray display requires a WRAM-capable runtime address space.");
             ushort[] map = XraySetupMemory.ReadReveal(mutableMemory);
             for (int i = 0; i < map.Length; i++)
             {
@@ -78,6 +77,6 @@ public static partial class GameplayDisplayCapture
             reveal, control, mode != XrayRoomBlendMode.Fireflea, red, green, blue, sub);
         return new(memory, new RenderLayer[] { layer }, basis.ObjectSelection, basis.Brightness);
 
-        byte Fixed(int address) => (byte)(runtime.AddressSpace.ReadByte(address) & 31);
+        byte Fixed(int address) => (byte)(mutableMemory.ReadWorkRamByte(address) & 31);
     }
 }

@@ -162,10 +162,13 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
     {
         ValidateAddress(cpuAddress);
         int bank = cpuAddress >> 16;
-        if (bank is not (0x7e or 0x7f))
-            throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
-                "Physical WRAM reads require bank $7E or $7F.");
-        return _workRam[(bank - 0x7e) * 0x10000 + (cpuAddress & 0xffff)];
+        int offset = cpuAddress & 0xffff;
+        if (bank is 0x7e or 0x7f)
+            return _workRam[(bank - 0x7e) * 0x10000 + offset];
+        if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
+            return _workRam[offset];
+        throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
+            "WRAM reads require bank $7E/$7F or a low-window system-bank mirror.");
     }
 
     /// <inheritdoc />

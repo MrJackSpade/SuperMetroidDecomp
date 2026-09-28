@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 public interface ISnesMutableMemory
 {
-    /// <summary>Reads a byte from physical WRAM bank $7E or $7F.</summary>
+    /// <summary>Reads WRAM through bank $7E/$7F or a low-window system-bank mirror.</summary>
     byte ReadWorkRamByte(int cpuAddress);
 
     /// <summary>Reads a byte from a bank-$70-$7D/$F0-$FF SRAM window.</summary>

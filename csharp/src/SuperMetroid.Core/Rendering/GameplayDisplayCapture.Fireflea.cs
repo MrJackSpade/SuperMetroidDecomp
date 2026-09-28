@@ -10,6 +10,8 @@ public static partial class GameplayDisplayCapture
     {
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");
+        ISnesMutableMemory memory = runtime.AddressSpace as ISnesMutableMemory ??
+            throw new InvalidOperationException("Fireflea display requires WRAM access.");
         // The source-aware operation is shared with X-ray, but an empty window means
         // every pixel is eligible. Native CGADSUB enables only BG2 and the backdrop:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
@@ -19,6 +21,6 @@ public static partial class GameplayDisplayCapture
             addSubscreen: false,
             Fixed(PpuFixedColorMirrors.Red), Fixed(PpuFixedColorMirrors.Green), Fixed(PpuFixedColorMirrors.Blue));
 
-        byte Fixed(int address) => (byte)(runtime.AddressSpace.ReadByte(address) & 31);
+        byte Fixed(int address) => (byte)(memory.ReadWorkRamByte(address) & 31);
     }
 }

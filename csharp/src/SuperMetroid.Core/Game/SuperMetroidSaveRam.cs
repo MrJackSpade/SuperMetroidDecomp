@@ -19,9 +19,14 @@ public sealed class SuperMetroidSaveRam
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
     private readonly ISnesAddressSpace bus;
+    private readonly ISnesMutableMemory mutableMemory;
 
-    public SuperMetroidSaveRam(ISnesAddressSpace bus) =>
+    public SuperMetroidSaveRam(ISnesAddressSpace bus)
+    {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        mutableMemory = bus as ISnesMutableMemory ??
+            throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
+    }
 
     /// <summary>Returns a decoded slot only when either redundant checksum pair is valid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(int slot)
@@ -311,7 +316,7 @@ public sealed class SuperMetroidSaveRam
     }
 
     private byte ReadSramByte(int offset) =>
-        bus.ReadByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)));
+        mutableMemory.ReadSaveRamByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)));
 
     private ushort ReadSramWord(int offset) => unchecked((ushort)(
         ReadSramByte(offset) | (ReadSramByte(offset + 1) << 8)));

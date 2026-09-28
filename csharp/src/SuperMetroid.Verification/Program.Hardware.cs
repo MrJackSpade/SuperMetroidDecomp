@@ -590,9 +590,13 @@ static void VerifySuperMetroidAddressSpace()
     AssertThrows<ArgumentOutOfRangeException>(
         () => mutable.ReadWorkRamByte(0x808000),
         "typed WRAM read rejects cartridge ROM");
+    AssertEqual(0x55, mutable.ReadWorkRamByte(0x001234),
+        "typed WRAM read preserves the low bank-$00 mirror");
+    AssertEqual(0x55, mutable.ReadWorkRamByte(0x801234),
+        "typed WRAM read preserves the low bank-$80 mirror");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadWorkRamByte(0x001234),
-        "typed WRAM read requires an explicit physical bank, not an implicit mirror");
+        () => mutable.ReadWorkRamByte(0x002000),
+        "typed WRAM read rejects hardware registers outside the mirror");
 
     bus.WriteByte(0x700123, 0x77);
     AssertEqual(0x77, bus.ReadByte(0x702123), "8 KiB SRAM offset mirror");

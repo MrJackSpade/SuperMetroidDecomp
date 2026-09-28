@@ -77,7 +77,7 @@ internal static partial class Program
     }
 
     private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, ISnesMutableMemory
     {
         public int ForbiddenReadAttempts { get; private set; }
 
@@ -93,6 +93,22 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "The guarded source must expose WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address)
+        {
+            if (IsForbidden(address))
+            {
+                ForbiddenReadAttempts++;
+                throw new InvalidOperationException(
+                    $"Save-map codec reread compiled byte ${address:X6}.");
+            }
+            return (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "The guarded source must expose SRAM.")).ReadSaveRamByte(address);
+        }
 
         private static bool IsForbidden(int address)
         {

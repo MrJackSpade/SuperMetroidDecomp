@@ -7,11 +7,12 @@ The `NO_UNTYPED_BUS_READS` build symbol removes the old multiplexed
 time. Build Core with
 `dotnet build csharp/src/SuperMetroid.Core/SuperMetroid.Core.csproj --no-restore -p:DefineConstants=NO_UNTYPED_BUS_READS`
 to enumerate unresolved callers. This strict build **currently fails** with
-230 compiler errors, down from 233 before the first typed conversions; it is
+226 compiler errors, down from 233 before the typed conversions so far; it is
 a migration gate, not a green ROM-free guarantee. Normal builds retain the
 old member until all callers have been classified and converted. The first
-conversions give X-ray reveal display a WRAM-only reader and the SPC upload
-importer a cartridge-only reader. Both reject addresses from the wrong memory
+conversions give X-ray setup/display and Fireflea fixed-color capture a WRAM-only
+reader, save-slot decoding an SRAM-only reader, and the SPC upload
+importer a cartridge-only reader. Each rejects addresses from the wrong memory
 region. The import-only contract must ultimately stay outside the gameplay
 runtime, and direct ROM/file APIs must be audited before removing the old
 member permanently. Tests remain necessary to verify value and timing parity,

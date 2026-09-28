@@ -1,0 +1,53 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+
+internal static partial class Program
+{
+    /// <summary>
+    /// Isolate the Golden Torizo room test without replaying the title and
+    /// cinematic. The native reference owns the ROM; the installed instance
+    /// has mutable RAM and installed artwork but no cartridge allocation.
+    /// Both execute the same real-room wake sequence and a forced dodge turn.
+    /// </summary>
+    private static void VerifyFrontendRomFreeGoldenTorizo(string sourceRom,
+        int frameCount)
+    {
+        string testDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
+        string root = Path.Combine(testDirectory,
+            "golden-rom-free-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
+            var nativeBus = SuperMetroidAddressSpace.LoadRetailRom(sourceRom);
+            var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+            AssertEqual(0, installedMemory.Rom.Length,
+                "focused Golden Torizo fixture has no installed cartridge allocation");
+            var guardedBus = new FrontendCartridgeReadGuard(installedMemory, nativeBus);
+            var native = new SuperMetroidGame(nativeBus);
+            var installed = new SuperMetroidGame(guardedBus);
+            PrepareRomFreeBindings(installation)(installed, false);
+            native.InitializeDirectRoomVerification();
+            installed.InitializeDirectRoomVerification();
+            VerifyFrontendRomFreeRoom(native, installed,
+                RoomHeaderPointers.GoldenTorizo,
+                "focused Golden Torizo dodge and fall",
+                frameCount: frameCount,
+                setup: (nativeRoom, installedRoom) =>
+                    ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
+                        GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge),
+                forcedGoldenLeftTurnStart:
+                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
+                expectGoldenLeftFootOrb: frameCount >= 500);
+        }
+        finally
+        {
+            if (Path.GetDirectoryName(root) != testDirectory)
+                throw new InvalidOperationException(
+                    "Golden Torizo fixture cleanup target escaped test-temp.");
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+}

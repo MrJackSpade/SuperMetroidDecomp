@@ -1858,6 +1858,22 @@ if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
     VerifyIntroCinematicArtwork(introBackgroundRom);
     return 0;
 }
+if (args is ["--golden-torizo-rom-free", var goldenTorizoRom])
+{
+    VerifyFrontendRomFreeGoldenTorizo(goldenTorizoRom, frameCount: 500);
+    return 0;
+}
+if (args is ["--golden-torizo-rom-free", var goldenTorizoExtendedRom,
+        var goldenTorizoFrameText])
+{
+    if (!int.TryParse(goldenTorizoFrameText, out int goldenTorizoFrames) ||
+        goldenTorizoFrames is < 1 or > 5000)
+        throw new ArgumentOutOfRangeException(nameof(goldenTorizoFrameText),
+            "Golden Torizo room comparison requires 1 through 5000 frames.");
+    VerifyFrontendRomFreeGoldenTorizo(goldenTorizoExtendedRom,
+        goldenTorizoFrames);
+    return 0;
+}
 if (args is ["--rom-free-room-census", var censusRom, var censusSnapshotDirectory])
 {
     VerifyFrontendRomFreeRoomCensusFromSnapshots(censusRom, censusSnapshotDirectory);

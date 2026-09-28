@@ -51,7 +51,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreGoldenTorizoRightSonicFrameCount = 379;
     internal const int PreTorizoFallingLeftVersion = 20;
     internal const int PreTorizoFallingLeftFrameCount = 400;
-    internal const int Version = 21;
+    internal const int PreGoldenTorizoLeftFootOrbVersion = 21;
+    internal const int PreGoldenTorizoLeftFootOrbFrameCount = 401;
+    internal const int Version = 22;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -75,6 +77,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int GoldenTorizoRightOrbFrameCount = 6;
     internal const int GoldenTorizoRightSonicFrameCount = 21;
     internal const int TorizoFallingLeftFrameCount = 1;
+    internal const int GoldenTorizoLeftFootOrbFrameCount = 5;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
@@ -86,7 +89,7 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
-        TorizoFallingLeftFrameCount;
+        TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -442,6 +445,28 @@ internal static class EnemyExtendedFrameDefinitions
                 $"Torizo falling-left visual operand $AA:{fallingLeftOperand:X4} is not compiled.");
         frames.Add(new EnemyExtendedFrameDefinition(0xaa, fallingLeftPointer,
             $"torizo_falling_left_{fallingLeftPointer:X4}"));
+        if (frames.Count != PreGoldenTorizoLeftFootOrbFrameCount)
+            throw new InvalidDataException("Golden Torizo left-foot orb frame prefix changed.");
+        // The opening ABEC pose is the sonic attack's existing editable frame.
+        var leftFootOrbPointers = new HashSet<ushort> { 0xabec };
+        for (int index = 0;
+             index < GoldenTorizoLeftFootOrbInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = GoldenTorizoLeftFootOrbInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
+                    out ushort pointer))
+                throw new InvalidDataException(
+                    $"Golden Torizo left-foot orb visual operand $AA:{operand:X4} is not compiled.");
+            if (leftFootOrbPointers.Add(pointer))
+                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                    $"golden_torizo_left_foot_orb_{pointer:X4}"));
+        }
+        if (leftFootOrbPointers.Count - 1 != GoldenTorizoLeftFootOrbFrameCount)
+            throw new InvalidDataException(
+                $"Golden Torizo left-foot orb selects {leftFootOrbPointers.Count - 1} " +
+                $"new visual frames, expected {GoldenTorizoLeftFootOrbFrameCount}.");
         return frames.ToArray();
     }
 }

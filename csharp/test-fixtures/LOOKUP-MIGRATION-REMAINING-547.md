@@ -128,10 +128,18 @@ That shared list now compiles fourteen control words and one selector; its
 `$AA:B014` frame has editable OAM and separate engine-owned physical components
 and hitbox. The verifier matches every word and physical field to the pinned
 cartridge, tests version-20 override migration and a live cosmetic edit, and
-compares 35 guarded real-room dodge frames through the falling pose against
-native pixels (plus eight ordinary-turn frames). The remainder of the
-left-facing combat path and a complete controller-driven fight remain outside
-this proof.
+compares guarded real-room dodge frames through the falling pose against
+native pixels (plus eight ordinary-turn frames). A focused direct-room test
+skips only the menus/cinematic; its 500-frame run identified the next native
+read at `$AA:CC57` on frame 475. That complete callable left-foot-forward
+Chozo-orb list now compiles 23 control words and ten sprite selectors. Five
+new physical/visual frames at `$AA:AC06-AC6E` are installed; its opening
+`$AA:ABEC` pose reuses the existing sonic frame. The verifier checks every
+control word, selector, physical component and hitbox against the pinned ROM,
+tests version-21 override migration and a cosmetic edit that cannot change
+collision, then matches 500 real-room frames including the orb attack with
+all installed cartridge reads denied. The full controller-driven fight and
+other combat branches remain outside this proof.
 
 ## Cartridge-free frontend proof (2026-09-27)
 

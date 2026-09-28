@@ -107,8 +107,11 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
         return new SuperMetroidAddressSpace(romBytes);
     }
 
-#if !NO_UNTYPED_BUS_READS
-    /// <inheritdoc />
+    /// <summary>
+    /// Legacy reference-bus read retained for diagnostic and cartridge-comparison
+    /// tooling. Gameplay code receives <see cref="ISnesAddressSpace"/> and must use
+    /// the typed cartridge, WRAM, SRAM, or peripheral read contracts instead.
+    /// </summary>
     public byte ReadByte(int address)
     {
         ValidateAddress(address);
@@ -155,8 +158,6 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
         throw new InvalidOperationException(
             $"CPU read ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
-#endif
-
     /// <inheritdoc />
     public byte ReadWorkRamByte(int cpuAddress)
     {

@@ -19,8 +19,8 @@ internal static partial class Program
     {
         if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)) return 0;
         int bank = body.Definition.Bank << 16;
-        int Word(int pointer) => runtime.AddressSpace.ReadByte(bank | (pointer & 65535)) |
-            runtime.AddressSpace.ReadByte(bank | ((pointer + 1) & 65535)) << 8;
+        int Word(int pointer) => runtime.AddressSpace.ReadCartridgeByte(bank | (pointer & 65535)) |
+            runtime.AddressSpace.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
         int components = Word(body.SpritemapPointer);
         if (components > 32) throw new InvalidOperationException("Unexpected Draygon extended map size.");
         int checkedWords = 0;

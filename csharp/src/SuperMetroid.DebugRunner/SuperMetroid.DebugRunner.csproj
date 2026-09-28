@@ -9,6 +9,7 @@
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
     <Compile Include="../../test-support/SaveLoadRandomAudit.cs" Link="SaveLoadRandomAudit.cs" />
+    <Compile Include="../../test-support/ReferenceBusReadExtensions.cs" Link="ReferenceBusReadExtensions.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RenderFixtures.projitems" />
 </Project>

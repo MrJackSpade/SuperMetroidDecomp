@@ -2,22 +2,20 @@
 
 ## Compiler-guided read-API migration (2026-09-28)
 
-The `NO_UNTYPED_BUS_READS` build symbol removes the old multiplexed
-`ISnesAddressSpace.ReadByte` member and its concrete implementation at compile
-time. Build Core with
-`dotnet build csharp/src/SuperMetroid.Core/SuperMetroid.Core.csproj --no-restore -p:DefineConstants=NO_UNTYPED_BUS_READS`
-to enumerate unresolved callers. This strict build **currently fails** with
-202 compiler errors, down from 233 before the typed conversions so far; it is
-a migration gate, not a green ROM-free guarantee. Normal builds retain the
-old member until all callers have been classified and converted. The first
-conversions give X-ray setup/display, Fireflea FX, and mutable Samus animation
-aliases a WRAM-only reader, save-slot decoding an SRAM-only reader, and the SPC
-upload importer and diagnostic door/room-header loaders cartridge-only readers.
-Each rejects addresses from the wrong memory region. The import-only contract must
-ultimately stay outside the gameplay
-runtime, and direct ROM/file APIs must be audited before removing the old
-member permanently. Tests remain necessary to verify value and timing parity,
-but not as the primary way of discovering direct bus-read call sites.
+`ISnesAddressSpace.ReadByte` has been removed from the shared gameplay
+contract. The ordinary full-solution build now catches any new untyped read
+against that interface; the former `NO_UNTYPED_BUS_READS` switch is no longer
+needed. Gameplay Core uses explicit WRAM/SRAM readers, a cartridge-import
+source for remaining native-data fallbacks, and a narrowly scoped mapped-CPU
+reader for instruction/glitch-derived addresses. Each typed reader rejects the
+wrong memory region. `SuperMetroidAddressSpace.ReadByte` remains on the concrete
+class as a reference oracle for diagnostics; a test-only adapter lets existing
+verification and debug tools exercise their synthetic bus fixtures without
+making the generic read visible to gameplay Core. This compile-time boundary
+is **not** a green ROM-free guarantee: remaining cartridge-import fallbacks,
+direct file APIs, and later-frame/transition behavior still require auditing.
+Tests remain necessary to verify value and timing parity, but not as the
+primary way of discovering direct gameplay bus-read call sites.
 
 The compiled room-header/state-selection path no longer accepts an address
 space at all. Diagnostic native room parsing requires `IImportCartridgeSource`;

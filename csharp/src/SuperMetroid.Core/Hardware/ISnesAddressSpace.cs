@@ -1,27 +1,14 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// Minimal byte-wide view of the SNES 24-bit CPU bus used by translated logic and DMA.
+/// Write boundary for mutable SNES state used by translated logic.
 /// </summary>
 /// <remarks>
-/// This boundary is intentionally one byte wide. ROM, WRAM, SRAM, and memory-mapped
-/// regions do not share a single convenient backing array on real hardware. A later full
-/// runtime can route each bank through its proper device while the VRAM queue remains
-/// ignorant of where its source bytes live.
+/// ROM, WRAM, SRAM, and peripheral reads have separate contracts. No generic read is
+/// exposed here: a caller must declare which source owns the byte it needs.
 /// </remarks>
 public interface ISnesAddressSpace
 {
-#if !NO_UNTYPED_BUS_READS
-    // Temporary migration gate: build Core with NO_UNTYPED_BUS_READS to expose
-    // every remaining caller of the old ROM/WRAM/SRAM-multiplexed read API.
-    // Remove this member entirely when all callers use typed memory or assets.
-    /// <summary>
-    /// Reads a byte from a bank:offset CPU address in the inclusive range
-    /// <c>$00:0000-$FF:FFFF</c>.
-    /// </summary>
-    byte ReadByte(int address);
-#endif
-
     /// <summary>
     /// Writes a byte to a mutable mapped region. Implementations must reject ROM and
     /// unimplemented hardware writes rather than silently discarding them.

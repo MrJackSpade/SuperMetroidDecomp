@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -26,21 +25,25 @@ public sealed record CartridgeDoorHeader(
     public const int SizeInBytes = DoorHeaderRomData.RecordByteCount;
 
     /// <summary>Reads the packed door record named by a load station or room door list.</summary>
-    public static CartridgeDoorHeader Load(ISnesAddressSpace bus, ushort pointer)
+    public static CartridgeDoorHeader Load(IImportCartridgeSource cartridge, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cartridge);
         int address = DoorHeaderRomData.BankAddress | pointer;
         return new CartridgeDoorHeader(
             pointer,
-            DestinationRoomPointer: RomDataReader.ReadWordFixedBank(bus, address),
-            BitFlags: bus.ReadByte(address + 2),
-            Orientation: bus.ReadByte(address + 3),
-            PlmX: bus.ReadByte(address + 4),
-            PlmY: bus.ReadByte(address + 5),
-            DestinationScreenX: bus.ReadByte(address + 6),
-            DestinationScreenY: bus.ReadByte(address + 7),
-            SamusDistance: RomDataReader.ReadWordFixedBank(bus, address + 8),
-            SetupCodePointer: RomDataReader.ReadWordFixedBank(bus, address + 10));
+            DestinationRoomPointer: ReadWord(address),
+            BitFlags: cartridge.ReadCartridgeByte(address + 2),
+            Orientation: cartridge.ReadCartridgeByte(address + 3),
+            PlmX: cartridge.ReadCartridgeByte(address + 4),
+            PlmY: cartridge.ReadCartridgeByte(address + 5),
+            DestinationScreenX: cartridge.ReadCartridgeByte(address + 6),
+            DestinationScreenY: cartridge.ReadCartridgeByte(address + 7),
+            SamusDistance: ReadWord(address + 8),
+            SetupCodePointer: ReadWord(address + 10));
+
+        ushort ReadWord(int wordAddress) => unchecked((ushort)(
+            cartridge.ReadCartridgeByte(wordAddress) |
+            cartridge.ReadCartridgeByte(SnesAddressMath.AddWithinBank(wordAddress, 1)) << 8));
     }
 
     /// <summary>

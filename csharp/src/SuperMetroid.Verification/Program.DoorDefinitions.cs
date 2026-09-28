@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledDoorDefinitions()
     {
-        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] doorPointers = EnumerateRetailDoorPointers().ToArray();
         AssertEqual(DoorDefinitions.HeaderCount, doorPointers.Length,

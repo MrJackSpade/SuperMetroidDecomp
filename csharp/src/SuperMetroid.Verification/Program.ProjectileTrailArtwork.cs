@@ -63,6 +63,7 @@ internal static partial class Program
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
+        VerifyTrailMutableAlias();
         int draws = 0;
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
@@ -154,5 +155,38 @@ internal static partial class Program
         restored.BindTrailArtwork(edited); game.BindTrailArtwork(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
+    }
+    private static void VerifyTrailMutableAlias()
+    {
+        var mirror = new TrailMutableMirrorBus();
+        AssertEqual((ushort)0x3412, ProjectileTrailProgramDefinitions.Read(mirror, 0x900100),
+            "bank-$90 low-half trail alias reads WRAM through the typed mutable interface");
+        AssertEqual(2, mirror.WorkRamReads, "low-half trail word reads exactly two mutable bytes");
+        Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
+    }
+
+    private sealed class TrailMutableMirrorBus : ISnesAddressSpace, ISnesMutableMemory
+    {
+        public int WorkRamReads { get; private set; }
+
+        public byte ReadByte(int address) =>
+            throw new InvalidOperationException($"Untyped trail read at ${address:X6}.");
+
+        public byte ReadWorkRamByte(int address)
+        {
+            WorkRamReads++;
+            return address switch
+            {
+                0x900100 => 0x12,
+                0x900101 => 0x34,
+                _ => throw new InvalidOperationException($"Unexpected trail WRAM read ${address:X6}."),
+            };
+        }
+
+        public byte ReadSaveRamByte(int address) =>
+            throw new InvalidOperationException($"Unexpected trail SRAM read ${address:X6}.");
+
+        public void WriteByte(int address, byte value) =>
+            throw new InvalidOperationException($"Unexpected trail write ${address:X6}.");
     }
 }

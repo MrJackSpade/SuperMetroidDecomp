@@ -973,6 +973,11 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--trail-mutable-alias"])
+{
+    VerifyTrailMutableAlias();
+    return 0;
+}
 if (args is ["--shaktool-instruction-mechanics"])
 {
     VerifyShaktoolInstructionProgramDefinitions();

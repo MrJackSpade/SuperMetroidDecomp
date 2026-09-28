@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -40,7 +39,13 @@ public static class ProjectileTrailProgramDefinitions
 
         SnesAddress source = SnesAddress.FromBusAddress(address);
         if (source.Bank == 0x90 && !source.IsUpperLoRomWindow)
-            return RomDataReader.ReadWordFixedBank(bus, address);
+        {
+            ISnesMutableMemory memory = bus as ISnesMutableMemory ??
+                throw new InvalidOperationException(
+                    "Projectile trail low-bank alias requires mutable console memory.");
+            return (ushort)(memory.ReadWorkRamByte(address) |
+                (memory.ReadWorkRamByte((int)source.AddWithinBank(1)) << 8));
+        }
 
         throw new InvalidDataException(
             $"Projectile trail program word {source} is outside compiled mechanics data " +

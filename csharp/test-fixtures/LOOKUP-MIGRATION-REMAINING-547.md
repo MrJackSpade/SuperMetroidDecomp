@@ -141,6 +141,14 @@ collision, then matches 500 real-room frames including the orb attack with
 all installed cartridge reads denied. The full controller-driven fight and
 other combat branches remain outside this proof.
 
+The focused `--golden-torizo-rom-free` room probe applies the same host
+invincibility option to both reference instances. Without it, a 2,000-frame
+neutral probe reached a terminal game state and failed only the active-gameplay
+assertion, obscuring later instruction coverage. With it, 5,000 consecutive
+neutral frames match native pixels and remain in gameplay with all installed
+cartridge reads guarded. This is a single-room neutral-input result, not a
+controller-complete fight or proof that every callable attack was visited.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

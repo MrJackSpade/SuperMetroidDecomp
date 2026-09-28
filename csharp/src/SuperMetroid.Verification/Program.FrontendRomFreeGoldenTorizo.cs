@@ -36,8 +36,16 @@ internal static partial class Program
                 "focused Golden Torizo dodge and fall",
                 frameCount: frameCount,
                 setup: (nativeRoom, installedRoom) =>
+                {
+                    // Long neutral probes otherwise end at the frontend death
+                    // screen, obscuring later enemy-list boundaries. Both
+                    // references use the same player-facing host option.
+                    var options = new SuperMetroidGameOptions { Invincibility = true };
+                    nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
+                    installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
                     ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
-                        GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge),
+                        GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge);
+                },
                 forcedGoldenLeftTurnStart:
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
                 expectGoldenLeftFootOrb: frameCount >= 500);

@@ -721,8 +721,12 @@ internal static partial class Program
                             (goldenLeftFootOrbProgramObserved &&
                              goldenLeftFootOrbVisualObserved)) &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
-                    "forced Golden Torizo left turn selects its facing-screen " +
-                    "frame and dodge reaches falling-left and required orb poses");
+                    "forced Golden Torizo left turn reaches required poses: " +
+                    $"turn={forcedGoldenLeftTurnObserved}, " +
+                    $"fall={forcedGoldenFallingLeftObserved}, " +
+                    $"orbProgram={goldenLeftFootOrbProgramObserved}, " +
+                    $"orbVisual={goldenLeftFootOrbVisualObserved}, " +
+                    $"state={installed.GameState}");
                 Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }

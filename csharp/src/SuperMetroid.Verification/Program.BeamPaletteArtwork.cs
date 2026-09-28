@@ -88,5 +88,27 @@ internal static partial class Program
         runtime.BeamArtwork = artwork;
         runtime.RunNmi(0, true);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
+
+        // Debug grapple selection uses the same palette index as native firing, but
+        // installed artwork must win over the cartridge pointer table after binding.
+        var nativeRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        nativeRuntime.LoadDebugGrapplePalette();
+        var grappleExpected = new SnesCgram();
+        palettes.LoadTo(grappleExpected, 2);
+        AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
+            "Unbound debug grapple selection matches native beam palette index two");
+
+        var editedDocument = JsonNode.Parse(BeamPaletteExtractor.Extract(bus))!;
+        var editedColor = editedDocument["palettes"]![BeamPaletteDefinitions.Key(2)]![3]!;
+        editedColor["red"] = editedColor["red"]!.GetValue<int>() ^ 1;
+        var editedPalettes = BeamPaletteCatalog.Load(
+            new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
+        var editedArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), editedPalettes);
+        nativeRuntime.BeamArtwork = editedArtwork;
+        nativeRuntime.LoadDebugGrapplePalette();
+        editedPalettes.LoadTo(grappleExpected, 2);
+        AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
+            "Bound debug grapple selection uses edited extracted palette, not cartridge colors");
+        AssertEqual(32657, nativeRuntime.Cgram.Colors[223], "Debug grapple retains the adjacent fixed flare color");
     }
 }

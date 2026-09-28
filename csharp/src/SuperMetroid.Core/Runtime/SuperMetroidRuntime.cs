@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -807,8 +808,9 @@ public sealed partial class SuperMetroidRuntime
         // $E1 bytes allows Decompress to insist the $FF terminator ends the whole stream,
         // catching an incorrect address instead of decoding through unrelated ROM data.
         var compressed = new byte[compressedByteCount];
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(_addressSpace);
         for (int index = 0; index < compressed.Length; index++)
-            compressed[index] = _addressSpace.ReadByte(sourceAddress + index);
+            compressed[index] = cartridge.ReadCartridgeByte(sourceAddress + index);
 
         byte[] paletteBytes = SmCompression.Decompress(compressed, maximumOutputBytes: 0x0100);
         if (paletteBytes.Length != 0x0100)
@@ -1075,21 +1077,7 @@ public sealed partial class SuperMetroidRuntime
             angularVelocity: 0x0180,
             faceRight: true);
 
-        // LoadProjectilePalette(2) follows firing initialization at $9B:C51E. Pointer table
-        // $90:C3C9 names sixteen bank-$90 colors for OBJ palette seven (CGRAM 224..239).
-        // The 65816 stores this pointer little-endian. Keep both byte reads visible here:
-        // this debug initializer intentionally has no general ROM-parser dependency, and the
-        // explicit expression makes the exact cartridge address easy to inspect in a debugger.
-        const int grapplePalettePointerAddress = 0x90c3c9 + 2 * 2;
-        ushort grapplePalettePointer = (ushort)(
-            _addressSpace.ReadByte(grapplePalettePointerAddress) |
-            (_addressSpace.ReadByte(grapplePalettePointerAddress + 1) << 8));
-        Cgram.LoadFromBus(
-            _addressSpace,
-            0x900000 | grapplePalettePointer,
-            colorCount: 16,
-            destinationIndex: 224);
-        Cgram.SetColor(223, 32657);
+        LoadDebugGrapplePalette();
         LastGrappleMovement = null;
         return placement;
     }
@@ -1109,19 +1097,26 @@ public sealed partial class SuperMetroidRuntime
 
         DebugGrappleItemSelected = true;
 
-        // LoadProjectilePalette(2) is part of $9B:C51E firing initialization. The actual
-        // HUD selector is not translated, but palette table $90:C3C9 and all sixteen colors
-        // remain cartridge policy. CGRAM color 223 is the adjacent fixed beam-flare color.
-        const int grapplePalettePointerAddress = 0x90c3c9 + 2 * 2;
-        ushort grapplePalettePointer = (ushort)(
-            _addressSpace.ReadByte(grapplePalettePointerAddress) |
-            (_addressSpace.ReadByte(grapplePalettePointerAddress + 1) << 8));
-        Cgram.LoadFromBus(
-            _addressSpace,
-            0x900000 | grapplePalettePointer,
-            colorCount: 16,
-            destinationIndex: 224);
-        Cgram.SetColor(223, 32657);
+        LoadDebugGrapplePalette();
+    }
+
+    internal void LoadDebugGrapplePalette()
+    {
+        // Firing initialization selects beam-palette index two. Installed sessions use
+        // the same editable colors as ordinary gameplay; an unbound reference runner
+        // retains the native pointer-table lookup for cartridge comparison.
+        if (beamArtwork?.Palettes is { } palettes)
+            palettes.LoadTo(Cgram, 2);
+        else
+        {
+            ushort pointer = RomDataReader.ReadWordFixedBank(
+                CartridgeImportSource.Require(_addressSpace),
+                SamusProjectileRomData.Beams.PalettePointers + 2 * sizeof(ushort));
+            Cgram.LoadFromBus(_addressSpace, 0x900000 | pointer,
+                SamusProjectileRomData.Palettes.ColorCount,
+                SamusProjectileRomData.Palettes.BeamDestinationIndex);
+        }
+        Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex - 1, 32657);
     }
 
     /// <summary>

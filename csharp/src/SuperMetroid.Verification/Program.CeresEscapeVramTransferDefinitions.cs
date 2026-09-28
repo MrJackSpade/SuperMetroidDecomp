@@ -45,12 +45,16 @@ internal static partial class Program
                     IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
                         page.ByteCount, page.FileName), writable: false),
                     page.ByteCount)).ToArray();
+        CeresEscapeOverlayTilemapCatalog overlay =
+            CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
+                CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
         var system = new RoomEnemySystem
         {
             TileArtwork = new EnemyTileArtworkCatalog(
                 new Dictionary<ushort, RoomCharacterAtlas>(),
                 new Dictionary<ushort, EnemyPaletteSheet>(),
-                ceresEscapeTiles: new CeresEscapeTileArtwork(escapePages)),
+                ceresEscapeTiles: new CeresEscapeTileArtwork(escapePages),
+                ceresEscapeOverlayTilemaps: overlay),
             EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng),
         };
         typeof(RoomEnemySystem).GetField("_bus",

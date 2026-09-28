@@ -7,9 +7,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort CeresJapaneseText = 0xc450;
     private const ushort CeresTypewriterTileBase = 0x3582;
-    private const int CeresEmergencyTextTilemapAddress = 0xa6c164;
-    private const ushort CeresEmergencyTextTilemapBytes = 0x0012;
-    private const ushort CeresEmergencyTextVramDestination = 0x50cb;
 
     /// <summary>
     /// Ports the shared Ridley function at $A6:C04E for the Ceres branch. The phase word
@@ -123,14 +120,22 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports DrawEmergencyText at $A6:C136 exactly.</summary>
-    private static void QueueCeresEmergencyText(VramWriteQueue? vramWriteQueue)
+    private void QueueCeresEmergencyText(VramWriteQueue? vramWriteQueue)
     {
         if (vramWriteQueue is null)
             throw new InvalidOperationException("Ceres emergency text requires a VRAM write queue.");
+        CeresEscapeOverlayTilemapDefinition page =
+            CeresEscapeOverlayTilemapDefinitions.Emergency;
+        ushort byteCount = checked((ushort)(page.WordCount * sizeof(ushort)));
+        if (TileArtwork is { } installed &&
+            installed.CeresEscapeOverlayTilemaps?.TryResolve(
+                page.SourceAddress, byteCount, out _) != true)
+            throw new InvalidDataException(
+                "Installed Ceres escape has no editable EMERGENCY tilemap.");
         vramWriteQueue.Enqueue(
-            CeresEmergencyTextTilemapBytes,
-            CeresEmergencyTextTilemapAddress,
-            CeresEmergencyTextVramDestination);
+            byteCount,
+            page.SourceAddress,
+            CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
     }
 
     /// <summary>Ports ProcessSpriteTilesTransfers at $A6:C26E one record per actor call.</summary>
@@ -201,13 +206,17 @@ public sealed partial class RoomEnemySystem
 
         for (int record = 0; record < 32; record++, pointer = unchecked((ushort)(pointer + 7)))
         {
-            if (TileArtwork is not null)
+            if (TileArtwork is { } installed)
             {
                 if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
                     return;
                 if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
                     throw new InvalidDataException(
                         $"Installed Ceres Japanese transfer ${pointer:X4} has no compiled record.");
+                if (installed.CeresEscapeOverlayTilemaps?.TryResolve(
+                        transfer.SourceAddress, transfer.ByteCount, out _) != true)
+                    throw new InvalidDataException(
+                        $"Installed Ceres Japanese overlay ${pointer:X4} has no editable tilemap.");
                 vramWriteQueue.Enqueue(transfer.ByteCount, transfer.SourceAddress,
                     transfer.DestinationWord);
             }

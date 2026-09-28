@@ -192,6 +192,7 @@ internal static partial class Program
     {
         public byte ReadByte(int address) =>
             CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
+            CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
             CeresEscapeTileArtworkDefinitions.Contains(address, 1) ||
             address >= EscapeTimerTileRomData.FirstSourceAddress &&
             address < EscapeTimerTileRomData.FirstSourceAddress +

@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Ceres escape overlay tilemaps (2026-09-27)
+
+The English EMERGENCY title and four Japanese subtitle rows now live in one
+editable JSON file of visual tile words. Their five fixed sources, word counts,
+and English VRAM destination remain named engine definitions. Extraction
+roundtrips all 55 native words; the real installed title/overlay queue matches
+complete cartridge VRAM with those source reads blocked. An isolated tile-word
+edit reaches live VRAM and survives reload, while malformed or missing installed
+data fails explicitly. Typewriter layout, timers, and music remain under their
+existing owners; this completes only the five fixed Ceres warning tilemaps,
+not the wider cinematic-art or ROM-free runtime contract.
+
 ## Ceres escape warning and door characters (2026-09-27)
 
 The fixed `$B7:DA00-E2FF` warning-text and `$B0:BA00-BFFF` door-character
@@ -10,9 +22,9 @@ the shared warning characters' two different VRAM destinations. Extraction
 roundtrips every source byte, and a guarded production queue/drain matches the
 full native VRAM image across both fifteen-record Ceres timer lists. A live PNG
 edit changes the queued VRAM byte, survives reload, and malformed/missing
-installed artwork fails loudly. The four Japanese subtitle tilemaps and other
-Ceres escape presentation data remain to migrate; these two PNGs do not finish
-the cinematic-art or whole-game ROM-free contract.
+installed artwork fails loudly. The Japanese subtitle tilemaps are migrated
+separately above; other Ceres presentation data and the broader cinematic-art
+and ROM-free runtime contracts remain incomplete.
 
 ## Ceres escape fixed VRAM transfer metadata (2026-09-27)
 
@@ -26,8 +38,9 @@ overlay queue with descriptor reads forbidden. The existing Ceres-Ridley
 fixture continues to test its separate native-data path. Missing installed
 timer artwork fails explicitly instead of silently returning to ROM art. The
 two sprite-timer pages remain editable PNGs. The later warning and door
-character pages are covered by the separate migration above; the Japanese
-subtitle tilemaps and other presentation sources remain incomplete.
+characters and five fixed overlay tilemaps are covered by the separate
+migrations above. The complete escape sequence still has other presentation
+and gameplay integration dependencies.
 
 Separately, the retail-room ROM-free first-frame census passed all 262 isolated
 rooms after the Torizo entry migration. That proof does not cover subsequent

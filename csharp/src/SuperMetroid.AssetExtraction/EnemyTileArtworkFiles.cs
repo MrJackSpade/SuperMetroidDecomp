@@ -161,6 +161,9 @@ public static class EnemyTileArtworkFiles
             ceresEscapeTileHashes.Add(page.FileName,
                 Convert.ToHexString(SHA256.HashData(png)));
         }
+        byte[] ceresEscapeOverlay = CeresEscapeOverlayTilemapFiles.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory,
+            CeresEscapeOverlayTilemapDefinitions.FileName), ceresEscapeOverlay);
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),
             phantoonBg2Json);
@@ -330,6 +333,7 @@ public static class EnemyTileArtworkFiles
             gunshipLiftoffHashes,
             torizoInstructionHashes,
             ceresEscapeTileHashes,
+            Convert.ToHexString(SHA256.HashData(ceresEscapeOverlay)),
             Convert.ToHexString(SHA256.HashData(corpsePng)),
             Convert.ToHexString(SHA256.HashData(escapeTextPng)),
             motherBrainSpecialHashes,
@@ -399,6 +403,7 @@ public static class EnemyTileArtworkFiles
             manifest.CeresEscapeTilesSha256 is null ||
             manifest.CeresEscapeTilesSha256.Count !=
                 CeresEscapeTileArtworkDefinitions.All.Length ||
+            string.IsNullOrWhiteSpace(manifest.CeresEscapeOverlaySha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainCorpseSha256) ||
             string.IsNullOrWhiteSpace(manifest.MotherBrainEscapeTextSha256) ||
             manifest.MotherBrainSpecialSpritesSha256 is null ||
@@ -723,6 +728,20 @@ public static class EnemyTileArtworkFiles
             }
         }
         var ceresEscapeTiles = new CeresEscapeTileArtwork(ceresEscapePages);
+        CeresEscapeOverlayTilemapCatalog ceresEscapeOverlay;
+        try
+        {
+            byte[] selected = ReadStockOrOverride(
+                CeresEscapeOverlayTilemapDefinitions.FileName,
+                manifest.CeresEscapeOverlaySha256);
+            ceresEscapeOverlay = CeresEscapeOverlayTilemapCatalog.Load(
+                new MemoryStream(selected, writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                "Invalid installed Ceres escape overlay tilemaps.", error);
+        }
         RoomCharacterAtlas motherBrainCorpse;
         try
         {
@@ -1062,7 +1081,8 @@ public static class EnemyTileArtworkFiles
             zebetiteColors, norfairRidleyColors, tourianStatueColors,
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
             motherBrainEscapeText, motherBrainSpecialSprites, skeleton,
-            crocomireBg2Frames, torizoInstructionVram, ceresEscapeTiles);
+            crocomireBg2Frames, torizoInstructionVram, ceresEscapeTiles,
+            ceresEscapeOverlay);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1267,6 +1287,7 @@ public static class EnemyTileArtworkFiles
         Dictionary<int, string> GunshipLiftoffSha256,
         Dictionary<string, string> TorizoInstructionTilesSha256,
         Dictionary<string, string> CeresEscapeTilesSha256,
+        string CeresEscapeOverlaySha256,
         string MotherBrainCorpseSha256,
         string MotherBrainEscapeTextSha256,
         Dictionary<int, string> MotherBrainSpecialSpritesSha256,

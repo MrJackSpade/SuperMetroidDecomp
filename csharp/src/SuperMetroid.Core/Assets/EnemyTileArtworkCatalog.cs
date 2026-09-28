@@ -46,7 +46,8 @@ public sealed class EnemyTileArtworkCatalog
         CrocomireSkeletonArtwork? crocomireSkeleton = null,
         CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
         TorizoInstructionVramArtwork? torizoInstructionVram = null,
-        CeresEscapeTileArtwork? ceresEscapeTiles = null)
+        CeresEscapeTileArtwork? ceresEscapeTiles = null,
+        CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -104,6 +105,7 @@ public sealed class EnemyTileArtworkCatalog
         CrocomireSkeleton = crocomireSkeleton;
         TorizoInstructionVram = torizoInstructionVram;
         CeresEscapeTiles = ceresEscapeTiles;
+        CeresEscapeOverlayTilemaps = ceresEscapeOverlayTilemaps;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -117,6 +119,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Editable warning-text and door character pages for Ceres escape.</summary>
     public CeresEscapeTileArtwork? CeresEscapeTiles { get; }
+
+    /// <summary>Editable English/Japanese visual tile words for the Ceres warning overlay.</summary>
+    public CeresEscapeOverlayTilemapCatalog? CeresEscapeOverlayTilemaps { get; }
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
     public EnemySpritemapCatalog? Spritemaps { get; }
@@ -212,6 +217,9 @@ public sealed class EnemyTileArtworkCatalog
         }
         if (CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
+        if (CeresEscapeOverlayTilemaps?.TryResolve(sourceAddress, byteCount,
+                out data) == true)
+            return true;
         data = default;
         return false;
     }
@@ -240,7 +248,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 61;
+    public const int Version = 62;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

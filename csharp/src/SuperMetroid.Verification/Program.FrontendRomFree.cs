@@ -256,7 +256,7 @@ internal static partial class Program
                 // and its trailing pixel matches did not exercise the room.
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.GoldenTorizo, "Golden Torizo wake and right-facing attacks",
-                    frameCount: 624,
+                    frameCount: 850,
                     setup: (nativeRoom, installedRoom) =>
                     {
                         // Enter the authored lower-right wake rectangle on both
@@ -473,6 +473,7 @@ internal static partial class Program
         bool goldenRightwardObserved = false;
         bool goldenJumpBackObserved = false;
         bool goldenRightOrbObserved = false;
+        bool goldenEyeBeamAttackObserved = false;
         bool forcedGoldenSonicObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
@@ -528,6 +529,12 @@ internal static partial class Program
                 awakenedGoldenTorizo.CurrentInstruction <
                     GoldenTorizoRightOrbInstructionProgramDefinitions.End)
                 goldenRightOrbObserved = true;
+            if (awakenedGoldenTorizo is not null &&
+                awakenedGoldenTorizo.CurrentInstruction >=
+                    GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Start &&
+                awakenedGoldenTorizo.CurrentInstruction <
+                    GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.End)
+                goldenEyeBeamAttackObserved = true;
             if (awakenedGoldenTorizo is not null &&
                 forcedGoldenSonicStart is ushort sonicStart &&
                 awakenedGoldenTorizo.CurrentInstruction >= sonicStart &&
@@ -622,9 +629,10 @@ internal static partial class Program
                 "Golden Torizo wake-up fixture actually advances beyond the initial sleep");
             AssertTrue(goldenWalkingObserved && goldenRightwardObserved &&
                        goldenJumpBackObserved && goldenRightOrbObserved &&
+                       goldenEyeBeamAttackObserved &&
                        installed.GameState == SuperMetroidGameState.MainGameplay,
                 "Golden Torizo wake-up parity crosses walking-left and turning-right " +
-                "and the first right-facing orb attack while gameplay remains active");
+                "and both orb and eye-beam attacks while gameplay remains active");
         }
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }

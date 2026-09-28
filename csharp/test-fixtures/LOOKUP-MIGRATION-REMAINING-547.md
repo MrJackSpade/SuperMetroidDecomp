@@ -99,6 +99,16 @@ the uncompiled eye-beam attack at `$AA:D10D`. Separate 90-frame zero-ROM
 comparisons explicitly seed each right-facing sonic-boom list and assert its
 execution with native pixel parity. Other choices and the full fight remain.
 
+The callable Golden Torizo eye-beam attack at `$AA:D10D-D17A` now has 41
+compiled control words. The four interleaved `$814B` tile-transfer descriptors
+were already compiled separately and stream editable Torizo character art;
+the callable list contains no spritemap selectors. The verifier checks every
+control word against the pinned ROM, confirms all four descriptor fields and
+their separate ownership, and observes the eye-beam list in the normal room.
+The zero-ROM installed-assets run now matches native pixels for 850 active
+Golden Torizo frames, including that attack. This is not a full-fight proof:
+other branches and controller-driven combat remain untested.
+
 ## Cartridge-free frontend proof (2026-09-27)
 
 The installed frontend verifier now constructs a zero-ROM address space instead

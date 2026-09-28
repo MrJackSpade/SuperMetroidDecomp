@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreTorizoFallingLeftVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount,
             EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount,
@@ -242,7 +245,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardVersion
             or EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion)
+            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion
+            or EnemyExtendedFrameDefinitions.PreTorizoFallingLeftVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -271,6 +275,8 @@ public sealed class EnemyExtendedFrameCatalog
                 return right.StartsWith("bomb_torizo_", StringComparison.Ordinal);
             if (left.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
                 return right.StartsWith("torizo_jump_back_", StringComparison.Ordinal);
+            if (left.StartsWith("torizo_falling_left_", StringComparison.Ordinal))
+                return right.StartsWith("torizo_falling_left_", StringComparison.Ordinal);
             if (left.StartsWith("spore_spawn_oam_", StringComparison.Ordinal))
                 return right.StartsWith("spore_spawn_oam_", StringComparison.Ordinal);
             if (left.StartsWith("draygon_oam_", StringComparison.Ordinal))

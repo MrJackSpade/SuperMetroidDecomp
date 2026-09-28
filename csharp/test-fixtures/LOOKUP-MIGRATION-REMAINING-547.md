@@ -122,12 +122,16 @@ Both left-turn lists at `$AA:D1F1-D20C` now compile twelve control words and
 two visual selectors. Both selectors reuse the existing editable/physical
 `$AA:A4F0` facing-screen frame; no duplicate asset or hitbox was created.
 The verifier checks the control and selector words against the pinned ROM and
-compares the two visible held poses in an awakened real room with cartridge
-reads denied (24 dodge-turn frames and eight ordinary-turn frames). Advancing
-the dodge case one further frame reaches the currently unowned left-facing
-falling list at `$AA:BC78`. That linked list, its `$AA:B014` frame and the
-rest of the left-facing path remain the next migration boundary, not a passing
-full-handoff test.
+compares both held poses in an awakened real room with cartridge reads denied.
+The dodge case previously reached the unowned falling-left list at `$AA:BC78`.
+That shared list now compiles fourteen control words and one selector; its
+`$AA:B014` frame has editable OAM and separate engine-owned physical components
+and hitbox. The verifier matches every word and physical field to the pinned
+cartridge, tests version-20 override migration and a live cosmetic edit, and
+compares 35 guarded real-room dodge frames through the falling pose against
+native pixels (plus eight ordinary-turn frames). The remainder of the
+left-facing combat path and a complete controller-driven fight remain outside
+this proof.
 
 ## Cartridge-free frontend proof (2026-09-27)
 

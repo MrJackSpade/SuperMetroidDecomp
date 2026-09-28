@@ -6,6 +6,7 @@ internal static partial class CompiledEnemyVisualSelectors
     private static CompiledEnemyVisualSelector[] BankAA =>
     [
         new(0xAAB87F, 0x87D0),
+        new(0xAABC82, 0xB014),
         new(0xAAC11A, 0xB048),
         new(0xAAC11E, 0xB062),
         new(0xAAC122, 0xB07C),

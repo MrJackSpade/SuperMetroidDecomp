@@ -327,12 +327,12 @@ internal static partial class Program
                     VerifyFrontendRomFreeRoom(native, installed,
                         RoomHeaderPointers.GoldenTorizo,
                         $"Golden Torizo left turn $AA:{leftTurnStart:X4}",
-                        // These visible holds end immediately before the
-                        // linked $AA:BC78 falling list, whose separate visual
-                        // and physical records are not migrated yet.
+                        // The dodge turn links into the shared falling-left
+                        // list. Compare through that handoff and its first
+                        // selected airborne pose.
                         frameCount: leftTurnStart ==
                             GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge
-                                ? 24 : 8,
+                                ? 35 : 8,
                         setup: (nativeRoom, installedRoom) =>
                         {
                             PrimeGoldenTorizoAwakenedRoom(nativeRoom, installedRoom);
@@ -529,6 +529,7 @@ internal static partial class Program
         bool forcedGoldenSonicObserved = false;
         bool forcedGoldenStunObserved = false;
         bool forcedGoldenLeftTurnObserved = false;
+        bool forcedGoldenFallingLeftObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -608,6 +609,12 @@ internal static partial class Program
                 awakenedGoldenTorizo.SpritemapPointer ==
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame)
                 forcedGoldenLeftTurnObserved = true;
+            if (awakenedGoldenTorizo is not null &&
+                forcedGoldenLeftTurnStart ==
+                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge &&
+                awakenedGoldenTorizo.SpritemapPointer ==
+                    TorizoFallingLeftCollisionDefinitions.Frame)
+                forcedGoldenFallingLeftObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -704,8 +711,12 @@ internal static partial class Program
             if (forcedGoldenLeftTurnStart is not null)
             {
                 AssertTrue(forcedGoldenLeftTurnObserved &&
+                           (forcedGoldenLeftTurnStart !=
+                                GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge ||
+                            forcedGoldenFallingLeftObserved) &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
-                    "forced Golden Torizo left turn selects its shared facing-screen frame");
+                    "forced Golden Torizo left turn selects its facing-screen " +
+                    "frame and dodge reaches the linked falling-left pose");
                 Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }

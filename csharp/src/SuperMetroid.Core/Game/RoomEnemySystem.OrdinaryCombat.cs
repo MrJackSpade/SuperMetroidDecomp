@@ -3036,7 +3036,9 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+        if ((enemy.EnemyDefinitionPointer == GoldenTorizoDefinition ||
+             (enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
+              enemy.SpritemapPointer == TorizoFallingLeftCollisionDefinitions.Frame)) &&
             enemy.Definition.Bank == GoldenTorizoAwakeningCollisionDefinitions.Bank &&
             (GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out var goldenComponents) ||
@@ -3049,6 +3051,8 @@ public sealed partial class RoomEnemySystem
              GoldenTorizoRightOrbCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out goldenComponents) ||
              GoldenTorizoRightSonicCollisionDefinitions.TryGetComponents(
+                 enemy.SpritemapPointer, out goldenComponents) ||
+             TorizoFallingLeftCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out goldenComponents)))
         {
             // Keep the cartridge's component and hitbox order. Empty belly/face
@@ -3063,6 +3067,8 @@ public sealed partial class RoomEnemySystem
                 enemy.SpritemapPointer);
             bool rightSonicFrame = GoldenTorizoRightSonicCollisionDefinitions.HasFrame(
                 enemy.SpritemapPointer);
+            bool fallingLeftFrame = enemy.SpritemapPointer ==
+                TorizoFallingLeftCollisionDefinitions.Frame;
             foreach (GoldenTorizoCollisionComponent component in goldenComponents.Span)
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
@@ -3082,6 +3088,9 @@ public sealed partial class RoomEnemySystem
                                      component.HitboxList)
                              : rightSonicFrame
                                  ? GoldenTorizoRightSonicCollisionDefinitions.HitboxesAt(
+                                     component.HitboxList)
+                             : fallingLeftFrame
+                                 ? TorizoFallingLeftCollisionDefinitions.HitboxesAt(
                                      component.HitboxList)
                              : GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(
                                  component.HitboxList))

@@ -49,7 +49,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreGoldenTorizoRightOrbFrameCount = 373;
     internal const int PreGoldenTorizoRightSonicVersion = 19;
     internal const int PreGoldenTorizoRightSonicFrameCount = 379;
-    internal const int Version = 20;
+    internal const int PreTorizoFallingLeftVersion = 20;
+    internal const int PreTorizoFallingLeftFrameCount = 400;
+    internal const int Version = 21;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -72,6 +74,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int TorizoJumpBackFrameCount = 3;
     internal const int GoldenTorizoRightOrbFrameCount = 6;
     internal const int GoldenTorizoRightSonicFrameCount = 21;
+    internal const int TorizoFallingLeftFrameCount = 1;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
@@ -82,7 +85,8 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoInitialFrameCount + KraidArmFrameCount +
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
-        GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount;
+        GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
+        TorizoFallingLeftFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -427,6 +431,17 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Golden Torizo right-sonic selects {rightSonicPointers.Count - 1} " +
                 $"new visual frames, expected {GoldenTorizoRightSonicFrameCount}.");
+        if (frames.Count != PreTorizoFallingLeftFrameCount)
+            throw new InvalidDataException("Torizo falling-left extended-frame prefix changed.");
+        ushort fallingLeftOperand = TorizoFallingLeftInstructionProgramDefinitions
+            .PresentationWordAddress(0);
+        if (!CompiledEnemyVisualSelectors.TryGet(0xaa, fallingLeftOperand,
+                out ushort fallingLeftPointer) ||
+            fallingLeftPointer != TorizoFallingLeftCollisionDefinitions.Frame)
+            throw new InvalidDataException(
+                $"Torizo falling-left visual operand $AA:{fallingLeftOperand:X4} is not compiled.");
+        frames.Add(new EnemyExtendedFrameDefinition(0xaa, fallingLeftPointer,
+            $"torizo_falling_left_{fallingLeftPointer:X4}"));
         return frames.ToArray();
     }
 }

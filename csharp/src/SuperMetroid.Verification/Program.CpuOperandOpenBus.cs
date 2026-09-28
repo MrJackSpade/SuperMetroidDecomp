@@ -23,9 +23,14 @@ internal static partial class Program
         AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0, 0x2140), "real APU registers are not silently treated as open bus");
     }
 
-    private sealed class OperandReadWitness : ISnesAddressSpace
+    private sealed class OperandReadWitness : ISnesAddressSpace,
+        ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
         public byte ReadByte(int address) => 0xab;
+        public byte ReadWorkRamByte(int address) => 0xab;
+        public byte ReadSaveRamByte(int address) => 0xab;
+        public byte ReadCartridgeByte(int address) => 0xab;
+        public byte ReadPeripheralByte(int address) => 0xab;
         public void WriteByte(int address, byte value) => throw new NotSupportedException();
     }
 }

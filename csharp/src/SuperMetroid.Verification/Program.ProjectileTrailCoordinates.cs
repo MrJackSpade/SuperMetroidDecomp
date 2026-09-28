@@ -101,8 +101,15 @@ internal static partial class Program
         Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions without coordinate ROM reads.");
     }
 
-    private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace,
+        ISnesMutableMemory, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x9ba4b3 and <= 0x9bb3a6)

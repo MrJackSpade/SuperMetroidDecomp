@@ -137,8 +137,11 @@ internal static partial class Program
     }
 
     private sealed class KraidMouthLowHalfReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, ISnesMutableMemory
     {
+        public byte ReadWorkRamByte(int address) => ReadByte(address);
+        public byte ReadSaveRamByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
@@ -153,8 +156,13 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace
+    private sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace,
+        ISnesMutableMemory, ISnesCpuPeripheralSource
     {
+        public byte ReadWorkRamByte(int address) => ReadByte(address);
+        public byte ReadSaveRamByte(int address) => ReadByte(address);
+        public byte ReadPeripheralByte(int address) => ReadByte(address);
+
         public static byte Value(ushort pointer) => unchecked((byte)(pointer ^ 0x5a));
 
         public byte ReadByte(int address)

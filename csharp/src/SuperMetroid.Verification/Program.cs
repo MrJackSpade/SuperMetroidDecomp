@@ -985,6 +985,18 @@ if (args is ["--trail-mutable-alias"])
     VerifyTrailMutableAlias();
     return 0;
 }
+if (args is ["--projectile-trail-coordinates"])
+{
+    VerifyProjectileTrailCoordinates(SuperMetroidAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--kraid-mouth-hitboxes"])
+{
+    VerifyKraidMouthHitboxes(SuperMetroidAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--shaktool-instruction-mechanics"])
 {
     VerifyShaktoolInstructionProgramDefinitions();

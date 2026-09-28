@@ -793,7 +793,8 @@ internal static class ProjectileTrailCoordinateDefinitions
         SnesAddress following = SnesAddress.FromBusAddress(next);
         if (source.Bank == 0x9b && !source.IsUpperLoRomWindow &&
             following.Bank == 0x9b && !following.IsUpperLoRomWindow)
-            return (ushort)(bus.ReadByte(address) | bus.ReadByte(next) << 8);
+            return (ushort)(SnesCpuMappedData.ReadByte(bus, address) |
+                SnesCpuMappedData.ReadByte(bus, next) << 8);
 
         throw new InvalidDataException(
             $"Projectile trail direction pointer {source} is outside compiled data " +
@@ -814,8 +815,20 @@ internal static class ProjectileTrailCoordinateDefinitions
             (byte)(SamusProjectileRomData.Banks.PaletteAndTrailData >> 16), operand, index);
     }
 
-    private sealed class BoundaryBus(ISnesAddressSpace bus) : ISnesAddressSpace
+    private sealed class BoundaryBus(ISnesAddressSpace bus) : ISnesAddressSpace,
+        ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
+        public byte ReadWorkRamByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
+        public byte ReadSaveRamByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
+        public byte ReadPeripheralByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
+        public byte ReadCartridgeByte(int address)
+        {
+            if (TryReadByte(address, out byte value))
+                return value;
+            throw new InvalidDataException(
+                $"Projectile trail coordinate read reached uncompiled cartridge address {SnesAddress.FromBusAddress(address)}.");
+        }
+
         public byte ReadByte(int address)
         {
             if (TryReadByte(address, out byte value))
@@ -825,7 +838,7 @@ internal static class ProjectileTrailCoordinateDefinitions
             if (source.IsUpperLoRomWindow)
                 throw new InvalidDataException(
                     $"Projectile trail coordinate read reached uncompiled cartridge address {source}.");
-            return bus.ReadByte(address);
+            return SnesCpuMappedData.ReadByte(bus, address);
         }
 
         public void WriteByte(int address, byte value) => bus.WriteByte(address, value);

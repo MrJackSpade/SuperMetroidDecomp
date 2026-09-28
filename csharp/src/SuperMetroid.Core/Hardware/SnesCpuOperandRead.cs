@@ -28,7 +28,7 @@ public static class SnesCpuOperandRead
             ((offset >= SnesCpuOpenBusWindows.ReservedBBusStart && offset <= SnesCpuOpenBusWindows.ReservedBBusEnd) ||
              (offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart && offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd)))
             return memoryDataRegister;
-        return bus.ReadByte(address);
+        return SnesCpuMappedData.ReadByte(bus, address);
     }
 }
 

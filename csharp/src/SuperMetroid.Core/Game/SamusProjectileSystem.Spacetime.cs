@@ -30,19 +30,23 @@ public sealed partial class SamusProjectileSystem
         while (unchecked((short)(y - SpacetimeBeamCorruptionLayout.PaletteByteCount)) < 0)
         {
             int sourcePointer =
-                bus.ReadByte(SpacetimeBeamCorruptionLayout.SourceLongPointerAddress) |
-                bus.ReadByte(SpacetimeBeamCorruptionLayout.SourceLongPointerAddress + 1) << 8 |
-                bus.ReadByte(SpacetimeBeamCorruptionLayout.SourceLongPointerAddress + 2) << 16;
+                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                    "SpaceTime source pointer requires WRAM.")).ReadWorkRamByte(
+                    SpacetimeBeamCorruptionLayout.SourceLongPointerAddress) |
+                ((ISnesMutableMemory)bus).ReadWorkRamByte(
+                    SpacetimeBeamCorruptionLayout.SourceLongPointerAddress + 1) << 8 |
+                ((ISnesMutableMemory)bus).ReadWorkRamByte(
+                    SpacetimeBeamCorruptionLayout.SourceLongPointerAddress + 2) << 16;
             int sourceAddress = (sourcePointer + y) &
                 SpacetimeBeamCorruptionLayout.CpuAddressMask;
             int destinationAddress =
                 (SpacetimeBeamCorruptionLayout.SpritePaletteSixWramAddress + x) &
                 SpacetimeBeamCorruptionLayout.CpuAddressMask;
 
-            bus.WriteByte(destinationAddress, bus.ReadByte(sourceAddress));
+            bus.WriteByte(destinationAddress, SnesCpuMappedData.ReadByte(bus, sourceAddress));
             bus.WriteByte(
                 (destinationAddress + 1) & SpacetimeBeamCorruptionLayout.CpuAddressMask,
-                bus.ReadByte((sourceAddress + 1) &
+                SnesCpuMappedData.ReadByte(bus, (sourceAddress + 1) &
                     SpacetimeBeamCorruptionLayout.CpuAddressMask));
             persistentMemoryCorrupted |=
                 destinationAddress <= SaveRamLayout.LoadingGameStateWramAddress + 1 &&

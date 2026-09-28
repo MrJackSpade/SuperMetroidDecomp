@@ -71,7 +71,7 @@ internal static class KraidMouthHitboxes
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < 0x8000)
-            return bus.ReadByte(KraidBackgroundRomData.NativeBank | pointer);
+            return SnesCpuMappedData.ReadByte(bus, KraidBackgroundRomData.NativeBank | pointer);
 
         int boundaryIndex = pointer - 0x8000;
         ReadOnlySpan<byte> boundary = LowHalfBoundaryBytes;

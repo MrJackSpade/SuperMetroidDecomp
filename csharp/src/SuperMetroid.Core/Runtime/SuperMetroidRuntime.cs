@@ -1112,7 +1112,7 @@ public sealed partial class SuperMetroidRuntime
             ushort pointer = RomDataReader.ReadWordFixedBank(
                 CartridgeImportSource.Require(_addressSpace),
                 SamusProjectileRomData.Beams.PalettePointers + 2 * sizeof(ushort));
-            Cgram.LoadFromBus(_addressSpace, 0x900000 | pointer,
+            Cgram.LoadFromBus(_addressSpace, SamusProjectileRomData.Banks.Movement | pointer,
                 SamusProjectileRomData.Palettes.ColorCount,
                 SamusProjectileRomData.Palettes.BeamDestinationIndex);
         }

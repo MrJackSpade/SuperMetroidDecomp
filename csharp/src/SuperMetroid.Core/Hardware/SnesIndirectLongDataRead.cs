@@ -25,6 +25,6 @@ public static class SnesIndirectLongDataRead
         if ((bank & LoRomExpansionReadMap.MirrorBankMask) < LoRomExpansionReadMap.SystemBankLimit &&
             offset >= LoRomExpansionReadMap.ExpansionStart && offset < LoRomExpansionReadMap.RomStart)
             return busLatch;
-        return bus.ReadByte(address);
+        return SnesCpuMappedData.ReadByte(bus, address);
     }
 }

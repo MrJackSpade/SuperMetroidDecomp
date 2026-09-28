@@ -200,6 +200,11 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.LowerNorfairMainHall,
                     "Lower Norfair main hall");
+                // Kraid's arm switches to its rising/sinking extended frame at
+                // neutral frame 654. A short room-entry check misses that draw.
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.Kraid, "Kraid arm rising/sinking",
+                    frameCount: 700);
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.Phantoon, "Phantoon");
                 // The previous room fixture exempted all bank-$A5 reads while

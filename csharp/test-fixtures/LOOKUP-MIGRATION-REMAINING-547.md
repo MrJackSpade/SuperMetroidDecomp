@@ -3201,3 +3201,13 @@ transfer schedule in `EndingRewardGraphicsUploadDefinitions`. All 32 values matc
 the pinned cartridge independently, while the production uploader runs with both
 ROM tables unreadable and still reconstructs each partial and final icon upload.
 The interleaved Mode-7 icon pixels remain independently editable presentation art.
+
+Kraid's independently scheduled arm now has all twenty-two OAM frames selected by
+its compiled bank-$A7 instruction operands in the installed enemy-art catalog.
+The extractor retains exact component positions and OAM records; native parity
+checks compare all frames at three origins with visual ROM reads forbidden.
+Version-thirteen user overrides inherit the new stock frames without losing edits.
+The installed-assets frontend matches native pixels through 2,400 neutral Kraid
+room frames, including the rising-arm frame that formerly read `$A7:90FD` from
+the cartridge at frame 654. This migrates that visual family, not Kraid's collision
+data or every remaining enemy-art source.

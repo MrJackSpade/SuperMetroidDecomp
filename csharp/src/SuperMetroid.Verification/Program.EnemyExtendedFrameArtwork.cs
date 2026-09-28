@@ -89,6 +89,10 @@ internal static partial class Program
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)),
             "all selected Crocomire fight-body OAM frames are installed");
+        AssertEqual(EnemyExtendedFrameDefinitions.KraidArmFrameCount,
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
+                frame => frame.Name.StartsWith("kraid_arm_oam_", StringComparison.Ordinal)),
+            "all Kraid arm visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
@@ -625,13 +629,15 @@ internal static partial class Program
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) &&
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -650,12 +656,14 @@ internal static partial class Program
             Version = EnemyExtendedFrameDefinitions.PreBombTorizoVersion,
             Frames = document.Frames.Where(entry =>
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
                 !entry.Key.StartsWith("bomb_torizo_", StringComparison.Ordinal) &&
-                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -684,11 +692,13 @@ internal static partial class Program
         {
             Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion,
             Frames = document.Frames.Where(entry =>
-                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
             DisplayFrames = document.DisplayFrames!.Where(entry =>
-                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal))
+                !entry.Key.StartsWith("golden_torizo_", StringComparison.Ordinal) &&
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value,
                     StringComparer.Ordinal),
         };
@@ -712,6 +722,57 @@ internal static partial class Program
                 editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-twelve migration retains an edited Pirate frame");
+
+        var versionThirteen = new EnemyExtendedFrameDocument
+        {
+            Version = EnemyExtendedFrameDefinitions.PreKraidArmVersion,
+            Frames = document.Frames.Where(entry =>
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+            DisplayFrames = document.DisplayFrames!.Where(entry =>
+                !entry.Key.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value,
+                    StringComparer.Ordinal),
+        };
+        AssertEqual(EnemyExtendedFrameDefinitions.PreKraidArmFrameCount,
+            versionThirteen.Frames.Count, "version-thirteen extended-frame schema count");
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            versionThirteen, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog upgradedVersionThirteen = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer stockKraidArm = DrawExtendedForBank(stock, guard,
+            0xa7, 0x90fd, 0x0040, 0x0080);
+        OamBuffer inheritedKraidArm = DrawExtendedForBank(
+            upgradedVersionThirteen, guard, 0xa7, 0x90fd, 0x0040, 0x0080);
+        AssertTrue(stockKraidArm.LowTable.SequenceEqual(inheritedKraidArm.LowTable) &&
+                   stockKraidArm.HighTable.SequenceEqual(inheritedKraidArm.HighTable),
+            "version-thirteen override inherits verified stock Kraid arm art");
+        AssertTrue(DrawExtended(upgradedVersionThirteen, guard,
+                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedOam.LowTable),
+            "version-thirteen migration retains an edited Pirate frame");
+
+        EnemyExtendedFrameDocument kraidArmOverride =
+            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        const string kraidArmName = "kraid_arm_oam_90FD";
+        EnemyExtendedVisualComponent originalArm = kraidArmOverride.Frames[kraidArmName][0];
+        kraidArmOverride.Frames[kraidArmName][0] = originalArm with
+        {
+            OffsetX = originalArm.OffsetX + 1,
+        };
+        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
+            kraidArmOverride, new JsonSerializerOptions
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        EnemyTileArtworkCatalog editedKraidArm = EnemyTileArtworkFiles.Load(
+            stockDirectory, overrideDirectory);
+        OamBuffer movedKraidArm = DrawExtendedForBank(editedKraidArm, guard,
+            0xa7, 0x90fd, 0x0040, 0x0080);
+        AssertEqual(unchecked((byte)(stockKraidArm.LowTable[0] + 1)),
+            movedKraidArm.LowTable[0],
+            "editable Kraid arm component changes live OAM without ROM reads");
 
         EnemyExtendedFrameDocument sporeVisualRemap =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
@@ -913,9 +974,9 @@ internal static partial class Program
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum and 9 Crocomire OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire and 22 Kraid arm OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden; Pirate and boss edits and " +
-            "draw-only frame remaps preserve hitboxes/timers; v1-v9 override " +
+            "draw-only frame remaps preserve hitboxes/timers; v1-v13 override " +
             "migration, reload, stock hash and invalid-resource checks pass.");
     }
 
@@ -933,7 +994,8 @@ internal static partial class Program
         name.StartsWith("crocomire_oam_", StringComparison.Ordinal) ||
         name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal) ||
         name.StartsWith("bomb_torizo_", StringComparison.Ordinal) ||
-        name.StartsWith("golden_torizo_", StringComparison.Ordinal);
+        name.StartsWith("golden_torizo_", StringComparison.Ordinal) ||
+        name.StartsWith("kraid_arm_oam_", StringComparison.Ordinal);
 
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)

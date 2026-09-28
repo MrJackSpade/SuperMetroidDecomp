@@ -7,7 +7,8 @@ internal readonly record struct KraidArmInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled timing and control for Kraid's independently scheduled arm actor. The
-/// interleaved extended-spritemap operands remain live cartridge presentation data.
+/// interleaved extended-spritemap selectors are compiled presentation data;
+/// their selected OAM frames live in the installed enemy-art catalog.
 /// </summary>
 internal static class KraidArmInstructionProgramDefinitions
 {

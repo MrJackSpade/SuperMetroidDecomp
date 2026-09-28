@@ -369,18 +369,39 @@ internal static partial class Program
     }
 
     private sealed class CeresRidleyColorReadGuard(ISnesAddressSpace inner,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public int ForbiddenReadAttempts { get; private set; }
-        public byte ReadByte(int address)
+
+        private void RejectColorSource(int address)
         {
             if (forbidden.Contains(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException($"Ceres Ridley color reread ${address:X6}.");
             }
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectColorSource(address);
             return inner.ReadByte(address);
         }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectColorSource(address);
+            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
+        }
+
+        public byte ReadWorkRamByte(int address) =>
+            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Ceres Ridley color guard source does not expose WRAM.")).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Ceres Ridley color guard source does not expose SRAM.")).ReadSaveRamByte(address);
+
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

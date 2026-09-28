@@ -107,10 +107,12 @@ internal static partial class Program
         return vram;
     }
 
-    private sealed class ForbiddenRoomFxTilemapBus(ISnesAddressSpace inner) : ISnesAddressSpace
+    private sealed class ForbiddenRoomFxTilemapBus(ISnesAddressSpace inner) :
+        ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReads { get; private set; }
-        public byte ReadByte(int address)
+
+        private void RejectTilemapSource(int address)
         {
             if ((address >> 16) == 0x8a ||
                 address >= RoomFxRomData.Tables.Layer3TilemapPointers &&
@@ -120,8 +122,20 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
             }
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectTilemapSource(address);
             return inner.ReadByte(address);
         }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectTilemapSource(address);
+            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
+        }
+
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

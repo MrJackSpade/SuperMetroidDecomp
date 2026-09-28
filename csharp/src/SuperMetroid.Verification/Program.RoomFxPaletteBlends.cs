@@ -115,19 +115,33 @@ internal static partial class Program
         return (state, bus, cgram);
     }
 
-    private sealed class ForbiddenRoomFxPaletteBus(TestAddressSpace inner) : ISnesAddressSpace
+    private sealed class ForbiddenRoomFxPaletteBus(TestAddressSpace inner) :
+        ISnesAddressSpace, IImportCartridgeSource
     {
         public TestAddressSpace Inner { get; } = inner;
         public int ForbiddenReads { get; private set; }
-        public byte ReadByte(int address)
+
+        private void RejectPaletteSource(int address)
         {
             if ((address >> 16) == 0x89)
             {
                 ForbiddenReads++;
                 throw new InvalidOperationException($"Installed room-FX blend read ROM ${address:X6}.");
             }
+        }
+
+        public byte ReadByte(int address)
+        {
+            RejectPaletteSource(address);
             return Inner.ReadByte(address);
         }
+
+        public byte ReadCartridgeByte(int address)
+        {
+            RejectPaletteSource(address);
+            return Inner.ReadCartridgeByte(address);
+        }
+
         public void WriteByte(int address, byte value) => Inner.WriteByte(address, value);
     }
 }

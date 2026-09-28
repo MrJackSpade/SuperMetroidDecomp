@@ -2981,6 +2981,36 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+            enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
+            CrocomireBodyCollisionDefinitions.HasFrame(enemy.SpritemapPointer))
+        {
+            // Physical body components and their callback lists are compiled
+            // independently of Crocomire's replaceable OAM/BG2 presentation.
+            // Preserve native component/hitbox order: the first overlap wins.
+            foreach (CrocomireBodyCollisionComponent component in
+                     CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (CrocomireBodyCollisionHitbox hitbox in
+                         CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         if (enemy.EnemyDefinitionPointer == CrocomireTongueDefinition &&
             enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
             (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||

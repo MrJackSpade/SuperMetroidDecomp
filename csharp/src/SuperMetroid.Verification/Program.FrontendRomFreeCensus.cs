@@ -7,7 +7,7 @@ using SuperMetroid.Desktop;
 internal static partial class Program
 {
     /// <summary>
-    /// Opt-in one-frame retail-room census. Restore each room from the same live
+    /// Opt-in bounded retail-room census. Restore each room from the same live
     /// gameplay state so native VRAM queues, PLM slots, and room events from an
     /// earlier diagnostic room cannot affect the next result.
     /// </summary>
@@ -83,12 +83,12 @@ internal static partial class Program
         string? frameCountText = Environment.GetEnvironmentVariable("SM_ROM_FREE_CENSUS_FRAMES");
         if (!string.IsNullOrWhiteSpace(frameCountText))
         {
-            AssertTrue(selectedRoom is not null,
-                "multi-frame ROM-free census requires one selected room");
             AssertTrue(int.TryParse(frameCountText, NumberStyles.None,
                     CultureInfo.InvariantCulture, out frameCount) &&
                 frameCount is >= 1 and <= 3600,
                 "ROM-free census frame count must be 1..3600");
+            AssertTrue(selectedRoom is not null || frameCount <= 90,
+                "whole-cartridge ROM-free room census is limited to 90 neutral frames per room");
         }
         var failures = new List<string>();
         int checkedRooms = 0;

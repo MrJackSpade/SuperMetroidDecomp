@@ -1,5 +1,24 @@
 # Remaining lookup migration inventory (#547)
 
+## Crocomire body collision and multi-frame room census (2026-09-27)
+
+Crocomire's fifty selected fight-body frames now use engine-owned physical
+component offsets and fifteen ordered hitbox/callback lists. The independent
+installed OAM/BG2 compositions remain editable presentation; modifying them
+cannot move collision or change native touch/shot dispatch. Verification
+compares every physical field with the pinned cartridge, then drives 7,200
+native-versus-compiled touch/shot probes while the installed collision bus
+rejects every cartridge read. Isolated Crocomire room `$8F:A98D` matches native
+pixels for 120 neutral frames under the same guard.
+
+The retail-room ROM-free census now accepts a bounded all-room frame count,
+so a multi-frame sweep can expose post-load lookups instead of checking only
+the first frame. The first 30-frame sweep identified this Crocomire read;
+after the migration, all 262 retail rooms match native pixels for 30 isolated
+neutral frames with every installed runtime cartridge read blocked. Scripted
+fights, input-driven interactions, and the complete ROM-free runtime contract
+remain open.
+
 ## Ceres escape overlay tilemaps (2026-09-27)
 
 The English EMERGENCY title and four Japanese subtitle rows now live in one

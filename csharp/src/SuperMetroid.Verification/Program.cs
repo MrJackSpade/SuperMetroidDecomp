@@ -1837,6 +1837,11 @@ if (args is ["--verify-crocomire-tongue-collision"])
     VerifyCrocomireTongueCollisionDefinitions();
     return 0;
 }
+if (args is ["--verify-crocomire-body-collision"])
+{
+    VerifyCrocomireBodyCollisionDefinitions();
+    return 0;
+}
 if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
@@ -2868,6 +2873,7 @@ VerifyRidleyCollisionDefinitions();
 VerifyCeresSteamCollisionDefinitions();
 VerifyMaridiaLargeSnailCollisionDefinitions();
 VerifyCrocomireTongueCollisionDefinitions();
+VerifyCrocomireBodyCollisionDefinitions();
 VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyRidleyExplosionDefinitions(

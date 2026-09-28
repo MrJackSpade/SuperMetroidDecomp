@@ -382,7 +382,16 @@ internal static partial class Program
         for (int frame = 0; frame < frameCount; frame++)
         {
             FrontendFrame expected = native.Step(0);
-            FrontendFrame actual = installed.Step(0);
+            FrontendFrame actual;
+            try
+            {
+                actual = installed.Step(0);
+            }
+            catch (Exception error)
+            {
+                throw new InvalidOperationException(
+                    $"Installed {roomName} failed at neutral frame {frame}.", error);
+            }
             AssertEqual(roomPointer,
                 installed.GameplayActiveRoomPointer,
                 $"installed {roomName} fixture remains in one room at frame {frame}");

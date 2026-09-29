@@ -4059,7 +4059,9 @@ public sealed partial class SuperMetroidRuntime
                 advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlAtFrameStart);
         }
         if (EscapeTimer.IsActive)
-            EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace, MapPresentation?.EscapeTimer);
+            EscapeTimerRenderer.Draw(EscapeTimer, Oam,
+                (MapPresentation ?? throw new InvalidOperationException(
+                    "Escape timer requires installed presentation assets.")).EscapeTimer);
         Oam.FinalizeFrame();
 
         // $80:9B44 appends the mutable three-row HUD upload during main-thread logic; it

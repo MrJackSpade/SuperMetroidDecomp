@@ -7,7 +7,8 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     private static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentationCatalog original)
+        string overrides, AreaMapPresentationCatalog original,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         VerifyEscapeTimerPointerDefinitions(bus);
 
@@ -67,7 +68,8 @@ internal static partial class Program
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "Mother Brain synchronous second timer transfer uses installed artwork");
 
-        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
+            initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstDestinationWord);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
@@ -86,8 +88,8 @@ internal static partial class Program
         var installed = new OamBuffer();
         native.BeginFrame();
         installed.BeginFrame();
-        EscapeTimerRenderer.Draw(timer, native, bus);
-        EscapeTimerRenderer.Draw(timer, installed, new ForbiddenMapBus(), presentation);
+        DrawImportedEscapeTimer(bus, timer, native);
+        EscapeTimerRenderer.Draw(timer, installed, presentation);
         AssertEqual(native.NextByteOffset, installed.NextByteOffset,
             "installed timer emits the native number of OAM parts");
         AssertTrue(native.LowTable.SequenceEqual(installed.LowTable),
@@ -111,7 +113,7 @@ internal static partial class Program
 
         var moved = new OamBuffer();
         moved.BeginFrame();
-        EscapeTimerRenderer.Draw(timer, moved, new ForbiddenMapBus(), edited.EscapeTimer);
+        EscapeTimerRenderer.Draw(timer, moved, edited.EscapeTimer);
         // Label occupies the first five OAM entries. The next two parts are the minute tens.
         AssertTrue(native.LowTable[..20].SequenceEqual(moved.LowTable[..20]),
             "editing minute anchor leaves TIME label untouched");
@@ -198,14 +200,44 @@ internal static partial class Program
         var guarded = new OamBuffer();
         native.BeginFrame();
         guarded.BeginFrame();
-        EscapeTimerRenderer.Draw(timer, native, bus);
-        EscapeTimerRenderer.Draw(timer, guarded, new EscapeTimerPointerReadGuard(bus));
+        DrawImportedEscapeTimer(bus, timer, native);
+        EscapeTimerRenderer.Draw(timer, guarded,
+            EscapeTimerPresentation.Load(new MemoryStream(guardedExtraction)));
         AssertEqual(native.NextByteOffset, guarded.NextByteOffset,
             "compiled timer pointers preserve native OAM part count");
         AssertTrue(native.LowTable.SequenceEqual(guarded.LowTable) &&
             native.HighTable.SequenceEqual(guarded.HighTable),
             "native timer draw no longer rereads the immutable digit pointer table");
         Console.WriteLine("Escape timer digit pointers: ten cartridge words, exact extraction and OAM, no runtime pointer-table reads.");
+    }
+
+    /// <summary>Verifies the installed timer against import-time cartridge parts.</summary>
+    private static void DrawImportedEscapeTimer(ISnesAddressSpace bus, EscapeTimer timer,
+        OamBuffer oam)
+    {
+        ushort palette = EnemyPaletteBits.Palette5;
+        Draw(0, EscapeTimerPresentationDefinitions.LabelSpritemap);
+        Digits(timer.MinutesBcd, unchecked((short)0xffe4));
+        Digits(timer.SecondsBcd, unchecked((short)0xfffc));
+        Digits(timer.CentisecondsBcd, 0x0014);
+
+        void Digits(byte bcd, short offset)
+        {
+            int tens = bcd >> 4;
+            int ones = bcd & 15;
+            if (tens > 9 || ones > 9)
+                throw new InvalidDataException($"Timer oracle received invalid BCD ${bcd:X2}.");
+            Draw(offset, EscapeTimerPresentationDefinitions.DigitSpritemapPointer(tens));
+            Draw(unchecked((short)(offset + 8)),
+                EscapeTimerPresentationDefinitions.DigitSpritemapPointer(ones));
+        }
+
+        void Draw(short offset, int address)
+        {
+            int fullAddress = address <= ushort.MaxValue ? 0x800000 | address : address;
+            DrawImportedSpritemap(bus, oam, fullAddress,
+                unchecked((ushort)(timer.XPixel + offset)), timer.YPixel, palette);
+        }
     }
 
     private sealed class EscapeTimerPointerReadGuard(ISnesAddressSpace source) :

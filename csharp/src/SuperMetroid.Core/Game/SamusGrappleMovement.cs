@@ -225,10 +225,9 @@ public static partial class SamusGrappleMovement
         // shared main flare only; charge-spark direction offsets do not apply.
         ushort tableIndex = unchecked((ushort)(
             grapple.FlareAnimationFrame + Assets.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
-        if (compositions is not null && tableIndex < Assets.ChargeFlareSpriteDefinitions.Selectors.Length)
-            compositions.Draw(tableIndex, oam, screenX, screenY);
-        else
-            oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
+        (compositions ?? throw new InvalidOperationException(
+            "Grapple flare requires installed sprite compositions."))
+            .Draw(tableIndex, oam, screenX, screenY);
         return true;
     }
 

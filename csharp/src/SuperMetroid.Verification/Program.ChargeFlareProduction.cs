@@ -9,7 +9,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-    private static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus, ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited)
+    private static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
+        ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
+        SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
+        AreaMapPresentationCatalog maps)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
@@ -19,11 +22,13 @@ internal static partial class Program
         foreach (ushort hyper in new ushort[] { 0, 1 })
         {
             var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100, HyperBeam = hyper };
+            samus.TileTransfers.BindArtwork(body);
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
             for (int tick = 0; tick < 160 && native.FlareCounter != 0; tick++)
             {
                 var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
-                native.HandleChargeFlareAndDraw(bus, a, samus, 0, 0, placement: placement);
+                native.HandleChargeFlareAndDraw(bus, a, samus, 0, 0,
+                    placement: placement, compositions: stock);
                 compiled.HandleChargeFlareAndDraw(guarded, b, samus, 0, 0, placement: placement, compositions: stock);
                 changed.HandleChargeFlareAndDraw(guarded, c, samus, 0, 0, placement: placement, compositions: edited);
                 AssertTrue(a.LowTable.SequenceEqual(b.LowTable) && a.HighTable.SequenceEqual(b.HighTable), "Normal/Hyper flare producer preserves complete native sprite output");
@@ -38,22 +43,21 @@ internal static partial class Program
                 ticks++;
             }
         }
-        // An externally restored adjacent selector must retain its native result,
-        // not become a newly fatal charge-only catalog lookup.
-        var adjacentNative = Create(); var adjacentSelected = Create();
-        foreach (var system in new[] { adjacentNative, adjacentSelected })
-        {
-            typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(system, (ushort)15);
-            ((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!.GetValue(system)!)[0] = 54;
-            Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(system)!, (ushort)100);
-        }
-        var first = new OamBuffer(); var second = new OamBuffer();
+        // A restored selector outside authored flare art cannot read adjacent ROM bytes.
+        var invalidSelector = Create();
+        ((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!
+            .GetValue(invalidSelector)!)[0] = 54;
         var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
-        adjacentNative.HandleChargeFlareAndDraw(bus, first, subject, 0, 0);
-        adjacentSelected.HandleChargeFlareAndDraw(bus, second, subject, 0, 0, compositions: edited);
-        AssertTrue(first.LowTable.SequenceEqual(second.LowTable) && first.HighTable.SequenceEqual(second.HighTable), "Non-catalog flare selector retains native adjacent-table output");
+        subject.TileTransfers.BindArtwork(body);
+        AssertThrows<InvalidDataException>(() => invalidSelector.HandleChargeFlareAndDraw(
+            bus, new OamBuffer(), subject, 0, 0, placement: placement, compositions: stock),
+            "Non-catalog flare selector is rejected instead of reading adjacent ROM data");
 
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = new SuperMetroidRuntime(bus,
+            initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
+        roomAssets.Bind(runtime);
+        runtime.ChargeFlarePlacement = placement;
+        runtime.ChargeFlareCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.Samus!.Pose = 1;
@@ -79,6 +83,11 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
         AssertTrue(restoredRuntime.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
+        roomAssets.Bind(restoredRuntime);
+        restoredRuntime.MapPresentation = maps;
+        restoredRuntime.ChargeFlarePlacement = placement;
+        restoredRuntime.Samus!.TileTransfers.BindArtwork(body);
+        restoredRuntime.Samus.ArmCannon.Artwork = body.ArmCannon;
         game.BindChargeFlareCompositions(edited); restored.BindChargeFlareCompositions(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored actor pass uses current composition at saved animation state");
         Console.WriteLine($"Charge-flare production: {ticks} native/compiled/edited normal and Hyper ticks, ROM guard, state isolation and real actor restore/rebind pass.");

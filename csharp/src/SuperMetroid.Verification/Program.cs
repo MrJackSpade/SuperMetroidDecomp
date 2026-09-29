@@ -997,6 +997,13 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--charge-flare-compositions", var flareRom])
+{
+    VerifyChargeFlareCompositions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(flareRom)),
+        flareOnly: true, sourceRom: flareRom);
+    return 0;
+}
 if (args is ["--trail-mutable-alias"])
 {
     VerifyTrailMutableAlias();

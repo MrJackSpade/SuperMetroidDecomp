@@ -7,7 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus)
+    private static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
+        bool flareOnly = false, string sourceRom = "Super Metroid.smc")
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
@@ -15,10 +16,21 @@ internal static partial class Program
         foreach (var frame in allEdited["frames"]!.AsObject())
         foreach (var part in frame.Value!.AsArray())
             part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
-        VerifyChargeFlareProduction(bus, stock, Load(allEdited));
-        VerifyGrappleFlarePresentation(bus, stock, Load(allEdited));
-        VerifyGrapplePointAnimation(bus);
-        VerifyGrappleTileArtwork(bus);
+        using var temporaryDirectory = new MapCatalogTestDirectory();
+        GameInstallation installation = GameAssetInstaller.Install(
+            Path.GetFullPath(sourceRom), temporaryDirectory.Root);
+        SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();
+        var roomAssets = new MapPresentationInstalledRoomAssets(installation);
+        var maps = installation.LoadMaps();
+        VerifyChargeFlareProduction(bus, stock, Load(allEdited), body,
+            roomAssets, maps);
+        VerifyGrappleFlarePresentation(bus, stock, Load(allEdited), body,
+            roomAssets, maps, installation.LoadProjectiles().GrappleTiles);
+        if (!flareOnly)
+        {
+            VerifyGrapplePointAnimation(bus);
+            VerifyGrappleTileArtwork(bus);
+        }
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {
@@ -34,7 +46,7 @@ internal static partial class Program
                     native.AddProjectileSpritePart(default, 0, default, 10, 20);
                     actual.AddProjectileSpritePart(default, 0, default, 10, 20);
                 }
-                native.AddFlareSpritemap(bus, selector, x, y);
+                DrawImportedFlareSpritemap(bus, native, selector, x, y);
                 stock.Draw(selector, actual, x, y);
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),
                     "Extracted flare matches complete native OAM, including signed placement, high bits and capacity wrap");
@@ -62,5 +74,25 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => stock.Draw(ushort.MaxValue, new OamBuffer(), 0, 0), "Invalid selector is not clamped");
         Console.WriteLine($"Charge-flare compositions: {cases} native OAM comparisons, editable displacement and invalid-resource checks pass.");
         static ChargeFlareSpriteCatalog Load(JsonNode node) => ChargeFlareSpriteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
+    }
+
+    /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
+    private static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
+        ushort selector, ushort originX, ushort originY)
+    {
+        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
+            (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
+        int table = 0x930000 | ((0xA1A1 + selector * 2) & 0xffff);
+        int record = 0x930000 | ReadWord(table);
+        ushort partCount = ReadWord(record);
+        int partAddress = SnesAddressMath.AddWithinBank(record, 2);
+        for (int part = 0; part < partCount; part++)
+        {
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
+                bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
+                new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                originX, originY);
+            partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
+        }
     }
 }

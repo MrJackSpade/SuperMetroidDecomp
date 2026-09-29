@@ -183,12 +183,11 @@ public sealed partial class SamusProjectileSystem
             ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
             : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
         ushort tableIndex = unchecked((ushort)(indexOffset + _flareFrames[component]));
-        // Retain native adjacent-table behavior for non-catalog animation states.
-        // Authored charge/Hyper selectors use only immutable host compositions.
-        if (compositions is not null && tableIndex < Assets.ChargeFlareSpriteDefinitions.Selectors.Length)
-            compositions.Draw(tableIndex, oam, screenX, screenY);
-        else
-            oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
+        // A selector outside the installed catalog is not valid executable art.
+        // The catalog rejects it loudly rather than reading adjacent ROM bytes.
+        (compositions ?? throw new InvalidOperationException(
+            "Charge flare requires installed sprite compositions."))
+            .Draw(tableIndex, oam, screenX, screenY);
     }
 
     private void ClearFlareAnimationState()

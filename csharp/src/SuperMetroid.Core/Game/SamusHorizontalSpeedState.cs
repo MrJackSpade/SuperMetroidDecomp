@@ -464,7 +464,7 @@ public sealed class SamusHorizontalSpeedState
         if (!NormalSuitPaletteRestoreRequested)
             return false;
 
-        SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
+        SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
         NormalSuitPaletteRestoreRequested = false;
         return true;
     }
@@ -510,7 +510,7 @@ public sealed class SamusHorizontalSpeedState
         ushort equippedItems,
         SamusSuitColorCatalog? suitColors)
     {
-        SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
+        SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
     }
 
     /// <summary>

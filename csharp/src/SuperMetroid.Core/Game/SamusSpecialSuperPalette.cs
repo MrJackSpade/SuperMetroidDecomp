@@ -29,7 +29,7 @@ public static class SamusSpecialSuperPalette
             ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(suitOffset)
             : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         if ((flags & 1) == 0)
-            SamusNormalSuitPalette.Load(bus, cgram, samus.EquippedItems, samus.SuitColors);
+            SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.SuitColors);
         else if (samus.FullBodyCycleColors is { } cycleColors)
             cycleColors.Apply(cgram, palettePointer);
         else

@@ -62,7 +62,7 @@ public sealed partial class SamusState
 
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
-        SamusNormalSuitPalette.LoadPower(bus, cgram, suitColors);
+        SamusNormalSuitPalette.LoadPower(cgram, suitColors);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        SamusNormalSuitPalette.Load(bus, cgram, EquippedItems, suitColors);
+        SamusNormalSuitPalette.Load(cgram, EquippedItems, suitColors);
     }
 
     /// <summary>

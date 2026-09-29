@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -593,7 +594,10 @@ internal static partial class Program
             EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
         };
-        SamusState.LoadPowerSuitPalette(bus, cgram);
+        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        samus.SuitColors = suitColors;
+        SamusState.LoadPowerSuitPalette(bus, cgram, suitColors);
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = new SuitPickupBeamCurveReadGuard(bus);

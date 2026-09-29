@@ -28,7 +28,9 @@ static void VerifySamusRenderingSlice()
     var vram = new SnesVram();
     var oam = new OamBuffer();
 
-        SamusState.LoadPowerSuitPalette(bus, cgram);
+    SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+        new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+    SamusState.LoadPowerSuitPalette(bus, cgram, suitColors);
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
     AssertEqual(0x000d, cgram.Colors[207], "Samus power-suit palette color fifteen at CGRAM 207");
 

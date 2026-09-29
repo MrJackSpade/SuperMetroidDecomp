@@ -79,7 +79,7 @@ public static class SamusHurtFlashPalette
             else
             {
                 ushort palettePointer = SamusNormalSuitPalette.Load(
-                    bus, cgram, samus.EquippedItems, samus.SuitColors);
+                    cgram, samus.EquippedItems, samus.SuitColors);
                 paletteAddress = SamusPaletteRomData.Banks.Palette | palettePointer;
                 action = SamusHurtFlashPaletteAction.NormalSuitRestore;
             }

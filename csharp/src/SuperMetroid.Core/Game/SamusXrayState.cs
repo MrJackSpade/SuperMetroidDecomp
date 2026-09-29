@@ -541,7 +541,7 @@ public sealed class SamusXrayState
         {
             // Carry clear from the native handler asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
-            SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
             SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = 0;

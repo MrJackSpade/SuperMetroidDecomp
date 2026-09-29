@@ -6,32 +6,25 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Shared normal-suit CGRAM copy; every owner uses the same selected visual source.</summary>
 public static class SamusNormalSuitPalette
 {
-    public static ushort Load(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
-        SamusSuitColorCatalog? colors = null)
+    public static ushort Load(SnesCgram cgram, ushort equippedItems,
+        SamusSuitColorCatalog? colors)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
+        if (colors is null)
+            throw new InvalidOperationException(
+                "Normal suit palette requires installed Samus suit colors.");
         ushort offset = equippedItems.GetSuitPaletteTableOffset();
         ushort pointer = SamusPaletteRomData.Common.NormalSuitPalettePointer(offset);
-        if (colors is null)
-            cgram.LoadFromBus(bus, SamusPaletteRomData.Banks.Palette | pointer,
-                SamusPaletteRomData.Common.ColorsPerObjPalette,
-                SamusPaletteRomData.Common.SamusObjPaletteStart);
-        else
-            colors.Apply(cgram, offset);
+        colors.Apply(cgram, offset);
         return pointer;
     }
 
-    public static void LoadPower(ISnesAddressSpace bus, SnesCgram cgram,
-        SamusSuitColorCatalog? colors = null)
+    public static void LoadPower(SnesCgram cgram, SamusSuitColorCatalog? colors)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         if (colors is null)
-            cgram.LoadFromBus(bus, SamusRenderingRomData.Body.PowerSuitPalette,
-                SamusPaletteRomData.Common.ColorsPerObjPalette,
-                SamusPaletteRomData.Common.SamusObjPaletteStart);
-        else
-            colors.Apply(cgram, 0);
+            throw new InvalidOperationException(
+                "Power suit palette requires installed Samus suit colors.");
+        colors.Apply(cgram, 0);
     }
 }

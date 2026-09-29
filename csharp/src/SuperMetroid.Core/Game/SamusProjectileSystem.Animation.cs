@@ -204,7 +204,7 @@ public sealed partial class SamusProjectileSystem
     {
         // Preserve the native pointer as the diagnostic result while the installed
         // color source replaces only the sixteen displayed BGR555 words.
-        return SamusNormalSuitPalette.Load(bus, cgram, samus.EquippedItems, samus.SuitColors);
+        return SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.SuitColors);
     }
 
     private static ushort GetSuitPaletteOffset(ushort equippedItems) =>

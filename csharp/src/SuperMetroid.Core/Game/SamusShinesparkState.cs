@@ -493,7 +493,7 @@ public sealed class SamusShinesparkState
             PaletteFrameOffset = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
-            SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
             return true;
         }
 

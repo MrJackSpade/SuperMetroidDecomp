@@ -7,6 +7,55 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyNormalSuitCatalogBoundary()
+    {
+        var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(cartridge)));
+        ushort[] equipment =
+        [
+            0,
+            (ushort)SamusEquipmentFlags.VariaSuit,
+            (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+        ];
+        int[] sourceAddresses =
+        [
+            SamusRenderingRomData.Body.PowerSuitPalette,
+            SamusRenderingRomData.Body.VariaSuitPalette,
+            SamusRenderingRomData.Body.GravitySuitPalette,
+        ];
+
+        for (int suit = 0; suit < equipment.Length; suit++)
+        {
+            var cgram = new SnesCgram();
+            ushort pointer = SamusNormalSuitPalette.Load(cgram, equipment[suit], colors);
+            AssertEqual(SamusPaletteRomData.Common.NormalSuitPalettePointer((ushort)(suit * 2)),
+                pointer, $"suit {suit} retains its native diagnostic pointer");
+            for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
+                AssertEqual(
+                    (ushort)(RomDataReader.ReadWordFixedBank(cartridge,
+                        sourceAddresses[suit] + color * sizeof(ushort)) & 0x7fff),
+                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    $"suit {suit} color {color} is installed without a runtime bus");
+        }
+
+        var power = new SnesCgram();
+        SamusNormalSuitPalette.LoadPower(power, colors);
+        for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
+            AssertEqual(colors.Resolve(0, color),
+                power.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                $"Power Suit color {color} is installed without a runtime bus");
+
+        AssertThrows<InvalidOperationException>(
+            () => SamusNormalSuitPalette.Load(new SnesCgram(), 0, null),
+            "missing installed normal suit colors fail explicitly");
+        AssertThrows<InvalidOperationException>(
+            () => SamusNormalSuitPalette.LoadPower(new SnesCgram(), null),
+            "missing installed Power Suit colors fail explicitly");
+        Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers, Power copy, and missing-content errors pass without a runtime bus.");
+    }
+
     private static void VerifySamusSuitColorOverride(
         string stockDirectory,
         string overrideDirectory,

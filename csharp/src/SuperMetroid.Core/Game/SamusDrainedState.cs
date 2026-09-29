@@ -201,7 +201,7 @@ public sealed class SamusDrainedState
             // `$90:F3E9` and `$91:E56B` choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
             // palette restoration path in bank `$91`.
-            SamusNormalSuitPalette.Load(bus, cgram, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
             _suitPaletteRestoreRequested = false;
             return true;
         }

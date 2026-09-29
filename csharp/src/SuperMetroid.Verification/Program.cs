@@ -29,6 +29,11 @@ try
 VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--normal-suit-catalog-boundary"])
+{
+    VerifyNormalSuitCatalogBoundary();
+    return 0;
+}
 if (args is ["--hyper-beam-fx-colors"])
 {
     VerifyHyperBeamFxColorArtwork(

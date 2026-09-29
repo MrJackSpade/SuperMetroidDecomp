@@ -557,17 +557,9 @@ public sealed partial class PlayableGameControl : UserControl
 
     private ControllerInputRecorder StartInputRecorder()
     {
-        if (playerDataDirectory is null)
-        {
-            return ControllerInputRecorder.Start(
-                romPath,
-                addressSpace.SaveRam,
-                gameOptions,
-                contentIdentity: null);
-        }
-
         return ControllerInputRecorder.StartInstalled(
-            playerDataDirectory,
+            playerDataDirectory ?? throw new InvalidOperationException(
+                "Desktop session has no installed content directory."),
             addressSpace.SaveRam,
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(

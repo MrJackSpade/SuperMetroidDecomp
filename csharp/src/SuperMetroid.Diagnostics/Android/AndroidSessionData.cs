@@ -14,7 +14,6 @@ namespace SuperMetroid.Android;
 internal sealed class AndroidSessionData : IDisposable
 {
     private readonly string root;
-    private readonly string romPath;
     private readonly string savePath;
     private readonly bool installedSession;
     private readonly ExtractedAudioAssetCatalog assets;
@@ -73,8 +72,6 @@ internal sealed class AndroidSessionData : IDisposable
         if (cartridgePath is not null)
             SuperMetroid.AssetExtraction.GameAssetInstaller.Install(cartridgePath, root);
         installedSession = true;
-        string gameRoot = Path.Combine(root, "game");
-        romPath = cartridgePath ?? Path.Combine(gameRoot, "SuperMetroid.smc");
         savePath = Path.Combine(root, "SuperMetroid.save.json");
         string ini = Path.Combine(root, "SuperMetroid.ini");
         if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
@@ -83,8 +80,8 @@ internal sealed class AndroidSessionData : IDisposable
         GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"));
         AndroidFileImport.ActivatePendingSave(root, Bus, savePath);
         Game = new SuperMetroidGame(Bus, Options);
-        // Explicit diagnostic cartridge paths retain their legacy fixture setup;
-        // ordinary installed Android sessions require the installed map catalog.
+        // A caller-provided cartridge has already passed through the importer;
+        // the running session binds only the installed presentation catalog.
         maps = installedSession ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
         Game.BindCompiledRoomFxRecords(installedSession);
@@ -364,14 +361,12 @@ internal sealed class AndroidSessionData : IDisposable
         FlushRecording();
     }
 
-    private ControllerInputRecorder StartRecorder() => installedSession
-        ? ControllerInputRecorder.StartInstalled(
+    private ControllerInputRecorder StartRecorder() =>
+        ControllerInputRecorder.StartInstalled(
             root,
             Bus.SaveRam,
             Options,
-            ContentIdentity ?? throw new InvalidOperationException("Installed Android session has no content identity."))
-        : ControllerInputRecorder.Start(
-            romPath, Bus.SaveRam, Options, ContentIdentity, Path.Combine(root, "input-recordings"));
+            ContentIdentity ?? throw new InvalidOperationException("Installed Android session has no content identity."));
 
     public void Dispose() => recorder.Dispose();
 }

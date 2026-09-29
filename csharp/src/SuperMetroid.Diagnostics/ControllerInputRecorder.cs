@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
-using System.Security.Cryptography;
 
 namespace SuperMetroid.Desktop;
 
@@ -56,38 +55,8 @@ internal sealed class ControllerInputRecorder : IDisposable
     public string Path { get; }
 
     /// <summary>
-    /// Creates a recorder beside the private ROM and captures reset-time SRAM plus the
-    /// selected installed-content identity when the host has one.
-    /// </summary>
-    public static ControllerInputRecorder Start(
-        string romPath,
-        ReadOnlySpan<byte> initialSaveRam,
-        SuperMetroidGameOptions gameOptions,
-        GameContentIdentity? contentIdentity,
-        string? recordingDirectoryOverride = null)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
-        ArgumentNullException.ThrowIfNull(gameOptions);
-        if (initialSaveRam.Length != SuperMetroidAddressSpace.SaveRamByteCount)
-            throw new ArgumentException("Recorder startup requires a complete 8 KiB SRAM image.", nameof(initialSaveRam));
-
-        string fullRomPath = System.IO.Path.GetFullPath(romPath);
-        string romDirectory = System.IO.Path.GetDirectoryName(fullRomPath)
-            ?? throw new InvalidOperationException($"ROM path has no containing directory: {fullRomPath}");
-        string recordingDirectory = recordingDirectoryOverride is null
-            ? System.IO.Path.Combine(romDirectory, RecordingDirectoryName)
-            : System.IO.Path.GetFullPath(recordingDirectoryOverride);
-
-        byte[] digest;
-        using (FileStream rom = File.OpenRead(fullRomPath))
-            digest = SHA256.HashData(rom);
-        return StartCore(recordingDirectory, digest, initialSaveRam, gameOptions, contentIdentity);
-    }
-
-    /// <summary>
     /// Starts an installed-game journal from the installer-verified source identity without
-    /// reopening the private cartridge file. Explicit cartridge diagnostics retain
-    /// <see cref="Start(string, ReadOnlySpan{byte}, SuperMetroidGameOptions, GameContentIdentity?, string?)"/>.
+    /// opening the private cartridge file.
     /// </summary>
     public static ControllerInputRecorder StartInstalled(
         string dataDirectory,

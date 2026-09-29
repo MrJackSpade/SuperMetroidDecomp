@@ -28,7 +28,7 @@ internal static class OptionsHeadingAudit
             border.BeginFrame();
             // Native lists contain direct spritemap pointers, independent of the
             // managed page-to-ID selection under test. Setup supplies its X anchor.
-            border.AddOnScreenSpritemap(bus, 0x820000 | Word(nativeList + 2), Word(nativeSetup + 1),
+            ImportedSpritemapOracle.DrawGeneric(bus, border, 0x820000 | Word(nativeList + 2), Word(nativeSetup + 1),
                 unchecked((ushort)(Word(0x82f36a) - scroll)), Word(0x82f370));
             border.FinalizeFrame();
             byte[] data = new byte[544];

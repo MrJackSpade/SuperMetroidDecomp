@@ -43,7 +43,7 @@ internal static class OptionsCursorAudit
                 throw new InvalidDataException("Direct options rendering differs from its captured frame.");
             var reference = new OamBuffer();
             reference.BeginFrame();
-            reference.AddOnScreenSpritemap(bus, OptionsCursorFixtureData.MenuBank |
+            ImportedSpritemapOracle.DrawGeneric(bus, reference, OptionsCursorFixtureData.MenuBank |
                 Word(OptionsCursorFixtureData.ControllerBorderList + 2),
                 Word(OptionsCursorFixtureData.ControllerBorderX),
                 unchecked((ushort)(Word(OptionsCursorFixtureData.BorderY) - Field("bg1VerticalScroll"))),
@@ -56,7 +56,7 @@ internal static class OptionsCursorAudit
             // Animation phase is deliberately held equal: this test isolates placement,
             // not whether the managed missile animation matches native sequencing.
             int nativeAnimationRow = 3 - Field("missileFrame");
-            reference.AddOnScreenSpritemap(bus, OptionsCursorFixtureData.MenuBank |
+            ImportedSpritemapOracle.DrawGeneric(bus, reference, OptionsCursorFixtureData.MenuBank |
                 Word(OptionsCursorFixtureData.MissileAnimation + nativeAnimationRow * 4 + 2),
                 x, y, Word(OptionsCursorFixtureData.Palette));
             reference.FinalizeFrame();

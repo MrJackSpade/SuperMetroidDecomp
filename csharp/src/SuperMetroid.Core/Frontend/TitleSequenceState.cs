@@ -428,39 +428,23 @@ public sealed class TitleSequenceState
 
     private void PrepareRenderOam()
     {
+        TitleGraphicsPresentation artwork = titleGraphicsPresentation
+            ?? throw new InvalidOperationException("Title sprites require installed title artwork.");
         oam.BeginFrame();
         if (activeSpritemap != TitleSequenceRomData.Sprites.Blank)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            if (titleGraphicsPresentation is null)
-                oam.AddOnScreenSpritemap(
-                    bus,
-                    (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, activeSpritemap),
-                    activeOriginX,
-                    activeOriginY,
-                    activeCharacterOffset);
-            else
-                titleGraphicsPresentation.DrawSprite(activeSpritemap, oam,
-                    activeOriginX, activeOriginY, activeCharacterOffset);
+            artwork.DrawSprite(activeSpritemap, oam,
+                activeOriginX, activeOriginY, activeCharacterOffset);
         }
 
         if (phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
-            if (titleGraphicsPresentation is null)
-                oam.AddOnScreenSpritemap(
-                    bus,
-                    (int)new SnesAddress(
-                        TitleSequenceRomData.Sprites.Bank,
-                        TitleSequenceRomData.Sprites.NintendoCopyright),
-                    TitleSequenceRomData.Sprites.CopyrightX,
-                    TitleSequenceRomData.Sprites.CopyrightY,
-                    TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
-            else
-                titleGraphicsPresentation.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
-                    TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
-                    TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
+            artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
+                TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
+                TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 
         oam.FinalizeFrame();

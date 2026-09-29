@@ -43,7 +43,7 @@ static void VerifyObjRendering()
     bus.WriteBytes(0x818000, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     cgram.SetColor(128 + 2 * 16 + 1, 0x001f);
     oam.BeginFrame();
-    oam.AddOnScreenSpritemap(bus, 0x818000, originX: 10, originY: 20, paletteBits: 0x0400);
+    DrawImportedSpritemap(bus, oam, 0x818000, originX: 10, originY: 20, paletteBits: 0x0400);
     oam.FinalizeFrame();
 
     var pixels = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0);

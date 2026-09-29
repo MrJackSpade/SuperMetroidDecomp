@@ -46,27 +46,17 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
-        IntroMotherBrainExplosionSpritePresentation? installedArt = null)
+    public void Draw(OamBuffer oam, IntroMotherBrainExplosionSpritePresentation installedArt)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(installedArt);
         foreach (ExplosionActor actor in actors)
         {
             if (!actor.IsActive || actor.SpriteMapPointer == 0)
                 continue;
 
-            if (installedArt is not null)
-                installedArt.Draw(actor.SpriteMapPointer, oam, actor.XPosition,
-                    actor.YPosition, IntroCinematicRomData.Objects.ExplosionPalette.Raw);
-            else
-                oam.AddOnScreenSpritemap(
-                    bus,
-                    (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                        actor.SpriteMapPointer),
-                    actor.XPosition,
-                    actor.YPosition,
-                    paletteBits: IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(actor.SpriteMapPointer, oam, actor.XPosition,
+                actor.YPosition, IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 

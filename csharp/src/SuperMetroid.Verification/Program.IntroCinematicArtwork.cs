@@ -684,7 +684,7 @@ internal static partial class Program
         {
             var native = new OamBuffer();
             native.BeginFrame();
-            native.AddOnScreenSpritemap(bus,
+            DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer), originX, originY, paletteBits);
             native.FinalizeFrame();
@@ -835,7 +835,7 @@ internal static partial class Program
         {
             var native = new OamBuffer();
             native.BeginFrame();
-            native.AddOnScreenSpritemap(bus,
+            DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer),
                 IntroMotherBrainSpriteState.XPosition,
@@ -924,7 +924,7 @@ internal static partial class Program
         {
             var native = new OamBuffer();
             native.BeginFrame();
-            native.AddOnScreenSpritemap(bus,
+            DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer), x, y, palette);
             native.FinalizeFrame();
@@ -959,11 +959,11 @@ internal static partial class Program
         explosions.Step(guarded, introCrossfadeTimer: 1);
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
-        explosions.Draw(guarded, stockOam, stock.MotherBrainExplosionSprites);
+        explosions.Draw(stockOam, stock.MotherBrainExplosionSprites);
         stockOam.FinalizeFrame();
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
-        explosions.Draw(guarded, editedOam, edited.MotherBrainExplosionSprites);
+        explosions.Draw(editedOam, edited.MotherBrainExplosionSprites);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&
                 editedOam.HighTable.SequenceEqual(stockOam.HighTable),

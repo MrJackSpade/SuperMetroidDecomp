@@ -54,7 +54,7 @@ internal static partial class Program
         {
             bus.WriteByte(0x8c8004, (byte)offset);
             oam.BeginFrame();
-            oam.AddOffScreenSpritemap(bus, 0x8c8000, 5, (ushort)origin, 0);
+            DrawImportedSpritemap(bus, oam, 0x8c8000, 5, (ushort)origin, 0, originIsOnScreen: false);
             int sum = origin + offset;
             // Direct branch transcription of $81:8853, independent of the shared
             // production helper's inversion of the on-screen predicate.

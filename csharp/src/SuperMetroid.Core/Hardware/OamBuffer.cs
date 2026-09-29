@@ -51,54 +51,6 @@ public sealed class OamBuffer
         NextByteOffset = 0;
     }
 
-    /// <summary>
-    /// Ports the on-screen-origin spritemap loader at <c>$81:879F</c>.
-    /// </summary>
-    /// <param name="bus">Address space containing the packed spritemap.</param>
-    /// <param name="spritemapAddress">24-bit address of its two-byte entry count.</param>
-    /// <param name="originX">Unsigned sprite origin; arithmetic wraps at 16 bits.</param>
-    /// <param name="originY">Only the low byte participates in the original routine.</param>
-    /// <param name="paletteBits">
-    /// Palette selection already shifted into OBJ attribute bits <c>$0E00</c>.
-    /// </param>
-    public void AddOnScreenSpritemap(
-        ISnesAddressSpace bus,
-        int spritemapAddress,
-        ushort originX,
-        ushort originY,
-        ushort paletteBits)
-        => AddGenericSpritemap(bus, spritemapAddress, originX, originY, paletteBits, originIsOnScreen: true);
-
-    /// <summary>
-    /// Ports $81:8853, DrawSpritemapOffScreen. It shares the on-screen loader's
-    /// palette/OAM packing but reverses its vertical-wrap parking condition.
-    /// </summary>
-    public void AddOffScreenSpritemap(ISnesAddressSpace bus, int spritemapAddress,
-        ushort originX, ushort originY, ushort paletteBits)
-        => AddGenericSpritemap(bus, spritemapAddress, originX, originY, paletteBits, originIsOnScreen: false);
-
-    private void AddGenericSpritemap(ISnesAddressSpace bus, int spritemapAddress,
-        ushort originX, ushort originY, ushort paletteBits, bool originIsOnScreen)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ValidateAddress(spritemapAddress);
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-
-        ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
-        int entryAddress = AddWithinBank(spritemapAddress, 2);
-
-        for (int entryIndex = 0; entryIndex < entryCount && NextByteOffset < LowTableByteCount; entryIndex++)
-        {
-            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
-            ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
-
-            AppendGenericSprite(encodedXOffset, encodedYOffset,
-                new SnesObjAttributeWord(sourceAttributes).WithPaletteBits(paletteBits), originX, originY, originIsOnScreen);
-            entryAddress = AddWithinBank(entryAddress, 5);
-        }
-    }
-
     /// <summary>Draws a compiled visual part with the same $81:879F clipping/packing as cartridge spritemaps.</summary>
     public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
         SnesObjAttributeWord attributes, ushort originX, ushort originY)
@@ -143,7 +95,7 @@ public sealed class OamBuffer
     /// Ports <c>AddSamusSpritemapToOAM</c> at <c>$81:89AE</c>.
     /// </summary>
     /// <remarks>
-    /// This looks tantalizingly similar to <see cref="AddOnScreenSpritemap"/>, but the
+    /// This looks tantalizingly similar to <see cref="AddOnScreenSpritePart"/>, but the
     /// differences are part of the game data contract. The input is an index into the
     /// bank-$92 pointer table at <c>$92:808D</c>, not a direct address. More importantly,
     /// Samus entries keep their ROM-authored palette bits and do not use the generic
@@ -591,11 +543,6 @@ public sealed class OamBuffer
         };
     }
 
-    private static void ValidateAddress(int address)
-    {
-        if ((uint)address > 0x00ff_ffff)
-            throw new ArgumentOutOfRangeException(nameof(address));
-    }
 }
 
 /// <summary>A readable projection of one hardware OAM record.</summary>

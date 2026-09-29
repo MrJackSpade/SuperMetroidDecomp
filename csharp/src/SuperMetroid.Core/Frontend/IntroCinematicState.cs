@@ -1188,27 +1188,19 @@ public sealed partial class IntroCinematicState
             flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
             flashbackRinkas?.Draw(bus, oam, characterArtwork?.RinkaSprites);
         }
-        flashbackMotherBrainExplosions?.Draw(bus, oam,
-            characterArtwork?.MotherBrainExplosionSprites);
+        flashbackMotherBrainExplosions?.Draw(oam,
+            (characterArtwork ?? throw new InvalidOperationException(
+                "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
         if (flashbackMotherBrain.IsVisible && flashbackMotherBrain.SpriteMapPointer != 0)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
-            if (characterArtwork is not null)
-                characterArtwork.MotherBrainSprites.Draw(
-                    flashbackMotherBrain.SpriteMapPointer, oam,
-                    IntroMotherBrainSpriteState.XPosition,
-                    IntroMotherBrainSpriteState.YPosition,
-                    IntroMotherBrainSpriteState.PaletteBits);
-            else
-                oam.AddOnScreenSpritemap(
-                    bus,
-                    (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps,
-                        flashbackMotherBrain.SpriteMapPointer),
-                    IntroMotherBrainSpriteState.XPosition,
-                    IntroMotherBrainSpriteState.YPosition,
-                    IntroMotherBrainSpriteState.PaletteBits);
+            (characterArtwork ?? throw new InvalidOperationException(
+                "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
+                flashbackMotherBrain.SpriteMapPointer, oam,
+                IntroMotherBrainSpriteState.XPosition,
+                IntroMotherBrainSpriteState.YPosition,
+                IntroMotherBrainSpriteState.PaletteBits);
         }
         oam.FinalizeFrame();
 
@@ -1368,19 +1360,10 @@ public sealed partial class IntroCinematicState
             // crossfades, and is restored when the next narration page starts.
             // The spritemap itself lives in bank $8C and OBSEL=$03 selects word $6000 as
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
-            if (characterArtwork is not null)
-                characterArtwork.CaretSprites.Draw(objects.SpriteMapPointer, oam,
-                    objects.CaretX, objects.CaretY,
-                    IntroCinematicRomData.Objects.ScientistPalette.Raw);
-            else
-                oam.AddOnScreenSpritemap(
-                    bus,
-                    (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps,
-                        objects.SpriteMapPointer),
-                    originX: objects.CaretX,
-                    originY: objects.CaretY,
-                    paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw);
+            (characterArtwork ?? throw new InvalidOperationException(
+                "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
+                objects.SpriteMapPointer, oam, objects.CaretX, objects.CaretY,
+                IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         oam.FinalizeFrame();
 

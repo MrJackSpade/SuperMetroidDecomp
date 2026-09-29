@@ -144,23 +144,10 @@ internal static partial class Program
     /// OAM cannot read immutable cartridge sprites after installation.
     /// </summary>
     private static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        int address, ushort x, ushort y, ushort paletteBits)
-    {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        int BankOffset(int offset) => (address & 0xff0000) | ((address + offset) & 0xffff);
-        byte Byte(int offset) => cartridge.ReadCartridgeByte(BankOffset(offset));
-        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
-        ushort count = Word(0);
-        for (int part = 0; part < count && oam.NextByteOffset < OamBuffer.LowTableByteCount;
-            part++)
-        {
-            int offset = 2 + part * 5;
-            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(offset)),
-                Byte(offset + 2),
-                new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits),
-                x, y);
-        }
-    }
+        int address, ushort originX, ushort originY, ushort paletteBits,
+        bool originIsOnScreen = true) => ImportedSpritemapOracle.DrawGeneric(
+            CartridgeImportSource.Require(bus), oam, address, originX, originY,
+            paletteBits, originIsOnScreen);
 
     private sealed class MapSpriteReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

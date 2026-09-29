@@ -93,7 +93,7 @@ internal static partial class Program
                     int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + id * 2);
                     ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1d6 + index * 2);
                     ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
-                    native.AddOnScreenSpritemap(bus, pointer, x, y, 0x0600);
+                    DrawImportedSpritemap(bus, native, pointer, x, y, 0x0600);
                 }
             }
         }

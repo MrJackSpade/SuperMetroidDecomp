@@ -1965,6 +1965,11 @@ if (args is ["--samus-body-artwork", var samusBodyRom])
     VerifyIntroCinematicArtwork(samusBodyRom, samusBodyOnly: true);
     return 0;
 }
+if (args is ["--generic-sprite-artwork", var genericSpriteRom])
+{
+    VerifyGenericSpriteArtwork(genericSpriteRom);
+    return 0;
+}
 if (args is ["--golden-torizo-rom-free", var goldenTorizoRom])
 {
     VerifyFrontendRomFreeGoldenTorizo(goldenTorizoRom, frameCount: 500);

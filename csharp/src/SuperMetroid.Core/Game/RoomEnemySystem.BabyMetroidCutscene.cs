@@ -80,15 +80,10 @@ public sealed partial class RoomEnemySystem
     private void LoadBabyMetroidCutsceneInitialPalette()
     {
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
-        if (TileArtwork?.BabyMetroidCutsceneColors is { } colors)
-        {
-            for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount;
-                 color++)
-                _cgram!.SetColor(destination + color, colors.InitialColor(color));
-            return;
-        }
-        _cgram!.LoadFromBus(_bus!, BabyMetroidCutsceneColorRomData.InitialSource,
-            BabyMetroidCutsceneColorRomData.InitialColorCount, destination);
+        var colors = TileArtwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
+            "Baby Metroid cutscene requires installed colors.");
+        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+            _cgram!.SetColor(destination + color, colors.InitialColor(color));
     }
 
     /// <summary>Runs one physical Baby main-AI call at <c>$A9:C779</c>.</summary>
@@ -228,19 +223,9 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Mother Brain recovery-light request {request.PaletteIndex} has a non-native transfer layout.");
 
-        if (MotherBrainRoomColors is { } colors)
-        {
-            colors.ApplyRecoveryLights(_cgram!, request.PaletteIndex);
-            return;
-        }
-        int source = MotherBrainRoomColorRomData.RecoveryLightsSource(request.PaletteIndex);
-        _cgram!.LoadFromBus(_bus!, source,
-            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination,
-            MotherBrainRoomColorRomData.RecoveryLightsFirstColor);
-        _cgram.LoadFromBus(_bus!, source +
-            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * sizeof(ushort),
-            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination,
-            MotherBrainRoomColorRomData.RecoveryLightsSecondColor);
+        (MotherBrainRoomColors ?? throw new InvalidOperationException(
+            "Mother Brain recovery requires installed room colors."))
+            .ApplyRecoveryLights(_cgram!, request.PaletteIndex);
     }
 
     private void LoadBabyMetroidCutsceneFadePalette(
@@ -256,14 +241,11 @@ public sealed partial class RoomEnemySystem
                 $"Cutscene Baby fade {palette.PaletteIndex} has a non-native transfer layout.");
 
         int destination = palette.DestinationColorIndex / 2;
-        if (TileArtwork?.BabyMetroidCutsceneColors is { } colors)
-        {
-            for (int color = 0; color < palette.ColorCount; color++)
-                _cgram!.SetColor(destination + color,
-                    colors.FadeColor(palette.PaletteIndex, color));
-            return;
-        }
-        _cgram!.LoadFromBus(_bus!, expectedSource, palette.ColorCount, destination);
+        var colors = TileArtwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
+            "Baby Metroid fade requires installed colors.");
+        for (int color = 0; color < palette.ColorCount; color++)
+            _cgram!.SetColor(destination + color,
+                colors.FadeColor(palette.PaletteIndex, color));
     }
 
     /// <summary>Baby private opcodes `$CFB4/$CFCA` are same-bank direct gotos.</summary>

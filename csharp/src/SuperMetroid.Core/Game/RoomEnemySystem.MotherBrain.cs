@@ -83,17 +83,9 @@ public sealed partial class RoomEnemySystem
 
     private void LoadMotherBrainRoomEntryColors()
     {
-        if (MotherBrainRoomColors is { } colors)
-        {
-            colors.ApplyRoomEntry(_cgram!);
-            return;
-        }
-        _cgram!.LoadFromBus(_bus!, MotherBrainRoomColorRomData.InitialGlassShardSource,
-            MotherBrainRoomColorRomData.InitialColors,
-            MotherBrainRoomColorRomData.InitialGlassShardColor);
-        _cgram.LoadFromBus(_bus!, MotherBrainRoomColorRomData.InitialTubeProjectileSource,
-            MotherBrainRoomColorRomData.InitialColors,
-            MotherBrainRoomColorRomData.InitialTubeProjectileColor);
+        (MotherBrainRoomColors ?? throw new InvalidOperationException(
+            "Mother Brain room requires installed color artwork."))
+            .ApplyRoomEntry(_cgram!);
     }
 
     /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>

@@ -196,16 +196,8 @@ public sealed partial class RoomEnemySystem
                 // `$AD:ED5A` does.
                 if (MotherBrainRainbowColors is { } colors)
                     colors.ApplyFakeDeathToGrey(_cgram!, step);
-                else
-                {
-                    ushort palettePointer = ReadWord(_bus!, unchecked(
-                        MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable + step * sizeof(ushort)));
-                    if (palettePointer == 0)
-                        throw new InvalidDataException("Mother Brain fake-death fade ended before its eighth frame.");
-                    _cgram!.LoadFromBus(_bus!, MotherBrainRainbowPaletteRomData.SourceBank | palettePointer,
-                        MotherBrainFakeDeathPaletteRomData.ColorCount,
-                        MotherBrainFakeDeathPaletteRomData.BrainColor);
-                }
+                else throw new InvalidOperationException(
+                    "Mother Brain fake-death fade requires installed colors.");
             }
         }
 
@@ -272,36 +264,18 @@ public sealed partial class RoomEnemySystem
 
     private void ApplyMotherBrainRoomPalette(ushort timedEntryPointer)
     {
-        if (MotherBrainRoomColors is { } colors)
-        {
-            colors.ApplyFlash(_cgram!, timedEntryPointer);
-            return;
-        }
-        ushort source = ReadWord(
-            _bus!,
-            0xa90000 | unchecked((ushort)(timedEntryPointer + 2)));
-        CopyMotherBrainRoomPalette(source);
-    }
-
-    private void CopyMotherBrainRoomPalette(ushort source)
-    {
-
-        // `$A9:D025` copies three twelve-color slices. The second source slice is written
-        // twice (to sprite palettes four and six), an intentional cartridge duplication.
-        _cgram!.LoadFromBus(_bus!, 0xa90000 | source, colorCount: 12, destinationIndex: 0x0068 / 2);
-        ushort secondSource = unchecked((ushort)(source + 24));
-        _cgram.LoadFromBus(_bus!, 0xa90000 | secondSource, colorCount: 12, destinationIndex: 0x00a6 / 2);
-        _cgram.LoadFromBus(_bus!, 0xa90000 | secondSource, colorCount: 12, destinationIndex: 0x00e6 / 2);
+        (MotherBrainRoomColors ?? throw new InvalidOperationException(
+            "Mother Brain room flash requires installed colors."))
+            .ApplyFlash(_cgram!, timedEntryPointer);
     }
 
     private void StopMotherBrainRoomPalette(MotherBrainEnemyState state)
     {
         state.RoomPaletteInstructionPointer = 0;
         state.RoomPaletteInstructionTimer = 0;
-        if (MotherBrainRoomColors is { } colors)
-            colors.ApplyFinal(_cgram!);
-        else
-            CopyMotherBrainRoomPalette(MotherBrainRoomPaletteProgramDefinitions.FinalPalette);
+        (MotherBrainRoomColors ?? throw new InvalidOperationException(
+            "Mother Brain room finale requires installed colors."))
+            .ApplyFinal(_cgram!);
     }
 
     private void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
@@ -676,17 +650,9 @@ public sealed partial class RoomEnemySystem
     {
         // `$A9:8D11` installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
-        if (MotherBrainRoomColors is { } colors)
-            colors.ApplyPhaseTwoInitial(_cgram!);
-        else
-        {
-            _cgram!.LoadFromBus(_bus!, MotherBrainRoomColorRomData.PhaseTwoAttackSource,
-                MotherBrainRoomColorRomData.PhaseTwoColors,
-                MotherBrainRoomColorRomData.PhaseTwoAttackColor);
-            _cgram.LoadFromBus(_bus!, MotherBrainRoomColorRomData.PhaseTwoRearLegSource,
-                MotherBrainRoomColorRomData.PhaseTwoColors,
-                MotherBrainRoomColorRomData.PhaseTwoRearLegColor);
-        }
+        (MotherBrainRoomColors ?? throw new InvalidOperationException(
+            "Mother Brain phase two requires installed room colors."))
+            .ApplyPhaseTwoInitial(_cgram!);
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
     }

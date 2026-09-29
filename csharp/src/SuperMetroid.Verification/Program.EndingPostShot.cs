@@ -24,7 +24,7 @@ internal static partial class Program
         }
         var guardedBus = new PostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
-        cgram.LoadFromBus(bus, 0x8ce7e9);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);
         ushort[] initial = cgram.Colors.ToArray();
         var vram = new SnesVram();
         var expected = Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray();

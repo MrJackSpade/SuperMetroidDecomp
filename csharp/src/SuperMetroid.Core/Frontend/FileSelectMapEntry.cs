@@ -16,11 +16,11 @@ public sealed class FileSelectMapEntry
     public int Top => FileSelectMapRomData.EntryWindowTop - revealSteps * FileSelectMapRomData.EntryWindowSpeed;
     public int Bottom => FrontendFrame.Height - Top;
 
-    public FileSelectMapEntry(ISnesAddressSpace bus, MapStaticPalettes? mapPalettes = null)
+    public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        if (mapPalettes is null) Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
-        else for (int color = 0; color < SnesCgram.ColorCount; color++) Cgram.SetColor(color, mapPalettes.FileSelect[color]);
+        ArgumentNullException.ThrowIfNull(mapPalettes);
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            Cgram.SetColor(color, mapPalettes.FileSelect[color]);
         ushort[] target = Cgram.Colors.ToArray();
         target[14] = target[30] = 0;
         palette = new CartridgePaletteTransition(target, FileSelectMapRomData.EntryPaletteDenominator);

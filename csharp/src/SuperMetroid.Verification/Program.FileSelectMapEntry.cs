@@ -1,14 +1,29 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
     private static void VerifyFileSelectMapEntry()
     {
-        var bus = new TestAddressSpace();
-        for (int color = 0; color < 256; color++)
-            WriteTestWord(bus, FileSelectMapRomData.EntryPalette + color * 2, 0x7fff);
-        var entry = new FileSelectMapEntry(bus);
+        var white = Enumerable.Repeat(new PaletteRgb5 { Red = 31, Green = 31, Blue = 31 },
+            SnesCgram.ColorCount).ToArray();
+        var document = new MapStaticPalettesDocument
+        {
+            Version = MapStaticPalettesFormat.Version,
+            Pause = white,
+            FileSelect = white,
+            World = Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
+                .ToDictionary(area => area.ToString(), _ => white),
+        };
+        using var json = new MemoryStream();
+        MapStaticPalettes.Write(json, document);
+        json.Position = 0;
+        MapStaticPalettes palettes = MapStaticPalettes.Load(json);
+        AssertThrows<ArgumentNullException>(() => new FileSelectMapEntry(null!),
+            "file-select map entry requires installed palette artwork");
+        var entry = new FileSelectMapEntry(palettes);
         Rgba32 visible = new(255, 0, 0), black = new(0, 0, 0);
         Rgba32[] scene = Enumerable.Repeat(visible, 256 * 224).ToArray();
         AssertEqual(0x7fff, entry.Cgram.Colors[14], "entry setup does not prematurely fade palette");

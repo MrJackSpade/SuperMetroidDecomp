@@ -24,23 +24,9 @@ public sealed partial class RoomEnemySystem
         SamusState? samus)
     {
         bool whiteFrame = (body.FlashTimer & 2) != 0;
-        if (TileArtwork?.DraygonColors is { } colors)
-            colors.ApplyHurt(_cgram!, whiteFrame, state.HealthPaletteTableByteIndex);
-        else
-        {
-            _cgram!.LoadFromBus(_bus!,
-                whiteFrame ? DraygonColorRomData.WhiteFlashSource :
-                    DraygonColorRomData.BackgroundSource,
-                DraygonColorRomData.BackgroundCount,
-                DraygonColorRomData.BackgroundDestination);
-            if (!whiteFrame)
-                CopyDraygonHealthColors(state);
-            _cgram.LoadFromBus(_bus!,
-                whiteFrame ? DraygonColorRomData.WhiteFlashSource :
-                    DraygonColorRomData.SpriteSource,
-                DraygonColorRomData.SpriteCount,
-                DraygonColorRomData.SpriteDestination);
-        }
+        (TileArtwork?.DraygonColors ?? throw new InvalidOperationException(
+            "Draygon damage requires installed color artwork."))
+            .ApplyHurt(_cgram!, whiteFrame, state.HealthPaletteTableByteIndex);
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every

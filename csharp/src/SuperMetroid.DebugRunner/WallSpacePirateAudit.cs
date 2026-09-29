@@ -572,8 +572,8 @@ internal static class WallSpacePirateAudit
         // therefore address the standard OBJ sheet installed by gameplay setup. Seed both
         // immutable gameplay resources before loading the room so visual assertions below
         // exercise the same complete PPU state as the desktop runtime.
-        cgram.LoadFromBus(bus, 0x9a8000);
-        cgram.LoadFromBus(bus, 0x9afc00, colorCount: 16, destinationIndex: 128);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x9a8000);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x9afc00, colorCount: 16, destinationIndex: 128);
         vram.LoadBytes(
             destinationByteOffset: 0xc000,
             RomDataReader.ReadFixedBank(bus, 0x9ad200, 0x2e00));

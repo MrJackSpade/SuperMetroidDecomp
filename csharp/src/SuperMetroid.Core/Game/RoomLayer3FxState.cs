@@ -414,22 +414,8 @@ public sealed class RoomLayer3FxState
 
     private void ApplyPaletteBlend(ISnesAddressSpace bus, SnesCgram cgram, byte selection)
     {
-        if (paletteBlendColors is not null)
-        {
-            paletteBlendColors.Apply(cgram, selection);
-        }
-        else if (selection == 0)
-        {
-            // LoadFXHeader clears only target-palette color $1B when no blend is selected.
-            cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
-        }
-        else
-        {
-            int source = RoomFxRomData.Tables.PaletteBlendColors + (selection >> 1) * 2;
-            cgram.LoadFromBus(bus, source,
-                RoomFxRomData.Layer3.PaletteBlendColorCount,
-                RoomFxRomData.Layer3.PaletteBlendDestinationIndex);
-        }
+        (paletteBlendColors ?? throw new InvalidOperationException(
+            "Room FX requires installed palette-blend colors.")).Apply(cgram, selection);
     }
 
     /// <summary>

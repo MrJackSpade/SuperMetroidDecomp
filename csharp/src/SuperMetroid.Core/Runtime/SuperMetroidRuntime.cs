@@ -60,10 +60,8 @@ public sealed partial class SuperMetroidRuntime
         // $82:82C5 copies all 512 bytes of kInitialPalette from ROM $9A:8000. The retail
         // game stages this through WRAM before NMI uploads CGRAM; initializing the modeled
         // PPU here produces the same starting colors while that fade pipeline is ported.
-        if (InitialPaletteArt is not null)
-            InitialPaletteArt.LoadInitial(Cgram);
-        else
-            Cgram.LoadFromBus(_addressSpace, GameplayBasePaletteFormat.InitialSourceAddress);
+        (InitialPaletteArt ?? throw new InvalidOperationException(
+            "Gameplay requires the installed initial palette catalog.")).LoadInitial(Cgram);
     }
 
     /// <summary>

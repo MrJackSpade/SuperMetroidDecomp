@@ -127,13 +127,9 @@ public sealed class TourianStatueSequence
                         break;
                     case AnimatedTileInstructionCodes.WriteEightTargetPaletteColors:
                         int greyDestination = MechanicsWord(tile, operand) / 2;
-                        if (runtime.Enemies.TileArtwork?.TourianStatueColors is { } greyColors)
-                            greyColors.ApplyGrey(runtime.Cgram, greyDestination);
-                        else
-                            runtime.Cgram.LoadFromBus(bus,
-                                TourianStatuePaletteRomData.GreyColors,
-                                TourianStatuePaletteRomData.GreyColorCount,
-                                greyDestination);
+                        (runtime.Enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
+                            "Tourian statue animation requires installed grey colors."))
+                            .ApplyGrey(runtime.Cgram, greyDestination);
                         break;
                     case AnimatedTileInstructionCodes.SpawnPaletteFxObject:
                         runtime.RoomPaletteFx.SpawnDefinition(

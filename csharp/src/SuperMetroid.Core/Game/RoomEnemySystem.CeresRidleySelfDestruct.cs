@@ -282,11 +282,7 @@ public sealed partial class RoomEnemySystem
             (state.CeresEscapePaletteFrame + 1) & 0x000f));
         if (CeresRidleyColors is { } colors)
             colors.ApplyAlarm(_cgram!, state.CeresEscapePaletteFrame);
-        else
-            _cgram!.LoadFromBus(_bus!,
-                CeresRidleyPaletteRomData.AlarmColors +
-                state.CeresEscapePaletteFrame * CeresRidleyPaletteRomData.AlarmColorCount * sizeof(ushort),
-                CeresRidleyPaletteRomData.AlarmColorCount,
-                CeresRidleyPaletteRomData.AlarmCgramIndex);
+        else throw new InvalidOperationException(
+            "Ceres alarm requires installed Ridley color rows.");
     }
 }

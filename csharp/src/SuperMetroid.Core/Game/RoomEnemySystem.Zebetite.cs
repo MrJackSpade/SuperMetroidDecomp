@@ -213,14 +213,9 @@ public sealed partial class RoomEnemySystem
         ushort paletteCycle = unchecked((ushort)((firstPhysicalSlot.VariableC + 1) &
             ZebetiteDefinitions.PaletteCycleMask));
         firstPhysicalSlot.VariableC = paletteCycle;
-        if (TileArtwork?.ZebetiteColors is { } colors)
-            colors.Apply(_cgram!, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
-        else
-            _cgram!.LoadFromBus(_bus!,
-                ZebetiteDefinitions.PaletteSource +
-                    paletteCycle * ZebetiteColorFormat.ColorsPerFrame * sizeof(ushort),
-                colorCount: ZebetiteColorFormat.ColorsPerFrame,
-                destinationIndex: ZebetiteDefinitions.PaletteDestinationColor);
+        (TileArtwork?.ZebetiteColors ?? throw new InvalidOperationException(
+            "Zebetite requires installed palette-cycle colors."))
+            .Apply(_cgram!, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
     }
 
     private static void SelectZebetiteHealthAnimation(

@@ -81,10 +81,7 @@ internal sealed class IntroCeresFlightState
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
         vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
             objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
-        if (artwork is null)
-            cgram.LoadFromBus(bus, CeresFlightRomData.Assets.Palette);
-        else
-            artwork.Palette.LoadTo(cgram);
+        content.Palette.LoadTo(cgram);
         Phase = IntroCeresFlightPhase.WaitForMusicQueue;
     }
 

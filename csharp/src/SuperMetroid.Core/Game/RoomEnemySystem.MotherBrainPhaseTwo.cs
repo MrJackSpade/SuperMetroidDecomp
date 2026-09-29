@@ -371,16 +371,8 @@ public sealed partial class RoomEnemySystem
             // Fake-death restoration changes only brain sprite colors one through three.
             if (MotherBrainRainbowColors is { } colors)
                 colors.ApplyFakeDeathFromGrey(_cgram!, paletteStep);
-            else
-            {
-                ushort source = ReadWord(_bus!, MotherBrainFakeDeathPaletteRomData.FromGreyPointerTable +
-                    paletteStep * sizeof(ushort));
-                if (source == 0)
-                    throw new InvalidDataException("Mother Brain fake-death revival ended before its eighth frame.");
-                _cgram!.LoadFromBus(_bus!, MotherBrainRainbowPaletteRomData.SourceBank | source,
-                    MotherBrainFakeDeathPaletteRomData.ColorCount,
-                    MotherBrainFakeDeathPaletteRomData.BrainColor);
-            }
+            else throw new InvalidOperationException(
+                "Mother Brain revival requires installed colors.");
             return;
         }
 

@@ -89,13 +89,9 @@ public sealed partial class RoomEnemySystem
         // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
-        if (TileArtwork?.NorfairRidleyColors is { } initialColors)
-            initialColors.ApplyInitial(_cgram!);
-        else
-            _cgram!.LoadFromBus(_bus!,
-                NorfairRidleyPaletteRomData.InitialColors,
-                NorfairRidleyPaletteRomData.InitialColorCount,
-                NorfairRidleyPaletteRomData.InitialCgramIndex);
+        (TileArtwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
+            "Norfair Ridley requires installed colors."))
+            .ApplyInitial(_cgram!);
         for (int color = 113; color <= 127; color++)
             _cgram!.SetColor(color, 0);
         for (int color = 241; color <= 255; color++)
@@ -395,25 +391,13 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 2;
         ushort row = state.FadePaletteOffset;
         bool hasPalette;
-        if (TileArtwork?.NorfairRidleyColors is { } colors)
-        {
-            if (row > NorfairRidleyPaletteRomData.RevealRowCount)
-                throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
-            hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
-            if (hasPalette)
-                colors.ApplyReveal(_cgram!, row);
-        }
-        else
-        {
-            ushort sourcePointer = ReadWord(_bus!,
-                NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
-            hasPalette = sourcePointer != 0;
-            if (hasPalette)
-                _cgram!.LoadFromBus(_bus!,
-                    NorfairRidleyPaletteRomData.RevealSourceBank | sourcePointer,
-                    NorfairRidleyPaletteRomData.RevealColorCount,
-                    NorfairRidleyPaletteRomData.RevealCgramIndex);
-        }
+        var colors = TileArtwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
+            "Norfair Ridley reveal requires installed colors.");
+        if (row > NorfairRidleyPaletteRomData.RevealRowCount)
+            throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
+        hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
+        if (hasPalette)
+            colors.ApplyReveal(_cgram!, row);
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
         if (hasPalette)
             return;
@@ -917,14 +901,9 @@ public sealed partial class RoomEnemySystem
         // Norfair's health thresholds here, but use the installed palette so
         // editing that one asset updates both encounters consistently.
         int row = state.HealthStage - 1;
-        if (CeresRidleyColors is { } healthColors)
-            healthColors.ApplyHealth(_cgram!, row);
-        else
-            _cgram!.LoadFromBus(_bus!,
-                CeresRidleyPaletteRomData.HealthColors +
-                row * CeresRidleyPaletteRomData.HealthColorCount * sizeof(ushort),
-                CeresRidleyPaletteRomData.HealthColorCount,
-                CeresRidleyPaletteRomData.HealthCgramIndex);
+        (CeresRidleyColors ?? throw new InvalidOperationException(
+            "Ridley damage requires installed health colors."))
+            .ApplyHealth(_cgram!, row);
     }
 
     private RidleyEnemyState RequireRidley(RoomEnemySlot slot)

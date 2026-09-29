@@ -101,7 +101,7 @@ internal static partial class Program
                     $"enemy ${pointer:X4} PNG preserves every native tile byte");
                 var nativeCgram = new SnesCgram();
                 var installedCgram = new SnesCgram();
-                nativeCgram.LoadFromBus(bus, (definition.Bank << 16) | definition.PalettePointer,
+                SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeCgram, bus, (definition.Bank << 16) | definition.PalettePointer,
                     EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
                 stock.LoadPaletteTo(pointer, installedCgram, 8 * 16);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),

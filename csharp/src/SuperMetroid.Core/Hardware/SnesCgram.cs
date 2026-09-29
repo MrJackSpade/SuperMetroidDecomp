@@ -21,33 +21,22 @@ public sealed class SnesCgram
     public ReadOnlySpan<ushort> Colors => _colors;
 
     /// <summary>
-    /// Loads consecutive little-endian colors from the CPU bus, wrapping the 16-bit
-    /// address while retaining the source bank just as a fixed-bank DMA transfer does.
+    /// Transfers colors from mutable CPU memory. Immutable cartridge palettes must
+    /// instead be loaded from an installed asset catalog.
     /// </summary>
-    public void LoadFromBus(ISnesAddressSpace bus, int sourceAddress, int colorCount = ColorCount, int destinationIndex = 0)
+    public void LoadFromMutableMemory(ISnesMutableMemory memory, SnesAddress sourceAddress,
+        int colorCount = ColorCount, int destinationIndex = 0)
     {
-        LoadFromBus(bus, SnesAddress.FromBusAddress(sourceAddress), colorCount, destinationIndex);
-    }
-
-    /// <summary>Typed fixed-bank palette transfer.</summary>
-    public void LoadFromBus(ISnesAddressSpace bus, SnesAddress sourceAddress, int colorCount = ColorCount, int destinationIndex = 0)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         if (colorCount < 0 || destinationIndex < 0 || destinationIndex + colorCount > ColorCount)
             throw new ArgumentOutOfRangeException(nameof(colorCount), "CGRAM load must remain within 256 colors.");
 
-        ISnesMutableMemory? memory = bus as ISnesMutableMemory;
-
         byte ReadSource(SnesAddress address) => SnesDmaSourceMap.Classify(address) switch
         {
-            SnesDmaSourceKind.WorkRam => (memory ?? throw new InvalidOperationException(
-                "CGRAM DMA source requires WRAM.")).ReadWorkRamByte((int)address),
-            SnesDmaSourceKind.SaveRam => (memory ?? throw new InvalidOperationException(
-                "CGRAM DMA source requires SRAM.")).ReadSaveRamByte((int)address),
-            SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
-                $"CGRAM DMA source {address} requires installed palette bytes."),
+            SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)address),
+            SnesDmaSourceKind.SaveRam => memory.ReadSaveRamByte((int)address),
             _ => throw new InvalidOperationException(
-                $"CGRAM DMA source ${address.Bank:X2}:{address.Offset:X4} is unmapped."),
+                $"CGRAM mutable-memory source {address} is neither WRAM nor SRAM."),
         };
 
         for (int color = 0; color < colorCount; color++)

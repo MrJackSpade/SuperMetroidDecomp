@@ -2225,6 +2225,11 @@ if (args is ["--dma-source-routing"])
     VerifyDmaSourceRouting();
     return 0;
 }
+if (args is ["--file-select-map-entry"])
+{
+    VerifyFileSelectMapEntry();
+    return 0;
+}
 if (args is ["--intro-artwork-post-slices", var postSliceRom])
 {
     VerifyIntroArtworkPostSlices(postSliceRom);

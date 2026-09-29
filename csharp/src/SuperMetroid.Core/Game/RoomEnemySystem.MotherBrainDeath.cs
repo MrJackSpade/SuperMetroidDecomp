@@ -122,14 +122,7 @@ public sealed partial class RoomEnemySystem
             }
             return;
         }
-        int source = DeathPaletteSource(MotherBrainDeathRomData.BodyFadeTable, frame);
-        _cgram!.LoadFromBus(_bus!, source, MotherBrainDeathRomData.BodyColorCount,
-            MotherBrainDeathRomData.BodyColors);
-        _cgram.LoadFromBus(_bus!, source, MotherBrainDeathRomData.BodyColorCount,
-            MotherBrainDeathRomData.BrainColors);
-        _cgram.LoadFromBus(_bus!, source + MotherBrainDeathRomData.BodyColorCount *
-            sizeof(ushort), MotherBrainDeathRomData.BodyColorCount,
-            MotherBrainDeathRomData.LegColors);
+        throw new InvalidOperationException("Mother Brain death requires installed fade colors.");
     }
 
     private void LoadMotherBrainDeathCorpseFade(int frame)
@@ -141,10 +134,7 @@ public sealed partial class RoomEnemySystem
                     colors.CorpseColor(frame, color));
             return;
         }
-        _cgram!.LoadFromBus(_bus!, DeathPaletteSource(
-                MotherBrainDeathRomData.CorpseFadeTable, frame),
-            MotherBrainDeathRomData.CorpseColorCount,
-            MotherBrainDeathRomData.CorpseColors);
+        throw new InvalidOperationException("Mother Brain corpse fade requires installed colors.");
     }
 
     private void LoadMotherBrainDeathDoorPalette()
@@ -156,16 +146,7 @@ public sealed partial class RoomEnemySystem
                     colors.ExplodedDoorColor(color));
             return;
         }
-        _cgram!.LoadFromBus(_bus!, MotherBrainDeathRomData.DoorPalette,
-            MotherBrainDeathRomData.BodyColorCount,
-            MotherBrainDeathRomData.BrainColors);
-    }
-
-    private int DeathPaletteSource(int table, int index)
-    {
-        ushort pointer = ReadWord(_bus!, table + index * 2);
-        if (pointer == 0) throw new InvalidDataException("Death palette producer requested the terminating entry.");
-        return MotherBrainDeathRomData.PaletteBank | pointer;
+        throw new InvalidOperationException("Mother Brain exploded door requires installed colors.");
     }
 
     private void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)

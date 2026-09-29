@@ -139,13 +139,8 @@ public sealed partial class RoomEnemySystem
             installed.Apply(_cgram!, zoomHighByte);
             return;
         }
-        // Non-catalogued restored zoom words retain the native wrapped source read.
-        ushort sourcePointer = unchecked((ushort)(
-            CeresRidleyPaletteRomData.Mode7ZoomColors +
-            zoomHighByte * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride));
-        _cgram!.LoadFromBus(_bus!, CeresRidleyPaletteRomData.Bank | sourcePointer,
-            CeresRidleyPaletteRomData.Mode7ZoomColorCount,
-            CeresRidleyPaletteRomData.Mode7ZoomCgramIndex);
+        throw new InvalidOperationException(
+            $"Ceres Ridley Mode 7 zoom row {zoomHighByte} is not in the installed palette catalog.");
     }
 
     /// <summary>

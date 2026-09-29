@@ -752,9 +752,6 @@ public sealed partial class RoomEnemySystem
                 head.Health))
             return;
 
-        int source = BotwoonHealthPaletteDefinitions.NativePaletteAddress +
-            BotwoonHealthPaletteDefinitions.ColorsPerPalette *
-            state.PalettePhaseByteOffset;
         int destinationColor = state.PaletteDestinationByteOffset >> 1;
         int colorCount = 256 - destinationColor;
         if (TileArtwork?.BotwoonColors is { } colors)
@@ -771,7 +768,7 @@ public sealed partial class RoomEnemySystem
                 _cgram!.SetColor(destinationColor + color,
                     colors.HealthColor(band, color));
         }
-        else _cgram!.LoadFromBus(_bus!, source, colorCount, destinationColor);
+        else throw new InvalidOperationException("Botwoon requires installed health colors.");
         state.PalettePhaseByteOffset = unchecked((ushort)(state.PalettePhaseByteOffset + 2));
     }
 

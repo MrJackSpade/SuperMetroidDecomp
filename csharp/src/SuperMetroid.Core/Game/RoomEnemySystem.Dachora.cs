@@ -540,7 +540,6 @@ public sealed partial class RoomEnemySystem
     {
         int objectPalette = (slot.PaletteIndex >> 9) & 7;
         int destinationColor = 128 + objectPalette * 16;
-        int source = DachoraColorRomData.Source(phase, frame);
         if (TileArtwork?.DachoraColors is { } colors)
         {
             for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
@@ -548,9 +547,7 @@ public sealed partial class RoomEnemySystem
                     colors.Resolve(phase, frame, color));
             return;
         }
-        _cgram!.LoadFromBus(_bus!, source,
-            colorCount: DachoraColorRomData.ColorsPerFrame,
-            destinationIndex: destinationColor);
+        throw new InvalidOperationException("Dachora requires installed palette-cycle colors.");
     }
 
     private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)

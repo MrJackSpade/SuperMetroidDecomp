@@ -63,7 +63,8 @@ public sealed partial class FileSelectMapMenuState
         areaGraphics.BindLabels(mapPresentation?.Labels);
         animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
         animations.BindPalette(mapPresentation?.HighlightCycle);
-        entry = new FileSelectMapEntry(bus, mapPresentation?.Palettes);
+        entry = new FileSelectMapEntry(mapPresentation?.Palettes ?? throw new InvalidOperationException(
+            "File-select map requires installed map palettes."));
     }
 
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;

@@ -230,8 +230,7 @@ public sealed partial class IntroCinematicState
         // flashbacks; restore the later intro CGRAM copy after using the shared helper.
         SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram,
             equippedBeams: 0, beamArtwork);
-        if (characterArtwork is null) cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
-        else characterArtwork.Palette.LoadTo(cgram);
+        characterArtwork.Palette.LoadTo(cgram);
 
         Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
     }

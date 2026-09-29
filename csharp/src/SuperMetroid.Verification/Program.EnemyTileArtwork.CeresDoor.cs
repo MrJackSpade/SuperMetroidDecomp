@@ -22,19 +22,19 @@ internal static partial class Program
 
         var nativeColors = new SnesCgram();
         var compiledColors = new SnesCgram();
-        nativeColors.LoadFromBus(bus, CeresDoorVisualRomData.NormalColors,
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.NormalTargetColor);
         visual.LoadNormalColors(compiledColors, CeresDoorVisualRomData.NormalTargetColor);
         AssertTrue(nativeColors.Colors.SequenceEqual(compiledColors.Colors),
             "installed Ceres-door normal RGB5 palette matches the cartridge");
-        nativeColors.LoadFromBus(bus, CeresDoorVisualRomData.EscapeColors,
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.EscapeColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.ActiveTargetColor);
         visual.LoadEscapeColors(compiledColors, CeresDoorVisualRomData.ActiveTargetColor);
         AssertTrue(nativeColors.Colors.SequenceEqual(compiledColors.Colors),
             "installed Ceres-door escape RGB5 palette matches the cartridge");
         for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
         {
-            nativeColors.LoadFromBus(bus,
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus,
                 CeresDoorVisualRomData.AnimationColors +
                     row * CeresDoorVisualRomData.AnimationRowByteStride,
                 CeresDoorVisualRomData.AnimationColorCount,

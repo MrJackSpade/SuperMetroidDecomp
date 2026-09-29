@@ -239,11 +239,11 @@ internal static partial class Program
             int pointer = MotherBrainRainbowPaletteRomData.PointerTable + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
                 bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
-            native.LoadFromBus(bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.BodyColor);
-            native.LoadFromBus(bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.BrainColor);
-            native.LoadFromBus(bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
             original.MotherBrainRainbowPalette.ApplyRainbow(installed, frame);
             AssertTrue(native.Colors.SequenceEqual(installed.Colors),
@@ -272,9 +272,9 @@ internal static partial class Program
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
                 bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
-            native.LoadFromBus(bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
-            native.LoadFromBus(bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
-            native.LoadFromBus(bus, palette + count * sizeof(ushort),
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
+            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainDrainedPaletteRomData.BackLegCount,
                 MotherBrainDrainedPaletteRomData.BackLegColor);
             var guard = new PaletteReadForbiddenBus();
@@ -292,11 +292,11 @@ internal static partial class Program
 
         var nativeNormal = new SnesCgram();
         var installedNormal = new SnesCgram();
-        nativeNormal.LoadFromBus(bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BodyColor);
-        nativeNormal.LoadFromBus(bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BrainColor);
-        nativeNormal.LoadFromBus(bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
         AssertTrue(nativeNormal.Colors.SequenceEqual(installedNormal.Colors),

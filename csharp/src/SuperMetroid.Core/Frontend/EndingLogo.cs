@@ -34,10 +34,9 @@ internal sealed class EndingLogo
             actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
         }
         for (int i = 0; i < 16; i++) cgram.SetColor(16 + i, 0);
-        if (paletteArtwork is { } artwork)
-            artwork[EndingPaletteId.LogoInitial].LoadTo(cgram, 0, 16, 240);
-        else
-            cgram.LoadFromBus(bus, EndingLogoDefinitions.InitialPalette, 16, 240);
+        (paletteArtwork ?? throw new InvalidOperationException(
+            "Ending logo requires installed palette artwork."))
+            [EndingPaletteId.LogoInitial].LoadTo(cgram, 0, 16, 240);
     }
 
     /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>

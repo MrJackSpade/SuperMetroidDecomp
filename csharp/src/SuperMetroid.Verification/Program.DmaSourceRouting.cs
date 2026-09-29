@@ -17,33 +17,34 @@ internal static partial class Program
         source.SetSaveRam(0x700011, 0x66);
 
         var vram = new SnesVram();
-        vram.ExecuteQueuedWrite(source, 0x80fffe, 4, 0);
-        AssertEqual((byte)0x11, vram.ReadByte(0), "DMA first cartridge byte");
-        AssertEqual((byte)0x22, vram.ReadByte(1), "DMA second cartridge byte");
-        AssertEqual((byte)0x33, vram.ReadByte(2), "DMA wrap enters WRAM mirror");
-        AssertEqual((byte)0x44, vram.ReadByte(3), "DMA retains fixed bank in WRAM mirror");
+        AssertThrows<InvalidOperationException>(
+            () => vram.ExecuteQueuedWrite(source, 0x80fffe, 4, 0),
+            "runtime VRAM rejects cartridge transfer sources");
+        vram.ExecuteQueuedWrite(source, 0x800000, 2, 0);
+        AssertEqual((byte)0x33, vram.ReadByte(0), "DMA reads WRAM mirror low byte");
+        AssertEqual((byte)0x44, vram.ReadByte(1), "DMA reads WRAM mirror high byte");
         vram.ExecuteQueuedWrite(source, 0x700010, 2, 2);
         AssertEqual((byte)0x55, vram.ReadByte(4), "DMA reads SRAM low byte");
         AssertEqual((byte)0x66, vram.ReadByte(5), "DMA reads SRAM high byte");
 
         var cgram = new SnesCgram();
-        cgram.LoadFromBus(source, 0x80ffff, colorCount: 1);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1);
         AssertEqual((ushort)0x3322, cgram.Colors[0],
             "CGRAM word straddles cartridge and WRAM mirror");
-        cgram.LoadFromBus(source, 0x700010, colorCount: 1, destinationIndex: 1);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x700010, colorCount: 1, destinationIndex: 1);
         AssertEqual((ushort)0x6655, cgram.Colors[1], "CGRAM reads SRAM word");
 
-        AssertEqual(3, source.CartridgeReads, "only cartridge windows use import reads");
+        AssertEqual(1, source.CartridgeReads, "only import-time palette transfer reads cartridge");
         AssertEqual(3, source.WorkRamReads, "only WRAM windows use mutable reads");
         AssertEqual(4, source.SaveRamReads, "both PPU paths use SRAM reads");
         AssertThrows<InvalidOperationException>(
             () => vram.ExecuteQueuedWrite(source, 0x806000, 1, 0),
             "VRAM rejects unmapped expansion source");
         AssertThrows<InvalidOperationException>(
-            () => cgram.LoadFromBus(source, 0x802000, colorCount: 1),
+            () => SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x802000, colorCount: 1),
             "CGRAM rejects unmapped hardware source");
 
-        Console.WriteLine("  PPU DMA sources: cartridge, WRAM mirror, SRAM, fixed-bank wrap and unmapped windows use typed routes.");
+        Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM uses typed routes.");
     }
 
     private sealed class DmaReadRoutingBus : ISnesAddressSpace, ISnesMutableMemory,

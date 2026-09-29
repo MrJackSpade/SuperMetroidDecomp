@@ -4733,7 +4733,7 @@ parlorVram.ExecuteQueuedWrite(
     sourceAddress: 0x9ad200,
     sizeInBytes: 0x2e00,
     encodedDestination: 0x6000);
-parlorCgram.LoadFromBus(bus, sourceAddress: 0x9a8000);
+SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(parlorCgram, bus, sourceAddress: 0x9a8000);
 parlorEnemies.Load(
     bus,
     populationPointer: 0x8da0,
@@ -6568,7 +6568,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             {
                 // The native destination `$01E2` is a byte offset into the 512-byte
                 // palette buffer; SnesCgram accepts an actual colour number, hence `/2`.
-                runtime.Cgram.LoadFromBus(
+                SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(runtime.Cgram,
                     bus,
                     checked((int)babyPalette.SourceAddress),
                     babyPalette.ColorCount,
@@ -6600,12 +6600,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // fourteen background-palette-five colours from consecutive source words.
                 int source = checked((int)backgroundPalette.SourceAddress);
                 int colors = backgroundPalette.ColorsPerDestination;
-                runtime.Cgram.LoadFromBus(
+                SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(runtime.Cgram,
                     bus,
                     source,
                     colors,
                     backgroundPalette.FirstDestinationColorIndex / 2);
-                runtime.Cgram.LoadFromBus(
+                SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(runtime.Cgram,
                     bus,
                     source + colors * 2,
                     colors,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 
@@ -1015,24 +1016,12 @@ public sealed partial class SuperMetroidRuntime
     /// </remarks>
     private void LoadGameplaySpritePalettes()
     {
-        if (InitialPaletteArt is not null)
-        {
-            InitialPaletteArt.LoadCommonSprites(Cgram,
-                RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-            InitialPaletteArt.LoadEnemyProjectileSprites(Cgram,
-                RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
-            return;
-        }
-        Cgram.LoadFromBus(
-            _addressSpace,
-            RoomLoadingRomData.CommonGameplaySpritePalette,
-            colorCount: 16,
-            destinationIndex: RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
-        Cgram.LoadFromBus(
-            _addressSpace,
-            RoomLoadingRomData.InitialEnemyProjectilePalette,
-            colorCount: 16,
-            destinationIndex: RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
+        GameplayBasePaletteCatalog artwork = InitialPaletteArt ?? throw new InvalidOperationException(
+            "Room loading requires the installed gameplay palette catalog.");
+        artwork.LoadCommonSprites(Cgram,
+            RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
+        artwork.LoadEnemyProjectileSprites(Cgram,
+            RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
     }
 
     /// <summary>

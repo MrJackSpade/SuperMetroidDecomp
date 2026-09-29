@@ -35,13 +35,10 @@ public sealed partial class RoomEnemySystem
         projectile.XPosition = position.X;
         projectile.YPosition = position.Y;
         if (soul) projectile.YVelocity = unchecked((ushort)-1024);
-        else if (TileArtwork?.TourianStatueColors is { } colors)
-            colors.ApplyEye(_cgram!, parameter);
         else
-            _cgram!.LoadFromBus(_bus!,
-                TourianStatuePaletteRomData.EyeColors + parameter * 4,
-                TourianStatuePaletteRomData.EyeColorCount,
-                TourianStatuePaletteRomData.EyeCgramIndex);
+            (TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
+                "Tourian statue eye requires installed colors."))
+                .ApplyEye(_cgram!, parameter);
     }
 
     private void SpawnTourianParticleChild(RoomEnemyProjectileSlot parent, ushort definition)

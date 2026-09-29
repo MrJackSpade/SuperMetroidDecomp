@@ -183,17 +183,8 @@ public sealed partial class RoomEnemySystem
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare
         // the exact target image produced by the cartridge.
-        if (TileArtwork?.CrocomireColors is { } colors)
-            colors.ApplyInitial(_cgram!);
-        else
-        {
-            _cgram!.LoadFromBus(_bus!, CrocomirePaletteRomData.InitialWallSource,
-                CrocomirePaletteRomData.InitialWallCount,
-                CrocomirePaletteRomData.InitialWallDestination);
-            _cgram.LoadFromBus(_bus!, CrocomirePaletteRomData.InitialProjectileSource,
-                CrocomirePaletteRomData.InitialProjectileCount,
-                CrocomirePaletteRomData.InitialProjectileDestination);
-        }
+        (TileArtwork?.CrocomireColors ?? throw new InvalidOperationException(
+            "Crocomire requires installed color artwork.")).ApplyInitial(_cgram!);
     }
 
     /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>

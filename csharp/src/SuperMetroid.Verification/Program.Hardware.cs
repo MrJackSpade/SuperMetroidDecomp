@@ -203,11 +203,11 @@ static void VerifyVramWriteQueue()
     queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e2000, encodedVramDestination: 0x8001);
     AssertEqual(VramWriteQueue.EntryByteCount * 2, queue.TailInBytes, "two packed VRAM queue tails");
 
-    // This transfer crosses $80:FFFF. DMA keeps bank $80 fixed, so its second byte must
-    // come from $80:0000 rather than the linear address $81:0000.
-    bus.WriteByte(0x80ffff, 0xa0);
-    bus.WriteByte(0x800000, 0xa1);
-    queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x80ffff, encodedVramDestination: 0x0100);
+    // This transfer crosses $7E:FFFF. DMA keeps bank $7E fixed, so its second byte
+    // comes from $7E:0000 rather than the linear address $7F:0000.
+    bus.WriteByte(0x7effff, 0xa0);
+    bus.WriteByte(0x7e0000, 0xa1);
+    queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x7effff, encodedVramDestination: 0x0100);
 
     queue.DrainTo(vram, bus);
 

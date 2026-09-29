@@ -35,7 +35,7 @@ internal static partial class Program
                 ushort pointer = (ushort)(rom.ReadByte(pointerAddress) |
                     rom.ReadByte(pointerAddress + 1) << 8);
                 AssertTrue(pointer != 0, "native Mother Brain fake-death palette frame exists");
-                expected.LoadFromBus(rom, MotherBrainRainbowPaletteRomData.SourceBank | pointer,
+                SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainRainbowPaletteRomData.SourceBank | pointer,
                     MotherBrainFakeDeathPaletteRomData.ColorCount,
                     MotherBrainFakeDeathPaletteRomData.BrainColor);
                 state.FunctionTimer = 0;

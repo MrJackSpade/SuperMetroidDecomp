@@ -194,7 +194,7 @@ internal static partial class Program
         TitlePalettePresentation presentation = TitlePalettePresentation.Load(
             new MemoryStream(extracted, writable: false));
         var expected = new SnesCgram();
-        expected.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSequenceRomData.Assets.PaletteAddress);
         if (!presentation.Colors.SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
         AssertEqual(TitleSequenceRomData.Palette.CopyrightWhite,

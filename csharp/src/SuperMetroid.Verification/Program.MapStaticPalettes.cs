@@ -12,9 +12,9 @@ internal static partial class Program
     {
         var guard = new MapDataGuard(bus, rules);
         var palette = new SnesCgram();
-        palette.LoadFromBus(bus, MapStaticPalettesRomData.PausePalette);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(palette, bus, MapStaticPalettesRomData.PausePalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");
-        palette.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
         var nativeWorld = new FileSelectAreaMapGraphics(bus, 0);
         var world = new FileSelectAreaMapGraphics(guard, 0, original.Tiles, original.Palettes);
@@ -54,8 +54,8 @@ internal static partial class Program
         AssertTrue(roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(0, 0)), "room map rebind restores original colors");
         AssertTrue(nativeWorld.Cgram.Colors.SequenceEqual(world.Cgram.Colors), "world rebind restores complete original colors");
 
-        var entry = new FileSelectMapEntry(guard, original.Palettes);
-        var controlEntry = new FileSelectMapEntry(bus);
+        var entry = new FileSelectMapEntry(original.Palettes);
+        var controlEntry = new FileSelectMapEntry(original.Palettes);
         for (int tick = 0; tick < 5; tick++) { entry.Step(); controlEntry.Step(); }
         entry.BindPalettes(edited.Palettes);
         for (int tick = 0; tick < 48; tick++)

@@ -543,12 +543,8 @@ public sealed partial class RoomEnemySystem
                     int babyPaletteRow = CeresBabyInstructionProgramDefinitions.ReadPaletteRow(argument);
                     if (CeresRidleyColors is { } babyColors)
                         babyColors.ApplyBaby(_cgram!, babyPaletteRow);
-                    else
-                        _cgram!.LoadFromBus(_bus!,
-                            CeresRidleyPaletteRomData.BabyColors + babyPaletteRow *
-                                CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort),
-                            CeresRidleyPaletteRomData.BabyColorCount,
-                            CeresRidleyPaletteRomData.BabyCgramIndex);
+                    else throw new InvalidOperationException(
+                        "Ceres Ridley requires installed Baby Metroid colors.");
                     cursor = unchecked((ushort)(argument + 2));
                     break;
 

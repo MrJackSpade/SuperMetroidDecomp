@@ -184,13 +184,10 @@ public sealed partial class RoomEnemySystem
         // Native copies the gold non-ninja Pirate's color image, not this actor's initial
         // room-graphics palette. Share that installed image so the same authored edit
         // affects both consumers without changing the ninja's animation or slot state.
-        if (TileArtwork is { } artwork)
-            artwork.LoadPaletteTo(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition,
+        (TileArtwork ?? throw new InvalidOperationException(
+            "Gold Space Pirate requires installed palette artwork."))
+            .LoadPaletteTo(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition,
                 _cgram!, NinjaSpacePiratePaletteDefinitions.TargetColor);
-        else
-            _cgram!.LoadFromBus(_bus!, NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
-                colorCount: EnemyPaletteSheet.ColorCount,
-                destinationIndex: NinjaSpacePiratePaletteDefinitions.TargetColor);
     }
 
     /// <summary>Dispatches the literal function installed in native variable A.</summary>

@@ -32,7 +32,8 @@ internal static partial class Program
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
             var samus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge };
             var nativeSamus = new SamusState { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
-            var native = new PauseMenuState(bus, nativeSamus, system, area, 10, 10);
+            var native = new PauseMenuState(bus, nativeSamus, system, area,
+                10, 10, mapPresentation: original);
             var pause = new PauseMenuState(new PauseArtworkReadGuard(bus), samus, system, area, 10, 10, mapPresentation: original);
             for (int tick = 0; tick < 72; tick++)
             {

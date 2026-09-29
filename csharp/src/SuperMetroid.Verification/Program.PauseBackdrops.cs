@@ -42,7 +42,7 @@ internal static partial class Program
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
             var vram = new SnesVram(); original.PauseBackdrops.LoadTo(vram, 0, area);
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes[..0x800]), "all 1024 backdrop words match native frame plus unmasked area lettering");
-            var native = Create(bus, area, null);
+            var native = Create(bus, area, original);
             var pause = Create(guard, area, original);
             var persistentEdit = Create(guard, area, edited);
             // Rebind at every page/fade position, including the instant R/L updates
@@ -137,7 +137,7 @@ internal static partial class Program
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause backdrops: seven native frames/labels, button artwork, 532 guarded transition/rebind frames, visible edits, restore, native equipment overrun preservation and strict resource failures pass.");
 
-        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaId area, AreaMapPresentationCatalog? catalog)
+        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaId area, AreaMapPresentationCatalog catalog)
         {
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
             return new(addressSpace, new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge },

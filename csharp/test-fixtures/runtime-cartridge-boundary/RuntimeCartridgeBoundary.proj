@@ -15,5 +15,17 @@
   <ItemGroup Condition="'$(BoundaryCase)' == 'SpritemapOracle'">
     <Compile Include="ImportedSpritemapOracle.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'RawRoomRenderer'">
+    <Compile Include="RoomRenderer.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'CompressionDecoder'">
+    <Compile Include="SmCompression.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'CompressionFormat'">
+    <Compile Include="SmCompressionFormat.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'CompressionCommand'">
+    <Compile Include="SmCompressionCommand.cs" />
+  </ItemGroup>
   <Import Project="../../tools/RuntimeCartridgeBoundary.targets" />
 </Project>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Decoder for Super Metroid's command-stream compression format.
+/// Import-only decoder for Super Metroid's command-stream compression format.
 /// This is a direct, checked translation of <c>DecompressToMem</c> at <c>$80:B119</c>.
 /// </summary>
 /// <remarks>

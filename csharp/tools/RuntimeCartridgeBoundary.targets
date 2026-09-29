@@ -11,7 +11,11 @@
       <ForbiddenCartridgeShim Include="@(Compile)"
         Condition="'%(Compile.Filename)' == 'ReferenceBusReadExtensions' or
                    '%(Compile.Filename)' == 'ImportedVramOracle' or
-                   '%(Compile.Filename)' == 'ImportedSpritemapOracle'" />
+                   '%(Compile.Filename)' == 'ImportedSpritemapOracle' or
+                   '%(Compile.Filename)' == 'RoomRenderer' or
+                   '%(Compile.Filename)' == 'SmCompression' or
+                   '%(Compile.Filename)' == 'SmCompressionFormat' or
+                   '%(Compile.Filename)' == 'SmCompressionCommand'" />
     </ItemGroup>
     <Error Code="SMROM001" Condition="'@(ForbiddenCartridgeReference)' != ''"
       Text="Core cannot reference cartridge-import or reference-diagnostic assemblies: @(ForbiddenCartridgeReference). Convert immutable data to compiled definitions or installed resources; do not restore a ROM reader." />

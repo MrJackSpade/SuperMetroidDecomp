@@ -23,7 +23,7 @@ public sealed record RoomRenderDefinition(
 public sealed record RenderedRoom(int Width, int Height, Rgba32[] Pixels);
 
 /// <summary>
-/// Composes the same room assets loaded by bank $82 into a convenient RGBA image.
+/// Import/reference-only renderer for named raw assets extracted from bank $82.
 /// PLMs, enemies, and runtime palette effects are intentionally separate layers.
 /// </summary>
 public static class RoomRenderer

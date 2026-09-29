@@ -12,15 +12,16 @@ internal static partial class Program
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
         var guard = new MapDataGuard(bus, rules);
-        var arrows = new FileSelectMapAnimations(bus);
+        var arrows = new FileSelectMapAnimations(bus, original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = new OamBuffer();
-        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam);
+        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, original.Sprites);
         ushort nativeArrowPalette = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual((byte)(nativeArrowPalette >> 8), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
         var native = new MapPaletteAnimation(bus);
+        native.Bind(original.HighlightCycle);
         var installed = new MapPaletteAnimation(new ForbiddenMapBus());
         installed.Bind(original.HighlightCycle);
         AssertEqual(MapAnimationRomData.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
@@ -51,7 +52,8 @@ internal static partial class Program
 
         var system = new Bank80SystemState();
         var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, 0, 0, mapPresentation: original);
-        var nativePause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria, 0, 0);
+        var nativePause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria,
+            0, 0, mapPresentation: original);
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
@@ -81,7 +83,8 @@ internal static partial class Program
         saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, saved);
         var slot = saves.ReadSlot(0)!;
-        var nativeMenu = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
+        var nativeMenu = new FileSelectMapMenuState(bus,
+            new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
         var menu = new FileSelectMapMenuState(guard, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
         nativeMenu.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);

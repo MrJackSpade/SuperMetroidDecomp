@@ -258,7 +258,8 @@ internal static partial class Program
         AssertTrue(editedBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
         VerifyBundledMapMaskValidation(repaired);
         VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray());
-        VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original, rules.Values.ToArray());
+        VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original,
+            rules.Values.ToArray(), initialPalettes, fixtureAssets);
         VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray());
         VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray());
         VerifyWorldMapLabels(bus, stock, Path.Combine(root, "label-overrides"), original);

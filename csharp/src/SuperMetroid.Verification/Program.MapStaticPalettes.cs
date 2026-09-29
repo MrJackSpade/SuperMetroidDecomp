@@ -16,8 +16,10 @@ internal static partial class Program
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
-        var nativeWorld = new FileSelectAreaMapGraphics(bus, 0);
-        var world = new FileSelectAreaMapGraphics(guard, 0, original.Tiles, original.Palettes);
+        var nativeWorld = new FileSelectAreaMapGraphics(bus, 0, original.Tiles,
+            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites);
+        var world = new FileSelectAreaMapGraphics(guard, 0, original.Tiles,
+            original.Palettes, original.Screens, original.WorldArtwork, original.Sprites);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);

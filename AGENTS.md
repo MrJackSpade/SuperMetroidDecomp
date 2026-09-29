@@ -61,6 +61,18 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Match the assertion to the report. Visual, positioning, animation, timing, and state-transition bugs need assertions for those exact properties; a nearby endpoint or no-crash assertion is not sufficient evidence of a fix.
 - Use a real room or recorded controller sequence when the behavior depends on retail room data, interactions across systems, or a sequence that a synthetic fixture cannot reproduce faithfully.
 
+## ROM-free migration
+
+- Do not discover remaining cartridge reads by running gameplay, replays, unit tests,
+  or progressively longer frame probes. A passing path cannot establish that other
+  paths are ROM-free, and finding one read at a time is not a completion strategy.
+- Inventory cartridge access statically from the source and its call graph. Separate
+  extraction/startup imports from executable gameplay dependencies, and use API or
+  type-boundary changes that make unresolved gameplay reads visible at build time.
+- Tests may verify a specifically identified conversion and its behavior, but must
+  not be used to search for the next cartridge read. Completion requires a source-
+  level audit of every access path as well as ROM-free runtime verification.
+
 ## Issue report versions
 
 - Every player bug report must record the affected game version in the GitHub

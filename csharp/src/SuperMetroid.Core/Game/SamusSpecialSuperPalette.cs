@@ -12,11 +12,9 @@ public static class SamusSpecialSuperPalette
 {
     /// <returns>True when the special branch owned—and wrote—the visible Samus palette.</returns>
     public static bool Update(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         ArgumentNullException.ThrowIfNull(samus);
 
@@ -30,14 +28,10 @@ public static class SamusSpecialSuperPalette
             : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         if ((flags & 1) == 0)
             SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.SuitColors);
-        else if (samus.FullBodyCycleColors is { } cycleColors)
-            cycleColors.Apply(cgram, palettePointer);
         else
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | palettePointer,
-                SamusPaletteRomData.Common.ColorsPerObjPalette,
-                SamusPaletteRomData.Common.SamusObjPaletteStart);
+            (samus.FullBodyCycleColors ?? throw new InvalidOperationException(
+                "Metroid-attachment palette requires installed Samus full-body cycle colors."))
+                .Apply(cgram, palettePointer);
         samus.SpecialSuperPaletteFlags = unchecked((ushort)(flags + 1));
         return true;
     }

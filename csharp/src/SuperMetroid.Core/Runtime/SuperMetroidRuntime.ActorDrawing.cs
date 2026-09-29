@@ -143,7 +143,7 @@ public sealed partial class SuperMetroidRuntime
             // took the routine's earlier branch.
             bool metroidOwnsSamusPalette = !deathOwnsSamus &&
                 !drainedOwnsSamusPalette &&
-                SamusSpecialSuperPalette.Update(_addressSpace, Cgram, Samus);
+                SamusSpecialSuperPalette.Update(Cgram, Samus);
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !metroidOwnsSamusPalette)
             {
                 LastHurtFlashPaletteStep = SamusHurtFlashPalette.Update(

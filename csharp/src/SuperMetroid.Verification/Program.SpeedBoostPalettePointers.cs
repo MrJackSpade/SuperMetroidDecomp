@@ -1,12 +1,15 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
     private static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var guarded = new SpeedBoostPointerReadGuard(rom);
+        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(rom)));
         ushort[] equipment =
         [
             0,
@@ -26,41 +29,26 @@ internal static partial class Program
                 SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(offset),
                 $"compiled Speed Booster pointer selection {selection} matches retail ROM");
 
-            var nativeSamus = new SamusState
+            var samus = new SamusState
             {
                 EquippedItems = equipment[selection],
                 SpecialSuperPaletteFlags = 1,
+                FullBodyCycleColors = cycleColors,
             };
-            var guardedSamus = new SamusState
-            {
-                EquippedItems = equipment[selection],
-                SpecialSuperPaletteFlags = 1,
-            };
-            var nativeColors = new SnesCgram();
             var installedColors = new SnesCgram();
-            AssertTrue(SamusSpecialSuperPalette.Update(rom, nativeColors, nativeSamus),
-                "native special palette loads Speed Booster shade");
-            AssertTrue(SamusSpecialSuperPalette.Update(guarded, installedColors, guardedSamus),
-                "compiled special palette loads Speed Booster shade without pointer-table reads");
-            AssertTrue(nativeColors.Colors.SequenceEqual(installedColors.Colors),
-                $"Speed Booster CGRAM selection {selection} remains byte-exact");
-            AssertEqual(nativeSamus.SpecialSuperPaletteFlags, guardedSamus.SpecialSuperPaletteFlags,
-                "special palette counter parity");
+            AssertTrue(SamusSpecialSuperPalette.Update(installedColors, samus),
+                "installed special palette loads Speed Booster shade without a CPU bus");
+            for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
+                AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
+                        SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort))) & 0x7fff),
+                    installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
+            AssertEqual((ushort)2, samus.SpecialSuperPaletteFlags,
+                "special palette counter increments");
         }
-        Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM without pointer-table reads.");
-    }
-
-    private sealed class SpeedBoostPointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((uint)(address - SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers) < 6)
-                throw new InvalidOperationException($"Runtime read of compiled Speed Booster pointer ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
+            new SnesCgram(), new SamusState { SpecialSuperPaletteFlags = 1 }),
+            "Metroid attachment requires installed Speed Booster colors");
+        Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
     }
 }

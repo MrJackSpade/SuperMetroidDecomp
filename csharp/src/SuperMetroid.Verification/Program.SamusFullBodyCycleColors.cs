@@ -107,7 +107,7 @@ internal static partial class Program
                 FullBodyCycleColors = edited.SamusFullBodyCycleColors,
             };
             var attachmentColors = new SnesCgram();
-            AssertTrue(SamusSpecialSuperPalette.Update(guard, attachmentColors, attached),
+            AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),
                 "Metroid attachment reaches installed Speed Booster color source");
             AssertColors(attachmentColors, SamusFullBodyCycleFamily.SpeedBooster, suit, 3);
         }

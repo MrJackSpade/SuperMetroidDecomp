@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -184,9 +185,13 @@ internal static partial class MetroidAudit
         }
 
         var cgram = new SnesCgram();
-        if (!SamusSpecialSuperPalette.Update(bus, cgram, loaded.Samus) ||
+        loaded.Samus.FullBodyCycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
+        loaded.Samus.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        if (!SamusSpecialSuperPalette.Update(cgram, loaded.Samus) ||
             loaded.Samus.SpecialSuperPaletteFlags != 2 ||
-            !SamusSpecialSuperPalette.Update(bus, cgram, loaded.Samus) ||
+            !SamusSpecialSuperPalette.Update(cgram, loaded.Samus) ||
             loaded.Samus.SpecialSuperPaletteFlags != 3)
         {
             throw new InvalidDataException(

@@ -1,12 +1,15 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
     private static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var guarded = new NormalSuitPointerReadGuard(rom);
+        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(rom)));
         ushort[] equipment =
         [
             0,
@@ -25,41 +28,23 @@ internal static partial class Program
             AssertEqual(nativePointer, SamusPaletteRomData.Common.NormalSuitPalettePointer(offset),
                 $"compiled normal suit pointer selection {selection} matches retail ROM");
 
-            var nativeSamus = new SamusState
+            var samus = new SamusState
             {
                 EquippedItems = equipment[selection],
                 SpecialSuperPaletteFlags = 2,
+                SuitColors = suitColors,
             };
-            var guardedSamus = new SamusState
-            {
-                EquippedItems = equipment[selection],
-                SpecialSuperPaletteFlags = 2,
-            };
-            var nativeColors = new SnesCgram();
             var installedColors = new SnesCgram();
-            AssertTrue(SamusSpecialSuperPalette.Update(rom, nativeColors, nativeSamus),
-                "native special palette restores normal suit");
-            AssertTrue(SamusSpecialSuperPalette.Update(guarded, installedColors, guardedSamus),
-                "compiled special palette restores normal suit without pointer-table reads");
-            AssertTrue(nativeColors.Colors.SequenceEqual(installedColors.Colors),
-                $"normal suit CGRAM selection {selection} remains byte-exact");
-            AssertEqual(nativeSamus.SpecialSuperPaletteFlags, guardedSamus.SpecialSuperPaletteFlags,
-                "special palette counter parity");
+            AssertTrue(SamusSpecialSuperPalette.Update(installedColors, samus),
+                "installed special palette restores normal suit without a CPU bus");
+            for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
+                AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
+                        SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort))) & 0x7fff),
+                    installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    $"normal suit CGRAM selection {selection}, color {color} matches ROM");
+            AssertEqual((ushort)3, samus.SpecialSuperPaletteFlags,
+                "special palette counter increments");
         }
-        Console.WriteLine("Normal suit palettes: four equipment cases match ROM and live CGRAM without pointer-table reads.");
-    }
-
-    private sealed class NormalSuitPointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((uint)(address - SamusPaletteRomData.Common.NormalSuitPointers) < 6)
-                throw new InvalidOperationException($"Runtime read of compiled normal suit pointer ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        Console.WriteLine("Normal suit palettes: four equipment cases match ROM and live CGRAM with no CPU bus.");
     }
 }

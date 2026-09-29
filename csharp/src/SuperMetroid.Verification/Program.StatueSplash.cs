@@ -62,7 +62,7 @@ internal static partial class Program
                     {
                         var expectedOam = new OamBuffer();
                         expectedOam.BeginFrame();
-                        expectedOam.AddEnemyProjectileSpritemap(bus, splash.SpritemapPointer,
+                        DrawImportedEnemyProjectileSpritemap(bus, expectedOam, splash.SpritemapPointer,
                             unchecked((ushort)(splashX - 32)), 164, splash.GraphicsIndex, true);
                         expectedOam.FinalizeFrame();
                         var actualOam = new OamBuffer();

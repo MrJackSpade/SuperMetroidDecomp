@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
@@ -99,7 +100,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingInitial;
         slot.InstructionTimer = 1;
-        slot.SpritemapPointer = 0x8000;
 
         // `$86:C27A` multiplies `$0450` by a sign-extended ROM sine entry, shifts the
         // unsigned magnitude right eight, then restores the sign. Cosine is sine+`$40`.
@@ -150,7 +150,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial;
         slot.InstructionTimer = 1;
-        slot.SpritemapPointer = 0x8000;
         motherBrain.RegisterBombSpawn();
         return slotIndex;
     }
@@ -178,7 +177,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial;
         slot.InstructionTimer = 1;
-        slot.SpritemapPointer = 0x8000;
         return slotIndex;
     }
 
@@ -216,7 +214,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         // calling that initializer; reproduce those shared effects around its three stores.
         slot.InstructionPointer = instructionList;
         slot.InstructionTimer = 1;
-        slot.SpritemapPointer = 0x8000;
         return slotIndex;
     }
 
@@ -261,7 +258,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainEscapeDoorFragmentInitial;
         slot.InstructionTimer = 1;
-        slot.SpritemapPointer = 0x8000;
         return slotIndex;
     }
 
@@ -288,7 +284,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainSubtitleInitial;
         slot.InstructionTimer = 1;
-        slot.SpritemapPointer = 0x8000;
         return slotIndex;
     }
 
@@ -466,23 +461,23 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
     /// <summary>Draws definitions with property bit <c>$1000</c>, matching <c>$86:8390</c>.</summary>
     public void DrawHighPriority(
-        ISnesAddressSpace bus,
         OamBuffer oam,
+        EnemyProjectileSpritemapCatalog artwork,
         ushort layer1X,
         ushort layer1Y,
         short shakeX = 0,
         short shakeY = 0) =>
-        DrawPriority(bus, oam, layer1X, layer1Y, true, shakeX, shakeY);
+        DrawPriority(oam, artwork, layer1X, layer1Y, true, shakeX, shakeY);
 
     /// <summary>Draws definitions without property bit <c>$1000</c>, matching <c>$86:83B2</c>.</summary>
     public void DrawLowPriority(
-        ISnesAddressSpace bus,
         OamBuffer oam,
+        EnemyProjectileSpritemapCatalog artwork,
         ushort layer1X,
         ushort layer1Y,
         short shakeX = 0,
         short shakeY = 0) =>
-        DrawPriority(bus, oam, layer1X, layer1Y, false, shakeX, shakeY);
+        DrawPriority(oam, artwork, layer1X, layer1Y, false, shakeX, shakeY);
 
     /// <summary>Clears all eighteen physical slots and shared observable timers/requests.</summary>
     public void Reset()

@@ -34,4 +34,36 @@ internal static class ImportedSpritemapOracle
                 oam.AddOffScreenSpritePart(x, y, attributes, originX, originY);
         }
     }
+
+    /// <summary>Decodes only the reference artwork; production accepts typed visual parts.</summary>
+    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam,
+        byte bank, ushort spritemapPointer, ushort originX, ushort originY,
+        ushort paletteBits, ushort baseTileIndex,
+        bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
+        oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), originX, originY,
+            paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+
+    public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
+        ushort bank8dSpritemapPointer, ushort originX, ushort originY,
+        ushort graphicsIndex, bool originYIsOnScreen) =>
+        DrawEnemy(source, oam, 0x8d, bank8dSpritemapPointer, originX, originY,
+            new SnesObjAttributeWord(graphicsIndex).PaletteBits, unchecked((byte)graphicsIndex),
+            clipVerticalWrap: true, originYIsOnScreen);
+
+    private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
+        byte bank, ushort pointer)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        byte Byte(int offset) => source.ReadCartridgeByte(
+            (bank << 16) | ((pointer + offset) & 0xffff));
+        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        var parts = new EnemySpritemapPart[Word(0)];
+        for (int part = 0; part < parts.Length; part++)
+        {
+            int offset = 2 + part * 5;
+            parts[part] = new(new SnesSpritemapXWord(Word(offset)), Byte(offset + 2),
+                new SnesObjAttributeWord(Word(offset + 3)));
+        }
+        return parts;
+    }
 }

@@ -38,7 +38,7 @@ internal static partial class Program
                 $"Work Robot selector {index} has editable OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            nativeOam.AddEnemySpritemap(rom, WorkRobotVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, nativeOam, WorkRobotVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
             installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&

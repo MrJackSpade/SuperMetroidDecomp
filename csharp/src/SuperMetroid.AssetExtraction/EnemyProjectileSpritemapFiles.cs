@@ -5,9 +5,9 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports authored bank-$8D projectile OAM parts, not animation control flow.</summary>
-internal static class EnemyProjectileSpritemapFiles
+public static class EnemyProjectileSpritemapFiles
 {
-    internal static byte[] Extract(ISnesAddressSpace bus)
+    public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);

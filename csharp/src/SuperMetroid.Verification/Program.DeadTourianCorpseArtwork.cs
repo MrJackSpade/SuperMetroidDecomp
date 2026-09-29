@@ -123,7 +123,7 @@ internal static partial class Program
                 $"dead Tourian corpse program {index} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            nativeOam.AddEnemySpritemap(rom, DeadTourianCorpseVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
             installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
@@ -157,7 +157,7 @@ internal static partial class Program
                 $"dead Sidehopper selector {index} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            nativeOam.AddEnemySpritemap(rom, DeadTourianCorpseVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
             installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&

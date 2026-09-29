@@ -24,7 +24,7 @@ internal static partial class Program
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
             bool onScreen = (originY & 0xff00) == 0;
-            nativeOam.AddEnemyProjectileSpritemap(bus, pointer,
+            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, pointer,
                 originX, originY, graphicsIndex, onScreen);
             installedOam.AddEnemySpritemap(installed.Get(pointer).Span,
                 originX, originY,
@@ -858,7 +858,7 @@ internal static partial class Program
                     var installedOam = new OamBuffer();
                     nativeOam.BeginFrame();
                     installedOam.BeginFrame();
-                    nativeOam.AddEnemyProjectileSpritemap(bus, nativePointer,
+                    DrawImportedEnemyProjectileSpritemap(bus, nativeOam, nativePointer,
                         originX, originY, 0x0a04, originYIsOnScreen: true);
                     installedOam.AddEnemySpritemap(
                         installed.GetProgramFrame(frame.OperandAddress).Span,

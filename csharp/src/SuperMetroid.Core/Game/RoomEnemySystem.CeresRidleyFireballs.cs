@@ -170,8 +170,8 @@ public sealed class RoomEnemyProjectileSlot
     public ushort InstructionTimer { get; internal set; }
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>
-    /// Host-only visual identity for an installed shared Mother Brain/dust program frame.
-    /// Zero preserves the ordinary native bank-$8D spritemap path.
+    /// Host-only visual identity for an installed enemy-projectile program frame.
+    /// Zero selects a named direct composition, including the native empty frame.
     /// </summary>
     public ushort PresentationOperandAddress { get; internal set; }
     public ushort PreInstruction { get; internal set; }
@@ -637,35 +637,15 @@ public sealed partial class RoomEnemySystem
             if (((screenX + 128) & 0xfe00) != 0 || ((screenY + 128) & 0xfe00) != 0)
                 continue;
 
-            if (projectile.PresentationOperandAddress != 0 &&
-                TileArtwork?.ProjectileSpritemaps is { } programArtwork)
-            {
-                oam.AddEnemySpritemap(
-                    programArtwork.GetProgramFrame(projectile.PresentationOperandAddress).Span,
-                    screenX, screenY,
-                    new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
-                    unchecked((byte)projectile.GraphicsIndex),
-                    clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
-            }
-            else if (SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind) &&
-                TileArtwork?.ProjectileSpritemaps is { } installed)
-            {
-                oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
-                    screenX, screenY,
-                    new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
-                    unchecked((byte)projectile.GraphicsIndex),
-                    clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
-            }
-            else
-            {
-                oam.AddEnemyProjectileSpritemap(
-                    _bus!,
-                    projectile.SpritemapPointer,
-                    screenX,
-                    screenY,
-                    projectile.GraphicsIndex,
-                    originYIsOnScreen: (screenY >> 8) == 0);
-            }
+            var artwork = TileArtwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
+                "Room enemy projectiles require installed sprite artwork.");
+            ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
+                ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
+                : artwork.Get(projectile.SpritemapPointer);
+            oam.AddEnemySpritemap(parts.Span, screenX, screenY,
+                new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
+                unchecked((byte)projectile.GraphicsIndex),
+                clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
         }
     }
 
@@ -766,7 +746,7 @@ public sealed partial class RoomEnemySystem
 
         // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
         // It is intentionally not the first list map; bank-$86 advances it on its own pass.
-        projectile.SpritemapPointer = 0x8000;
+        projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
         projectile.XRadius = definition.XRadius;
         projectile.YRadius = definition.YRadius;
         projectile.Damage = definition.Damage;
@@ -1960,17 +1940,15 @@ public sealed partial class RoomEnemySystem
     private void SetEnemyProjectileVisualOperand(RoomEnemyProjectileSlot projectile,
         ushort operandAddress)
     {
-        if (TileArtwork?.ProjectileSpritemaps is not null &&
-            EnemyProjectilePresentationFrameDefinitions.Contains(operandAddress))
+        if (EnemyProjectilePresentationFrameDefinitions.Contains(operandAddress))
         {
             projectile.PresentationOperandAddress = operandAddress;
-            projectile.SpritemapPointer = 0x8000;
+            projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
             return;
         }
 
         projectile.PresentationOperandAddress = 0;
         projectile.SpritemapPointer =
-            TileArtwork?.ProjectileSpritemaps is not null &&
             SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind)
                 ? SkreeMetareeParticleVisualDefinitions.Resolve(operandAddress)
                 : ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | operandAddress);

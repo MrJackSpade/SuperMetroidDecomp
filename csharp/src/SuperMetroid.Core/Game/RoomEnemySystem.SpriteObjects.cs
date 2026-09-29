@@ -214,9 +214,7 @@ public sealed partial class RoomEnemySystem
 
         slot.InstructionTimer = duration;
         ushort operand = unchecked((ushort)(slot.InstructionPointer + 2));
-        slot.SpritemapPointer = TileArtwork is null
-            ? ReadWord(_bus!, (RoomSpriteObjectVisualDefinitions.Bank << 16) | operand)
-            : RoomSpriteObjectVisualDefinitions.FrameAt(operand);
+        slot.SpritemapPointer = RoomSpriteObjectVisualDefinitions.FrameAt(operand);
     }
 
     /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>
@@ -244,28 +242,18 @@ public sealed partial class RoomEnemySystem
             ushort paletteBits = new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits;
             ushort baseTileIndex = unchecked((ushort)
                 new SnesObjAttributeWord(slot.GraphicsIndex).TileNumber);
-            if (TileArtwork?.Spritemaps is { } spritemaps)
+            var spritemaps = TileArtwork?.Spritemaps ?? throw new InvalidOperationException(
+                "Room sprite objects require installed sprite artwork.");
+            if (!spritemaps.TryGetDisplay(
+                    RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
+                    out ReadOnlyMemory<EnemySpritemapPart> installed))
             {
-                if (!spritemaps.TryGetDisplay(
-                        RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
-                        out ReadOnlyMemory<EnemySpritemapPart> installed))
-                {
-                    throw new InvalidDataException(
-                        $"Installed room sprite-object artwork lacks " +
-                        $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
-                }
-                oam.AddEnemySpritemap(installed.Span, screenX, screenY,
-                    paletteBits, baseTileIndex);
+                throw new InvalidDataException(
+                    $"Installed room sprite-object artwork lacks " +
+                    $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
             }
-            else
-            {
-                // Cartridge-backed diagnostics may deliberately run without an
-                // installed composition catalog. A bound catalog must never
-                // conceal a missing frame by silently rereading the ROM.
-                oam.AddEnemySpritemap(_bus!, RoomSpriteObjectVisualDefinitions.Bank,
-                    slot.SpritemapPointer, screenX, screenY,
-                    paletteBits, baseTileIndex);
-            }
+            oam.AddEnemySpritemap(installed.Span, screenX, screenY,
+                paletteBits, baseTileIndex);
         }
     }
 }

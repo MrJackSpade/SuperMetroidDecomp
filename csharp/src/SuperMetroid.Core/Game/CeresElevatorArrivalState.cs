@@ -190,21 +190,14 @@ public sealed class CeresElevatorArrivalState
             return;
         }
 
-        if (projectileSpritemaps is { } installed)
-            oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
-                screenX, screenY,
-                new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
-                unchecked((byte)projectile.GraphicsIndex),
-                clipVerticalWrap: true,
-                originYIsOnScreen: (screenY & 0xff00) == 0);
-        else
-            oam.AddEnemyProjectileSpritemap(
-                bus,
-                projectile.SpritemapPointer,
-                screenX,
-                screenY,
-                projectile.GraphicsIndex,
-                originYIsOnScreen: (screenY & 0xff00) == 0);
+        var installed = projectileSpritemaps ?? throw new InvalidOperationException(
+            "Ceres elevator projectiles require installed sprite artwork.");
+        oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
+            screenX, screenY,
+            new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
+            unchecked((byte)projectile.GraphicsIndex),
+            clipVerticalWrap: true,
+            originYIsOnScreen: (screenY & 0xff00) == 0);
     }
 
     private sealed class CeresElevatorProjectile

@@ -4902,6 +4902,7 @@ if (options.ForwardFacingScript || options.ElevatorScript)
 MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
 BabyMetroidCutsceneState? cutsceneBaby = null;
 MotherBrainEnemyProjectileSystem? motherBrainProjectiles = null;
+EnemyProjectileSpritemapCatalog? motherBrainProjectileArtwork = null;
 
 if (options.MorphBallScript || options.BombJumpScript || options.PowerBombScript || options.MorphKnockbackScript)
 {
@@ -5017,6 +5018,8 @@ else if (options.MotherBrainRainbowScript)
     rainbowAttack.InitializeCorpseRotting(bus);
     rainbowAttack.StartAttackCycle();
     motherBrainProjectiles = new MotherBrainEnemyProjectileSystem();
+    motherBrainProjectileArtwork = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.EnemyProjectileSpritemapFiles.Extract(bus)));
 }
 else if (options.DrainedSamusScript)
 {
@@ -6704,10 +6707,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // system instead of incorrectly subtracting the unrelated playable-room camera.
     Action<OamBuffer>? drawHighPriorityEnemyProjectiles = motherBrainProjectiles is null
         ? null
-        : oam => motherBrainProjectiles.DrawHighPriority(bus, oam, layer1X: 0, layer1Y: 0);
+        : oam => motherBrainProjectiles.DrawHighPriority(oam, motherBrainProjectileArtwork!, layer1X: 0, layer1Y: 0);
     Action<OamBuffer>? drawLowPriorityEnemyProjectiles = motherBrainProjectiles is null
         ? null
-        : oam => motherBrainProjectiles.DrawLowPriority(bus, oam, layer1X: 0, layer1Y: 0);
+        : oam => motherBrainProjectiles.DrawLowPriority(oam, motherBrainProjectileArtwork!, layer1X: 0, layer1Y: 0);
     RuntimeFrameResult result = runtime.StepFrame(
         controllerInput,
         drawHighPriorityEnemyProjectiles,

@@ -1023,7 +1023,7 @@ internal static partial class Program
             {
                 var native = new OamBuffer();
                 var installed = new OamBuffer();
-                native.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
+                DrawImportedEnemySpritemap(rom, native, frame.Bank, frame.Pointer,
                     x, y, palette, baseTile);
                 installed.AddEnemySpritemap(parts.Span, x, y, palette, baseTile);
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
@@ -1173,7 +1173,7 @@ internal static partial class Program
                                                                                                 ? RoomEnemySystem.MagdolliteDefinition
                                 : RoomEnemySystem.AtomicDefinition);
             var nativeRoom = new OamBuffer();
-            nativeRoom.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
+            DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
             AssertTrue(room.LowTable.SequenceEqual(nativeRoom.LowTable) &&
                        room.HighTable.SequenceEqual(nativeRoom.HighTable),
@@ -3710,7 +3710,7 @@ internal static partial class Program
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, rom, frame.Pointer, 0x0140, 0x00a0);
             var expected = new OamBuffer();
-            expected.AddEnemySpritemap(rom, frame.Bank, frame.Pointer,
+            DrawImportedEnemySpritemap(rom, expected, frame.Bank, frame.Pointer,
                 0x0040, 0x0090, 0x0400, 0x0010);
             AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) &&
                        actual.HighTable.SequenceEqual(expected.HighTable) &&

@@ -690,8 +690,8 @@ static void VerifyOamSpritemapPacking()
         0xf0, 0x01, 0x02, 0xfe, 0x21,
     ]);
     oam.BeginFrame();
-    oam.AddEnemyProjectileSpritemap(
-        bus,
+    DrawImportedEnemyProjectileSpritemap(
+        bus, oam,
         bank8dSpritemapPointer: 0x9800,
         originX: 0x00fe,
         originY: 0x0001,
@@ -713,8 +713,8 @@ static void VerifyOamSpritemapPacking()
     // An origin at Y=$FFFF selects `$81:8C7F`'s opposite carry rule. The negative piece
     // remains above screen and is parked, while +2 crosses into visible Y=$01.
     oam.BeginFrame();
-    oam.AddEnemyProjectileSpritemap(
-        bus,
+    DrawImportedEnemyProjectileSpritemap(
+        bus, oam,
         bank8dSpritemapPointer: 0x9800,
         originX: 0,
         originY: 0xffff,
@@ -736,8 +736,8 @@ static void VerifyOamSpritemapPacking()
         0xf0, 0x01, 0x02, 0xfe, 0x21,
     ]);
     oam.BeginFrame();
-    oam.AddEnemySpritemap(
-        bus,
+    DrawImportedEnemySpritemap(
+        bus, oam,
         bank: 0xa2,
         spritemapPointer: 0x9000,
         originX: 0x00fe,
@@ -763,8 +763,8 @@ static void VerifyOamSpritemapPacking()
     // boundary rules: an on-screen origin parks a negative piece that failed to carry,
     // while an off-screen origin admits only the positive piece that did carry to Y=$01.
     oam.BeginFrame();
-    oam.AddEnemySpritemap(
-        bus,
+    DrawImportedEnemySpritemap(
+        bus, oam,
         bank: 0xa2,
         spritemapPointer: 0x9000,
         originX: 0,
@@ -779,8 +779,8 @@ static void VerifyOamSpritemapPacking()
         "extended enemy on-screen origin retains positive piece");
 
     oam.BeginFrame();
-    oam.AddEnemySpritemap(
-        bus,
+    DrawImportedEnemySpritemap(
+        bus, oam,
         bank: 0xa2,
         spritemapPointer: 0x9000,
         originX: 0,

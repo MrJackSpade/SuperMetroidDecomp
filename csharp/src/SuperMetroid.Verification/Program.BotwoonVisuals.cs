@@ -34,7 +34,7 @@ internal static partial class Program
                 $"Botwoon head frame $B3:{installedPointer:X4} is editable");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            nativeOam.AddEnemySpritemap(rom, BotwoonVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, nativeOam, BotwoonVisualDefinitions.Bank,
                 native, 128, 128, 0, 0);
             installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&

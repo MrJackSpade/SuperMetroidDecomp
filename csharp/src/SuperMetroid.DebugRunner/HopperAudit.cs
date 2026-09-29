@@ -353,8 +353,8 @@ internal static class HopperAudit
 
                 var oam = new OamBuffer();
                 oam.BeginFrame();
-                oam.AddEnemySpritemap(
-                    bus,
+                ImportedSpritemapOracle.DrawEnemy(
+                    CartridgeImportSource.Require(bus), oam,
                     slot.Definition.Bank,
                     slot.SpritemapPointer,
                     originX: 128,
@@ -890,8 +890,8 @@ internal static class HopperAudit
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        oam.AddEnemySpritemap(
-            bus,
+        ImportedSpritemapOracle.DrawEnemy(
+            CartridgeImportSource.Require(bus), oam,
             hopper.Definition.Bank,
             spritemap,
             originX,

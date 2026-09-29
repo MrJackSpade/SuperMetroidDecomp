@@ -100,7 +100,7 @@ internal static partial class Program
             "Dead Torizo stationary OAM has editable installed parts");
         var nativeOam = new OamBuffer();
         var installedOam = new OamBuffer();
-        nativeOam.AddEnemySpritemap(rom, DeadTorizoArtworkDefinitions.SpritemapBank,
+        DrawImportedEnemySpritemap(rom, nativeOam, DeadTorizoArtworkDefinitions.SpritemapBank,
             nativePointer, 128, 128, 0, 0);
         installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
         AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&

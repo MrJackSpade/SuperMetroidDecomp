@@ -47,7 +47,8 @@ public sealed class MotherBrainEnemyProjectileSlot
     public ushort YRadius { get; internal set; }
     public ushort InstructionPointer { get; internal set; }
     public ushort InstructionTimer { get; internal set; }
-    public ushort SpritemapPointer { get; internal set; }
+    /// <summary>Installed visual-frame identity for the last accepted timed instruction.</summary>
+    public ushort PresentationOperandAddress { get; internal set; }
 
     public bool IsActive => ProjectileId != 0;
 
@@ -72,7 +73,7 @@ public sealed class MotherBrainEnemyProjectileSlot
         YRadius = 0;
         InstructionPointer = 0;
         InstructionTimer = 0;
-        SpritemapPointer = 0;
+        PresentationOperandAddress = 0;
     }
 }
 

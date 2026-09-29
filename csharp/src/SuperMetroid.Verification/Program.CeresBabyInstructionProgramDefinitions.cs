@@ -169,7 +169,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(enemies, baby);
         var nativeBaby = new OamBuffer();
         nativeBaby.BeginFrame();
-        nativeBaby.AddEnemySpritemap(rom, CeresBabyInstructionProgramDefinitions.Bank,
+        DrawImportedEnemySpritemap(rom, nativeBaby, CeresBabyInstructionProgramDefinitions.Bank,
             CeresBabyInstructionProgramDefinitions.HorizontalFrame, 100, 80,
             paletteBits: 0, baseTileIndex: 0,
             clipVerticalWrap: true, originYIsOnScreen: true);

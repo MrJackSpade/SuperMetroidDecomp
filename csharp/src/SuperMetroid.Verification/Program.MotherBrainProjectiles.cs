@@ -119,7 +119,7 @@ static void VerifyMotherBrainBombProjectiles()
     AssertEqual(0x0700, bomb.YSubposition, "first Y move retains `$07` fraction");
     AssertEqual(0x00de, bomb.XVelocity, "pre-bounce friction subtracts exactly two");
     AssertEqual(0x0107, bomb.YVelocity, "first gravity stage adds seven");
-    AssertEqual(0x82dc, bomb.SpritemapPointer, "spawn frame loads bomb spritemap zero");
+    AssertEqual(0x82dc, ReadImportedMotherBrainVisualSelector(bus, bomb), "spawn frame loads bomb spritemap zero");
     AssertEqual(0, first.BombEvents.Count, "ordinary movement emits no synthetic event");
 
     // Check every frame in the first complete 34-call ROM animation cycle. This catches
@@ -134,7 +134,7 @@ static void VerifyMotherBrainBombProjectiles()
         {
             projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
             animationCall++;
-            AssertEqual(animationPointers[frame], bomb.SpritemapPointer,
+            AssertEqual(animationPointers[frame], ReadImportedMotherBrainVisualSelector(bus, bomb),
                 $"bomb animation call {animationCall} retains frame {frame}");
         }
     }
@@ -230,7 +230,7 @@ static void VerifyMotherBrainBombProjectiles()
         "collision deletion replaces the source bomb with parameter-nine dust");
     AssertEqual(0x0005, collisionDust.InstructionTimer,
         "same-slot collision dust loads its first duration immediately");
-    AssertEqual(0x9a5a, collisionDust.SpritemapPointer,
+    AssertEqual(0x9a5a, ReadImportedMotherBrainVisualSelector(bus, collisionDust),
         "same-slot collision dust loads its first spritemap immediately");
 
     Console.WriteLine(
@@ -289,14 +289,15 @@ static void VerifyMotherBrainProjectileRendering()
     AssertEqual(0x0070, breath.YPosition, "purple breath initializes at brain Y plus sixteen");
 
     mixedPool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-    AssertEqual(0x954f, breath.SpritemapPointer,
+    AssertEqual(0x954f, ReadImportedMotherBrainVisualSelector(bus, breath),
         "purple breath spawn call loads first bank-$8D spritemap");
-    AssertEqual(0x82dc, bomb.SpritemapPointer,
+    AssertEqual(0x82dc, ReadImportedMotherBrainVisualSelector(bus, bomb),
         "bomb spawn call loads first bank-$8D spritemap");
 
     var oam = new OamBuffer();
     oam.BeginFrame();
-    mixedPool.DrawHighPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    var artwork = ImportFixtureProjectileSprites(bus);
+    mixedPool.DrawHighPriority(oam, artwork, layer1X: 0, layer1Y: 0);
     AssertEqual(4, oam.NextByteOffset, "high pass emits only purple breath");
     OamEntry high = oam.GetEntry(0);
     AssertEqual(0x047, high.X, "high-pass breath screen X plus spritemap offset");
@@ -304,7 +305,7 @@ static void VerifyMotherBrainProjectileRendering()
     AssertTrue(high.IsLarge, "high-pass breath preserves large OBJ bit");
     AssertEqual(0x011, high.TileNumber, "high-pass breath tile");
 
-    mixedPool.DrawLowPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    mixedPool.DrawLowPriority(oam, artwork, layer1X: 0, layer1Y: 0);
     AssertEqual(8, oam.NextByteOffset, "low pass appends only bomb after high pass");
     OamEntry low = oam.GetEntry(1);
     AssertEqual(0x04a, low.X, "low-pass bomb signed X offset");
@@ -328,7 +329,7 @@ static void VerifyMotherBrainProjectileRendering()
             timingPool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
             call++;
             AssertTrue(timedBreath.IsActive, $"purple breath remains active on call {call}");
-            AssertEqual(spritemaps[frame], timedBreath.SpritemapPointer,
+            AssertEqual(spritemaps[frame], ReadImportedMotherBrainVisualSelector(bus, timedBreath),
                 $"purple-breath animation call {call}");
             AssertEqual(0x0046, timedBreath.XPosition,
                 $"purple breath remains stationary in X on call {call}");
@@ -398,7 +399,7 @@ static void VerifyMiscDustProjectiles()
                 bus, motherBrain, baby: null, samus, layer1X: 0, layer1Y: 0);
             call++;
             AssertTrue(dust.IsActive, $"misc dust remains active on call {call}");
-            AssertEqual(spritemaps[frame], dust.SpritemapPointer,
+            AssertEqual(spritemaps[frame], ReadImportedMotherBrainVisualSelector(bus, dust),
                 $"misc-dust animation call {call}");
             AssertEqual(0x0064, dust.XPosition,
                 $"misc dust remains stationary in X on call {call}");
@@ -411,11 +412,12 @@ static void VerifyMiscDustProjectiles()
     // The final live frame still belongs to `$86:8390` because property bit `$1000` is set.
     var oam = new OamBuffer();
     oam.BeginFrame();
-    projectiles.DrawHighPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    var artwork = ImportFixtureProjectileSprites(bus);
+    projectiles.DrawHighPriority(oam, artwork, layer1X: 0, layer1Y: 0);
     AssertEqual(4, oam.NextByteOffset, "live misc dust emits one high-priority OBJ");
     AssertEqual(0x035, oam.GetEntry(0).TileNumber,
         "last misc-dust frame reaches synthetic bank-$8D tile");
-    projectiles.DrawLowPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    projectiles.DrawLowPriority(oam, artwork, layer1X: 0, layer1Y: 0);
     AssertEqual(4, oam.NextByteOffset, "misc dust is absent from low-priority pass");
 
     projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0, layer1Y: 0);
@@ -526,7 +528,7 @@ static void VerifyMotherBrainEscapeDoorParticles()
         "first fragment X friction subtracts `$10`");
     AssertEqual(0xfe20, firstFragment.YVelocity,
         "first fragment gravity adds `$20`");
-    AssertEqual(0x969b, firstFragment.SpritemapPointer,
+    AssertEqual(0x969b, ReadImportedMotherBrainVisualSelector(bus, firstFragment),
         "spawn frame loads exploded-door spritemap zero");
     AssertEqual(0x001f, firstFragment.Lifetime,
         "spawn frame performs lifetime decrement one");
@@ -543,7 +545,7 @@ static void VerifyMotherBrainEscapeDoorParticles()
     for (int callIndex = 0; callIndex < expectedSpritemapsByCall.Length; callIndex++)
     {
         projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-        AssertEqual(expectedSpritemapsByCall[callIndex], firstFragment.SpritemapPointer,
+        AssertEqual(expectedSpritemapsByCall[callIndex], ReadImportedMotherBrainVisualSelector(bus, firstFragment),
             $"door fragment animation call {callIndex + 2}");
     }
 
@@ -578,7 +580,7 @@ static void VerifyMotherBrainEscapeDoorParticles()
             $"terminal fragment slot {slotIndex} now contains misc dust");
         AssertEqual(0x0005, terminalDust.InstructionTimer,
             $"same-pass terminal dust slot {slotIndex} loads first duration");
-        AssertEqual(0x9abc, terminalDust.SpritemapPointer,
+        AssertEqual(0x9abc, ReadImportedMotherBrainVisualSelector(bus, terminalDust),
             $"same-pass terminal dust slot {slotIndex} loads first spritemap");
         AssertEqual(0xe1b4, terminalDust.InstructionPointer,
             $"same-pass terminal dust slot {slotIndex} advances its list pointer");
@@ -612,7 +614,7 @@ static void VerifyMotherBrainEscapeDoorParticles()
         "alternate subtitle uses highest free shared slot");
     MotherBrainEnemyProjectileSlot subtitle = subtitlePool.Slots[17];
     subtitlePool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-    AssertEqual(0x970b, subtitle.SpritemapPointer,
+    AssertEqual(0x970b, ReadImportedMotherBrainVisualSelector(bus, subtitle),
         "alternate subtitle loads Japanese text spritemap");
     subtitlePool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
     AssertEqual(0x0080, subtitle.XPosition,

@@ -68,7 +68,7 @@ internal static partial class Program
         enemies.EarthquakeTimer = 0;
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
-        nativeOverlay.AddEnemySpritemap(rom, 0xa6, 0xa329, 100, 80,
+        DrawImportedEnemySpritemap(rom, nativeOverlay, 0xa6, 0xa329, 100, 80,
             EnemyPaletteBits.Palette2, 0);
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();

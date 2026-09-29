@@ -41,7 +41,7 @@ internal static partial class Program
             expected.BeginFrame();
             // Independent native $86:83D6 origin culling and spritemap dispatch.
             if (((x + 128) & 0xfe00) == 0 && ((y + 128) & 0xfe00) == 0)
-                expected.AddEnemyProjectileSpritemap(bus, actor.SpritemapPointer, x, y,
+                DrawImportedEnemyProjectileSpritemap(bus, expected, actor.SpritemapPointer, x, y,
                     actor.GraphicsIndex, originYIsOnScreen: (y >> 8) == 0);
             expected.FinalizeFrame();
             var actual = new OamBuffer();

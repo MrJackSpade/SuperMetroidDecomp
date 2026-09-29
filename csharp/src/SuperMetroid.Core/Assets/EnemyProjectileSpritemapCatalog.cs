@@ -19,7 +19,9 @@ public sealed class EnemyProjectileSpritemapCatalog
     }
 
     public ReadOnlyMemory<EnemySpritemapPart> Get(ushort pointer) =>
-        frames.TryGetValue(pointer, out EnemySpritemapPart[]? parts)
+        pointer == EnemyProjectileSpritemapDefinitions.BlankSpritemap
+            ? ReadOnlyMemory<EnemySpritemapPart>.Empty
+            : frames.TryGetValue(pointer, out EnemySpritemapPart[]? parts)
             ? parts
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no composition at $8D:{pointer:X4}.");
@@ -185,6 +187,12 @@ public sealed record EnemyProjectileSpritemapDocument
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
+    /// <summary>
+    /// EnemyProjSpritemaps_Blank_Default at $8D:8000; the native count is zero.
+    /// Newly initialized bank-$86 slots select it before their first timed frame.
+    /// </summary>
+    public const ushort BlankSpritemap = 0x8000;
+
     public const int Version = 11;
     public const int PreMotherBrainAndStatueVersion = 10;
     public const int PreEnvironmentAndAttackVersion = 9;

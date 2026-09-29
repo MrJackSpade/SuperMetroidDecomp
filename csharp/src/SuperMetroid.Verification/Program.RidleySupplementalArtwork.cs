@@ -25,7 +25,7 @@ internal static partial class Program
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, rom, facing, wingFrame, tailDirection: null);
             var expected = new OamBuffer();
-            expected.AddEnemySpritemap(rom, RidleySupplementalVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
                 native, 200, 100, 0x0200, 0,
                 clipVerticalWrap: true, originYIsOnScreen: true);
             AssertRidleySupplementOam(expected, actual,
@@ -43,11 +43,11 @@ internal static partial class Program
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, rom, facing: 1, wingFrame: 0, tailDirection: direction);
             var expected = new OamBuffer();
-            expected.AddEnemySpritemap(rom, RidleySupplementalVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
                 nativeTip, 140, 138, 0x0200, 0,
                 clipVerticalWrap: true, originYIsOnScreen: true);
             for (int segment = 5; segment >= 0; segment--)
-                expected.AddEnemySpritemap(rom, RidleySupplementalVisualDefinitions.Bank,
+                DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
                     RidleySupplementalVisualDefinitions.SegmentFrameAt(segment),
                     unchecked((ushort)(80 + segment * 10)),
                     unchecked((ushort)(120 + segment * 3)),

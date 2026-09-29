@@ -10,16 +10,16 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class MotherBrainEnemyProjectileSystem
 {
     private void DrawPriority(
-        ISnesAddressSpace bus,
         OamBuffer oam,
+        EnemyProjectileSpritemapCatalog artwork,
         ushort layer1X,
         ushort layer1Y,
         bool highPriority,
         short shakeX,
         short shakeY)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(artwork);
 
         // Both `$8390` and `$83B2` scan physical byte indices `$22,$20,...,$00`. A slot's
         // definition-supplied property bit decides which pass owns it; it can never draw twice.
@@ -43,13 +43,13 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                     continue;
             }
 
-            oam.AddEnemyProjectileSpritemap(
-                bus,
-                slot.SpritemapPointer,
-                screenX,
-                screenY,
-                slot.GraphicsIndex,
-                originYIsOnScreen);
+            ReadOnlyMemory<EnemySpritemapPart> parts = slot.PresentationOperandAddress != 0
+                ? artwork.GetProgramFrame(slot.PresentationOperandAddress)
+                : artwork.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap);
+            oam.AddEnemySpritemap(parts.Span, screenX, screenY,
+                new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits,
+                unchecked((byte)slot.GraphicsIndex),
+                clipVerticalWrap: true, originYIsOnScreen);
         }
     }
 
@@ -75,9 +75,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                         $"{definitionName} frame at $86:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = ReadWord(
-                    bus,
-                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.PresentationOperandAddress = unchecked((ushort)(pointer + 2));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 4));
                 return false;
             }
@@ -308,9 +306,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                         $"{projectileName} frame at $86:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = ReadWord(
-                    bus,
-                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.PresentationOperandAddress = unchecked((ushort)(pointer + 2));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 4));
                 return;
             }
@@ -394,9 +390,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 }
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = ReadWord(
-                    bus,
-                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.PresentationOperandAddress = unchecked((ushort)(pointer + 2));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 4));
                 return;
             }
@@ -556,9 +550,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                         $"Mother Brain projectile frame at $86:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = ReadWord(
-                    bus,
-                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.PresentationOperandAddress = unchecked((ushort)(pointer + 2));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 4));
                 return;
             }
@@ -672,13 +664,4 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 ? (ushort)(damage >> 1)
                 : damage;
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        if ((address & 0xff0000) == 0x860000 &&
-            CompiledEnemyVisualSelectors.TryGet(0x86, unchecked((ushort)address),
-                out ushort pointer))
-            return pointer;
-        throw new InvalidDataException(
-            $"Mother Brain projectile visual selector ${address:X6} is not compiled.");
-    }
 }

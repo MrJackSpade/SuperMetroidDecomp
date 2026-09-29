@@ -17,7 +17,7 @@ public sealed class EnemySpritemapCatalog
         this.displayFrames = displayFrames;
     }
 
-    /// <summary>Returns a known installed frame; an unrelated enemy may still use its ROM path.</summary>
+    /// <summary>Returns a known installed frame; callers must reject missing artwork.</summary>
     public bool TryGet(byte bank, ushort pointer, out ReadOnlyMemory<EnemySpritemapPart> parts)
     {
         if (frames.TryGetValue((bank << 16) | pointer, out EnemySpritemapPart[]? found))

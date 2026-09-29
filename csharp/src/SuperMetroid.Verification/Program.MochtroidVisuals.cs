@@ -32,7 +32,7 @@ internal static partial class Program
                 $"Mochtroid selector {index} has editable OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            nativeOam.AddEnemySpritemap(rom, MochtroidVisualDefinitions.Bank,
+            DrawImportedEnemySpritemap(rom, nativeOam, MochtroidVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
             installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -220,8 +219,15 @@ public sealed class SamusAtmosphericEffectsState
             artwork);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        // The native attribute-list pointer can be zero (type two). In that case
+        // $90:0000 addresses mirrored WRAM, not cartridge data. Keep the bank
+        // fixed when the 16-bit CPU operand advances, then classify each byte.
+        SnesAddress first = SnesAddress.FromBusAddress(address);
+        return (ushort)(SnesCpuMappedData.ReadByte(bus, (int)first) |
+            SnesCpuMappedData.ReadByte(bus, (int)first.AddWithinBank(1)) << 8);
+    }
 
     private static void ValidateSlotIndex(int slotIndex)
     {

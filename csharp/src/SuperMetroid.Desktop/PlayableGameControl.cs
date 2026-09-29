@@ -17,7 +17,6 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 public sealed partial class PlayableGameControl : UserControl
 {
-    private readonly string romPath;
     private SuperMetroid.Core.Assets.EnemyTileArtworkCatalog? enemyTileArtwork;
     private readonly string saveFilePath;
     private readonly string legacySaveRamPath;
@@ -38,7 +37,7 @@ public sealed partial class PlayableGameControl : UserControl
     private SuperMetroidGame game = null!;
     private SpcAudioEngine? audioEngine;
     private readonly string? installedAudioDirectory;
-    private readonly string? playerDataDirectory;
+    private readonly string playerDataDirectory;
     private GameContentIdentity? installedContentIdentity;
     private WaveOutAudioDevice? audioDevice;
     private ControllerInputRecorder? inputRecorder;
@@ -65,7 +64,6 @@ public sealed partial class PlayableGameControl : UserControl
         string? audioDirectory = null,
         string? dataDirectory = null)
     {
-        this.romPath = romPath;
         installedAudioDirectory = audioDirectory;
         string fullRomPath = Path.GetFullPath(romPath);
         if (dataDirectory is null)
@@ -188,17 +186,13 @@ public sealed partial class PlayableGameControl : UserControl
 
     private ExtractedAudioAssetCatalog LoadAudioAssets()
     {
-        if (playerDataDirectory is not null)
+        var installation = new GameInstallation(playerDataDirectory);
+        if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
+                Path.GetFullPath(installation.AudioDirectory), StringComparison.OrdinalIgnoreCase))
         {
-            var installation = new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory);
-            if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
-                    Path.GetFullPath(installation.AudioDirectory), StringComparison.OrdinalIgnoreCase))
-            {
-                return installation.LoadAudio();
-            }
+            return installation.LoadAudio();
         }
-        return ExtractedAudioAssetCatalog.Load(
-            installedAudioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
+        return ExtractedAudioAssetCatalog.Load(installedAudioDirectory);
     }
 
     private void Restart()
@@ -224,14 +218,13 @@ public sealed partial class PlayableGameControl : UserControl
         // Restart must retain host configuration. Re-reading the INI here would make an
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
-        addressSpace = new GameInstallation(playerDataDirectory ?? throw new InvalidOperationException(
-            "Desktop session has no installed content directory.")).OpenRuntimeAddressSpace();
-        ExtractedAudioAssetCatalog? selectedAudioAssets =
-            gameOptions.AudioEnabled || playerDataDirectory is not null ? LoadAudioAssets() : null;
+        var installation = new GameInstallation(playerDataDirectory);
+        addressSpace = installation.OpenRuntimeAddressSpace();
+        ExtractedAudioAssetCatalog selectedAudioAssets = LoadAudioAssets();
         if (gameOptions.AudioEnabled)
         {
             audioEngine = new SpcAudioEngine(
-                selectedAudioAssets ?? throw new InvalidOperationException("Audio assets were not loaded."),
+                selectedAudioAssets,
                 new ManagedSpcPlayer());
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
@@ -244,119 +237,113 @@ public sealed partial class PlayableGameControl : UserControl
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
-        GameInstallation? installation = playerDataDirectory is null ? null :
-            new GameInstallation(playerDataDirectory);
-        mapPresentation = installation?.LoadMaps();
+        mapPresentation = installation.LoadMaps();
         game.BindMapPresentation(mapPresentation);
-        game.BindCompiledRoomFxRecords(installation is not null);
-        gameplayBasePalettes = installation?.LoadGameplayBasePalettes();
+        game.BindCompiledRoomFxRecords(true);
+        gameplayBasePalettes = installation.LoadGameplayBasePalettes();
         game.BindGameplayBasePalettes(gameplayBasePalettes);
-        standardObjectArt = installation?.LoadStandardObjects();
+        standardObjectArt = installation.LoadStandardObjects();
         game.BindStandardObjectArt(standardObjectArt);
-        introCinematicArt = installation?.LoadIntroCinematicArt();
+        introCinematicArt = installation.LoadIntroCinematicArt();
         game.BindIntroCinematicArt(introCinematicArt);
-        samusBodyArt = installation?.LoadSamusBodyArt();
+        samusBodyArt = installation.LoadSamusBodyArt();
         game.BindSamusBodyArt(samusBodyArt);
-        endingMode7Art = installation?.LoadEndingMode7Art();
+        endingMode7Art = installation.LoadEndingMode7Art();
         game.BindEndingMode7Art(endingMode7Art);
-        endingObjectArt = installation?.LoadEndingObjectArt();
+        endingObjectArt = installation.LoadEndingObjectArt();
         game.BindEndingObjectArt(endingObjectArt);
-        endingPaletteArt = installation?.LoadEndingPalettes();
+        endingPaletteArt = installation.LoadEndingPalettes();
         game.BindEndingPaletteArt(endingPaletteArt);
-        roomCharacterArt = installation?.LoadRoomCharacters();
+        roomCharacterArt = installation.LoadRoomCharacters();
         game.BindRoomCharacterArt(roomCharacterArt);
-        roomPaletteArt = installation?.LoadRoomPalettes();
+        roomPaletteArt = installation.LoadRoomPalettes();
         game.BindRoomPaletteArt(roomPaletteArt);
-        roomMetatileArt = installation?.LoadRoomMetatiles();
+        roomMetatileArt = installation.LoadRoomMetatiles();
         game.BindRoomMetatileArt(roomMetatileArt);
-        roomVisualLayouts = installation?.LoadRoomVisualLayouts();
+        roomVisualLayouts = installation.LoadRoomVisualLayouts();
         game.BindRoomVisualLayouts(roomVisualLayouts);
-        roomPlmShotBlockVisuals = installation?.LoadRoomPlmShotBlockVisuals();
+        roomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
         game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
-        roomPlmGrappleBlockVisuals = installation?.LoadRoomPlmGrappleBlockVisuals();
+        roomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
         game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
-        roomPlmStationVisuals = installation?.LoadRoomPlmStationVisuals();
+        roomPlmStationVisuals = installation.LoadRoomPlmStationVisuals();
         game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
-        roomPlmBlueDoorVisuals = installation?.LoadRoomPlmBlueDoorVisuals();
+        roomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals();
         game.BindRoomPlmBlueDoorVisuals(roomPlmBlueDoorVisuals);
-        roomPlmColoredDoorVisuals = installation?.LoadRoomPlmColoredDoorVisuals();
+        roomPlmColoredDoorVisuals = installation.LoadRoomPlmColoredDoorVisuals();
         game.BindRoomPlmColoredDoorVisuals(roomPlmColoredDoorVisuals);
-        roomPlmGreyDoorVisuals = installation?.LoadRoomPlmGreyDoorVisuals();
+        roomPlmGreyDoorVisuals = installation.LoadRoomPlmGreyDoorVisuals();
         game.BindRoomPlmGreyDoorVisuals(roomPlmGreyDoorVisuals);
-        roomPlmEyeDoorVisuals = installation?.LoadRoomPlmEyeDoorVisuals();
+        roomPlmEyeDoorVisuals = installation.LoadRoomPlmEyeDoorVisuals();
         game.BindRoomPlmEyeDoorVisuals(roomPlmEyeDoorVisuals);
-        roomPlmMotherBrainGlassVisuals = installation?.LoadRoomPlmMotherBrainGlassVisuals();
+        roomPlmMotherBrainGlassVisuals = installation.LoadRoomPlmMotherBrainGlassVisuals();
         game.BindRoomPlmMotherBrainGlassVisuals(roomPlmMotherBrainGlassVisuals);
-        roomPlmNoobTubeVisuals = installation?.LoadRoomPlmNoobTubeVisuals();
+        roomPlmNoobTubeVisuals = installation.LoadRoomPlmNoobTubeVisuals();
         game.BindRoomPlmNoobTubeVisuals(roomPlmNoobTubeVisuals);
-        roomPlmDownwardGateVisuals = installation?.LoadRoomPlmDownwardGateVisuals();
+        roomPlmDownwardGateVisuals = installation.LoadRoomPlmDownwardGateVisuals();
         game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
-        roomPlmElevatorPlatformVisuals = installation?.LoadRoomPlmElevatorPlatformVisuals();
+        roomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals();
         game.BindRoomPlmElevatorPlatformVisuals(roomPlmElevatorPlatformVisuals);
-        roomPlmEscapeGateVisuals = installation?.LoadRoomPlmEscapeGateVisuals();
+        roomPlmEscapeGateVisuals = installation.LoadRoomPlmEscapeGateVisuals();
         game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
-        roomPlmBombTorizoHandVisuals = installation?.LoadRoomPlmBombTorizoHandVisuals();
+        roomPlmBombTorizoHandVisuals = installation.LoadRoomPlmBombTorizoHandVisuals();
         game.BindRoomPlmBombTorizoHandVisuals(roomPlmBombTorizoHandVisuals);
-        roomPlmDraygonCannonVisuals = installation?.LoadRoomPlmDraygonCannonVisuals();
+        roomPlmDraygonCannonVisuals = installation.LoadRoomPlmDraygonCannonVisuals();
         game.BindRoomPlmDraygonCannonVisuals(roomPlmDraygonCannonVisuals);
-        roomPlmChozoStatueVisuals = installation?.LoadRoomPlmChozoStatueVisuals();
+        roomPlmChozoStatueVisuals = installation.LoadRoomPlmChozoStatueVisuals();
         game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
-        roomPlmLinkedRestoreVisuals = installation?.LoadRoomPlmLinkedRestoreVisuals();
+        roomPlmLinkedRestoreVisuals = installation.LoadRoomPlmLinkedRestoreVisuals();
         game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
-        roomPlmTourianAccessVisuals = installation?.LoadRoomPlmTourianAccessVisuals();
+        roomPlmTourianAccessVisuals = installation.LoadRoomPlmTourianAccessVisuals();
         game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
-        roomPlmSpeedBoosterVisuals = installation?.LoadRoomPlmSpeedBoosterVisuals();
+        roomPlmSpeedBoosterVisuals = installation.LoadRoomPlmSpeedBoosterVisuals();
         game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
-        roomPlmMaridiaElevatubeVisuals = installation?.LoadRoomPlmMaridiaElevatubeVisuals();
+        roomPlmMaridiaElevatubeVisuals = installation.LoadRoomPlmMaridiaElevatubeVisuals();
         game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
-        roomPlmSporeSpawnCeilingVisuals = installation?.LoadRoomPlmSporeSpawnCeilingVisuals();
+        roomPlmSporeSpawnCeilingVisuals = installation.LoadRoomPlmSporeSpawnCeilingVisuals();
         game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
-        roomPlmSamusEaterVisuals = installation?.LoadRoomPlmSamusEaterVisuals();
+        roomPlmSamusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
         game.BindRoomPlmSamusEaterVisuals(roomPlmSamusEaterVisuals);
-        roomPlmBotwoonWallVisuals = installation?.LoadRoomPlmBotwoonWallVisuals();
+        roomPlmBotwoonWallVisuals = installation.LoadRoomPlmBotwoonWallVisuals();
         game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
-        roomPlmKraidVisuals = installation?.LoadRoomPlmKraidVisuals();
+        roomPlmKraidVisuals = installation.LoadRoomPlmKraidVisuals();
         game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
-        roomPlmCrocomireVisuals = installation?.LoadRoomPlmCrocomireVisuals();
+        roomPlmCrocomireVisuals = installation.LoadRoomPlmCrocomireVisuals();
         game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);
         roomPlmMotherBrainFakeDeathVisuals =
-            installation?.LoadRoomPlmMotherBrainFakeDeathVisuals();
+            installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
         game.BindRoomPlmMotherBrainFakeDeathVisuals(roomPlmMotherBrainFakeDeathVisuals);
-        roomPlmCollectibleVisuals = installation?.LoadRoomPlmCollectibleVisuals();
+        roomPlmCollectibleVisuals = installation.LoadRoomPlmCollectibleVisuals();
         game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
-        roomPlmDynamicCollectibleArt = installation?.LoadRoomPlmDynamicCollectibleArt();
+        roomPlmDynamicCollectibleArt = installation.LoadRoomPlmDynamicCollectibleArt();
         game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
-        xrayRevealVisuals = installation?.LoadXrayRevealVisuals();
+        xrayRevealVisuals = installation.LoadXrayRevealVisuals();
         game.BindXrayRevealVisuals(xrayRevealVisuals);
-        roomBackgroundTilemapArt = installation?.LoadRoomBackgroundTilemaps();
+        roomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
         game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
-        roomSkyTilemapArt = installation?.LoadRoomSkyTilemaps();
+        roomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
-        projectilePresentation = installation?.LoadProjectiles();
-        enemyTileArtwork = installation?.LoadEnemyTiles();
-        game.BindProjectileCompositions(projectilePresentation?.Catalog);
-        game.BindProjectileFrameBindings(projectilePresentation?.FrameBindings);
-        game.BindBeamArtwork(projectilePresentation?.BeamTiles);
+        projectilePresentation = installation.LoadProjectiles();
+        enemyTileArtwork = installation.LoadEnemyTiles();
+        game.BindProjectileCompositions(projectilePresentation.Catalog);
+        game.BindProjectileFrameBindings(projectilePresentation.FrameBindings);
+        game.BindBeamArtwork(projectilePresentation.BeamTiles);
         game.BindEnemyTileArtwork(enemyTileArtwork);
-        game.BindTrailArtwork(projectilePresentation?.Trails);
-        game.BindChargeFlarePlacement(projectilePresentation?.FlarePlacement);
-        game.BindChargeFlareCompositions(projectilePresentation?.FlareCompositions);
-        game.BindGrappleArtwork(projectilePresentation?.GrappleTiles);
-        if (projectilePresentation is not null)
-            Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
-        installedContentIdentity = installation is null ? null : GameContentIdentity.Create(
-            selectedAudioAssets ?? throw new InvalidOperationException("Installed audio identity is unavailable."),
+        game.BindTrailArtwork(projectilePresentation.Trails);
+        game.BindChargeFlarePlacement(projectilePresentation.FlarePlacement);
+        game.BindChargeFlareCompositions(projectilePresentation.FlareCompositions);
+        game.BindGrappleArtwork(projectilePresentation.GrappleTiles);
+        Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
+        installedContentIdentity = GameContentIdentity.Create(
+            selectedAudioAssets,
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."));
-        if (installedContentIdentity is not null)
-        {
-            Console.WriteLine(
-                $"Installed content: {installedContentIdentity.CompositeSha256}; " +
-                $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +
-                $"audio={installedContentIdentity.AudioContentSha256}, " +
-                $"maps={installedContentIdentity.MapContentSha256}, " +
-                $"projectiles={installedContentIdentity.ProjectileContentSha256}.");
-        }
+        Console.WriteLine(
+            $"Installed content: {installedContentIdentity.CompositeSha256}; " +
+            $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +
+            $"audio={installedContentIdentity.AudioContentSha256}, " +
+            $"maps={installedContentIdentity.MapContentSha256}, " +
+            $"projectiles={installedContentIdentity.ProjectileContentSha256}.");
         if (replay is not null)
             ReportReplayContentCompatibility();
         stateStore = CreateStateStore();
@@ -433,7 +420,7 @@ public sealed partial class PlayableGameControl : UserControl
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
         game.BindMapPresentation(mapPresentation);
-        game.BindCompiledRoomFxRecords(playerDataDirectory is not null);
+        game.BindCompiledRoomFxRecords(true);
         game.BindGameplayBasePalettes(gameplayBasePalettes);
         game.BindStandardObjectArt(standardObjectArt);
         game.BindIntroCinematicArt(introCinematicArt);
@@ -475,14 +462,16 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindXrayRevealVisuals(xrayRevealVisuals);
         game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
         game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
-        game.BindProjectileCompositions(projectilePresentation?.Catalog);
-        game.BindProjectileFrameBindings(projectilePresentation?.FrameBindings);
-        game.BindBeamArtwork(projectilePresentation?.BeamTiles);
+        var installedProjectiles = projectilePresentation ?? throw new InvalidOperationException(
+            "Restored desktop session has no installed projectile presentation.");
+        game.BindProjectileCompositions(installedProjectiles.Catalog);
+        game.BindProjectileFrameBindings(installedProjectiles.FrameBindings);
+        game.BindBeamArtwork(installedProjectiles.BeamTiles);
         game.BindEnemyTileArtwork(enemyTileArtwork);
-        game.BindTrailArtwork(projectilePresentation?.Trails);
-        game.BindChargeFlarePlacement(projectilePresentation?.FlarePlacement);
-        game.BindChargeFlareCompositions(projectilePresentation?.FlareCompositions);
-        game.BindGrappleArtwork(projectilePresentation?.GrappleTiles);
+        game.BindTrailArtwork(installedProjectiles.Trails);
+        game.BindChargeFlarePlacement(installedProjectiles.FlarePlacement);
+        game.BindChargeFlareCompositions(installedProjectiles.FlareCompositions);
+        game.BindGrappleArtwork(installedProjectiles.GrappleTiles);
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;
@@ -548,8 +537,7 @@ public sealed partial class PlayableGameControl : UserControl
     private DebuggerSaveStateStore CreateStateStore()
     {
         return DebuggerSaveStateStore.ForInstalledGame(
-            playerDataDirectory ?? throw new InvalidOperationException(
-                "Desktop session has no installed content directory."),
+            playerDataDirectory,
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
@@ -558,8 +546,7 @@ public sealed partial class PlayableGameControl : UserControl
     private ControllerInputRecorder StartInputRecorder()
     {
         return ControllerInputRecorder.StartInstalled(
-            playerDataDirectory ?? throw new InvalidOperationException(
-                "Desktop session has no installed content directory."),
+            playerDataDirectory,
             addressSpace.SaveRam,
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(
@@ -570,15 +557,9 @@ public sealed partial class PlayableGameControl : UserControl
     {
         if (replay is null)
             throw new InvalidOperationException("Replay compatibility requested without a replay.");
-        if (installedContentIdentity is null)
-        {
-            Console.WriteLine(
-                "REPLAY COMPATIBILITY WARNING: This host has no installed-content identity; " +
-                "only the source ROM revision could be verified.");
-            return;
-        }
-
-        foreach (string warning in installedContentIdentity.GetCompatibilityWarnings(
+        var contentIdentity = installedContentIdentity ?? throw new InvalidOperationException(
+            "Installed desktop session has no content identity.");
+        foreach (string warning in contentIdentity.GetCompatibilityWarnings(
                      replay.ContentIdentity,
                      "controller recording"))
         {

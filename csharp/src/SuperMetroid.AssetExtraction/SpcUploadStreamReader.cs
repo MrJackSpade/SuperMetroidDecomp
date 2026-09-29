@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Reads the length/target/data stream consumed by native <c>APU_UploadBank</c>.</summary>
+/// <summary>Import-only reader for the stream consumed by native <c>APU_UploadBank</c>.</summary>
 public static class SpcUploadStreamReader
 {
     /// <summary>Copies one terminated upload stream from contiguous LoROM file order.</summary>

@@ -45,7 +45,8 @@ internal static partial class Program
                 ushort equipped = (ushort)(items | (gravity ? (ushort)SamusEquipmentFlags.GravitySuit : 0));
                 var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = (ushort)SamusBeamFlags.Charge };
                 var native = new PauseMenuState(bus, new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams },
-                    new Bank80SystemState(), AreaId.Maridia, 5, 5);
+                    new Bank80SystemState(), AreaId.Maridia, 5, 5,
+                    mapPresentation: original);
                 var pause = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Maridia, 5, 5, mapPresentation: original);
                 for (int tick = 0; tick < 72; tick++)
                 {

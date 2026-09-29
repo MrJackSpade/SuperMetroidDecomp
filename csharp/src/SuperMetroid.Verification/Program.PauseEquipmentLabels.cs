@@ -29,7 +29,7 @@ internal static partial class Program
         foreach (SamusState inventory in inventories)
         {
             byte[] expected = EquipmentPage(new PauseMenuState(bus, Clone(inventory), new Bank80SystemState(),
-                AreaId.Crateria, 0, 0));
+                AreaId.Crateria, 0, 0, mapPresentation: original));
             byte[] actual = EquipmentPage(new PauseMenuState(guard, Clone(inventory), new Bank80SystemState(),
                 AreaId.Crateria, 0, 0, mapPresentation: original));
             AssertTrue(expected.AsSpan().SequenceEqual(actual),

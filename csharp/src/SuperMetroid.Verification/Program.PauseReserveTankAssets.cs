@@ -28,7 +28,7 @@ internal static partial class Program
             ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
             AssertEqual(new MapLabelPoint(x, y), catalog.PauseReserveTanks.Anchor(index), "reserve anchor matches native X and decremented Y");
             int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + frame.Id * 2);
-            expected.AddOnScreenSpritemap(bus, pointer, x, y, 0x600);
+            DrawImportedSpritemap(bus, expected, pointer, x, y, 0x600);
             catalog.PauseReserveTanks.Draw(actual, frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "reserve composition matches native OAM including capacity cutoff");
@@ -37,7 +37,8 @@ internal static partial class Program
         {
             var nativeSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };
             var installedSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };
-            var native = Create(bus, nativeSamus, null); var installed = Create(guard, installedSamus, catalog);
+            var native = Create(bus, nativeSamus, catalog);
+            var installed = Create(guard, installedSamus, catalog);
             for (ushort supply = 0; supply <= capacity; supply++)
             foreach (byte phase in new byte[] { 0, 4 })
             {
@@ -101,7 +102,7 @@ internal static partial class Program
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
         Console.WriteLine($"Reserve presentation: 180 native composition/capacity cases and {comparisons} exhaustive supply/flicker menu frames; edits, restore, transfer and strict failures pass.");
-        static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog? content)
+        static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
         {
             var pause = new PauseMenuState(source, state, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
             pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0);

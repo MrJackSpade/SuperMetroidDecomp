@@ -27,33 +27,12 @@ internal static partial class Program
                     native.AddRawSmallSprite(12, 34, 56);
                     installed.AddRawSmallSprite(12, 34, 56);
                 }
-                DrawImportedSpritemap(native, pointer, x, y, (ushort)(palette << 9));
+                DrawImportedSpritemap(bus, native, pointer, x, y, (ushort)(palette << 9));
                 original.Sprites.Draw(frame.NativeId, installed, x, y, (ushort)(palette << 9));
                 AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) && native.HighTable.SequenceEqual(installed.HighTable),
                     $"{frame.Name} preserves native order, coordinates, attributes and clipping");
-            }
-        }
-        // The gameplay OAM path deliberately cannot fetch immutable spritemap bytes
-        // from the cartridge. Keep the independent import oracle inside verification,
-        // then feed its decoded parts through the same hardware OAM packing path.
-        void DrawImportedSpritemap(OamBuffer oam, int address, ushort x, ushort y,
-            ushort paletteBits)
-        {
-            IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-            int BankOffset(int offset) => (address & 0xff0000) | ((address + offset) & 0xffff);
-            byte Byte(int offset) => cartridge.ReadCartridgeByte(BankOffset(offset));
-            ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
-            ushort count = Word(0);
-            for (int part = 0; part < count && oam.NextByteOffset < OamBuffer.LowTableByteCount;
-                part++)
-            {
-                int offset = 2 + part * 5;
-                oam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(offset)),
-                    Byte(offset + 2),
-                    new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits),
-                    x, y);
             }
         }
         // Independent coordinate oracle: the native carry/sign test parks wrapped
@@ -157,6 +136,29 @@ internal static partial class Program
             AssertTrue(!pauseBefore.AsSpan().SequenceEqual(pause.Render()), "independent sprite resource edit changes pause pixels");
             pause.BindMapPresentation(original);
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause sprite rebind restores stock pixels");
+        }
+    }
+
+    /// <summary>
+    /// Import-only spritemap oracle shared by map and pause-UI parity checks. Gameplay
+    /// OAM cannot read immutable cartridge sprites after installation.
+    /// </summary>
+    private static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
+        int address, ushort x, ushort y, ushort paletteBits)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        int BankOffset(int offset) => (address & 0xff0000) | ((address + offset) & 0xffff);
+        byte Byte(int offset) => cartridge.ReadCartridgeByte(BankOffset(offset));
+        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        ushort count = Word(0);
+        for (int part = 0; part < count && oam.NextByteOffset < OamBuffer.LowTableByteCount;
+            part++)
+        {
+            int offset = 2 + part * 5;
+            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(offset)),
+                Byte(offset + 2),
+                new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits),
+                x, y);
         }
     }
 

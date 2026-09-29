@@ -36,12 +36,12 @@ internal static partial class Program
             {
                 var nativeOam = new OamBuffer(); var actualOam = new OamBuffer(); nativeOam.BeginFrame(); actualOam.BeginFrame();
                 for (int i = 0; i < occupied; i++) { nativeOam.AddRawSmallSprite(12, 34, 56); actualOam.AddRawSmallSprite(12, 34, 56); }
-                nativeOam.AddOnScreenSpritemap(bus, pointer, x, y, 0x600);
+                DrawImportedSpritemap(bus, nativeOam, pointer, x, y, 0x600);
                 catalog.PauseSelectors.Draw(actualOam, anchor.Category, anchor.Item, phase);
                 nativeOam.FinalizeFrame(); actualOam.FinalizeFrame();
                 AssertTrue(nativeOam.LowTable.SequenceEqual(actualOam.LowTable) && nativeOam.HighTable.SequenceEqual(actualOam.HighTable), "selector parts/order/attributes/capacity match native");
             }
-            var native = Create(bus, null, anchor.Category, anchor.Item);
+            var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
             AssertEqual((anchor.Category, anchor.Item), (pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
             for (int tick = 0; tick < 100; tick++)
@@ -139,7 +139,7 @@ internal static partial class Program
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
         Console.WriteLine("Pause selectors: sixteen anchors/672 native OAM cases, 1600 guarded native frames, authored timing/parts/palettes, actual toggle, current-content restore and strict failures pass.");
-        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog? content, int category, int item)
+        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog content, int category, int item)
         {
             var samus = new SamusState();
             if (category == 0) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = 2; }

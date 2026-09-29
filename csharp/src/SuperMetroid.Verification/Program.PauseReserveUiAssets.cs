@@ -19,7 +19,8 @@ internal static partial class Program
         var guard = new PauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(bus, nativeSamus, new Bank80SystemState(), AreaId.Brinstar, 0, 0);
+        var native = new PauseMenuState(bus, nativeSamus, new Bank80SystemState(),
+            AreaId.Brinstar, 0, 0, mapPresentation: original);
         var installed = new PauseMenuState(guard, installedSamus, new Bank80SystemState(), AreaId.Brinstar, 0, 0,
             mapPresentation: original);
         EnterEquipment(native); EnterEquipment(installed);

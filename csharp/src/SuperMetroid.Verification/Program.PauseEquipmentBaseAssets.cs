@@ -23,7 +23,8 @@ internal static partial class Program
             "all 1024 equipment base cells match native words");
 
         var guard = new PauseEquipmentBaseReadGuard(bus);
-        var native = new PauseMenuState(bus, Samus(), new Bank80SystemState(), AreaId.Norfair, 0, 0);
+        var native = new PauseMenuState(bus, Samus(), new Bank80SystemState(),
+            AreaId.Norfair, 0, 0, mapPresentation: original);
         var installed = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, 0, 0,
             mapPresentation: original);
         for (int frame = 0; frame < 80; frame++)

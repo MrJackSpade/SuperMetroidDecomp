@@ -13,7 +13,7 @@ internal static class TitlePaletteExtractor
     {
         ArgumentNullException.ThrowIfNull(bus);
         var source = new SnesCgram();
-        source.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
+        CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
         PaletteRgb5[] colors = source.Colors.ToArray().Select(color => new PaletteRgb5
         {
             Red = color & 31,

@@ -11,12 +11,12 @@ internal static class MapStaticPalettesExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var pause = new SnesCgram(); pause.LoadFromBus(bus, MapStaticPalettesRomData.PausePalette);
-        var file = new SnesCgram(); file.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+        var pause = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(pause, bus, MapStaticPalettesRomData.PausePalette);
+        var file = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(file, bus, FileSelectMapRomData.EntryPalette);
         var world = new Dictionary<string, PaletteRgb5[]>();
         for (int selected = 0; selected < FileSelectMapRomData.AreaCount; selected++)
         {
-            var colors = new SnesCgram(); colors.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+            var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.EntryPalette);
             colors.SetColor(14, 0); colors.SetColor(30, 0);
             for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
             {
@@ -30,7 +30,7 @@ internal static class MapStaticPalettesExtractor
                     ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
                     if ((destination & 1) != 0 || destination / 2 + MapStaticPalettesRomData.CopyColorCount > SnesCgram.ColorCount)
                         throw new InvalidDataException("World-map palette copy exceeds the color range.");
-                    colors.LoadFromBus(bus, FileSelectMapRomData.PaletteColors + source, MapStaticPalettesRomData.CopyColorCount, destination / 2);
+                    CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.PaletteColors + source, MapStaticPalettesRomData.CopyColorCount, destination / 2);
                 }
                 if (!terminated) throw new InvalidDataException("World-map palette copy program has no terminator.");
             }

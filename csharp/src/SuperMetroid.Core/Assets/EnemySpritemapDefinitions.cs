@@ -11,6 +11,8 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    internal const int PreBotwoonVersion = 59;
+    internal const int PreBotwoonFrameCount = 1183;
     internal const int PreYardVersion = 58;
     internal const int PreYardFrameCount = 1079;
     internal const int PreWorkRobotVersion = 57;
@@ -23,7 +25,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 59;
+    internal const int Version = 60;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -674,6 +676,7 @@ internal static class EnemySpritemapDefinitions
         .. EvirVisualDefinitions.Frames(),
         .. WorkRobotVisualDefinitions.Frames(),
         .. YardVisualDefinitions.Frames(),
+        .. BotwoonVisualDefinitions.Frames(),
     ];
 
     private static readonly ushort[] AtomicUpRightFrames =
@@ -739,6 +742,8 @@ internal static class EnemySpritemapDefinitions
                 WorkRobotVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.YardDefinition =>
                 YardVisualDefinitions.FrameAt(operandAddress),
+            RoomEnemySystem.BotwoonDefinition =>
+                BotwoonVisualDefinitions.FrameAt(operandAddress),
             RoomEnemySystem.GrowingShutterDefinition or
                 RoomEnemySystem.ShootableVerticalShutterDefinition or
                 RoomEnemySystem.DestroyableVerticalShutterDefinition or
@@ -836,6 +841,7 @@ internal static class EnemySpritemapDefinitions
             RoomEnemySystem.WorkRobotDefinition or
             RoomEnemySystem.WorkRobotNoPowerDefinition or
             RoomEnemySystem.YardDefinition or
+            RoomEnemySystem.BotwoonDefinition or
             RoomEnemySystem.GrowingShutterDefinition or
             RoomEnemySystem.ShootableVerticalShutterDefinition or
             RoomEnemySystem.DestroyableVerticalShutterDefinition or

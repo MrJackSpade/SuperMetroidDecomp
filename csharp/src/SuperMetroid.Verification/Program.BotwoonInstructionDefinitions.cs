@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -203,17 +204,19 @@ internal static partial class Program
                 $"Botwoon spit program ${program:X4} reaches sleep");
         }
 
-        AssertEqual(BotwoonInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Botwoon head spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all live Botwoon head spritemap selectors use compiled presentation words");
         for (int index = 0;
              index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Botwoon presentation word $B3:{address:X4}");
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
+                    RoomEnemySystem.BotwoonDefinition, address, out ushort frame),
+                $"production execution resolves Botwoon presentation word $B3:{address:X4}");
+            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb30000 | address), frame,
+                $"compiled Botwoon presentation word $B3:{address:X4} matches ROM");
             AssertThrows<InvalidDataException>(
                 () => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Botwoon spritemap $B3:{address:X4} is rejected as mechanics");

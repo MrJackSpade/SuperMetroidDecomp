@@ -356,8 +356,12 @@ internal static partial class Program
             "Work Robot adds 27 powered and unpowered compositions");
         AssertEqual(EnemySpritemapDefinitions.PreYardFrameCount +
                 YardVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreBotwoonFrameCount,
             "Yard adds 104 crawling, turn, hiding, and airborne compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount +
+                BotwoonVisualDefinitions.FrameCount,
+            EnemySpritemapDefinitions.Frames.Length,
+            "Botwoon adds sixteen distinct visible head compositions");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -631,6 +635,7 @@ internal static partial class Program
         VerifyInstalledEvirVisuals(rom, stock);
         VerifyInstalledWorkRobotVisuals(rom, stock);
         VerifyInstalledYardVisuals(rom, stock);
+        VerifyInstalledBotwoonVisuals(rom, stock);
         VerifyInstalledBeetomInstructionFrames(rom, stock);
         VerifyInstalledHopperInstructionFrames(rom, stock);
         VerifyInstalledChootInstructionFrames(rom, stock);
@@ -1051,6 +1056,8 @@ internal static partial class Program
                         ? RoomEnemySystem.WorkRobotDefinition
                     : frame.Name.StartsWith("yard_", StringComparison.Ordinal)
                         ? RoomEnemySystem.YardDefinition
+                    : frame.Name.StartsWith("botwoon_head_", StringComparison.Ordinal)
+                        ? RoomEnemySystem.BotwoonDefinition
                     : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
                         ? RoomEnemySystem.SciserDefinition
                     : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
@@ -1189,8 +1196,11 @@ internal static partial class Program
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         HashSet<string> yardNames = YardVisualDefinitions.Frames()
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> botwoonNames = BotwoonVisualDefinitions.Frames()
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         var preYardFrames = document.Frames
-            .Where(pair => !yardNames.Contains(pair.Key))
+            .Where(pair => !yardNames.Contains(pair.Key) &&
+                           !botwoonNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preYardBindings = document.DisplayFrames!
             .Where(pair => preYardFrames.ContainsKey(pair.Key))
@@ -2388,6 +2398,7 @@ internal static partial class Program
             "enemy composition override survives catalog reload");
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
             document.Frames.Where(pair =>
+                !pair.Key.StartsWith("botwoon_head_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("yard_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("work_robot_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("evir_", StringComparison.Ordinal) &&
@@ -3642,6 +3653,8 @@ internal static partial class Program
                         ? WorkRobotVisualDefinitions.Bank
                     : definition == RoomEnemySystem.YardDefinition
                         ? YardVisualDefinitions.Bank
+                    : definition == RoomEnemySystem.BotwoonDefinition
+                        ? BotwoonVisualDefinitions.Bank
                     : definition == RoomEnemySystem.ShaktoolDefinition
                         ? ShaktoolVisualDefinitions.Bank
                     : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer

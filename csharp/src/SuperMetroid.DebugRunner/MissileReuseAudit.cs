@@ -9,6 +9,8 @@ internal static class MissileReuseAudit
     public static int Run(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var spriteArt = SuperMetroid.Core.Assets.ProjectileSpriteCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.ProjectileSpriteExtractor.Extract(bus)));
         int eligible = 0;
         int reused = 0;
         int overlapping = 0;
@@ -76,15 +78,15 @@ internal static class MissileReuseAudit
 
                     var actualOam = new OamBuffer();
                     var expectedOam = new OamBuffer();
-                    projectiles.DrawLiveProjectiles(bus, actualOam, 0, 0, (ushort)(frame + later));
+                    projectiles.DrawLiveProjectiles(bus, actualOam, 0, 0,
+                        (ushort)(frame + later), spriteArt);
                     // Missile families do not use beam flicker. Build their OAM in native
                     // descending slot order, substituting independently timed flight art.
                     foreach (var active in projectiles.Slots.Reverse())
                     {
                         if (!active.IsActive || active.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb) continue;
-                        expectedOam.AddProjectileSpritemap(bus,
-                            ReferenceEquals(active, shot) ? expectedSprite : active.SpritemapPointer,
-                            active.XPosition, active.YPosition);
+                        spriteArt.Draw(ReferenceEquals(active, shot) ? expectedSprite : active.SpritemapPointer,
+                            expectedOam, active.XPosition, active.YPosition);
                     }
                     if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||
                         !actualOam.LowTable.SequenceEqual(expectedOam.LowTable) ||

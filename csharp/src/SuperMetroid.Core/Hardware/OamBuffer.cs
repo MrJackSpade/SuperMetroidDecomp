@@ -215,42 +215,6 @@ public sealed class OamBuffer
     }
 
     /// <summary>
-    /// Ports <c>AddProjectileSpritemapToOAM</c> at <c>$81:8A4B</c> for a direct bank-$93
-    /// spritemap pointer. Projectile records keep their own palette, priority, and flips.
-    /// </summary>
-    /// <remarks>
-    /// The bank-$93 draw caller has already performed room-relative off-screen checks, so
-    /// this routine intentionally has no vertical-wrap parking rule. It is closer to the
-    /// common tail used by the original than <see cref="AddOnScreenSpritemap"/>, whose
-    /// caller supplies replacement palette bits.
-    /// </remarks>
-    public void AddProjectileSpritemap(
-        ISnesAddressSpace bus,
-        ushort bank93SpritemapPointer,
-        ushort originX,
-        ushort originY)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-
-        int spritemapAddress = 0x930000 | bank93SpritemapPointer;
-        ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
-        if (entryCount == 0)
-            return;
-
-        int entryAddress = AddWithinBank(spritemapAddress, 2);
-        for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
-        {
-            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
-            ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
-
-            AddProjectileSpritePart(encodedXOffset, encodedYOffset,
-                new SnesObjAttributeWord(attributes), originX, originY);
-            entryAddress = AddWithinBank(entryAddress, 5);
-        }
-    }
-
-    /// <summary>
     /// Emits an authored projectile visual part using the $81:8A4B/$81:8A2B tail:
     /// preserve source attributes, wrap Y and wrap the write position after 128 OBJs.
     /// Unlike menu parts, it neither parks vertically wrapped parts nor stops at capacity.

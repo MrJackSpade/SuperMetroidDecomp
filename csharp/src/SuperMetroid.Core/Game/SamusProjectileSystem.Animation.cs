@@ -86,17 +86,9 @@ public sealed partial class SamusProjectileSystem
             return;
         }
 
-        if (compositions is not null)
-        {
-            compositions.Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
-            return;
-        }
-
-        oam.AddProjectileSpritemap(
-            bus,
-            slot.SpritemapPointer,
-            unchecked((ushort)screenX),
-            screenY);
+        (compositions ?? throw new InvalidOperationException(
+            "Samus projectiles require installed sprite compositions."))
+            .Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
     }
 
     private void AdvanceFlareComponent(int component)

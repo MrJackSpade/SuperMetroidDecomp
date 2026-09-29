@@ -21,7 +21,7 @@ internal static partial class Program
             bus.WriteByte(0x93f704, yOffset);
             WriteTestWord(bus, 0x93f705, attribute);
             parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), origin, origin);
-            packed.AddProjectileSpritemap(bus, 0xf700, origin, origin);
+            DrawImportedProjectileSpritemap(bus, packed, 0xf700, origin, origin);
             ushort expectedX = unchecked((ushort)(origin + rawX));
             int offset = index * 4;
             AssertEqual((byte)expectedX, parts.LowTable[offset], "Projectile X wraps without clipping");

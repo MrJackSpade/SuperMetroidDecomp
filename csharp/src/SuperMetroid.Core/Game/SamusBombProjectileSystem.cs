@@ -283,17 +283,9 @@ public sealed class SamusBombProjectileSystem
             if (screenX < -48 || screenX >= 304 || (screenY & 0xff00) != 0)
                 continue;
 
-            if (compositions is not null)
-            {
-                compositions.Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
-                continue;
-            }
-
-            oam.AddProjectileSpritemap(
-                bus,
-                slot.SpritemapPointer,
-                unchecked((ushort)screenX),
-                screenY);
+            (compositions ?? throw new InvalidOperationException(
+                "Bomb projectiles require installed sprite compositions."))
+                .Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
         }
     }
 

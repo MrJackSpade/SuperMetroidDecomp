@@ -124,6 +124,7 @@ internal static partial class Program
 
         public GameplayBasePaletteCatalog InitialPalettes { get; }
         public EnemyTileArtworkCatalog EnemyTiles => enemyTiles;
+        public SamusBodyArtworkCatalog SamusBody => samusBody;
 
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.GameInstallation installation)
         {

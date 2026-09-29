@@ -6,11 +6,15 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
-    private static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom)
+    private static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
+        bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
-        VerifyBeamTileArtwork(rom);
-        VerifyHyperBeamFxColorArtwork(rom);
+        if (!compositionOnly)
+        {
+            VerifyBeamTileArtwork(rom);
+            VerifyHyperBeamFxColorArtwork(rom);
+        }
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         VerifyProjectileCompositionOwners(rom, content);
         int draws = 0;
@@ -24,7 +28,7 @@ internal static partial class Program
                 native.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
                 authored.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
             }
-            native.AddProjectileSpritemap(rom, id, origin, origin);
+            DrawImportedProjectileSpritemap(rom, native, id, origin, origin);
             content.Draw(id, authored, origin, origin);
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), "Extracted composition retains all low OAM bytes");
             AssertTrue(native.HighTable.SequenceEqual(authored.HighTable), "Extracted composition retains all high OAM bits");
@@ -40,8 +44,14 @@ internal static partial class Program
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
         VerifyProjectileFiles(rom, editedJson);
-        VerifyRuntimeProjectileCompositions(rom, content, edited, editedId);
-        VerifyIntroProjectileArtwork(rom, content, edited, editedId);
+        using var temporaryDirectory = new MapCatalogTestDirectory();
+        GameInstallation installation = GameAssetInstaller.Install(
+            Path.GetFullPath(sourceRom), temporaryDirectory.Root);
+        var roomAssets = new MapPresentationInstalledRoomAssets(installation);
+        VerifyRuntimeProjectileCompositions(rom, content, edited, editedId,
+            roomAssets, installation.LoadMaps());
+        if (!compositionOnly)
+            VerifyIntroProjectileArtwork(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
         content.Draw(editedId, baselineOam, 100, 100); edited.Draw(editedId, editedOam, 100, 100);
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");
@@ -66,6 +76,25 @@ internal static partial class Program
         Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons, observable edits, immutable load and invalid-field rejection pass without a draw-time ROM.");
     }
 
+    /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
+    private static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
+        OamBuffer oam, ushort pointer, ushort originX, ushort originY)
+    {
+        ushort ReadWord(int address) => (ushort)(source.ReadByte(address) |
+            (source.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
+        int record = 0x930000 | pointer;
+        ushort partCount = ReadWord(record);
+        int partAddress = SnesAddressMath.AddWithinBank(record, 2);
+        for (int part = 0; part < partCount; part++)
+        {
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
+                source.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
+                new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                originX, originY);
+            partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
+        }
+    }
+
     private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
     {
         var forbidden = new ProjectileCompositionForbiddenBus();
@@ -87,9 +116,9 @@ internal static partial class Program
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
                 var native = new OamBuffer(); var extracted = new OamBuffer();
-                shots.DrawLiveProjectiles(rom, native, 0, 0, parity);
-                shots.DrawExplosions(rom, native, 0, 0);
-                bombs.Draw(rom, native, 0, 0);
+                shots.DrawLiveProjectiles(rom, native, 0, 0, parity, content);
+                shots.DrawExplosions(rom, native, 0, 0, content);
+                bombs.Draw(rom, native, 0, 0, content);
                 shots.DrawLiveProjectiles(forbidden, extracted, 0, 0, parity, content);
                 shots.DrawExplosions(forbidden, extracted, 0, 0, content);
                 bombs.Draw(forbidden, extracted, 0, 0, content);
@@ -121,9 +150,13 @@ internal static partial class Program
     }
 
     private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
-        ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
+        ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
+        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
+            initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
+        roomAssets.Bind(runtime);
+        runtime.ProjectileCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -157,12 +190,19 @@ internal static partial class Program
                 slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
                 slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
             }
-            game.BindProjectileCompositions(null);
-            byte[] native = Draw(runtime);
-            game.BindProjectileCompositions(stock);
-            AssertTrue(native.SequenceEqual(Draw(runtime)), "Runtime stock composition OAM matches native");
-            game.BindProjectileCompositions(edited);
-            AssertTrue(!native.SequenceEqual(Draw(runtime)), "Edited composition reaches runtime actor drawing");
+            // Actor drawing also updates mutable visual state. Compare identical
+            // captured states rather than two sequential draws of one runtime.
+            var stockCopy = CloneGame();
+            var editedCopy = CloneGame();
+            byte[] baseline = Draw(runtime);
+            stockCopy.BindProjectileCompositions(stock);
+            AssertTrue(baseline.SequenceEqual(Draw((SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+                runtimeField.GetValue(stockCopy)!)),
+                "Restored stock projectile actor matches the same initial state");
+            editedCopy.BindProjectileCompositions(edited);
+            AssertTrue(!baseline.SequenceEqual(Draw((SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+                runtimeField.GetValue(editedCopy)!)),
+                "Edited composition reaches runtime actor drawing");
         }
         game.BindProjectileCompositions(null);
         using var without = new MemoryStream();
@@ -175,10 +215,30 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
         AssertTrue(restoredRuntime.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
+        roomAssets.Bind(restoredRuntime);
+        restoredRuntime.MapPresentation = maps;
+        restoredRuntime.Samus!.TileTransfers.BindArtwork(roomAssets.SamusBody);
+        restoredRuntime.Samus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
         restored.BindProjectileCompositions(edited);
         game.BindProjectileCompositions(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws current edited content after rebind");
         Console.WriteLine("Projectile runtime binding: three actor draw passes, stock parity, visual edits and nonserialized restore/rebind pass.");
+
+        SuperMetroid.Core.Frontend.SuperMetroidGame CloneGame()
+        {
+            using var snapshot = new MemoryStream();
+            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, game);
+            snapshot.Position = 0;
+            var clone = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
+                .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
+            var cloneRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+                runtimeField.GetValue(clone)!;
+            roomAssets.Bind(cloneRuntime);
+            cloneRuntime.MapPresentation = maps;
+            cloneRuntime.Samus!.TileTransfers.BindArtwork(roomAssets.SamusBody);
+            cloneRuntime.Samus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
+            return clone;
+        }
     }
 
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)

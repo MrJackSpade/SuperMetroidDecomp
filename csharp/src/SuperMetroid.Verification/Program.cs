@@ -1004,6 +1004,15 @@ if (args is ["--charge-flare-compositions", var flareRom])
         flareOnly: true, sourceRom: flareRom);
     return 0;
 }
+if (args is ["--projectile-sprite-compositions", var projectileRom])
+{
+    var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath(projectileRom));
+    VerifyProjectileVisualParts();
+    VerifyProjectileCompositions(source, compositionOnly: true,
+        sourceRom: projectileRom);
+    return 0;
+}
 if (args is ["--trail-mutable-alias"])
 {
     VerifyTrailMutableAlias();

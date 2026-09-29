@@ -263,6 +263,7 @@ internal static partial class Program
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
         var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        game.BindMapPresentation(RetailPresentationFixture());
         FrontendFrame frame = game.Step(0);
         int expansionFrames = 0, returnFrames = 0;
         frame = game.Step(0x1000);

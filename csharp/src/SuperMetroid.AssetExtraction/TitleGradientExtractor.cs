@@ -14,7 +14,7 @@ internal static class TitleGradientExtractor
         var variants = new TitleGradientVariant[TitleGradientFormat.VariantCount];
         for (int variant = 0; variant < variants.Length; variant++)
         {
-            TitleGradientLine[] decoded = TitleGradient.Decode(
+            TitleGradientLine[] decoded = TitleGradientDecoder.Decode(
                 CartridgeImportSource.Require(bus), checked((ushort)(variant << 4)));
             variants[variant] = new TitleGradientVariant
             {

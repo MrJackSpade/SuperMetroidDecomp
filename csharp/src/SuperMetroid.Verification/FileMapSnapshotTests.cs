@@ -68,6 +68,9 @@ internal static partial class Program
             new SuperMetroidSaveRam(owner).SaveSlot(0, save);
         }
         var game = new SuperMetroidGame(leftBus); var capturedGame = new SuperMetroidGame(rightBus);
+        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
+        game.BindMapPresentation(presentation);
+        capturedGame.BindMapPresentation(presentation);
         bool sawMap = false;
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {

@@ -36,6 +36,7 @@ internal static partial class Program
         if (existingSave)
             new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = new SuperMetroidGame(bus);
+        game.BindMapPresentation(RetailPresentationFixture());
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         var actual = new CartridgeAudioRenderer(assets);
         var withoutSwoosh = new CartridgeAudioRenderer(assets);

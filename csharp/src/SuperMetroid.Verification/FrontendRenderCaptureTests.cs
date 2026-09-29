@@ -9,8 +9,11 @@ internal static partial class Program
     private static void VerifyFrontendRenderCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
+        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
         var captured = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
+        legacy.BindMapPresentation(presentation);
+        captured.BindMapPresentation(presentation);
         AssertTrue(captured.GetRetainedDisplay(1, 1) is null,
             "legacy-only initial display is not disguised as a captured packet");
         var states = new HashSet<SuperMetroidGameState>();

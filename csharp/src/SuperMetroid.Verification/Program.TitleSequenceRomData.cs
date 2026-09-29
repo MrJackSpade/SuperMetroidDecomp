@@ -3,6 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
@@ -13,7 +15,10 @@ internal static partial class Program
     static void VerifyTitleSequenceRomData()
     {
         byte[] rom = CreateConstructedTitleRom();
-        var state = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
+        var bus = new SuperMetroidAddressSpace(rom);
+        TitleGradientPresentation gradient = TitleGradientPresentation.Load(
+            new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
+        var state = new TitleSequenceState(bus, titleGradientPresentation: gradient);
         TitleSequencePhase[] naturalOrder =
         [
             TitleSequencePhase.YearText,
@@ -63,7 +68,8 @@ internal static partial class Program
             maximumFrames: 40,
             "title file-select handoff");
 
-        var skipped = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
+        var skipped = new TitleSequenceState(new SuperMetroidAddressSpace(rom),
+            titleGradientPresentation: gradient);
         skipped.Step((ushort)SnesButton.A);
         AssertEqual(TitleSequencePhase.SkipFadeOut, skipped.Phase,
             "pre-title A press enters native skip fade-out");

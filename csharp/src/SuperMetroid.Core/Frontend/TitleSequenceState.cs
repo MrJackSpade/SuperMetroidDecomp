@@ -437,10 +437,13 @@ public sealed class TitleSequenceState
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
     }
 
-    private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient() =>
-        titleGradientPresentation is null
-            ? TitleGradient.Decode(CartridgeImportSource.Require(bus), (ushort)zoom)
-            : titleGradientPresentation.Resolve((ushort)zoom);
+    private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
+    {
+        if (titleGradientPresentation is null)
+            throw new InvalidOperationException(
+                "Title rendering requires the installed title-gradient asset.");
+        return titleGradientPresentation.Resolve((ushort)zoom);
+    }
 
     private void PrepareRenderOam()
     {

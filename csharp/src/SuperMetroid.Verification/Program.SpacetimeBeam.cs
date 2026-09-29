@@ -232,10 +232,12 @@ internal static partial class Program
             var restartSaves = new SuperMetroidSaveRam(restartBus);
             restartSaves.SaveSlot(0, CreateResetSnapshot());
             restartSaves.SelectSlot(0);
-            return new SuperMetroidGame(
+            var game = new SuperMetroidGame(
                 restartBus,
                 new SuperMetroidGameOptions { SkipOpeningCinematic = skipOpening },
                 renderGameplayFrames: false);
+            game.BindMapPresentation(RetailPresentationFixture());
+            return game;
         }
 
         static void ConfirmSelectedSave(SuperMetroidGame game)

@@ -68,8 +68,11 @@ internal static partial class Program
         AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)), "composed gameplay packet survives all effect updates");
 
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
+        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom), options);
         var packets = new SuperMetroidGame(new SuperMetroidAddressSpace(rom), options);
+        legacy.BindMapPresentation(presentation);
+        packets.BindMapPresentation(presentation);
         long sequence = 0;
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)

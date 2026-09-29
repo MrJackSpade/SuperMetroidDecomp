@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifyAttractCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
+        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         // Scene setup is compiled now. Bound only the live verification instance after
         // its real first scene has loaded; ROM table patches no longer affect admission.
         FieldInfo countdown = typeof(SuperMetroidGame).GetField("demoFramesRemaining", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -19,6 +20,8 @@ internal static partial class Program
         {
             var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
             var captured = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
+            legacy.BindMapPresentation(presentation);
+            captured.BindMapPresentation(presentation);
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false, bounded = false;
             Rgba32[]? held = null;

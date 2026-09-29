@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
@@ -15,7 +16,7 @@ internal static partial class Program
         VerifyExtractedTitlePalette(bus);
         VerifyExtractedTitleGradient(bus);
         // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
-        var lines = TitleGradient.Decode(bus, 0);
+        var lines = TitleGradientDecoder.Decode(bus, 0);
         AssertEqual(new TitleGradientLine(15, 15, 15, 0xa1), lines[0], "title gradient starts subtracting fifteen");
         AssertEqual(new TitleGradientLine(14, 14, 14, 0xa1), lines[4], "title gradient advances after four scanlines");
         AssertEqual(new TitleGradientLine(0, 0, 0, 0xa1), lines[121], "last subtractive title line");
@@ -24,8 +25,8 @@ internal static partial class Program
         AssertEqual(new TitleGradientLine(0, 2, 2, 0x31), lines[144], "second lower cyan band begins");
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
-            var actual = TitleGradient.Decode(bus, zoom);
-            var nibble = TitleGradient.Decode(bus, (ushort)(zoom & 0xf0));
+            var actual = TitleGradientDecoder.Decode(bus, zoom);
+            var nibble = TitleGradientDecoder.Decode(bus, (ushort)(zoom & 0xf0));
             if (!actual.AsSpan().SequenceEqual(nibble))
                 throw new InvalidDataException("Title gradient index used low zoom bits.");
             AssertEqual((byte)0xa1, actual[121].Control, "zoom preserves subtractive boundary");
@@ -71,8 +72,11 @@ internal static partial class Program
         // editable bank-$8C OAM compositions. The original source addresses are all
         // blocked while the complete natural scene is compared with the ROM-backed path.
         var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
-        var stock = new TitleSequenceState(bus);
-        var installed = new TitleSequenceState(guardedBus, titleGraphicsPresentation: presentation);
+        TitleGradientPresentation gradient = TitleGradientPresentation.Load(
+            new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
+        var stock = new TitleSequenceState(bus, titleGradientPresentation: gradient);
+        var installed = new TitleSequenceState(guardedBus,
+            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 140; frame++)
         {
             stock.Step(0);
@@ -117,8 +121,10 @@ internal static partial class Program
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var originalTitle = new TitleSequenceState(bus, titleGraphicsPresentation: presentation);
-        var editedTitle = new TitleSequenceState(bus, titleGraphicsPresentation: editedPresentation);
+        var originalTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var editedTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
         bool editVisible = false;
         bool pixelChanged = false;
         for (int frame = 0; frame < 100; frame++)
@@ -138,7 +144,8 @@ internal static partial class Program
             throw new InvalidDataException("Editing the Year composition did not alter production OAM.");
         if (!pixelChanged)
             throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
-        var reboundTitle = new TitleSequenceState(bus, titleGraphicsPresentation: presentation);
+        var reboundTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
         byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
         reboundTitle.BindTitleGraphics(editedPresentation);
@@ -354,7 +361,7 @@ internal static partial class Program
         var cartridgeReads = new HashSet<int>();
         var tracingBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
-            _ = TitleGradient.Decode(tracingBus, checked((ushort)(variant << 4)));
+            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant << 4)));
 
         byte[] extracted = SuperMetroid.AssetExtraction.TitleGradientExtractor.Extract(bus);
         TitleGradientPresentation presentation = TitleGradientPresentation.Load(
@@ -362,7 +369,7 @@ internal static partial class Program
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
             if (!presentation.Resolve(zoom).SequenceEqual(
-                    TitleGradient.Decode(CartridgeImportSource.Require(bus), zoom)))
+                    TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom)))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
         }
         VerifyTitleGradientValidation(extracted);

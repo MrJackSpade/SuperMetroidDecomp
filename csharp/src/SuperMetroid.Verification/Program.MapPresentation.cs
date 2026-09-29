@@ -1033,8 +1033,12 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title palette override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(bus, titlePalettePresentation: original.TitlePalette);
-        var editedTitle = new TitleSequenceState(bus, titlePalettePresentation: edited.TitlePalette);
+        var stockTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: original.TitleGradient,
+            titlePalettePresentation: original.TitlePalette);
+        var editedTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: edited.TitleGradient,
+            titlePalettePresentation: edited.TitlePalette);
         AssertTrue(editedTitle.PaletteColors.SequenceEqual(edited.TitlePalette.Colors),
             "production title consumes selected palette override");
         stockTitle.Step(0);
@@ -1049,8 +1053,12 @@ internal static partial class Program
         AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
 
-        var stockSkip = new TitleSequenceState(bus, titlePalettePresentation: original.TitlePalette);
-        var editedSkip = new TitleSequenceState(bus, titlePalettePresentation: edited.TitlePalette);
+        var stockSkip = new TitleSequenceState(bus,
+            titleGradientPresentation: original.TitleGradient,
+            titlePalettePresentation: original.TitlePalette);
+        var editedSkip = new TitleSequenceState(bus,
+            titleGradientPresentation: edited.TitleGradient,
+            titlePalettePresentation: edited.TitlePalette);
         stockSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
         editedSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -1151,8 +1159,12 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title sprite override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(bus, titleGraphicsPresentation: original.TitleGraphics);
-        var editedTitle = new TitleSequenceState(bus, titleGraphicsPresentation: edited.TitleGraphics);
+        var stockTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: original.TitleGradient,
+            titleGraphicsPresentation: original.TitleGraphics);
+        var editedTitle = new TitleSequenceState(bus,
+            titleGradientPresentation: edited.TitleGradient,
+            titleGraphicsPresentation: edited.TitleGraphics);
         bool changedOam = false;
         for (int frame = 0; frame < 100; frame++)
         {

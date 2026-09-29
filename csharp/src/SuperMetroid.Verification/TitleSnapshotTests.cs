@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
@@ -15,8 +16,12 @@ internal static partial class Program
 
         static void Verify(byte[] rom, string source)
         {
-            var scene = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
-            var control = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
+            var sourceBus = new SuperMetroidAddressSpace(rom);
+            TitleGradientPresentation gradient = TitleGradientPresentation.Load(
+                new MemoryStream(TitleGradientExtractor.Extract(sourceBus), writable: false));
+            var scene = new TitleSequenceState(sourceBus, titleGradientPresentation: gradient);
+            var control = new TitleSequenceState(new SuperMetroidAddressSpace(rom),
+                titleGradientPresentation: gradient);
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;
             var reusable = new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];

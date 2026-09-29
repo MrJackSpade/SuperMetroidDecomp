@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -1067,7 +1066,8 @@ public sealed class SamusHorizontalSpeedState
                 "Samus speed table requires live WRAM.")).ReadWorkRamByte(address),
             SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus speed table requires live SRAM.")).ReadSaveRamByte(address),
-            SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+            SnesDmaSourceKind.Cartridge => throw new InvalidDataException(
+                $"Samus speed byte ${address:X6} is not a compiled mechanics record."),
             _ => throw new InvalidOperationException(
                 $"CPU read ${source.Bank:X2}:{source.Offset:X4} is outside the runtime address map."),
         };

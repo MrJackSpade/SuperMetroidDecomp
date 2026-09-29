@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -486,6 +485,8 @@ public sealed partial class RoomEnemySystem
     private void InitializeDeadSidehopperGraphics(ushort graphicsVariant)
     {
         ReadOnlySpan<byte> installedTiles = InstalledDeadTourianCorpseTiles();
+        if (installedTiles.IsEmpty)
+            throw new InvalidDataException("Dead sidehopper requires installed corpse artwork.");
 
         int variantIndex = graphicsVariant == 0 ? 0 : 1;
         foreach (DeadSidehopperGraphicsCopy copy in
@@ -496,9 +497,7 @@ public sealed partial class RoomEnemySystem
                 int sourceOffset = copy.SourceOffset + byteIndex;
                 _bus!.WriteByte(
                     DeadMonsterWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles.IsEmpty
-                        ? CartridgeImportSource.Require(_bus).ReadCartridgeByte(DeadTourianCorpseArtworkDefinitions.SourceAddress + sourceOffset)
-                        : installedTiles[sourceOffset]);
+                    installedTiles[sourceOffset]);
             }
         }
     }

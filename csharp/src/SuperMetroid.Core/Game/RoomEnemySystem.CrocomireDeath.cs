@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -608,37 +607,15 @@ public sealed partial class RoomEnemySystem
     private void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
         int entry = death.TargetHeightOrSkeletonTileIndex >> 1;
-        if (TileArtwork?.CrocomireSkeleton is { } artwork)
-        {
-            if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
-                    CrocomireSkeletonTransferDefinition frame))
-                return;
-            // The native OBSEL base contributes $6000 words. Only character
-            // pixels are editable; the transfer order and VRAM position are not.
-            _vram!.LoadBytes((CrocomireSkeletonTransferDefinitions.ObselBaseWord +
-                frame.DestinationOffset) * 2, artwork.Chunk(entry).Span);
-            death.TargetHeightOrSkeletonTileIndex += 2;
+        var artwork = TileArtwork?.CrocomireSkeleton ?? throw new InvalidDataException(
+            "Installed Crocomire artwork is missing its skeleton characters.");
+        if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
+                CrocomireSkeletonTransferDefinition frame))
             return;
-        }
-        if (TileArtwork?.Spritemaps is not null)
-            throw new InvalidDataException(
-                "Installed Crocomire artwork is missing its skeleton characters.");
-
-        // A constructed no-art fixture retains the original bus-backed transfer.
-        ushort destinationOffset = ReadWord(
-            _bus!, EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + entry * 2);
-        if (destinationOffset == 0xffff)
-            return;
-        ushort source = ReadWord(
-            _bus!, EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + entry * 2);
-        byte[] bytes = new byte[0x0200];
-        for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
-                (int)new SnesAddress(0xad, unchecked((ushort)(source + index))));
-
-        // OBSEL is $03 in ordinary gameplay, so its low-three-bit base contributes $6000
-        // words before the table's authored offset, exactly as $A4:9931-$9942 computes.
-        _vram!.LoadBytes((0x6000 + destinationOffset) * 2, bytes);
+        // The native OBSEL base contributes $6000 words. Only character
+        // pixels are editable; the transfer order and VRAM position are not.
+        _vram!.LoadBytes((CrocomireSkeletonTransferDefinitions.ObselBaseWord +
+            frame.DestinationOffset) * 2, artwork.Chunk(entry).Span);
         death.TargetHeightOrSkeletonTileIndex += 2;
     }
 

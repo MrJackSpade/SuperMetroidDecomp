@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -11,39 +10,15 @@ internal sealed partial class PauseMenuState
         // Absence of capacity leaves the original blank template intact. Restoring
         // the template before rebuilding also removes labels if inventory is changed.
         if (samus.MaxReserveEnergy == 0) return;
-        if (mapPresentation is not null)
-        {
-            PauseReserveUiPresentation presentation = mapPresentation.PauseReserveUi;
-            presentation.ApplyLabel(equipmentTilemap, "Mode");
-            presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
-            // Native setup retains the initial MANUAL label for the zero/uninitialized
-            // mode and patches its first four characters only after a nonzero mode exists.
-            if (samus.ReserveTankMode != 0)
-                presentation.ApplyLabel(equipmentTilemap,
-                    samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode ? "Auto" : "Manual",
-                    preserveAttributes: true);
-            return;
-        }
-        for (int row = 0; row < PauseReserveLabelRomData.LabelCount; row++)
-        {
-            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                PauseReserveLabelRomData.DestinationTable + row * sizeof(ushort)) - PauseReserveLabelRomData.TilemapBase;
-            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                PauseReserveLabelRomData.SourceTable + row * sizeof(ushort));
-            CopyBank82Words(source, equipmentTilemap.AsSpan(destination, PauseReserveLabelRomData.LabelByteCount));
-        }
+        PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "Reserve labels require installed presentation assets.")).PauseReserveUi;
+        presentation.ApplyLabel(equipmentTilemap, "Mode");
+        presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
         // Native setup retains the initial MANUAL label for the zero/uninitialized
-        // mode; it only performs the four-word substitution for a nonzero mode.
-        if (samus.ReserveTankMode == 0) return;
-        int modeSource = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
-            ? PauseReserveLabelRomData.AutoTilemap : PauseReserveLabelRomData.ManualTilemap;
-        for (int index = 0; index < PauseReserveLabelRomData.ModeWordCount; index++)
-        {
-            Span<byte> destination = equipmentTilemap.AsSpan(PauseReserveLabelRomData.ModeByteOffset + index * sizeof(ushort), sizeof(ushort));
-            ushort before = BinaryPrimitives.ReadUInt16LittleEndian(destination);
-            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), modeSource + index * sizeof(ushort));
-            BinaryPrimitives.WriteUInt16LittleEndian(destination,
-                (ushort)((before & PauseReserveLabelRomData.AttributeMask) | source));
-        }
+        // mode and patches its first four characters only after a nonzero mode exists.
+        if (samus.ReserveTankMode != 0)
+            presentation.ApplyLabel(equipmentTilemap,
+                samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode ? "Auto" : "Manual",
+                preserveAttributes: true);
     }
 }

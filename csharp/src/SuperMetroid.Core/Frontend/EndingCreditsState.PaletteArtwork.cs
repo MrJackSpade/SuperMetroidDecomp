@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -42,16 +41,11 @@ internal sealed partial class EndingCreditsState
     private void LoadStaticPalette(EndingPaletteId id, int sourceColor, int count,
         int destinationColor)
     {
-        if (paletteArtwork is { } artwork)
-            artwork[id].LoadTo(cgram, sourceColor, count, destinationColor);
-        else
-            cgram.LoadFromBus(bus, EndingPaletteDefinitions.SourceAddress(id) +
-                sourceColor * sizeof(ushort), count, destinationColor);
+        (paletteArtwork ?? throw new InvalidOperationException(
+            "Ending palettes require installed artwork."))[id].LoadTo(cgram, sourceColor, count, destinationColor);
     }
 
     private ushort StaticPaletteColor(EndingPaletteId id, int color)
-        => paletteArtwork is { } artwork
-            ? artwork[id].Color(color)
-            : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                EndingPaletteDefinitions.SourceAddress(id) + color * sizeof(ushort));
+        => (paletteArtwork ?? throw new InvalidOperationException(
+            "Ending palettes require installed artwork."))[id].Color(color);
 }

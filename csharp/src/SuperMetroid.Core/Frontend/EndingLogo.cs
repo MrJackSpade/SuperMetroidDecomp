@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -53,15 +52,11 @@ internal sealed class EndingLogo
         {
             for (int palette = 0; palette < 2; palette++)
             {
-                int pointer = EndingLogoPalettePointerDefinitions.Source(PaletteStep, palette);
                 for (int i = 15; i >= 0; i--)
                     cgram.SetColor((palette == 0 ? 16 : 240) + i,
-                        paletteArtwork is { } artwork
-                            ? artwork[EndingPaletteId.LogoCrossfade].Color(
-                                (PaletteStep * 2 + palette) * 16 + i)
-                            : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                                (IntroCinematicRomData.Banks.Spritemaps << 16) |
-                                (pointer - (15 - i) * 2)));
+                        (paletteArtwork ?? throw new InvalidOperationException(
+                            "Ending logo requires installed palette artwork."))
+                            [EndingPaletteId.LogoCrossfade].Color((PaletteStep * 2 + palette) * 16 + i));
             }
             if (++PaletteStep == EndingLogoDefinitions.PaletteSteps) return;
         }

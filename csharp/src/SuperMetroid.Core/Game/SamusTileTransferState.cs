@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Game;
 
@@ -43,53 +41,15 @@ public sealed class SamusTileTransferState
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        if (artwork is not null)
-        {
-            SamusBodyFrameSelection frame = artwork.Frame(pose, animationFrame);
-            TopDefinitionAddress = artwork.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
-            TopTransferEnabled = true;
-            if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
-            {
-                BottomDefinitionAddress = artwork.DefinitionAddress(false, frame.BottomSet,
-                    frame.BottomPosition);
-                BottomTransferEnabled = true;
-            }
-            return;
-        }
-
-        // One word per pose selects a variable-length list of four-byte animation records.
-        // The frame number is 16-bit in WRAM and the original ASL/ASL arithmetic wraps.
-        ushort animationList = ReadWord(
-            bus,
-            AddWithinBank(SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers, pose * 2));
-        ushort animationRecordOffset = unchecked((ushort)(animationList +
-            animationFrame * SamusRenderingRomData.TileTransfers.AnimationRecordByteCount));
-        int animationRecord = SamusRenderingRomData.Banks.GraphicsDefinitions | animationRecordOffset;
-
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        byte topSet = cartridge.ReadCartridgeByte(animationRecord);
-        byte topPosition = cartridge.ReadCartridgeByte(AddWithinBank(animationRecord, 1));
-        byte bottomSet = cartridge.ReadCartridgeByte(AddWithinBank(animationRecord, 2));
-        byte bottomPosition = cartridge.ReadCartridgeByte(AddWithinBank(animationRecord, 3));
-
-        // Each set-table word points to a list of seven-byte definitions. Assembly computes
-        // position*7 as position*8-position, a detail made explicit here for readability.
-        TopDefinitionAddress = ResolveDefinition(
-            bus,
-            SamusRenderingRomData.TileTransfers.TopDefinitionListPointers,
-            topSet,
-            topPosition);
+        SamusBodyArtworkCatalog installed = artwork ?? throw new InvalidOperationException(
+            "Samus tile transfer requires installed body artwork.");
+        SamusBodyFrameSelection frame = installed.Frame(pose, animationFrame);
+        TopDefinitionAddress = installed.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
         TopTransferEnabled = true;
-
-        // $FF means this animation frame has no bottom-half graphics update. Crucially the
-        // native routine simply returns; it does not clear a previously enabled flag.
-        if (bottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
+        if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
         {
-            BottomDefinitionAddress = ResolveDefinition(
-                bus,
-                SamusRenderingRomData.TileTransfers.BottomDefinitionListPointers,
-                bottomSet,
-                bottomPosition);
+            BottomDefinitionAddress = installed.DefinitionAddress(false, frame.BottomSet,
+                frame.BottomPosition);
             BottomTransferEnabled = true;
         }
     }
@@ -105,24 +65,14 @@ public sealed class SamusTileTransferState
         // Samus has a dedicated DMA path instead of using the ordinary seven-byte VRAM
         // queue. The four destinations form two interleaved character regions selected by
         // the pose spritemaps' tile numbers under gameplay OBSEL=$03.
+        SamusBodyArtworkCatalog installed = artwork ?? throw new InvalidOperationException(
+            "Samus tile transfer requires installed body artwork.");
         if (TopTransferEnabled)
-        {
-            if (artwork is null)
-                ExecuteDefinition(bus, vram, TopDefinitionAddress,
-                    SamusRenderingRomData.TileTransfers.TopDestinations);
-            else
-                ExecuteInstalledDefinition(vram, artwork.DefinitionAt(true, TopDefinitionAddress),
-                    SamusRenderingRomData.TileTransfers.TopDestinations);
-        }
+            ExecuteInstalledDefinition(vram, installed.DefinitionAt(true, TopDefinitionAddress),
+                SamusRenderingRomData.TileTransfers.TopDestinations);
         if (BottomTransferEnabled)
-        {
-            if (artwork is null)
-                ExecuteDefinition(bus, vram, BottomDefinitionAddress,
-                    SamusRenderingRomData.TileTransfers.BottomDestinations);
-            else
-                ExecuteInstalledDefinition(vram, artwork.DefinitionAt(false, BottomDefinitionAddress),
-                    SamusRenderingRomData.TileTransfers.BottomDestinations);
-        }
+            ExecuteInstalledDefinition(vram, installed.DefinitionAt(false, BottomDefinitionAddress),
+                SamusRenderingRomData.TileTransfers.BottomDestinations);
 
         // These flags are intentionally not cleared. The original NMI routine leaves them
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
@@ -135,46 +85,6 @@ public sealed class SamusTileTransferState
         BottomTransferEnabled = false;
     }
 
-    private static int ResolveDefinition(
-        ISnesAddressSpace bus,
-        int pointerTable,
-        byte setIndex,
-        byte position)
-    {
-        ushort listPointer = ReadWord(bus, AddWithinBank(pointerTable, setIndex * 2));
-        return SamusRenderingRomData.Banks.GraphicsDefinitions |
-            unchecked((ushort)(listPointer +
-                position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
-    }
-
-    private static void ExecuteDefinition(
-        ISnesAddressSpace bus,
-        SnesVram vram,
-        int definitionAddress,
-        SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
-    {
-        // Definition layout: 24-bit source, 16-bit part-1 size, 16-bit part-2 size.
-        ushort sourceOffset = ReadWord(bus, definitionAddress);
-        byte sourceBank = CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            AddWithinBank(definitionAddress, 2));
-        int sourceAddress = sourceBank << 16 | sourceOffset;
-        ushort part1Size = ReadWord(bus, AddWithinBank(definitionAddress, 3));
-        ushort part2Size = ReadWord(bus, AddWithinBank(definitionAddress, 5));
-
-        // Unlike the ordinary seven-byte VRAM queue, this is a direct write to DMA channel
-        // one's DAS register. A raw zero therefore means $10000 bytes, not "no transfer".
-        // The hardware helper also retains A-bus offset and VMADD wrapping for that complete
-        // 64-KiB pass; no retail Samus definition needs it, but the routine itself does.
-        vram.ExecuteHardwareDmaWrite(bus, sourceAddress, part1Size, destinations.First);
-        if (part2Size != 0)
-        {
-            // DMA increments only the 16-bit A-bus address. Adding in ushort space retains
-            // the source bank if a definition ever crosses xx:FFFF.
-            int part2Source = sourceBank << 16 | unchecked((ushort)(sourceOffset + part1Size));
-            vram.ExecuteQueuedWrite(bus, part2Source, part2Size, destinations.Second);
-        }
-    }
-
     private static void ExecuteInstalledDefinition(SnesVram vram,
         SamusBodyTileDefinition definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
@@ -183,13 +93,6 @@ public sealed class SamusTileTransferState
         vram.LoadBytes(destinations.First * 2, planar[..definition.FirstSize]);
         if (definition.SecondSize != 0)
             vram.LoadBytes(destinations.Second * 2, planar[definition.FirstSize..]);
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        return (ushort)(cartridge.ReadCartridgeByte(address) |
-            cartridge.ReadCartridgeByte(AddWithinBank(address, 1)) << 8);
     }
 
 }

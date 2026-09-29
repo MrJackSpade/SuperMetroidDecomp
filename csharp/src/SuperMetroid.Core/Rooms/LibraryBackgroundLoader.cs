@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -44,13 +43,8 @@ public static class LibraryBackgroundLoader
         // direct-transfer catalog, a missing list is a definition error rather
         // than permission to interpret unknown cartridge bytes at runtime.
         // Reference fixtures can still call ExecuteNativeForVerification explicitly.
-        if (tilemapArt is not null && skyArt is not null && hudArt is not null &&
-            characterArt is not null)
-            throw new InvalidDataException(
-                $"Installed library-background program $8F:{listPointer:X4} is not compiled.");
-
-        return ExecuteNative(bus, vram, listPointer, activeDoorPointer,
-            tilemapArt, skyArt, hudArt, characterArt);
+        throw new InvalidDataException(
+            $"Library-background program $8F:{listPointer:X4} is not compiled.");
     }
 
     private static LibraryBackgroundExecutionResult ExecuteCompiled(
@@ -245,7 +239,8 @@ public static class LibraryBackgroundLoader
                 $"${sourceAddress:X6} ({byteCount} bytes).");
         }
         else
-            vram.ExecuteQueuedWrite(bus, sourceAddress, byteCount, destinationWord);
+            throw new InvalidDataException(
+                $"Library-background transfer ${sourceAddress:X6} has no installed artwork.");
     }
 
     private static ushort DecompressToWorkRam(ISnesAddressSpace bus, ushort cursor,
@@ -260,8 +255,9 @@ public static class LibraryBackgroundLoader
     private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,
         ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
     {
-        byte[] decompressed = tilemapArt?.Get(sourceAddress).Transfer.ToArray() ??
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress);
+        byte[] decompressed = (tilemapArt ?? throw new InvalidOperationException(
+            "Library-background decompression requires installed tilemaps."))
+            .Get(sourceAddress).Transfer.ToArray();
         if (destination + decompressed.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
         {
             throw new InvalidDataException(
@@ -358,7 +354,8 @@ public static class LibraryBackgroundLoader
                     "Library-background save-bank commands require SRAM."))
                 .ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge =>
-                CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+                throw new InvalidOperationException(
+                    $"Library-background command ${address:X6} is not compiled."),
             _ => throw new InvalidDataException(
                 $"Library-background command byte ${address:X6} is outside mapped data."),
         };

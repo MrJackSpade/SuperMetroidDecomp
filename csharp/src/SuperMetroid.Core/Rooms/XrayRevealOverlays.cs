@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -15,7 +14,10 @@ public static class XrayRevealOverlays
     {
         if (tilemap.Length != XrayTilemapLayout.BufferWords)
             throw new ArgumentException("X-ray overlays require both native tilemap screens.", nameof(tilemap));
-        XrayOverlayVisualCatalog? overlays = visuals?.Overlays;
+        if (visuals is null)
+            throw new InvalidOperationException("X-ray reveal requires installed overlay visuals.");
+        XrayOverlayVisualCatalog overlays = visuals.Overlays ?? throw new InvalidOperationException(
+            "X-ray reveal requires installed item and room-overlay definitions.");
         for (int i = items.Count - 1; i >= 0; i--)
         {
             CollectiblePlmSnapshot item = items[i];
@@ -24,33 +26,13 @@ public static class XrayRevealOverlays
                 ? XrayOverlayRomData.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
             if ((uint)graphics >= XrayOverlayRomData.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item ${item.Header:X4} has invalid X-ray graphics slot {graphics}.");
-            ushort word;
-            if (overlays is not null)
-                word = overlays.ItemMetatile(graphics);
-            else
-            {
-                int pointer = ReadWord(bus, XrayOverlayRomData.ItemDrawPointers + graphics * 2);
-                word = (ushort)(ReadWord(bus, XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff);
-            }
+            ushort word = overlays.ItemMetatile(graphics);
             Write(level, tilemap, word, item.BlockIndex % level.WidthInBlocks,
                 item.BlockIndex / level.WidthInBlocks, layer1X, layer1Y);
         }
         if (specialPointer == 0) return;
-        if (overlays is not null)
-        {
-            foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(specialPointer))
-                Write(level, tilemap, tile.Word, tile.X, tile.Y, layer1X, layer1Y);
-            return;
-        }
-        for (int pointer = specialPointer; ; pointer += 4)
-        {
-            if (pointer < 0x8000 || pointer > ushort.MaxValue - 3)
-                throw new InvalidDataException("X-ray special-room records cross the ROM bank without a terminator.");
-            ushort coordinates = ReadWord(bus, XrayOverlayRomData.RoomBank | pointer);
-            if (coordinates == 0) break;
-            ushort word = ReadWord(bus, XrayOverlayRomData.RoomBank | (pointer + 2));
-            Write(level, tilemap, word, (byte)coordinates, coordinates >> 8, layer1X, layer1Y);
-        }
+        foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(specialPointer))
+            Write(level, tilemap, tile.Word, tile.X, tile.Y, layer1X, layer1Y);
     }
 
     private static void Write(RoomLevelData level, Span<ushort> tilemap, ushort word, int x, int y,
@@ -77,6 +59,4 @@ public static class XrayRevealOverlays
         }
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

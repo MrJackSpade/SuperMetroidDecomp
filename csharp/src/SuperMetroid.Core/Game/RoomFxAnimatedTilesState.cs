@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -56,18 +55,11 @@ internal sealed class RoomFxAnimatedTilesState
         if (objectPointer == 0)
             return;
 
-        if (RoomFxAnimatedTileMechanicsDefinitions.TryResolve(objectPointer, out compiledMechanics))
-        {
-            instructionPointer = compiledMechanics.InstructionPointer;
-            transferByteCount = compiledMechanics.TransferByteCount;
-            encodedVramDestination = compiledMechanics.EncodedVramDestination;
-        }
-        else
-        {
-            instructionPointer = ReadWord(bus, objectPointer);
-            transferByteCount = ReadWord(bus, unchecked((ushort)(objectPointer + 2)));
-            encodedVramDestination = ReadWord(bus, unchecked((ushort)(objectPointer + 4)));
-        }
+        if (!RoomFxAnimatedTileMechanicsDefinitions.TryResolve(objectPointer, out compiledMechanics))
+            throw new InvalidDataException($"Room-FX animation $87:{objectPointer:X4} is not compiled.");
+        instructionPointer = compiledMechanics.InstructionPointer;
+        transferByteCount = compiledMechanics.TransferByteCount;
+        encodedVramDestination = compiledMechanics.EncodedVramDestination;
         instructionTimer = 1;
         IsActive = true;
 
@@ -109,10 +101,8 @@ internal sealed class RoomFxAnimatedTilesState
                         $"frame at $87:{cursor:X4}.");
                 }
 
-                int sourceAddress = compiledMechanics is null
-                    ? RoomFxRomData.Banks.AnimatedTiles |
-                      ReadWord(bus, unchecked((ushort)(cursor + 2)))
-                    : RoomFxAnimatedTileArtworkDefinitions.SourceAddress(compiledMechanics, cursor);
+                int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                    compiledMechanics ?? throw new InvalidOperationException("Room-FX animation lost its mechanics."), cursor);
                 instructionTimer = instructionOrDuration;
                 instructionPointer = unchecked((ushort)(cursor + 4));
                 LastSourceAddress = sourceAddress;
@@ -164,7 +154,7 @@ internal sealed class RoomFxAnimatedTilesState
     private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
     {
         if (compiledMechanics is null)
-            return ReadWord(bus, pointer);
+            throw new InvalidOperationException("Room-FX animation requires compiled mechanics.");
         if (compiledMechanics.TryReadMechanicsWord(pointer, out ushort value))
             return value;
 
@@ -173,8 +163,4 @@ internal sealed class RoomFxAnimatedTilesState
             $"mechanics word $87:{pointer:X4}.");
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            RoomFxRomData.Banks.AnimatedTiles | pointer);
 }

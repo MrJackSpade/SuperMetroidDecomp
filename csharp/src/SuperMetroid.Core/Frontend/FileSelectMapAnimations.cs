@@ -1,20 +1,18 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>$82:A881 arrow animations and $82:A92B palette animation, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
-    private readonly ISnesAddressSpace bus;
     private readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
     private readonly MapPaletteAnimation palette;
     [NonSerialized] private MapArrowPresentation? presentation;
 
     public FileSelectMapAnimations(ISnesAddressSpace bus, MapArrowPresentation? presentation = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        ArgumentNullException.ThrowIfNull(bus);
         palette = new MapPaletteAnimation(bus);
         BindPresentation(presentation);
     }
@@ -27,28 +25,12 @@ public sealed class FileSelectMapAnimations
             Arrow? previous = arrows[index];
             Arrow replacement;
             int phaseCount;
-            if (content is not null)
-            {
-                var direction = (MapScrollDirection)(index + 1);
-                MapArrowVisual visual = content.Get(direction);
-                replacement = new Arrow(visual.X, visual.Y, 0, MapArrowDefinitions.SpriteBase(direction));
-                phaseCount = visual.PhaseCount;
-            }
-            else
-            {
-                int record = FileSelectMapRomData.ScrollArrows + index * 10;
-                ushort animation = Read(record + 4);
-                if (animation is < 1 or > 9) throw new InvalidDataException("Invalid menu arrow animation ID.");
-                ushort program = Read(MapAnimationRomData.SpritePrograms + (animation - 1) * 2);
-                ushort bases = Read(MapAnimationRomData.SpriteBases + (animation - 1) * 2);
-                replacement = new Arrow(Read(record), unchecked((ushort)(Read(record + 2) - 1)),
-                    program, Read(FileSelectMapRomData.MenuObjectBank | bases));
-                phaseCount = 0;
-                while (CartridgeImportSource.Require(bus).ReadCartridgeByte(
-                    FileSelectMapRomData.MenuObjectBank | (program + phaseCount * 3)) != byte.MaxValue)
-                    if (++phaseCount > MapArrowFormat.MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");
-                if (phaseCount == 0) throw new InvalidDataException("Map arrow animation has no frames.");
-            }
+            MapArrowPresentation installed = content ?? throw new InvalidOperationException(
+                "Map arrows require installed animation definitions.");
+            var direction = (MapScrollDirection)(index + 1);
+            MapArrowVisual visual = installed.Get(direction);
+            replacement = new Arrow(visual.X, visual.Y, 0, MapArrowDefinitions.SpriteBase(direction));
+            phaseCount = visual.PhaseCount;
             if (previous is not null)
             {
                 // A shortened replacement cycle retains the remaining accepted delay,
@@ -56,7 +38,7 @@ public sealed class FileSelectMapAnimations
                 replacement.Frame = previous.Frame % phaseCount;
                 replacement.Timer = previous.Timer;
                 replacement.Visible = previous.Visible;
-                replacement.Spritemap = (ushort)(replacement.Base + (content is null ? AnimationByte(replacement, 2) : 0));
+                replacement.Spritemap = replacement.Base;
             }
             arrows[index] = replacement;
         }
@@ -78,39 +60,34 @@ public sealed class FileSelectMapAnimations
             Arrow arrow = arrows[index];
             arrow.Visible = available((MapScrollDirection)(index + 1));
             if (!arrow.Visible) continue;
-            MapArrowVisual? visual = presentation?.Get((MapScrollDirection)(index + 1));
+            MapArrowVisual visual = (presentation ?? throw new InvalidOperationException(
+                "Map arrows require installed animation definitions.")).Get((MapScrollDirection)(index + 1));
             if (--arrow.Timer <= 0)
             {
                 arrow.Frame++;
-                byte delay = visual is null ? AnimationByte(arrow, 0)
-                    : arrow.Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(arrow.Frame);
+                byte delay = arrow.Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(arrow.Frame);
                 if (delay == byte.MaxValue)
                 {
                     arrow.Frame = 0;
-                    delay = visual is null ? AnimationByte(arrow, 0) : visual.Duration(0);
+                    delay = visual.Duration(0);
                     if (delay == byte.MaxValue) throw new InvalidDataException("Map arrow animation has no frames.");
                 }
                 arrow.Timer = delay;
             }
-            arrow.Spritemap = (ushort)(arrow.Base + (visual is null ? AnimationByte(arrow, 2) : 0));
+            arrow.Spritemap = arrow.Base;
         }
     }
 
     public void DrawArrows(OamBuffer oam, MapSpriteCatalog? sprites = null)
     {
+        MapSpriteCatalog installed = sprites ?? throw new InvalidOperationException(
+            "Map arrows require installed sprite definitions.");
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            if (sprites is not null) { sprites.Draw(arrow.Spritemap, oam, arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits); continue; }
-            ushort pointer = Read(MenuPpuState.SpritemapPointerTableAddress + arrow.Spritemap * 2);
-            oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
-                arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits);
+            installed.Draw(arrow.Spritemap, oam, arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits);
         }
     }
-
-    private byte AnimationByte(Arrow arrow, int offset) => CartridgeImportSource.Require(bus).ReadCartridgeByte(
-        FileSelectMapRomData.MenuObjectBank | unchecked((ushort)(arrow.Program + arrow.Frame * 3 + offset)));
-    private ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private sealed class Arrow(ushort x, ushort y, ushort program, ushort spriteBase)
     {

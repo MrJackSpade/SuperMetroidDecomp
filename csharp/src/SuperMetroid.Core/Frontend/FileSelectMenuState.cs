@@ -4,7 +4,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -339,27 +338,8 @@ public sealed partial class FileSelectMenuState
 
     private void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
     {
-        int initialColumn = destinationByteOffset;
-        int sourceAddress = FileSelectTilemapFormat.Bank | sourcePointer;
-        while (true)
-        {
-            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
-            sourceAddress = FileSelectTilemapFormat.Bank | ((sourceAddress + 2) & 0xffff);
-            if (word == FileSelectTilemapFormat.End)
-                return;
-            if (word == FileSelectTilemapFormat.NextRow)
-            {
-                initialColumn += FileSelectTilemapFormat.RowByteCount;
-                destinationByteOffset = initialColumn;
-                continue;
-            }
-
-            int wordIndex = destinationByteOffset >> 1;
-            if ((uint)wordIndex >= bg1Tilemap.Length)
-                throw new InvalidDataException("A bank-$81 menu tilemap escaped the 32x32 BG1 buffer.");
-            bg1Tilemap[wordIndex] = word;
-            destinationByteOffset += 2;
-        }
+        throw new InvalidOperationException(
+            "File-select tilemaps require installed menu presentation assets.");
     }
 
     private void DrawMenuSpritemap(ushort spritemapId, ushort x, ushort y)
@@ -367,9 +347,8 @@ public sealed partial class FileSelectMenuState
         // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
         // is doubled before following bank $82. AddOnScreenSpritemap then applies the same
         // `$F1FF | $0E00` attribute replacement as the native r3 argument.
-        int pointerAddress = MenuPpuState.SpritemapPointerTableAddress + spritemapId * 2;
-        ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
-        oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, MenuPpuState.ObjectPaletteBits);
+        throw new InvalidOperationException(
+            "File-select sprites require installed menu presentation assets.");
     }
 
     private void StepMissileAnimation()

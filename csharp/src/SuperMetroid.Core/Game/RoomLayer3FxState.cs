@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -191,28 +190,9 @@ public sealed class RoomLayer3FxState
         if (!IsRenderable)
             return;
 
-        if (layer3Tilemaps is not null)
-        {
-            vram.ExecuteQueuedAssetWrite(layer3Tilemaps.Resolve(Type).Span,
-                RoomFxRomData.Layer3.TilemapDestinationWord);
-        }
-        else
-        {
-            int typeIndex = ((byte)Type) >> 1;
-            ushort tilemapPointer = ReadWord(
-                bus,
-                RoomFxRomData.Tables.Layer3TilemapPointers + typeIndex * 2);
-            if (tilemapPointer == 0)
-            {
-                throw new InvalidDataException(
-                    $"Renderable room FX type ${(byte)Type:X2} has no bank-$8A tilemap pointer.");
-            }
-            vram.ExecuteHardwareDmaWrite(
-                bus,
-                RoomFxRomData.Banks.Tilemaps | tilemapPointer,
-                RoomFxRomData.Layer3.TilemapByteCount,
-                RoomFxRomData.Layer3.TilemapDestinationWord);
-        }
+        vram.ExecuteQueuedAssetWrite((layer3Tilemaps ?? throw new InvalidOperationException(
+                "Renderable room FX requires installed layer-3 tilemaps."))
+            .Resolve(Type).Span, RoomFxRomData.Layer3.TilemapDestinationWord);
 
         if (Type == RoomFxType.Water)
         {
@@ -750,9 +730,6 @@ public sealed class RoomLayer3FxState
     }
 
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase

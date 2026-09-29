@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -36,10 +35,10 @@ internal sealed class EndingPostShot
     /// </summary>
     internal void BindArtwork(EndingObjectArtworkCatalog? artwork, SnesVram? vram = null)
     {
-        tiles = artwork?.PostShotLogoTiles.Transfer.ToArray() ??
-            Decode(EndingPostShotDefinitions.LogoTiles);
-        map = artwork?.PostShotLogoMap.Transfer.ToArray() ??
-            Decode(EndingPostShotDefinitions.LogoMap);
+        EndingObjectArtworkCatalog installed = artwork ?? throw new InvalidOperationException(
+            "Post-shot sequence requires installed object artwork.");
+        tiles = installed.PostShotLogoTiles.Transfer.ToArray();
+        map = installed.PostShotLogoMap.Transfer.ToArray();
         if (vram is not null)
         {
             for (int index = 0; index < Uploads; index++)
@@ -133,6 +132,4 @@ internal sealed class EndingPostShot
         vram.LoadBytes(destination * sizeof(ushort), bytes);
     }
 
-    private byte[] Decode(int address) => RomDataReader.Decompress(CartridgeImportSource.Require(bus), address,
-        EndingCreditsRomData.Rendering.DecompressionLimit);
 }

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -78,14 +77,8 @@ public sealed class HudState
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        if (presentation is null)
-        {
-            // $80:9AA3 copies exactly $C0 bytes (three 32-word rows) from the ROM template.
-            for (int tile = 0; tile < MutableTileCount; tile++)
-                _tiles[tile] = ReadRomWord(bus, GameplayHudDefinitions.TemplateAddress + tile * 2);
-        }
-        else
-            presentation.ApplyTemplate(_tiles);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD initialization requires installed presentation assets.")).ApplyTemplate(_tiles);
 
         if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             AddTwoByTwoIcon(bus, itemIndex: 4, GameplayHudDefinitions.IconTableAddress + 36);
@@ -206,8 +199,9 @@ public sealed class HudState
         ArgumentNullException.ThrowIfNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
-        int areaTableIndex = AreaIds.ToIndex(areaIndex);
-        if (presentationMap is not null && presentationMap.Area != areaIndex)
+        if (presentationMap is null)
+            throw new InvalidOperationException("Minimap updates require an installed area-map definition.");
+        if (presentationMap.Area != areaIndex)
             throw new ArgumentException("Map presentation belongs to a different area.", nameof(presentationMap));
         if (roomWidthInBlocks <= 0 || roomHeightInBlocks <= 0)
             throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
@@ -233,13 +227,6 @@ public sealed class HudState
         system.MarkExploredMapTile(areaIndex, centerX, centerY);
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
-        int areaMapPointerAddress = AreaMapRomData.TilemapPointerTable + areaTableIndex * 3;
-        int areaMapAddress = presentationMap is null ? ReadRomLong(bus, areaMapPointerAddress) : 0;
-        ushort mapDataPointer = presentationMap is null ? ReadRomWord(
-            bus,
-            AreaMapRomData.StationRevealMaskPointerTable + areaTableIndex * 2) : (ushort)0;
-        int mapDataAddress = AreaMapRomData.StationRevealMaskBank | mapDataPointer;
-
         for (int outputY = 0; outputY < 3; outputY++)
         {
             int mapY = centerY + outputY - 1;
@@ -255,19 +242,16 @@ public sealed class HudState
                 }
 
                 bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
-                bool stationVisible = presentationMap?.IsRevealedByMapStation(mapX, mapY) ??
-                    ReadMapBit(bus, mapDataAddress, mapX, mapY);
+                bool stationVisible = presentationMap.IsRevealedByMapStation(mapX, mapY);
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
-                int tilemapIndex = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
-                MapTileWord mapTile = presentationMap?.GetTile(mapX, mapY) ??
-                    (MapTileWord)ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
+                MapTileWord mapTile = presentationMap.GetTile(mapX, mapY);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
                         hasAreaMap,
                         stationVisible,
-                        presentationMap?.IsDiscoverable(mapX, mapY) ?? !mapTile.IsBlank,
+                        presentationMap.IsDiscoverable(mapX, mapY),
                         mapRevealMode))
                 {
                     _tiles[destination] = (ushort)MapTileWords.HudBlank;
@@ -279,8 +263,7 @@ public sealed class HudState
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
-                    (presentationMap?.RevealsCellAbove(mapX, mapY) ??
-                     ((mapTile.Raw & MapTileWords.SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter)))
+                    presentationMap.RevealsCellAbove(mapX, mapY))
                     system.MarkExploredMapTile(areaIndex, centerX, centerY - 1);
             }
         }
@@ -318,142 +301,46 @@ public sealed class HudState
 
     private void DrawHealth(ISnesAddressSpace bus, ushort health, ushort maxHealth)
     {
-        if (presentation is not null)
-        {
-            presentation.ApplyEnergy(_tiles, health, maxHealth);
-            return;
-        }
-        int fullTanks = health / 100;
-        int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankByteOffsets.Length);
-        for (int tank = 0; tank < tankCount; tank++)
-        {
-            // $2831 is a filled E-tank and $3430 is empty. These complete tilemap words
-            // include their different palette selection, not merely a character number.
-            _tiles[GameplayHudDefinitions.EnergyTankByteOffsets[tank] / 2] = tank < fullTanks
-                ? GameplayHudDefinitions.FilledEnergyTankWord
-                : GameplayHudDefinitions.EmptyEnergyTankWord;
-        }
-
-        DrawTwoDigits(bus, GameplayHudDefinitions.HealthDigitsAddress, (ushort)(health % 100), byteOffset: 0x8c);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
     }
 
     private void DrawAutoReserve(ISnesAddressSpace bus, bool containsEnergy)
     {
-        if (presentation is not null)
-        {
-            presentation.ApplyAutoReserve(_tiles, containsEnergy);
-            return;
-        }
-        ReadOnlySpan<int> destinations = HudReserveLayout.TileIndices;
-        int source = HudReserveLayout.AutoTable + (containsEnergy ? 0 : destinations.Length * 2);
-        for (int tile = 0; tile < destinations.Length; tile++)
-            _tiles[destinations[tile]] = ReadRomWord(bus, source + tile * 2);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD reserve indicator requires installed presentation assets.")).ApplyAutoReserve(_tiles, containsEnergy);
     }
 
     /// <summary>Ports $82:AF33 without reinitializing icons, counters or the minimap.</summary>
     public void ClearAutoReserveIndicator()
     {
         if (!IsInitialized) throw new InvalidOperationException("Initialize the HUD before clearing AUTO.");
-        if (presentation is not null)
-        {
-            presentation.ClearAutoReserve(_tiles);
-            return;
-        }
-        foreach (int index in HudReserveLayout.TileIndices)
-            _tiles[index] = HudReserveLayout.Blank;
+        (presentation ?? throw new InvalidOperationException(
+            "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(_tiles);
     }
 
     private void AddMissileIcon(ISnesAddressSpace bus)
     {
-        if (presentation is not null)
-        {
-            presentation.TryApplyIcon(_tiles, itemIndex: 0);
-            return;
-        }
-        // Unlike the other equipment icons, missiles are 3x2 tiles and occupy table words
-        // 0-5 at $80:99A3. Only replace a blank slot, exactly like $80:99CF's guard.
-        int destination = 0x14 / 2;
-        if (new SnesBgTilemapWord(_tiles[destination]).CharacterIndex !=
-            new SnesBgTilemapWord(GameplayHudDefinitions.BlankWord).CharacterIndex)
-            return;
-
-        _tiles[destination] = ReadRomWord(bus, GameplayHudDefinitions.IconTableAddress);
-        _tiles[destination + 1] = ReadRomWord(bus, GameplayHudDefinitions.IconTableAddress + 2);
-        _tiles[destination + 2] = ReadRomWord(bus, GameplayHudDefinitions.IconTableAddress + 4);
-        _tiles[destination + WidthInTiles] = ReadRomWord(bus, GameplayHudDefinitions.IconTableAddress + 6);
-        _tiles[destination + WidthInTiles + 1] = ReadRomWord(bus, GameplayHudDefinitions.IconTableAddress + 8);
-        _tiles[destination + WidthInTiles + 2] = ReadRomWord(bus, GameplayHudDefinitions.IconTableAddress + 10);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex: 0);
     }
 
     private void AddTwoByTwoIcon(ISnesAddressSpace bus, int itemIndex, int source)
     {
-        if (presentation is not null)
-        {
-            presentation.TryApplyIcon(_tiles, itemIndex);
-            return;
-        }
-        int destination = GameplayHudDefinitions.ItemByteOffsets[itemIndex] / 2;
-        if (new SnesBgTilemapWord(_tiles[destination]).CharacterIndex !=
-            new SnesBgTilemapWord(GameplayHudDefinitions.BlankWord).CharacterIndex)
-            return;
-
-        _tiles[destination] = ReadRomWord(bus, source);
-        _tiles[destination + 1] = ReadRomWord(bus, source + 2);
-        _tiles[destination + WidthInTiles] = ReadRomWord(bus, source + 4);
-        _tiles[destination + WidthInTiles + 1] = ReadRomWord(bus, source + 6);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex);
     }
 
     private void ToggleItemHighlight(ushort selectedItem, int paletteIndex)
     {
-        if (presentation is not null)
-        {
-            presentation.ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
-            return;
-        }
-        int itemIndex = selectedItem - 1;
-        if ((uint)itemIndex >= GameplayHudDefinitions.ItemByteOffsets.Length)
-            return;
-
-        int destination = GameplayHudDefinitions.ItemByteOffsets[itemIndex] / 2;
-        ApplyPaletteUnlessBlank(destination, paletteIndex);
-        ApplyPaletteUnlessBlank(destination + 1, paletteIndex);
-        ApplyPaletteUnlessBlank(destination + WidthInTiles, paletteIndex);
-        ApplyPaletteUnlessBlank(destination + WidthInTiles + 1, paletteIndex);
-
-        if (itemIndex == 0)
-        {
-            // The missile selector spans the icon's third column.
-            ApplyPaletteUnlessBlank(destination + 2, paletteIndex);
-            ApplyPaletteUnlessBlank(destination + WidthInTiles + 2, paletteIndex);
-        }
-    }
-
-    private void ApplyPaletteUnlessBlank(int tileIndex, int paletteIndex)
-    {
-        if (_tiles[tileIndex] != GameplayHudDefinitions.BlankWord)
-        {
-            _tiles[tileIndex] = new SnesBgTilemapWord(_tiles[tileIndex])
-                .WithPaletteIndex(paletteIndex);
-        }
-    }
-
-    private void DrawThreeDigits(ISnesAddressSpace bus, int digitTable, ushort value, int byteOffset)
-    {
-        _tiles[byteOffset / 2] = ReadRomWord(bus, digitTable + value / 100 * 2);
-        DrawTwoDigits(bus, digitTable, (ushort)(value % 100), byteOffset + 2);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
     }
 
     private void DrawAmmo(ISnesAddressSpace bus, int itemIndex, ushort value, int byteOffset)
     {
-        if (presentation is not null)
-        {
-            presentation.ApplyAmmo(_tiles, itemIndex, value);
-            return;
-        }
-        if (itemIndex == 0)
-            DrawThreeDigits(bus, GameplayHudDefinitions.AmmoDigitsAddress, value, byteOffset);
-        else
-            DrawTwoDigits(bus, GameplayHudDefinitions.AmmoDigitsAddress, value, byteOffset);
+        (presentation ?? throw new InvalidOperationException(
+            "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);
     }
 
     private void ApplyCurrentPresentationState(SamusState samus)
@@ -477,38 +364,6 @@ public sealed class HudState
     private static int NativeMinimapCellIndex(int outputX, int outputY) =>
         26 + outputY * WidthInTiles + outputX;
 
-    private void DrawTwoDigits(ISnesAddressSpace bus, int digitTable, ushort value, int byteOffset)
-    {
-        int destination = byteOffset / 2;
-        _tiles[destination] = ReadRomWord(bus, digitTable + value / 10 * 2);
-        _tiles[destination + 1] = ReadRomWord(bus, digitTable + value % 10 * 2);
-    }
-
-    private static int ReadRomLong(ISnesAddressSpace bus, int address)
-    {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        return cartridge.ReadCartridgeByte(address) |
-            cartridge.ReadCartridgeByte(address + 1) << 8 |
-            cartridge.ReadCartridgeByte(address + 2) << 16;
-    }
-
-    private static ushort ReadRomWord(ISnesAddressSpace bus, int address)
-    {
-        // Every table used here remains within bank $80, but wrapping the offset documents
-        // the 65C816 absolute/long access behavior and avoids accidental linear-bank reads.
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        return (ushort)(
-            cartridge.ReadCartridgeByte((int)source) |
-            (cartridge.ReadCartridgeByte((int)source.AddWithinBank(1)) << 8));
-    }
-
-    private static bool ReadMapBit(ISnesAddressSpace bus, int mapDataAddress, int mapX, int mapY)
-    {
-        int byteIndex = AreaMapLayout.GetBitByteIndex(mapX, mapY);
-        return (CartridgeImportSource.Require(bus).ReadCartridgeByte(mapDataAddress + byteIndex) &
-            AreaMapLayout.GetBitMask(mapX)) != 0;
-    }
 }
 
 /// <summary>Explicit inputs consumed while constructing one HUD state.</summary>

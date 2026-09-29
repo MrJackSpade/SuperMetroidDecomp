@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -24,44 +23,33 @@ public sealed partial class FileSelectRoomMapGraphics
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
+        if (mapPresentation is null)
+            throw new InvalidOperationException(
+                "Room-map graphics require installed map presentation assets.");
         this.bus = bus;
-        icons = new FileSelectMapIcons(bus, system, area);
-        icons.BindStations(mapPresentation?.Stations);
-        icons.BindLandmarks(mapPresentation?.Landmarks);
-        sprites = mapPresentation?.Sprites;
+        icons = new FileSelectMapIcons(system, area);
+        icons.BindStations(mapPresentation.Stations);
+        icons.BindLandmarks(mapPresentation.Landmarks);
+        sprites = mapPresentation.Sprites;
         icons.BindSprites(sprites);
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.WorldArtwork, sprites,
-            loadInitialBackground: mapPresentation is null);
+        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, sprites, loadInitialBackground: false);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
-            AreaMapTilemapBuilder.Build(mapPresentation?.Get(area) ?? AreaMapRomData.Load(bus, area), system, hidden, revealMode));
+            AreaMapTilemapBuilder.Build(mapPresentation.Get(area), system, hidden, revealMode));
 
-        LoadFrame(mapPresentation?.Screens, area);
+        LoadFrame(mapPresentation.Screens, area);
     }
 
     private void LoadFrame(MapScreenPresentation? screens, AreaId area)
     {
-        if (screens is not null)
-        {
-            screens.LoadTo(Vram, MenuPpuState.Bg2TilemapWord * 2, MapScreenDefinitions.RoomFrame(area));
-            return;
-        }
-        var frame = new byte[FileSelectMapRomData.TilemapBytes];
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrame, FileSelectMapRomData.RoomFrameHeaderWords * 2).CopyTo(frame, 0);
-        for (int word = FileSelectMapRomData.RoomFrameHeaderWords; word < frame.Length / 2; word++)
-            BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), FileSelectMapRomData.RoomFrameBlank);
-        // Native copies backwards from footer word 160 through word 1, not word 0.
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + 2, FileSelectMapRomData.RoomFrameFooterWords * 2).CopyTo(frame, FileSelectMapRomData.RoomFrameHeaderWords * 2);
-        ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomLabelPointers + (int)area * 2);
-        for (int word = 0; word < FileSelectMapRomData.RoomLabelWords; word++)
-            BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((FileSelectMapRomData.RoomLabelDestinationWord + word) * 2),
-                (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (label + word * 2))
-                    & FileSelectMapRomData.RoomLabelMask));
-        ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
+        (screens ?? throw new InvalidOperationException(
+            "Room-map frame requires installed map-screen assets."))
+            .LoadTo(Vram, MenuPpuState.Bg2TilemapWord * 2, MapScreenDefinitions.RoomFrame(area));
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
@@ -76,9 +64,9 @@ public sealed partial class FileSelectRoomMapGraphics
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount)
                     Cgram.SetColor(color, catalog.Palettes.FileSelect[color]);
-        if (catalog is not null) catalog.Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
-        else Vram.LoadBytes(FileSelectMapRomData.RoomCharacters * 2,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
+        (catalog ?? throw new InvalidOperationException(
+            "Room-map graphics require installed map presentation assets."))
+            .Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
         var system = icons.MapSystem;
         var area = icons.MapArea;
         ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);
@@ -86,7 +74,8 @@ public sealed partial class FileSelectRoomMapGraphics
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
-            AreaMapTilemapBuilder.Build(catalog?.Get(area) ?? AreaMapRomData.Load(bus, area), system, hidden));
+            AreaMapTilemapBuilder.Build((catalog ?? throw new InvalidOperationException(
+                "Room-map graphics require installed map presentation assets.")).Get(area), system, hidden));
     }
 
     /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>

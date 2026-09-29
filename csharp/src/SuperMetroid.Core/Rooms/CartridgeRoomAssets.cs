@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -51,10 +50,12 @@ public sealed class CartridgeRoomAssets
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(header);
+        if (characterArt is null || paletteArt is null || metatileArt is null || visualLayouts is null)
+            throw new InvalidOperationException(
+                "Room loading requires installed character, palette, metatile, and visual-layout assets.");
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
-        byte[] roomBlockDefinitions = metatileArt?.Get(tileset.BlockDefinitionsAddress)
-            .Transfer.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus), tileset.BlockDefinitionsAddress);
+        byte[] roomBlockDefinitions = metatileArt.Get(tileset.BlockDefinitionsAddress).Transfer.ToArray();
         byte[] blockDefinitions;
         if (header.AreaIndex == AreaId.Ceres)
         {
@@ -64,8 +65,7 @@ public sealed class CartridgeRoomAssets
         }
         else
         {
-            byte[] creDefinitions = metatileArt?.Cre.Transfer.ToArray() ??
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
+            byte[] creDefinitions = metatileArt.Cre.Transfer.ToArray();
             blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
             creDefinitions.CopyTo(blockDefinitions, 0);
             roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
@@ -81,22 +81,18 @@ public sealed class CartridgeRoomAssets
         // Installed visual layouts imply a retail room source. Its collision/BTS and
         // native overread allocation are immutable application data; only the low
         // visual tile bits come from the separately replaceable layout catalog.
-        byte[] levelStream = visualLayouts is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), header.State.CompressedLevelDataAddress)
-            : RoomLevelStreamDefinitions.Get(header.State.CompressedLevelDataAddress).ToArray();
+        byte[] levelStream = RoomLevelStreamDefinitions.Get(
+            header.State.CompressedLevelDataAddress).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
-            visualLayouts?.Get(header.State.CompressedLevelDataAddress));
+            visualLayouts.Get(header.State.CompressedLevelDataAddress));
         RoomScrollGrid scrolls = LoadScrolls(bus, header);
         return new CartridgeRoomAssets(
             header,
             levelData,
             scrolls,
-            characterArt?.Cre.Transfer.ToArray() ??
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomAssetRomData.Tilesets.CreCharactersAddress),
-            characterArt?.Get(tileset.CharacterAddress).Transfer.ToArray() ??
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), tileset.CharacterAddress),
-            paletteArt?.Get(tileset.PaletteAddress).Transfer.ToArray() ??
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), tileset.PaletteAddress),
+            characterArt.Cre.Transfer.ToArray(),
+            characterArt.Get(tileset.CharacterAddress).Transfer.ToArray(),
+            paletteArt.Get(tileset.PaletteAddress).Transfer.ToArray(),
             tileset);
     }
 

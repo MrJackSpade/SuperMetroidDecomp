@@ -41,29 +41,6 @@ public sealed class RoomScrollGrid
     /// </summary>
     public ReadOnlySpan<byte> Storage => _cells;
 
-    /// <summary>Loads an explicit bank-$8F scroll table and mirrors it into authentic WRAM.</summary>
-    public static RoomScrollGrid LoadExplicit(
-        ISnesAddressSpace bus,
-        int sourceAddress,
-        int widthInScreens,
-        int heightInScreens)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        SnesAddress source = SnesAddress.FromBusAddress(sourceAddress);
-        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
-            throw new ArgumentException("Explicit scroll tables require a cartridge import source.", nameof(bus));
-
-        var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
-        for (int index = 0; index < StorageByteCount; index++)
-        {
-            byte value = cartridge.ReadCartridgeByte((int)source.AddWithinBank(index));
-            grid._cells[index] = value;
-            bus.WriteByte(WorkRamAddress + index, value);
-        }
-
-        return grid;
-    }
-
     /// <summary>Installs an application-owned copy of the native 50-byte scroll allocation.</summary>
     public static RoomScrollGrid LoadCompiled(
         ISnesAddressSpace bus,
@@ -90,9 +67,6 @@ public sealed class RoomScrollGrid
         return grid;
     }
 
-    /// <summary>Loads Landing Site's 9x5 table beginning at ROM <c>$8F:9283</c>.</summary>
-    public static RoomScrollGrid LoadLandingSite(ISnesAddressSpace bus) =>
-        LoadExplicit(bus, LandingSiteRomAddress, widthInScreens: 9, heightInScreens: 5);
 
     /// <summary>
     /// Builds the implicit scroll table used when a room state's scroll word is nonnegative.

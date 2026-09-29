@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -215,20 +214,10 @@ public sealed class SamusDrainedState
         int paletteFrame = ChargePaletteIndex %
             SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
         if (presentationColors is null)
-        {
-            ushort pointer = ReadWord(bus,
-                SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + paletteFrame * 2);
-            cgram.LoadFromBus(bus,
-                SamusPaletteRomData.Banks.Palette | pointer,
-                SamusPaletteRomData.Common.ColorsPerObjPalette,
-                SamusPaletteRomData.Common.SamusObjPaletteStart);
-        }
-        else
-        {
-            for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
-                    presentationColors.Resolve(paletteFrame, index));
-        }
+            throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
+        for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
+            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+                presentationColors.Resolve(paletteFrame, index));
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
         CommonPaletteTimer = timer.Value;
@@ -447,8 +436,6 @@ public sealed class SamusDrainedState
         samus.Kinematics.YSubspeed = 0;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>Named host equivalents for the otherwise opaque drain pose/handler state.</summary>

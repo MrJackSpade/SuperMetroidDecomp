@@ -20,7 +20,7 @@ public static class MapPresentationExtractor
         {
             cancellationToken.ThrowIfCancellationRequested();
             using var buffer = new MemoryStream();
-            var map = AreaMapRomData.Load(bus, area);
+            var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationAsset.Write(buffer, map);
             stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
                 .Where(i => map.IsRevealedByMapStation(i % AreaMapLayout.WidthInTiles, i / AreaMapLayout.WidthInTiles)).ToArray());

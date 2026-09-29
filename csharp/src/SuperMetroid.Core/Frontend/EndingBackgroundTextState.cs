@@ -1,7 +1,6 @@
 using System.Numerics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -50,80 +49,23 @@ internal sealed class EndingBackgroundTextState
         this.tilemapDestination = tilemapDestination;
         this.presentation = presentation;
         this.installedSequence = installedSequence;
-        if ((presentation is null) != (installedSequence is null))
-            throw new ArgumentException("Installed ending text requires both presentation and sequence identity.");
+        if (presentation is null || installedSequence is null)
+            throw new InvalidOperationException("Ending text requires installed presentation and sequence definitions.");
         installedProgram = installedSequence is { } sequence
             ? presentation!.Compile(sequence).ToArray()
             : null;
     }
 
-    public bool Completed => installedSequence is not null ? installedCompleted : instructionPointer == 0;
+    public bool Completed => installedCompleted;
     public bool RequestedItemPercentageScroll { get; private set; }
 
     public void Step(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
-        if (installedSequence is not null)
-        {
-            if (installedProgram is null)
-                throw new InvalidOperationException(
-                    "Ending text host content must be rebound after state restoration.");
-            StepInstalled(vram);
-            return;
-        }
-        if (instructionPointer == 0 || instructionTimer-- != 1)
-            return;
-
-        ushort cursor = instructionPointer;
-        while (true)
-        {
-            ushort word = ReadWord(cursor);
-            if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
-            {
-                instructionTimer = word;
-                ushort packedPosition = ReadWord(Add(cursor, 2));
-                ushort dataPointer = ReadWord(Add(cursor, 4));
-                DrawRecord(packedPosition, dataPointer);
-                instructionPointer = Add(cursor, 6);
-                Upload(vram);
-                return;
-            }
-
-            switch (word)
-            {
-                case CinematicCodePointers.CinematicBackgroundObject_Instruction_Delete:
-                    instructionPointer = 0;
-                    Upload(vram);
-                    return;
-                case CinematicCodePointers.CinematicBackgroundObject_Instruction_Goto:
-                    cursor = ReadWord(Add(cursor, 2));
-                    break;
-                case CinematicCodePointers.Ending_Instruction_DrawItemPercentage:
-                    DrawItemPercentage();
-                    cursor = Add(cursor, 2);
-                    break;
-                case CinematicCodePointers.Ending_Instruction_DrawItemPercentageSubtitle:
-                    if (japaneseText)
-                        CopyWords(
-                            EndingCreditsRomData.Instructions.JapaneseItemPercentageSubtitle,
-                            EndingCreditsRomData.Text.JapaneseSubtitleDestination,
-                            EndingCreditsRomData.Text.JapaneseSubtitleWords);
-                    cursor = Add(cursor, 2);
-                    break;
-                case CinematicCodePointers.Ending_Instruction_ClearItemPercentageSubtitle:
-                    Array.Fill(
-                        tilemap,
-                        EndingCreditsRomData.Rendering.BlankTile,
-                        EndingCreditsRomData.Text.JapaneseSubtitleDestination,
-                        EndingCreditsRomData.Text.JapaneseSubtitleWords);
-                    RequestedItemPercentageScroll = true;
-                    cursor = Add(cursor, 2);
-                    break;
-                default:
-                    throw new InvalidDataException(
-                        $"Ending BG opcode $8B:{word:X4} at $8C:{cursor:X4} is untranslated.");
-            }
-        }
+        if (installedProgram is null)
+            throw new InvalidOperationException(
+                "Ending text host content must be rebound after state restoration.");
+        StepInstalled(vram);
     }
 
     /// <summary>Rebinds current host content after debugger-state restoration.</summary>
@@ -181,38 +123,6 @@ internal sealed class EndingBackgroundTextState
         Upload(vram);
     }
 
-    private void DrawRecord(ushort packedPosition, ushort dataPointer)
-    {
-        ushort drawFunction = ReadWord(dataPointer);
-        if (drawFunction == CinematicCodePointers.IndirectInstruction_DoNothing)
-            return;
-        if (drawFunction != CinematicCodePointers.IndirectInstruction_DrawToBackgroundTilemap)
-        {
-            throw new InvalidDataException(
-                $"Ending BG indirect function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");
-        }
-
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        byte width = cartridge.ReadCartridgeByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
-            Add(dataPointer, 2)));
-        byte height = cartridge.ReadCartridgeByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
-            Add(dataPointer, 3)));
-        int x = packedPosition & EndingCreditsRomData.Text.PackedPositionXMask;
-        int y = packedPosition >> 8;
-        if (width == 0 || height == 0 || x + width > 32 || y + height > 32)
-            throw new InvalidDataException($"Ending BG rectangle ({x},{y}) {width}x{height} is invalid.");
-
-        ushort source = Add(dataPointer, 4);
-        for (int row = 0; row < height; row++)
-        {
-            for (int column = 0; column < width; column++)
-            {
-                tilemap[(y + row) * 32 + x + column] = ReadWord(source);
-                source = Add(source, 2);
-            }
-        }
-    }
-
     private void DrawItemPercentage()
     {
         int count = inventory.MaxHealth / 100
@@ -249,25 +159,12 @@ internal sealed class EndingBackgroundTextState
             unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
-    private void CopyWords(ushort source, int destination, int count)
-    {
-        for (int index = 0; index < count; index++)
-            tilemap[destination + index] = ReadWord(Add(source, index * 2));
-    }
-
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
             tilemap,
             tilemapDestination,
             wordIncrement: 1);
 
-    private ushort ReadWord(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            EndingCreditsRomData.Instructions.Bank.AddWithinBank(pointer));
-
-    private static ushort Add(ushort pointer, int bytes) =>
-        unchecked((ushort)(pointer + bytes));
 }
 
 internal readonly record struct EndingInventorySnapshot(

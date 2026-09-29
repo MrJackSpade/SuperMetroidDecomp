@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -36,14 +35,10 @@ internal sealed partial class EndingCreditsState
 
     private void PrepareFlyawayStreams()
     {
-        flyawayCharacters = flightArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.FlyawayCharacters,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : flightArtwork.Mode7Characters.ToArray();
-        byte[] decodedMap = flightArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.FlyawayMap,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : flightArtwork.Mode7Maps.ToArray();
+        CeresFlightArtworkCatalog artwork = flightArtwork ?? throw new InvalidOperationException(
+            "Ending flyaway requires installed flight artwork.");
+        flyawayCharacters = artwork.Mode7Characters.ToArray();
+        byte[] decodedMap = artwork.Mode7Maps.ToArray();
         RequireMinimum(flyawayCharacters, EndingCreditsRomData.Rendering.Mode7Bytes, "flyaway characters");
         RequireMinimum(decodedMap, EndingCreditsRomData.Rendering.FlyawayMapDataBytes, "flyaway map");
         flyawayMap = new byte[EndingCreditsRomData.Rendering.Mode7Bytes];

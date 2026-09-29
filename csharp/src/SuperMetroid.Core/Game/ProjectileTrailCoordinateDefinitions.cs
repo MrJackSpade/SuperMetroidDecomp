@@ -816,19 +816,11 @@ internal static class ProjectileTrailCoordinateDefinitions
     }
 
     private sealed class BoundaryBus(ISnesAddressSpace bus) : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
+        ISnesMutableMemory, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
         public byte ReadSaveRamByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
         public byte ReadPeripheralByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
-        public byte ReadCartridgeByte(int address)
-        {
-            if (TryReadByte(address, out byte value))
-                return value;
-            throw new InvalidDataException(
-                $"Projectile trail coordinate read reached uncompiled cartridge address {SnesAddress.FromBusAddress(address)}.");
-        }
-
         public byte ReadByte(int address)
         {
             if (TryReadByte(address, out byte value))

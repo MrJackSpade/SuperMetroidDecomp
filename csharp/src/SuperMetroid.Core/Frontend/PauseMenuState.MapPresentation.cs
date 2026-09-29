@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using System.Buffers.Binary;
 
 namespace SuperMetroid.Core.Frontend;
@@ -10,57 +9,46 @@ internal sealed partial class PauseMenuState
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
-        mapPresentation = catalog;
-        paletteAnimation.Bind(catalog?.HighlightCycle);
-        if (catalog is not null) catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
-        else vram.LoadBytes(PauseTileAtlasFormat.DestinationByte,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount));
-        if (catalog is not null) catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
-        else vram.LoadBytes(MapSpriteFormat.PauseDestination,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
-        if (catalog is not null)
-            for (int color = 0; color < SuperMetroid.Core.Hardware.SnesCgram.ColorCount; color++)
-                // Live highlights and reserve-arrow colors belong to their animation
-                // owners. Replacing the static base must not reset their phase.
-                if ((color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount) &&
-                    color != PauseReserveArrowRomData.Color6Index && color != PauseReserveArrowRomData.Color11Index)
-                    cgram.SetColor(color, catalog.Palettes.Pause[color]);
-        if (catalog is not null) catalog.Tiles.LoadTo(vram, 0);
-        else vram.LoadBytes(0, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
-        if (catalog is not null) catalog.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
-        else vram.LoadBytes(HudTileAtlasFormat.DestinationWord * 2,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount));
+        mapPresentation = catalog ?? throw new InvalidOperationException(
+            "Pause menu requires installed map presentation assets.");
+        paletteAnimation.Bind(catalog.HighlightCycle);
+        catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
+        catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
+        for (int color = 0; color < SuperMetroid.Core.Hardware.SnesCgram.ColorCount; color++)
+            // Live highlights and reserve-arrow colors belong to their animation
+            // owners. Replacing the static base must not reset their phase.
+            if ((color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount) &&
+                color != PauseReserveArrowRomData.Color6Index && color != PauseReserveArrowRomData.Color11Index)
+                cgram.SetColor(color, catalog.Palettes.Pause[color]);
+        catalog.Tiles.LoadTo(vram, 0);
+        catalog.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
         // explicit overrun bit retains the retail Boots-to-Plasma VAR artifact without
         // preserving stale pixels at a label's old editable destination.
-        if (catalog is not null)
+        bool labelsChanged = previousCatalog is null ||
+            previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity;
+        if (labelsChanged)
         {
-            bool labelsChanged = previousCatalog is null ||
-                previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity;
-            if (labelsChanged)
-            {
-                catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
-                catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
-                    samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-                    samus.EquippedItems, samus.HyperBeam != 0);
-                if (plasmaLabelOverrunActive)
-                    catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
-                        PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
-                        PauseEquipmentCategories.Definitions[PauseEquipmentCategories.Boots].LabelWordCount,
-                        disabled: false);
-            }
-            else catalog.PauseEquipmentBase.RebindBaseInto(
-                equipmentTilemap, previousCatalog!.PauseEquipmentLabels);
+            catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
+            catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
+                samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
+                samus.EquippedItems, samus.HyperBeam != 0);
+            if (plasmaLabelOverrunActive)
+                catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
+                    PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
+                    PauseEquipmentCategories.Definitions[PauseEquipmentCategories.Boots].LabelWordCount,
+                    disabled: false);
         }
+        else catalog.PauseEquipmentBase.RebindBaseInto(
+            equipmentTilemap, previousCatalog!.PauseEquipmentLabels);
         // Reapply only the wireframe patch, in its native footprint. The surrounding
         // mutable labels include intentional cartridge overruns and must not be rebuilt.
         WriteSamusWireframe();
         // Reserve presentation has its own bounded footprints and can safely adopt the
         // rebound content without reconstructing unrelated inventory labels.
-        if (catalog is not null && samus.MaxReserveEnergy != 0)
+        if (samus.MaxReserveEnergy != 0)
         {
             WriteReserveLabels();
             WriteReserveSupplyDigits();
@@ -84,21 +72,16 @@ internal sealed partial class PauseMenuState
 
     private void LoadPauseBackdrop()
     {
-        if (mapPresentation is not null)
-            mapPresentation.PauseBackdrops.LoadTo(vram, PauseMenuLayout.Bg2TilemapWord * 2, area);
-        else
-        {
-            vram.LoadBytes(PauseMenuLayout.Bg2TilemapWord * 2,
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount));
-            LoadNativePauseAreaLabel();
-        }
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Pause backdrop requires installed presentation assets."))
+            .PauseBackdrops.LoadTo(vram, PauseMenuLayout.Bg2TilemapWord * 2, area);
     }
 
     private void RefreshPauseButtonArtwork()
     {
-        byte[] replacement = mapPresentation?.PauseBackdrops.CreateButtonTilemap() ??
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2);
+        byte[] replacement = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause buttons require installed presentation assets."))
+            .PauseBackdrops.CreateButtonTilemap();
         // Only these palette bits are owned by the live menu. Carry them forward
         // word-by-word (including restored historical states) rather than inferring
         // a mode from ScreenMode, which lags the button highlight during fades.

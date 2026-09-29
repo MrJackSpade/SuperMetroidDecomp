@@ -2,7 +2,6 @@ using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -70,19 +69,10 @@ internal sealed partial class PauseMenuState
         if (categoryIndex == PauseEquipmentCategories.Beams &&
             item == PauseEquipmentCategories.PlasmaItem && wordCount > category.LabelWordCount)
             plasmaLabelOverrunActive = true;
-        if (mapPresentation is not null)
-        {
-            mapPresentation.PauseEquipmentLabels.ApplyLabel(
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Equipment labels require installed presentation assets."))
+            .PauseEquipmentLabels.ApplyLabel(
                 equipmentTilemap, categoryIndex, item, wordCount, disabled);
-            return;
-        }
-        int offset = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), category.OffsetTableAddress + item * 2) -
-            PauseEquipmentCategories.TilemapWramBase;
-        Span<byte> label = equipmentTilemap.AsSpan(offset, wordCount * 2);
-        if (disabled)
-            RecolorLabel(label);
-        else
-            CopyBank82Words(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), category.TilemapPointerTableAddress + item * 2), label);
     }
 
     private bool TrySelectEquipment(int categoryIndex, int start, int step)

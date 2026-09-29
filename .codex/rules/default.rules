@@ -1,2 +1,1 @@
-prefix_rule(pattern=["git", "push", "https://github.com/MrJackSpade/SuperMetroidDecomp.git", "HEAD:main"], decision="allow", justification="Authorized push to this project canonical main branch.",
-  match=[["git", "push", "https://github.com/MrJackSpade/SuperMetroidDecomp.git", "HEAD:main"]])
+prefix_rule(pattern=["git", "push", "https://github.com/MrJackSpade/SuperMetroidDecomp.git", "HEAD:main"], decision="allow", justification="Authorized push to this project canonical main branch.", match=[["git", "push", "https://github.com/MrJackSpade/SuperMetroidDecomp.git", "HEAD:main"]])

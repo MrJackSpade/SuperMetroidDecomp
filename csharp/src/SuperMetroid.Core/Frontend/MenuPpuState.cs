@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -31,51 +30,41 @@ internal sealed class MenuPpuState
         // BG2 from its layers, and room select installs its own complete frame.
         // Other menus still require the shared native initialization.
         if (loadInitialBackground)
-            LoadInitialBackground(bus);
+            throw new InvalidOperationException(
+                "Menu PPU requires an installed background page from its owning menu.");
     }
 
     /// <summary>Refreshes the two world character regions only; retains tilemaps and ongoing palette state.</summary>
     public void BindWorldArtwork(ISnesAddressSpace bus, WorldMapArtwork? worldArtwork)
     {
-        if (worldArtwork is null)
-        {
-            Vram.LoadBytes(WorldMapArtworkFormat.ForegroundDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes));
-            Vram.LoadBytes(WorldMapArtworkFormat.BackgroundDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes));
-        }
-        else worldArtwork.LoadTo(Vram);
+        (worldArtwork ?? throw new InvalidOperationException(
+            "Menu PPU requires installed world-map artwork.")).LoadTo(Vram);
     }
 
     public SnesVram Vram { get; } = new();
 
     public void BindMapTiles(ISnesAddressSpace bus, MapTileAtlas? mapTiles)
     {
-        if (mapTiles is null)
-            Vram.LoadBytes(0x6000, RomDataReader.ReadFixedBank(
-                CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
-        else
-            mapTiles.LoadTo(Vram, 0x6000);
+        (mapTiles ?? throw new InvalidOperationException(
+            "Menu PPU requires installed map tiles.")).LoadTo(Vram, 0x6000);
     }
 
     public void BindMapSprites(ISnesAddressSpace bus, MapSpriteCatalog? sprites)
     {
-        if (sprites is null) Vram.LoadBytes(MapSpriteFormat.FileSelectDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
-        else sprites.LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
+        (sprites ?? throw new InvalidOperationException(
+            "Menu PPU requires installed sprite artwork."))
+            .LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
     }
 
     public void BindMapPalettes(ISnesAddressSpace bus, MapStaticPalettes? mapPalettes)
     {
-        if (mapPalettes is null)
-            Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
-        else
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-                Cgram.SetColor(color, mapPalettes.FileSelect[color]);
+        MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException(
+            "Menu PPU requires installed palettes.");
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            Cgram.SetColor(color, palettes.FileSelect[color]);
     }
 
     public SnesCgram Cgram { get; } = new();
-
-    public void LoadInitialBackground(ISnesAddressSpace bus) =>
-        Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            FileSelectMapRomData.InitialMenuBackground, FileSelectMapRomData.TilemapBytes));
 
     public void LoadBg1(ReadOnlySpan<byte> tilemapBytes)
     {

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -746,23 +745,16 @@ public sealed partial class RoomEnemySystem
         int subjectRight = unchecked((ushort)(subjectX + subjectXRadius));
         int subjectTop = unchecked((ushort)(subjectY - subjectYRadius));
         int subjectBottom = unchecked((ushort)(subjectY + subjectYRadius));
-        // Constructed verification rooms may install their own bank-$A6 frame in
-        // a bus with no artwork catalog. Retail frames always use compiled
-        // collision; an installed game's unknown frame fails in ComponentsAt.
-        bool nativeFixture = TileArtwork is null &&
-            !RidleyCollisionDefinitions.HasFrame(slot.SpritemapPointer);
-        ReadOnlySpan<RidleyCollisionComponent> components = nativeFixture
-            ? ReadNativeRidleyCollisionComponents(slot.SpritemapPointer)
-            : RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
+        ReadOnlySpan<RidleyCollisionComponent> components =
+            RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
         foreach (RidleyCollisionComponent component in components)
         {
             ushort componentX = unchecked((ushort)(
                 slot.XPosition + component.X));
             ushort componentY = unchecked((ushort)(
                 slot.YPosition + component.Y));
-            ReadOnlySpan<RidleyCollisionHitbox> hitboxes = nativeFixture
-                ? ReadNativeRidleyCollisionHitboxes(component.HitboxPointer)
-                : RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
+            ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
+                RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
             foreach (RidleyCollisionHitbox hitbox in hitboxes)
             {
                 int left = unchecked((ushort)(componentX + hitbox.Left));
@@ -783,45 +775,6 @@ public sealed partial class RoomEnemySystem
             }
         }
         return false;
-    }
-
-    private RidleyCollisionComponent[] ReadNativeRidleyCollisionComponents(ushort frame)
-    {
-        int root = RidleyCollisionDefinitions.Bank << 16 | frame;
-        int count = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(root);
-        if (count > 64)
-            throw new InvalidDataException("Synthetic Ridley frame has more than 64 components.");
-        var result = new RidleyCollisionComponent[count];
-        for (int index = 0; index < count; index++)
-        {
-            int record = AdvanceBankAddress(root, 2 + index * 8);
-            result[index] = new(
-                unchecked((short)ReadWord(_bus!, record)),
-                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 2))),
-                ReadWord(_bus!, AdvanceBankAddress(record, 6)));
-        }
-        return result;
-    }
-
-    private RidleyCollisionHitbox[] ReadNativeRidleyCollisionHitboxes(ushort list)
-    {
-        int root = RidleyCollisionDefinitions.Bank << 16 | list;
-        int count = ReadWord(_bus!, root);
-        if (count > 64)
-            throw new InvalidDataException("Synthetic Ridley component has more than 64 hitboxes.");
-        var result = new RidleyCollisionHitbox[count];
-        for (int index = 0; index < count; index++)
-        {
-            int record = AdvanceBankAddress(root, 2 + index * 12);
-            result[index] = new(
-                unchecked((short)ReadWord(_bus!, record)),
-                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 2))),
-                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 4))),
-                unchecked((short)ReadWord(_bus!, AdvanceBankAddress(record, 6))),
-                ReadWord(_bus!, AdvanceBankAddress(record, 8)),
-                ReadWord(_bus!, AdvanceBankAddress(record, 10)));
-        }
-        return result;
     }
 
     private static void ApplyNormalEnemyTouchDamage(

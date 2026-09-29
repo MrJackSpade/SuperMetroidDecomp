@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -60,14 +59,11 @@ internal sealed class IntroCeresFlightState
         spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
 
-        byte[] characters = artwork?.Mode7Characters.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.Mode7Characters,
-            maximumOutputBytes: CeresFlightRomData.Vram.Mode7CharacterByteCount);
-        tilemap = artwork?.Mode7Maps.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.Mode7Maps, maximumOutputBytes: 0x1000);
-        byte[] objectCharacters = artwork?.ObjectCharacters.ToArray() ?? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.ObjectCharacters,
-            maximumOutputBytes: CeresFlightRomData.Vram.ObjectCharacterByteCount);
+        CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+            "Ceres approach requires installed cinematic artwork.");
+        byte[] characters = content.Mode7Characters.ToArray();
+        tilemap = content.Mode7Maps.ToArray();
+        byte[] objectCharacters = content.ObjectCharacters.ToArray();
         RequireMinimum(characters, CeresFlightRomData.Vram.Mode7CharacterByteCount,
             "gunship/Ceres Mode 7 characters");
         RequireMinimum(tilemap, CeresFlightRomData.Vram.Mode7MapByteCount,

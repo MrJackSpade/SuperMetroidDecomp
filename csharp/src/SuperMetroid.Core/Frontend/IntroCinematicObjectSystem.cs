@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -27,7 +26,6 @@ internal sealed class IntroCinematicObjectSystem
     private ushort textInstructionTimer;
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
-    [NonSerialized] private bool useInstalledCaretInstructions;
     private ushort currentEyeFramePointer;
     private ushort currentEyePackedPosition;
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
@@ -59,7 +57,6 @@ internal sealed class IntroCinematicObjectSystem
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
         this.eyeArtwork = eyeArtwork;
-        useInstalledCaretInstructions = eyeArtwork is not null;
         if (textTilemap.Length != IntroCinematicRomData.Layers.TextTilemapWordCount)
             throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
     }
@@ -95,7 +92,6 @@ internal sealed class IntroCinematicObjectSystem
     public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
     {
         eyeArtwork = value;
-        useInstalledCaretInstructions = value is not null;
         if (value is not null &&
             IntroEyeAnimationDefinitions.TryFrameIndex(currentEyeFramePointer, out int index))
             CopyRectangleToPortrait(
@@ -237,12 +233,8 @@ internal sealed class IntroCinematicObjectSystem
         narrationInitialMarkerPending = true;
         narrationFinalHoldStarted = false;
         if (narrationPresentation is null)
-        {
-            narrationPage = null;
-            narrationProgram = null;
-            textInstructionPointer = nativePointer;
-            return;
-        }
+            throw new InvalidOperationException(
+                "Opening narration requires installed text presentation assets.");
 
         narrationPage = page;
         narrationProgram = narrationPresentation.Compile(page);
@@ -499,155 +491,20 @@ internal sealed class IntroCinematicObjectSystem
         {
             currentEyeFramePointer = dataPointer;
             currentEyePackedPosition = packedPosition;
-            if (eyeArtwork is not null)
-            {
-                int x = packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask;
-                int y = packedPosition >> 8;
-                CopyRectangleToPortrait(x, y,
-                    IntroEyeAnimationDefinitions.FrameColumns,
-                    IntroEyeAnimationDefinitions.FrameRows,
-                    eyeArtwork.FrameWords(eyeFrame));
-                return;
-            }
-        }
-        ushort drawFunction = ReadBank8C(dataPointer);
-        if (drawFunction == CinematicCodePointers.IndirectInstruction_DoNothing)
-            return;
-
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        byte width = cartridge.ReadCartridgeByte((int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            Add(dataPointer, 2)));
-        byte height = cartridge.ReadCartridgeByte((int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            Add(dataPointer, 3)));
-        if (width == 0 || height == 0)
-            throw new InvalidDataException($"Cinematic tile data $8C:{dataPointer:X4} has a zero-sized rectangle.");
-
-        int destinationX =
-            packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask;
-        int destinationY = packedPosition >> 8;
-        ushort source = Add(
-            dataPointer,
-            IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount);
-        switch (drawFunction)
-        {
-            case CinematicCodePointers.IndirectInstruction_DrawTextCharacter:
-                // The native character callback allocates glow before drawing. Its
-                // first palette update runs after all BG objects in this same frame.
-                (textGlow ??= new()).Spawn(destinationX, destinationY, width, height);
-                // `$8B:884D-$8B:889F` does more than copy the glyph. It looks ahead from
-                // the *current six-byte BG-object record* to the following record and moves
-                // cinematic sprite slot $1E to that next character cell. If the following
-                // word is an opcode instead of a duration, the caret wraps to column one of
-                // the next text row. This is why the object's own pre-instruction can be an
-                // RTS while the visible typewriter block still walks across every line.
-                UpdateCaretAfterCharacter(instructionRecordPointer, packedPosition);
-                // ProcessCinematicBgObject_DrawChar toggles $1991 for every glyph. The
-                // $D67D blank/marker record is silent even on an audible half-cycle.
-                typewriterSoundToggle = !typewriterSoundToggle;
-                if (dataPointer != CinematicCodePointers.IndirectData.IntroTextSpace &&
-                    typewriterSoundToggle)
-                {
-                    audio?.QueueSound(
-                        IntroCinematicRomData.Objects.Typewriter,
-                        maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
-                }
-                CopyRectangleToText(destinationX, destinationY, width, height, source);
-                return;
-            case CinematicCodePointers.IndirectInstruction_DrawToBackgroundTilemap:
-                CopyRectangleToText(destinationX, destinationY, width, height, source);
-                return;
-            case CinematicCodePointers.IndirectInstruction_DrawToPortraitTilemap:
-                CopyRectangleToPortrait(destinationX, destinationY, width, height, source);
-                return;
-            default:
-                // Every active bank-$8C rectangle names one of the three indirect drawing
-                // functions above. An arbitrary function word would make its payload shape
-                // unknowable and is malformed cartridge data for this object class.
-                throw new InvalidDataException(
-                    $"Cinematic tile-data function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");
-        }
-    }
-
-    /// <summary>
-    /// Translates the caret side effect embedded in the native draw-character indirect
-    /// instruction at <c>$8B:884D</c>.
-    /// </summary>
-    private void UpdateCaretAfterCharacter(ushort instructionRecordPointer, ushort packedPosition)
-    {
-        // A normal record is [duration:2, packed X/Y:2, indirect-data pointer:2]. The next
-        // duration therefore begins six bytes after this record; its packed coordinates
-        // begin eight bytes after this record. ROM words with bit 15 set are interpreter
-        // opcodes, so there is no following cell to read in that branch.
-        ushort nextDurationOrOpcode = ReadBank8C(Add(
-            instructionRecordPointer,
-            IntroCinematicRomData.ObjectSystem.BackgroundRecordByteCount));
-        if ((nextDurationOrOpcode & CinematicCodePointers.InstructionCommandBit) == 0)
-        {
-            caretX = unchecked((ushort)(
-                CartridgeImportSource.Require(bus).ReadCartridgeByte((int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps,
-                    Add(
-                        instructionRecordPointer,
-                        IntroCinematicRomData.ObjectSystem.NextRecordPositionXByteOffset))) *
-                IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
-            caretY = unchecked((ushort)(
-                CartridgeImportSource.Require(bus).ReadCartridgeByte((int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps,
-                    Add(
-                        instructionRecordPointer,
-                        IntroCinematicRomData.ObjectSystem.NextRecordPositionYByteOffset))) *
-                IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
-                IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset));
+            IntroEyeTilemapPresentation content = eyeArtwork ?? throw new InvalidOperationException(
+                "Intro eye animation requires installed eye artwork.");
+            int x = packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask;
+            int y = packedPosition >> 8;
+            CopyRectangleToPortrait(x, y,
+                IntroEyeAnimationDefinitions.FrameColumns,
+                IntroEyeAnimationDefinitions.FrameRows,
+                content.FrameWords(eyeFrame));
             return;
         }
-
-        // At an instruction boundary `$8B:888A-$889F` retains the native left margin and
-        // derives the following line from the just-drawn record's Y byte: (Y + 2)*8 - 8.
-        // packedPosition is already the little-endian form of that exact X/Y operand.
-        caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-        int currentTileY = packedPosition >> 8;
-        caretY = unchecked((ushort)(
-            (currentTileY + 1) * IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
-    }
-
-    private void CopyRectangleToText(int destinationX, int destinationY, int width, int height, ushort source)
-    {
-        ValidateRectangle(destinationX, destinationY, width, height);
-        for (int row = 0; row < height; row++)
-        {
-            for (int column = 0; column < width; column++)
-            {
-                textTilemap[
-                    (destinationY + row) * IntroCinematicRomData.Layers.TilemapWidth +
-                    destinationX + column] = ReadBank8C(source);
-                source = Add(source, 2);
-            }
-        }
-    }
-
-    private void CopyRectangleToPortrait(int destinationX, int destinationY, int width, int height, ushort source)
-    {
-        ValidateRectangle(destinationX, destinationY, width, height);
-        for (int row = 0; row < height; row++)
-        {
-            var words = new ushort[width];
-            for (int column = 0; column < width; column++)
-            {
-                words[column] = ReadBank8C(source);
-                source = Add(source, 2);
-            }
-
-            // BG2SC=$48 selects word $4800. Updating only the script-authored rectangle is
-            // equivalent for visible pixels and avoids inventing values for unrelated
-            // $7E:3800 staging words that this focused state does not yet own.
-            ushort destinationWord = (ushort)(
-                IntroCinematicRomData.Layers.PortraitTilemapWord +
-                (destinationY + row) * IntroCinematicRomData.Layers.TilemapWidth +
-                destinationX);
-            vram.ExecuteWordTransfer(words, destinationWord, 1);
-        }
+        // Installed narration executes as semantic glyph records. The only BG-object
+        // bytecode still interpreted here is the bounded, compiled eye-animation list.
+        throw new InvalidDataException(
+            $"Cinematic tile data $8C:{dataPointer:X4} has no installed definition.");
     }
 
     private void CopyRectangleToPortrait(int destinationX, int destinationY, int width, int height,
@@ -691,20 +548,17 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidDataException($"Cinematic rectangle ({x},{y}) {width}x{height} leaves its 32x32 tilemap.");
     }
 
-    private ushort ReadBank8B(ushort pointer) =>
-        useInstalledCaretInstructions &&
+    private static ushort ReadBank8B(ushort pointer) =>
         IntroCaretInstructionDefinitions.TryReadWord(pointer, out ushort word)
             ? word
-            : RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
-                IntroCinematicRomData.Banks.CinematicCode | pointer);
+            : throw new InvalidDataException(
+                $"Cinematic caret instruction $8B:{pointer:X4} is not compiled.");
 
-    private ushort ReadBank8C(ushort pointer) =>
-        eyeArtwork is not null && IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
+    private static ushort ReadBank8C(ushort pointer) =>
+        IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
             ? word
-            : RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer));
+            : throw new InvalidDataException(
+                $"Cinematic eye instruction $8C:{pointer:X4} is not compiled.");
 
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 

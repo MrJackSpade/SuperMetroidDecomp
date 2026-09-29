@@ -7,21 +7,15 @@ public sealed partial class FileSelectMenuState
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
-        mapPresentation = catalog;
-        ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);
-        ppu.BindMapTiles(bus, catalog?.Tiles);
-        ppu.BindMapSprites(bus, catalog?.Sprites);
-        ppu.BindMapPalettes(bus, catalog?.Palettes);
         if (catalog is null)
-        {
-            ppu.LoadInitialBackground(bus);
-            RebuildLegacyPresentationPage();
-        }
-        else
-        {
-            catalog.FileSelect.LoadBackground(ppu.Vram);
-            RebuildInstalledPresentationPage();
-        }
+            throw new InvalidOperationException("File-select requires installed map presentation assets.");
+        mapPresentation = catalog;
+        ppu.BindWorldArtwork(bus, catalog.WorldArtwork);
+        ppu.BindMapTiles(bus, catalog.Tiles);
+        ppu.BindMapSprites(bus, catalog.Sprites);
+        ppu.BindMapPalettes(bus, catalog.Palettes);
+        catalog.FileSelect.LoadBackground(ppu.Vram);
+        RebuildInstalledPresentationPage();
         UploadBg1Tilemap();
     }
 

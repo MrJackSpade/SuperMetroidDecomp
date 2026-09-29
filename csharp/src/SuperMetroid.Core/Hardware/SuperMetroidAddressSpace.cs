@@ -1,56 +1,22 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// Cartridge ROM, work RAM, and save RAM portions of Super Metroid's 24-bit CPU address
-/// space. Hardware registers are intentionally left unmapped until their behavior is ported.
+/// Mutable work RAM and save RAM portions of Super Metroid's 24-bit CPU address space.
+/// Cartridge ROM belongs to the asset importer, never to the gameplay address space.
 /// </summary>
 /// <remarks>
-/// This mapper follows the native decompilation's <c>RomPtr</c> expression:
-/// <c>(((bank &lt;&lt; 15) | (offset &amp; $7FFF)) &amp; $3FFFFF)</c>. The retail image contains
-/// 3 MiB inside that possible 4 MiB LoROM window. An address falling in the unused final
-/// MiB throws rather than reading invented padding.
+/// Hardware registers and cartridge windows are intentionally unmapped.
 /// </remarks>
-public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
-    IImportCartridgeSource
+public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
 {
-    /// <summary>Super Metroid's unheadered retail ROM size.</summary>
-    public const int RetailRomByteCount = 0x300000;
-
     /// <summary>Two complete 64 KiB WRAM banks, <c>$7E</c> and <c>$7F</c>.</summary>
     public const int WorkRamByteCount = 0x20000;
 
     /// <summary>8 KiB of battery-backed SRAM used by three save slots and metadata.</summary>
     public const int SaveRamByteCount = 0x2000;
 
-    private readonly byte[] _rom;
     private readonly byte[] _workRam = new byte[WorkRamByteCount];
     private readonly byte[] _saveRam = new byte[SaveRamByteCount];
-
-    /// <summary>
-    /// Creates a mapper around an unheadered ROM image. The general constructor accepts
-    /// synthetic LoROM-sized data for tests; use <see cref="LoadRetailRom"/> for the strict
-    /// title/size checks appropriate to the game runtime.
-    /// </summary>
-    public SuperMetroidAddressSpace(ReadOnlySpan<byte> unheaderedRom)
-        : this(unheaderedRom, allowMissingCartridge: false)
-    {
-    }
-
-    private SuperMetroidAddressSpace(ReadOnlySpan<byte> unheaderedRom, bool allowMissingCartridge)
-    {
-        if ((!allowMissingCartridge && unheaderedRom.IsEmpty) ||
-            unheaderedRom.Length > 0x400000 ||
-            (unheaderedRom.Length & 0x7fff) != 0)
-        {
-            throw new ArgumentException(
-                "ROM must contain one to 128 complete 32 KiB LoROM banks.",
-                nameof(unheaderedRom));
-        }
-
-        // Own a stable copy. Asset tools often pass memory backed by temporary file buffers;
-        // retaining an external span would make later DMA behavior depend on its lifetime.
-        _rom = unheaderedRom.ToArray();
-    }
 
     /// <summary>
     /// Creates the mutable WRAM/SRAM portion of the runtime address space without a
@@ -58,54 +24,13 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
     /// fail loudly if code accidentally attempts to read a cartridge address.
     /// </summary>
     public static SuperMetroidAddressSpace CreateWithoutCartridge() =>
-        new(ReadOnlySpan<byte>.Empty, allowMissingCartridge: true);
-
-    /// <summary>Read-only cartridge bytes for disassembly and debugger inspection.</summary>
-    public ReadOnlySpan<byte> Rom => _rom;
+        new();
 
     /// <summary>Mutable physical WRAM used by translated routines and save-state tools.</summary>
     public Span<byte> WorkRam => _workRam;
 
     /// <summary>Mutable battery-backed SRAM; persistence remains an explicit host concern.</summary>
     public Span<byte> SaveRam => _saveRam;
-
-    /// <summary>
-    /// Loads this project's retail Super Metroid ROM, accepting either an unheadered 3 MiB
-    /// image or the same bytes preceded by a 512-byte copier header.
-    /// </summary>
-    public static SuperMetroidAddressSpace LoadRetailRom(string path)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        byte[] fileBytes = File.ReadAllBytes(path);
-
-        ReadOnlySpan<byte> romBytes;
-        if (fileBytes.Length == RetailRomByteCount)
-        {
-            romBytes = fileBytes;
-        }
-        else if (fileBytes.Length == RetailRomByteCount + 512)
-        {
-            // Old cartridge copiers commonly prepended a 512-byte metadata/header block.
-            // It is not visible on the SNES bus and must not participate in LoROM offsets.
-            romBytes = fileBytes.AsSpan(512);
-        }
-        else
-        {
-            throw new InvalidDataException(
-                $"Expected a ${RetailRomByteCount:X} byte retail ROM (optionally plus a 512-byte copier header), " +
-                $"but '{path}' contains ${fileBytes.Length:X} bytes.");
-        }
-
-        // The 21-byte internal title resides at unheadered file offset $7FC0. Only test the
-        // meaningful prefix because the remaining header title bytes are space-padded.
-        // The header stores title case exactly as "Super Metroid", followed by spaces.
-        // SNES title fields are byte strings, so keep this comparison case-sensitive.
-        ReadOnlySpan<byte> expectedTitle = "Super Metroid"u8;
-        if (!romBytes.Slice(0x7fc0, expectedTitle.Length).SequenceEqual(expectedTitle))
-            throw new InvalidDataException($"'{path}' does not contain the expected SUPER METROID LoROM header title.");
-
-        return new SuperMetroidAddressSpace(romBytes);
-    }
 
     /// <inheritdoc />
     public byte ReadWorkRamByte(int cpuAddress)
@@ -131,21 +56,6 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "SRAM reads require a lower-window bank $70-$7D or $F0-$FF address.");
         return _saveRam[offset & 0x1fff];
-    }
-
-    /// <inheritdoc />
-    public byte ReadCartridgeByte(int cpuAddress)
-    {
-        ValidateAddress(cpuAddress);
-        int bank = cpuAddress >> 16;
-        if (bank is 0x7e or 0x7f || (cpuAddress & 0x8000) == 0)
-            throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
-                "Cartridge reads require an upper-window LoROM address outside WRAM banks.");
-        int offset = ToRomOffset(cpuAddress);
-        if ((uint)offset >= _rom.Length)
-            throw new InvalidOperationException(
-                $"Cartridge address ${bank:X2}:{cpuAddress & 0xffff:X4} is not populated.");
-        return _rom[offset];
     }
 
     /// <summary>
@@ -180,20 +90,6 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
 
         throw new InvalidOperationException(
             $"CPU write ${bank:X2}:{offset:X4} is outside the runtime address map.");
-    }
-
-    /// <summary>
-    /// Converts a ROM-window CPU address with the exact four-megabyte mask used by the
-    /// native decompilation. Callers still need to ensure the result is populated.
-    /// </summary>
-    public static int ToRomOffset(int address)
-    {
-        ValidateAddress(address);
-        if ((address & 0x8000) == 0)
-            throw new ArgumentOutOfRangeException(nameof(address), address, "Address is outside the upper LoROM window.");
-
-        int bank = address >> 16;
-        return ((bank << 15) | (address & 0x7fff)) & 0x3f_ffff;
     }
 
     private static bool IsSystemBank(int bank) => bank <= 0x3f || bank is >= 0x80 and <= 0xbf;

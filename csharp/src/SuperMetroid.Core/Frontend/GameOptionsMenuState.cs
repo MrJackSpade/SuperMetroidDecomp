@@ -3,7 +3,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -40,12 +39,11 @@ public sealed class GameOptionsMenuState
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
-        this.mapPresentation = mapPresentation;
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes,
-            mapPresentation?.WorldArtwork, mapPresentation?.Sprites,
-            loadInitialBackground: mapPresentation is null);
-        if (mapPresentation is not null)
-            mapPresentation.GameOptions.LoadBackground(ppu.Vram);
+        this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
+            "Options menu requires installed presentation assets.");
+        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, mapPresentation.Sprites, loadInitialBackground: false);
+        mapPresentation.GameOptions.LoadBackground(ppu.Vram);
 
         // `$82:EC77-$ECA3` expands these five consecutive one-screen resources. Keeping
         // each decompressed page independent mirrors their WRAM allocation and prevents a
@@ -72,35 +70,24 @@ public sealed class GameOptionsMenuState
         Phase = GameOptionsPhase.FadeIn;
 
         byte[] Page(string name, GameOptionsPageResource resource) =>
-            mapPresentation?.GameOptions.CreatePage(name) ?? DecompressOptionsPage(resource);
+            mapPresentation.GameOptions.CreatePage(name);
     }
 
     /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
-        mapPresentation = catalog;
-        ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);
-        ppu.BindMapTiles(bus, catalog?.Tiles);
-        ppu.BindMapSprites(bus, catalog?.Sprites);
-        ppu.BindMapPalettes(bus, catalog?.Palettes);
-        if (catalog is null)
-        {
-            ppu.LoadInitialBackground(bus);
-            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.Primary), primaryTilemap);
-            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.ControllerEnglish), controllerEnglishTilemap);
-            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.ControllerJapanese), controllerJapaneseTilemap);
-            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.SpecialEnglish), specialEnglishTilemap);
-            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.SpecialJapanese), specialJapaneseTilemap);
-        }
-        else
-        {
-            catalog.GameOptions.LoadBackground(ppu.Vram);
-            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage), primaryTilemap);
-            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage), controllerEnglishTilemap);
-            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage), controllerJapaneseTilemap);
-            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage), specialEnglishTilemap);
-            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage), specialJapaneseTilemap);
-        }
+        mapPresentation = catalog ?? throw new InvalidOperationException(
+            "Options menu requires installed presentation assets.");
+        ppu.BindWorldArtwork(bus, catalog.WorldArtwork);
+        ppu.BindMapTiles(bus, catalog.Tiles);
+        ppu.BindMapSprites(bus, catalog.Sprites);
+        ppu.BindMapPalettes(bus, catalog.Palettes);
+        catalog.GameOptions.LoadBackground(ppu.Vram);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage), primaryTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage), controllerEnglishTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage), controllerJapaneseTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage), specialEnglishTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage), specialJapaneseTilemap);
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
 
@@ -255,29 +242,13 @@ public sealed class GameOptionsMenuState
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
-        if (mapPresentation is not null)
-        {
-            string pageName = PresentationPageName(page);
-            mapPresentation.GameOptions.DrawHeading(oam, pageName, bg1VerticalScroll);
-            (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
-            mapPresentation.GameOptions.DrawCursor(oam, missileFrame,
-                new(authoredCursorX, authoredCursorY));
-            oam.FinalizeFrame();
-            return;
-        }
-        // Each native page replaces the heading actor while the dissolve is black.
-        // The controller actor's pre-instruction also follows BG1's page scroll.
-        (ushort border, ushort x) = page switch
-        {
-            GameOptionsPage.Primary => (GameOptionsRomData.Spritemaps.OptionModeBorder, GameOptionsRomData.Spritemaps.OptionModeBorderX),
-            GameOptionsPage.Controller => (GameOptionsRomData.Spritemaps.ControllerModeBorder, GameOptionsRomData.Spritemaps.ControllerModeBorderX),
-            GameOptionsPage.Special => (GameOptionsRomData.Spritemaps.SpecialModeBorder, GameOptionsRomData.Spritemaps.SpecialModeBorderX),
-            _ => throw new InvalidOperationException($"Unknown options page {page}."),
-        };
-        ushort y = unchecked((ushort)(GameOptionsRomData.Spritemaps.OptionModeBorderY - bg1VerticalScroll));
-        DrawMenuSpritemap(border, x, y);
-        (ushort cursorX, ushort cursorY) = CursorPosition();
-        DrawMenuSpritemap(GameOptionsRomData.Spritemaps.MissileFrameIds[missileFrame], cursorX, cursorY);
+        var content = mapPresentation ?? throw new InvalidOperationException(
+            "Options cursor requires installed presentation assets.");
+        string pageName = PresentationPageName(page);
+        content.GameOptions.DrawHeading(oam, pageName, bg1VerticalScroll);
+        (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
+        content.GameOptions.DrawCursor(oam, missileFrame,
+            new(authoredCursorX, authoredCursorY));
         oam.FinalizeFrame();
     }
 
@@ -464,36 +435,19 @@ public sealed class GameOptionsMenuState
 
     private void ApplyLanguagePaletteBits()
     {
-        if (mapPresentation is not null)
-        {
-            mapPresentation.GameOptions.ApplyLanguage(primaryTilemap, JapaneseText);
-            return;
-        }
-        foreach (GameOptionsLanguagePaletteRegion region in GameOptionsRomData.LanguagePaletteRegions)
-        {
-            bool selected = JapaneseText == region.HighlightWhenJapanese;
-            ReplacePaletteIndex(
-                primaryTilemap,
-                region.ByteOffset,
-                region.ByteCount,
-                selected
-                    ? GameOptionsRomData.TilePalettes.Selected
-                    : GameOptionsRomData.TilePalettes.Unselected);
-        }
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Options language requires installed presentation assets."))
+            .GameOptions.ApplyLanguage(primaryTilemap, JapaneseText);
     }
 
     private void ApplySpecialPaletteBits()
     {
-        if (mapPresentation is not null)
-        {
-            mapPresentation.GameOptions.ApplySpecialToggle(visibleTilemap,
-                GameOptionsPresentationDefinitions.IconCancelToggle, IconCancelEnabled);
-            mapPresentation.GameOptions.ApplySpecialToggle(visibleTilemap,
-                GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
-            return;
-        }
-        ApplySpecialToggle(visibleTilemap, GameOptionsRomData.SpecialToggles.IconCancel, IconCancelEnabled);
-        ApplySpecialToggle(visibleTilemap, GameOptionsRomData.SpecialToggles.Moonwalk, MoonwalkEnabled);
+        var content = mapPresentation ?? throw new InvalidOperationException(
+            "Options toggles require installed presentation assets.");
+        content.GameOptions.ApplySpecialToggle(visibleTilemap,
+            GameOptionsPresentationDefinitions.IconCancelToggle, IconCancelEnabled);
+        content.GameOptions.ApplySpecialToggle(visibleTilemap,
+            GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
     }
 
     private static void ApplySpecialToggle(
@@ -519,43 +473,13 @@ public sealed class GameOptionsMenuState
 
     private void ApplyControllerLabels()
     {
-        if (mapPresentation is not null)
-        {
-            for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
-            {
-                int button = Input.ControllerBindings.AssignableButtons.IndexOf(ControllerBindings[action]);
-                mapPresentation.GameOptions.ApplyControllerLabel(visibleTilemap, action,
-                    button < 0 ? 0 : button);
-            }
-            return;
-        }
-        ReadOnlySpan<ushort> sourcePointers = GameOptionsRomData.ControllerLabels.Sources;
-        ReadOnlySpan<ushort> destinationOffsets = GameOptionsRomData.ControllerLabels.Destinations;
+        var content = mapPresentation ?? throw new InvalidOperationException(
+            "Controller labels require installed presentation assets.");
         for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
         {
             int button = Input.ControllerBindings.AssignableButtons.IndexOf(ControllerBindings[action]);
-            if (button < 0)
-                button = 0; // Matches LoadControllerOptionsFromControllerBindings' X fallback.
-            int source = GameOptionsRomData.MenuBank | sourcePointers[button];
-            int destination = destinationOffsets[action];
-
-            // Each ROM label is a 3x2 tile rectangle. OptionsMenuFunc6 writes its two rows
-            // 32 tilemap words apart, not as one contiguous six-word run.
-            for (int row = 0; row < GameOptionsRomData.ControllerLabels.HeightInTiles; row++)
-            {
-                for (int column = 0; column < GameOptionsRomData.ControllerLabels.WidthInTiles; column++)
-                {
-                    ushort tile = RomDataReader.ReadWordFixedBank(
-                        CartridgeImportSource.Require(bus),
-                        source +
-                        (row * GameOptionsRomData.ControllerLabels.WidthInTiles + column) * 2);
-                    WriteWord(
-                        visibleTilemap,
-                        destination +
-                        (row * GameOptionsRomData.MenuTilemapWidth + column) * 2,
-                        tile);
-                }
-            }
+            content.GameOptions.ApplyControllerLabel(visibleTilemap, action,
+                button < 0 ? 0 : button);
         }
     }
 
@@ -567,44 +491,15 @@ public sealed class GameOptionsMenuState
             GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
             GameOptionsPhase.FadeOutToIntro)
         {
-            MapLabelPoint hidden = mapPresentation?.GameOptions.HiddenCursor ??
-                new(GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY);
+            MapLabelPoint hidden = (mapPresentation ?? throw new InvalidOperationException(
+                "Options cursor requires installed presentation assets."))
+                .GameOptions.HiddenCursor;
             return (checked((ushort)hidden.X), checked((ushort)hidden.Y));
         }
-        if (mapPresentation is not null)
-        {
-            MapLabelPoint point = mapPresentation.GameOptions.CursorPosition(
-                PresentationPageName(page), SelectedItem);
-            return (checked((ushort)point.X), checked((ushort)point.Y));
-        }
-        return page switch
-        {
-            GameOptionsPage.Primary =>
-                (GameOptionsRomData.Cursors.PrimaryX,
-                    GameOptionsRomData.Cursors.PrimaryY[SelectedItem]),
-            GameOptionsPage.Controller =>
-                (GameOptionsRomData.Cursors.ControllerX,
-                    GameOptionsRomData.Cursors.ControllerY[SelectedItem]),
-            GameOptionsPage.Special =>
-                (GameOptionsRomData.Cursors.SpecialX,
-                    GameOptionsRomData.Cursors.SpecialY[SelectedItem]),
-            _ => throw new InvalidOperationException($"Unknown options page {page}."),
-        };
-    }
-
-    private byte[] DecompressOptionsPage(GameOptionsPageResource resource)
-    {
-        byte[] tilemap = RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            resource.Address,
-            maximumOutputBytes: GameOptionsRomData.TilemapByteCount);
-        if (tilemap.Length != GameOptionsRomData.TilemapByteCount)
-        {
-            throw new InvalidDataException(
-                $"The {resource.Description} options screen expanded to " +
-                $"${tilemap.Length:X} bytes, expected ${GameOptionsRomData.TilemapByteCount:X}.");
-        }
-        return tilemap;
+        MapLabelPoint point = (mapPresentation ?? throw new InvalidOperationException(
+            "Options cursor requires installed presentation assets."))
+            .GameOptions.CursorPosition(PresentationPageName(page), SelectedItem);
+        return (checked((ushort)point.X), checked((ushort)point.Y));
     }
 
     private static void ReplacePaletteIndex(
@@ -618,19 +513,6 @@ public sealed class GameOptionsMenuState
             SnesBgTilemapWord word = ReadWord(tilemap, offset);
             WriteWord(tilemap, offset, word.WithPaletteIndex(paletteIndex).Raw);
         }
-    }
-
-    private void DrawMenuSpritemap(ushort id, ushort x, ushort y)
-    {
-        ushort pointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            MenuPpuState.SpritemapPointerTableAddress + id * 2);
-        oam.AddOnScreenSpritemap(
-            bus,
-            GameOptionsRomData.MenuBank | pointer,
-            x,
-            y,
-            MenuPpuState.ObjectPaletteBits);
     }
 
     private void StepMissile()

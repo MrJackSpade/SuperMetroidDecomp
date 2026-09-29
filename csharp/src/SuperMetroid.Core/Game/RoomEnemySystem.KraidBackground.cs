@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -14,20 +13,10 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the working-map construction performed by <c>$A7:AAC6</c>.</summary>
     private void InitializeKraidBackground(KraidEnemyState state)
     {
-        // Constructed fixtures without an installed art catalog retain the cartridge
-        // path. A real installation must supply both maps: never hide a broken asset
-        // by silently falling back to ROM data.
-        KraidBackgroundArtwork? art = TileArtwork is null ? null :
-            TileArtwork.KraidBackground ?? throw new InvalidDataException(
-                "Installed enemy artwork has no Kraid BG2 tilemaps.");
-        byte[] upper = art is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(_bus!), KraidBackgroundRomData.UpperTilemap,
-                KraidBackgroundRomData.DecompressedTilemapBytes)
-            : art.Upper.Transfer.ToArray();
-        byte[] lower = art is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(_bus!), KraidBackgroundRomData.LowerTilemap,
-                KraidBackgroundRomData.DecompressedTilemapBytes)
-            : art.Lower.Transfer.ToArray();
+        KraidBackgroundArtwork art = TileArtwork?.KraidBackground ?? throw new InvalidOperationException(
+            "Kraid BG2 requires installed enemy artwork.");
+        byte[] upper = art.Upper.Transfer.ToArray();
+        byte[] lower = art.Lower.Transfer.ToArray();
         if (upper.Length != KraidBackgroundRomData.DecompressedTilemapBytes ||
             lower.Length != KraidBackgroundRomData.DecompressedTilemapBytes)
         {

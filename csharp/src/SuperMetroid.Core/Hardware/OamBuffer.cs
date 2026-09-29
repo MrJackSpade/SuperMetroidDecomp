@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Hardware;
@@ -645,7 +644,8 @@ public sealed class OamBuffer
                 (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                     "Save-bank spritemap data requires SRAM.")).ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge =>
-                CartridgeImportSource.Require(bus).ReadCartridgeByte(address),
+                throw new InvalidOperationException(
+                    $"Spritemap ${address:X6} requires installed sprite artwork."),
             _ => throw new InvalidDataException(
                 $"Spritemap byte ${address:X6} is outside mapped cartridge/WRAM/SRAM data."),
         };

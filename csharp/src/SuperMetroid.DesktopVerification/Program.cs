@@ -25,6 +25,11 @@ internal static partial class Program
             {
                 if (DesktopSmokeAuditCommands.TryRun(args)) return;
                 VerifyAudioQueueHealth();
+                if (args is ["--space-jump-audio-audit"])
+                {
+                    VerifySpaceJumpAudio();
+                    return;
+                }
                 if (args is ["--statue-entry-audit"])
                 {
                     VerifyStatueEntry();

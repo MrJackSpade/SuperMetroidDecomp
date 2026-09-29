@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -142,10 +141,9 @@ public sealed partial class SamusState
     public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return TileTransfers.Artwork?.GraphicsYOffset(Pose) ??
-            unchecked((sbyte)CartridgeImportSource.Require(bus).ReadCartridgeByte(AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            Pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)));
+        return (TileTransfers.Artwork ?? throw new InvalidOperationException(
+            "Samus pose presentation requires installed body artwork."))
+            .GraphicsYOffset(Pose);
     }
 
     /// <summary>True for the four movement-type-zero, right-facing standing poses.</summary>

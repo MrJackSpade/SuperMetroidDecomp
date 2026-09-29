@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -14,11 +13,8 @@ internal sealed class EndingRewardGraphicsUpload
         EndingRewardIconArtwork? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        graphics = artwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Assets.PostCreditsMode7Characters,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : artwork.Transfer.ToArray();
+        graphics = (artwork ?? throw new InvalidOperationException(
+            "Ending reward requires installed icon artwork.")).Transfer.ToArray();
         if (graphics.Length < EndingRewardGraphicsUploadDefinitions.SourceBytes)
             throw new InvalidDataException("Post-credits icon graphics do not fill the native WRAM upload range.");
     }

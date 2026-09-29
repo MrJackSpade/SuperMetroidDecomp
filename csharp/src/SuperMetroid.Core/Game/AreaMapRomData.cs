@@ -1,7 +1,3 @@
-using System.Buffers.Binary;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Cartridge addresses and fixed geometry for the seven retail area maps.</summary>
@@ -22,41 +18,4 @@ public static class AreaMapRomData
     /// <summary>Bytes in one 64-by-32 one-bit map-station reveal plane.</summary>
     public const int StationRevealMaskByteCount = 0x0100;
 
-    /// <summary>Loads one lossless area tilemap and its native map-station reveal mask.</summary>
-    public static AreaMapCartridgeData Load(ISnesAddressSpace bus, AreaId area)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        int areaIndex = AreaIds.ToIndex(area);
-        int tilemapAddress = RomDataReader.ReadLongFixedBank(
-            CartridgeImportSource.Require(bus),
-            TilemapPointerTable + areaIndex * 3);
-        ushort revealPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            StationRevealMaskPointerTable + areaIndex * sizeof(ushort));
-        int revealAddress = StationRevealMaskBank | revealPointer;
-        byte[] tilemapBytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), tilemapAddress, TilemapByteCount);
-        byte[] revealBytes = RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus),
-            revealAddress,
-            StationRevealMaskByteCount);
-        var tilemap = new MapTileWord[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
-        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-        {
-            for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
-            {
-                int nativeWordIndex = AreaMapLayout.GetTilemapWordIndex(x, y);
-                tilemap[y * AreaMapLayout.WidthInTiles + x] = new MapTileWord(
-                    BinaryPrimitives.ReadUInt16LittleEndian(
-                        tilemapBytes.AsSpan(nativeWordIndex * sizeof(ushort), sizeof(ushort))));
-            }
-        }
-
-        return new AreaMapCartridgeData(
-            area,
-            tilemapAddress,
-            revealAddress,
-            tilemapBytes,
-            revealBytes,
-            tilemap);
-    }
 }

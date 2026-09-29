@@ -3,12 +3,11 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Cartridge-backed implementation of game state <c>$22</c>: Ceres explodes and the
+/// Installed-asset implementation of game state <c>$22</c>: Ceres explodes and the
 /// camera subsequently follows Samus's gunship toward Zebes.
 /// </summary>
 /// <remarks>
@@ -59,8 +58,9 @@ internal sealed partial class CeresDestructionCinematicState
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
-        this.artwork = artwork;
-        spriteArtwork = artwork is null ? null : new CeresSceneSpritePresentation(
+        this.artwork = artwork ?? throw new InvalidOperationException(
+            "Ceres destruction requires installed cinematic artwork.");
+        spriteArtwork = new CeresSceneSpritePresentation(
             artwork.CeresFlight.Sprites, artwork.CeresDestruction.Sprites);
         stationExplosion.PresentationColors = fixedColors;
         // State $25 selects the common cinematic bank and destruction track eight.
@@ -125,13 +125,12 @@ internal sealed partial class CeresDestructionCinematicState
 
     private byte[] LoadCeresTilemaps()
     {
-        if (artwork is null)
-            return RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.CeresTilemaps,
-                maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
+        IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+            "Ceres destruction requires installed cinematic artwork.");
         var maps = new byte[CeresDestructionRomData.Vram.CeresMinimumTilemapBytes];
-        artwork.CeresFlight.Mode7Maps.Span.CopyTo(maps);
-        artwork.CeresDestruction.CeresMaps.Span.CopyTo(
-            maps.AsSpan(artwork.CeresFlight.Mode7Maps.Length));
+        content.CeresFlight.Mode7Maps.Span.CopyTo(maps);
+        content.CeresDestruction.CeresMaps.Span.CopyTo(
+            maps.AsSpan(content.CeresFlight.Mode7Maps.Length));
         return maps;
     }
 
@@ -331,14 +330,10 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SetupCeresDestruction()
     {
-        byte[] characters = artwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.Mode7Characters,
-                maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
-            : artwork.CeresFlight.Mode7Characters.ToArray();
-        byte[] objectCharacters = artwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.CeresObjectCharacters,
-                maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
-            : artwork.CeresFlight.ObjectCharacters.ToArray();
+        IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+            "Ceres destruction requires installed cinematic artwork.");
+        byte[] characters = content.CeresFlight.Mode7Characters.ToArray();
+        byte[] objectCharacters = content.CeresFlight.ObjectCharacters.ToArray();
         RequireMinimum(characters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
             "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
@@ -369,15 +364,9 @@ internal sealed partial class CeresDestructionCinematicState
         // decompressed source's stale characters for explosion spritemaps.
         vram.LoadBytes(
             CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
-            artwork is null
-                ? ReadCartridgeBytes(CeresDestructionRomData.Assets.SharedObjectCharacters,
-                    CeresDestructionRomData.Vram.SharedObjectCharacterBytes)
-                : artwork.IntroObjectCharacters.Transfer.Span
-                    [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
-        if (artwork is null)
-            cgram.LoadFromBus(bus, CeresDestructionRomData.Assets.Palette);
-        else
-            artwork.CeresFlight.Palette.LoadTo(cgram);
+            content.IntroObjectCharacters.Transfer.Span
+                [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
+        content.CeresFlight.Palette.LoadTo(cgram);
 
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
@@ -404,14 +393,10 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SetupZebesReveal()
     {
-        byte[] zebesTilemap = artwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.ZebesTilemap,
-                maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit)
-            : artwork.CeresDestruction.ZebesMap.Transfer.ToArray();
-        byte[] zebesCharacters = artwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresDestructionRomData.Assets.ZebesCharacters,
-                maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes)
-            : artwork.CeresDestruction.ZebesCharacters.Transfer.ToArray();
+        IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+            "Zebes reveal requires installed cinematic artwork.");
+        byte[] zebesTilemap = content.CeresDestruction.ZebesMap.Transfer.ToArray();
+        byte[] zebesCharacters = content.CeresDestruction.ZebesCharacters.Transfer.ToArray();
         RequireMinimum(zebesTilemap, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
             "Zebes reveal tilemap");
         RequireMinimum(zebesCharacters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
@@ -508,15 +493,6 @@ internal sealed partial class CeresDestructionCinematicState
 
     private bool MusicQueueFinished() =>
         audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
-
-    private byte[] ReadCartridgeBytes(int address, int count)
-    {
-        var result = new byte[count];
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        for (int index = 0; index < result.Length; index++)
-            result[index] = cartridge.ReadCartridgeByte(address + index);
-        return result;
-    }
 
     private static IntroDiscoverySprite CreateActor(
         CeresDestructionActorDefinition definition)

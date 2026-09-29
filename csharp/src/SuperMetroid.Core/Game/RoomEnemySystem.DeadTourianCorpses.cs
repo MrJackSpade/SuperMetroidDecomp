@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -267,6 +266,8 @@ public sealed partial class RoomEnemySystem
     private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant)
     {
         ReadOnlySpan<byte> installedTiles = InstalledDeadTourianCorpseTiles();
+        if (installedTiles.IsEmpty)
+            throw new InvalidDataException("Dead Tourian corpses require installed artwork.");
         foreach (DeadTourianCorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
@@ -274,9 +275,7 @@ public sealed partial class RoomEnemySystem
                 int sourceOffset = copy.SourceOffset + byteIndex;
                 _bus!.WriteByte(
                     DeadMonsterWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles.IsEmpty
-                        ? CartridgeImportSource.Require(_bus).ReadCartridgeByte(DeadTourianCorpseArtworkDefinitions.SourceAddress + sourceOffset)
-                        : installedTiles[sourceOffset]);
+                    installedTiles[sourceOffset]);
             }
         }
     }

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -549,7 +548,8 @@ public sealed class RoomPaletteFxSystem
         if (presentationColors?.TryReadColor(pointer, out ushort color) == true)
             return color;
 
-        return ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
+        throw new InvalidDataException(
+            $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
     }
 
     private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer)
@@ -561,12 +561,9 @@ public sealed class RoomPaletteFxSystem
             return compiled;
         }
 
-        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            RoomFxRomData.Banks.PaletteFx | pointer);
+        throw new InvalidDataException(
+            $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private sealed class PaletteFxSlot
     {

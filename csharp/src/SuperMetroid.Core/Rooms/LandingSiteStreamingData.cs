@@ -1,11 +1,10 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Cartridge-backed loader for Landing Site's native BG stream inputs.</summary>
+/// <summary>Installed-asset loader for Landing Site's native BG stream inputs.</summary>
 public static class LandingSiteStreamingData
 {
     private const int WidthInBlocks =
@@ -35,12 +34,12 @@ public static class LandingSiteStreamingData
         RoomVisualLayoutCatalog? visualLayouts = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        if (metatileArt is null || visualLayouts is null)
+            throw new InvalidOperationException("Landing Site requires installed metatile and visual-layout assets.");
 
-        byte[] creDefinitions = metatileArt?.Cre.Transfer.ToArray() ??
-            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.CreBlockDefinitions);
-        byte[] areaDefinitions = metatileArt?.Get(
-                RoomAssetRomData.LandingSite.AreaBlockDefinitions.Address).Transfer.ToArray() ??
-            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.AreaBlockDefinitions);
+        byte[] creDefinitions = metatileArt.Cre.Transfer.ToArray();
+        byte[] areaDefinitions = metatileArt.Get(
+            RoomAssetRomData.LandingSite.AreaBlockDefinitions.Address).Transfer.ToArray();
         if (creDefinitions.Length != RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount)
             throw new InvalidDataException($"CRE block table expanded to ${creDefinitions.Length:X}, expected $800.");
 
@@ -48,10 +47,8 @@ public static class LandingSiteStreamingData
         creDefinitions.CopyTo(combinedDefinitions, 0);
         areaDefinitions.CopyTo(combinedDefinitions, creDefinitions.Length);
 
-        byte[] levelStream = visualLayouts is null
-            ? DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.LevelData)
-            : RoomLevelStreamDefinitions.Get(RoomAssetRomData.LandingSite.LevelData.Address)
-                .ToArray();
+        byte[] levelStream = RoomLevelStreamDefinitions.Get(
+            RoomAssetRomData.LandingSite.LevelData.Address).ToArray();
         if (levelStream.Length < 2)
             throw new InvalidDataException("Landing Site level stream has no layer-size word.");
         int declaredLayerBytes = BinaryPrimitives.ReadUInt16LittleEndian(levelStream);
@@ -108,44 +105,23 @@ public static class LandingSiteStreamingData
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(entry);
-        byte[] creTiles = characterArt?.Cre.Transfer.ToArray() ??
-            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.CreCharacters);
-        byte[] areaTiles = characterArt?.Get(
-                RoomAssetRomData.LandingSite.AreaCharacters.Address).Transfer.ToArray() ??
-            DecompressExact(CartridgeImportSource.Require(bus), RoomAssetRomData.LandingSite.AreaCharacters);
+        if (skyArt is null || characterArt is null)
+            throw new InvalidOperationException("Landing Site requires installed sky and character artwork.");
+        byte[] creTiles = characterArt.Cre.Transfer.ToArray();
+        byte[] areaTiles = characterArt.Get(
+            RoomAssetRomData.LandingSite.AreaCharacters.Address).Transfer.ToArray();
         vram.LoadBytes(RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset, creTiles);
         vram.LoadBytes(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset, areaTiles);
 
         // $82:E9E7's door-dependent library-background command has already been resolved
         // by LandingSiteEntryState. Copy its literal ROM slice to its literal VRAM word;
         // unlike the CRE/area inputs above, scrolling-sky tilemaps are not compressed.
-        if (skyArt is not null)
-        {
-            if (!skyArt.TryResolve(entry.SkySourceAddress, entry.SkyByteCount,
-                    out ReadOnlyMemory<byte> selected))
-                throw new InvalidDataException(
-                    $"Installed scrolling sky does not own transfer " +
-                    $"${entry.SkySourceAddress:X6} ({entry.SkyByteCount} bytes).");
-            vram.LoadBytes(entry.SkyVramDestination * 2, selected.Span);
-        }
-        else
-        {
-            IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-            var skyTilemap = new byte[entry.SkyByteCount];
-            for (int index = 0; index < skyTilemap.Length; index++)
-                skyTilemap[index] = cartridge.ReadCartridgeByte(entry.SkySourceAddress + index);
-            vram.LoadBytes(entry.SkyVramDestination * 2, skyTilemap);
-        }
-    }
-
-    private static byte[] DecompressExact(
-        IImportCartridgeSource cartridge,
-        RoomAssetRomData.BoundedCompressedAsset asset)
-    {
-        var stored = new byte[asset.StoredByteCount];
-        for (int index = 0; index < stored.Length; index++)
-            stored[index] = cartridge.ReadCartridgeByte(asset.Address + index);
-        return SmCompression.Decompress(stored);
+        if (!skyArt.TryResolve(entry.SkySourceAddress, entry.SkyByteCount,
+                out ReadOnlyMemory<byte> selected))
+            throw new InvalidDataException(
+                $"Installed scrolling sky does not own transfer " +
+                $"${entry.SkySourceAddress:X6} ({entry.SkyByteCount} bytes).");
+        vram.LoadBytes(entry.SkyVramDestination * 2, selected.Span);
     }
 
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)

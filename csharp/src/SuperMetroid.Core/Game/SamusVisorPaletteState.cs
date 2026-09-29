@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -96,10 +95,9 @@ public sealed class SamusVisorPaletteState
         byte sourceOffset = PaletteByteOffset;
         // An externally edited packed word can address bytes outside the six authored
         // colors. Preserve the native address-space read in that exceptional case.
-        ushort color = presentationColors is not null &&
-            presentationColors.TryResolveByteOffset(sourceOffset, out ushort installed)
-                ? installed
-                : ReadWord(bus, SamusPaletteRomData.Visor.Colors + sourceOffset);
+        if (presentationColors is null ||
+            !presentationColors.TryResolveByteOffset(sourceOffset, out ushort color))
+            throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
         cgram.SetColor(
             SamusPaletteRomData.Common.SamusObjPaletteStart +
                 SamusPaletteRomData.Common.VisorColorOffset,
@@ -123,10 +121,6 @@ public sealed class SamusVisorPaletteState
             color);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-    }
 }
 
 /// <summary>Branch and packed-word witness from one native visor-palette call.</summary>

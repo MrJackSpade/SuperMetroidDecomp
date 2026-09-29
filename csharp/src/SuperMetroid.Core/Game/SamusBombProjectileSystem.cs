@@ -3,7 +3,6 @@ using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -1071,9 +1070,9 @@ public sealed class SamusBombProjectileSystem
                     throw new InvalidDataException($"Projectile instruction at $93:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ?? ReadWord(
-                    bus,
-                    SamusProjectileRomData.Banks.Projectile |
+                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??
+                    SamusProjectileInstructionDefinitions.ReadWord(
+                        SamusProjectileRomData.Banks.Projectile |
                         unchecked((ushort)(pointer + 2)));
                 slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
@@ -1172,9 +1171,6 @@ public sealed class SamusBombProjectileSystem
         if ((BombCounter & 0x8000) != 0)
             BombCounter = 0;
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
 }
 

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
@@ -177,40 +176,24 @@ public sealed partial class IntroCinematicState
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
         this.audio = audio;
-        this.introFont = introFont;
-        this.characterArtwork = characterArtwork;
+        this.introFont = introFont ?? throw new InvalidOperationException(
+            "Opening cinematic requires the installed font atlas.");
+        this.characterArtwork = characterArtwork ?? throw new InvalidOperationException(
+            "Opening cinematic requires installed artwork.");
         this.beamArtwork = beamArtwork;
         this.samusBodyArtwork = samusBodyArtwork;
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
-        if (characterArtwork is null) cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
-        else characterArtwork.Palette.LoadTo(cgram);
+        characterArtwork.Palette.LoadTo(cgram);
         cgram.Colors.CopyTo(introPalette);
 
-        byte[] bgCharacters = characterArtwork?.BackgroundCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.BackgroundCharacters,
-            maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundCharacterBytes);
-        byte[] fontOne = introFont?.Transfer.ToArray() ?? RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.FontOne,
-            maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
-        byte[] samusHeadTilemap = characterArtwork?.PortraitTilemap.ToArray() ?? RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.SamusHeadTilemap,
-            maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes);
-        byte[] bg1Pages = characterArtwork?.BackgroundPages.ToArray() ?? RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.BackgroundPageTilemaps,
-            maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes);
-        byte[] introObjects = characterArtwork?.CinematicObjectCharacters.Transfer.ToArray() ?? RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.ObjectCharacters,
-            maximumOutputBytes: IntroCinematicRomData.Vram.ObjectCharacterBytes);
-        byte[] firstNarrationTilemap = characterArtwork?.InitialNarrationTilemap.ToArray() ?? RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.FirstNarrationTilemap,
-            maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes);
+        byte[] bgCharacters = characterArtwork.BackgroundCharacters.Transfer.ToArray();
+        byte[] fontOne = introFont.Transfer.ToArray();
+        byte[] samusHeadTilemap = characterArtwork.PortraitTilemap.ToArray();
+        byte[] bg1Pages = characterArtwork.BackgroundPages.ToArray();
+        byte[] introObjects = characterArtwork.CinematicObjectCharacters.Transfer.ToArray();
+        byte[] firstNarrationTilemap = characterArtwork.InitialNarrationTilemap.ToArray();
 
         RequireMinimum(bgCharacters, IntroCinematicRomData.Vram.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
@@ -238,10 +221,7 @@ public sealed partial class IntroCinematicState
         vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
             bg1Pages.AsSpan(0, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
         vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
-            characterArtwork?.IntroObjectCharacters.Transfer.ToArray() ?? RomDataReader.ReadFixedBank(
-                CartridgeImportSource.Require(bus),
-                IntroCinematicRomData.Assets.IntroObjectCharacters,
-                IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
+            characterArtwork.IntroObjectCharacters.Transfer.ToArray());
         vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,
             introObjects.AsSpan(0, IntroCinematicRomData.Vram.ObjectCharacterBytes));
 
@@ -1478,20 +1458,11 @@ public sealed partial class IntroCinematicState
         }
 
         // $8B:A72B supplies the four-row ornamental divider at rows 24-27.
-        if (characterArtwork is { } selectedArtwork)
-            selectedArtwork.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
+        (characterArtwork ?? throw new InvalidOperationException(
+            "Opening cinematic requires installed artwork."))
+            .FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
                 IntroCinematicRomData.Text.FinalLineDestinationStart,
                 IntroCinematicRomData.Text.FinalLineWordCount));
-        else
-        {
-            for (int index = 0; index < IntroCinematicRomData.Text.FinalLineWordCount; index++)
-            {
-                textTilemap[IntroCinematicRomData.Text.FinalLineDestinationStart + index] =
-                    RomDataReader.ReadWordFixedBank(
-                        CartridgeImportSource.Require(bus),
-                        IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort));
-            }
-        }
 
         // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset
         // $11E therefore aliases words 911/912 of the staging map; both receive $1C29.

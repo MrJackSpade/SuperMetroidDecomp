@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -569,10 +568,10 @@ public sealed class SamusXrayState
         CommonPaletteTimer = SamusXrayRomData.Palette.FrameDelay;
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
-        ushort visorColor = presentationColors is not null &&
-            presentationColors.TryResolveByteOffset(SpecialPaletteFrame, out ushort installed)
-                ? installed
-                : ReadWord(bus, SamusXrayRomData.Palette.VisorWords + SpecialPaletteFrame);
+        if (presentationColors is null ||
+            !presentationColors.TryResolveByteOffset(SpecialPaletteFrame, out ushort visorColor))
+            throw new InvalidDataException(
+                $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
         cgram.SetColor(SamusXrayRomData.Palette.VisorCgramIndex, visorColor);
 
         if (BeamSizeFlag == 0)
@@ -751,11 +750,6 @@ public sealed class SamusXrayState
     {
         if (!IsActive)
             throw new InvalidOperationException("X-ray has no installed Samus handler.");
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
     }
 
     private enum XrayPosture

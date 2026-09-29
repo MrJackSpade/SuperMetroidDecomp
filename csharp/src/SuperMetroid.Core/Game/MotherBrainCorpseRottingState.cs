@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -105,7 +104,7 @@ public sealed class MotherBrainCorpseRottingState
                 bus.WriteByte(
                     GraphicsBufferAddress + copy.DestinationOffset + byteIndex,
                     installedTiles.IsEmpty
-                        ? CartridgeImportSource.Require(bus).ReadCartridgeByte(sourceAddress)
+                        ? throw new InvalidOperationException("Mother Brain corpse requires installed tile artwork.")
                         : installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
             }
         }

@@ -547,16 +547,10 @@ public static partial class SamusGrappleMovement
 
     private static (short X, short Y) ReadFlareOrigin(ISnesAddressSpace bus, SamusGrappleState grapple, byte direction, bool running)
     {
-        if (grapple.FlarePlacement is not null && direction < Assets.ChargeFlarePlacementDefinitions.DirectionCount)
-        {
-            var offset = grapple.FlarePlacement.Resolve(running, direction);
-            return (offset.X, offset.Y);
-        }
-        // Preserve the native adjacent-data behavior of out-of-domain restored
-        // directions. This compatibility reader must not become an aiming clamp.
-        int x = running ? SamusGrappleRomData.Firing.RunningFlareX : SamusGrappleRomData.Firing.DefaultFlareX;
-        int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
-        return (unchecked((short)ReadWord(bus, x + direction * 2)), unchecked((short)ReadWord(bus, y + direction * 2)));
+        var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
+            "Grapple flare requires installed placement definitions."))
+            .Resolve(running, direction);
+        return (offset.X, offset.Y);
     }
 
 }

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -148,30 +147,14 @@ public sealed partial class RoomEnemySystem
         ushort byteCount;
         int sourceAddress;
         ushort destination;
-        if (TileArtwork is not null)
-        {
-            if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
-                return true;
-            if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
-                throw new InvalidDataException(
-                    $"Installed Ceres escape transfer ${pointer:X4} has no compiled record.");
-            byteCount = transfer.ByteCount;
-            sourceAddress = transfer.SourceAddress;
-            destination = transfer.DestinationWord;
-        }
-        else
-        {
-            // Constructed cartridge fixtures may author their own transfer
-            // records. Only the installed game owns the immutable native list.
-            byteCount = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | pointer);
-            if (byteCount == 0)
-                return true;
-            ushort sourceOffset = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
-            byte sourceBank = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
-                (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
-            destination = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
-            sourceAddress = (sourceBank << 16) | sourceOffset;
-        }
+        if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
+            return true;
+        if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
+            throw new InvalidDataException(
+                $"Ceres escape transfer ${pointer:X4} has no compiled record.");
+        byteCount = transfer.ByteCount;
+        sourceAddress = transfer.SourceAddress;
+        destination = transfer.DestinationWord;
         if (vramWriteQueue is null)
         {
             throw new InvalidOperationException(
@@ -193,10 +176,8 @@ public sealed partial class RoomEnemySystem
             vramWriteQueue.Enqueue(byteCount, sourceAddress, destination);
 
         state.CeresEscapeTransferListPointer = unchecked((ushort)(pointer + 7));
-        return TileArtwork is not null
-            ? CeresEscapeVramTransferDefinitions.IsTerminator(
-                state.CeresEscapeTransferListPointer)
-            : ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | state.CeresEscapeTransferListPointer) == 0;
+        return CeresEscapeVramTransferDefinitions.IsTerminator(
+            state.CeresEscapeTransferListPointer);
     }
 
     /// <summary>Queues every record in the one-shot Japanese overlay list at $A6:C3B8.</summary>
@@ -207,31 +188,17 @@ public sealed partial class RoomEnemySystem
 
         for (int record = 0; record < 32; record++, pointer = unchecked((ushort)(pointer + 7)))
         {
-            if (TileArtwork is { } installed)
-            {
-                if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
-                    return;
-                if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
-                    throw new InvalidDataException(
-                        $"Installed Ceres Japanese transfer ${pointer:X4} has no compiled record.");
-                if (installed.CeresEscapeOverlayTilemaps?.TryResolve(
-                        transfer.SourceAddress, transfer.ByteCount, out _) != true)
-                    throw new InvalidDataException(
-                        $"Installed Ceres Japanese overlay ${pointer:X4} has no editable tilemap.");
-                vramWriteQueue.Enqueue(transfer.ByteCount, transfer.SourceAddress,
-                    transfer.DestinationWord);
-            }
-            else
-            {
-                ushort byteCount = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | pointer);
-                if (byteCount == 0)
-                    return;
-                ushort sourceOffset = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
-                byte sourceBank = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
-                    (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
-                ushort destination = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 5)));
-                vramWriteQueue.Enqueue(byteCount, (sourceBank << 16) | sourceOffset, destination);
-            }
+            if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
+                return;
+            if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
+                throw new InvalidDataException(
+                    $"Ceres Japanese transfer ${pointer:X4} has no compiled record.");
+            if (TileArtwork?.CeresEscapeOverlayTilemaps?.TryResolve(
+                    transfer.SourceAddress, transfer.ByteCount, out _) != true)
+                throw new InvalidDataException(
+                    $"Installed Ceres Japanese overlay ${pointer:X4} has no editable tilemap.");
+            vramWriteQueue.Enqueue(transfer.ByteCount, transfer.SourceAddress,
+                transfer.DestinationWord);
         }
 
         throw new InvalidDataException("Ceres Japanese transfer list exceeded 32 records.");

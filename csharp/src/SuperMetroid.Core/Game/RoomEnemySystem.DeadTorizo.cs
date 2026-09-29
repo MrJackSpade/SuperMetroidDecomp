@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -264,6 +263,8 @@ public sealed partial class RoomEnemySystem
     private void InitializeDeadTorizoGraphics()
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
+        if (installedTiles.IsEmpty)
+            throw new InvalidDataException("Dead Torizo requires installed corpse artwork.");
         foreach (DeadTorizoGraphicsCopy copy in DeadTorizoInitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
@@ -271,9 +272,7 @@ public sealed partial class RoomEnemySystem
                 int sourceOffset = copy.SourceOffset + byteIndex;
                 _bus!.WriteByte(
                     DeadTorizoWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles.IsEmpty
-                        ? CartridgeImportSource.Require(_bus).ReadCartridgeByte(DeadTorizoArtworkDefinitions.SourceAddress + sourceOffset)
-                        : installedTiles[sourceOffset]);
+                    installedTiles[sourceOffset]);
             }
         }
     }

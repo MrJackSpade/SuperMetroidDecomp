@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 
@@ -270,14 +269,9 @@ internal sealed partial class EndingCreditsState
                 {
                     // Function 132 installs the complete $8C:DC9B result panel into rows
                     // nine through seventeen before the following 180-frame hold.
-                    if (endingText is null)
-                        CopyPostCreditsWords(
-                            EndingCreditsRomData.Instructions.ResultPanel,
-                            EndingCreditsRomData.Text.ResultPanelDestination,
-                            EndingCreditsRomData.Text.ResultPanelWords);
-                    else
-                        endingText.BuildResultPanel().CopyTo(postCreditsTilemap,
-                            EndingCreditsRomData.Text.ResultPanelDestination);
+                    (endingText ?? throw new InvalidOperationException(
+                        "Post-credits text requires installed ending text.")).BuildResultPanel().CopyTo(
+                        postCreditsTilemap, EndingCreditsRomData.Text.ResultPanelDestination);
                     UploadPostCreditsTilemap();
                     phaseTimer = 180;
                     Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
@@ -536,14 +530,8 @@ internal sealed partial class EndingCreditsState
 
     private EndingFontAtlas ResolveEndingFont()
     {
-        if (endingFont is not null)
-            return endingFont;
-        byte[] decoded = RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
-            EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.Mode7Bytes);
-        return EndingFontAtlas.FromPlanarBytes(
-            decoded.AsSpan(0, EndingFontAtlasFormat.ByteCount));
+        return endingFont ?? throw new InvalidOperationException(
+            "Ending font requires installed presentation assets.");
     }
 
     private void SetupPostCreditsBlank()
@@ -615,35 +603,10 @@ internal sealed partial class EndingCreditsState
 
     private void LoadMode7(EndingMode7SceneId scene)
     {
-        if (mode7Artwork is not null)
-        {
-            vram.Clear();
-            UploadMode7Artwork(mode7Artwork[scene]);
-            return;
-        }
-        (int characterSource, int packedMapSource) = scene switch
-        {
-            EndingMode7SceneId.EscapeA =>
-                (EndingCreditsRomData.Assets.EscapeMapA, EndingCreditsRomData.Assets.EscapeCharactersA),
-            EndingMode7SceneId.EscapeB =>
-                (EndingCreditsRomData.Assets.EscapeMapB, EndingCreditsRomData.Assets.EscapeCharactersB),
-            EndingMode7SceneId.PlanetExplosion =>
-                (EndingCreditsRomData.Assets.ExplosionMap, EndingCreditsRomData.Assets.ExplosionCharacters),
-            _ => throw new ArgumentOutOfRangeException(nameof(scene)),
-        };
-        byte[] map = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
-        byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
-        RequireMinimum(map, EndingCreditsRomData.Rendering.Mode7Bytes, "ending Mode-7 map");
-        RequireMinimum(characters, EndingCreditsRomData.Rendering.Mode7Bytes,
-            "ending Mode-7 characters");
+        EndingMode7ArtworkCatalog artwork = mode7Artwork ?? throw new InvalidOperationException(
+            "Ending Mode-7 scene requires installed artwork.");
         vram.Clear();
-        // Native mode-1 DMA writes a packed map/character seed twice to $0000/$2000
-        // words. The following single-port $2119 DMA replaces only the high bytes.
-        vram.LoadBytes(0, characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
-        vram.LoadBytes(EndingCreditsRomData.Rendering.Mode7Bytes, characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
-        vram.LoadMode7CharacterBytes(map.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        UploadMode7Artwork(artwork[scene]);
     }
 
     private void UploadMode7Artwork(EndingMode7SceneArtwork scene)
@@ -656,10 +619,8 @@ internal sealed partial class EndingCreditsState
 
     private void LoadEscapeCloudCharacters()
     {
-        byte[] clouds = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.EscapeCloudCharacters,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : objectArtwork.Clouds.Transfer.ToArray();
+        byte[] clouds = (objectArtwork ?? throw new InvalidOperationException(
+            "Escape clouds require installed object artwork.")).Clouds.Transfer.ToArray();
         RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
         vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
             clouds.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
@@ -667,10 +628,8 @@ internal sealed partial class EndingCreditsState
 
     private void LoadEndingObjectCharacters()
     {
-        byte[] main = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingCreditsRomData.Assets.EndingObjectCharacters,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : objectArtwork.Explosion.Transfer.ToArray();
+        byte[] main = (objectArtwork ?? throw new InvalidOperationException(
+            "Ending objects require installed artwork.")).Explosion.Transfer.ToArray();
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
         RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
             "ending OBJ characters");
@@ -704,10 +663,8 @@ internal sealed partial class EndingCreditsState
     private void LoadObjectFragment(int sourceAddress, int destinationByte,
         EndingObjectFragmentId fragmentId)
     {
-        byte[] fragment = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
-                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
-            : objectArtwork.Fragment(fragmentId).Transfer.ToArray();
+        byte[] fragment = (objectArtwork ?? throw new InvalidOperationException(
+            "Ending object fragments require installed artwork.")).Fragment(fragmentId).Transfer.ToArray();
         RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
             "ending OBJ fragment");
         vram.LoadBytes(
@@ -741,37 +698,15 @@ internal sealed partial class EndingCreditsState
 
     private void LoadCreditsCharacterArt()
     {
-        byte[] waiting = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : objectArtwork.WaitingSamus.Transfer.ToArray();
-        byte[] shooting = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Assets.ShootingScreenCharacters,
-                EndingCreditsRomData.Rendering.DecompressionLimit)
-            : objectArtwork.ShootingScreen.Transfer.ToArray();
-        byte[] waitingMap = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
-                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
-            : objectArtwork.WaitingTilemap.Transfer.ToArray();
-        byte[] fragmentA = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
-                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
-            : objectArtwork.PostCreditsFragmentA.Transfer.ToArray();
-        byte[] fragmentB = objectArtwork is null
-            ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
-                EndingCreditsRomData.Rendering.ObjectFragmentLimit)
-            : objectArtwork.PostCreditsFragmentB.Transfer.ToArray();
+        EndingObjectArtworkCatalog artwork = objectArtwork ?? throw new InvalidOperationException(
+            "Post-credits scenes require installed object artwork.");
+        byte[] waiting = artwork.WaitingSamus.Transfer.ToArray();
+        byte[] shooting = artwork.ShootingScreen.Transfer.ToArray();
+        byte[] waitingMap = artwork.WaitingTilemap.Transfer.ToArray();
+        byte[] fragmentA = artwork.PostCreditsFragmentA.Transfer.ToArray();
+        byte[] fragmentB = artwork.PostCreditsFragmentB.Transfer.ToArray();
         byte[] result = EndingReward == EndingReward.Suitless
-            ? objectArtwork is null
-                ? RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-                    EndingCreditsRomData.Assets.SuitlessSamusCharacters,
-                    EndingCreditsRomData.Rendering.DecompressionLimit)
-                : objectArtwork.SuitlessSamus.Transfer.ToArray()
+            ? artwork.SuitlessSamus.Transfer.ToArray()
             : waiting;
         RequireMinimum(waiting, EndingCreditsRomData.Rendering.Mode7Bytes,
             "waiting-Samus characters");
@@ -967,19 +902,6 @@ internal sealed partial class EndingCreditsState
                 SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
                 SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardHead, EndingSpriteRole.RewardSamus);
                 break;
-        }
-    }
-
-    private void CopyPostCreditsWords(ushort sourcePointer, int destination, int count)
-    {
-        if (destination < 0 || count < 0 || destination + count > postCreditsTilemap.Length)
-            throw new ArgumentOutOfRangeException(nameof(destination));
-        for (int index = 0; index < count; index++)
-        {
-            postCreditsTilemap[destination + index] = RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
-                EndingCreditsRomData.Instructions.Bank.AddWithinBank(
-                    unchecked((ushort)(sourcePointer + index * sizeof(ushort)))));
         }
     }
 

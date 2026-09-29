@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -24,24 +23,6 @@ public sealed record CartridgeDoorHeader(
 {
     /// <summary>Encoded size of one retail bank-$83 door header.</summary>
     public const int SizeInBytes = DoorHeaderRomData.RecordByteCount;
-
-    /// <summary>Reads the packed door record named by a load station or room door list.</summary>
-    public static CartridgeDoorHeader Load(IImportCartridgeSource cartridge, ushort pointer)
-    {
-        ArgumentNullException.ThrowIfNull(cartridge);
-        int address = DoorHeaderRomData.BankAddress | pointer;
-        return new CartridgeDoorHeader(
-            pointer,
-            DestinationRoomPointer: CartridgeImportWords.ReadWord(cartridge, address),
-            BitFlags: cartridge.ReadCartridgeByte(address + 2),
-            Orientation: cartridge.ReadCartridgeByte(address + 3),
-            PlmX: cartridge.ReadCartridgeByte(address + 4),
-            PlmY: cartridge.ReadCartridgeByte(address + 5),
-            DestinationScreenX: cartridge.ReadCartridgeByte(address + 6),
-            DestinationScreenY: cartridge.ReadCartridgeByte(address + 7),
-            SamusDistance: CartridgeImportWords.ReadWord(cartridge, address + 8),
-            SetupCodePointer: CartridgeImportWords.ReadWord(cartridge, address + 10));
-    }
 
     /// <summary>
     /// True only for the verified setup routine that writes BGMODE=7, A=D=$0100,

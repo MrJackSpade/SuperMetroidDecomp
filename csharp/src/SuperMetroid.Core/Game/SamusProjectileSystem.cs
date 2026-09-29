@@ -137,17 +137,9 @@ public sealed partial class SamusProjectileSystem
         int beamType = equippedBeams & 0x0fff;
         LoadBeamTiles(bus, vram, equippedBeams, artwork);
 
-        if (artwork?.Palettes is not null &&
-            beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
-        {
-            artwork.Palettes.LoadTo(cgram, beamType);
-            return;
-        }
-
-        ushort palettePointer = ReadWord(
-            bus,
-            SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
-        SamusBeamPaletteLoader.Load(bus, cgram, palettePointer);
+        (artwork?.Palettes ?? throw new InvalidOperationException(
+            "Beam palette requires installed artwork."))
+            .LoadTo(cgram, beamType);
     }
 
     /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
@@ -157,17 +149,10 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         int beamType = equippedBeams & 0x0fff;
-        if (artwork is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
-        {
-            vram.LoadBytes(Assets.BeamTileAtlasDefinitions.DestinationWord * 2,
-                artwork.Resolve(Assets.BeamTileCatalog.AssetFor(beamType)).Span);
-            return;
-        }
-        ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
-        vram.ExecuteQueuedWrite(bus,
-            SamusProjectileRomData.Banks.CharacterData | tilePointer,
-            Assets.BeamTileAtlasDefinitions.ByteCount,
-            Assets.BeamTileAtlasDefinitions.DestinationWord);
+        Assets.BeamTileCatalog installed = artwork ?? throw new InvalidOperationException(
+            "Beam tiles require installed artwork.");
+        vram.LoadBytes(Assets.BeamTileAtlasDefinitions.DestinationWord * 2,
+            installed.Resolve(Assets.BeamTileCatalog.AssetFor(beamType)).Span);
     }
 
     /// <summary>
@@ -190,28 +175,13 @@ public sealed partial class SamusProjectileSystem
 
         // Preserve the native queue position and seven-byte tail increment. Unsupported
         // beam combinations retain physical adjacent-table reads used by glitch paths.
-        if (artwork is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
-            writes.EnqueueAsset(Assets.BeamTileCatalog.AssetFor(beamType),
-                Assets.BeamTileAtlasDefinitions.ByteCount, Assets.BeamTileAtlasDefinitions.DestinationWord);
-        else
-        {
-            ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
-            writes.Enqueue(
-                sizeInBytes: 0x0100,
-                sourceAddress: SamusProjectileRomData.Banks.CharacterData | tilePointer,
-                encodedVramDestination: 0x6300);
-        }
+        _ = artwork ?? throw new InvalidOperationException("Beam tiles require installed artwork.");
+        writes.EnqueueAsset(Assets.BeamTileCatalog.AssetFor(beamType),
+            Assets.BeamTileAtlasDefinitions.ByteCount, Assets.BeamTileAtlasDefinitions.DestinationWord);
 
         palettes ??= artwork?.Palettes;
-        if (palettes is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
-        {
-            palettes.LoadTo(cgram, beamType);
-            return;
-        }
-        ushort palettePointer = ReadWord(
-            bus,
-            SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
-        SamusBeamPaletteLoader.Load(bus, cgram, palettePointer);
+        (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork."))
+            .LoadTo(cgram, beamType);
     }
 
     /// <summary>
@@ -252,9 +222,6 @@ public sealed partial class SamusProjectileSystem
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == 4;
-                int pointerTable = pseudoScrew
-                    ? SamusProjectileRomData.Palettes.PseudoScrewPointers
-                    : SamusProjectileRomData.Palettes.BeamChargePointers;
                 ushort suitOffset = GetSuitPaletteOffset(samus.EquippedItems);
 
                 // The installed path compiles the two pointer levels for bounded native
@@ -267,21 +234,12 @@ public sealed partial class SamusProjectileSystem
                         : SamusChargePalettePointerDefinitions.TryChargedBeam(
                             suitOffset, SamusChargePaletteIndex, out palettePointer));
                 if (!catalogued)
-                {
-                    ushort listPointer = ReadWord(bus, pointerTable + suitOffset);
-                    int listEntryAddress = SamusProjectileRomData.Banks.Pose |
-                        unchecked((ushort)(listPointer + SamusChargePaletteIndex));
-                    palettePointer = ReadWord(bus, listEntryAddress);
-                }
+                    throw new InvalidDataException(
+                        $"Charge palette offset {SamusChargePaletteIndex} is not compiled.");
                 int paletteIndex = SamusChargePaletteIndex / 2;
-                if (catalogued && samus.ChargeColors is { } installedColors)
-                    installedColors.ApplyCharge(cgram, pseudoScrew, suitOffset / 2, paletteIndex);
-                else
-                    cgram.LoadFromBus(
-                        bus,
-                        SamusProjectileRomData.Banks.PaletteAndTrailData | palettePointer,
-                        colorCount: SamusProjectileRomData.Palettes.ColorCount,
-                        destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
+                (samus.ChargeColors ?? throw new InvalidOperationException(
+                    "Charge palette requires installed colors."))
+                    .ApplyCharge(cgram, pseudoScrew, suitOffset / 2, paletteIndex);
 
                 SamusChargePaletteIndex = SamusChargePaletteIndex >= 10
                     ? (ushort)0
@@ -385,17 +343,11 @@ public sealed partial class SamusProjectileSystem
         bool cataloguedHyper = samus.ChargeColors is not null &&
             SamusChargePalettePointerDefinitions.TryHyperShot(tableOffset, out hyperPointer);
         if (!cataloguedHyper)
-            hyperPointer = ReadWord(bus,
-                SamusProjectileRomData.Palettes.HyperBeamShotPointers + tableOffset);
+            throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
         int hyperPaletteIndex = (0x14 - tableOffset) / 2;
-        if (cataloguedHyper && samus.ChargeColors is { } installedHyperColors)
-            installedHyperColors.ApplyHyper(cgram, hyperPaletteIndex);
-        else
-            cgram.LoadFromBus(
-                bus,
-                SamusProjectileRomData.Banks.PaletteAndTrailData | hyperPointer,
-                colorCount: SamusProjectileRomData.Palettes.ColorCount,
-                destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
+        (samus.ChargeColors ?? throw new InvalidOperationException(
+            "Hyper Beam palette requires installed colors."))
+            .ApplyHyper(cgram, hyperPaletteIndex);
         ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette,

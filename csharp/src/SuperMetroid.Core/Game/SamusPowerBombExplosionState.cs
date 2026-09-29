@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -483,19 +482,10 @@ public sealed class SamusPowerBombExplosionState
     private void ReadFixedColor(ISnesAddressSpace bus,
         PowerBombFixedColorSequence sequence, int colorIndex)
     {
-        if (presentationColors is not null)
-        {
-            (FixedColorRed, FixedColorGreen, FixedColorBlue) =
-                presentationColors.Resolve(sequence, colorIndex);
-            return;
-        }
-
-        int address = PowerBombFixedColorFormat.SourceAddress(sequence) +
-            colorIndex * SamusPaletteRomData.PowerBomb.BytesPerColor;
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        FixedColorRed = (byte)(cartridge.ReadCartridgeByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask);
-        FixedColorGreen = (byte)(cartridge.ReadCartridgeByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask);
-        FixedColorBlue = (byte)(cartridge.ReadCartridgeByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask);
+        (FixedColorRed, FixedColorGreen, FixedColorBlue) =
+            (presentationColors ?? throw new InvalidOperationException(
+                "Power Bomb color requires installed fixed-color definitions."))
+            .Resolve(sequence, colorIndex);
     }
 }
 

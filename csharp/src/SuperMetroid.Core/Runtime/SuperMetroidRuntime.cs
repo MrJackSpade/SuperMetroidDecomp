@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -801,28 +800,9 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public void LoadUpperCrateriaBackgroundPalette()
     {
-        const int sourceAddress = 0xc2ad7c;
-        const int compressedByteCount = 0x00e1;
-
-        // The extracted asset boundary is known from the ROM label map. Reading exactly
-        // $E1 bytes allows Decompress to insist the $FF terminator ends the whole stream,
-        // catching an incorrect address instead of decoding through unrelated ROM data.
-        var compressed = new byte[compressedByteCount];
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(_addressSpace);
-        for (int index = 0; index < compressed.Length; index++)
-            compressed[index] = cartridge.ReadCartridgeByte(sourceAddress + index);
-
-        byte[] paletteBytes = SmCompression.Decompress(compressed, maximumOutputBytes: 0x0100);
-        if (paletteBytes.Length != 0x0100)
-        {
-            throw new InvalidDataException(
-                $"Upper Crateria palette expanded to ${paletteBytes.Length:X} bytes instead of $100.");
-        }
-
-        // $82:E7C9 originally decompresses these 128 colors to target-palette WRAM and a
-        // fade later reaches CGRAM. The desktop preview installs the same final words now;
-        // target/current fade buffers remain a future timing layer.
-        Cgram.LoadBytes(paletteBytes, destinationIndex: 0);
+        (RoomPaletteArt ?? throw new InvalidOperationException(
+            "Upper Crateria palette requires the installed room-palette catalog."))
+            .Get(RoomTilesetDefinitions.Get(0).PaletteAddress).LoadTo(Cgram);
     }
 
     /// <summary>
@@ -1105,17 +1085,9 @@ public sealed partial class SuperMetroidRuntime
         // Firing initialization selects beam-palette index two. Installed sessions use
         // the same editable colors as ordinary gameplay; an unbound reference runner
         // retains the native pointer-table lookup for cartridge comparison.
-        if (beamArtwork?.Palettes is { } palettes)
-            palettes.LoadTo(Cgram, 2);
-        else
-        {
-            ushort pointer = RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(_addressSpace),
-                SamusProjectileRomData.Beams.PalettePointers + 2 * sizeof(ushort));
-            Cgram.LoadFromBus(_addressSpace, SamusProjectileRomData.Banks.Movement | pointer,
-                SamusProjectileRomData.Palettes.ColorCount,
-                SamusProjectileRomData.Palettes.BeamDestinationIndex);
-        }
+        (beamArtwork?.Palettes ?? throw new InvalidOperationException(
+            "Debug grapple palette requires installed beam artwork."))
+            .LoadTo(Cgram, 2);
         Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex - 1, 32657);
     }
 

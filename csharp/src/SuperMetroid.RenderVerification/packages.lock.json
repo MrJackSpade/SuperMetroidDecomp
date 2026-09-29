@@ -69,6 +69,7 @@
       "supermetroid.diagnostics": {
         "type": "Project",
         "dependencies": {
+          "SuperMetroid.AssetExtraction": "[1.0.0, )",
           "SuperMetroid.Core": "[1.0.0, )"
         }
       },

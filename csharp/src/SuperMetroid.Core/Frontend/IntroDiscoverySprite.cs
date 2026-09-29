@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -111,8 +110,8 @@ internal sealed class IntroDiscoverySprite
         if (instructionTimer != 0)
             return;
 
-        ushort Read(ushort pointer) => instructionWord is null
-            ? ReadWord(bus, pointer) : instructionWord(pointer);
+        ushort Read(ushort pointer) => (instructionWord ?? throw new InvalidOperationException(
+            "Cinematic sprites require compiled instruction definitions."))(pointer);
 
         ushort cursor = InstructionPointer;
         while (true)
@@ -188,23 +187,10 @@ internal sealed class IntroDiscoverySprite
         // arithmetic needs the opposite clipping branch to prevent bottom-edge wrap.
         bool originIsOnScreen =
             (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
-        if (installedArt is not null)
-            installedArt.Draw(SpriteMapPointer, oam, x, y, PaletteBits, originIsOnScreen);
-        else
-        {
-            int address = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps, SpriteMapPointer);
-            if (originIsOnScreen)
-                oam.AddOnScreenSpritemap(bus, address, x, y, PaletteBits);
-            else
-                oam.AddOffScreenSpritemap(bus, address, x, y, PaletteBits);
-        }
+        (installedArt ?? throw new InvalidOperationException(
+            "Cinematic sprites require installed artwork."))
+            .Draw(SpriteMapPointer, oam, x, y, PaletteBits, originIsOnScreen);
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));

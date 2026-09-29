@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -19,32 +18,10 @@ internal sealed partial class PauseMenuState
 
     private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
     {
-        if (mapPresentation is not null)
-        {
-            PauseReserveUiPresentation presentation = mapPresentation.PauseReserveUi;
-            presentation.ApplyArrowColors(cgram, animated, nmiFrameCounter8,
-                PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
-            presentation.ApplyArrowTilePalettes(equipmentTilemap, enabled);
-            return;
-        }
-        int offset = (nmiFrameCounter8 & PauseReserveArrowRomData.FrameMask) * sizeof(ushort);
-        cgram.SetColor(PauseReserveArrowRomData.Color6Index, animated
-            ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveArrowRomData.Color6Table + offset)
-            : PauseReserveArrowRomData.SolidColor6);
-        cgram.SetColor(PauseReserveArrowRomData.Color11Index, animated
-            ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveArrowRomData.Color11Table + offset)
-            : PauseReserveArrowRomData.SolidColor11);
-        int palette = enabled ? PauseReserveArrowRomData.EnabledPalette : PauseReserveArrowRomData.DisabledPalette;
-        for (int row = 0; row < PauseReserveArrowRomData.VerticalCount; row++)
-            SetPalette(PauseReserveArrowRomData.VerticalStart + row * PauseReserveArrowRomData.RowStride);
-        for (int column = 0; column < PauseReserveArrowRomData.HorizontalCount; column++)
-            SetPalette(PauseReserveArrowRomData.HorizontalStart + column * sizeof(ushort));
-
-        void SetPalette(int byteOffset)
-        {
-            Span<byte> destination = equipmentTilemap.AsSpan(byteOffset, sizeof(ushort));
-            var tile = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(destination));
-            BinaryPrimitives.WriteUInt16LittleEndian(destination, tile.WithPaletteIndex(palette).Raw);
-        }
+        PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
+        presentation.ApplyArrowColors(cgram, animated, nmiFrameCounter8,
+            PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
+        presentation.ApplyArrowTilePalettes(equipmentTilemap, enabled);
     }
 }

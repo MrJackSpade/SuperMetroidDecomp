@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -505,26 +504,10 @@ public sealed class SamusShinesparkState
             : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(
                 suitOffset, PaletteFrameOffset, out palettePointer);
         if (!catalogued)
-        {
-            // Restored non-catalog phase words retain the cartridge's two indirect
-            // reads, rather than being rounded into an ordinary palette cycle.
-            int tableAddress = PaletteType == 1
-                ? SamusPaletteRomData.FullBodyCycles.StoredShineLists
-                : SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists;
-            ushort listPointer = ReadWord(bus, tableAddress + suitOffset);
-            palettePointer = ReadWord(
-                bus,
-                SamusPaletteRomData.Banks.Movement |
-                    unchecked((ushort)(listPointer + PaletteFrameOffset)));
-        }
-        if (catalogued && cycleColors is not null)
-            cycleColors.Apply(cgram, palettePointer);
-        else
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | palettePointer,
-                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+            throw new InvalidDataException(
+                $"Shinespark palette type {PaletteType} offset {PaletteFrameOffset} is not compiled.");
+        (cycleColors ?? throw new InvalidOperationException(
+            "Shinespark palette requires installed color assets.")).Apply(cgram, palettePointer);
 
         ushort exclusiveLimit = PaletteType == 1 ? (ushort)12 : (ushort)8;
         PaletteFrameOffset = unchecked((ushort)(PaletteFrameOffset + 2));
@@ -941,9 +924,6 @@ public sealed class SamusShinesparkState
     }
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     /// <summary>
     /// Mutable storage corresponding to one of native fixed projectile slots three/four.

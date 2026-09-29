@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -553,11 +552,9 @@ public sealed partial class SamusState
             // wrapped `$0AFA` spritemap-position word is observable and is preserved here.
             int landingOffsetIndex = (Pose - SamusPoseIds.NormalLandingRightPose) * 4 +
                 AnimationFrame;
-            ushort landingOffset = TileTransfers.Artwork is { } landingArt &&
-                landingArt.TryLandingYOffset(landingOffsetIndex, out ushort installedLanding)
-                ? installedLanding
-                : ReadWord(bus, AddWithinBank(
-                    SamusRenderingRomData.Body.LandingVerticalOffsets, landingOffsetIndex));
+            if (TileTransfers.Artwork is not { } landingArt ||
+                !landingArt.TryLandingYOffset(landingOffsetIndex, out ushort landingOffset))
+                throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             SpritemapYPosition = unchecked((ushort)(
                 renderY - landingOffset - layer1Y));
         }
@@ -571,15 +568,10 @@ public sealed partial class SamusState
             // valid-but-unused zero records `$39/$3A/$3F/$40`. The installed visual
             // bytes preserve those values; an out-of-range diagnostic index still reads
             // the native adjacent bank data instead of inventing a replacement.
-            int transitionOffsetAddress = AddWithinBank(
-                SamusRenderingRomData.Body.PostureTransitionVerticalOffsets,
-                (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame);
-            sbyte transitionOffset = TileTransfers.Artwork is { } postureArt &&
-                postureArt.TryPostureYOffset(
-                    (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame,
-                    out sbyte installedPosture)
-                ? installedPosture
-                : unchecked((sbyte)CartridgeImportSource.Require(bus).ReadCartridgeByte(transitionOffsetAddress));
+            int postureIndex = (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame;
+            if (TileTransfers.Artwork is not { } postureArt ||
+                !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))
+                throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
             SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
         }
         else if (Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
@@ -588,11 +580,9 @@ public sealed partial class SamusState
             // animation byte index. Several indices intentionally name command operands,
             // because the external controller can publish those literal indices for a
             // visible frame. The installed 32-byte table preserves that odd layout.
-            sbyte drainedOffset = TileTransfers.Artwork is { } drainedArt &&
-                drainedArt.TryDrainedYOffset(AnimationFrame, out sbyte installedDrained)
-                ? installedDrained
-                : unchecked((sbyte)CartridgeImportSource.Require(bus).ReadCartridgeByte(AddWithinBank(
-                    SamusRenderingRomData.Body.DrainedVerticalOffsets, AnimationFrame)));
+            if (TileTransfers.Artwork is not { } drainedArt ||
+                !drainedArt.TryDrainedYOffset(AnimationFrame, out sbyte drainedOffset))
+                throw new InvalidDataException($"Samus drained offset {AnimationFrame} lacks installed art.");
             SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
         else if ((Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose) &&
@@ -607,9 +597,9 @@ public sealed partial class SamusState
             SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1Y));
         }
 
-        var spritemaps = TileTransfers.Artwork?.Spritemaps;
-        ushort topBase = spritemaps is not null ? spritemaps.TopBase(Pose) : ReadWord(
-            bus, AddWithinBank(SamusRenderingRomData.Body.TopSpritemapBaseIndices, Pose * 2));
+        var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
+            "Samus rendering requires installed spritemap artwork.");
+        ushort topBase = spritemaps.TopBase(Pose);
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition, spritemaps);
 
@@ -688,8 +678,7 @@ public sealed partial class SamusState
         BottomSpritemapIndex = 0;
         if (drawBottom)
         {
-            ushort bottomBase = spritemaps is not null ? spritemaps.BottomBase(Pose) : ReadWord(
-                bus, AddWithinBank(SamusRenderingRomData.Body.BottomSpritemapBaseIndices, Pose * 2));
+            ushort bottomBase = spritemaps.BottomBase(Pose);
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
             oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition,
                 spritemaps);
@@ -871,8 +860,5 @@ public sealed partial class SamusState
             oam.AddSamusSpritemap(bus, BottomSpritemapIndex, screenX, unchecked((ushort)screenY),
                 TileTransfers.Artwork?.Spritemaps);
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
 }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -87,25 +86,14 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         NextFrameIndex = 0;
         LastSourceAddress = null;
         _objectPointer = objectPointer;
-        if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(
-                objectPointer, out _compiledMechanics))
-        {
-            if (_compiledMechanics.Direction != direction)
-            {
-                throw new InvalidDataException(
-                    $"Wrecked Ship treadmill object $87:{objectPointer:X4} belongs to " +
-                    $"{_compiledMechanics.Direction}, not {direction}.");
-            }
-            _instructionPointer = _compiledMechanics.WaitInstructionPointer;
-            _transferByteCount = WreckedShipTreadmillRomData.TransferByteCount;
-            _encodedVramDestination = WreckedShipTreadmillRomData.EncodedVramDestination;
-        }
-        else
-        {
-            _instructionPointer = ReadBank87Word(bus, objectPointer);
-            _transferByteCount = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 2)));
-            _encodedVramDestination = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 4)));
-        }
+        if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(objectPointer, out _compiledMechanics))
+            throw new InvalidDataException($"Wrecked Ship treadmill $87:{objectPointer:X4} is not compiled.");
+        if (_compiledMechanics.Direction != direction)
+            throw new InvalidDataException(
+                $"Wrecked Ship treadmill $87:{objectPointer:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
+        _instructionPointer = _compiledMechanics.WaitInstructionPointer;
+        _transferByteCount = WreckedShipTreadmillRomData.TransferByteCount;
+        _encodedVramDestination = WreckedShipTreadmillRomData.EncodedVramDestination;
         _instructionTimer = 1;
 
         if (_transferByteCount == 0)
@@ -148,10 +136,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                         $"frame at $87:{cursor:X4}.");
                 }
                 _instructionTimer = word;
-                int sourceAddress = _compiledMechanics is null
-                    ? AnimatedTileBank | ReadBank87Word(
-                        bus, unchecked((ushort)(cursor + 2)))
-                    : _compiledMechanics.FrameSourceAddress(cursor);
+                int sourceAddress = (_compiledMechanics ?? throw new InvalidOperationException(
+                    "Wrecked Ship treadmill lost its compiled mechanics.")).FrameSourceAddress(cursor);
                 _instructionPointer = unchecked((ushort)(cursor + 4));
                 LastSourceAddress = sourceAddress;
                 writes.Enqueue(
@@ -196,7 +182,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
     {
         if (_compiledMechanics is null)
-            return ReadBank87Word(bus, pointer);
+            throw new InvalidOperationException("Wrecked Ship treadmill requires compiled animation mechanics.");
         if (_compiledMechanics.TryReadMechanicsWord(pointer, out ushort value))
             return value;
 
@@ -205,8 +191,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             $"mechanics word $87:{pointer:X4}.");
     }
 
-    private static ushort ReadBank87Word(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), AnimatedTileBank | pointer);
 }
 
 /// <summary>Cartridge-owned constants for Wrecked Ship entrance treadmill animation.</summary>

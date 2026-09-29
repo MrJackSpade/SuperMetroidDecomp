@@ -29,7 +29,7 @@ public static class SpcAudioAssetExtractor
     }
 
     /// <summary>Extracts runtime audio directly from a user's cartridge, without raw files or an upstream checkout.</summary>
-    public static AudioAssetManifest Extract(SuperMetroidAddressSpace cartridge, string audioDirectory)
+    public static AudioAssetManifest Extract(CartridgeImportAddressSpace cartridge, string audioDirectory)
     {
         ArgumentNullException.ThrowIfNull(cartridge);
         return Extract(definition => SpcUploadStreamReader.Read(cartridge, definition.SnesAddress, includeExecutionAddress: true), audioDirectory);

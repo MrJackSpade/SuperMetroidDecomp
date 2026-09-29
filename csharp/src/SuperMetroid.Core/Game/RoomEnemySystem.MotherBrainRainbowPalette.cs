@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -16,45 +15,26 @@ public sealed partial class RoomEnemySystem
             // The sequence increments before publishing this request. Keep the distinct
             // native copy lengths: revival intentionally preserves two brain/body colors.
             int index = state.RainbowBeamSequence!.GreyTransitionCounter - 1;
-            if (MotherBrainRainbowColors is { } installed)
-            {
-                if (draining) installed.ApplyToGrey(_bus!, _cgram!, index);
-                else installed.ApplyFromGrey(_bus!, _cgram!, index);
-                return;
-            }
-            int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable : MotherBrainDrainedPaletteRomData.FromGreyTable;
-            int fadeSource = MotherBrainRainbowPaletteRomData.SourceBank | ReadWord(_bus!, table + index * 2);
-            int count = draining ? MotherBrainDrainedPaletteRomData.DrainedColors : MotherBrainDrainedPaletteRomData.RevivalColors;
-            _cgram!.LoadFromBus(_bus!, fadeSource, count, MotherBrainRainbowPaletteRomData.BodyColor);
-            _cgram.LoadFromBus(_bus!, fadeSource, count, MotherBrainRainbowPaletteRomData.BrainColor);
-            _cgram.LoadFromBus(_bus!, fadeSource + count * 2, MotherBrainDrainedPaletteRomData.BackLegCount,
-                MotherBrainDrainedPaletteRomData.BackLegColor);
-            int tail = fadeSource + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * 2;
-            _bus!.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, CartridgeImportSource.Require(_bus).ReadCartridgeByte(tail));
-            _bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, CartridgeImportSource.Require(_bus).ReadCartridgeByte(tail + 1));
+            var installed = MotherBrainRainbowColors ?? throw new InvalidDataException(
+                "Mother Brain's grey transition requires installed palette artwork.");
+            if (draining) installed.ApplyToGrey(_bus!, _cgram!, index);
+            else installed.ApplyFromGrey(_bus!, _cgram!, index);
             return;
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&
             step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall)
         {
-            if (MotherBrainRainbowColors is { } installed)
-                installed.ApplyNormal(_cgram!);
-            else
-                WriteMotherBrainRainbowColors(MotherBrainRainbowPaletteRomData.NormalBrainSource,
-                    MotherBrainRainbowPaletteRomData.NormalSecondarySource);
+            var installed = MotherBrainRainbowColors ?? throw new InvalidDataException(
+                "Mother Brain's normal palette requires installed artwork.");
+            installed.ApplyNormal(_cgram!);
             return;
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam &&
             step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut)
         {
-            if (MotherBrainRainbowColors is { } installed)
-                installed.ApplyRainbow(_cgram!, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
-            else
-            {
-                int drainedSource = MotherBrainRainbowPaletteRomData.SourceBank | ReadWord(_bus!,
-                    MotherBrainRainbowPaletteRomData.PointerTable + MotherBrainRainbowPaletteRomData.DrainedPointerOffset);
-                WriteMotherBrainRainbowColors(drainedSource, drainedSource + MotherBrainRainbowPaletteRomData.ColorCount * 2);
-            }
+            var installed = MotherBrainRainbowColors ?? throw new InvalidDataException(
+                "Mother Brain's drained palette requires installed artwork.");
+            installed.ApplyRainbow(_cgram!, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
@@ -68,42 +48,18 @@ public sealed partial class RoomEnemySystem
         if (!rainbowPhase || !step.PaletteRequested || (state.Body.FrameCounter & 2) == 0)
             return;
 
-        if (MotherBrainRainbowColors is { } rainbow)
-        {
-            if ((state.RainbowPaletteCursor & 1) != 0 ||
-                state.RainbowPaletteCursor > MotherBrainRainbowPaletteFormat.RainbowFrameCount * sizeof(ushort))
-                throw new InvalidDataException($"Mother Brain rainbow cursor ${state.RainbowPaletteCursor:X4} is outside the compiled loop.");
-            int frame = state.RainbowPaletteCursor / sizeof(ushort);
-            if (frame == MotherBrainRainbowPaletteFormat.RainbowFrameCount)
-            {
-                state.RainbowPaletteCursor = 0;
-                frame = 0;
-            }
-            state.RainbowPaletteCursor += sizeof(ushort);
-            rainbow.ApplyRainbow(_cgram!, frame);
-            return;
-        }
-
-        ushort pointer = ReadWord(_bus!, MotherBrainRainbowPaletteRomData.PointerTable + state.RainbowPaletteCursor);
-        if (pointer == 0)
+        var rainbow = MotherBrainRainbowColors ?? throw new InvalidDataException(
+            "Mother Brain's rainbow phase requires installed palette artwork.");
+        if ((state.RainbowPaletteCursor & 1) != 0 ||
+            state.RainbowPaletteCursor > MotherBrainRainbowPaletteFormat.RainbowFrameCount * sizeof(ushort))
+            throw new InvalidDataException($"Mother Brain rainbow cursor ${state.RainbowPaletteCursor:X4} is outside the compiled loop.");
+        int frame = state.RainbowPaletteCursor / sizeof(ushort);
+        if (frame == MotherBrainRainbowPaletteFormat.RainbowFrameCount)
         {
             state.RainbowPaletteCursor = 0;
-            pointer = ReadWord(_bus!, MotherBrainRainbowPaletteRomData.PointerTable);
+            frame = 0;
         }
-        if (pointer == 0)
-            throw new InvalidDataException("Mother Brain rainbow palette list has no first entry.");
-        state.RainbowPaletteCursor += 2;
-        int source = MotherBrainRainbowPaletteRomData.SourceBank | pointer;
-        WriteMotherBrainRainbowColors(source, source + MotherBrainRainbowPaletteRomData.ColorCount * 2);
-    }
-
-    private void WriteMotherBrainRainbowColors(int source, int secondarySource)
-    {
-        _cgram!.LoadFromBus(_bus!, source, MotherBrainRainbowPaletteRomData.ColorCount,
-            MotherBrainRainbowPaletteRomData.BodyColor);
-        _cgram.LoadFromBus(_bus!, source, MotherBrainRainbowPaletteRomData.ColorCount,
-            MotherBrainRainbowPaletteRomData.BrainColor);
-        _cgram.LoadFromBus(_bus!, secondarySource,
-            MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
+        state.RainbowPaletteCursor += sizeof(ushort);
+        rainbow.ApplyRainbow(_cgram!, frame);
     }
 }

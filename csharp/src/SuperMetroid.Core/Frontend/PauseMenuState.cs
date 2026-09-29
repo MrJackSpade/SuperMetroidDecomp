@@ -4,13 +4,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Cartridge-backed owner of bank-$82's pause map/equipment menu.
+/// Installed-asset owner of bank-$82's pause map/equipment menu.
 /// </summary>
 /// <remarks>
 /// This object deliberately owns only the pause-menu-local WRAM/PPU image. The outer
@@ -65,12 +64,13 @@ internal sealed partial class PauseMenuState
         AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.mapPresentation = mapPresentation;
+        this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
+            "Pause menu requires installed map and equipment presentation assets.");
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
         paletteAnimation = new MapPaletteAnimation(bus);
-        paletteAnimation.Bind(mapPresentation?.HighlightCycle);
+        paletteAnimation.Bind(mapPresentation.HighlightCycle);
         area = areaIndex;
         _ = AreaIds.ToIndex(areaIndex);
         this.roomMapX = roomMapX;
@@ -81,17 +81,10 @@ internal sealed partial class PauseMenuState
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
-        if (mapPresentation is null) vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.BackgroundTiles, 0x4000));
-        else
-        {
-            mapPresentation.Tiles.LoadTo(vram, 0);
-            mapPresentation.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
-        }
-        if (mapPresentation is null)
-            vram.LoadBytes(MapSpriteFormat.PauseDestination, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
-        else mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
-        if (mapPresentation is null) vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.SamusObjectTiles, 0x2000));
-        else mapPresentation.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
+        mapPresentation.Tiles.LoadTo(vram, 0);
+        mapPresentation.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
+        mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
+        mapPresentation.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
         LoadPauseBackdrop();
         if (gameplayVram is not null)
         {
@@ -119,8 +112,8 @@ internal sealed partial class PauseMenuState
             clearedFxTilemap,
             PauseMenuLayout.Bg3FxClearDestinationWord,
             wordIncrement: 1);
-        if (mapPresentation is null) cgram.LoadFromBus(bus, PauseMenuRomData.Palette);
-        else for (int color = 0; color < SnesCgram.ColorCount; color++) cgram.SetColor(color, mapPresentation.Palettes.Pause[color]);
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            cgram.SetColor(color, mapPresentation.Palettes.Pause[color]);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -128,15 +121,13 @@ internal sealed partial class PauseMenuState
         // BG2 word $3B20. Omitting this second source is why the pause-screen chrome looked
         // like missing HUD. Keep the complete mutable source so every native word index
         // below remains directly comparable with bank $82.
-        pauseButtonTilemap = mapPresentation?.PauseBackdrops.CreateButtonTilemap() ??
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2);
+        pauseButtonTilemap = mapPresentation.PauseBackdrops.CreateButtonTilemap();
         SetPauseButtonLabelMode(0);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         // Preserve it as a byte array because the cartridge's offset tables contain WRAM
         // byte addresses rather than tilemap word indexes.
-        equipmentTilemap = mapPresentation?.PauseEquipmentBase.CreateTilemap() ??
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemap, 0x0800);
+        equipmentTilemap = mapPresentation.PauseEquipmentBase.CreateTilemap();
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
@@ -364,7 +355,7 @@ internal sealed partial class PauseMenuState
             DrawMapPositionIndicator();
             // Native pause draws the same boss lists and defeated overlays as
             // file select, after the player marker. Use the live progression owner.
-            var icons = new FileSelectMapIcons(bus, system, area);
+            var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(mapPresentation?.Sprites);
             icons.DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
@@ -500,48 +491,12 @@ internal sealed partial class PauseMenuState
     {
         // Restore the literal base before applying inventory-dependent labels. This makes
         // repeated A toggles idempotent and mirrors re-entering LoadEquipmentScreen...
-        if (mapPresentation is not null)
-            mapPresentation.PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
-        else
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
-                .CopyTo(equipmentTilemap, 0);
-
-        if (mapPresentation is not null)
-        {
-            mapPresentation.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
-                samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-                samus.EquippedItems, samus.HyperBeam != 0);
-        }
-        else for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
-        {
-            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[categoryIndex];
-            ushort collected = GetCollectedBits(categoryIndex);
-            ushort equipped = GetEquippedBits(categoryIndex);
-            for (int item = 0; item < category.ItemCount; item++)
-            {
-                ushort destination = RomDataReader.ReadWordFixedBank(
-                    CartridgeImportSource.Require(bus),
-                    category.OffsetTableAddress + item * 2);
-                int destinationOffset = destination - 0x3800;
-                int byteCount = category.LabelWordCount * 2;
-                if (destinationOffset < 0 || destinationOffset + byteCount > equipmentTilemap.Length)
-                {
-                    throw new InvalidDataException(
-                        $"Equipment label destination ${destination:X4} escapes $7E:3800-$3FFF.");
-                }
-
-                ushort mask = ReadCategoryMask(category, item);
-                bool hyperBeamLabel = categoryIndex == PauseEquipmentCategories.Beams && samus.HyperBeam != 0;
-                ushort source = hyperBeamLabel
-                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentLabelDefinitions.HyperPointerTable + item * 2)
-                    : (collected & mask) != 0
-                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), category.TilemapPointerTableAddress + item * 2)
-                        : PauseMenuRomData.BlankEquipmentTilemap;
-                CopyBank82Words(source, equipmentTilemap.AsSpan(destinationOffset, byteCount));
-                if (!hyperBeamLabel && (collected & mask) != 0 && (equipped & mask) == 0)
-                    RecolorLabel(equipmentTilemap.AsSpan(destinationOffset, byteCount));
-            }
-        }
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Pause equipment requires installed presentation assets."))
+            .PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
+        mapPresentation.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
+            samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
+            samus.EquippedItems, samus.HyperBeam != 0);
 
         plasmaLabelOverrunActive = false;
 
@@ -570,67 +525,29 @@ internal sealed partial class PauseMenuState
         };
         for (int digitIndex = 0; digitIndex < decimalPlaceValues.Length; digitIndex++)
         {
-            if (mapPresentation is not null)
-            {
-                mapPresentation.PauseReserveUi.ApplyDigit(equipmentTilemap, digitIndex, decimalPlaceValues[digitIndex]);
-                continue;
-            }
-            ushort word = unchecked((ushort)(
-                PauseMenuLayout.ReserveSupplyDigitZeroTile + decimalPlaceValues[digitIndex]));
-            int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
-            equipmentTilemap[byteOffset] = unchecked((byte)word);
-            equipmentTilemap[byteOffset + 1] = unchecked((byte)(word >> 8));
+            (mapPresentation ?? throw new InvalidOperationException(
+                "Reserve digits require installed presentation assets."))
+                .PauseReserveUi.ApplyDigit(equipmentTilemap, digitIndex, decimalPlaceValues[digitIndex]);
         }
     }
 
     private void WriteSamusWireframe()
     {
         int variant = PauseEquipmentRules.WireframeIndex(samus.EquippedItems);
-        if (mapPresentation is not null)
-        {
-            mapPresentation.PauseWireframes.ApplyTo(equipmentTilemap, (PauseWireframeKind)variant);
-            return;
-        }
-        // Unbound diagnostic path retains the native source for parity comparisons.
-        ushort sourcePointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
-        if (sourcePointer == 0) throw new InvalidDataException($"Pause wireframe variant {variant} has no artwork.");
-
-        int sourceAddress = 0x820000 | sourcePointer;
-        int destinationOffset = PauseWireframeDefinitions.DestinationByte;
-        for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
-        {
-            for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)
-            {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
-                equipmentTilemap[destinationOffset + column * 2] = unchecked((byte)word);
-                equipmentTilemap[destinationOffset + column * 2 + 1] = unchecked((byte)(word >> 8));
-                sourceAddress = 0x820000 | ((sourceAddress + 2) & 0xffff);
-            }
-            destinationOffset += PauseWireframeDefinitions.DestinationStride;
-        }
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Pause wireframe requires installed presentation assets."))
+            .PauseWireframes.ApplyTo(equipmentTilemap, (PauseWireframeKind)variant);
     }
 
     private void LoadPauseMapTilemap()
     {
-        IAreaMapView map = mapPresentation?.Get(area) ?? (IAreaMapView)AreaMapRomData.Load(bus, area);
+        IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause map requires installed map presentation assets.")).Get(area);
         byte[] mapTilemap = AreaMapTilemapBuilder.Build(
             map, system, MapTileWords.PauseBlank, mapRevealMode);
         vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
 
-        // Installed backdrops already contain their authored area lettering; do not
-        // overwrite an edited title when returning from equipment to the map page.
-        if (mapPresentation is not null) return;
-        LoadNativePauseAreaLabel();
-    }
-
-    private void LoadNativePauseAreaLabel()
-    {
-        ushort labelPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
-        vram.LoadBytes((PauseMenuLayout.Bg2TilemapWord + PauseBackdropDefinitions.LabelCell) * 2,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelBank | labelPointer, PauseBackdropDefinitions.LabelWords * 2));
+        // Installed backdrops already contain their authored area lettering.
     }
 
     private void SetupMapScrolling()
@@ -640,7 +557,8 @@ internal sealed partial class PauseMenuState
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
         bool hasAreaMap = system.HasAreaMap(areaIndex);
-        IAreaMapView map = mapPresentation?.Get(area) ?? (IAreaMapView)AreaMapRomData.Load(bus, area);
+        IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause map requires installed map presentation assets.")).Get(area);
         bool IsVisible(int x, int y)
         {
             bool explored = system.IsMapTileExplored(areaIndex, x, y);
@@ -764,8 +682,9 @@ internal sealed partial class PauseMenuState
     private void ResetItemSelectorAnimation()
     {
         itemSelectorAnimationFrame = 0;
-        itemSelectorAnimationTimer = mapPresentation?.PauseSelectors.InitialDurationTicks ??
-            CartridgeImportSource.Require(bus).ReadCartridgeByte(PauseMenuRomData.ItemSelectorAnimationTimer);
+        itemSelectorAnimationTimer = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause selector requires installed presentation assets."))
+            .PauseSelectors.InitialDurationTicks;
     }
 
     private void StepItemSelectorAnimation()
@@ -779,25 +698,10 @@ internal sealed partial class PauseMenuState
         if (itemSelectorAnimationTimer > 0)
             return;
 
-        if (mapPresentation is not null)
-        {
-            itemSelectorAnimationFrame = mapPresentation.PauseSelectors.NormalizePhase(itemSelectorAnimationFrame + 1);
-            itemSelectorAnimationTimer = mapPresentation.PauseSelectors.Duration(itemSelectorAnimationFrame);
-            return;
-        }
-
-        ushort animationPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseMenuRomData.ItemSelectorAnimationPointer);
-        itemSelectorAnimationFrame++;
-        byte duration = CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff));
-        if (duration == 0xff)
-        {
-            itemSelectorAnimationFrame = 0;
-            duration = CartridgeImportSource.Require(bus).ReadCartridgeByte((int)new SnesAddress(0x82, animationPointer));
-        }
-        itemSelectorAnimationTimer = duration;
+        var selectors = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause selector requires installed presentation assets.")).PauseSelectors;
+        itemSelectorAnimationFrame = selectors.NormalizePhase(itemSelectorAnimationFrame + 1);
+        itemSelectorAnimationTimer = selectors.Duration(itemSelectorAnimationFrame);
     }
 
     private void DrawEquipmentItemSelector()
@@ -805,74 +709,18 @@ internal sealed partial class PauseMenuState
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
             return;
 
-        if (mapPresentation is not null)
-        {
-            var selector = mapPresentation.PauseSelectors;
-            var point = selector.Anchor(selectedCategory, selectedItem);
-            lastIndicatorOriginX = (ushort)point.X;
-            lastIndicatorOriginY = (ushort)point.Y;
-            // Diagnostic identity denotes the native category binding, not an
-            // author-supplied ROM index. Custom phases may use different artwork.
-            lastIndicatorSpritemapId = PauseSelectorDefinitions.NativeSpriteId(selectedCategory);
-            selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
-            return;
-        }
-
-        ushort positionListPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseMenuRomData.EquipmentSelectorPositionPointerTable + selectedCategory * 2);
-        int positionAddress = 0x820000 | ((positionListPointer + selectedItem * 4) & 0xffff);
-        ushort x = unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positionAddress) - 1));
-        ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), positionAddress + 2) - 1));
-
-        ushort animationPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseMenuRomData.ItemSelectorAnimationPointer);
-        int animationEntry = 0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff);
-        byte spritemapOffset = CartridgeImportSource.Require(bus).ReadCartridgeByte(animationEntry + 2);
-
-        // The third variable pointer used by DrawPauseScreenSpriteAnim is WRAM $0755, the
-        // packed equipment selector. The important 65C816 detail is operand width: unlike
-        // the timer/frame dereferences above, the source dereference is an eight-bit load.
-        // It therefore selects by the low-byte category only; using the whole $0302 Bombs
-        // selector walks into the following map-icon data and invents spritemap ID $00CA.
-        ushort animationVariantPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseMenuRomData.ItemSelectorAnimationVariantPointer);
-        if (animationVariantPointer != 0x0755)
-        {
-            throw new InvalidDataException(
-                $"Pause item-selector animation variable is ${animationVariantPointer:X4}, " +
-                "expected native WRAM $0755.");
-        }
-        ushort baseTablePointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseMenuRomData.EquipmentSelectorBaseTablePointer);
-        ushort baseSpritemapId = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            0x820000 | ((baseTablePointer + selectedCategory * 2) & 0xffff));
-        ushort spritemapId = unchecked((ushort)(baseSpritemapId + spritemapOffset));
-        if (spritemapId > 0x0064)
-        {
-            throw new InvalidDataException(
-                $"Pause selector category/item ${selectedItem:X2}{selectedCategory:X2} resolved animation " +
-                $"${animationPointer:X4}/frame {itemSelectorAnimationFrame}/offset " +
-                $"${spritemapOffset:X2} and base table ${baseTablePointer:X4} to " +
-                $"invalid menu spritemap ${spritemapId:X4}.");
-        }
-        lastIndicatorOriginX = x;
-        lastIndicatorOriginY = y;
-        lastIndicatorSpritemapId = spritemapId;
-        DrawMenuSpritemap(
-            spritemapId,
-            x,
-            y,
-            ReadPauseSpritePaletteBits());
+        var selector = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause selector requires installed presentation assets.")).PauseSelectors;
+        var point = selector.Anchor(selectedCategory, selectedItem);
+        lastIndicatorOriginX = (ushort)point.X;
+        lastIndicatorOriginY = (ushort)point.Y;
+        // Diagnostic identity denotes the native category binding, not an
+        // author-supplied ROM index. Custom phases may use different artwork.
+        lastIndicatorSpritemapId = PauseSelectorDefinitions.NativeSpriteId(selectedCategory);
+        selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
-    private ushort ReadPauseSpritePaletteBits() =>
-        mapPresentation is not null ? PauseMenuLayout.MapMarkerPaletteBits :
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.SelectedItemSpritemapPointer);
+    private static ushort ReadPauseSpritePaletteBits() => PauseMenuLayout.MapMarkerPaletteBits;
 
     /// <summary>
     /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and
@@ -942,15 +790,11 @@ internal sealed partial class PauseMenuState
     {
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        if (mapPresentation is not null && MapSpriteDefinitions.Contains(id))
-        {
-            mapPresentation.Sprites.Draw(id, oam, x, y, paletteBits);
-            return;
-        }
-        ushort pointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            PauseMenuRomData.SpritemapPointerTable + id * 2);
-        oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, paletteBits);
+        if (!MapSpriteDefinitions.Contains(id))
+            throw new InvalidDataException($"Menu spritemap ${id:X4} is not installed.");
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Menu spritemap requires installed presentation assets."))
+            .Sprites.Draw(id, oam, x, y, paletteBits);
     }
 
     private void UploadEquipmentTilemap() =>
@@ -958,14 +802,6 @@ internal sealed partial class PauseMenuState
 
     private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
-
-    private void CopyBank82Words(ushort sourcePointer, Span<byte> destination)
-    {
-        int source = 0x820000 | sourcePointer;
-        for (int index = 0; index < destination.Length; index++)
-            destination[index] = CartridgeImportSource.Require(bus).ReadCartridgeByte(
-                (int)new SnesAddress(0x82, unchecked((ushort)(source + index))));
-    }
 
     private static void RecolorLabel(Span<byte> bytes)
     {

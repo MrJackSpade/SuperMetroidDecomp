@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -111,18 +110,9 @@ public sealed class HyperBeamPaletteFxState
         if (completedCycle)
             CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
 
-        if (presentationColors is not null)
-            presentationColors.Apply(cgram, frame.Index, DestinationColorIndex);
-        else
-        {
-            for (int color = 0; color < ColorsPerFrame; color++)
-            {
-                ushort bgr555 = ReadBank8dWord(
-                    bus,
-                    unchecked((ushort)(frame.FirstColorPointer + color * sizeof(ushort))));
-                cgram.SetColor(DestinationColorIndex + color, bgr555);
-            }
-        }
+        (presentationColors ?? throw new InvalidOperationException(
+            "Hyper Beam palette FX requires installed colors."))
+            .Apply(cgram, frame.Index, DestinationColorIndex);
 
         InstructionTimer = frame.Duration;
         CurrentFrameIndex = frame.Index;
@@ -136,11 +126,6 @@ public sealed class HyperBeamPaletteFxState
             CompletedCycles);
     }
 
-    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort address) =>
-        ReadWord(bus, SamusPaletteRomData.Banks.PaletteFx | address);
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>Debugger-visible result of one Hyper Beam palette-object handler call.</summary>

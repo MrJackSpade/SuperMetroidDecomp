@@ -4,7 +4,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -13,8 +12,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <remarks>
 /// This ports the visible state chain at <c>$8B:9A22-$8B:A35A</c>. Installed sessions
-/// supply extracted graphics, palette, and gradient presentation. The cartridge
-/// spritemap reader remains available only for bare diagnostic construction.
+/// supply extracted graphics, palette, and gradient presentation. No cartridge
+/// image is mapped during the title sequence.
 /// </remarks>
 public sealed class TitleSequenceState
 {
@@ -73,7 +72,11 @@ public sealed class TitleSequenceState
         this.audio = audio;
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;
-        this.titleGraphicsPresentation = titleGraphicsPresentation;
+        this.titleGraphicsPresentation = titleGraphicsPresentation ?? throw new InvalidOperationException(
+            "Title sequence requires installed graphics presentation assets.");
+        if (titlePalettePresentation is null)
+            throw new InvalidOperationException(
+                "Title sequence requires installed palette presentation assets.");
         if (queueOpeningMusic)
         {
             audio?.QueueMusicDelayed8(
@@ -84,29 +87,10 @@ public sealed class TitleSequenceState
 
         // `$8B:9B87` expands these four independent streams to bank-$7F. Recreate the
         // subsequent DMA destinations rather than keeping an invented host texture format.
-        byte[] mode7Characters;
-        byte[] mode7Map;
-        byte[] objectCharacters;
-        if (titleGraphicsPresentation is null)
-        {
-            mode7Characters = RomDataReader.Decompress(
-                CartridgeImportSource.Require(bus),
-                TitleSequenceRomData.Assets.Mode7CharactersAddress);
-            mode7Map = RomDataReader.Decompress(CartridgeImportSource.Require(bus), TitleSequenceRomData.Assets.Mode7MapAddress);
-            objectCharacters = RomDataReader.Decompress(
-                CartridgeImportSource.Require(bus),
-                TitleSequenceRomData.Assets.ObjectCharactersAddress);
-            babyMetroidCharacters = RomDataReader.Decompress(
-                CartridgeImportSource.Require(bus),
-                TitleSequenceRomData.Assets.BabyMetroidCharactersAddress);
-        }
-        else
-        {
-            mode7Characters = titleGraphicsPresentation.Mode7Characters.ToArray();
-            mode7Map = titleGraphicsPresentation.Mode7Map.ToArray();
-            objectCharacters = titleGraphicsPresentation.ObjectCharacters.ToArray();
-            babyMetroidCharacters = titleGraphicsPresentation.BabyCharacters.ToArray();
-        }
+        byte[] mode7Characters = titleGraphicsPresentation.Mode7Characters.ToArray();
+        byte[] mode7Map = titleGraphicsPresentation.Mode7Map.ToArray();
+        byte[] objectCharacters = titleGraphicsPresentation.ObjectCharacters.ToArray();
+        babyMetroidCharacters = titleGraphicsPresentation.BabyCharacters.ToArray();
 
         LoadMode7InterleavedVram(mode7Characters, mode7Map);
         vram.LoadBytes(
@@ -116,10 +100,7 @@ public sealed class TitleSequenceState
                 Math.Min(
                     TitleSequenceRomData.Vram.ObjectCharacterByteCount,
                     objectCharacters.Length)));
-        if (titlePalettePresentation is null)
-            cgram.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
-        else
-            titlePalettePresentation.Apply(cgram);
+        titlePalettePresentation.Apply(cgram);
         ResetConsolePaletteFx();
 
         // The Year object's pre-instruction forces full brightness on the first
@@ -646,9 +627,7 @@ public sealed class TitleSequenceState
         }
     }
 
-    private ushort ReadWord(int address) => titleGraphicsPresentation is not null
-        ? TitleSequenceInstructionDefinitions.ReadWord(address)
-        : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+    private static ushort ReadWord(int address) => TitleSequenceInstructionDefinitions.ReadWord(address);
 
     private static int AddWithinBank(int address, int bytes) =>
         (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);

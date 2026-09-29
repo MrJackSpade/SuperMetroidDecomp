@@ -11,17 +11,14 @@ public sealed record GameInstallation(string Root)
     public string ContentDirectory => Path.Combine(Root, GameInstallationLayout.ContentDirectoryName);
     public string RomPath => Path.Combine(ContentDirectory, GameInstallationLayout.RomFileName);
     /// <summary>
-    /// Opens mutable game memory from a private ROM when present, or from a
-    /// completely extracted and validated installation when that copy is absent.
-    /// A missing ROM never excuses missing or damaged presentation assets.
+    /// Opens mutable game memory only after validating the extracted installation.
+    /// Gameplay never maps a cartridge image, even when the private import copy exists.
     /// </summary>
     public SuperMetroidAddressSpace OpenRuntimeAddressSpace()
     {
-        if (File.Exists(RomPath))
-            return SuperMetroidAddressSpace.LoadRetailRom(RomPath);
         if (GameAssetInstaller.TryOpenExtractedContent(Root) is null)
             throw new InvalidDataException(
-                "Installed ROM is absent and extracted game content is incomplete or invalid.");
+                "Extracted game content is incomplete or invalid.");
         return SuperMetroidAddressSpace.CreateWithoutCartridge();
     }
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);

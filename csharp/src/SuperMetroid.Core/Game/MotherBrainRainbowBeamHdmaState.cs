@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -136,8 +135,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
     private static int Tangent(ISnesAddressSpace bus, int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
     private ushort ReadColorWord(ISnesAddressSpace bus, int cursor) =>
-        presentationColors is { } colors
-            ? colors.BeamColorWord(cursor)
-            : RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                MotherBrainBeamRomData.ColorTable + cursor);
+        (presentationColors ?? throw new InvalidOperationException(
+            "Mother Brain rainbow beam requires installed colors."))
+            .BeamColorWord(cursor);
 }

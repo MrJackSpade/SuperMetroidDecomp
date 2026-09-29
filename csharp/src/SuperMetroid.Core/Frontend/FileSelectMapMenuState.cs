@@ -23,7 +23,6 @@ public sealed partial class FileSelectMapMenuState
     private readonly FileSelectRoomMapGraphics roomGraphics;
     private FileSelectMapScroll scroll;
     private FileSelectStationMarker marker;
-    private readonly Func<FileSelectMapScroll> createScroll;
     private readonly ushort stationIndex;
     private bool markerDrawn;
     private readonly FileSelectMapAnimations animations;
@@ -52,20 +51,10 @@ public sealed partial class FileSelectMapMenuState
         for (int index = 0; index < usedStations.Length; index++)
             usedStations[index] = BinaryPrimitives.ReadUInt16LittleEndian(slot.UsedSaveStationBytes.AsSpan(index * 2));
         var typedArea = (AreaId)area;
-        // Keep the legacy closure's captured field names/types available to old
-        // debugger graphs. Installed menus no longer populate that native baseline.
-        LoadStationEntry station = null!;
-        CartridgeRoomHeader room = null!;
         if (mapPresentation is null)
-        {
-            station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
-            room = CartridgeRoomHeader.Load(RequireReferenceCartridge(bus), station.RoomPointer);
-        }
+            throw new InvalidOperationException("File-select map requires installed map presentation assets.");
         areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.Screens, mapPresentation?.WorldArtwork, mapPresentation?.Sprites);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
-        createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
-            (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
-            (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
@@ -100,27 +89,11 @@ public sealed partial class FileSelectMapMenuState
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
         var typedArea = (AreaId)area;
-        if (mapPresentation is not null)
-        {
-            var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
-            return new FileSelectMapScroll(bus, mapPresentation.Get(typedArea), roomGraphics.MapSystem, anchor.X, anchor.Y);
-        }
-        // Unbound diagnostics resolve current native metadata explicitly. Do not
-        // invoke the retained legacy closure: a newly installed/restored menu may
-        // intentionally have no room or load-station objects captured in it.
-        LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)stationIndex));
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
-            RequireReferenceCartridge(bus), station.RoomPointer);
-        return new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), roomGraphics.MapSystem,
-            (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
-            (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
+        AreaMapPresentationCatalog catalog = mapPresentation ?? throw new InvalidOperationException(
+            "File-select map requires installed map presentation assets.");
+        var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
+        return new FileSelectMapScroll(bus, catalog.Get(typedArea), roomGraphics.MapSystem, anchor.X, anchor.Y);
     }
-
-    // The unbound menu exists only for cartridge-reference diagnostics. Installed menus
-    // take their anchors from MapPresentation and never request a native room header.
-    private static IImportCartridgeSource RequireReferenceCartridge(ISnesAddressSpace bus) =>
-        bus as IImportCartridgeSource ?? throw new InvalidOperationException(
-            "Unbound file-map diagnostics require an explicit cartridge import source.");
 
     public void Step(ushort input)
     {

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -1671,9 +1670,8 @@ public sealed partial class RoomEnemySystem
                         unchecked((ushort)(cursor + 2)));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Y:
-                    cursor = unchecked((ushort)(cursor + 2 + unchecked((sbyte)CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
-                        0x860000 | unchecked((ushort)(cursor + 2))))));
-                    break;
+                    throw new InvalidDataException(
+                        $"Projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero:
                 {
                     ushort before = projectile.GeneralTimer;
@@ -1686,15 +1684,8 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
-                {
-                    ushort before = projectile.GeneralTimer;
-                    projectile.GeneralTimer = unchecked((ushort)(before - 1));
-                    cursor = before == 1
-                        ? unchecked((ushort)(cursor + 3))
-                        : unchecked((ushort)(cursor + 2 + unchecked((sbyte)CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
-                            0x860000 | unchecked((ushort)(cursor + 2))))));
-                    break;
-                }
+                    throw new InvalidDataException(
+                        $"Unused projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY:
                     projectile.GeneralTimer = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -154,7 +153,8 @@ public sealed class GameplayMessageBoxState
         else if (titlePresentation?.Contains(messageId) == true)
             _tilemap = titlePresentation.Build(messageId);
         else
-            BuildCartridgeTilemap(bus, messageId, shootBinding, runBinding);
+            throw new InvalidOperationException(
+                $"Gameplay message {messageId} requires installed presentation assets.");
 
         MessageId = messageId;
         _activeBus = bus;
@@ -168,71 +168,6 @@ public sealed class GameplayMessageBoxState
         ConfirmationSelectionYes = true;
         DrawSaveConfirmationSelection();
         Phase = GameplayMessageBoxPhase.Opening;
-    }
-
-    private void BuildCartridgeTilemap(
-        ISnesAddressSpace bus,
-        GameplayMessageId messageId,
-        ushort shootBinding,
-        ushort runBinding)
-    {
-        byte rawMessageId = (byte)messageId;
-        GameplayMessageDefinition definition =
-            GameplayMessageDefinitions.AtNativeIndex(rawMessageId);
-        ushort modifyFunction = definition.ModifyFunction;
-        ushort drawFunction = definition.DrawFunction;
-        ushort contentPointer = definition.ContentPointer;
-        ushort nextContentPointer = GameplayMessageDefinitions
-            .AtNativeIndex(rawMessageId + 1).ContentPointer;
-        int contentByteCount = nextContentPointer - contentPointer;
-        if (contentByteCount <= 0 ||
-            (contentByteCount % (GameplayMessageRomData.Layout.TilemapWidth * 2)) != 0)
-        {
-            throw new InvalidDataException(
-                $"Message {messageId} content ${contentPointer:X4}-${nextContentPointer:X4} " +
-                "does not contain complete 32-word rows.");
-        }
-
-        int borderAddress = drawFunction switch
-        {
-            GameplayMessageRomData.Routines.DrawSmallTilemap => GameplayMessageRomData.Assets.SmallBorder,
-            GameplayMessageRomData.Routines.DrawLargeTilemap => GameplayMessageRomData.Assets.LargeBorder,
-            _ => throw new InvalidDataException(
-                $"Message {messageId} names unsupported draw routine $85:{drawFunction:X4}."),
-        };
-
-        // The draw routine selects border artwork; content height comes from the
-        // difference between adjacent definition pointers. Message $14 deliberately
-        // combines the small border with three content rows.
-        int contentRows = contentByteCount /
-            (GameplayMessageRomData.Layout.TilemapWidth * sizeof(ushort));
-        _tilemap = new ushort[(contentRows + GameplayMessageRomData.Layout.BorderRows) *
-            GameplayMessageRomData.Layout.TilemapWidth];
-        for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
-        {
-            ushort borderWord = ReadWord(bus, borderAddress + column * sizeof(ushort));
-            _tilemap[column] = borderWord;
-            _tilemap[_tilemap.Length - GameplayMessageRomData.Layout.TilemapWidth + column] = borderWord;
-        }
-        for (int word = 0; word < contentByteCount / sizeof(ushort); word++)
-            _tilemap[GameplayMessageRomData.Layout.TilemapWidth + word] = ReadWord(
-                bus, GameplayMessageRomData.Assets.BankBase | (contentPointer + word * sizeof(ushort)));
-
-        switch (modifyFunction)
-        {
-            case GameplayMessageRomData.Routines.PatchShootButton:
-                PatchConfiguredButton(messageId, shootBinding);
-                break;
-            case GameplayMessageRomData.Routines.PatchRunButton:
-                PatchConfiguredButton(messageId, runBinding);
-                break;
-            case GameplayMessageRomData.Routines.SetupSmall:
-            case GameplayMessageRomData.Routines.SetupLarge:
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Message {messageId} names unsupported setup routine $85:{modifyFunction:X4}.");
-        }
     }
 
     /// <summary>Consumes the completed result of save confirmation message $17.</summary>
@@ -395,26 +330,7 @@ public sealed class GameplayMessageBoxState
                 MessageId, _tilemap, ConfirmationSelectionYes);
             return;
         }
-        ISnesAddressSpace source = _activeBus
-            ?? throw new InvalidOperationException(
-                "Save confirmation cursor changed without its cartridge address space.");
-        if (_tilemap.Length <
-            GameplayMessageRomData.Layout.SaveSelectionDestinationWord +
-            GameplayMessageRomData.Layout.SaveSelectionRowWords)
-        {
-            throw new InvalidDataException(
-                "Save confirmation tilemap is too short for the native selected YES/NO row.");
-        }
-
-        int sourceWord = ConfirmationSelectionYes
-            ? GameplayMessageRomData.Layout.SaveSelectionYesSourceWord
-            : GameplayMessageRomData.Layout.SaveSelectionNoSourceWord;
-        for (int word = 0; word < GameplayMessageRomData.Layout.SaveSelectionRowWords; word++)
-        {
-            _tilemap[GameplayMessageRomData.Layout.SaveSelectionDestinationWord + word] = ReadWord(
-                source,
-                GameplayMessageRomData.Assets.SaveSelectionTilemap + (sourceWord + word) * 2);
-        }
+        throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
     }
 
     private void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
@@ -462,8 +378,6 @@ public sealed class GameplayMessageBoxState
         return GameplayMessageRomData.Buttons.UnknownGlyph.Raw;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }
 
 /// <summary>Coroutine phase for <see cref="GameplayMessageBoxState"/>.</summary>

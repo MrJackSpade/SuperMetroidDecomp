@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -256,30 +255,14 @@ public sealed partial class RoomEnemySystem
                     DraygonIntroPresentationDefinitions.EvirTilesByteCount)
                     throw new InvalidDataException(
                         "Draygon opening Evir sheet no longer has the compiled transfer length.");
-                if (TileArtwork is { } artwork)
-                {
-                    if (!artwork.TryResolve(evir.TileDataAddress,
-                            DraygonIntroPresentationDefinitions.EvirTilesByteCount,
-                            out ReadOnlyMemory<byte> installedTiles))
-                        throw new InvalidDataException(
-                            "Installed Evir graphics are missing for Draygon's opening transfer.");
-                    _vram!.LoadBytes(
-                        DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
-                        installedTiles.Span);
-                }
-                else
-                {
-                    // The cartridge-backed diagnostic path retains the native
-                    // DMA source; production uses the same indexed enemy PNG as
-                    // Evir's ordinary room-entry graphics-set upload.
-                    byte[] tiles = new byte[
-                        DraygonIntroPresentationDefinitions.EvirTilesByteCount];
-                    for (int index = 0; index < tiles.Length; index++)
-                        tiles[index] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(evir.TileDataAddress + index);
-                    _vram!.LoadBytes(
-                        DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
-                        tiles);
-                }
+                if (TileArtwork?.TryResolve(evir.TileDataAddress,
+                        DraygonIntroPresentationDefinitions.EvirTilesByteCount,
+                        out ReadOnlyMemory<byte> installedTiles) != true)
+                    throw new InvalidDataException(
+                        "Installed Evir graphics are missing for Draygon's opening transfer.");
+                _vram!.LoadBytes(
+                    DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
+                    installedTiles.Span);
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -32,26 +31,12 @@ public sealed class GameOverMenuState
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
-        this.mapPresentation = mapPresentation;
-        ppu = mapPresentation is null
-            ? new MenuPpuState(bus)
-            : new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
-                mapPresentation.WorldArtwork, mapPresentation.Sprites,
-                loadInitialBackground: false);
-        if (mapPresentation is null)
-        {
-            Array.Fill(tilemap, GameOverRomData.BlankTile.Raw);
-
-            // GameOverMenu_1_Init uses the general bank-$81 command-stream loader. These five
-            // pointers are the cartridge's localized text and line breaks, not host strings.
-            foreach (GameOverTextStream stream in GameOverRomData.Text.All)
-                LoadMenuTilemap(stream);
-            ppu.Vram.ExecuteWordTransfer(tilemap, MenuPpuState.Bg1TilemapWord, 1);
-        }
-        else
-        {
-            mapPresentation.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
-        }
+        this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
+            "Game-over screen requires installed presentation assets.");
+        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, mapPresentation.Sprites,
+            loadInitialBackground: false);
+        mapPresentation.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
         Phase = GameOverMenuPhase.Initialize;
     }
 
@@ -77,9 +62,9 @@ public sealed class GameOverMenuState
     public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         string? previousIdentity = mapPresentation?.ContentIdentity;
-        mapPresentation = catalog;
-        if (catalog is null || string.Equals(
-                previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
+        mapPresentation = catalog ?? throw new InvalidOperationException(
+            "Game-over screen requires installed presentation assets.");
+        if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
 
         ppu.BindMapTiles(bus, catalog.Tiles);
@@ -202,56 +187,21 @@ public sealed class GameOverMenuState
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
-        if (mapPresentation is not null)
-        {
-            GameOverBabyInstruction instruction = babyInstructionPointer == 0
-                ? GameOverBabyAnimationDefinitions.Get(GameOverBabyAnimationDefinitions.FirstPointer)
-                : GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
-            mapPresentation.GameOver.DrawBaby(oam, instruction.Frame);
-            mapPresentation.GameOver.DrawEgg(oam);
-            mapPresentation.GameOver.DrawCursor(oam, missileFrame, SelectedItem != 0);
-            oam.FinalizeFrame();
-            return;
-        }
-        DrawMenuSpritemap(
-            babySpritemap,
-            GameOverRomData.Sprites.BabyX,
-            GameOverRomData.Sprites.BabyY,
-            GameOverRomData.Sprites.BabyPalette.Raw);
-        DrawMenuSpritemap(
-            GameOverRomData.Sprites.EggSpritemap,
-            GameOverRomData.Sprites.BabyX,
-            GameOverRomData.Sprites.BabyY,
-            GameOverRomData.Sprites.EggPalette.Raw);
-        ushort missileY = SelectedItem == 0
-            ? GameOverRomData.Sprites.YesMissileY
-            : GameOverRomData.Sprites.NoMissileY;
-        DrawMenuSpritemap(
-            GameOverRomData.Sprites.MissileFrameIds[missileFrame],
-            GameOverRomData.Sprites.MissileX,
-            missileY,
-            MenuPpuState.ObjectPaletteBits);
+        var content = mapPresentation ?? throw new InvalidOperationException(
+            "Game-over screen requires installed presentation assets.");
+        GameOverBabyInstruction instruction = babyInstructionPointer == 0
+            ? GameOverBabyAnimationDefinitions.Get(GameOverBabyAnimationDefinitions.FirstPointer)
+            : GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+        content.GameOver.DrawBaby(oam, instruction.Frame);
+        content.GameOver.DrawEgg(oam);
+        content.GameOver.DrawCursor(oam, missileFrame, SelectedItem != 0);
         oam.FinalizeFrame();
     }
 
     /// <summary>Ports <c>HandleGameOverBabyMetroid</c>'s six/eight-byte instruction stream.</summary>
     private void StepBabyMetroid()
     {
-        if (mapPresentation is not null)
-        {
-            StepCompiledBabyMetroid();
-            return;
-        }
-        if (babyInstructionTimer == 0)
-        {
-            babyInstructionPointer = GameOverRomData.BabyAnimation.FirstInstruction;
-            babyInstructionTimer = GameOverRomData.BabyAnimation.InitialFrameDuration;
-        }
-
-        babyInstructionTimer = unchecked((ushort)(babyInstructionTimer - 1));
-        if (babyInstructionTimer == 0)
-            AdvanceBabyInstruction();
-        LoadCurrentBabyFrame();
+        StepCompiledBabyMetroid();
     }
 
     private void StepCompiledBabyMetroid()
@@ -292,89 +242,6 @@ public sealed class GameOverMenuState
         };
         audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
     }
-
-    private void AdvanceBabyInstruction()
-    {
-        ushort next = ReadBank82Word(unchecked((ushort)(
-            babyInstructionPointer + GameOverRomData.BabyAnimation.NextInstructionOffset)));
-        if (next == GameOverRomData.BabyAnimation.End)
-        {
-            babyInstructionPointer = GameOverRomData.BabyAnimation.FirstInstruction;
-            babyInstructionTimer = GameOverRomData.BabyAnimation.InitialFrameDuration;
-            return;
-        }
-
-        if ((next & 0x8000) != 0)
-        {
-            audio.QueueSound(
-                GameOverRomData.BabyAnimation.ResolveCry(next),
-                maximumQueued: GameOverRomData.MaximumQueuedSounds);
-            babyInstructionPointer = unchecked((ushort)(
-                babyInstructionPointer + GameOverRomData.BabyAnimation.SoundInstructionByteCount));
-            babyInstructionTimer = ReadBank82Word(babyInstructionPointer);
-        }
-        else
-        {
-            babyInstructionPointer = unchecked((ushort)(
-                babyInstructionPointer + GameOverRomData.BabyAnimation.FrameByteCount));
-            babyInstructionTimer = next;
-        }
-    }
-
-    private void LoadCurrentBabyFrame()
-    {
-        babySpritemap = ReadBank82Word(unchecked((ushort)(
-            babyInstructionPointer + GameOverRomData.BabyAnimation.SpritemapOffset)));
-        ushort palettePointer = ReadBank82Word(unchecked((ushort)(
-            babyInstructionPointer + GameOverRomData.BabyAnimation.PalettePointerOffset)));
-        for (int color = 0; color < GameOverRomData.BabyAnimation.PaletteColorCount; color++)
-        {
-            ppu.Cgram.SetColor(
-                GameOverRomData.BabyAnimation.PaletteDestinationIndex + color,
-                ReadBank82Word(unchecked((ushort)(palettePointer + color * 2))));
-        }
-    }
-
-    private void LoadMenuTilemap(GameOverTextStream stream)
-    {
-        int destinationByteOffset = stream.DestinationByteOffset;
-        int initialColumn = destinationByteOffset;
-        int sourceAddress = GameOverRomData.TextBank | stream.SourcePointer;
-        while (true)
-        {
-            ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
-            sourceAddress = GameOverRomData.TextBank | ((sourceAddress + 2) & 0xffff);
-            if (word == GameOverRomData.TextEnd)
-                return;
-            if (word == GameOverRomData.TextNextLine)
-            {
-                initialColumn += GameOverRomData.TilemapRowByteCount;
-                destinationByteOffset = initialColumn;
-                continue;
-            }
-
-            int wordIndex = destinationByteOffset >> 1;
-            if ((uint)wordIndex >= tilemap.Length)
-                throw new InvalidDataException("A game-over text stream escaped BG1.");
-            tilemap[wordIndex] = word;
-            destinationByteOffset += 2;
-        }
-    }
-
-    private void DrawMenuSpritemap(
-        ushort spritemapId,
-        ushort x,
-        ushort y,
-        ushort paletteBits)
-    {
-        ushort pointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            MenuPpuState.SpritemapPointerTableAddress + spritemapId * 2);
-        oam.AddOnScreenSpritemap(bus, GameOverRomData.SpriteBank | pointer, x, y, paletteBits);
-    }
-
-    private ushort ReadBank82Word(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
 
     private void StepMissileAnimation()
     {

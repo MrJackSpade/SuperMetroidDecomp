@@ -160,7 +160,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Loads one six-byte bank-$91 object definition as <c>$91:8395</c> does.
-    /// An owner may supply a compiled definition reader when that object has been migrated.
+    /// The owner must supply the compiled definition reader.
     /// </summary>
     public void LoadObject(
         ISnesAddressSpace bus,
@@ -172,8 +172,9 @@ public sealed class DemoInputState
         ArgumentNullException.ThrowIfNull(bus);
 
         InitializationParameter = initializationParameter;
-        ushort Read(ushort pointer) => definitionWord is null
-            ? ReadWord(bus, pointer) : definitionWord(pointer);
+        Func<ushort, ushort> readDefinition = definitionWord ?? throw new InvalidOperationException(
+            "Demo input requires installed object definitions.");
+        ushort Read(ushort pointer) => readDefinition(pointer);
         ushort initializerPointer = Read(objectPointer);
         PreInstructionPointer = Read(unchecked((ushort)(objectPointer + 2)));
         InstructionPointer = Read(unchecked((ushort)(objectPointer + 4)));
@@ -188,7 +189,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words.
-    /// An owner may supply a bounded compiled list reader; other objects remain ROM-backed.
+    /// The owner supplies a bounded compiled list reader.
     /// </summary>
     public void Step(
         ISnesAddressSpace bus,
@@ -229,8 +230,9 @@ public sealed class DemoInputState
         Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction,
         Func<ushort, ushort>? instructionWord)
     {
-        ushort Read(ushort pointer) => instructionWord is null
-            ? ReadWord(bus, pointer) : instructionWord(pointer);
+        Func<ushort, ushort> readInstruction = instructionWord ?? throw new InvalidOperationException(
+            "Demo input requires an installed instruction list.");
+        ushort Read(ushort pointer) => readInstruction(pointer);
         ushort cursor = InstructionPointer;
         while (true)
         {
@@ -315,17 +317,6 @@ public sealed class DemoInputState
                     break;
             }
         }
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort address)
-    {
-        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
-            throw new ArgumentException(
-                "Uncompiled demo-input lists require a cartridge import source.", nameof(bus));
-        return unchecked((ushort)(
-            cartridge.ReadCartridgeByte(DemoInputRomData.BankBase | address) |
-            cartridge.ReadCartridgeByte(DemoInputRomData.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
     }
 
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>

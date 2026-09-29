@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -24,10 +23,14 @@ public sealed partial class FileSelectAreaMapGraphics
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        if (mapTiles is null || mapPalettes is null || mapScreens is null ||
+            worldArtwork is null || mapSprites is null)
+            throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         palettes = mapPalettes;
         screens = mapScreens;
         sprites = mapSprites;
-        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites, loadInitialBackground: mapScreens is null);
+        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites,
+            loadInitialBackground: false);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         ppu.Cgram.SetColor(14, 0);
@@ -43,26 +46,22 @@ public sealed partial class FileSelectAreaMapGraphics
     {
         if ((uint)selectedArea >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(selectedArea));
-        if (palettes is not null) LoadInstalledPalette(selectedArea);
-        else for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
-                LoadAreaPalette(area, area == selectedArea);
+        LoadInstalledPalette(selectedArea);
         LoadBackground(selectedArea);
         SelectedArea = selectedArea;
     }
 
     private void LoadForeground()
     {
-        if (screens is null) ppu.LoadBg1(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
-        else screens.LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
+        (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
+            .LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
     }
 
     private void LoadBackground(int selectedArea)
     {
-        if (screens is not null) screens.LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2, MapScreenDefinitions.WorldBackground((AreaId)selectedArea));
-        else ppu.Vram.LoadBytes(FileSelectMapRomData.AreaBackgroundVram * 2,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                FileSelectMapRomData.AreaBackgrounds + selectedArea * FileSelectMapRomData.TilemapBytes,
-                FileSelectMapRomData.TilemapBytes));
+        (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
+            .LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2,
+                MapScreenDefinitions.WorldBackground((AreaId)selectedArea));
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>
@@ -85,24 +84,6 @@ public sealed partial class FileSelectAreaMapGraphics
     {
         var colors = palettes!.World((SuperMetroid.Core.Game.AreaId)selectedArea);
         for (int color = 0; color < colors.Length; color++) Cgram.SetColor(color, colors[color]);
-    }
-
-    private void LoadAreaPalette(int area, bool active)
-    {
-        int offsets = active ? FileSelectMapRomData.ActivePaletteOffsets : FileSelectMapRomData.InactivePaletteOffsets;
-        int cursor = FileSelectMapRomData.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + area * 2);
-        // At most one whole bank of four-byte records can exist. Retain a corruption
-        // guard instead of silently accepting an unterminated palette program.
-        for (int records = 0; records < 16384; records++, cursor += 4)
-        {
-            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
-            if (source == ushort.MaxValue) return;
-            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + 2);
-            if ((destination & 1) != 0 || destination / 2 + 5 > SnesCgram.ColorCount)
-                throw new InvalidDataException("Area-map palette program addresses invalid CGRAM colors.");
-            ppu.Cgram.LoadFromBus(bus, FileSelectMapRomData.PaletteColors + source, 5, destination / 2);
-        }
-        throw new InvalidDataException("Area-map palette program has no terminator.");
     }
 
     /// <summary>
@@ -149,44 +130,30 @@ public sealed partial class FileSelectAreaMapGraphics
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         var oam = new OamBuffer();
         oam.BeginFrame();
-        ushort title = sprites is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelSpritemapBase) : MapSpriteDefinitions.WorldTitle;
+        if (labels is null || sprites is null)
+            throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
+        ushort title = MapSpriteDefinitions.WorldTitle;
         Draw(title, 128, 16, 0);
         for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
         {
-            ushort area = labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.DisplayAreaIndices + displayArea * 2)
-                : (ushort)FileSelectMapAreaOrder.Get(displayArea);
+            ushort area = (ushort)FileSelectMapAreaOrder.Get(displayArea);
             if (area >= FileSelectMapRomData.AreaCount)
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
-            if (labels is not null)
-            {
-                if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area])) DrawArea(area);
-                continue;
-            }
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SavePointMapPointers + area * 2);
-            for (int station = 0; station < 16; station++)
-            {
-                ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (ushort)(pointer + station * 4));
-                if (x == ushort.MaxValue) break;
-                if (x == ushort.MaxValue - 1 || (usedStationMasks[area] & (1 << station)) == 0) continue;
+            if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area]))
                 DrawArea(area);
-                break;
-            }
         }
         oam.FinalizeFrame();
         return oam;
 
         void DrawArea(ushort area)
         {
-            int label = FileSelectMapRomData.LabelPositions + area * 4;
-            Draw((ushort)(title + area + 1), labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), label) : (ushort)labels.Get(area).X,
-                labels is null ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), label + 2) : (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
+            Draw((ushort)(title + area + 1), (ushort)labels.Get(area).X,
+                (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
         }
 
         void Draw(ushort id, ushort x, ushort y, ushort palette)
         {
-            if (sprites is not null) { sprites.Draw(id, oam, x, y, palette); return; }
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);
-            oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer, x, y, palette);
+            sprites.Draw(id, oam, x, y, palette);
         }
     }
 }

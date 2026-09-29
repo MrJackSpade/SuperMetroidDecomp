@@ -69,7 +69,6 @@ public enum RidleyAiFunction : ushort
     CeresWaitBeforeRetrievingBaby = 0xbdf2,
     CeresRetrieveBaby = 0xbe03,
 
-    NorfairGrabbedSamus = 0xc04e,
     NorfairReleaseSamus = 0xc538,
     NorfairDeathStart = 0xc53e,
     NorfairDeathExplosions = 0xc551,

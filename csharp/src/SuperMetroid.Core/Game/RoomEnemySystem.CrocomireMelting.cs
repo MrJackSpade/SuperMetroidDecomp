@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -36,26 +35,11 @@ public sealed partial class RoomEnemySystem
         Span<ushort> working = death.MutableBg2WorkingTilemap;
         working.Fill(CrocomireBlankBg2Tile);
         int copiedWords;
-        if (TileArtwork?.CrocomireMelting is { } artwork)
-        {
-            ReadOnlySpan<ushort> tilemap = artwork.Tilemap(tilemapAddress);
-            copiedWords = tilemap.Length;
-            tilemap.CopyTo(working[32..]);
-        }
-        else
-        {
-            copiedWords = 0;
-            while (copiedWords < 0x0400)
-            {
-                ushort word = ReadWord(_bus!, tilemapAddress + copiedWords * 2);
-                if (word == 0xffff)
-                    break;
-                working[32 + copiedWords] = word;
-                copiedWords++;
-            }
-            if (copiedWords == 0x0400)
-                throw new InvalidDataException("Crocomire melting tilemap has no $FFFF terminator.");
-        }
+        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
+            "Crocomire melting requires installed tilemap artwork.");
+        ReadOnlySpan<ushort> tilemap = artwork.Tilemap(tilemapAddress);
+        copiedWords = tilemap.Length;
+        tilemap.CopyTo(working[32..]);
 
         // $A4:93BE receives byte count `tilemap bytes + $0400`, so the initial upload also
         // includes 512 blank leading words and retains blank space after the compact image.
@@ -76,37 +60,10 @@ public sealed partial class RoomEnemySystem
         death.MaximumAdjustedDestinationY = pass.MaximumAdjustedDestinationY;
         death.AdjustedDestinationY = death.MaximumAdjustedDestinationY;
         death.DistortionEndY = pass.DistortionEndY;
-        int wordsToCopy = pass.WordsToCopy;
-        byte sourceBank = pass.SourceBank;
-
         Span<byte> graphics = death.MutableMeltingGraphics;
-        if (TileArtwork?.CrocomireMelting is { } artwork)
-        {
-            artwork.CopyPassTo(pass.HeaderOffset, graphics);
-        }
-        else
-        {
-            foreach (CrocomireMeltingCopy copy in pass.Copies.Span)
-            {
-                ushort source = copy.SourceWord;
-                ushort destination = copy.DestinationWord;
-                int destinationOffset = unchecked((ushort)(destination - 0x4000));
-
-                // The assembly seeds the counter with $0200 and loops through zero, copying
-                // $0201 words. Preserve that overlap in non-installed diagnostic fixtures.
-                int byteCount = checked((wordsToCopy + 1) * 2);
-                if (destinationOffset < 0 || destinationOffset + byteCount > graphics.Length)
-                {
-                    throw new InvalidDataException(
-                        $"Crocomire melting copy ${sourceBank:X2}:{source:X4} exceeds its scratch image.");
-                }
-                for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
-                {
-                    graphics[destinationOffset + byteIndex] = CartridgeImportSource.Require(_bus!).ReadCartridgeByte(
-                        (sourceBank << 16) | unchecked((ushort)(source + byteIndex)));
-                }
-            }
-        }
+        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
+            "Crocomire melting requires installed graphics artwork.");
+        artwork.CopyPassTo(pass.HeaderOffset, graphics);
 
         // Keep the native cursor so serialized mid-melt states resume at the same record.
         death.MeltingTableOffset = pass.TransferStartOffset;

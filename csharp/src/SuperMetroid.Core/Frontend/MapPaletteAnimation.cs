@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Shared $82:A92B palette animation used by pause and file-select maps.</summary>
-public sealed class MapPaletteAnimation(ISnesAddressSpace bus)
+public sealed class MapPaletteAnimation
 {
+    public MapPaletteAnimation(ISnesAddressSpace bus) => ArgumentNullException.ThrowIfNull(bus);
     private byte timer = 1;
     private byte frame;
     [NonSerialized] private MapPaletteCycle? content;
@@ -21,33 +21,15 @@ public sealed class MapPaletteAnimation(ISnesAddressSpace bus)
     public bool Step(SnesCgram cgram)
     {
         if (timer == 0 || --timer != 0) return false;
-        if (content is not null)
-        {
-            // Preserve native increment-before-read and loop sound ownership. A
-            // shorter replacement cycle wraps at the next frame boundary, not bind.
-            int next = frame + 1;
-            bool wrapped = next >= content.FrameCount;
-            frame = (byte)(wrapped ? 0 : next);
-            timer = content.Duration(frame);
-            content.Apply(cgram, frame, MapAnimationRomData.PaletteDestination);
-            return wrapped;
-        }
-        frame++;
-        IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
-            throw new InvalidOperationException(
-                "Uncompiled map palette animation requires a cartridge import source.");
-        byte delay = cartridge.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3);
-        bool looped = delay == byte.MaxValue;
-        if (looped)
-        {
-            frame = 0;
-            delay = cartridge.ReadCartridgeByte(MapAnimationRomData.PaletteTiming);
-            if (delay == byte.MaxValue) throw new InvalidDataException("Map palette animation has no frames.");
-        }
-        timer = delay;
-        for (int color = 0; color < 16; color++)
-            cgram.SetColor(MapAnimationRomData.PaletteDestination + color,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.PaletteColors + frame * 32 + color * 2));
-        return looped;
+        MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
+            "Map palette animation requires installed palette-cycle assets.");
+        // Preserve native increment-before-read and loop sound ownership. A
+        // shorter replacement cycle wraps at the next frame boundary, not bind.
+        int next = frame + 1;
+        bool wrapped = next >= cycle.FrameCount;
+        frame = (byte)(wrapped ? 0 : next);
+        timer = cycle.Duration(frame);
+        cycle.Apply(cgram, frame, MapAnimationRomData.PaletteDestination);
+        return wrapped;
     }
 }

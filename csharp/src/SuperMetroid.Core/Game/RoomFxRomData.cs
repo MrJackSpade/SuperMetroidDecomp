@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -381,23 +380,7 @@ public static class RoomFxRomData
         bool useCompiledRecords = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (useCompiledRecords)
-            return RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
-        ushort record = fxPointer;
-        for (int guard = 0; guard < 256; guard++)
-        {
-            ushort candidateDoor = RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
-                Banks.RoomDefinitions | unchecked((ushort)(record + Record.DoorPointerOffset)));
-            if (candidateDoor == 0 || candidateDoor == doorPointer)
-                return record;
-            if (candidateDoor == Record.TerminatorDoorPointer)
-                return 0;
-            record = unchecked((ushort)(record + Record.ByteCount));
-        }
-
-        throw new InvalidDataException(
-            $"Room FX list $83:{fxPointer:X4} did not terminate for door $83:{doorPointer:X4}.");
+        return RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
     }
 
     /// <summary>Reads one byte from a selected bank-$83 FX record.</summary>
@@ -407,10 +390,7 @@ public static class RoomFxRomData
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)fieldOffset >= Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        if (useCompiledRecords)
-            return RoomFxRecordDefinitions.Get(record).ReadByte(fieldOffset);
-        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
+        return RoomFxRecordDefinitions.Get(record).ReadByte(fieldOffset);
     }
 
     /// <summary>Reads one little-endian word from a selected bank-$83 FX record.</summary>
@@ -420,10 +400,6 @@ public static class RoomFxRomData
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)fieldOffset > Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        if (useCompiledRecords)
-            return RoomFxRecordDefinitions.Get(record).ReadWord(fieldOffset);
-        return RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
-            Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
+        return RoomFxRecordDefinitions.Get(record).ReadWord(fieldOffset);
     }
 }

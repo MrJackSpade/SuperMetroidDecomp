@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -295,8 +294,8 @@ public sealed class SamusDeathSequenceState
 
         AnimationTimer =
             SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex);
-        ushort paletteIndex = artwork?.ExplosionPaletteIndex(AnimationIndex) ??
-            ReadExplosionPaletteIndex(bus, AnimationIndex);
+        ushort paletteIndex = (artwork ?? throw new InvalidOperationException(
+            "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
         WritePalettePair(bus, samus, cgram, paletteIndex, artwork);
         paletteChanged = true;
         return true;
@@ -310,8 +309,8 @@ public sealed class SamusDeathSequenceState
         if (AnimationIndex == 0)
             return false;
 
-        ushort shade = artwork?.WhiteoutColor(AnimationCounter) ?? ReadWord(bus,
-            SamusPaletteRomData.Death.WhiteoutShades + AnimationCounter * sizeof(ushort));
+        ushort shade = (artwork ?? throw new InvalidOperationException(
+            "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
         for (int color = 0; color < SamusPaletteRomData.Common.SamusObjPaletteStart; color++)
             cgram.SetColor(color, shade);
         for (int color =
@@ -350,38 +349,7 @@ public sealed class SamusDeathSequenceState
             }
             return;
         }
-        ushort suitPointer = ReadWord(
-            bus,
-            SamusPaletteRomData.Death.SuitPointers +
-                suitIndex * SamusPaletteRomData.Death.PaletteCount + paletteIndex * sizeof(ushort));
-        ushort suitlessPointer = ReadWord(
-            bus,
-            SamusPaletteRomData.Death.SuitlessPointers + paletteIndex * sizeof(ushort));
-
-        LoadPalette(
-            bus,
-            cgram,
-            SamusPaletteRomData.Banks.Palette | suitPointer,
-            SamusPaletteRomData.Common.SamusObjPaletteStart);
-        LoadPalette(
-            bus,
-            cgram,
-            SamusPaletteRomData.Banks.Palette | suitlessPointer,
-            SamusPaletteRomData.Common.SuitlessObjPaletteStart);
-    }
-
-    private static void LoadPalette(
-        ISnesAddressSpace bus,
-        SnesCgram cgram,
-        int address,
-        int destinationColor)
-    {
-        for (int color = 0; color < SamusPaletteRomData.Common.ColorsPerObjPalette; color++)
-        {
-            cgram.SetColor(
-                destinationColor + color,
-                ReadWord(bus, address + color * sizeof(ushort)));
-        }
+        throw new InvalidOperationException("Samus death requires installed palette artwork.");
     }
 
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
@@ -398,14 +366,6 @@ public sealed class SamusDeathSequenceState
         LastQueuedSegment = segmentIndex;
     }
 
-    private static ushort ReadExplosionPaletteIndex(ISnesAddressSpace bus, ushort index) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + index * 2 + 1);
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-    }
 }
 
 /// <summary>Game-state phases that own Samus after fatal damage has reached bank `$9B`.</summary>

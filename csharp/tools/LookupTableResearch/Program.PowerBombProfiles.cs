@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
@@ -29,6 +30,11 @@ internal static partial class Program
             int expected = frame < 17 ? white[192 * frame + row] : yellow[192 * (frame - 17) + row];
             int radius = PowerBombProfileRadius(frame);
             Equal(expected, PowerBombProfile(frame, row, basis), $"pre-scaled Power Bomb {frame}/{row}");
+            ushort runtimePointer = (ushort)(frame < 17
+                ? PowerBombProfileResearchData.WhiteAddress + 192 * frame
+                : PowerBombProfileResearchData.YellowAddress + 192 * (frame - 17));
+            Equal(expected, PowerBombShapeDefinitions.ReadPreScaledHalfWidth(runtimePointer, row),
+                $"runtime Power Bomb profile {frame}/{row}");
             int wrongIndex = 256 * row / radius;
             int wrongValue = wrongIndex >= 192 ? 0 : basis[wrongIndex] * radius / 256;
             if (expected != wrongValue) wrongBoundary++;

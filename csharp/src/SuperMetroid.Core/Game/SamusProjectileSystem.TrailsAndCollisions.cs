@@ -341,9 +341,9 @@ public sealed partial class SamusProjectileSystem
                         if (instructionOrTimer == 0)
                             return;
 
-                        side.TileNumberAttributes = artwork is not null ? artwork.Resolve(pointer) : ReadWord(
-                            bus,
-                            SamusProjectileRomData.Banks.Movement |
+                        side.TileNumberAttributes = artwork is not null ? artwork.Resolve(pointer) :
+                            ProjectileTrailProgramDefinitions.Read(bus,
+                                SamusProjectileRomData.Banks.Movement |
                                 unchecked((ushort)(pointer + 2)));
                         side.InstructionPointer = unchecked((ushort)(pointer + 4));
                         break;

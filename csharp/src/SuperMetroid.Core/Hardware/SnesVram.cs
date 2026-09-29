@@ -190,7 +190,6 @@ public sealed class SnesVram
         int destinationWord = encodedDestination & 0x7fff;
         int wordIncrement = (encodedDestination & 0x8000) == 0 ? 1 : 32;
         ISnesMutableMemory? memory = bus as ISnesMutableMemory;
-        IImportCartridgeSource? cartridge = bus as IImportCartridgeSource;
 
         for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
         {
@@ -208,9 +207,8 @@ public sealed class SnesVram
                     "VRAM DMA source requires WRAM.")).ReadWorkRamByte((int)currentSource),
                 SnesDmaSourceKind.SaveRam => (memory ?? throw new InvalidOperationException(
                     "VRAM DMA source requires SRAM.")).ReadSaveRamByte((int)currentSource),
-                SnesDmaSourceKind.Cartridge => (cartridge ?? throw new InvalidOperationException(
-                    "VRAM DMA source requires a cartridge import source."))
-                    .ReadCartridgeByte((int)currentSource),
+                SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
+                    $"VRAM DMA source {currentSource} requires installed artwork bytes."),
                 _ => throw new InvalidOperationException(
                     $"VRAM DMA source ${currentSource.Bank:X2}:{currentSource.Offset:X4} is unmapped."),
             };

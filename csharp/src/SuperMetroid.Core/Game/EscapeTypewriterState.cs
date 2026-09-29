@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -54,45 +53,10 @@ public sealed class EscapeTypewriterState
         ClickRequested = false;
         if (Completed) return true;
         if (DelayTimer != 0) { DelayTimer--; return false; }
-        if (ProgramId != EscapeTypewriterProgramId.None)
-        {
-            EscapeTypewriterProgram program = installedProgram ??
-                throw new InvalidOperationException(
-                    $"Escape typewriter program {ProgramId} was restored without host content rebind.");
-            return StepInstalled(program, vram);
-        }
-        // The reload precedes command parsing, so a new delay first affects the next call.
-        DelayTimer = Delay;
-        for (int commandCount = 0; commandCount < 256; commandCount++)
-        {
-            ushort command = Word(bus, Pointer);
-            if (command == EscapeTypewriterRomData.End) return Completed = true;
-            if (command == EscapeTypewriterRomData.Delay)
-            {
-                Delay = Word(bus, Pointer + 2);
-                Advance(4);
-                continue;
-            }
-            if (command == EscapeTypewriterRomData.Destination)
-            {
-                Destination = Word(bus, Pointer + 2);
-                Advance(4);
-                continue;
-            }
-            byte character = (byte)command;
-            Advance(1);
-            if (character != (byte)' ')
-            {
-                if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
-                ushort tile = unchecked((ushort)(tileBase + character - EscapeTypewriterRomData.FirstLetter));
-                vram.ExecuteWordTransfer([tile], Destination, 1);
-                GlyphsWritten++;
-                ClickRequested = GlyphsWritten % 2 == 0;
-            }
-            Destination++;
-            return false;
-        }
-        throw new InvalidDataException("Escape typewriter did not reach a character or terminator in 256 commands.");
+        EscapeTypewriterProgram program = installedProgram ??
+            throw new InvalidOperationException(
+                $"Escape typewriter program {ProgramId} was restored without host content rebind.");
+        return StepInstalled(program, vram);
     }
 
     private bool StepInstalled(EscapeTypewriterProgram program, SnesVram vram)
@@ -135,7 +99,4 @@ public sealed class EscapeTypewriterState
         Destination++;
     }
 
-    private void Advance(int count) => Pointer = (Pointer & ~ushort.MaxValue) | unchecked((ushort)(Pointer + count));
-    private static ushort Word(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

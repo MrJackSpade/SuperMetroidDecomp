@@ -153,3 +153,30 @@ int DiagnosticElevatorHandoff(const char *rom, const char *output) {
   }
   fclose(f); return 0;
 }
+
+int DiagnosticElevatorSamusTiles(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+  g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
+  ProbeRunBounded(0x928000); // Select frame-zero, pose-zero transfer definitions.
+  // TransferSamusTilesToVRAM is an NMI-local routine entered with 8-bit indexes
+  // and a 16-bit accumulator, unlike the normal 16/16 callable probe functions.
+  Cpu *cpu = g_snes->cpu;
+  cpu->db = cpu->k = 0x80; cpu->pc = 0x9376; cpu->mf = false; cpu->xf = true;
+  cpu->x = cpu->y = 0; cpu->sp = cpu->spBreakpoint = 0x1ff0; cpu->dp = 0;
+  g_ram[0x1ffff] = 1; g_calling_asm_from_c = true;
+  for (int budget = 1000000; g_calling_asm_from_c; budget--) {
+    if (!budget) { fprintf(stderr, "Samus tile DMA probe exceeded budget.\n"); return 6; }
+    cpu_runOpcode(cpu);
+    while (g_snes->dma->dmaBusy) dma_doDma(g_snes->dma);
+  }
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  fprintf(f, "tile,hash\n");
+  for (int tile = 0; tile < 32; tile++) {
+    uint32 hash = 2166136261u;
+    uint8 *bytes = (uint8 *)g_snes->ppu->vram + 0xc000 + tile * 32;
+    for (int b = 0; b < 32; b++) hash = (hash ^ bytes[b]) * 16777619u;
+    fprintf(f, "%02X,%08X\n", tile, hash);
+  }
+  fclose(f); return 0;
+}

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -26,9 +25,9 @@ public sealed partial class SamusProjectileSystem
             if ((instructionOrTimer & 0x8000) == 0)
             {
                 slot.InstructionTimer = instructionOrTimer;
-                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ?? ReadWord(
-                    bus,
-                    SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
+                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??
+                    SamusProjectileInstructionDefinitions.ReadWord(
+                        SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
                 slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
@@ -155,17 +154,12 @@ public sealed partial class SamusProjectileSystem
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
             return;
 
-        int directionOffset = (direction & 0x0f) * 2;
         bool running = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        int xTable = running
-            ? SamusProjectileRomData.Origins.FlareRunningX
-            : SamusProjectileRomData.Origins.FlareDefaultX;
-        int yTable = running
-            ? SamusProjectileRomData.Origins.FlareRunningY
-            : SamusProjectileRomData.Origins.FlareDefaultY;
-        var visualOffset = placement?.Resolve(running, direction & 0x0f);
-        short xOffset = visualOffset?.X ?? unchecked((short)ReadWord(bus, xTable + directionOffset));
-        short yOffset = visualOffset?.Y ?? unchecked((short)ReadWord(bus, yTable + directionOffset));
+        var visualOffset = (placement ?? throw new InvalidOperationException(
+            "Charge flare requires installed placement definitions."))
+            .Resolve(running, direction & 0x0f);
+        short xOffset = visualOffset.X;
+        short yOffset = visualOffset.Y;
         byte poseYOffset = unchecked((byte)samus.ReadGraphicsYOffset(bus));
 
         // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the
@@ -202,9 +196,6 @@ public sealed partial class SamusProjectileSystem
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
     private static ushort LoadNormalSuitPalette(
         ISnesAddressSpace bus,

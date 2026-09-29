@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -134,8 +133,9 @@ public sealed class SamusArmCannonState
         short screenY = unchecked((short)(
             samus.YPosition + yOffset - graphicsYOffset - layer1Y));
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
-        ushort attributes = Artwork?.SpriteAttributes(selector) ?? ReadWord(
-            bus, SamusRenderingRomData.ArmCannon.SpriteAttributes + selector * 2);
+        SamusArmCannonArtworkCatalog artwork = Artwork ?? throw new InvalidOperationException(
+            "Arm cannon requires installed artwork.");
+        ushort attributes = artwork.SpriteAttributes(selector);
         if (spriteWritten)
         {
             oam.AddRawSmallSprite(
@@ -147,16 +147,7 @@ public sealed class SamusArmCannonState
         // Selector -> one of four orientation lists -> current cover frame -> bank-$9A
         // source. Entry zero is intentionally null but cannot be reached because Frame zero
         // returned above. Destination `$61F0` is the tile-$1F slot used by the OAM word.
-        ushort tileSource;
-        if (Artwork is not null)
-            tileSource = Artwork.TileSource(selector, Frame);
-        else
-        {
-            ushort tileList = ReadWord(bus,
-                SamusRenderingRomData.ArmCannon.TileListPointers + selector * 2);
-            tileSource = ReadWord(bus, SamusRenderingRomData.Banks.Movement |
-                unchecked((ushort)(tileList + Frame * 2)));
-        }
+        ushort tileSource = artwork.TileSource(selector, Frame);
         vramWrites.Enqueue(
             sizeInBytes: SamusRenderingRomData.ArmCannon.TileUploadByteCount,
             sourceAddress: SamusRenderingRomData.Banks.CharacterData | tileSource,
@@ -192,12 +183,12 @@ public sealed class SamusArmCannonState
     }
 
     private ushort PoseDrawingData(ISnesAddressSpace bus, int pose) =>
-        Artwork?.PoseDrawingData(pose) ?? ReadWord(bus,
-            SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2);
+        (Artwork ?? throw new InvalidOperationException(
+            "Arm cannon requires installed drawing definitions.")).PoseDrawingData(pose);
 
     private byte ReadDrawingByte(ISnesAddressSpace bus, ushort address) =>
-        Artwork?.ReadDrawingByte(address) ?? CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            SamusRenderingRomData.Banks.Movement | address);
+        (Artwork ?? throw new InvalidOperationException(
+            "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(address);
 
     private void AdvanceFrame()
     {
@@ -229,10 +220,6 @@ public sealed class SamusArmCannonState
         CloseFlag = 0;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-    }
 }
 
 /// <summary>Debugger witness from the once-per-frame arm-cannon state update.</summary>

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
@@ -154,11 +153,8 @@ public sealed partial class SuperMetroidGame
         // Do not mutate an invalid save's marker merely to evaluate demo eligibility.
         if (saveRam.ReadSlot(0) is null && saveRam.ReadSlot(1) is null && saveRam.ReadSlot(2) is null)
             return AttractDemoRomData.DefaultSetCount;
-        ReadOnlySpan<byte> marker = AttractDemoRomData.CompletionMarker;
-        for (int index = 0; index < marker.Length; index++)
-            if (CartridgeImportSource.Require(bus).ReadCartridgeByte(
-                    AttractDemoRomData.CompletionMarkerAddress + index) != marker[index])
-                return AttractDemoRomData.DefaultSetCount;
+        // The completion marker is a fixed cartridge literal, not mutable save state.
+        // The extracted demo catalog already validates that source at import time.
         return AttractDemoRomData.SetCount;
     }
 }

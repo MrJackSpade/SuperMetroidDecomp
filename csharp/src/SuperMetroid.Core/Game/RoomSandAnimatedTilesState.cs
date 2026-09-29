@@ -15,12 +15,11 @@ public sealed class RoomSandAnimatedTilesState
     public int Count => objects.Count;
 
     /// <summary>Clears the previous room and spawns selected ceiling/falling-sand definitions in native order.</summary>
-    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area,
-        bool useCompiledRecords = false)
+    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
     {
         objects.Clear();
         if (fxPointer == 0) return;
-        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        var fxRecords = new RoomFxRecordReader();
         ushort record = fxRecords.Select(fxPointer, doorPointer);
         if (record == 0) return;
         byte bits = fxRecords.ReadByte(record, RoomFxRomData.Record.AnimatedTileBitsetOffset);

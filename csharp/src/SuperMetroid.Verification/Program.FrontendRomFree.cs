@@ -105,7 +105,6 @@ internal static partial class Program
         return (game, bindIntro) =>
         {
             game.BindMapPresentation(maps);
-            game.BindCompiledRoomFxRecords(true);
             game.BindGameplayBasePalettes(palettes);
             game.BindEnemyTileArtwork(enemies);
             game.BindStandardObjectArt(objects);

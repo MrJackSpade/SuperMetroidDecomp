@@ -255,7 +255,6 @@ public sealed partial class PlayableGameControl : UserControl
         game = new SuperMetroidGame(addressSpace, gameOptions);
         mapPresentation = installation.LoadMaps();
         game.BindMapPresentation(mapPresentation);
-        game.BindCompiledRoomFxRecords(true);
         gameplayBasePalettes = installation.LoadGameplayBasePalettes();
         game.BindGameplayBasePalettes(gameplayBasePalettes);
         standardObjectArt = installation.LoadStandardObjects();
@@ -436,7 +435,6 @@ public sealed partial class PlayableGameControl : UserControl
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
         game.BindMapPresentation(mapPresentation);
-        game.BindCompiledRoomFxRecords(true);
         game.BindGameplayBasePalettes(gameplayBasePalettes);
         game.BindStandardObjectArt(standardObjectArt);
         game.BindIntroCinematicArt(introCinematicArt);

@@ -110,7 +110,8 @@ internal static partial class Program
     }
 
     private static void VerifySamusVisorColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
+        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
@@ -125,7 +126,8 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom,
+            initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };

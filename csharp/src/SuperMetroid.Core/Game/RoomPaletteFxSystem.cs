@@ -109,8 +109,7 @@ public sealed class RoomPaletteFxSystem
         ushort doorPointer,
         AreaId area,
         ushort equippedItems,
-        bool areaMiniBossDefeated,
-        bool useCompiledRecords = false)
+        bool areaMiniBossDefeated)
     {
         ArgumentNullException.ThrowIfNull(bus);
         foreach (PaletteFxSlot slot in slots)
@@ -122,7 +121,7 @@ public sealed class RoomPaletteFxSystem
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        var fxRecords = new RoomFxRecordReader();
         ushort record = fxRecords.Select(fxPointer, doorPointer);
         if (record == 0)
             return;

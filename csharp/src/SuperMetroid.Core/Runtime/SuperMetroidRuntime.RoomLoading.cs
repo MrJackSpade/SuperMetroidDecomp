@@ -794,16 +794,15 @@ public sealed partial class SuperMetroidRuntime
             room.State.FxPointer,
             door.Pointer,
             System.RandomNumber,
-            room.Pointer,
-            UseCompiledRoomFxRecords);
+            room.Pointer);
         RoomLayer3Fx.PrimeViewport(Camera.XPosition, Camera.YPosition);
         CeresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         SandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
-            room.AreaIndex, UseCompiledRoomFxRecords);
+            room.AreaIndex);
         RoomTreadmills.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
-            room.AreaIndex, UseCompiledRoomFxRecords);
+            room.AreaIndex);
         if (Samus is not null)
             RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
 
@@ -817,8 +816,7 @@ public sealed partial class SuperMetroidRuntime
             door.Pointer,
             room.AreaIndex,
             Samus?.EquippedItems ?? 0,
-            System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss),
-            UseCompiledRoomFxRecords);
+            System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
 
         // A negative background-data pointer names bank-$82's command interpreter. Rooms
         // whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
@@ -1196,7 +1194,7 @@ public sealed partial class SuperMetroidRuntime
             ushort record = unchecked((ushort)(ActiveRoom!.State.FxPointer +
                 state.FxEntry * RoomFxRomData.Record.ByteCount));
             LayerBlendingDefaultConfig = RoomLayer3Fx.ApplyEntry(_addressSpace, Cgram,
-                record, UseCompiledRoomFxRecords);
+                record);
             state.FxEntry = 0;
         }
         if (state is null || state.PlmRequests.Count == 0)

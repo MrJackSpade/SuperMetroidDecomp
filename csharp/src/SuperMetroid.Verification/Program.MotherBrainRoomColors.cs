@@ -7,7 +7,8 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
-        string overrides, AreaMapPresentationCatalog original)
+        string overrides, AreaMapPresentationCatalog original,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
@@ -83,7 +84,8 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom,
+            initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };

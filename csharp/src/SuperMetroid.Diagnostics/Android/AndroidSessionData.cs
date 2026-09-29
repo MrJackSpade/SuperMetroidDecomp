@@ -83,7 +83,6 @@ internal sealed class AndroidSessionData : IDisposable
         // the running session binds only the installed presentation catalog.
         maps = installation.LoadMaps();
         Game.BindMapPresentation(maps);
-        Game.BindCompiledRoomFxRecords(true);
         gameplayBasePalettes = installation.LoadGameplayBasePalettes();
         Game.BindGameplayBasePalettes(gameplayBasePalettes);
         standardObjectArt = installation.LoadStandardObjects();
@@ -233,7 +232,6 @@ internal sealed class AndroidSessionData : IDisposable
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
-        Game.BindCompiledRoomFxRecords(true);
         Game.BindGameplayBasePalettes(gameplayBasePalettes);
         Game.BindStandardObjectArt(standardObjectArt);
         Game.BindIntroCinematicArt(introCinematicArt);

@@ -111,7 +111,8 @@ internal static partial class Program
     }
 
     private static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
-        string stock, string overrides, AreaMapPresentationCatalog baseline)
+        string stock, string overrides, AreaMapPresentationCatalog baseline,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         string file = Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName);
         byte[] source = File.ReadAllBytes(Path.Combine(stock, RoomFxAnimatedTileAtlasFormat.FileName));
@@ -157,7 +158,8 @@ internal static partial class Program
             "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
         AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
             "edited treadmill pixels compile to a distinct installed NMI frame");
-        var runtime = new SuperMetroidRuntime(guarded) { MapPresentation = changed };
+        var runtime = new SuperMetroidRuntime(guarded,
+            initialPaletteArt: initialPalettes) { MapPresentation = changed };
         runtime.WreckedShipTreadmill.Start(guarded,
             WreckedShipTreadmillDirection.Rightwards);
         runtime.WreckedShipTreadmill.Step(guarded, areaBossDefeated: true,

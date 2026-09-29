@@ -123,8 +123,7 @@ public sealed class RoomLayer3FxState
         ushort fxPointer,
         ushort doorPointer,
         ushort randomNumber,
-        ushort roomHeaderPointer = 0,
-        bool useCompiledRecords = false)
+        ushort roomHeaderPointer = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -149,7 +148,7 @@ public sealed class RoomLayer3FxState
         if (fxPointer == 0)
             return;
 
-        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        var fxRecords = new RoomFxRecordReader();
         ushort record = fxRecords.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
@@ -396,9 +395,9 @@ public sealed class RoomLayer3FxState
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal LayerBlendingConfiguration ApplyEntry(ISnesAddressSpace bus, SnesCgram cgram,
-        ushort record, bool useCompiledRecords = false)
+        ushort record)
     {
-        var fxRecords = new RoomFxRecordReader(bus, useCompiledRecords);
+        var fxRecords = new RoomFxRecordReader();
         BaseYPosition = fxRecords.ReadWord(record, RoomFxRomData.Record.BaseYPositionOffset);
         TargetYPosition = fxRecords.ReadWord(record, RoomFxRomData.Record.TargetYPositionOffset);
         PackedYVelocity = fxRecords.ReadWord(record, RoomFxRomData.Record.YVelocityOffset);

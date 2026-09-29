@@ -18,6 +18,8 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
+        RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
+            new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
         {
             byte[] source = RomDataReader.ReadFixedBank(rom,
@@ -29,15 +31,13 @@ internal static partial class Program
                     compiled[index], $"room-FX blend {id:X2} native color {index}");
 
             (RoomLayer3FxState state, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) =
-                ConstructBlendLoad(catalog, id);
+                ConstructBlendLoad(catalog, tilemaps, id);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {id:X2} installed load color {index}");
             AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {id:X2} load does not read bank-$89");
 
-            const ushort reloadRecord = 0x9410;
-            bus.Inner.WriteByte(RoomFxRomData.Banks.RoomDefinitions | reloadRecord +
-                RoomFxRomData.Record.PaletteBlendOffset, id);
+            ushort reloadRecord = SelectCompiledBlendRecord(id).Pointer;
             _ = state.ApplyEntry(bus, cgram, reloadRecord);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
@@ -45,7 +45,7 @@ internal static partial class Program
             AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {id:X2} FX entry does not read bank-$89");
         }
         (RoomLayer3FxState emptyState, ForbiddenRoomFxPaletteBus emptyBus, SnesCgram emptyCgram) =
-            ConstructBlendLoad(catalog, 0);
+            ConstructBlendLoad(catalog, tilemaps, 0);
         _ = emptyState;
         AssertEqual((ushort)0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
         AssertEqual((ushort)0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
@@ -79,7 +79,8 @@ internal static partial class Program
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)[0],
             "room-FX blend edit changes the authored color");
         (_, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) = ConstructBlendLoad(
-            edited.RoomFxPaletteBlends, RoomFxPaletteBlendDefinitions.Lava);
+            edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
+            RoomFxPaletteBlendDefinitions.Lava);
         AssertEqual(expected, cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
         AssertEqual(0, bus.ForbiddenReads, "edited room-FX blend does not read native palette table");
@@ -98,22 +99,29 @@ internal static partial class Program
     }
 
     private static (RoomLayer3FxState State, ForbiddenRoomFxPaletteBus Bus, SnesCgram Cgram)
-        ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog, byte selection)
+        ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
+            RoomFxLayer3TilemapCatalog tilemaps, byte selection)
     {
-        const ushort record = 0x9400;
+        RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
-        int recordAddress = RoomFxRomData.Banks.RoomDefinitions | record;
-        WriteTestWord(memory, recordAddress + RoomFxRomData.Record.DoorPointerOffset, 0);
-        memory.WriteByte(recordAddress + RoomFxRomData.Record.PaletteBlendOffset, selection);
         var bus = new ForbiddenRoomFxPaletteBus(memory);
         var cgram = new SnesCgram();
         cgram.SetColor(25, 0x1234);
         cgram.SetColor(26, 0x2345);
         cgram.SetColor(27, 0x3456);
-        var state = new RoomLayer3FxState { PaletteBlendColors = catalog };
-        state.Load(bus, new SnesVram(), cgram, record, doorPointer: 0, randomNumber: 0);
+        var state = new RoomLayer3FxState
+        {
+            PaletteBlendColors = catalog,
+            Layer3Tilemaps = tilemaps,
+        };
+        state.Load(bus, new SnesVram(), cgram, record.Pointer, doorPointer: 0, randomNumber: 0);
         return (state, bus, cgram);
     }
+
+    private static RoomFxRecordDefinition SelectCompiledBlendRecord(byte selection) =>
+        RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
+            candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
+        ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 
     private sealed class ForbiddenRoomFxPaletteBus(TestAddressSpace inner) :
         ISnesAddressSpace, IImportCartridgeSource

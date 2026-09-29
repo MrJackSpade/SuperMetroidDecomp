@@ -73,7 +73,8 @@ internal static partial class Program
     }
 
     private static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
-        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
+        AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         string path = Path.Combine(overrides, SamusHyperBeamColorFormat.FileName);
         SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(
@@ -87,7 +88,8 @@ internal static partial class Program
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom,
+            initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };

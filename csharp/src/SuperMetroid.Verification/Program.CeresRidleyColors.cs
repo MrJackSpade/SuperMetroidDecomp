@@ -9,7 +9,8 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
     private static void VerifyCeresRidleyColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
+        string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(rom);
         CeresRidleyColorCatalog native = CeresRidleyColorCatalog.Load(
@@ -66,7 +67,8 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(rom,
+            initialPaletteArt: initialPalettes) { MapPresentation = edited };
         AssertTrue(ReferenceEquals(edited.CeresRidleyColors, runtime.Enemies.CeresRidleyColors),
             "installed runtime binds Ceres Ridley colors to enemy owner");
         runtime.MapPresentation = original;

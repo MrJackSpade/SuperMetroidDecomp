@@ -376,16 +376,14 @@ public static class RoomFxRomData
     public static ushort SelectRecord(
         ISnesAddressSpace bus,
         ushort fxPointer,
-        ushort doorPointer,
-        bool useCompiledRecords = false)
+        ushort doorPointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
         return RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
     }
 
     /// <summary>Reads one byte from a selected bank-$83 FX record.</summary>
-    public static byte ReadRecordByte(ISnesAddressSpace bus, ushort record, int fieldOffset,
-        bool useCompiledRecords = false)
+    public static byte ReadRecordByte(ISnesAddressSpace bus, ushort record, int fieldOffset)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)fieldOffset >= Record.ByteCount)
@@ -394,8 +392,7 @@ public static class RoomFxRomData
     }
 
     /// <summary>Reads one little-endian word from a selected bank-$83 FX record.</summary>
-    public static ushort ReadRecordWord(ISnesAddressSpace bus, ushort record, int fieldOffset,
-        bool useCompiledRecords = false)
+    public static ushort ReadRecordWord(ISnesAddressSpace bus, ushort record, int fieldOffset)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)fieldOffset > Record.ByteCount - sizeof(ushort))

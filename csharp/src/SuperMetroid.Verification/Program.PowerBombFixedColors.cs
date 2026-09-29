@@ -50,7 +50,11 @@ internal static partial class Program
     private static void VerifyPowerBombColorAnimation(ISnesAddressSpace rom,
         PowerBombFixedColorCatalog catalog, bool crystalFlash)
     {
-        var native = new SamusPowerBombExplosionState();
+        // The source-color words above are checked against the import-only ROM reader.
+        // The runtime no longer has a cartridge color fallback, so both timing owners
+        // must receive the installed catalog; the guarded one also rejects any stray
+        // gameplay request for those native color bytes.
+        var native = new SamusPowerBombExplosionState { PresentationColors = catalog };
         var installed = new SamusPowerBombExplosionState { PresentationColors = catalog };
         var guarded = new ForbiddenPowerBombColorBus(rom);
         if (crystalFlash)

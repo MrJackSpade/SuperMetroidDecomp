@@ -1347,7 +1347,6 @@ public sealed partial class SuperMetroidGame
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
         runtime.MapPresentation = mapPresentation;
-        runtime.UseCompiledRoomFxRecords = useCompiledRoomFxRecords;
         runtime.StandardObjectArt = standardObjectArt;
         runtime.SamusBodyArt = samusBodyArt;
         runtime.RoomCharacterArt = roomCharacterArt;

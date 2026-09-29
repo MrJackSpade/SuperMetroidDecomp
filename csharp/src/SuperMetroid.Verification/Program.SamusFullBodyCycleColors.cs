@@ -9,7 +9,8 @@ internal static partial class Program
 {
     private static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
-        AreaMapPresentationCatalog original, ISnesAddressSpace rom)
+        AreaMapPresentationCatalog original, ISnesAddressSpace rom,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(rom);
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted, writable: false));
@@ -114,7 +115,8 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed full-body cycles do not reread any of the 768 source color words");
 
-        var runtime = new SuperMetroidRuntime(guard) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(guard,
+            initialPaletteArt: initialPalettes) { MapPresentation = edited };
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

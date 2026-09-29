@@ -1,16 +1,14 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One room-load choice between native FX bytes and the equivalent compiled catalog.</summary>
-public readonly struct RoomFxRecordReader(ISnesAddressSpace bus, bool useCompiledRecords)
+/// <summary>Typed access to the immutable compiled bank-$83 room-FX records.</summary>
+public readonly struct RoomFxRecordReader
 {
     public ushort Select(ushort fxPointer, ushort doorPointer) =>
-        RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer, useCompiledRecords);
+        RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
 
     public byte ReadByte(ushort record, int fieldOffset) =>
-        RoomFxRomData.ReadRecordByte(bus, record, fieldOffset, useCompiledRecords);
+        RoomFxRecordDefinitions.Get(record).ReadByte(fieldOffset);
 
     public ushort ReadWord(ushort record, int fieldOffset) =>
-        RoomFxRomData.ReadRecordWord(bus, record, fieldOffset, useCompiledRecords);
+        RoomFxRecordDefinitions.Get(record).ReadWord(fieldOffset);
 }

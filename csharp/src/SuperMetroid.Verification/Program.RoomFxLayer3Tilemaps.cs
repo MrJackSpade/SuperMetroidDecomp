@@ -18,6 +18,8 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         byte[] json = RoomFxLayer3TilemapExtractor.Extract(rom);
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
+        RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
+            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
             int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
@@ -30,7 +32,7 @@ internal static partial class Program
             AssertEqual(source, RoomFxRomData.Banks.Tilemaps | pointer,
                 $"room-FX {type} compiled page identity matches the native pointer table");
             if (type == RoomFxType.Spores) continue;
-            SnesVram vram = LoadConstructedRoomFxTilemap(type, catalog,
+            SnesVram vram = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
                 out ForbiddenRoomFxTilemapBus guarded);
             int destination = RoomFxRomData.Layer3.TilemapDestinationWord * 2;
             for (int index = 0; index < native.Length; index++)
@@ -69,7 +71,8 @@ internal static partial class Program
             baseline.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span),
             "room-FX BG3 edit changes the selected tilemap words");
         SnesVram vram = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
-            edited.RoomFxLayer3Tilemaps, out ForbiddenRoomFxTilemapBus guarded);
+            edited.RoomFxLayer3Tilemaps, edited.RoomFxPaletteBlends,
+            out ForbiddenRoomFxTilemapBus guarded);
         ushort editedWord = BitConverter.ToUInt16(
             edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span[..sizeof(ushort)]);
         AssertEqual(editedWord, vram.ReadWord(RoomFxRomData.Layer3.TilemapDestinationWord),
@@ -90,19 +93,21 @@ internal static partial class Program
     }
 
     private static SnesVram LoadConstructedRoomFxTilemap(RoomFxType type,
-        RoomFxLayer3TilemapCatalog catalog, out ForbiddenRoomFxTilemapBus guarded)
+        RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
+        out ForbiddenRoomFxTilemapBus guarded)
     {
-        const ushort record = 0x9400;
+        RoomFxRecordDefinition record = RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
+            candidate.DoorPointer == 0 && candidate.Type == (byte)type)
+            ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
-        int recordAddress = RoomFxRomData.Banks.RoomDefinitions | record;
-        WriteTestWord(memory, recordAddress + RoomFxRomData.Record.DoorPointerOffset, 0);
-        memory.WriteByte(recordAddress + RoomFxRomData.Record.TypeOffset, (byte)type);
-        memory.WriteByte(recordAddress + RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset,
-            (byte)LayerBlendingConfiguration.NormalGameplay);
         guarded = new ForbiddenRoomFxTilemapBus(memory);
-        var state = new RoomLayer3FxState { Layer3Tilemaps = catalog };
+        var state = new RoomLayer3FxState
+        {
+            Layer3Tilemaps = catalog,
+            PaletteBlendColors = paletteColors,
+        };
         var vram = new SnesVram();
-        state.Load(guarded, vram, new SnesCgram(), record, doorPointer: 0, randomNumber: 0);
+        state.Load(guarded, vram, new SnesCgram(), record.Pointer, doorPointer: 0, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         return vram;
     }

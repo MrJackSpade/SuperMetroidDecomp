@@ -60,7 +60,8 @@ internal static partial class Program
         string stockDirectory,
         string overrideDirectory,
         AreaMapPresentationCatalog original,
-        ISnesAddressSpace bus)
+        ISnesAddressSpace bus,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus);
         SamusSuitColorCatalog decoded = SamusSuitColorCatalog.Load(
@@ -139,7 +140,8 @@ internal static partial class Program
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = new SuperMetroidRuntime(guard) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(guard,
+            initialPaletteArt: initialPalettes) { MapPresentation = edited };
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

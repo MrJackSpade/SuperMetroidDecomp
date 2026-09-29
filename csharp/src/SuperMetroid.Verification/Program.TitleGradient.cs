@@ -378,7 +378,16 @@ internal static partial class Program
         // slices. Forbid only the complete gradient source closure discovered above, then
         // drive the real title owner through Start's skip fade into a gradient frame.
         var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
-        (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(guardedBus, presentation);
+        TitlePalettePresentation palette = TitlePalettePresentation.Load(new MemoryStream(
+            TitlePaletteExtractor.Extract(bus)));
+        IReadOnlyDictionary<string, byte[]> graphicsFiles = TitleGraphicsExtractor.Extract(bus);
+        TitleGraphicsPresentation graphics = TitleGraphicsPresentation.Load(
+            new MemoryStream(graphicsFiles[TitleGraphicsFormat.Mode7TilesFile]),
+            new MemoryStream(graphicsFiles[TitleGraphicsFormat.Mode7MapFile]),
+            new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
+            new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
+        (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
+            guardedBus, presentation, palette, graphics);
         if (!rendered.AsSpan().SequenceEqual(presentation.Resolve(selectedZoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
@@ -430,9 +439,12 @@ internal static partial class Program
 
     private static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
         ISnesAddressSpace bus,
-        TitleGradientPresentation presentation)
+        TitleGradientPresentation presentation,
+        TitlePalettePresentation palette,
+        TitleGraphicsPresentation graphics)
     {
-        var title = new TitleSequenceState(bus, titleGradientPresentation: presentation);
+        var title = new TitleSequenceState(bus, titleGradientPresentation: presentation,
+            titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
         title.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {

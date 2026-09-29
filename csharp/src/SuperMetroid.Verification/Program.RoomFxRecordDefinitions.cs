@@ -1,4 +1,6 @@
 using System.Text;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -59,12 +61,16 @@ internal static partial class Program
         var compiledVram = new SnesVram();
         var nativeCgram = new SnesCgram();
         var compiledCgram = new SnesCgram();
-        var nativeFx = new RoomLayer3FxState();
-        var compiledFx = new RoomLayer3FxState();
+        RoomFxPaletteBlendCatalog colors = RoomFxPaletteBlendCatalog.Load(
+            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
+        RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
+            new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));
+        var nativeFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
+        var compiledFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         nativeFx.Load(bus, nativeVram, nativeCgram, room.State.FxPointer,
             station.DoorPointer, randomNumber: 0, room.Pointer);
         compiledFx.Load(guarded, compiledVram, compiledCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Pointer, useCompiledRecords: true);
+            station.DoorPointer, randomNumber: 0, room.Pointer);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseYPosition, compiledFx.BaseYPosition, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetYPosition, compiledFx.TargetYPosition, "Ceres compiled FX target Y");
@@ -83,8 +89,7 @@ internal static partial class Program
         nativePalette.LoadRoom(bus, room.State.FxPointer, station.DoorPointer,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
         compiledPalette.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
-            room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false,
-            useCompiledRecords: true);
+            room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
@@ -92,7 +97,7 @@ internal static partial class Program
         var compiledSand = new RoomSandAnimatedTilesState();
         nativeSand.LoadRoom(bus, room.State.FxPointer, station.DoorPointer, room.AreaIndex);
         compiledSand.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
-            room.AreaIndex, useCompiledRecords: true);
+            room.AreaIndex);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
@@ -100,7 +105,7 @@ internal static partial class Program
         var compiledTreadmills = new RoomTreadmillAnimatedTilesState();
         nativeTreadmills.LoadRoom(bus, room.State.FxPointer, station.DoorPointer, room.AreaIndex);
         compiledTreadmills.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
-            room.AreaIndex, useCompiledRecords: true);
+            room.AreaIndex);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");
     }

@@ -138,8 +138,10 @@ internal static partial class Program
     }
 
     private sealed class FakeKraidProjectileReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83
                 ? throw new InvalidOperationException(

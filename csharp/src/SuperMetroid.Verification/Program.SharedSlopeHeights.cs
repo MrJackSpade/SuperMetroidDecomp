@@ -62,8 +62,10 @@ internal static partial class Program
         Console.WriteLine("Shared slopes: 512 native heights, 12288 Samus samples and 55296 cross-consumer collision/alignment cases pass with ROM reads forbidden.");
     }
 
-    private sealed class SlopeHeightNoReadBus : ISnesAddressSpace
+    private sealed class SlopeHeightNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected slope ROM read at {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected slope bus write.");
     }

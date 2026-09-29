@@ -52,8 +52,10 @@ internal static partial class Program
         Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover all direction words, every pose, coordinate boundaries and adjacent cooldown reads with authored reads forbidden.");
     }
 
-    private sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c204 and < 0x90c28f)

@@ -69,9 +69,11 @@ internal static partial class Program
         Console.WriteLine("Indexed Samus speeds: all 492 authored words and every restored base address preserve authored data/alignment; compiled reads are forbidden, mutable aliases stay live, and ROM overreads fail loudly.");
     }
 
-    private sealed class IndexedSpeedReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class IndexedSpeedReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public bool ForbidReads { get; set; }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             // Unaligned/non-catalog spans can overlap known words, so classify each

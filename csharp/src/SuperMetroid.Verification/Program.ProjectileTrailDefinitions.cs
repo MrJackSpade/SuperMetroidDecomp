@@ -36,8 +36,10 @@ internal static partial class Program
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
-    private sealed class TrailSelectorGuard(int start, int end) : ISnesAddressSpace
+    private sealed class TrailSelectorGuard(int start, int end) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address >= start && address < end) throw new InvalidDataException("Trail spawn still reads authored selector ROM.");

@@ -214,9 +214,11 @@ internal static partial class Program
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class KiHunterInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

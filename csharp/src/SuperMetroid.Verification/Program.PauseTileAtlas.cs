@@ -76,8 +76,10 @@ internal static partial class Program
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions, immediate edited pixels, capture/restore, equipment isolation and strict resource failures pass.");
     }
 
-    private sealed class PauseArtworkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PauseArtworkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => (uint)(address - PauseTileAtlasFormat.SourceAddress) < PauseTileAtlasFormat.ByteCount
             ? throw new InvalidOperationException($"Installed pause read UI artwork at {address:X6}.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

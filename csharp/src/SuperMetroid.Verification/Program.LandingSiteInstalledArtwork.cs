@@ -73,8 +73,10 @@ internal static partial class Program
             "without rereading visual ROM sources; stock VRAM and level data match.");
     }
 
-    private sealed class LandingVisualSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class LandingVisualSourceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (InRange(address, RoomAssetRomData.LandingSite.CreBlockDefinitions) ||

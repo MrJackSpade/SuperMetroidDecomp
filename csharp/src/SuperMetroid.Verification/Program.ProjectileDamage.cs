@@ -189,8 +189,10 @@ internal static partial class Program
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
-    private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x9383c1 and < 0x9386db)
@@ -200,8 +202,10 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class ComboMechanicsReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ComboMechanicsReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 ||

@@ -77,9 +77,11 @@ internal static partial class Program
     }
 
     private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

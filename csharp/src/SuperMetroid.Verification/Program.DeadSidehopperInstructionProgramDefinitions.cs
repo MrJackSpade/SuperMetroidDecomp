@@ -79,9 +79,17 @@ internal static partial class Program
         AssertEqual(DeadSidehopperAiFunction.BeginPostLandingDelay,
             enemies.DeadSidehoppers[0]!.Function,
             "Dead sidehopper end-hop callback returns ownership to main AI");
-        AssertEqual(DeadSidehopperInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Dead sidehopper spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Dead sidehopper execution uses compiled spritemap selectors");
+        for (int index = 0;
+             index < DeadSidehopperInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = DeadSidehopperInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.DeadSidehopperDefinition,
+                0xa9, operand, $"Dead sidehopper $A9:{operand:X4}");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Dead sidehopper mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -103,8 +111,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Dead sidehopper instruction mechanics: sixteen compiled words, the real " +
-            "initializer, all four programs, end-hop handoff, and eleven live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "initializer, all four programs, end-hop handoff, and eleven compiled " +
+            "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
     private static void ExecuteDeadSidehopperProgram(
@@ -144,10 +152,12 @@ internal static partial class Program
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class DeadSidehopperInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

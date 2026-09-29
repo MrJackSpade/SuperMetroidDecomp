@@ -130,9 +130,11 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private sealed class CrocomireTongueNoReadBus : ISnesAddressSpace
+    private sealed class CrocomireTongueNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

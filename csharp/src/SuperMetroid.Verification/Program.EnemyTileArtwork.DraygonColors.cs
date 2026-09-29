@@ -180,8 +180,10 @@ internal static partial class Program
     }
 
     private sealed class DraygonPaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             bool healthTable = address >= DraygonColorRomData.HealthBandsSource &&

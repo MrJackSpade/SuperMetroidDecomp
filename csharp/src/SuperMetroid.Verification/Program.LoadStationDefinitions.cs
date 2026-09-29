@@ -42,8 +42,10 @@ internal static partial class Program
             "Load stations: 134 typed records match cartridge data; production Ceres entry rejects native table reads.");
     }
 
-    private sealed class LoadStationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class LoadStationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address >= LoadStationRomData.PointerTable && address < LoadStationRomData.DataEnd)

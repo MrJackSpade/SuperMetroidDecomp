@@ -145,7 +145,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseBackdropReadGuard : ISnesAddressSpace
+    private sealed class PauseBackdropReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = [];
@@ -156,6 +156,8 @@ internal static partial class Program
             for (int area = 0; area < 7; area++) Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82965f + area * 2), 24);
         }
         private void Add(int address, int size) { for (int i = 0; i < size; i++) blocked.Add(address + i); }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException($"Installed pause read backdrop/button/label at {address:X6}.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

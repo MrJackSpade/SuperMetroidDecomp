@@ -269,8 +269,10 @@ internal static partial class Program
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
     private sealed class RidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is
             >= 0xa6c6ce and < 0xa6c6fe or
             >= 0xa6c66e and < 0xa6c696 or

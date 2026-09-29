@@ -95,7 +95,7 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class GunshipMotionDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IRoomEnemyFixtureSource
+        ISnesAddressSpace, IImportCartridgeSource, IRoomEnemyFixtureSource
     {
         public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
             source is IRoomEnemyFixtureSource fixture
@@ -111,6 +111,8 @@ internal static partial class Program
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyGraphicsSet(pointer)
                 : RoomEnemyGraphicsSetDefinitions.Get(pointer);
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
             address is >= 0xa2a622 and < 0xa2a644 or

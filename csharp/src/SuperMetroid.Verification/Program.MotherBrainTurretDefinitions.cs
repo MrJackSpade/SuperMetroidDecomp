@@ -168,8 +168,10 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class MotherBrainTurretReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x86be89 and < 0x86bf59 ||
             address is >= 0x86bf9f and < 0x86bfdf ||

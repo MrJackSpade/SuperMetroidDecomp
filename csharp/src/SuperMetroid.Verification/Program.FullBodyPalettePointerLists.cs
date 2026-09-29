@@ -154,8 +154,10 @@ internal static partial class Program
         AssertTrue(expected.Colors.SequenceEqual(actual.Colors), $"{context} CGRAM matches ROM");
     }
 
-    private sealed class FullBodyPalettePointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FullBodyPalettePointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if ((uint)(address - SamusPaletteRomData.FullBodyCycles.ScrewAttackLists) < 0x2a ||

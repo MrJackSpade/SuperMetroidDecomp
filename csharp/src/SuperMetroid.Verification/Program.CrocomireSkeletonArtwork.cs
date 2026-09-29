@@ -141,9 +141,11 @@ internal static partial class Program
         }
     }
 
-    private sealed class CrocomireSkeletonNoReadBus : ISnesAddressSpace
+    private sealed class CrocomireSkeletonNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

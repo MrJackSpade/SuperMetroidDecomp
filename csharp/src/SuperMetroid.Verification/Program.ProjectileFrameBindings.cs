@@ -138,8 +138,10 @@ internal static partial class Program
     }
 
     private sealed class ProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}.")
             : source.ReadByte(address);

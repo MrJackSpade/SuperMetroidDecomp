@@ -153,9 +153,11 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class DraygonInstructionReadGuard : ISnesAddressSpace
+    private sealed class DraygonInstructionReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

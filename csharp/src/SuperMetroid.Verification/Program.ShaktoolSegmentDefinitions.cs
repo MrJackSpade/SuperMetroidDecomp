@@ -110,8 +110,10 @@ internal static partial class Program
             "Shaktool segment definitions: 56 native words, all seven real initializers and the group callback reset pass with source tables forbidden.");
     }
 
-    private sealed class ShaktoolSegmentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ShaktoolSegmentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xaade95 and < 0xaadf05
                 ? throw new InvalidOperationException(

@@ -111,8 +111,10 @@ internal static partial class Program
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
-    private sealed class PhantoonPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PhantoonPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0xa7cda5 and < 0xa7cded or

@@ -160,9 +160,11 @@ internal static partial class Program
         ];
     }
 
-    private sealed class OumNoReadBus : ISnesAddressSpace
+    private sealed class OumNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

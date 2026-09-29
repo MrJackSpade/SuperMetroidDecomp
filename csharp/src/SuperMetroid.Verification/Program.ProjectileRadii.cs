@@ -138,11 +138,13 @@ internal static partial class Program
         Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
     }
 
-    private sealed class ProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses) : ISnesAddressSpace
+    private sealed class ProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses) : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly HashSet<int> _radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
         public int ActiveRecord { get; set; }
         public bool ReplaceArt { get; set; }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (_radii.Contains(address)) throw new InvalidDataException($"Projectile collision still reads ROM ${address:X6}.");

@@ -180,9 +180,11 @@ internal static partial class Program
     }
 
     private sealed class NorfairRidleyColorReadGuard(ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

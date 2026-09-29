@@ -78,8 +78,10 @@ internal static partial class Program
     }
 
     private sealed class BackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address == blockedSource
             ? throw new InvalidOperationException(
                 $"Installed room background reread source ${address:X6}.")

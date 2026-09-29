@@ -59,8 +59,16 @@ internal static partial class Program
             mochtroid.CurrentInstruction,
             "Mochtroid attached program loops to its second frame");
 
-        AssertEqual(8, guard.ObservedPresentationWords.Count,
-            "all Mochtroid spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Mochtroid execution uses compiled spritemap selectors");
+        for (int index = 0;
+             index < MochtroidInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = MochtroidInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionPointers.Mochtroid,
+                0xa3, operand, $"Mochtroid $A3:{operand:X4}");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Mochtroid mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -81,8 +89,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Mochtroid instruction mechanics: twelve compiled words, the real initializer, " +
-            "the production state switch, both complete loops, and eight live spritemap " +
-            "reads pass with mechanics bytes forbidden.");
+            "the production state switch, both complete loops, and eight compiled spritemap " +
+            "selectors pass with mechanics bytes forbidden.");
     }
 
     private static void ExecuteMochtroidProgram(
@@ -121,10 +129,12 @@ internal static partial class Program
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class MochtroidInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

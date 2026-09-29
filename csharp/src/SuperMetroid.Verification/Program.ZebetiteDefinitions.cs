@@ -160,8 +160,10 @@ internal static partial class Program
     }
 
     private sealed class ZebetiteDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa6fc03 and < 0xa6fc33 or
                 >= 0xa6fce1 and < 0xa6fcf1 or

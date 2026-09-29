@@ -65,8 +65,10 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class MotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x86c929 and < 0x86c92f
                 ? throw new InvalidOperationException(

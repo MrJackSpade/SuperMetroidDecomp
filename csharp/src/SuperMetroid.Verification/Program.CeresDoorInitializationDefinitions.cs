@@ -60,8 +60,10 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class CeresDoorInitializationReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa6f52c and < 0xa6f53a or >= 0xa6f72b and < 0xa6f739
                 ? throw new InvalidOperationException(

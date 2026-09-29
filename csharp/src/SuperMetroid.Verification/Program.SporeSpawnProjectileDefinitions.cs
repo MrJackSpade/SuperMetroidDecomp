@@ -92,8 +92,10 @@ internal static partial class Program
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");
     }
 
-    private sealed class SporeSpawnProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class SporeSpawnProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x86dcb9 and < 0x86dcc1 or
                 >= 0x86dce6 and < 0x86dcee or

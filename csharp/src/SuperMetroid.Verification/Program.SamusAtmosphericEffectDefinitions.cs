@@ -179,8 +179,10 @@ internal static partial class Program
     }
 
     private sealed class SamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x9081a4 and < 0x9081c0 or
                 >= 0x90a424 and < 0x90a42e or

@@ -55,18 +55,16 @@ internal static partial class Program
         AssertTrue(special.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "special Rinka setup retains off-screen processing after firing");
 
-        AssertEqual(
-            RinkaInstructionProgramDefinitions.PresentationWordCount,
-            guarded.ObservedPresentationWords.Count,
-            "all live Rinka spritemap words remain cartridge reads");
+        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+            "Rinka execution uses compiled spritemap selectors");
         for (int index = 0;
              index < RinkaInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guarded.ObservedPresentationWords.Contains(address),
-                $"production execution reads presentation word $A2:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.RinkaDefinition,
+                0xa2, address, $"Rinka $A2:{address:X4}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids every compiled Rinka mechanics byte");
@@ -147,10 +145,12 @@ internal static partial class Program
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class RinkaInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

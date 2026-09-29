@@ -129,8 +129,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class YardTurnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class YardTurnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa3cce2 and < 0xa3cd42
             ? throw new InvalidOperationException(
                 $"Yard attempted migrated turn-definition read ${address:X6}.")

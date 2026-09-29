@@ -149,8 +149,10 @@ internal static partial class Program
 
     private sealed class EnemyProjectileDefinitionReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace
+        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => forbidden.Contains(address)
             ? throw new InvalidOperationException(
                 $"Enemy-projectile runtime reread compiled definition byte ${address:X6}.")

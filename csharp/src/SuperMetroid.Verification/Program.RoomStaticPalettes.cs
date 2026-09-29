@@ -91,8 +91,10 @@ internal static partial class Program
     }
 
     private sealed class RoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address == paletteSource)

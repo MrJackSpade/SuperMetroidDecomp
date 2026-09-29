@@ -92,8 +92,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseRulesReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PauseRulesReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if ((uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||

@@ -127,8 +127,10 @@ internal static partial class Program
         };
     }
 
-    private sealed class PauseEquipmentLabelReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PauseEquipmentLabelReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0x82bf32 and < 0x82c0b2
             ? throw new InvalidOperationException($"Installed pause equipment label read native source ${address:X6}.")
             : source.ReadByte(address);

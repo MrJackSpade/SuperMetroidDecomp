@@ -262,9 +262,11 @@ internal static partial class Program
     }
 
     private sealed class SpacePirateCollisionReadGuard(
-        ISnesAddressSpace source, HashSet<int> blocked) : ISnesAddressSpace
+        ISnesAddressSpace source, HashSet<int> blocked) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int BlockedReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

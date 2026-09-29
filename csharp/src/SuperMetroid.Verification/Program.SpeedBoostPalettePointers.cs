@@ -50,8 +50,10 @@ internal static partial class Program
         Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM without pointer-table reads.");
     }
 
-    private sealed class SpeedBoostPointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class SpeedBoostPointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if ((uint)(address - SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers) < 6)

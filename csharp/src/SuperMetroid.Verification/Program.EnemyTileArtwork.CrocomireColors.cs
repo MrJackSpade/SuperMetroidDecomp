@@ -162,8 +162,10 @@ internal static partial class Program
     }
 
     private sealed class CrocomirePaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address >= CrocomirePaletteRomData.FightBodySource &&
             address < CrocomirePaletteRomData.WallSpikesSource +

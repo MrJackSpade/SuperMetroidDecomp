@@ -51,8 +51,10 @@ internal static partial class Program
     private static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
-    private sealed class BabyRouteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class BabyRouteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= BabyMetroidRouteDefinitions.SourceAddress and

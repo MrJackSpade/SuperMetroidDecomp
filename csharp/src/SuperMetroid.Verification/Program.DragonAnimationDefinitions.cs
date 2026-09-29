@@ -160,8 +160,10 @@ internal static partial class Program
     private static ushort ReadDragonAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class DragonAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class DragonAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa2e5ef and < 0xa2e5fb
                 ? throw new InvalidOperationException(

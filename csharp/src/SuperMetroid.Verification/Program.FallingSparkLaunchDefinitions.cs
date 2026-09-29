@@ -57,8 +57,10 @@ internal static partial class Program
         Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
     }
 
-    private sealed class FallingSparkLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FallingSparkLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0x86f3d4 and < 0x86f3f4
             ? throw new InvalidOperationException("Unexpected migrated falling-spark launch read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected falling-spark bus write.");

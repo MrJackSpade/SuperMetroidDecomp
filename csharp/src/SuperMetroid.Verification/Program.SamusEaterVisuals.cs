@@ -140,9 +140,11 @@ internal static partial class Program
             "compiled Samus Eater draw never reads ROM at runtime");
     }
 
-    private sealed class SamusEaterVisualSourceGuard : ISnesAddressSpace
+    private sealed class SamusEaterVisualSourceGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         public int Reads { get; private set; }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             Reads++;

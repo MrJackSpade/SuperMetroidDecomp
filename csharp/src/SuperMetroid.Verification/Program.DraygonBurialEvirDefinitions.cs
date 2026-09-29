@@ -112,8 +112,10 @@ internal static partial class Program
     }
 
     private sealed class DraygonBurialEvirReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa5a1af and < 0xa5a1f7
                 ? throw new InvalidOperationException(

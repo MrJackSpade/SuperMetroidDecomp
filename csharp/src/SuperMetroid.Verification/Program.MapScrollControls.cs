@@ -50,8 +50,10 @@ internal static partial class Program
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");
     }
 
-    private sealed class MapScrollControlReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class MapScrollControlReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             int offset = address - FileSelectMapRomData.ScrollArrows;

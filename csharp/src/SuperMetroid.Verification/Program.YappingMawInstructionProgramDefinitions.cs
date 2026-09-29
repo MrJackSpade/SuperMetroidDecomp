@@ -224,9 +224,11 @@ internal static partial class Program
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class YappingMawInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

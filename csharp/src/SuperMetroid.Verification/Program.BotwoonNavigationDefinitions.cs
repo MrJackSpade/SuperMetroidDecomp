@@ -227,8 +227,10 @@ internal static partial class Program
             "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
-    private sealed class BotwoonNavigationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class BotwoonNavigationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xb3949b and < 0xb394bb or
                 >= 0xb3a058 and < 0xb3e150 or

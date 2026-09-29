@@ -175,8 +175,10 @@ internal static partial class Program
     }
 
     private sealed class DraygonIntroDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             bool migratedLatency = address is >= 0xa5a19f and < 0xa5a1a7;

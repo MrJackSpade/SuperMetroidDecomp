@@ -140,8 +140,10 @@ internal static partial class Program
     }
 
     private sealed class TorizoRandomizedProjectileReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x86ac08 and < 0x86ac1c or
                 >= 0x86ac99 and < 0x86acad or

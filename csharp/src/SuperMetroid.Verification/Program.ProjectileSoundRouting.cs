@@ -39,8 +39,10 @@ internal static partial class Program
     }
 
     private sealed class ProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c28f and <= 0x90c2c6)

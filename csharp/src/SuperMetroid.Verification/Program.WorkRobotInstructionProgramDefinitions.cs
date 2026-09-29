@@ -89,9 +89,8 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(WorkRobotInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all reachable Work Robot spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Work Robot execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Work Robot production execution avoids compiled mechanics bytes");
         for (int index = 0;
@@ -99,8 +98,8 @@ internal static partial class Program
              index++)
         {
             ushort address = WorkRobotInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Work Robot presentation $A8:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.WorkRobotDefinition,
+                0xa8, address, $"Work Robot $A8:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
             () => WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(0xc6d4),
@@ -118,7 +117,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Work Robot instruction mechanics: 367 compiled words, all 22 authored " +
-            "entries, 18 callbacks, and 227 live presentation reads pass.");
+            "entries, 18 callbacks, and 227 compiled visual selectors pass.");
     }
 
     private static RoomEnemySystem CreateWorkRobotInstructionSystem(
@@ -177,10 +176,12 @@ internal static partial class Program
 
     private sealed class WorkRobotInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -117,8 +117,10 @@ internal static partial class Program
     private static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MagdollitePhaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class MagdollitePhaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa8af55 and < 0xa8af8b
             ? throw new InvalidOperationException(
                 $"Magdollite attempted migrated phase read ${address:X6}.")

@@ -141,8 +141,10 @@ internal static partial class Program
     private static ushort ReadChootPatternWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class ChootPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ChootPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa2d84c and < 0xa2df74
                 ? throw new InvalidOperationException(

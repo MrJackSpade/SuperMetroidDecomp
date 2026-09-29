@@ -78,8 +78,10 @@ internal static partial class Program
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");
     }
 
-    private sealed class ImpulsePoseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ImpulsePoseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address >> 16 == 0x91
             ? source.ReadByte(address)
             : throw new InvalidOperationException($"Impulse test permits only remaining pose/animation reads, got ${address:X6}.");

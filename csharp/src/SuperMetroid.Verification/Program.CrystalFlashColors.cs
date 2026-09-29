@@ -150,7 +150,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class CrystalFlashColorReadGuard : ISnesAddressSpace
+    private sealed class CrystalFlashColorReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();
@@ -178,6 +178,8 @@ internal static partial class Program
                 BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
             }
         }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

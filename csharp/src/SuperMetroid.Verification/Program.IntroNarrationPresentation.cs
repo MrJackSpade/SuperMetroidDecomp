@@ -242,8 +242,10 @@ internal static partial class Program
             "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
-    private sealed class IntroNarrationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class IntroNarrationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             int bank = address >> 16;
@@ -260,8 +262,10 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class IntroFontReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class IntroFontReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x95d089 and < 0x95d713)

@@ -165,17 +165,16 @@ internal static partial class Program
                 $"Shaktool dormant attack restores segment {index} pre-instruction");
         }
 
-        AssertEqual(ShaktoolInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Shaktool spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Shaktool execution uses compiled spritemap selectors");
         for (int index = 0;
              index < ShaktoolInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 ShaktoolInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Shaktool presentation word $AA:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.ShaktoolDefinition,
+                0xaa, address, $"Shaktool $AA:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => ShaktoolInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Shaktool spritemap $AA:{address:X4} is rejected as mechanics");
@@ -196,7 +195,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Shaktool instruction mechanics: 110 compiled words, all 21 reachable " +
-            "programs and 15 live spritemap reads pass with mechanics bytes forbidden.");
+            "programs and 15 compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
     private static bool RunForcedShaktoolInstructions(
@@ -256,10 +255,12 @@ internal static partial class Program
         return enemies;
     }
 
-    private sealed class ShaktoolInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ShaktoolInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -98,16 +98,15 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(YardInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all reachable Yard spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Yard execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Yard production execution avoids compiled mechanics bytes");
         for (int index = 0; index < YardInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort address = YardInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Yard presentation $A3:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.YardDefinition,
+                0xa3, address, $"Yard $A3:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
             () => YardInstructionProgramDefinitions.ReadMechanicsWord(0xc8c7),
@@ -125,7 +124,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Yard instruction mechanics: 328 compiled words, all 38 authored entries, " +
-            "five private callbacks, and 112 live presentation reads pass.");
+            "five private callbacks, and 112 compiled visual selectors pass.");
     }
 
     private static RoomEnemySystem CreateYardInstructionSystem(
@@ -171,10 +170,12 @@ internal static partial class Program
 
     private sealed class YardInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

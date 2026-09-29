@@ -70,8 +70,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainHandBeamListReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa99a42 and <= 0xa99ac7
                 ? throw new InvalidOperationException(

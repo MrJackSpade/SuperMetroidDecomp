@@ -124,7 +124,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseWireframeReadGuard : ISnesAddressSpace
+    private sealed class PauseWireframeReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = [];
@@ -138,6 +138,8 @@ internal static partial class Program
             }
             for (int i = 0; i < 8; i++) blocked.Add(0x82b25f + i);
         }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException($"Installed pause read wireframe art at {address:X6}.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

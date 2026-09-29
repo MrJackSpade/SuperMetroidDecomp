@@ -108,10 +108,12 @@ internal static partial class Program
 
     private sealed class RoomPlmPopulationReadGuard(
         ISnesAddressSpace source, ushort pointer, int length,
-        bool forbidHeaders = false) : ISnesAddressSpace
+        bool forbidHeaders = false) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
         internal int ForbiddenHeaderReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -75,8 +75,10 @@ internal static partial class Program
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 
-    private sealed class EggMotionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class EggMotionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x8ba97c and < 0x8ba994 or

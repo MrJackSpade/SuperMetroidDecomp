@@ -54,17 +54,16 @@ internal static partial class Program
                 $"Dragon {selector} attack-completion callback state");
         }
 
-        AssertEqual(DragonInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Dragon spritemap words remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Dragon execution uses compiled spritemap selectors");
         for (int index = 0;
              index < DragonInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 DragonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Dragon presentation word $A2:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.DragonDefinition,
+                0xa2, address, $"Dragon $A2:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Dragon mechanics byte");
@@ -85,8 +84,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Dragon instruction mechanics: twenty-six compiled words, all six body, " +
-            "wing, and attack programs, both completion callbacks, and sixteen live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "wing, and attack programs, both completion callbacks, and sixteen compiled " +
+            "spritemap selectors pass with mechanics bytes forbidden.");
 
         static RoomEnemySystem CreateDragonProgramSystem(
             DragonInstructionProgramReadGuard guard,
@@ -139,10 +138,12 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class DragonInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

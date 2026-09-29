@@ -110,8 +110,10 @@ internal static partial class Program
             "Room shake definitions: all 216 native words and 144 real background/projectile phase selections pass with both source tables forbidden.");
     }
 
-    private sealed class RoomShakeReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class RoomShakeReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa0872d and < 0xa0884d or
                 >= 0x86846b and < 0x8684fb

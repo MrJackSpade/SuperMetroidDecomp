@@ -208,8 +208,10 @@ internal static partial class Program
     }
 
     private sealed class DeadTourianCorpseArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xb7c000 and < 0xb7ce00
                 ? throw new InvalidOperationException(

@@ -122,9 +122,11 @@ internal static partial class Program
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");
     }
 
-    private sealed class ForbiddenHyperBeamColorBus(ISnesAddressSpace inner) : ISnesAddressSpace
+    private sealed class ForbiddenHyperBeamColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReads { get; private set; }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             int pointerStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers;

@@ -191,7 +191,7 @@ internal static partial class Program
             Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 
-    private sealed class EnemyHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class EnemyHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         private static readonly HashSet<int> DefinitionBytes =
             RoomEnemyDefinitionCatalog.Pointers
@@ -204,6 +204,8 @@ internal static partial class Program
                 .Concat(MotherBrainFallingTubePopulationDefinitions.Pointers.ToArray()
                     .SelectMany(pointer => Enumerable.Range(0xa90000 | pointer, 16)))
                 .ToHashSet();
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

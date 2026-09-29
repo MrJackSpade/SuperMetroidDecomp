@@ -76,8 +76,10 @@ internal static partial class Program
     private static ushort ReadWaverAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class WaverAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class WaverAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa386db and < 0xa386e3
                 ? throw new InvalidOperationException(

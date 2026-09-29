@@ -156,8 +156,10 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private sealed class ForbiddenTorizoRomBus : ISnesAddressSpace
+    private sealed class ForbiddenTorizoRomBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Torizo transfer reread cartridge byte ${address:X6}.");
 

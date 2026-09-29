@@ -81,8 +81,10 @@ internal static partial class Program
     }
 
     private sealed class FirefleaFxDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x88B058 and < 0x88B07E)

@@ -132,8 +132,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseEquipmentBaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PauseEquipmentBaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address >= PauseEquipmentBaseDefinitions.Source &&
             address < PauseEquipmentBaseDefinitions.Source + PauseEquipmentBaseDefinitions.Cells * sizeof(ushort)
             ? throw new InvalidOperationException($"Installed pause read equipment base at {address:X6}.") : source.ReadByte(address);

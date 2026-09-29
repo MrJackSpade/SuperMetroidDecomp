@@ -145,8 +145,10 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class AtomicInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class AtomicInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa8e380 and < 0xa8e388
             ? throw new InvalidOperationException(
                 $"Atomic initializer attempted migrated instruction read ${address:X6}.")
@@ -155,9 +157,11 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class AtomicProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class AtomicProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -101,8 +101,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainEscapeTextReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= MotherBrainEscapeTextArtworkDefinitions.SourceAddress and
                 < MotherBrainEscapeTextArtworkDefinitions.SourceAddress +

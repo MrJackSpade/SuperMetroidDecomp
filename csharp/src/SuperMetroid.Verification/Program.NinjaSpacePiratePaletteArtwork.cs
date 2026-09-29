@@ -81,8 +81,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class NinjaPaletteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class NinjaPaletteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address >= NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource &&

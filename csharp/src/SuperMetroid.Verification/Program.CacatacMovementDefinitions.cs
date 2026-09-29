@@ -47,8 +47,10 @@ internal static partial class Program
             "Cacatac travel distances: six native words and 18 wrapped production initializers pass with table reads forbidden.");
     }
 
-    private sealed class CacatacDistanceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class CacatacDistanceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa29f36 and < 0xa29f42
             ? throw new InvalidOperationException(
                 $"Cacatac initializer attempted migrated distance read ${address:X6}.")

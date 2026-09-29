@@ -88,8 +88,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class GrappleSpriteReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace
+    private sealed class GrappleSpriteReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x94b13d and <= 0x94b13e or >= 0x94b17d and <= 0x94b17e or >= 0x94b18b and <= 0x94b19e)

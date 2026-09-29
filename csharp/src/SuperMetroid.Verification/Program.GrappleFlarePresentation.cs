@@ -148,8 +148,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class GrappleFlarePresentationGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GrappleFlarePresentationGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231
             ? throw new InvalidOperationException($"Grapple flare still reads compiled cadence/selector at {address:X6}.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -180,8 +180,10 @@ internal static partial class Program
     }
 
     private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (IsPresentationAddress(address))

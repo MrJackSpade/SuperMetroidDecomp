@@ -40,6 +40,7 @@ internal static partial class Program
 
         var guarded = new SamusAtmosphericAnimationReadGuard(rom);
         VerifyProductionAtmosphericCadence(guarded);
+        VerifyNullAtmosphericPointerReadsMirroredWorkRam(rom, guarded);
         VerifyProductionLiquidDamage(guarded, RoomFxType.Lava,
             SamusLiquidDamageDefinitions.Lava);
         VerifyProductionLiquidDamage(guarded, RoomFxType.Acid,
@@ -93,6 +94,34 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
+        SuperMetroidAddressSpace rom,
+        ISnesAddressSpace guarded)
+    {
+        byte originalLow = rom.ReadWorkRamByte(0x900000);
+        byte originalHigh = rom.ReadWorkRamByte(0x900001);
+        try
+        {
+            rom.WriteByte(0x900000, 0x5a);
+            rom.WriteByte(0x900001, 0x34);
+            var effects = new SamusAtmosphericEffectsState();
+            effects.SetSlot(0, 2, 0, animationTimer: 2,
+                worldX: 100, worldY: 100);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: 100);
+            AssertEqual((byte)0x5a, oam.LowTable[2],
+                "null atmospheric pointer reads low OBJ attribute from mirrored WRAM");
+            AssertEqual((byte)0x34, oam.LowTable[3],
+                "null atmospheric pointer reads high OBJ attribute from mirrored WRAM");
+        }
+        finally
+        {
+            rom.WriteByte(0x900000, originalLow);
+            rom.WriteByte(0x900001, originalHigh);
+        }
+    }
+
     private static void VerifyProductionLiquidDamage(
         ISnesAddressSpace guarded,
         RoomFxType fxType,
@@ -117,8 +146,16 @@ internal static partial class Program
     }
 
     private sealed class SamusAtmosphericAnimationReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x908b93 and < 0x908bff or >= 0x909e8b and < 0x909e93
                 ? throw new InvalidOperationException(

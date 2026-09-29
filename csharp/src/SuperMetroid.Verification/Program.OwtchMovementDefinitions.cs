@@ -72,8 +72,10 @@ internal static partial class Program
             "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
     }
 
-    private sealed class OwtchMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class OwtchMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa2a3dd and < 0xa2a3f9
             ? throw new InvalidOperationException(
                 $"Owtch movement attempted migrated definition read ${address:X6}.")

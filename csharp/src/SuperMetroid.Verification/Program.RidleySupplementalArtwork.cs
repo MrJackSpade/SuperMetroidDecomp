@@ -108,8 +108,10 @@ internal static partial class Program
         unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
     private sealed class RidleySupplementReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa6db02 and < 0xa6db2a or
                 >= 0xa6dc90 and < 0xa6de7a

@@ -6,7 +6,7 @@ internal readonly record struct DeadTorizoInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Dead Torizo's stationary corpse program. Its
-/// spritemap operand remains live cartridge presentation data.
+/// spritemap operand is resolved by the compiled enemy visual catalog.
 /// </summary>
 internal static class DeadTorizoInstructionProgramDefinitions
 {
@@ -25,7 +25,7 @@ internal static class DeadTorizoInstructionProgramDefinitions
         new(SleepOpcode, CommonEnemyInstructionCodes.Sleep),
     ];
 
-    /// <summary>The live <c>Spritemaps_CorpseTorizo</c> operand at $A9:D6DE.</summary>
+    /// <summary>The <c>Spritemaps_CorpseTorizo</c> visual operand at $A9:D6DE.</summary>
     internal const ushort PresentationWord = 0xd6de;
 
     internal static int MechanicsWordCount => Words.Length;

@@ -103,8 +103,10 @@ internal static partial class Program
     }
 
     private sealed class BombTorizoDroolSineReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa0b443 and < 0xa0b643
                 ? throw new InvalidOperationException(

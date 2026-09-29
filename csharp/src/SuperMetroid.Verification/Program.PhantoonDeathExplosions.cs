@@ -68,8 +68,10 @@ internal static partial class Program
         Console.WriteLine("Phantoon death: 52 native bytes and six frame-exact 29-request sequences preserve timing, positions, animation and full-pool behavior with schedule reads forbidden.");
     }
 
-    private sealed class PhantoonDeathReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PhantoonDeathReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa7da1d and < 0xa7da51
             ? throw new InvalidOperationException("Unexpected migrated death schedule read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected death schedule bus write.");

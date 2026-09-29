@@ -86,9 +86,12 @@ internal static partial class Program
             follower.CurrentInstruction,
             "follower program loops to its first timed frame");
 
-        AssertEqual(NorfairLavaJumperInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "lava-jumper spritemap operands remain cartridge reads");
+        // EnemySpritemapDefinitions now supplies all fourteen selector operands from
+        // installed artwork. Program.EnemySpritemapArtwork compares each selector
+        // against the cartridge; this guard verifies that live execution never
+        // falls back to either the mechanics or presentation ROM bytes.
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "lava-jumper execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled lava-jumper mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -107,7 +110,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Norfair lava-jumper instruction mechanics: 23 compiled words, all three " +
-            "production programs, the real handshake, and 14 live spritemap reads pass.");
+            "production programs, the real handshake, and compiled spritemap selectors pass.");
     }
 
     private static void RunNorfairLavaJumperProgram(
@@ -152,10 +155,12 @@ internal static partial class Program
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class NorfairLavaJumperInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

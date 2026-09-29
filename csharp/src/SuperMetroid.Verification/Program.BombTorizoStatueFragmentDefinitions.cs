@@ -89,8 +89,10 @@ internal static partial class Program
     }
 
     private sealed class BombTorizoStatueFragmentReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x86a7ab and < 0x86a81b
                 ? throw new InvalidOperationException(

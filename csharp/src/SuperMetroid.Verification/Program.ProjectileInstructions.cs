@@ -167,8 +167,10 @@ internal static partial class Program
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
-    private sealed class ProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) : ISnesAddressSpace
+    private sealed class ProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (words.Contains(address) || words.Contains(address - 1))

@@ -63,9 +63,11 @@ internal static partial class Program
         Console.WriteLine("Pose projectile origins: 647680 beam-origin cases and authored Grapple launch/cancellation checks preserve physics while replacing every graphics-Y byte.");
     }
 
-    private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte Pose, ArtY;
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address == 0x91b629 + Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");

@@ -73,8 +73,10 @@ internal static partial class Program
         Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
     }
 
-    private sealed class PowerBombShapeReadGuard : ISnesAddressSpace
+    private sealed class PowerBombShapeReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected shape ROM read: {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected shape bus write.");
     }

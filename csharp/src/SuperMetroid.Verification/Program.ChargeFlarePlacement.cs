@@ -88,8 +88,10 @@ internal static partial class Program
             return stream.ToArray();
         }
     }
-    private sealed class FlarePlacementGuard(ISnesAddressSpace source, byte pose, byte direction, bool forbid) : ISnesAddressSpace
+    private sealed class FlarePlacementGuard(ISnesAddressSpace source, byte pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);

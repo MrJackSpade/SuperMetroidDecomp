@@ -211,9 +211,11 @@ internal static partial class Program
 
     private sealed class NoobTubeDrawReadGuard(
         ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

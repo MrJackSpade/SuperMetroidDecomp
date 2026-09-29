@@ -43,8 +43,10 @@ internal static partial class Program
             "Fireflea movement radii: all eight native words and production initializers pass with table reads forbidden.");
     }
 
-    private sealed class FirefleaRadiusReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FirefleaRadiusReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa38d1d and < 0xa38d2d
             ? throw new InvalidOperationException(
                 $"Fireflea initializer attempted migrated radius read ${address:X6}.")

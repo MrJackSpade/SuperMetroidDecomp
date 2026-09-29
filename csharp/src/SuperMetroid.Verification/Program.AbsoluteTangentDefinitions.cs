@@ -49,8 +49,10 @@ internal static partial class Program
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }
 
-    private sealed class TangentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class TangentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0x91c9d4 and < 0x91cad6
             ? throw new InvalidOperationException("Runtime absolute-tangent ROM read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

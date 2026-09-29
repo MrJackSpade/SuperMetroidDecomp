@@ -114,7 +114,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseReserveUiReadGuard : ISnesAddressSpace
+    private sealed class PauseReserveUiReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = [];
@@ -130,6 +130,8 @@ internal static partial class Program
             }
         }
         private void Block(int start, int count) { for (int i = 0; i < count; i++) blocked.Add(start + i); }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException($"Installed pause read reserve UI at {address:X6}.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -982,8 +982,10 @@ internal static partial class Program
     }
 
     private sealed class EnemyProjectileVisualReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             ushort low = unchecked((ushort)address);

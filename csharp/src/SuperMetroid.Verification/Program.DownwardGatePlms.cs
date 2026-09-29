@@ -367,8 +367,10 @@ internal static partial class Program
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
-    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= DownwardGatePlmHeaderDefinitions.ResidentInitialInstructionAddress and

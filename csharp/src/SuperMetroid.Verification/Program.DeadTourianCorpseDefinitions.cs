@@ -137,8 +137,10 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class DeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => IsMigratedAddress(address)
             ? throw new InvalidOperationException(
                 $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.")

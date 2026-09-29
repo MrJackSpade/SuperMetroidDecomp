@@ -58,8 +58,10 @@ internal static partial class Program
             "Fune/Namihe definitions: eight native selectors and all eight real idle/active installs pass with table reads forbidden.");
     }
 
-    private sealed class FuneNamiheReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class FuneNamiheReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa896d3 and < 0xa896e3
             ? throw new InvalidOperationException(
                 $"Fune/Namihe attempted migrated selector read ${address:X6}.")

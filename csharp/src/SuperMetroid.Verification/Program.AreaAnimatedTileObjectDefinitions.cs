@@ -98,9 +98,11 @@ internal static partial class Program
     /// </summary>
     private sealed class AreaAnimatedTileSelectionForbiddenBus(
         ISnesAddressSpace fixture,
-        ISnesAddressSpace rom) : ISnesAddressSpace
+        ISnesAddressSpace rom) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

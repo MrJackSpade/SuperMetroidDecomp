@@ -67,6 +67,10 @@ internal static partial class Program
                     DeadTourianCorpseInstructionProgramDefinitions.SleepWordAddress(programIndex),
                     corpse.CurrentInstruction,
                     $"dead {family.Species} variant {variantIndex} reaches terminal sleep");
+                ushort operand = DeadTourianCorpseInstructionProgramDefinitions
+                    .PresentationWordAddress(programIndex);
+                AssertCompiledEnemyVisualSelector(rom, family.EnemyDefinition, 0xa9,
+                    operand, $"dead {family.Species} variant {variantIndex}");
                 programIndex++;
             }
         }
@@ -74,9 +78,8 @@ internal static partial class Program
         AssertEqual(DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
             programIndex,
             "every Dead Tourian corpse program executes");
-        AssertEqual(DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
-            guard.ObservedPresentationWords.Count,
-            "all Dead Tourian corpse spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Dead Tourian corpse execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Dead Tourian corpse mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -98,8 +101,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Dead Tourian corpse instruction mechanics: sixteen compiled words, all eight " +
-            "real Zoomer/Ripper/Skree initializers and terminal sleeps, and eight live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "real Zoomer/Ripper/Skree initializers and terminal sleeps, and eight compiled " +
+            "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
     private static int ProbeDeadTourianCorpseInstructionMechanicsAllocation()

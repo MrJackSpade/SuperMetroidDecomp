@@ -75,10 +75,12 @@ internal static partial class Program
         Console.WriteLine("Grapple body placement: 524288 legacy/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
     }
 
-    private sealed class GrappleBodyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GrappleBodyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public bool ReplaceArt;
         public bool ForbidArt;
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (ForbidArt && address is >= 0x9bc1c2 and < 0x9bc2c2)

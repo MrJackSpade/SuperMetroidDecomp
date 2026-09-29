@@ -155,8 +155,10 @@ internal static partial class Program
     private static ushort ReadNuclearWaffleWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class NuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class NuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa695f6 and < 0xa6960e
             ? throw new InvalidOperationException(
                 $"Nuclear Waffle attempted migrated geometry read ${address:X6}.")
@@ -165,10 +167,12 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class NuclearWaffleProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class NuclearWaffleProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

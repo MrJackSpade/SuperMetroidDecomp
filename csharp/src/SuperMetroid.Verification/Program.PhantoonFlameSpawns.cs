@@ -47,8 +47,10 @@ internal static partial class Program
         Console.WriteLine("Phantoon flame spawns: 33 native bytes and 507 real initializers reject migrated table reads.");
     }
 
-    private sealed class PhantoonFlameSpawnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PhantoonFlameSpawnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x8698b4 and < 0x8698c4 or >= 0x8698f7 and < 0x869900 or >= 0x869979 and < 0x869981)

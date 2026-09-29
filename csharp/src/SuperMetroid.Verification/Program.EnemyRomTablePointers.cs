@@ -156,8 +156,10 @@ internal static partial class Program
     }
 
     private sealed class EnemyInstructionSelectionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers and

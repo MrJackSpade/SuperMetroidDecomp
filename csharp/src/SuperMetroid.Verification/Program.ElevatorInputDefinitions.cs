@@ -60,8 +60,10 @@ internal static partial class Program
             "Elevator input definitions: both native masks and real departure paths pass with table reads forbidden.");
     }
 
-    private sealed class ElevatorInputReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ElevatorInputReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa394e2 and < 0xa394e6
             ? throw new InvalidOperationException(
                 $"Elevator actor attempted migrated input-mask read ${address:X6}.")

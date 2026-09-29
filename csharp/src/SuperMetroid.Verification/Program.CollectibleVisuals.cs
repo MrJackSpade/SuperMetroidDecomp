@@ -212,7 +212,7 @@ internal static partial class Program
         bus.ReadByte(0x840000 | pointer) |
         bus.ReadByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
-    private sealed class CollectibleDrawReadGuard : ISnesAddressSpace
+    private sealed class CollectibleDrawReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = [];
@@ -229,6 +229,8 @@ internal static partial class Program
                 for (int offset = 0; offset < 8; offset++)
                     blocked.Add(0x840000 | checked((ushort)(table + offset)));
         }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException(

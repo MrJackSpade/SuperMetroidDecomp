@@ -111,8 +111,10 @@ internal static partial class Program
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }
 
-    private sealed class RidleyGrabDivisorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class RidleyGrabDivisorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa6bb4e and < 0xa6bb56
             ? throw new InvalidOperationException("Unexpected migrated Ridley grab divisor read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Ridley target bus write.");

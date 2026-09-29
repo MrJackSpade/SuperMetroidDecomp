@@ -165,9 +165,11 @@ internal static partial class Program
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");
     }
 
-    private sealed class ForbiddenVisorColorBus(ISnesAddressSpace inner) : ISnesAddressSpace
+    private sealed class ForbiddenVisorColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
         public int ForbiddenReads { get; private set; }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address >= SamusVisorColorFormat.SourceAddress &&

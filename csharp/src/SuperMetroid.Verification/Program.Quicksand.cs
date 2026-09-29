@@ -219,8 +219,10 @@ internal static partial class Program
     }
 
     private sealed class QuicksandDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x9491d9 and < 0x9492e7 or
                 >= 0x949a06 and < 0x949b14 or

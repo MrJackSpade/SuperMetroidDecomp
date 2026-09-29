@@ -767,7 +767,7 @@ internal static partial class Program
 
     private sealed class FrontendCartridgeReadGuard(
         ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) :
-        ISnesAddressSpace, ISnesMutableMemory
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         private readonly HashSet<int> blockedPresentationBytes = [];
 
@@ -813,6 +813,8 @@ internal static partial class Program
                 }
             }
         }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

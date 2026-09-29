@@ -209,9 +209,11 @@ internal static partial class Program
         }
     }
 
-    private sealed class GrappleConnectionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GrappleConnectionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public bool ForbidReads = true;
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (ForbidReads && (address is >= 0x9bb8b8 and < 0x9bb8d4 or >= 0x9bc3c6 and < 0x9bc48e or >= 0x9bc9ba and < 0x9bc9ce))

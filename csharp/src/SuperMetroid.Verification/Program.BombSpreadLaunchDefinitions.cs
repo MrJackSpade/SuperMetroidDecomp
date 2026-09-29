@@ -44,8 +44,10 @@ internal static partial class Program
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
     }
 
-    private sealed class BombSpreadLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class BombSpreadLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if(address>=SamusBombSpreadRomData.FuseTimers && address<SamusBombSpreadRomData.YSubspeeds+SamusBombSpreadRomData.SlotCount*2)

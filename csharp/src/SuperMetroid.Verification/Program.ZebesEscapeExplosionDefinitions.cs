@@ -64,8 +64,10 @@ internal static partial class Program
     }
 
     private sealed class ZebesEscapeExplosionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x8fc1d6 and < 0x8fc1e6
                 ? throw new InvalidOperationException(

@@ -130,8 +130,10 @@ internal static partial class Program
         int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class CrawlerAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class CrawlerAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa396db and < 0xa396e3 or
                 >= 0xa3992b and < 0xa39933 or

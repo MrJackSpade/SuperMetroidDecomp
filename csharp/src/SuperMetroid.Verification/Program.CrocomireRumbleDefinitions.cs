@@ -168,8 +168,10 @@ internal static partial class Program
     }
 
     private sealed class CrocomireRumbleReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa498ca and < 0xa4990a ||
                 address >= CrocomirePaletteRomData.FightBodySource &&

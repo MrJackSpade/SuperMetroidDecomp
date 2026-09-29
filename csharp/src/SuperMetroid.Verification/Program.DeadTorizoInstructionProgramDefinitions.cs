@@ -50,8 +50,12 @@ internal static partial class Program
         AssertEqual(DeadTorizoInstructionProgramDefinitions.SleepOpcode,
             corpse.CurrentInstruction,
             "Dead Torizo program reaches terminal sleep");
-        AssertTrue(guard.SawPresentationWord,
-            "Dead Torizo spritemap operand remains a cartridge read");
+        AssertEqual(ReadDeadTorizoInstructionWord(
+                rom, DeadTorizoInstructionProgramDefinitions.PresentationWord),
+            corpse.SpritemapPointer,
+            "compiled Dead Torizo spritemap selector matches the cartridge");
+        AssertTrue(!guard.SawPresentationWord,
+            "Dead Torizo execution uses the compiled spritemap selector");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids both compiled Dead Torizo mechanics words");
         AssertThrows<InvalidDataException>(
@@ -72,7 +76,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Dead Torizo instruction mechanics: two compiled words, the real initializer, " +
-            "terminal sleep, and one live spritemap read pass with mechanics bytes forbidden.");
+            "terminal sleep, and the compiled spritemap selector pass with mechanics bytes forbidden.");
     }
 
     private static int ProbeDeadTorizoInstructionMechanicsAllocation()
@@ -96,10 +100,12 @@ internal static partial class Program
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class DeadTorizoInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal bool SawPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -81,8 +81,10 @@ internal static partial class Program
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
-    private sealed class RidleyAttackReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class RidleyAttackReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa6b38c and < 0xa6b3ec
             ? throw new InvalidOperationException("Unexpected migrated Ridley attack-choice read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

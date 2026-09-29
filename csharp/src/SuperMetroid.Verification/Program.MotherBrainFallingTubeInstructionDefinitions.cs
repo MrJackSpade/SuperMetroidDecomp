@@ -71,8 +71,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainFallingTubeReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa98c69 and <= 0xa98c86
                 ? throw new InvalidOperationException(

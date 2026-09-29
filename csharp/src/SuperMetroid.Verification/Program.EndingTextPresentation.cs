@@ -192,8 +192,10 @@ internal static partial class Program
         Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
-    private sealed class EndingTextReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class EndingTextReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             int bank = address >> 16;

@@ -92,9 +92,11 @@ internal static partial class Program
             "members match ROM; guarded production entry passes.");
     }
 
-    private sealed class EnemyRoomListReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class EnemyRoomListReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         private static readonly HashSet<int> SourceBytes = BuildSourceBytes();
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -88,8 +88,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainBabyPopulationReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa9be28 and < 0xa9be38
                 ? throw new InvalidOperationException(

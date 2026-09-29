@@ -53,9 +53,10 @@ internal static partial class Program
         AssertEqual(unchecked((ushort)(MultiviolaInstructionProgramDefinitions.Flying + 4)),
             slot.CurrentInstruction,
             "Multiviola program completes its native goto and first repeated frame");
-        AssertEqual(MultiviolaInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Multiviola spritemap operands remain cartridge reads");
+        // The artwork suite compares all fourteen compiled visual selectors to
+        // the cartridge. Live instruction execution must no longer read them.
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Multiviola execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Multiviola mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -74,7 +75,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Multiviola instruction mechanics: 16 compiled words, the complete production " +
-            "loop, and 14 live spritemap reads pass with mechanics bytes forbidden.");
+            "loop and compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
     private static int ProbeMultiviolaInstructionMechanicsAllocation()
@@ -98,10 +99,12 @@ internal static partial class Program
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class MultiviolaInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

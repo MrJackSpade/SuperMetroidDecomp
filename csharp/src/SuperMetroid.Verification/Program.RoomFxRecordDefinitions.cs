@@ -105,9 +105,11 @@ internal static partial class Program
             "Ceres compiled treadmill animation count");
     }
 
-    private sealed class RoomFxRecordReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class RoomFxRecordReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         private static readonly HashSet<int> Forbidden = BuildForbidden();
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

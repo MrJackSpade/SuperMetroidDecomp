@@ -313,8 +313,10 @@ internal static partial class Program
 
     private sealed class MotherBrainSpecialArtworkReadGuard(
         ISnesAddressSpace source, MotherBrainSpecialSpriteSheetDefinition sheet) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address >= sheet.SourceAddress && address < sheet.SourceAddress + sheet.ByteCount
                 ? throw new InvalidOperationException(
@@ -325,8 +327,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainBabyTileRecordReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= MotherBrainTileTransferDefinitions.BabyTileList and
                 < MotherBrainTileTransferDefinitions.BabyTileList +
@@ -365,8 +369,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainLegTransferReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address >= MotherBrainLegTileTransferDefinitions.NativeListAddress &&
             address < MotherBrainLegTileTransferDefinitions.NativeListAddress +

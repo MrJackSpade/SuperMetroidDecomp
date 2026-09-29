@@ -3746,8 +3746,10 @@ internal static partial class Program
         return oam;
     }
 
-    private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => (address >> 16) == 0xb4
             ? throw new InvalidOperationException(
                 $"Installed room sprite object reread bank-$B4 byte ${address:X6}.")
@@ -3757,8 +3759,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainFrameReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa9a586 and < 0xa9a7c2 or
                 >= 0xa9ad3e and < 0xa9aee4
@@ -3770,8 +3774,10 @@ internal static partial class Program
     }
 
     private sealed class FrameReadGuard(ISnesAddressSpace source,
-        string? frameName = null) : ISnesAddressSpace
+        string? frameName = null) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0xa288da and < 0xa2890b or

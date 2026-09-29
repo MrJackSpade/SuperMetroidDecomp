@@ -56,8 +56,10 @@ internal static partial class Program
             "Phantoon sound definitions: all three native selections and two complete production callback cycles pass with the source table forbidden.");
     }
 
-    private sealed class PhantoonSoundReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class PhantoonSoundReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa7cded and < 0xa7cdf3
             ? throw new InvalidOperationException(
                 $"Phantoon attempted migrated materialization sound read ${address:X6}.")

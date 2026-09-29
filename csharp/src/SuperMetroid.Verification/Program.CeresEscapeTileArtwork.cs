@@ -188,8 +188,10 @@ internal static partial class Program
     }
 
     private sealed class CeresEscapeArtworkReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
             CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||

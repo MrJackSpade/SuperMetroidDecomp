@@ -177,9 +177,11 @@ internal static partial class Program
         ];
     }
 
-    private sealed class CeresSteamCollisionNoReadBus : ISnesAddressSpace
+    private sealed class CeresSteamCollisionNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
         internal int ReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

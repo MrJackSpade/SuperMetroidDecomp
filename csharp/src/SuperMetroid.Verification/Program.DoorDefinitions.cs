@@ -130,8 +130,10 @@ internal static partial class Program
     private static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
-    private sealed class DoorNoReadAddressSpace : ISnesAddressSpace
+    private sealed class DoorNoReadAddressSpace : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException(
             $"Compiled door collision read address ${address:X6}.");
 
@@ -139,8 +141,10 @@ internal static partial class Program
             $"Compiled door collision wrote address ${address:X6}.");
     }
 
-    private sealed class DoorHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class DoorHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (IsDoorHeaderAddress(address))

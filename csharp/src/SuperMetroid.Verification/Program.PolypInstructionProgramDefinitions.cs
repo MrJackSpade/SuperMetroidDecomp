@@ -98,10 +98,12 @@ internal static partial class Program
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class PolypInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace
+        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal bool SawPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

@@ -286,8 +286,10 @@ internal static partial class Program
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
     private sealed class EnemyInstructionOwnerReadProbe(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             throw new EnemyInstructionOwnerFallbackReadException(address);
 

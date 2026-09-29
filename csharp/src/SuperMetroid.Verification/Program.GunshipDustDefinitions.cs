@@ -61,8 +61,10 @@ internal static partial class Program
         Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns, full-pool retention and parameter validation pass with migrated reads forbidden.");
     }
 
-    private sealed class GunshipDustReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class GunshipDustReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0x86a2d6 and < 0x86a2ee
             ? throw new InvalidOperationException("Unexpected migrated gunship dust table read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected gunship dust bus write.");

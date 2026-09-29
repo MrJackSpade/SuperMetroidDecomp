@@ -150,8 +150,10 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             IsCompiledHeadByte(address)
                 ? throw new InvalidOperationException(

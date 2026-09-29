@@ -411,13 +411,15 @@ internal static partial class Program
         return vram;
     }
 
-    private sealed class KraidCompressedSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class KraidCompressedSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         private static readonly ushort[] HeadPointers = KraidHeadInstructionDefinitions.All.ToArray()
             .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
             .Select(frame => frame.Tilemap).Distinct().ToArray();
 
         public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

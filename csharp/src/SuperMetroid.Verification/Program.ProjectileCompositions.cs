@@ -112,8 +112,10 @@ internal static partial class Program
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
     }
 
-    private sealed class ProjectileCompositionForbiddenBus : ISnesAddressSpace
+    private sealed class ProjectileCompositionForbiddenBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException($"Composition draw read ROM {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Composition draw mutated the bus.");
     }

@@ -173,8 +173,10 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class TourianStatueEyeReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0x86b90e and < 0x86b91e
                 ? throw new InvalidOperationException(
@@ -185,11 +187,19 @@ internal static partial class Program
     }
 
     private sealed class TourianStatueMechanicsForbiddenBus(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public int ForbiddenReadAttempts { get; private set; }
         public bool ForbidArtworkReads { get; set; }
         public HashSet<ushort> ObservedSourceOperands { get; } = [];
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte ReadByte(int address)
         {

@@ -125,16 +125,15 @@ internal static partial class Program
                 "regeneration script publishes the native spit sound");
         }
 
-        AssertEqual(EvirInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Evir spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Evir execution uses compiled spritemap selectors");
         for (int index = 0;
              index < EvirInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = EvirInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Evir presentation word $A8:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, (byte)0xa8,
+                address, $"Evir $A8:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Evir mechanics byte");
@@ -157,7 +156,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Evir instruction mechanics: 67 compiled words, all six body/arms/projectile " +
-            "programs, complete regeneration callbacks, and 49 live spritemap reads pass.");
+            "programs, complete regeneration callbacks, and 49 compiled spritemap selectors pass.");
     }
 
     private static RoomEnemySystem NewEvirInstructionSystem(
@@ -202,10 +201,12 @@ internal static partial class Program
 
     private sealed class EvirInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

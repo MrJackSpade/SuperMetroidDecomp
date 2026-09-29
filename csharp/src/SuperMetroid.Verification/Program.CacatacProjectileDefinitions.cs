@@ -67,8 +67,10 @@ internal static partial class Program
             "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");
     }
 
-    private sealed class CacatacProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class CacatacProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0x86d96a and < 0x86d97e
             ? throw new InvalidOperationException(
                 $"Cacatac spike spawn attempted migrated selector read ${address:X6}.")

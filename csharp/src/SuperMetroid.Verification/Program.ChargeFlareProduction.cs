@@ -106,7 +106,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class ChargeFlareCompositionGuard : ISnesAddressSpace
+    private sealed class ChargeFlareCompositionGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();
@@ -122,6 +122,8 @@ internal static partial class Program
                 for (int i = 0; i < size; i++) forbidden.Add(address + i);
             }
         }
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => forbidden.Contains(address)
             ? throw new InvalidOperationException($"Flare composition read from ROM at {address:X6}.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

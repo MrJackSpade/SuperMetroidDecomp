@@ -186,8 +186,10 @@ internal static partial class Program
     }
 
     private sealed class YardDirectionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa3cd42 and < 0xa3cd82 or
                 >= 0xa3cdc2 and < 0xa3cde2 or

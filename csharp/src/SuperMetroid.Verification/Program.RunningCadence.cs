@@ -158,9 +158,11 @@ internal static partial class Program
     }
 
     private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte MutableDelay = 0x35;
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x91b5d1 and < 0x91b62b)

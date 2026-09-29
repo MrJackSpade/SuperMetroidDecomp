@@ -163,8 +163,10 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SparkMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class SparkMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa8e682 and < 0xa8e690
             ? throw new InvalidOperationException(
                 $"Spark initializer attempted migrated selector read ${address:X6}.")
@@ -173,10 +175,12 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class SparkProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class SparkProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

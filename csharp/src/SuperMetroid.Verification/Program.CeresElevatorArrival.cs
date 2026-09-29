@@ -115,8 +115,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class CeresArrivalDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class CeresArrivalDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address)
         {
             if (address is >= 0x86a28b and < 0x86a2a1 ||

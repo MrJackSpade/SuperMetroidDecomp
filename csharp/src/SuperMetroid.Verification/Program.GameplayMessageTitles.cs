@@ -62,8 +62,10 @@ internal static partial class Program
             $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; live edit/rebind and invalid glyph rejection pass.");
     }
 
-    private sealed class ForbiddenGameplayMessageBus : ISnesAddressSpace
+    private sealed class ForbiddenGameplayMessageBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed gameplay-message title read cartridge address ${address:X6}.");
 

@@ -44,8 +44,10 @@ internal static partial class Program
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }
 
-    private sealed class KraidSinkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class KraidSinkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa7c5e7 and <= 0xa7c690
             ? throw new InvalidOperationException("Unexpected migrated Kraid sink schedule read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected sink bus write.");

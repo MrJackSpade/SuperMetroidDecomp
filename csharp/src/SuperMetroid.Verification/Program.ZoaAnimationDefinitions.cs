@@ -116,8 +116,10 @@ internal static partial class Program
     private static ushort ReadZoaAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class ZoaAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class ZoaAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa3b40d and < 0xa3b415
                 ? throw new InvalidOperationException(

@@ -129,8 +129,10 @@ internal static partial class Program
     }
 
     private sealed class ChozoAndTubePaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address >= ChozoAndTubeColorRomData.TubeCracksSource &&
             address < ChozoAndTubeColorRomData.LowerNorfairSource +

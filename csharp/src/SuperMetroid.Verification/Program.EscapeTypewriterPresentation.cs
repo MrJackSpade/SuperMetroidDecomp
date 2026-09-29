@@ -131,8 +131,10 @@ internal static partial class Program
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
-    private sealed class ForbiddenEscapeTextBus : ISnesAddressSpace
+    private sealed class ForbiddenEscapeTextBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed escape typewriter read cartridge address ${address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(

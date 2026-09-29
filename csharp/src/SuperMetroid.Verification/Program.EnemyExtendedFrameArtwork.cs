@@ -1701,7 +1701,7 @@ internal static partial class Program
     }
 
     private sealed class ExtendedVisualReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly HashSet<int> blocked = [];
 
@@ -1760,6 +1760,8 @@ internal static partial class Program
             for (int index = 0; index < length; index++)
                 blocked.Add((bank << 16) | unchecked((ushort)(pointer + index)));
         }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

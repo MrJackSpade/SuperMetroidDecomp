@@ -47,8 +47,10 @@ internal static partial class Program
         Console.WriteLine("Kraid rock launch: eight native words and 65536 actual wrapped spawns pass with table reads and RNG advances forbidden.");
     }
 
-    private sealed class KraidRockReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class KraidRockReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa7bc65 and < 0xa7bc75
             ? throw new InvalidOperationException("Unexpected migrated Kraid rock velocity read.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Kraid rock bus write.");

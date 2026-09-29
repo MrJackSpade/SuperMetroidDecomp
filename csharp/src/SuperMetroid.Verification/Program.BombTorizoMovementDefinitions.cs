@@ -125,8 +125,10 @@ internal static partial class Program
     }
 
     private sealed class BombTorizoMovementReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
+        : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xaac3ee and < 0xaac41e or
                 >= 0xaac440 and < 0xaac470 or

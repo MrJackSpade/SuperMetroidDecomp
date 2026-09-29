@@ -65,8 +65,10 @@ internal static partial class Program
     }
 
     private sealed class CrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) => address is >= 0xa49156 and < 0xa4916c
             ? throw new InvalidOperationException(
                 $"Crocomire bridge fragment attempted migrated position read ${address:X6}.")

@@ -59,17 +59,16 @@ internal static partial class Program
                 $"Viola {orientation} enters and loops all fourteen shared frames");
         }
 
-        AssertEqual(ViolaInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Viola spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Viola execution uses compiled spritemap selectors");
         for (int index = 0;
              index < ViolaInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 ViolaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Viola presentation word $A3:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.ViolaDefinition,
+                0xa3, address, $"Viola $A3:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Viola mechanics byte");
@@ -92,7 +91,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Viola instruction mechanics: thirty compiled words, all four surface entries, " +
-            "the shared fourteen-frame loop, and fourteen live spritemap reads pass with " +
+            "the shared fourteen-frame loop, and fourteen compiled spritemap selectors pass with " +
             "mechanics bytes forbidden.");
     }
 
@@ -132,10 +131,12 @@ internal static partial class Program
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class ViolaInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace
+        ISnesAddressSpace, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {

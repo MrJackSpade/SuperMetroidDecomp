@@ -59,8 +59,10 @@ internal static partial class Program
             "Norfair lava-jump definitions: four native velocities and all 65,536 real RNG selections pass with the source table forbidden.");
     }
 
-    private sealed class NorfairLavaJumpReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    private sealed class NorfairLavaJumpReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         public byte ReadByte(int address) =>
             address is >= 0xa2be86 and < 0xa2be8e
                 ? throw new InvalidOperationException(

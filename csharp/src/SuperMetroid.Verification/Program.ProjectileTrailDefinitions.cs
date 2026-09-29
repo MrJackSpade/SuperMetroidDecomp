@@ -36,9 +36,18 @@ internal static partial class Program
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
-    private sealed class TrailSelectorGuard(int start, int end) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class TrailSelectorGuard(int start, int end) :
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        // A wrapped trail-coordinate pointer may address the low WRAM mirror.
+        // The constructed fixture leaves that memory zero-filled, as the old
+        // generic read guard did for all unrelated visual offsets.
+        public byte ReadWorkRamByte(int address) => 0;
+
+        public byte ReadSaveRamByte(int address) =>
+            throw new InvalidOperationException("Trail selector fixture cannot read SRAM.");
 
         public byte ReadByte(int address)
         {

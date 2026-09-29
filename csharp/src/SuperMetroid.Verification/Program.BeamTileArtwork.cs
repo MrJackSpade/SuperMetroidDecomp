@@ -71,9 +71,16 @@ internal static partial class Program
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
-    private sealed class BeamArtworkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class BeamArtworkReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte ReadByte(int address)
         {

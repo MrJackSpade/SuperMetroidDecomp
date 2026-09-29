@@ -159,9 +159,15 @@ internal static partial class Program
     }
 
     private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
-        IImportCartridgeSource
+        IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte GraphicsY, Direction;
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;

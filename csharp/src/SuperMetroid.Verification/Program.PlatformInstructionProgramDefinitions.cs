@@ -94,17 +94,16 @@ internal static partial class Program
                 $"platform program $A3:{testCase.EntryPoint:X4} loops to first frame");
         }
 
-        AssertEqual(PlatformInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Tripper/Kamer spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Tripper/Kamer execution uses compiled spritemap selectors");
         for (int index = 0;
              index < PlatformInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 PlatformInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads platform presentation word $A3:{address:X4}");
+            AssertCompiledEnemyVisualSelector(rom, (byte)0xa3,
+                address, $"Tripper/Kamer $A3:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Tripper/Kamer mechanics byte");
@@ -127,8 +126,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Tripper/Kamer instruction mechanics: fifty-six compiled words, all eight " +
-            "production-installed loops, four direction callbacks, and thirty-two live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "production-installed loops, four direction callbacks, and thirty-two compiled " +
+            "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
     private static void ExecutePlatformProgram(

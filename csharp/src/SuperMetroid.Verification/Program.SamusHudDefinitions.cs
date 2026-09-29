@@ -80,9 +80,16 @@ internal static partial class Program
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
     }
 
-    private sealed class HudPolicyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class HudPolicyReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        public byte ReadWorkRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) =>
+            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte ReadByte(int address)
         {

@@ -194,6 +194,10 @@ public static class SamusPaletteRomData
         /// reuses shades 2 and 1 in its six-phase cycle.
         /// </remarks>
         public const int ScrewAttackLists = 0x91da4a;
+        /// <summary>First contiguous Screw Attack suit list at $91:DA50.</summary>
+        public const ushort ScrewAttackFirstList = 0xda50;
+        /// <summary>First Power Suit Screw Attack shade at $9B:9CA0.</summary>
+        public const ushort ScrewAttackFirstPalette = 0x9ca0;
         /// <summary>
         /// Resolves the bounded $91:DA4A/$91:DA50 Screw Attack suit and phase lists
         /// to a bank-$9B palette pointer. Returns false for non-catalog indexes so
@@ -201,8 +205,20 @@ public static class SamusPaletteRomData
         /// </summary>
         public static bool TryScrewAttackPalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, 0x9ca0,
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, ScrewAttackFirstPalette,
                 pingPong: true, out pointer);
+
+        /// <summary>
+        /// Reads a word from the complete compiled three-suit Screw Attack pointer
+        /// allocation, including odd-byte and next-suit reads caused by a restored phase.
+        /// Addresses outside the proven list allocation are not treated as ROM data.
+        /// </summary>
+        public static ushort ReadScrewAttackPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset) =>
+            ReadCompiledListWord(suitByteOffset, phaseByteOffset,
+                firstListAddress: ScrewAttackFirstList, phaseCount: 6,
+                firstPalette: ScrewAttackFirstPalette,
+                pingPong: true);
         /// <summary><c>$91:DAA9</c>, suit-indexed active Speed Booster palette lists.</summary>
         /// <remarks>
         /// Issue #874 / #625: the pinned NTSC J/U v1.0 ROM's three
@@ -258,14 +274,29 @@ public static class SamusPaletteRomData
         /// during sustained Speed Booster running.
         /// </remarks>
         public const int SpeedBoosterLists = 0x91daa9;
+        /// <summary>First contiguous active Speed Booster suit list at $91:DAAF.</summary>
+        public const ushort SpeedBoosterFirstList = 0xdaaf;
+        /// <summary>First Power Suit active Speed Booster shade at $9B:9B20.</summary>
+        public const ushort SpeedBoosterFirstPalette = 0x9b20;
         /// <summary>
         /// Resolves the bounded $91:DAA9/$91:DAAF active Speed Booster suit
         /// and phase lists to a bank-$9B palette pointer.
         /// </summary>
         public static bool TryActiveSpeedBoosterPalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9b20,
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, SpeedBoosterFirstPalette,
                 pingPong: false, out pointer);
+
+        /// <summary>
+        /// Reads a word from the complete compiled three-suit active Speed Booster
+        /// pointer allocation, including bounded adjacent-list and odd-byte reads.
+        /// </summary>
+        public static ushort ReadActiveSpeedBoosterPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset) =>
+            ReadCompiledListWord(suitByteOffset, phaseByteOffset,
+                firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
+                firstPalette: SpeedBoosterFirstPalette,
+                pingPong: false);
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>
         /// <remarks>
         /// Issue #879 / #625: the pinned NTSC J/U v1.0 ROM's three
@@ -395,6 +426,42 @@ public static class SamusPaletteRomData
             int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
             pointer = checked((ushort)(firstPalette + suitByteOffset * 0x100 + shade * 0x20));
             return true;
+        }
+
+        private static ushort ReadCompiledListWord(
+            ushort suitByteOffset,
+            ushort phaseByteOffset,
+            ushort firstListAddress,
+            int phaseCount,
+            int firstPalette,
+            bool pingPong)
+        {
+            if (suitByteOffset > 4 || (suitByteOffset & 1) != 0)
+                throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
+
+            // The native two-level lookup adds the full 16-bit phase word to the
+            // selected list pointer. Apply that wrap before testing whether both
+            // bytes remain inside the compiled contiguous three-suit allocation.
+            ushort selectedList = checked((ushort)(firstListAddress +
+                suitByteOffset / 2 * phaseCount * sizeof(ushort)));
+            ushort readAddress = unchecked((ushort)(selectedList + phaseByteOffset));
+            int byteOffset = readAddress - firstListAddress;
+            int byteCount = 3 * phaseCount * sizeof(ushort);
+            if (byteOffset < 0 || byteOffset + 1 >= byteCount)
+                throw new InvalidDataException(
+                    $"Full-body palette pointer read ${readAddress:X4} is outside the compiled list allocation.");
+
+            return (ushort)(ReadByte(byteOffset) | ReadByte(byteOffset + 1) << 8);
+
+            byte ReadByte(int index)
+            {
+                int wordIndex = index / sizeof(ushort);
+                int suit = wordIndex / phaseCount;
+                int phase = wordIndex % phaseCount;
+                int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
+                ushort pointer = checked((ushort)(firstPalette + suit * 0x200 + shade * 0x20));
+                return (index & 1) == 0 ? (byte)pointer : (byte)(pointer >> 8);
+            }
         }
         /// <summary><c>$91:D99E</c>, ten full-body Hyper Beam palette pointers.</summary>
         /// <remarks>

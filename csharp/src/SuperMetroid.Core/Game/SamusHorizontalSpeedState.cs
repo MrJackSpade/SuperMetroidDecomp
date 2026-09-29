@@ -415,26 +415,11 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = 4;
 
-        bool catalogued = SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
-            suitTableOffset, SpecialPaletteFrame, out ushort palettePointer);
-        if (!catalogued)
-        {
-            // An externally restored non-catalog frame still follows the native two-level
-            // address calculation, including its adjacent-data and 16-bit wrap behavior.
-            ushort paletteList = ReadWord(bus,
-                SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists + suitTableOffset);
-            palettePointer = ReadWord(bus,
-                SamusPaletteRomData.Banks.Movement |
-                    unchecked((ushort)(paletteList + SpecialPaletteFrame)));
-        }
-        if (catalogued && cycleColors is not null)
-            cycleColors.Apply(cgram, palettePointer);
-        else
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | palettePointer,
-                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
+            suitTableOffset, SpecialPaletteFrame);
+        (cycleColors ?? throw new InvalidOperationException(
+            "Speed Booster palette requires installed Samus full-body cycle colors."))
+            .Apply(cgram, palettePointer);
 
         // Native advances offsets 0,2,4,6 and then pins six. No out-of-range lookup occurs
         // in reachable play because initialization and cancellation both reset the word.
@@ -476,25 +461,11 @@ public sealed class SamusHorizontalSpeedState
         ushort suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
-        bool catalogued = SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
-            suitTableOffset, SpecialPaletteFrame, out ushort palettePointer);
-        if (!catalogued)
-        {
-            // Preserve native adjacent-data reads for a restored non-catalog phase.
-            ushort paletteList = ReadWord(bus,
-                SamusPaletteRomData.FullBodyCycles.ScrewAttackLists + suitTableOffset);
-            palettePointer = ReadWord(bus,
-                SamusPaletteRomData.Banks.Movement |
-                    unchecked((ushort)(paletteList + SpecialPaletteFrame)));
-        }
-        if (catalogued && cycleColors is not null)
-            cycleColors.Apply(cgram, palettePointer);
-        else
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | palettePointer,
-                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer(
+            suitTableOffset, SpecialPaletteFrame);
+        (cycleColors ?? throw new InvalidOperationException(
+            "Screw Attack palette requires installed Samus full-body cycle colors."))
+            .Apply(cgram, palettePointer);
 
         // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
         // offset, so ten wraps to zero only after its palette has been copied.

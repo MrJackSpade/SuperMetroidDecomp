@@ -94,6 +94,12 @@ static void VerifySamusPoseTransitionMatching()
 static void VerifySamusHorizontalSpeed()
 {
     var bus = new TestAddressSpace();
+    SamusFullBodyCycleColorCatalog CycleColors() =>
+        SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
+    SamusSuitColorCatalog SuitColors() =>
+        SamusSuitColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
 
     // Normal air stores $9F55. Running movement type one advances by one more 12-byte
     // record to $9F61: acceleration 0.3000, maximum 2.C000, deceleration 0.8000.
@@ -252,7 +258,8 @@ static void VerifySamusHorizontalSpeed()
 
     var boostCgram = new SnesCgram();
     AssertTrue(booster.UpdateSpeedBoosterPalette(
-        bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0, equippedItems: 0x2000),
+        bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0,
+        equippedItems: 0x2000, cycleColors: CycleColors()),
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
     AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
@@ -264,7 +271,8 @@ static void VerifySamusHorizontalSpeed()
             "Speed Booster palette waits during positive timer");
     }
     AssertTrue(booster.UpdateSpeedBoosterPalette(
-        bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0, equippedItems: 0x2000),
+        bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0,
+        equippedItems: 0x2000, cycleColors: CycleColors()),
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual(0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
@@ -277,8 +285,7 @@ static void VerifySamusHorizontalSpeed()
     WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
     var submergedBoostCgram = new SnesCgram();
-    WriteTestWord(bus, 0x9bf000, 0x7777);
-    submergedBoostCgram.LoadFromBus(bus, 0x9bf000, colorCount: 1, destinationIndex: 192);
+    submergedBoostCgram.SetColor(192, 0x7777);
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(
         bus,
         submergedBoostCgram,
@@ -307,7 +314,8 @@ static void VerifySamusHorizontalSpeed()
         movementType: SamusMovementType.Running,
         animationFrame: 0,
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster).ToNativeWord(),
-        bottomBoundarySubmerged: true),
+        bottomBoundarySubmerged: true,
+        cycleColors: CycleColors()),
         "submerged Gravity Suit bypasses Speed Booster palette suppression");
     AssertEqual(0x6a5a, submergedBoostCgram.Colors[192],
         "submerged Gravity Suit Speed Booster palette remains ROM-authored");
@@ -319,8 +327,7 @@ static void VerifySamusHorizontalSpeed()
     WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SnesCgram();
-    WriteTestWord(bus, 0x9bf020, 0x2222);
-    submergedScrewCgram.LoadFromBus(bus, 0x9bf020, colorCount: 1, destinationIndex: 192);
+    submergedScrewCgram.SetColor(192, 0x2222);
     AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(
         bus,
         submergedScrewCgram,
@@ -339,7 +346,8 @@ static void VerifySamusHorizontalSpeed()
         movementType: SamusMovementType.SpinJumping,
         animationFrame: 27,
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(),
-        bottomBoundarySubmerged: true),
+        bottomBoundarySubmerged: true,
+        cycleColors: CycleColors()),
         "submerged Gravity Suit bypasses Screw Attack palette suppression");
     AssertEqual(0x5b4b, submergedScrewCgram.Colors[192],
         "submerged Gravity Screw palette remains ROM-authored");
@@ -438,7 +446,8 @@ static void VerifySamusHorizontalSpeed()
         "left departure clears shared index after both slots cross");
 
     AssertTrue(booster.UpdateSpeedBoosterPalette(
-        bus, boostCgram, movementType: SamusMovementType.Standing, animationFrame: 0, equippedItems: 0x2000),
+        bus, boostCgram, movementType: SamusMovementType.Standing, animationFrame: 0,
+        equippedItems: 0x2000, suitColors: SuitColors()),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");

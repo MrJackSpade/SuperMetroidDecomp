@@ -793,8 +793,8 @@ internal static class ProjectileTrailCoordinateDefinitions
         SnesAddress following = SnesAddress.FromBusAddress(next);
         if (source.Bank == 0x9b && !source.IsUpperLoRomWindow &&
             following.Bank == 0x9b && !following.IsUpperLoRomWindow)
-            return (ushort)(SnesCpuMappedData.ReadByte(bus, address) |
-                SnesCpuMappedData.ReadByte(bus, next) << 8);
+            return (ushort)(ReadLiveDirectionByte(bus, address) |
+                ReadLiveDirectionByte(bus, next) << 8);
 
         throw new InvalidDataException(
             $"Projectile trail direction pointer {source} is outside compiled data " +
@@ -832,6 +832,35 @@ internal static class ProjectileTrailCoordinateDefinitions
              offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd))
             return memoryDataRegister;
 
-        return SnesCpuMappedData.ReadByte(bus, address);
+        return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Trail coordinate requires WRAM."))
+                .ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Trail coordinate requires SRAM."))
+                .ReadSaveRamByte(address),
+            SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
+                throw new InvalidOperationException($"Trail coordinate ${address:X6} requires an unimplemented peripheral."))
+                .ReadPeripheralByte(address),
+            _ => throw new InvalidOperationException(
+                $"Trail coordinate ${address:X6} requires a compiled cartridge definition."),
+        };
     }
+
+    private static byte ReadLiveDirectionByte(ISnesAddressSpace bus, int address) =>
+        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Trail direction requires WRAM."))
+                .ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("Trail direction requires SRAM."))
+                .ReadSaveRamByte(address),
+            SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
+                throw new InvalidOperationException($"Trail direction ${address:X6} requires an unimplemented peripheral."))
+                .ReadPeripheralByte(address),
+            _ => throw new InvalidDataException(
+                $"Trail direction ${address:X6} requires a compiled cartridge definition."),
+        };
 }

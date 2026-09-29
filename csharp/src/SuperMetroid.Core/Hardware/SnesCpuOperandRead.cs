@@ -28,7 +28,20 @@ public static class SnesCpuOperandRead
             ((offset >= SnesCpuOpenBusWindows.ReservedBBusStart && offset <= SnesCpuOpenBusWindows.ReservedBBusEnd) ||
              (offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart && offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd)))
             return memoryDataRegister;
-        return SnesCpuMappedData.ReadByte(bus, address);
+        return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("CPU operand requires WRAM."))
+                .ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("CPU operand requires SRAM."))
+                .ReadSaveRamByte(address),
+            SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
+                throw new InvalidOperationException($"CPU operand ${address:X6} requires an unimplemented peripheral."))
+                .ReadPeripheralByte(address),
+            _ => throw new InvalidOperationException(
+                $"CPU operand ${address:X6} requires a compiled cartridge definition."),
+        };
     }
 }
 

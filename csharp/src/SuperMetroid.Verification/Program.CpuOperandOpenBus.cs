@@ -21,6 +21,20 @@ internal static partial class Program
             AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x226b), "expansion offsets outside system banks remain mapped");
         }
         AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0, 0x2140), "real APU registers are not silently treated as open bus");
+        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x7e, 0, 0x4000),
+            "dynamic CPU operand reads WRAM through the typed mutable-memory contract");
+        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x70, 0, 0x4000),
+            "dynamic CPU operand reads SRAM through the typed mutable-memory contract");
+        AssertEqual((ushort)0xabab, SnesIndirectLongDataRead.ReadWord(bus, 0x7e, 0x4000, 0),
+            "indirect long operand reads WRAM through the typed mutable-memory contract");
+        AssertEqual((ushort)0xabab, SnesIndirectLongDataRead.ReadWord(bus, 0x70, 0x4000, 0),
+            "indirect long operand reads SRAM through the typed mutable-memory contract");
+        AssertThrows<InvalidOperationException>(() =>
+                SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0x8000, 0),
+            "dynamic CPU operand cannot read cartridge bytes through the gameplay bus");
+        AssertThrows<InvalidOperationException>(() =>
+                SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x8000, 0),
+            "indirect long operand cannot read cartridge bytes through the gameplay bus");
     }
 
     private sealed class OperandReadWitness : ISnesAddressSpace,

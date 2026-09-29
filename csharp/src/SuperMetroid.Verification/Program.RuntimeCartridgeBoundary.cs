@@ -22,6 +22,8 @@ internal static partial class Program
             "gameplay bus contract must not expose an untyped read");
         AssertTrue(typeof(ISnesAddressSpace).GetMethod("ReadCartridgeByte") is null,
             "gameplay bus contract must not expose a cartridge read");
+        AssertTrue(runtimeBus.Assembly.GetType("SuperMetroid.Core.Hardware.SnesCpuMappedData") is null,
+            "gameplay assembly must not retain a generic dynamic CPU read adapter");
         AssertTrue(!runtimeBus.Assembly.GetReferencedAssemblies().Any(
                 name => name.Name == "SuperMetroid.AssetExtraction"),
             "gameplay assembly must not reference the cartridge importer");

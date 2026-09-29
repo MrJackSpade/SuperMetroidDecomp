@@ -43,10 +43,10 @@ public sealed partial class SamusProjectileSystem
                 (SpacetimeBeamCorruptionLayout.SpritePaletteSixWramAddress + x) &
                 SpacetimeBeamCorruptionLayout.CpuAddressMask;
 
-            bus.WriteByte(destinationAddress, SnesCpuMappedData.ReadByte(bus, sourceAddress));
+            bus.WriteByte(destinationAddress, ReadSpacetimeSourceByte(bus, sourceAddress));
             bus.WriteByte(
                 (destinationAddress + 1) & SpacetimeBeamCorruptionLayout.CpuAddressMask,
-                SnesCpuMappedData.ReadByte(bus, (sourceAddress + 1) &
+                ReadSpacetimeSourceByte(bus, (sourceAddress + 1) &
                     SpacetimeBeamCorruptionLayout.CpuAddressMask));
             persistentMemoryCorrupted |=
                 destinationAddress <= SaveRamLayout.LoadingGameStateWramAddress + 1 &&
@@ -58,4 +58,20 @@ public sealed partial class SamusProjectileSystem
 
         return persistentMemoryCorrupted;
     }
+
+    private static byte ReadSpacetimeSourceByte(ISnesAddressSpace bus, int address) =>
+        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("SpaceTime source requires WRAM."))
+                .ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
+                throw new InvalidOperationException("SpaceTime source requires SRAM."))
+                .ReadSaveRamByte(address),
+            SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
+                throw new InvalidOperationException($"SpaceTime source ${address:X6} requires an unimplemented peripheral."))
+                .ReadPeripheralByte(address),
+            _ => throw new InvalidOperationException(
+                $"SpaceTime source ${address:X6} requires a compiled cartridge definition."),
+        };
 }

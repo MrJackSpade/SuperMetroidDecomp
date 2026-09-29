@@ -1,5 +1,18 @@
 # Remaining lookup migration inventory (#547)
 
+## Removed generic dynamic CPU-read adapter (2026-09-29)
+
+`SnesCpuMappedData.ReadByte` has been deleted. The compiler identified its
+remaining callers in absolute-indexed and indirect-long operand emulation,
+Kraid mouth aliases, projectile-trail coordinates, and the SpaceTime copy tail.
+Each now classifies the dynamic address and calls the explicit WRAM, SRAM, or
+peripheral contract; a cartridge classification fails unless a domain-owned
+compiled catalog resolved that byte first. Core exposes no generic CPU read or
+cartridge reader. An architectural verifier checks that the adapter stays
+absent, and focused WRAM/SRAM/cartridge assertions cover both operand forms.
+This eliminates the escape hatch; it does not mean that all compiled catalogs
+or presentation assets have been installed yet.
+
 ## Projectile-trail bank-straddle operand (2026-09-29)
 
 The compiled bank-`$9B` trail coordinate reader no longer delegates a mixed

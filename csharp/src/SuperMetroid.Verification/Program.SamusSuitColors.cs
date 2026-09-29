@@ -61,7 +61,8 @@ internal static partial class Program
         string overrideDirectory,
         AreaMapPresentationCatalog original,
         ISnesAddressSpace bus,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePaletteCatalog initialPalettes,
+        MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus);
         SamusSuitColorCatalog decoded = SamusSuitColorCatalog.Load(
@@ -142,6 +143,7 @@ internal static partial class Program
 
         var runtime = new SuperMetroidRuntime(guard,
             initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        fixtureAssets.Bind(runtime);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

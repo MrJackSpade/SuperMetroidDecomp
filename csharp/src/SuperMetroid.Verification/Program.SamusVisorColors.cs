@@ -111,7 +111,7 @@ internal static partial class Program
 
     private static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
@@ -131,6 +131,7 @@ internal static partial class Program
         {
             MapPresentation = edited,
         };
+        fixtureAssets.Bind(runtime);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

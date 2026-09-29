@@ -12,16 +12,21 @@ internal static partial class Program
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
+        MotherBrainRoomColorPresentation extracted = MotherBrainRoomColorPresentation.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom),
+                writable: false));
         Seed(nativeCgram);
         Seed(installedCgram);
-        var native = CreateEnemy(rom, nativeCgram, null);
+        // Independently import the cartridge colors for the comparison path;
+        // the gameplay palette runner has no runtime ROM fallback.
+        var native = CreateEnemy(rom, nativeCgram, extracted);
         var installed = CreateEnemy(new PaletteReadForbiddenBus(), installedCgram,
             original.MotherBrainRoomColors);
         Method("LoadMotherBrainRoomEntryColors").Invoke(native, null);
         Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
         AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
-        VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors);
+        VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted);
         var nativeState = new MotherBrainEnemyState(native.Slots[0])
         {
             RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
@@ -180,13 +185,14 @@ internal static partial class Program
     }
 
     private static void VerifyMotherBrainRecoveryLights(ISnesAddressSpace rom,
-        MotherBrainRoomColorPresentation installed)
+        MotherBrainRoomColorPresentation installed,
+        MotherBrainRoomColorPresentation extracted)
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
         Seed(nativeCgram);
         Seed(installedCgram);
-        var native = CreateEnemy(rom, nativeCgram, null);
+        var native = CreateEnemy(rom, nativeCgram, extracted);
         var runtime = CreateEnemy(new PaletteReadForbiddenBus(), installedCgram, installed);
         MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
         for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)

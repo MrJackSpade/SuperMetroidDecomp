@@ -64,7 +64,8 @@ internal static partial class Program
             AssertTrue(samus.CrystalFlash.UpdatePalette(guard, cgram, samus,
                     palettes: null, colors: edited.CrystalFlashColors),
                 $"Crystal Flash call {call} retains palette ownership");
-            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(rom, nativeCgram, nativeSamus),
+            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(rom, nativeCgram, nativeSamus,
+                    colors: native),
                 $"native Crystal Flash call {call} retains palette ownership");
             AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer,
                 samus.CrystalFlash.CrystalPaletteTimer,

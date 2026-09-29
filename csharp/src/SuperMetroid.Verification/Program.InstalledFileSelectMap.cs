@@ -17,7 +17,7 @@ internal static partial class Program
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0)!;
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0);
+        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
         var installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
 
         void StepBoth(ushort input)
@@ -73,7 +73,7 @@ internal static partial class Program
             AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
             // Exercise the other exit from a fresh area view as well. The test
             // ends at the handoff; gameplay/options retain separate dependencies.
-            control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0);
+            control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
             installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
             for (int tick = 0; tick < 48; tick++) StepBoth(0);
             StepBoth((ushort)SnesButton.B);

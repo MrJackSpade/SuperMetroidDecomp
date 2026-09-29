@@ -88,17 +88,8 @@ internal static partial class Program
             "installed Mode-7 zoom cycle avoids source-color ROM reads");
         foreach (ushort unusualZoom in new ushort[] { 0x0900, 0xff00 })
         {
-            select(unusualZoom);
-            ushort nativePointer = unchecked((ushort)(
-                (unusualZoom >> 8) * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride -
-                0x4ef9));
-            for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
-            {
-                int source = 0xa60000 | unchecked((ushort)(nativePointer + color * sizeof(ushort)));
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source),
-                    cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],
-                    $"non-catalogued zoom ${unusualZoom:X4} retains native wrapped read");
-            }
+            AssertThrows<InvalidOperationException>(() => select(unusualZoom),
+                $"non-catalogued zoom ${unusualZoom:X4} fails without a cartridge fallback");
         }
 
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };

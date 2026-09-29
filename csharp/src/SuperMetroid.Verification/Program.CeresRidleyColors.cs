@@ -10,7 +10,8 @@ internal static partial class Program
 {
     private static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePaletteCatalog initialPalettes,
+        MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(rom);
         CeresRidleyColorCatalog native = CeresRidleyColorCatalog.Load(
@@ -75,7 +76,11 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(original.CeresRidleyColors, runtime.Enemies.CeresRidleyColors),
             "runtime rebind drops previous Ceres Ridley colors");
         var guarded = new CeresRidleyColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem { CeresRidleyColors = edited.CeresRidleyColors };
+        var enemies = new RoomEnemySystem
+        {
+            CeresRidleyColors = edited.CeresRidleyColors,
+            TileArtwork = fixtureAssets.EnemyTiles,
+        };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
@@ -219,7 +224,7 @@ internal static partial class Program
         {
             // Compare every callback, including the three skipped frame counters
             // between each alarm color upload. Only the authored RGB5 row is editable.
-            var nativeEnemy = new RoomEnemySystem();
+            var nativeEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
             var stockEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
             var editedEnemy = new RoomEnemySystem { CeresRidleyColors = edited.CeresRidleyColors };
             var nativeCgram = new SnesCgram();
@@ -277,9 +282,9 @@ internal static partial class Program
         void VerifyNorfairHealthPalette()
         {
             // Drive the real Norfair palette callback at both sides of every
-            // health threshold. The native fallback supplies full-CGRAM parity;
-            // the guarded installed path proves no copied ROM colors are read.
-            var nativeEnemy = new RoomEnemySystem();
+            // health threshold. The extracted stock catalog supplies full-CGRAM
+            // parity; the guarded installed path proves no copied ROM colors are read.
+            var nativeEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
             var stockEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
             var editedEnemy = new RoomEnemySystem { CeresRidleyColors = edited.CeresRidleyColors };
             var nativeCgram = new SnesCgram();

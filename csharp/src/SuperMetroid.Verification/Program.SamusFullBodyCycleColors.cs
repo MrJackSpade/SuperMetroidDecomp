@@ -10,7 +10,8 @@ internal static partial class Program
     private static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,
-        GameplayBasePaletteCatalog initialPalettes)
+        GameplayBasePaletteCatalog initialPalettes,
+        MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(rom);
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted, writable: false));
@@ -117,6 +118,7 @@ internal static partial class Program
 
         var runtime = new SuperMetroidRuntime(guard,
             initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        fixtureAssets.Bind(runtime);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

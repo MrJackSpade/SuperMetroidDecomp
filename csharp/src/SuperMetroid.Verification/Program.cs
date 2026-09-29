@@ -71,6 +71,17 @@ if (args is ["--samus-atmospheric-effects"])
     VerifySamusAtmosphericEffects();
     return 0;
 }
+if (args is ["--samus-atmosphere-artwork-boundary", var atmosphereRom])
+{
+    VerifySamusAtmosphereArtworkBoundary(atmosphereRom);
+    return 0;
+}
+if (args is ["--samus-atmospheric-cadence", var atmosphereCadenceRom])
+{
+    VerifySamusAtmosphericAnimationDefinitions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(atmosphereCadenceRom));
+    return 0;
+}
 if (args is ["--samus-aerial-turns-walljump"])
 {
     VerifySamusAerialTurnsAndWallJump();

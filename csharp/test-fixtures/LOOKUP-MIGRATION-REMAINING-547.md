@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Samus atmospheric direct-OBJ source boundary (2026-09-29)
+
+The four authored small-sprite types (one, four, six, and seven) now require the
+installed `samus-atmosphere.json` presentation catalog. Their draw path no longer
+contains a bank-$90 pointer-table or attribute-list ROM fallback. Type two is
+deliberately different: its retail pointer is zero, so the source is live mirrored
+WRAM at bank `$90` and is read through the mutable-memory contract. A focused
+source-to-installed test compares all sixteen authored attributes with the pinned
+cartridge, draws each frame with a zero-ROM runtime address space, checks that
+missing artwork fails loudly, and verifies type two still reads seeded WRAM.
+The remaining Samus pose/sequence migration and broader ROM-free integration are open.
+
 ## Kraid foot extended collision (2026-09-28)
 
 The installed Kraid-foot collision walker still fell through to bank-$A7 ROM:

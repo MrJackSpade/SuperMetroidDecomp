@@ -180,18 +180,33 @@ public sealed class SamusAtmosphericEffectsState
         if (screenX < 0 || screenX >= 0x0100 || screenY < 0 || screenY >= 0x0100)
             return;
 
-        // `$90:8BFF` is a pointer table. Type two's retail pointer is literally zero; do
-        // not silently alias it to type one if a debugger deliberately creates that slot.
-        ushort attributes;
-        if (directArtwork is null || !directArtwork.TryResolve(type, slot.AnimationFrame, out attributes))
-        {
-            ushort attributeList = ReadWord(bus,
-                SamusMovementRomData.Environment.AtmosphericSpriteAttributeListPointers + type * 2);
-            attributes = ReadWord(bus,
-                SamusMovementRomData.Banks.Movement |
-                    unchecked((ushort)(attributeList + slot.AnimationFrame * 2)));
-        }
+        // Type two's native list pointer is zero. In bank $90 that address mirrors
+        // live WRAM, so it is not an art asset and must retain its mutable read.
+        ushort attributes = type == 2
+            ? ReadTypeTwoWorkRamAttributes(bus, slot.AnimationFrame)
+            : ResolveInstalledAttributes(directArtwork, type, slot.AnimationFrame);
         oam.AddRawSmallSprite(unchecked((ushort)screenX), unchecked((ushort)screenY), attributes);
+    }
+
+    private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame)
+    {
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Atmospheric type two requires mirrored WRAM.");
+        int source = SamusMovementRomData.Banks.Movement | (frame * sizeof(ushort));
+        return (ushort)(memory.ReadWorkRamByte(source) |
+            memory.ReadWorkRamByte(source + 1) << 8);
+    }
+
+    private static ushort ResolveInstalledAttributes(
+        SamusAtmosphericArtworkCatalog? artwork, byte type, byte frame)
+    {
+        if (artwork is null)
+            throw new InvalidOperationException(
+                $"Atmospheric type {type} requires installed small-sprite artwork.");
+        if (!artwork.TryResolve(type, frame, out ushort attributes))
+            throw new InvalidDataException(
+                $"Atmospheric type {type} frame {frame} is outside the installed sprite artwork.");
+        return attributes;
     }
 
     private static void DrawSamusTableSpritemap(
@@ -217,16 +232,6 @@ public sealed class SamusAtmosphericEffectsState
             screenX,
             screenY,
             artwork);
-    }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address)
-    {
-        // The native attribute-list pointer can be zero (type two). In that case
-        // $90:0000 addresses mirrored WRAM, not cartridge data. Keep the bank
-        // fixed when the 16-bit CPU operand advances, then classify each byte.
-        SnesAddress first = SnesAddress.FromBusAddress(address);
-        return (ushort)(SnesCpuMappedData.ReadByte(bus, (int)first) |
-            SnesCpuMappedData.ReadByte(bus, (int)first.AddWithinBank(1)) << 8);
     }
 
     private static void ValidateSlotIndex(int slotIndex)

@@ -157,6 +157,15 @@ internal static partial class Program
         foreach (byte type in new byte[] { 1, 4, 6, 7 })
         for (byte frame = 0; frame < SamusMovementRomData.Environment.DirectAtmosphericFrameCount; frame++)
         {
+            ushort pointer = type == 1
+                ? SamusMovementRomData.Environment.TypeOneAtmosphericAttributes
+                : SamusMovementRomData.Environment.SharedAtmosphericAttributes;
+            int source = SamusMovementRomData.Banks.Movement | (pointer + frame * sizeof(ushort));
+            ushort expectedAttributes = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out ushort installedAttributes),
+                $"atmospheric type {type} frame {frame} has installed artwork");
+            AssertEqual(expectedAttributes, installedAttributes,
+                $"atmospheric type {type} frame {frame} imported exact native attributes");
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
             nativeEffects.SetSlot(0, type, frame, 2, 128, 128);
@@ -165,7 +174,8 @@ internal static partial class Program
             var installedEffectOam = new OamBuffer();
             nativeEffectOam.BeginFrame();
             installedEffectOam.BeginFrame();
-            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128);
+            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128,
+                directArtwork: stock.Atmosphere);
             installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, 0, 0, 128,
                 stock.Spritemaps, stock.Atmosphere);
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&

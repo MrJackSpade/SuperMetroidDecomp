@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -62,8 +63,15 @@ internal static partial class Program
 
     private static void VerifyProductionAtmosphericCadence(ISnesAddressSpace guarded)
     {
+        var atmosphericArt = new SamusAtmosphericArtworkCatalog(
+            new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount],
+            new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount]);
         for (byte type = 1; type <= 7; type++)
         {
+            // This fixture measures timer ownership. Keep the Samus-spritemap
+            // types below the native Y clip so their unrelated body-art catalog
+            // is not needed; direct small sprites still exercise installed art.
+            ushort drawY = type is 3 or 5 ? (ushort)0x0100 : (ushort)100;
             byte frameCount = SamusAtmosphericAnimationDefinitions.FrameCount(type);
             for (byte frame = 0; frame < frameCount; frame++)
             {
@@ -71,10 +79,11 @@ internal static partial class Program
                     SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame);
 
                 var effects = new SamusAtmosphericEffectsState();
-                effects.SetSlot(0, type, frame, animationTimer: 1, worldX: 100, worldY: 100);
+                effects.SetSlot(0, type, frame, animationTimer: 1, worldX: 100, worldY: drawY);
                 var oam = new OamBuffer();
                 oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: 100);
+                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: drawY,
+                    directArtwork: atmosphericArt);
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
                     $"production atmospheric type {type} frame {frame} expiry timer");
                 AssertEqual(frame + 1 == frameCount ? 0 : frame + 1,
@@ -83,9 +92,10 @@ internal static partial class Program
 
                 effects.Clear();
                 effects.SetSlot(0, type, frame, animationTimer: 0x8001,
-                    worldX: 100, worldY: 100);
+                    worldX: 100, worldY: drawY);
                 oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: 100);
+                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: drawY,
+                    directArtwork: atmosphericArt);
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
                     $"production atmospheric type {type} frame {frame} delayed timer");
                 AssertEqual(frame, effects.Slots[0].AnimationFrame,

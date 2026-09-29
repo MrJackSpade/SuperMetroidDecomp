@@ -1177,6 +1177,9 @@ static void VerifySamusAtmosphericEffects()
     WriteTestWord(bus, 0x908bff + 4 * 2, 0x9100);
     WriteTestWord(bus, 0x909100, 0x2a48);
     WriteTestWord(bus, 0x909102, 0x2a49);
+    var atmosphericArt = new SamusAtmosphericArtworkCatalog(
+        new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount],
+        [0x2a48, 0x2a49, 0, 0]);
 
     var samus = new SamusState
     {
@@ -1247,7 +1250,8 @@ static void VerifySamusAtmosphericEffects()
     effects.SetSlot(0, type: 4, animationFrame: 0, animationTimer: 2, worldX: 104, worldY: 104);
     var oam = new OamBuffer();
     oam.BeginFrame();
-    effects.UpdateAndDraw(bus, oam, cameraX: 0, cameraY: 0, fxYPosition: 0);
+    effects.UpdateAndDraw(bus, oam, cameraX: 0, cameraY: 0, fxYPosition: 0,
+        directArtwork: atmosphericArt);
     AssertEqual(1, effects.Slots[0].AnimationTimer, "atmospheric positive timer decrements");
     AssertEqual(105, effects.Slots[0].XPosition, "lava slot zero drifts right");
     AssertEqual(103, effects.Slots[0].YPosition, "lava spray rises one pixel");
@@ -1255,7 +1259,8 @@ static void VerifySamusAtmosphericEffects()
     AssertEqual(5, oam.GetEntry(0).Palette, "lava direct OAM retains ROM palette");
 
     oam.BeginFrame();
-    effects.UpdateAndDraw(bus, oam, cameraX: 0, cameraY: 0, fxYPosition: 0);
+    effects.UpdateAndDraw(bus, oam, cameraX: 0, cameraY: 0, fxYPosition: 0,
+        directArtwork: atmosphericArt);
     AssertEqual(1, effects.Slots[0].AnimationFrame,
         "timer zero reloads old frame then advances packed word");
     AssertEqual(2, effects.Slots[0].AnimationTimer,
@@ -1267,10 +1272,10 @@ static void VerifySamusAtmosphericEffects()
     effects.Clear();
     effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, worldX: 100, worldY: 100);
     oam.BeginFrame();
-    effects.UpdateAndDraw(bus, oam, 0, 0, 0);
+    effects.UpdateAndDraw(bus, oam, 0, 0, 0, directArtwork: atmosphericArt);
     AssertEqual(100, effects.Slots[1].XPosition, "$8001 suppresses atmospheric motion");
     AssertEqual(0, oam.NextByteOffset, "$8001 suppresses atmospheric drawing");
-    effects.UpdateAndDraw(bus, oam, 0, 0, 0);
+    effects.UpdateAndDraw(bus, oam, 0, 0, 0, directArtwork: atmosphericArt);
     AssertEqual(101, effects.Slots[1].XPosition, "$8000 reload call begins motion");
     AssertEqual(4, oam.NextByteOffset, "$8000 reload call emits one OAM record");
 

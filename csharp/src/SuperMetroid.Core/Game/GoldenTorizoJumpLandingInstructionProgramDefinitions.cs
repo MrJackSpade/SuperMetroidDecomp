@@ -17,12 +17,12 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitions
     private static readonly GoldenTorizoJumpLandingMechanicsWord[] Words =
     [
         new(0xcdaf, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack),
-        new(0xcdb1, 0xcb41),
+        new(0xcdb1, GoldenTorizoLeftOrbInstructionProgramDefinitions.LeftFootForward),
         new(0xcdb3, 0xcbed),
         new(0xcdb5, CommonEnemyInstructionCodes.Goto),
         new(0xcdb7, GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
         new(0xcdb9, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack),
-        new(0xcdbb, 0xcaff),
+        new(0xcdbb, GoldenTorizoLeftOrbInstructionProgramDefinitions.Start),
         new(0xcdbd, 0xcb83),
         new(0xcdbf, CommonEnemyInstructionCodes.Goto),
         new(0xcdc1, GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg),

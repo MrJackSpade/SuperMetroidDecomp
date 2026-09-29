@@ -82,6 +82,7 @@ internal static partial class Program
         VerifyTorizoJumpBackDefinitions(rom);
         VerifyGoldenTorizoJumpLandingDefinitions(rom);
         VerifyGoldenTorizoRightOrbDefinitions(rom);
+        VerifyGoldenTorizoLeftOrbDefinitions(rom);
         VerifyGoldenTorizoRightSonicDefinitions(rom);
         VerifyGoldenTorizoEyeBeamAttackDefinitions(rom);
         VerifyGoldenTorizoStunnedDefinitions(rom);

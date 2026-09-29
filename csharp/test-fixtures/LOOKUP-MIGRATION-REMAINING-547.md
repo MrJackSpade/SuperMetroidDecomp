@@ -3407,6 +3407,14 @@ their three physical extended frames have compiled components and hitbox lists.
 The two newly needed OAM frames are installed as editable art, and version-22
 composition overrides inherit them from stock. The 1,250-frame held-fire probe
 now passes with every installed cartridge read denied. A longer 1,500-frame run
-still stops at `$AA:CB41` on another Golden Torizo combat list, so this remains
-a bounded migration slice rather than completion of the Golden Torizo room or
-the ROM-free runtime contract.
+then exposed the next uncompiled list at `$AA:CB41`.
+
+Both Golden Torizo left-facing Chozo-orb attacks at `$AA:CAFF-CB82` now use
+46 compiled control words, 20 compiled visual selectors, and twelve installed
+editable extended OAM frames. Their component geometry and eight physical
+hitbox lists are compiled independently of presentation. Version-23 composition
+overrides inherit the new stock frames. The 1,500-frame held-fire Golden Torizo
+room probe now matches native with every installed cartridge read denied; the
+selector inventory verifies 4,640 sorted addresses against the pinned cartridge.
+This is still a bounded combat slice, not proof that all attack trajectories or
+the full ROM-free runtime are complete.

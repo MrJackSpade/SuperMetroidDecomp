@@ -36,23 +36,26 @@ public static class LibraryBackgroundLoader
 
         if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
                 out LibraryBackgroundProgram program))
-            return ExecuteCompiled(bus, vram, program, activeDoorPointer,
+            return ExecuteProgram(bus, vram, program, activeDoorPointer,
                 tilemapArt, skyArt, hudArt, characterArt);
 
         // All retail high-bank lists are compiled. Once the host has bound every
         // direct-transfer catalog, a missing list is a definition error rather
         // than permission to interpret unknown cartridge bytes at runtime.
-        // Reference fixtures can still call ExecuteNativeForVerification explicitly.
         throw new InvalidDataException(
             $"Library-background program $8F:{listPointer:X4} is not compiled.");
     }
 
-    private static LibraryBackgroundExecutionResult ExecuteCompiled(
+    /// <summary>Executes an already-defined program; constructed fixtures never require a runtime byte decoder.</summary>
+    public static LibraryBackgroundExecutionResult ExecuteProgram(
         ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundProgram program,
-        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt,
-        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
-        RoomCharacterAtlasCatalog? characterArt)
+        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt = null,
+        RoomSkyTilemapCatalog? skyArt = null, HudTileAtlas? hudArt = null,
+        RoomCharacterAtlasCatalog? characterArt = null)
     {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(program);
         ushort? bg3CharacterBaseWord = null;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {
@@ -100,102 +103,6 @@ public static class LibraryBackgroundLoader
             program.Instructions.Count + 1, bg3CharacterBaseWord);
     }
 
-    /// <summary>Reference interpreter retained for pinned-ROM parity verification.</summary>
-    internal static LibraryBackgroundExecutionResult ExecuteNativeForVerification(
-        ISnesAddressSpace bus, SnesVram vram, ushort listPointer,
-        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt = null,
-        RoomSkyTilemapCatalog? skyArt = null, HudTileAtlas? hudArt = null,
-        RoomCharacterAtlasCatalog? characterArt = null) =>
-        ExecuteNative(bus, vram, listPointer, activeDoorPointer,
-            tilemapArt, skyArt, hudArt, characterArt);
-
-    private static LibraryBackgroundExecutionResult ExecuteNative(
-        ISnesAddressSpace bus, SnesVram vram, ushort listPointer,
-        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt,
-        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
-        RoomCharacterAtlasCatalog? characterArt)
-    {
-        ushort cursor = listPointer;
-        int executedCommands = 0;
-        ushort? bg3CharacterBaseWord = null;
-        for (int guard = 0; guard < RoomAssetRomData.LibraryBackground.MaximumCommandsPerList; guard++)
-        {
-            ushort commandAddress = cursor;
-            ushort command = ReadWord(bus, cursor);
-            cursor = unchecked((ushort)(cursor + 2));
-            executedCommands++;
-
-            switch ((LibraryBackgroundCommand)command)
-            {
-                case LibraryBackgroundCommand.End:
-                    return new LibraryBackgroundExecutionResult(
-                        executedCommands,
-                        bg3CharacterBaseWord);
-
-                case LibraryBackgroundCommand.TransferToVram:
-                    cursor = TransferToVram(bus, vram, cursor, skyArt, hudArt, characterArt);
-                    break;
-
-                case LibraryBackgroundCommand.DecompressToWorkRam:
-                    cursor = DecompressToWorkRam(bus, cursor, tilemapArt);
-                    break;
-
-                case LibraryBackgroundCommand.ClearFxTilemap:
-                    // The retail command is unused, but its implementation is fully named:
-                    // fill the shared $7E:4000 buffer and transfer $F00 bytes to VRAM $5880.
-                    FillAndTransfer(bus, vram, RoomAssetRomData.LibraryBackground.ClearFx);
-                    break;
-
-                case LibraryBackgroundCommand.TransferToVramForKraid:
-                    cursor = TransferToVram(bus, vram, cursor, skyArt, hudArt, characterArt);
-                    // `$82:EA66` writes BG34NBA=$02 after the transfer. BG3 therefore
-                    // consumes characters at word $2000 while Kraid's private BG2 map owns
-                    // word $4000. Return the register-derived base to the room PPU owner.
-                    bg3CharacterBaseWord =
-                        RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
-                    break;
-
-                case LibraryBackgroundCommand.ClearBg2:
-                    ClearBg2(bus, vram, includeKraidPage: false);
-                    break;
-
-                case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    ClearBg2(bus, vram, includeKraidPage: true);
-                    break;
-
-                case LibraryBackgroundCommand.TransferForDoor:
-                {
-                    ushort candidateDoor = ReadWord(bus, cursor);
-                    cursor = unchecked((ushort)(cursor + 2));
-                    if (candidateDoor == activeDoorPointer)
-                        cursor = TransferToVram(bus, vram, cursor, skyArt, hudArt, characterArt);
-                    else
-                        cursor = unchecked((ushort)(cursor + 7));
-                    break;
-                }
-
-                default:
-                    throw new InvalidDataException(
-                        $"Unknown library-background command ${command:X4} at $8F:{commandAddress:X4}.");
-            }
-        }
-
-        throw new InvalidDataException(
-            $"Library-background list $8F:{listPointer:X4} did not terminate within 128 commands.");
-    }
-
-    private static ushort TransferToVram(ISnesAddressSpace bus, SnesVram vram, ushort cursor,
-        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
-        RoomCharacterAtlasCatalog? characterArt)
-    {
-        int sourceAddress = ReadLong(bus, cursor);
-        ushort destinationWord = ReadWord(bus, unchecked((ushort)(cursor + 3)));
-        ushort byteCount = ReadWord(bus, unchecked((ushort)(cursor + 5)));
-        TransferToVram(bus, vram, sourceAddress, destinationWord, byteCount,
-            skyArt, hudArt, characterArt);
-        return unchecked((ushort)(cursor + 7));
-    }
-
     private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram,
         int sourceAddress, ushort destinationWord, ushort byteCount,
         RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
@@ -208,8 +115,11 @@ public static class LibraryBackgroundLoader
         }
 
         // Command 2 configures the same $2118/$2119 consecutive-word DMA represented by
-        // ExecuteQueuedWrite. Its destination is a VRAM word, not a host byte offset.
-        if (characterArt is not null &&
+        // memory or installed-art transfers. Its destination is a VRAM word, not a byte offset.
+        SnesDmaSourceKind sourceKind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(sourceAddress));
+        if (sourceKind is SnesDmaSourceKind.WorkRam or SnesDmaSourceKind.SaveRam)
+            vram.ExecuteQueuedMemoryWrite(RequireWorkMemory(bus), sourceAddress, byteCount, destinationWord);
+        else if (characterArt is not null &&
             sourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
         {
             // A bound installation owns this visual source. An unexpected list shape
@@ -241,15 +151,6 @@ public static class LibraryBackgroundLoader
         else
             throw new InvalidDataException(
                 $"Library-background transfer ${sourceAddress:X6} has no installed artwork.");
-    }
-
-    private static ushort DecompressToWorkRam(ISnesAddressSpace bus, ushort cursor,
-        RoomBackgroundTilemapCatalog? tilemapArt)
-    {
-        int sourceAddress = ReadLong(bus, cursor);
-        ushort destination = ReadWord(bus, unchecked((ushort)(cursor + 3)));
-        DecompressToWorkRam(bus, sourceAddress, destination, tilemapArt);
-        return unchecked((ushort)(cursor + 5));
     }
 
     private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,
@@ -330,39 +231,7 @@ public static class LibraryBackgroundLoader
         }
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
-    {
-        int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-        return unchecked((ushort)(
-            ReadCommandByte(bus, address) |
-            (ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank |
-                unchecked((ushort)(pointer + 1))) << 8)));
-    }
 
-    private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
-        ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
-        (ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank |
-            unchecked((ushort)(pointer + 1))) << 8) |
-        (ReadCommandByte(bus, RoomAssetRomData.LibraryBackground.CommandBank |
-            unchecked((ushort)(pointer + 2))) << 16);
-
-    private static byte ReadCommandByte(ISnesAddressSpace bus, int address) =>
-        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
-        {
-            SnesDmaSourceKind.WorkRam =>
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "Wrapped library-background commands require WRAM."))
-                .ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam =>
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "Library-background save-bank commands require SRAM."))
-                .ReadSaveRamByte(address),
-            SnesDmaSourceKind.Cartridge =>
-                throw new InvalidOperationException(
-                    $"Library-background command ${address:X6} is not compiled."),
-            _ => throw new InvalidDataException(
-                $"Library-background command byte ${address:X6} is outside mapped data."),
-        };
 }
 
 /// <summary>

@@ -81,7 +81,7 @@ static void VerifyKraidLibraryHudArtwork(
     }
 
     var stockVram = new SnesVram();
-    LibraryBackgroundExecutionResult native = LibraryBackgroundLoader.Execute(bus, stockVram,
+    LibraryBackgroundExecutionResult native = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     var installedVram = new SnesVram();
     LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram,
@@ -130,7 +130,7 @@ static void VerifyLibraryBackgroundLoader()
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     var vram = new SnesVram();
     LibraryBackgroundExecutionResult result =
-        LibraryBackgroundLoader.Execute(bus, vram, 0xe000, activeDoorPointer: 0);
+        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
     AssertEqual(4, result.ExecutedCommandCount, "library-background command count includes terminator");
     AssertEqual<ushort?>(null, result.Bg3CharacterBaseWord, "ordinary library list leaves BG3 base unchanged");
     AssertEqual(0x2211, vram.ReadWord(0x4800), "library background first BG2 page word");
@@ -141,7 +141,7 @@ static void VerifyLibraryBackgroundLoader()
     var typed = new LibraryBackgroundTypedReadGuard(bus);
     var nativeVram = new SnesVram();
     LibraryBackgroundExecutionResult native =
-        LibraryBackgroundLoader.ExecuteNativeForVerification(typed, nativeVram,
+        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(typed, nativeVram,
             0xe000, activeDoorPointer: 0);
     AssertEqual(result, native, "typed source routing preserves native command execution");
     AssertTrue(nativeVram.Bytes.SequenceEqual(vram.Bytes),
@@ -155,7 +155,7 @@ static void VerifyLibraryBackgroundLoader()
     var wrappedBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     wrappedBus.WriteByte(0x8f0000, 0);
     var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
-    native = LibraryBackgroundLoader.ExecuteNativeForVerification(
+    native = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(
         wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
     AssertEqual(1, native.ExecutedCommandCount,
         "bank-end native library-background terminator executes once");
@@ -171,7 +171,8 @@ static void VerifyLibraryBackgroundLoader()
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
-    LibraryBackgroundLoader.Execute(bus, vram, 0xe040, activeDoorPointer: 0);
+    LibraryBackgroundLoader.ExecuteProgram(bus, vram,
+        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(bus, 0xe040), activeDoorPointer: 0);
     AssertEqual(0x0338, vram.ReadWord(0x4800), "library background clear first word");
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 

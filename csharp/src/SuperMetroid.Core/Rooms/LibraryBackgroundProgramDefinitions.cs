@@ -32,7 +32,7 @@ public static partial class LibraryBackgroundProgramDefinitions
         }
     }
 
-    /// <summary>Finds a compiled retail command list; synthetic fixture lists remain interpretable from RAM/ROM.</summary>
+    /// <summary>Finds a compiled retail command list. Constructed programs can be supplied explicitly, without byte decoding.</summary>
     public static bool TryGet(ushort pointer, out LibraryBackgroundProgram program)
     {
         int low = 0;

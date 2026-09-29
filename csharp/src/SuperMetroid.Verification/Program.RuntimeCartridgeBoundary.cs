@@ -39,5 +39,8 @@ internal static partial class Program
         AssertEqual(typeof(ISnesMutableMemory), typeof(VramWriteQueue)
             .GetMethod(nameof(VramWriteQueue.DrainTo))!.GetParameters()[1].ParameterType,
             "NMI queue drainage requires a compile-time mutable-memory source");
+        AssertTrue(typeof(SuperMetroid.Core.Rooms.LibraryBackgroundLoader)
+                .GetMethod("ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic) is null,
+            "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
     }
 }

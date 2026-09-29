@@ -151,7 +151,7 @@ internal static partial class Program
 
         var nativeDoorVram = new SnesVram();
         var installedDoorVram = new SnesVram();
-        LibraryBackgroundLoader.ExecuteNativeForVerification(bus, nativeDoorVram,
+        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             entry.DoorPointer);
         LibraryBackgroundLoader.Execute(new SkyPageReadGuard(bus, blockLandingList: true), installedDoorVram,

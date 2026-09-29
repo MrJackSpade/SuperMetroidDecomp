@@ -1872,6 +1872,14 @@ if (args is ["--library-background-loader"])
     VerifyLibraryBackgroundLoader();
     return 0;
 }
+if (args is ["--library-background-artwork-boundary", var libraryArtworkRom])
+{
+    using var directory = new MapCatalogTestDirectory();
+    var installation = GameAssetInstaller.Install(libraryArtworkRom, directory.Root);
+    VerifyLibraryBackgroundLoader();
+    VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, installation);
+    return 0;
+}
 if (args is ["--oam-source-routing"])
 {
     VerifyOamSpritemapPacking();

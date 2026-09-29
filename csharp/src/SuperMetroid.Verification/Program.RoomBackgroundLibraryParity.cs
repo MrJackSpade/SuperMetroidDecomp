@@ -36,7 +36,7 @@ internal static partial class Program
                 SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
                 LibraryBackgroundExecutionResult native =
-                    LibraryBackgroundLoader.ExecuteNativeForVerification(
+                    LibraryBackgroundProgramImporter.ExecuteReference(
                         nativeBus, nativeVram, program.Pointer, door);
 
                 SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
@@ -123,7 +123,8 @@ internal static partial class Program
             WriteWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
             try
             {
-                LibraryBackgroundLoader.ExecuteNativeForVerification(bus, new SnesVram(), listPointer, 0,
+                LibraryBackgroundLoader.ExecuteProgram(bus, new SnesVram(),
+                    LibraryBackgroundProgramImporter.Read(bus, listPointer), 0,
                     backgrounds, skies, hud, characters);
                 throw new InvalidOperationException(
                     $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
@@ -151,7 +152,8 @@ internal static partial class Program
         WriteWord(stagedBus, commandAddress + 7, 2);
         WriteWord(stagedBus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
         var stagedVram = new SnesVram();
-        LibraryBackgroundLoader.ExecuteNativeForVerification(stagedBus, stagedVram, listPointer, 0,
+        LibraryBackgroundLoader.ExecuteProgram(stagedBus, stagedVram,
+            LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), 0,
             backgrounds, skies, hud, characters);
         AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
             "installed-art binding retains WRAM background transfer low byte");

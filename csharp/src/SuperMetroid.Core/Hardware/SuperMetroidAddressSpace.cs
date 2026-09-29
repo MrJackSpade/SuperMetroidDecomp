@@ -107,57 +107,6 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMe
         return new SuperMetroidAddressSpace(romBytes);
     }
 
-    /// <summary>
-    /// Legacy reference-bus read retained for diagnostic and cartridge-comparison
-    /// tooling. Gameplay code receives <see cref="ISnesAddressSpace"/> and must use
-    /// the typed cartridge, WRAM, SRAM, or peripheral read contracts instead.
-    /// </summary>
-    public byte ReadByte(int address)
-    {
-        ValidateAddress(address);
-        int bank = address >> 16;
-        int offset = address & 0xffff;
-
-        if (bank is 0x7e or 0x7f)
-        {
-            // Banks $7E/$7F expose the complete 128 KiB physical work RAM linearly.
-            return _workRam[(bank - 0x7e) * 0x10000 + offset];
-        }
-
-        if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
-        {
-            // Banks $00-$3F and $80-$BF mirror the first 8 KiB of bank-$7E WRAM. Most bank
-            // $80 routines use this direct-page/absolute mirror for shared engine state.
-            return _workRam[offset];
-        }
-
-        if (IsSaveRamBank(bank) && offset < 0x8000)
-        {
-            // The physical SRAM is only 8 KiB, so its larger LoROM windows repeat every
-            // $2000 bytes and across each mapped bank.
-            return _saveRam[offset & 0x1fff];
-        }
-
-        if (offset >= 0x8000)
-        {
-            int romOffset = ToRomOffset(address);
-            if ((uint)romOffset >= _rom.Length)
-            {
-                throw new InvalidOperationException(
-                    $"CPU address ${bank:X2}:{offset:X4} maps to unpopulated ROM offset ${romOffset:X6}.");
-            }
-
-            return _rom[romOffset];
-        }
-
-        // This range contains PPU/APU/CPU registers, expansion space, and other mappings.
-        // Returning zero would hide every missing hardware implementation behind bad data.
-        // This class is the translated runtime's explicit address contract, not a general
-        // 65816/open-bus emulator. A caller escaping every declared ROM/WRAM/SRAM window
-        // is therefore requesting an invalid mapping.
-        throw new InvalidOperationException(
-            $"CPU read ${bank:X2}:{offset:X4} is outside the runtime address map.");
-    }
     /// <inheritdoc />
     public byte ReadWorkRamByte(int cpuAddress)
     {

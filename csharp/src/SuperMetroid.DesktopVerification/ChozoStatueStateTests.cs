@@ -70,7 +70,7 @@ internal static partial class Program
     }
 
     private static ushort ReadChozoWord(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyChozoHandRejectsStandingAndLivingBoss()
     {

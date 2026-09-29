@@ -90,13 +90,13 @@ internal static partial class Program
         SuperMetroid.Core.Hardware.SnesVram vram, int definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
     {
-        int source = bus.ReadByte(definition) | bus.ReadByte(definition + 1) << 8 | bus.ReadByte(definition + 2) << 16;
-        int firstSize = bus.ReadByte(definition + 3) | bus.ReadByte(definition + 4) << 8;
-        int secondSize = bus.ReadByte(definition + 5) | bus.ReadByte(definition + 6) << 8;
+        int source = bus.ReadCartridgeByte(definition) | bus.ReadCartridgeByte(definition + 1) << 8 | bus.ReadCartridgeByte(definition + 2) << 16;
+        int firstSize = bus.ReadCartridgeByte(definition + 3) | bus.ReadCartridgeByte(definition + 4) << 8;
+        int secondSize = bus.ReadCartridgeByte(definition + 5) | bus.ReadCartridgeByte(definition + 6) << 8;
         for (int i = 0; i < firstSize; i++)
-            Check(vram.ReadByte(destinations.First * 2 + i) == bus.ReadByte(source + i), "Wall-grab first DMA bytes differ from ROM.");
+            Check(vram.ReadByte(destinations.First * 2 + i) == bus.ReadCartridgeByte(source + i), "Wall-grab first DMA bytes differ from ROM.");
         for (int i = 0; i < secondSize; i++)
-            Check(vram.ReadByte(destinations.Second * 2 + i) == bus.ReadByte(source + firstSize + i), "Wall-grab second DMA bytes differ from ROM.");
+            Check(vram.ReadByte(destinations.Second * 2 + i) == bus.ReadCartridgeByte(source + firstSize + i), "Wall-grab second DMA bytes differ from ROM.");
     }
 }
 

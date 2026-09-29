@@ -36,8 +36,8 @@ internal static class StateHostOptionsVerification
             throw new InvalidDataException($"Protection failed: energy={samus.Health}, ammo={samus.Missiles}/{samus.SuperMissiles}/{samus.PowerBombs}.");
         Console.WriteLine("PASS restored protection: energy and all unlocked ammo counters reach one, not zero.");
         runtime.StepFrame(0);
-        ushort Word(int address) => (ushort)(restored.AddressSpace.ReadByte(address) |
-            restored.AddressSpace.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(restored.AddressSpace.ReadCartridgeByte(address) |
+            restored.AddressSpace.ReadCartridgeByte(address + 1) << 8);
         foreach (var (offset, table) in new[] { (0x8e, 0x809dbf), (0x98, 0x809dd3), (0x9e, 0x809dd3), (0xa4, 0x809dd3) })
             if (runtime.Hud.Tiles[offset / 2] != Word(table + 2))
                 throw new InvalidDataException($"HUD digit at {offset:X} did not display one.");

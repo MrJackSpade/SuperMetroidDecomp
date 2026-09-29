@@ -62,13 +62,13 @@ internal static class AndroidImportVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         memory.WriteByte(0x7e1234, 0x56);
         memory.WriteByte(0x700123, 0x78);
-        if (memory.ReadByte(0x7e1234) != 0x56 || memory.ReadByte(0x700123) != 0x78)
+        if (memory.ReadWorkRamByte(0x7e1234) != 0x56 || memory.ReadSaveRamByte(0x700123) != 0x78)
             throw new InvalidDataException("Cartridge-free address space did not retain mutable WRAM/SRAM.");
 
         bool rejectedRomRead = false;
-        try { _ = memory.ReadByte(0x808000); }
+        try { _ = memory.ReadCartridgeByte(0x808000); }
         catch (InvalidOperationException error) when (
-            error.Message.Contains("unpopulated ROM", StringComparison.Ordinal))
+            error.Message.Contains("not populated", StringComparison.Ordinal))
         {
             rejectedRomRead = true;
         }

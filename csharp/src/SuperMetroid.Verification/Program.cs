@@ -1943,6 +1943,23 @@ if (args is ["--golden-torizo-rom-free", var goldenTorizoExtendedRom,
         goldenTorizoFrames);
     return 0;
 }
+if (args is ["--golden-torizo-rom-free", var goldenTorizoInputRom,
+        var goldenTorizoInputFrameText, var goldenTorizoHeldInputText])
+{
+    if (!int.TryParse(goldenTorizoInputFrameText, out int goldenTorizoInputFrames) ||
+        goldenTorizoInputFrames is < 1 or > 5000)
+        throw new ArgumentOutOfRangeException(nameof(goldenTorizoInputFrameText),
+            "Golden Torizo room comparison requires 1 through 5000 frames.");
+    if (!ushort.TryParse(goldenTorizoHeldInputText.TrimStart('$'),
+            System.Globalization.NumberStyles.HexNumber,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out ushort goldenTorizoHeldInput))
+        throw new ArgumentOutOfRangeException(nameof(goldenTorizoHeldInputText),
+            "Held SNES input must be a hexadecimal 16-bit word.");
+    VerifyFrontendRomFreeGoldenTorizo(goldenTorizoInputRom,
+        goldenTorizoInputFrames, goldenTorizoHeldInput);
+    return 0;
+}
 if (args is ["--rom-free-room-census", var censusRom, var censusSnapshotDirectory])
 {
     VerifyFrontendRomFreeRoomCensusFromSnapshots(censusRom, censusSnapshotDirectory);

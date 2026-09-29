@@ -13,7 +13,7 @@ internal static partial class Program
     /// Both execute the same real-room wake sequence and a forced dodge turn.
     /// </summary>
     private static void VerifyFrontendRomFreeGoldenTorizo(string sourceRom,
-        int frameCount)
+        int frameCount, ushort heldInput = 0)
     {
         string testDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         string root = Path.Combine(testDirectory,
@@ -33,7 +33,7 @@ internal static partial class Program
             installed.InitializeDirectRoomVerification();
             VerifyFrontendRomFreeRoom(native, installed,
                 RoomHeaderPointers.GoldenTorizo,
-                "focused Golden Torizo dodge and fall",
+                $"focused Golden Torizo dodge and fall, input ${heldInput:X4}",
                 frameCount: frameCount,
                 setup: (nativeRoom, installedRoom) =>
                 {
@@ -48,7 +48,8 @@ internal static partial class Program
                 },
                 forcedGoldenLeftTurnStart:
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
-                expectGoldenLeftFootOrb: frameCount >= 500);
+                expectGoldenLeftFootOrb: frameCount >= 500,
+                heldInput: heldInput);
         }
         finally
         {

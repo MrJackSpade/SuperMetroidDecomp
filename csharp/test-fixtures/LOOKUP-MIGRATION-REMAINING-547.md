@@ -3391,3 +3391,22 @@ The installed-assets frontend matches native pixels through 2,400 neutral Kraid
 room frames, including the rising-arm frame that formerly read `$A7:90FD` from
 the cartridge at frame 654. This migrates that visual family, not Kraid's collision
 data or every remaining enemy-art source.
+
+The generic gameplay `ISnesAddressSpace.ReadByte` entry point has already been
+removed; mutable WRAM and SRAM have distinct read contracts, while the ROM source
+is explicitly import-only. This gives compile-time failures for legacy generic
+read callers, but not a proof that the installed game is ROM-free: runtime code
+can still reach `IImportCartridgeSource` through a dynamic source classification
+or an explicit cast. The installed-frontend read guard remains necessary for
+those paths until their bounded data owners have been migrated.
+
+In the Golden Torizo real-room fire-input probe, the first such runtime read was
+the shared left-facing backward-jump list at `$AA:BC96`. Both left-facing lists
+(`$AA:BC96-BD0D`) now have 52 compiled control words and eight visual selectors;
+their three physical extended frames have compiled components and hitbox lists.
+The two newly needed OAM frames are installed as editable art, and version-22
+composition overrides inherit them from stock. The 1,250-frame held-fire probe
+now passes with every installed cartridge read denied. A longer 1,500-frame run
+still stops at `$AA:CB41` on another Golden Torizo combat list, so this remains
+a bounded migration slice rather than completion of the Golden Torizo room or
+the ROM-free runtime contract.

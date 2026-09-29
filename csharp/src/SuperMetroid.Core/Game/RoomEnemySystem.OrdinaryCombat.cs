@@ -3049,6 +3049,8 @@ public sealed partial class RoomEnemySystem
                  enemy.SpritemapPointer, out goldenComponents) ||
              TorizoJumpBackCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out goldenComponents) ||
+             TorizoJumpBackLeftCollisionDefinitions.TryGetComponents(
+                 enemy.SpritemapPointer, out goldenComponents) ||
              GoldenTorizoRightOrbCollisionDefinitions.TryGetComponents(
                  enemy.SpritemapPointer, out goldenComponents) ||
              GoldenTorizoLeftFootOrbCollisionDefinitions.TryGetComponents(
@@ -3065,6 +3067,8 @@ public sealed partial class RoomEnemySystem
             bool rightwardFrame = GoldenTorizoRightwardCollisionDefinitions.HasFrame(
                 enemy.SpritemapPointer);
             bool jumpBackFrame = TorizoJumpBackCollisionDefinitions.HasFrame(
+                enemy.SpritemapPointer);
+            bool leftJumpBackFrame = TorizoJumpBackLeftCollisionDefinitions.HasFrame(
                 enemy.SpritemapPointer);
             bool rightOrbFrame = GoldenTorizoRightOrbCollisionDefinitions.HasFrame(
                 enemy.SpritemapPointer);
@@ -3087,6 +3091,9 @@ public sealed partial class RoomEnemySystem
                                      component.HitboxList)
                              : jumpBackFrame
                                  ? TorizoJumpBackCollisionDefinitions.HitboxesAt(
+                                     component.HitboxList)
+                             : leftJumpBackFrame
+                                 ? TorizoJumpBackLeftCollisionDefinitions.HitboxesAt(
                                      component.HitboxList)
                              : rightOrbFrame
                                  ? GoldenTorizoRightOrbCollisionDefinitions.HitboxesAt(

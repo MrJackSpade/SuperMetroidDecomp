@@ -53,7 +53,9 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreTorizoFallingLeftFrameCount = 400;
     internal const int PreGoldenTorizoLeftFootOrbVersion = 21;
     internal const int PreGoldenTorizoLeftFootOrbFrameCount = 401;
-    internal const int Version = 22;
+    internal const int PreTorizoJumpBackLeftVersion = 22;
+    internal const int PreTorizoJumpBackLeftFrameCount = 406;
+    internal const int Version = 23;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -78,6 +80,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int GoldenTorizoRightSonicFrameCount = 21;
     internal const int TorizoFallingLeftFrameCount = 1;
     internal const int GoldenTorizoLeftFootOrbFrameCount = 5;
+    internal const int TorizoJumpBackLeftNewFrameCount = 2;
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     internal const int ExpectedFrameCount =
@@ -89,7 +92,8 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
-        TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount;
+        TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
+        TorizoJumpBackLeftNewFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -467,6 +471,28 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Golden Torizo left-foot orb selects {leftFootOrbPointers.Count - 1} " +
                 $"new visual frames, expected {GoldenTorizoLeftFootOrbFrameCount}.");
+        if (frames.Count != PreTorizoJumpBackLeftFrameCount)
+            throw new InvalidDataException("Left-facing Torizo jump-back frame prefix changed.");
+        // B014 was installed earlier for the shared falling-left animation.
+        var leftJumpBackPointers = new HashSet<ushort> { fallingLeftPointer };
+        for (int index = 0;
+             index < TorizoJumpBackLeftInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort operand = TorizoJumpBackLeftInstructionProgramDefinitions
+                .PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
+                    out ushort pointer))
+                throw new InvalidDataException(
+                    $"Left-facing Torizo jump-back visual operand $AA:{operand:X4} is not compiled.");
+            if (leftJumpBackPointers.Add(pointer))
+                frames.Add(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                    $"torizo_jump_back_left_{pointer:X4}"));
+        }
+        if (leftJumpBackPointers.Count - 1 != TorizoJumpBackLeftNewFrameCount)
+            throw new InvalidDataException(
+                $"Left-facing Torizo jump-back selects {leftJumpBackPointers.Count - 1} " +
+                $"new visual frames, expected {TorizoJumpBackLeftNewFrameCount}.");
         return frames.ToArray();
     }
 }

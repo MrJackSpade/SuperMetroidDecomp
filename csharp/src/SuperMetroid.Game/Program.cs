@@ -54,8 +54,7 @@ internal static class Program
 
             using var setup = new RomSetupForm(romArguments);
             if (setup.ShowDialog() != DialogResult.OK || setup.Installation is not { } installation) return 0;
-            string romPath = installation.RomPath;
-            GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath, installation.Root);
+            GameConfigurationFile configuration = GameConfigurationFile.LoadInstalled(installation.Root);
             Console.WriteLine($"Configuration source: {configuration.Source}");
             Console.WriteLine($"Configuration file: {configuration.Path}");
             SuperMetroidGameOptions gameOptions;
@@ -105,7 +104,7 @@ internal static class Program
                     $"Recoverable errors will be deduplicated and filed in " +
                     $"{gameOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");
             }
-            Application.Run(new GameForm(romPath, gameOptions, replay, githubErrorReporter, installation.AudioDirectory, installation.Root));
+            Application.Run(new GameForm(installation, gameOptions, replay, githubErrorReporter));
         }
         catch (Exception exception)
         {

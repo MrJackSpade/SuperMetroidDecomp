@@ -1,5 +1,6 @@
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Game;
 
@@ -16,17 +17,30 @@ internal sealed class GameForm : Form
         GitHubErrorReporter? errorReporter = null,
         string? audioDirectory = null,
         string? dataDirectory = null)
+        : this(new PlayableGameControl(romPath, gameOptions, replay, errorReporter,
+            audioDirectory, dataDirectory))
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
-        ArgumentNullException.ThrowIfNull(gameOptions);
+    }
 
+    /// <summary>The normal ROM-independent host path after asset installation.</summary>
+    public GameForm(
+        GameInstallation installation,
+        SuperMetroidGameOptions gameOptions,
+        ControllerInputRecording? replay = null,
+        GitHubErrorReporter? errorReporter = null)
+        : this(new PlayableGameControl(installation, gameOptions, replay, errorReporter))
+    {
+    }
+
+    private GameForm(PlayableGameControl gameControl)
+    {
         Text = "Super Metroid C#";
         StartPosition = FormStartPosition.CenterScreen;
         // This fits a crisp 3x 256x224 image plus the debugger toolbar/help text on an
         // ordinary 1080p desktop. RuntimeCanvas automatically chooses a smaller integer
         // scale if the user resizes the window.
         ClientSize = new Size(900, 760);
-        gameControl = new PlayableGameControl(romPath, gameOptions, replay, errorReporter, audioDirectory, dataDirectory);
+        this.gameControl = gameControl;
         Controls.Add(gameControl);
     }
 

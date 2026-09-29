@@ -26,13 +26,12 @@ internal static class RomlessDesktopStartupTest
             if (GameAssetInstaller.OpenOrRepair(root) is null)
                 throw new InvalidOperationException(
                     "Windows startup did not accept valid extracted content without a ROM.");
-            using var host = new PlayableGameControl(installation.RomPath,
+            using var host = new PlayableGameControl(installation,
                 new SuperMetroidGameOptions
                 {
                     AudioEnabled = false,
                     Renderer = RendererSelection.Software,
-                },
-                dataDirectory: root);
+                });
             var memory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
                 .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(host) ?? throw new InvalidOperationException("Host has no address space."));
@@ -97,14 +96,13 @@ internal static class RomlessDesktopStartupTest
             if (recordedReset.ControllerInputs.Length < 7)
                 throw new InvalidOperationException(
                     "Windows host recording omitted the reset or six title frames.");
-            using var replayHost = new PlayableGameControl(installation.RomPath,
+            using var replayHost = new PlayableGameControl(installation,
                 new SuperMetroidGameOptions
                 {
                     AudioEnabled = false,
                     Renderer = RendererSelection.Software,
                 },
-                replay: recordedReset,
-                dataDirectory: root);
+                replay: recordedReset);
             for (int frame = 0; frame < 6; frame++)
                 step.Invoke(replayHost, [(ushort?)null]);
             var replayMemory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)

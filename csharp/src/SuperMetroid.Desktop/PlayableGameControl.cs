@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Desktop;
 
 /// <summary>
-/// Thin keyboard/gamepad/debugger host for the cartridge-backed top-level game dispatcher.
+/// Thin keyboard/gamepad/debugger host for the installed-content game dispatcher.
 /// </summary>
 public sealed partial class PlayableGameControl : UserControl
 {
@@ -63,26 +63,25 @@ public sealed partial class PlayableGameControl : UserControl
         GitHubErrorReporter? errorReporter = null,
         string? audioDirectory = null,
         string? dataDirectory = null)
+        : this(ResolveDiagnosticInstallation(romPath, dataDirectory), gameOptions,
+            replay, errorReporter, audioDirectory)
     {
+    }
+
+    /// <summary>Starts from validated installed assets without naming or opening a ROM file.</summary>
+    public PlayableGameControl(
+        GameInstallation installation,
+        SuperMetroidGameOptions gameOptions,
+        ControllerInputRecording? replay = null,
+        GitHubErrorReporter? errorReporter = null,
+        string? audioDirectory = null)
+    {
+        ArgumentNullException.ThrowIfNull(installation);
         installedAudioDirectory = audioDirectory;
-        string fullRomPath = Path.GetFullPath(romPath);
-        if (dataDirectory is null)
-        {
-            // Diagnostic callers that supply only a cartridge path still run from
-            // extracted content. The cartridge is read only by the installer.
-            string fallbackRoot = Path.Combine(
-                Path.GetDirectoryName(fullRomPath) ?? throw new InvalidOperationException(
-                    "Cartridge path has no parent directory."),
-                "SuperMetroid-installed");
-            _ = GameAssetInstaller.OpenOrRepair(fallbackRoot) ??
-                GameAssetInstaller.Install(fullRomPath, fallbackRoot);
-            playerDataDirectory = fallbackRoot;
-        }
-        else
-        {
-            playerDataDirectory = Path.GetFullPath(dataDirectory);
-        }
-        string saveBase = Path.Combine(playerDataDirectory, Path.GetFileName(fullRomPath));
+        playerDataDirectory = Path.GetFullPath(installation.Root);
+        // The installed save basename is stable even when the private import copy
+        // has been removed. It matches the basename used by previous releases.
+        string saveBase = Path.Combine(playerDataDirectory, GameInstallationLayout.RomFileName);
         saveFilePath = Path.ChangeExtension(saveBase, GameSaveJsonFormat.FileExtension);
         legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
@@ -182,6 +181,23 @@ public sealed partial class PlayableGameControl : UserControl
         ResetFrameTimings();
         Restart();
         SetPlaying(playing: true);
+    }
+
+    private static GameInstallation ResolveDiagnosticInstallation(string romPath, string? dataDirectory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
+        if (dataDirectory is not null)
+            return new GameInstallation(Path.GetFullPath(dataDirectory));
+
+        // Older diagnostic entry points accept a ROM path. Only this import adapter
+        // may open it, and only if no complete extracted installation exists yet.
+        string fullRomPath = Path.GetFullPath(romPath);
+        string fallbackRoot = Path.Combine(
+            Path.GetDirectoryName(fullRomPath) ?? throw new InvalidOperationException(
+                "Cartridge path has no parent directory."),
+            "SuperMetroid-installed");
+        return GameAssetInstaller.OpenOrRepair(fallbackRoot) ??
+            GameAssetInstaller.Install(fullRomPath, fallbackRoot);
     }
 
     private ExtractedAudioAssetCatalog LoadAudioAssets()

@@ -16,6 +16,7 @@ internal static class GameConfigurationPackageVerification
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
         Type config = game.GetType("SuperMetroid.Game.GameConfigurationFile", throwOnError: true)!;
         MethodInfo load = config.GetMethod("LoadOrCreate")!;
+        MethodInfo loadInstalled = config.GetMethod("LoadInstalled")!;
         // The temporary directory is test-owned. No ROM is needed: this is the same
         // loader called after installation, not a substitute INI parser.
         string root = Path.Combine(Path.GetTempPath(), "supermetroid-config-515-" + Guid.NewGuid().ToString("N"));
@@ -40,6 +41,12 @@ internal static class GameConfigurationPackageVerification
             if (Load(data, publish) is not { MasterVolumePercent: 17, SkipOpeningCinematic: true } ||
                 File.ReadAllText(active) != edited)
                 throw new InvalidDataException("Relaunch ignored or overwrote edited player settings.");
+            object installedResult = loadInstalled.Invoke(null, [data, publish])!;
+            if ((string)config.GetProperty("Path")!.GetValue(installedResult)! != active ||
+                (SuperMetroidGameOptions)config.GetProperty("Options")!.GetValue(installedResult)! !=
+                SuperMetroidGameOptionsIni.Parse(edited))
+                throw new InvalidDataException(
+                    "Normal installed-content startup did not load player settings without a ROM path.");
             string customized = Path.Combine(root, "customized-release");
             Directory.CreateDirectory(customized);
             File.WriteAllText(Path.Combine(customized, "SuperMetroid.defaults.ini"), edited);

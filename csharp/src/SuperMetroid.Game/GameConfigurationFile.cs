@@ -12,23 +12,37 @@ internal sealed record GameConfigurationFile(
     public const string FileName = "SuperMetroid.ini";
     public const string DefaultsFileName = "SuperMetroid.defaults.ini";
 
+    /// <summary>Loads normal player settings from the installation, independent of its import ROM.</summary>
+    public static GameConfigurationFile LoadInstalled(string dataDirectory, string? defaultsDirectory = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
+        return LoadFromDirectory(dataDirectory, defaultsDirectory, "installation data-directory settings");
+    }
+
+    /// <summary>Legacy diagnostic entry point that can anchor settings beside a supplied ROM.</summary>
     public static GameConfigurationFile LoadOrCreate(string romPath, string? dataDirectory = null,
         string? defaultsDirectory = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
 
-        // The ROM is the one file every standalone private copy already needs. Anchoring the
-        // INI to it makes the setting independent of Visual Studio's working directory and
-        // lets the whole playable directory move without changing an absolute path.
+        // Historical diagnostic callers may still place settings beside a supplied ROM.
+        // Normal startup uses LoadInstalled and never needs this path.
         string fullRomPath = System.IO.Path.GetFullPath(romPath);
         string romDirectory = System.IO.Path.GetDirectoryName(fullRomPath)
             ?? throw new InvalidOperationException(
                 $"Private ROM path has no containing directory: {fullRomPath}");
+        return LoadFromDirectory(dataDirectory ?? romDirectory, defaultsDirectory,
+            dataDirectory is null ? "legacy ROM-directory settings" : "installation data-directory settings");
+    }
+
+    private static GameConfigurationFile LoadFromDirectory(string dataDirectory,
+        string? defaultsDirectory, string source)
+    {
         string executableDirectory = defaultsDirectory ?? AppContext.BaseDirectory;
         string localPath = System.IO.Path.Combine(executableDirectory, FileName);
         bool localOverride = File.Exists(localPath);
         string configurationPath = System.IO.Path.GetFullPath(localOverride ? localPath :
-            System.IO.Path.Combine(dataDirectory ?? romDirectory, FileName));
+            System.IO.Path.Combine(dataDirectory, FileName));
 
         if (!File.Exists(configurationPath))
         {
@@ -52,7 +66,6 @@ internal sealed record GameConfigurationFile(
         SuperMetroidGameOptions options =
             SuperMetroidGameOptionsIni.Parse(contents, configurationPath);
         return new GameConfigurationFile(configurationPath, options,
-            localOverride ? "executable-directory override" :
-            dataDirectory is null ? "legacy ROM-directory settings" : "installation data-directory settings");
+            localOverride ? "executable-directory override" : source);
     }
 }

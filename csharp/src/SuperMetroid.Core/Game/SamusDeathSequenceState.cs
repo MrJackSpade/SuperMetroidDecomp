@@ -262,7 +262,10 @@ public sealed class SamusDeathSequenceState
         ArgumentNullException.ThrowIfNull(oam);
         if (ExplosionSpritemapIndex is not ushort spritemap)
             return;
-        oam.AddSamusSpritemap(bus, spritemap, ScreenX, ScreenY, artwork);
+        oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Samus death spritemap requires WRAM."),
+            spritemap, ScreenX, ScreenY, artwork ?? throw new InvalidOperationException(
+                "Samus death spritemap requires installed artwork."));
     }
 
     private bool StepSuitExplosion(

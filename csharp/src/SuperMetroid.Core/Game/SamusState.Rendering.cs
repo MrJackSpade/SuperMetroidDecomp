@@ -601,7 +601,9 @@ public sealed partial class SamusState
             "Samus rendering requires installed spritemap artwork.");
         ushort topBase = spritemaps.TopBase(Pose);
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
-        oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition, spritemaps);
+        oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Samus zero-pointer spritemap requires WRAM."),
+            TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition, spritemaps);
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -680,7 +682,9 @@ public sealed partial class SamusState
         {
             ushort bottomBase = spritemaps.BottomBase(Pose);
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
-            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition,
+            oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Samus zero-pointer spritemap requires WRAM."),
+                BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition,
                 spritemaps);
         }
 
@@ -853,12 +857,18 @@ public sealed partial class SamusState
         if (screenY < 0 || screenY >= 248)
             return;
 
+        var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
+            "Samus speed-booster echo requires installed spritemap artwork.");
         ushort screenX = unchecked((ushort)(echoX - layer1X));
-        oam.AddSamusSpritemap(bus, TopSpritemapIndex, screenX, unchecked((ushort)screenY),
-            TileTransfers.Artwork?.Spritemaps);
+        oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Samus zero-pointer spritemap requires WRAM."),
+            TopSpritemapIndex, screenX, unchecked((ushort)screenY),
+            spritemaps);
         if (BottomSpritemapIndex != 0)
-            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, screenX, unchecked((ushort)screenY),
-                TileTransfers.Artwork?.Spritemaps);
+            oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Samus zero-pointer spritemap requires WRAM."),
+                BottomSpritemapIndex, screenX, unchecked((ushort)screenY),
+                spritemaps);
     }
 
 }

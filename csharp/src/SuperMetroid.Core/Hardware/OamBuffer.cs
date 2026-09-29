@@ -150,55 +150,52 @@ public sealed class OamBuffer
     /// routine's vertical-wrap hiding rule. Keeping a distinct method prevents a future
     /// cleanup from quietly changing the native draw behavior.
     /// </remarks>
-    /// <param name="bus">CPU address space containing the pointer table and spritemap.</param>
+    /// <param name="memory">Mutable memory for the native zero-pointer WRAM case.</param>
     /// <param name="spritemapIndex">Word index into <c>$92:808D</c>.</param>
     /// <param name="originX">Screen-space X origin produced by bank $90.</param>
     /// <param name="originY">Screen-space Y origin produced by bank $90.</param>
     public void AddSamusSpritemap(
-        ISnesAddressSpace bus,
+        ISnesMutableMemory memory,
         ushort spritemapIndex,
         ushort originX,
         ushort originY,
-        SamusSpritemapArtworkCatalog? artwork = null)
+        SamusSpritemapArtworkCatalog artwork)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
+        ArgumentNullException.ThrowIfNull(artwork);
 
-        if (artwork is not null && artwork.TryGet(spritemapIndex, out SamusSpritemapDefinition? definition))
+        if (artwork.TryGet(spritemapIndex, out SamusSpritemapDefinition? definition))
         {
             foreach (SamusSpritePart part in definition!.Parts)
-                AddSamusPart(new SnesSpritemapXWord(part.X), part.Y,
+                AddSamusSpritePart(new SnesSpritemapXWord(part.X), part.Y,
                     part.Attributes, originX, originY);
             return;
         }
 
-        // $81:89B8 doubles A because every table element is a 16-bit pointer. The table
-        // and pointed-to records both live in bank $92, so 16-bit address arithmetic wraps
-        // without carrying into a different bank.
-        int pointerAddress = 0x920000 | ((0x808d + spritemapIndex * 2) & 0xffff);
-        ushort spritemapPointer = ReadWordInFixedBank(bus, pointerAddress);
-
-        // Zero pointers are intentional empty frames. The assembly tests the entry count
-        // after following the pointer; accepting a zero pointer here would read $92:0000,
-        // whereas the actual retail table uses pointers to records whose count may be zero.
-        // Follow the native data literally rather than assigning a host-side meaning to 0.
-        int spritemapAddress = 0x920000 | spritemapPointer;
-        ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
+        // A zero entry in the installed pointer table is not an empty picture: the
+        // native bank-local dereference lands in the WRAM mirror at $92:0000.
+        // Read that mutable state explicitly. No cartridge address is reachable here.
+        const int spritemapAddress = 0x920000;
+        ushort ReadWorkRamWord(int address) => (ushort)(memory.ReadWorkRamByte(address) |
+            (memory.ReadWorkRamByte(AddWithinBank(address, 1)) << 8));
+        ushort entryCount = ReadWorkRamWord(spritemapAddress);
         if (entryCount == 0)
             return;
 
         int entryAddress = AddWithinBank(spritemapAddress, 2);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
-            byte encodedYOffset = ReadSpritemapByte(bus, AddWithinBank(entryAddress, 2));
-            ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
+            SnesSpritemapXWord encodedXOffset = ReadWorkRamWord(entryAddress);
+            byte encodedYOffset = memory.ReadWorkRamByte(AddWithinBank(entryAddress, 2));
+            ushort attributes = ReadWorkRamWord(AddWithinBank(entryAddress, 3));
 
-            AddSamusPart(encodedXOffset, encodedYOffset, attributes, originX, originY);
+            AddSamusSpritePart(encodedXOffset, encodedYOffset, attributes, originX, originY);
             entryAddress = AddWithinBank(entryAddress, 5);
         }
     }
 
-    private void AddSamusPart(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
+    /// <summary>Emits one already-decoded Samus part with native OAM wrapping and authored attributes.</summary>
+    public void AddSamusSpritePart(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
         ushort attributes, ushort originX, ushort originY)
     {
         // The 65C816 adds the complete encoded X word, including size and old art-tool

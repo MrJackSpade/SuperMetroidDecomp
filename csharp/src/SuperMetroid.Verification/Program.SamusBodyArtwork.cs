@@ -109,7 +109,7 @@ internal static partial class Program
             var installedOam = new OamBuffer();
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
-            nativeOam.AddSamusSpritemap(bus, (ushort)index, 127, 131);
+            DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, 127, 131);
             installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, 127, 131, sprites);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
@@ -117,6 +117,18 @@ internal static partial class Program
                 $"Samus OAM index {index} installed/native staging parity");
         }
         AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
+        int zeroIndex = Array.FindIndex(sprites.Pointers.ToArray(), pointer => pointer == 0);
+        AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a mutable-memory entry");
+        var mutableSpriteMemory = new TestAddressSpace();
+        byte[] mutableRecord = [1, 0, 3, 0, 2, 0x34, 0x12];
+        for (int offset = 0; offset < mutableRecord.Length; offset++)
+            mutableSpriteMemory.WriteByte(0x920000 + offset, mutableRecord[offset]);
+        var mutableOam = new OamBuffer();
+        mutableOam.BeginFrame();
+        mutableOam.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex, 127, 131, sprites);
+        AssertEqual(4, mutableOam.NextByteOffset, "zero Samus pointer emits its WRAM-authored part");
+        AssertTrue(mutableOam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }),
+            "zero Samus pointer reads mutable WRAM rather than cartridge art");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
             AssertEqual((ushort)bus.ReadByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
                 stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
@@ -146,7 +158,8 @@ internal static partial class Program
             var installedEffectOam = new OamBuffer();
             nativeEffectOam.BeginFrame();
             installedEffectOam.BeginFrame();
-            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128);
+            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128,
+                stock.Spritemaps);
             installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, 0, 0, 128,
                 stock.Spritemaps);
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
@@ -198,13 +211,14 @@ internal static partial class Program
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(bus, deathSamus, deathCgram, deathWrites);
+            deathSamus.DeathSequence.Step(bus, deathSamus, deathCgram, deathWrites,
+                stock.DeathPalettes);
         }
         var nativeDeathOam = new OamBuffer();
         var installedDeathOam = new OamBuffer();
         nativeDeathOam.BeginFrame();
         installedDeathOam.BeginFrame();
-        deathSamus.DeathSequence.DrawExplosion(bus, nativeDeathOam);
+        deathSamus.DeathSequence.DrawExplosion(bus, nativeDeathOam, stock.Spritemaps);
         deathSamus.DeathSequence.DrawExplosion(guardedBus, installedDeathOam, stock.Spritemaps);
         AssertTrue(nativeDeathOam.NextByteOffset > 0 &&
             nativeDeathOam.LowTable.SequenceEqual(installedDeathOam.LowTable) &&
@@ -219,15 +233,15 @@ internal static partial class Program
             for (int offset = 0; offset < installedSegment.Length; offset++)
                 AssertEqual(bus.ReadByte(segment.SourceAddress + offset), installedSegment.Span[offset],
                     $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
-            var nativeQueue = new VramWriteQueue();
             var installedQueue = new VramWriteQueue();
-            nativeQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.SourceAddress, segment.EncodedVramDestination);
             installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
                 segment.SourceAddress, segment.EncodedVramDestination);
             var nativeDeathVram = new SnesVram();
             var installedDeathVram = new SnesVram();
-            nativeQueue.DrainTo(nativeDeathVram, bus);
+            nativeDeathVram.ExecuteQueuedAssetWrite(
+                Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
+                    .Select(offset => bus.ReadByte(segment.SourceAddress + offset)).ToArray(),
+                segment.EncodedVramDestination);
             installedQueue.DrainTo(installedDeathVram, guardedBus,
                 new DeathTileAssetProvider(stock.DeathTiles));
             AssertTrue(nativeDeathVram.Bytes.SequenceEqual(installedDeathVram.Bytes),
@@ -293,14 +307,15 @@ internal static partial class Program
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(bus, nativeSamus, nativeColors, nativeWrites);
+                nativeSamus.DeathSequence.Step(bus, nativeSamus, nativeColors, nativeWrites,
+                    stock.DeathPalettes);
                 installedSamus.DeathSequence.Step(bus, installedSamus, installedColors,
                     installedWrites, stock.DeathPalettes);
             }
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    bus, nativeSamus, nativeColors, nativeWrites);
+                    bus, nativeSamus, nativeColors, nativeWrites, stock.DeathPalettes);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
                     guardedBus, installedSamus, installedColors, installedWrites,
                     stock.DeathPalettes);
@@ -318,6 +333,7 @@ internal static partial class Program
         {
             var nativeTransfer = new SamusTileTransferState();
             var installedTransfer = new SamusTileTransferState();
+            nativeTransfer.BindArtwork(stock);
             installedTransfer.BindArtwork(stock);
             nativeTransfer.SelectForPoseFrame(bus, (byte)pose, 0);
             installedTransfer.SelectForPoseFrame(guardedBus, (byte)pose, 0);
@@ -703,7 +719,11 @@ internal static partial class Program
             XPosition = nativeSamus.XPosition, YPosition = nativeSamus.YPosition,
             SelectedHudItem = nativeSamus.SelectedHudItem,
         };
+        // The imported bytes above are the independent stock oracle. Both runtime
+        // owners must now receive the installed catalog; no ROM fallback remains.
+        nativeSamus.ArmCannon.Artwork = armCannon;
         installedSamus.ArmCannon.Artwork = armCannon;
+        nativeSamus.TileTransfers.BindArtwork(body);
         installedSamus.TileTransfers.BindArtwork(body);
         for (int frame = 0; frame < 4; frame++)
         {
@@ -729,6 +749,25 @@ internal static partial class Program
         AssertTrue(nativeWrites.Entries.SequenceEqual(installedWrites.Entries),
             "installed arm-cannon cover queues the native tile DMA");
         Console.WriteLine("Arm-cannon artwork: 253 pose pointers, drawing bytes, ten direction selectors and twelve PNG tiles match retail; guarded cover OAM and DMA parity pass.");
+    }
+
+    /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>
+    private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
+        ushort index, ushort originX, ushort originY)
+    {
+        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
+            (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
+        int pointerAddress = SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2;
+        int recordAddress = 0x920000 | ReadWord(pointerAddress);
+        ushort partCount = ReadWord(recordAddress);
+        int partAddress = SnesAddressMath.AddWithinBank(recordAddress, 2);
+        for (int part = 0; part < partCount; part++)
+        {
+            oam.AddSamusSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
+                bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
+                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), originX, originY);
+            partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
+        }
     }
 
     private sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :

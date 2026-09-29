@@ -13,7 +13,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
-    private static void VerifyIntroCinematicArtwork(string sourceRom)
+    private static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "intro-artwork-" + Guid.NewGuid().ToString("N")));
@@ -21,6 +21,11 @@ internal static partial class Program
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+            if (samusBodyOnly)
+            {
+                VerifySamusBodyArtwork(bus, installation);
+                return;
+            }
             VerifySamusAnimationDelayDefinitions(bus, sourceRom);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             // The body-art override verifier intentionally edits this installation's

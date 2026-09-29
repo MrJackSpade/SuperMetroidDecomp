@@ -227,11 +227,13 @@ public sealed class SamusAtmosphericEffectsState
             return;
 
         oam.AddSamusSpritemap(
-            bus,
+            bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Samus atmospheric spritemap requires WRAM."),
             unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
             screenX,
             screenY,
-            artwork);
+            artwork ?? throw new InvalidOperationException(
+                "Samus atmospheric spritemap requires installed artwork."));
     }
 
     private static void ValidateSlotIndex(int slotIndex)

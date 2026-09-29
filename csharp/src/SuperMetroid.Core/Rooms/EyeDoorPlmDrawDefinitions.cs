@@ -22,7 +22,7 @@ internal static class EyeDoorPlmDrawDefinitions
     /// <summary>Right-facing bottom component begins at $84:9C95.</summary>
     private const ushort RightBottomFirst = 0x9c95;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -66,7 +66,7 @@ internal static class EyeDoorPlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(23);

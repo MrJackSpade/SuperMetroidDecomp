@@ -17,8 +17,8 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>Closing gate's odd-byte sound operand at $84:BC4C.</summary>
     private const ushort ClosingSoundAddress = 0xbc4c;
 
-    private static readonly IReadOnlyDictionary<ushort, ushort> Words = BuildWords();
-    private static readonly IReadOnlyDictionary<ushort, byte> Bytes =
+    private static readonly Dictionary<ushort, ushort> Words = BuildWords();
+    private static readonly Dictionary<ushort, byte> Bytes =
         new Dictionary<ushort, byte>
         {
             [OpeningSoundAddress] = MovementSound,
@@ -37,7 +37,7 @@ internal static class DownwardGatePlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value) =>
         Bytes.TryGetValue(address, out value);
 
-    private static IReadOnlyDictionary<ushort, ushort> BuildWords()
+    private static Dictionary<ushort, ushort> BuildWords()
     {
         var words = new Dictionary<ushort, ushort>();
         void Add(int address, ushort value)

@@ -9,7 +9,7 @@ public sealed record RoomPlmChozoStatueVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmChozoStatueVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmChozoStatueVisualCatalog(
         IEnumerable<RoomPlmChozoStatueVisualEntry> entries)

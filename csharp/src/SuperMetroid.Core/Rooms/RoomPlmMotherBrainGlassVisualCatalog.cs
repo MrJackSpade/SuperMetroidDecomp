@@ -10,7 +10,7 @@ public sealed record RoomPlmMotherBrainGlassVisualEntry(string Id, ushort[] Bloc
 /// </summary>
 public sealed class RoomPlmMotherBrainGlassVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmMotherBrainGlassVisualCatalog(
         IEnumerable<RoomPlmMotherBrainGlassVisualEntry> entries)

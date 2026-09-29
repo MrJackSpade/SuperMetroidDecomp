@@ -30,7 +30,7 @@ internal static class KraidRoomPlmDrawDefinitions
     /// <summary><c>$84:93EF</c>: start of the following Phantoon draw region.</summary>
     internal const ushort EndExclusive = 0x93ef;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
@@ -82,7 +82,7 @@ internal static class KraidRoomPlmDrawDefinitions
         RoomPlmHeaders.CrumbleKraidSpikes or
         RoomPlmHeaders.ClearKraidSpikes;
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var result = new Dictionary<ushort,

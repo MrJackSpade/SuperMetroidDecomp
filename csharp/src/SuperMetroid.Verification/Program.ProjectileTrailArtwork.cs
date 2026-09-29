@@ -171,7 +171,7 @@ internal static partial class Program
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) =>
+        public static byte ReadByte(int address) =>
             throw new InvalidOperationException($"Untyped trail read at ${address:X6}.");
 
         public byte ReadWorkRamByte(int address)

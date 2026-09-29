@@ -336,13 +336,13 @@ public sealed partial class FileSelectMenuState
         bg1Tilemap[wordIndex] = unchecked((ushort)(FileSelectLayout.DigitTileBase + digit));
     }
 
-    private void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
+    private static void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
     {
         throw new InvalidOperationException(
             "File-select tilemaps require installed menu presentation assets.");
     }
 
-    private void DrawMenuSpritemap(ushort spritemapId, ushort x, ushort y)
+    private static void DrawMenuSpritemap(ushort spritemapId, ushort x, ushort y)
     {
         // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
         // is doubled before following bank $82. AddOnScreenSpritemap then applies the same

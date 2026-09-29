@@ -9,7 +9,7 @@ public sealed record RoomPlmDownwardGateVisualEntry(string Id, ushort[][] Runs);
 /// </summary>
 public sealed class RoomPlmDownwardGateVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[][]> words;
+    private readonly Dictionary<ushort, ushort[][]> words;
 
     public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmDownwardGateVisualEntry> entries)
     {

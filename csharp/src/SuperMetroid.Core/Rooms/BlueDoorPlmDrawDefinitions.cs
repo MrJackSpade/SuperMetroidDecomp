@@ -17,7 +17,7 @@ internal static class BlueDoorPlmDrawDefinitions
     /// <summary>Byte length of each native four-block draw list including its terminator.</summary>
     internal const int DrawListBytes = 12;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -57,7 +57,7 @@ internal static class BlueDoorPlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(16);

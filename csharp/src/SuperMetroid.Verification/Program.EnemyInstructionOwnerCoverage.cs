@@ -290,7 +290,7 @@ internal static partial class Program
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) =>
+        public static byte ReadByte(int address) =>
             throw new EnemyInstructionOwnerFallbackReadException(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

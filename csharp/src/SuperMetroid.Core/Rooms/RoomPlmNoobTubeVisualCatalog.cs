@@ -9,7 +9,7 @@ public sealed record RoomPlmNoobTubeVisualEntry(string Id, ushort[] Blocks);
 /// </summary>
 public sealed class RoomPlmNoobTubeVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmNoobTubeVisualCatalog(IEnumerable<RoomPlmNoobTubeVisualEntry> entries)
     {

@@ -50,7 +50,7 @@ public sealed record RoomFxRecordDefinition(
 public static partial class RoomFxRecordDefinitions
 {
     // Partial-file static field order is unspecified; defer the index until generated is ready.
-    private static readonly Lazy<IReadOnlyDictionary<ushort, RoomFxRecordDefinition>> byPointer =
+    private static readonly Lazy<Dictionary<ushort, RoomFxRecordDefinition>> byPointer =
         new(BuildIndex);
 
     public static IReadOnlyList<RoomFxRecordDefinition> All => generated;
@@ -76,7 +76,7 @@ public static partial class RoomFxRecordDefinitions
             $"Compiled room-FX list $83:{fxPointer:X4} did not terminate for door $83:{doorPointer:X4}.");
     }
 
-    private static IReadOnlyDictionary<ushort, RoomFxRecordDefinition> BuildIndex()
+    private static Dictionary<ushort, RoomFxRecordDefinition> BuildIndex()
     {
         var result = new Dictionary<ushort, RoomFxRecordDefinition>(generated.Length);
         ushort previous = 0;

@@ -22,7 +22,7 @@ internal static partial class Program
 
     // Keep synthetic artwork and terrain, but use the cartridge-selected programs.
     // Only sprite-reference fields are replaced; timing/damage/collision stay native.
-    private static SuperMetroidAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
+    private static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);

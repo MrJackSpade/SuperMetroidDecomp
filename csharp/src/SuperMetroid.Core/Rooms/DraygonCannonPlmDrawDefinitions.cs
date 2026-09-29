@@ -32,7 +32,7 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// <summary>Left damaged frame D at $84:A1A1.</summary>
     internal const ushort LeftDamagedD = 0xa1a1;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -74,7 +74,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
         new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
         {

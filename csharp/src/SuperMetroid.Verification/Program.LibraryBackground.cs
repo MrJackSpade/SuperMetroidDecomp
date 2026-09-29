@@ -186,7 +186,7 @@ private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace so
     public int CartridgeReads { get; private set; }
     public int WorkRamReads { get; private set; }
 
-    public byte ReadByte(int address) => throw new InvalidOperationException(
+    public static byte ReadByte(int address) => throw new InvalidOperationException(
         $"Library background used the untyped CPU reader at ${address:X6}.");
     public byte ReadCartridgeByte(int address)
     {

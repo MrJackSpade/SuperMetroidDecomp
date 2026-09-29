@@ -333,7 +333,7 @@ internal static partial class Program
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
-        private void RejectDefinitionRead(int address)
+        private static void RejectDefinitionRead(int address)
         {
             int first = RoomAssetRomData.Tilesets.DefinitionBank | RoomTilesetDefinitions.Get(0).Pointer;
             int end = RoomAssetRomData.Tilesets.PointerTableAddress +

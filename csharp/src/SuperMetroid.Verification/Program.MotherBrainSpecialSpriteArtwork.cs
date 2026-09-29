@@ -34,7 +34,7 @@ internal static partial class Program
     private sealed class MotherBrainTypedTransferReadGuard(TestAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
-        public byte ReadByte(int address) => throw new InvalidOperationException(
+        public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Mother Brain tile transfer used the untyped CPU reader at ${address:X6}.");
         public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
         public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);

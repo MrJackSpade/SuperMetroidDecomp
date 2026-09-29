@@ -456,7 +456,7 @@ public sealed partial class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.DataSlotCTimeLabelDestination, FileSelectTilemaps.Time);
     }
 
-    private void AddConfirmationText()
+    private static void AddConfirmationText()
     {
         LoadMenuTilemap(FileSelectLayout.ConfirmationQuestionDestination, FileSelectTilemaps.IsThisOkay);
         LoadMenuTilemap(FileSelectLayout.ConfirmationYesDestination, FileSelectTilemaps.Yes);

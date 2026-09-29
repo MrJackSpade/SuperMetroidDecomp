@@ -131,7 +131,7 @@ public static class RoomVisualLayoutFiles
 
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    private static IReadOnlyDictionary<int, int> BuildRetailSources()
+    private static ReadOnlyDictionary<int, int> BuildRetailSources()
     {
         var sources = new Dictionary<int, int>();
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)

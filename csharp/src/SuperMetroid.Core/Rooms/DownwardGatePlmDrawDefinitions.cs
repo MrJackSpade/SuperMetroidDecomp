@@ -11,9 +11,9 @@ internal static class DownwardGatePlmDrawDefinitions
     /// <summary>First left-side gate-trigger draw at $84:A5D7.</summary>
     private const ushort TriggerLeftFirst = 0xa5d7;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-    private static readonly IReadOnlyDictionary<ushort, string> VisualIds = BuildVisualIds();
+    private static readonly Dictionary<ushort, string> VisualIds = BuildVisualIds();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
 
@@ -36,7 +36,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort, string> BuildVisualIds()
+    private static Dictionary<ushort, string> BuildVisualIds()
     {
         var ids = new Dictionary<ushort, string>();
         for (int frame = 0; frame < 6; frame++)
@@ -53,7 +53,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return ids;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>();

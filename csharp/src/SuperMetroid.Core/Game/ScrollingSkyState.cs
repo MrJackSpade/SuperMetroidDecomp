@@ -106,7 +106,7 @@ public sealed class ScrollingSkyState
         _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
     }
 
-    private void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, int pointerTable)
+    private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, int pointerTable)
     {
         // First pair: two rows immediately behind the HUD, beginning at cameraY-16 rounded
         // down to an 8-pixel boundary. All arithmetic is modular 16-bit as on the 65C816.

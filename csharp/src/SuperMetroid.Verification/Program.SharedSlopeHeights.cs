@@ -66,7 +66,7 @@ internal static partial class Program
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected slope ROM read at {address:X6}.");
+        public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected slope ROM read at {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected slope bus write.");
     }
 }

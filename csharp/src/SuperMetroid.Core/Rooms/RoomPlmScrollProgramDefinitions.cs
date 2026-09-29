@@ -15,7 +15,7 @@ internal static partial class RoomPlmScrollProgramDefinitions
 
     // The generated partial owns Sources. Lazy construction prevents partial-type
     // field-initializer order from exposing an uninitialized array.
-    private static readonly Lazy<IReadOnlyDictionary<ushort, ReadOnlyMemory<byte>>>
+    private static readonly Lazy<Dictionary<ushort, ReadOnlyMemory<byte>>>
         Programs = new(Build);
 
     internal static ReadOnlyMemory<byte> Get(ushort pointer) =>
@@ -26,7 +26,7 @@ internal static partial class RoomPlmScrollProgramDefinitions
 
     internal static IEnumerable<ushort> Pointers => Programs.Value.Keys;
 
-    private static IReadOnlyDictionary<ushort, ReadOnlyMemory<byte>> Build()
+    private static Dictionary<ushort, ReadOnlyMemory<byte>> Build()
     {
         var selected = new Dictionary<ushort, ReadOnlyMemory<byte>>(RetailProgramCount);
         int totalBytes = 0;

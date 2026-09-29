@@ -9,7 +9,7 @@ public sealed record RoomPlmSporeSpawnCeilingVisualEntry(string Id, ushort[] Blo
 /// </summary>
 public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmSporeSpawnCeilingVisualCatalog(
         IEnumerable<RoomPlmSporeSpawnCeilingVisualEntry> entries)

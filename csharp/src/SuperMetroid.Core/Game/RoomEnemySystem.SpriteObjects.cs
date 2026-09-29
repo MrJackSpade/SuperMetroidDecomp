@@ -164,7 +164,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
+    private static void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
     {
         switch (slot.InstructionTimer)
         {
@@ -201,7 +201,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
+    private static void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
     {
         ushort duration = RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
             slot.InstructionPointer);

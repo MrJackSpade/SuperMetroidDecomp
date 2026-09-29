@@ -9,7 +9,7 @@ public sealed record RoomPlmElevatorPlatformVisualEntry(string Id, ushort[][] Ru
 /// </summary>
 public sealed class RoomPlmElevatorPlatformVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[][]> words;
+    private readonly Dictionary<ushort, ushort[][]> words;
 
     public RoomPlmElevatorPlatformVisualCatalog(
         IEnumerable<RoomPlmElevatorPlatformVisualEntry> entries)

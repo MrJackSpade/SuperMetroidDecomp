@@ -14,7 +14,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     /// <summary>Fully closed vertical gate draw at $84:948B.</summary>
     internal const ushort Closed = 0x948b;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -47,7 +47,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
         new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
         {

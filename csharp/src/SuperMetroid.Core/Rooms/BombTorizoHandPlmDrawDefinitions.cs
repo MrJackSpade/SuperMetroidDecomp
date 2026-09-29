@@ -11,7 +11,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
     /// <summary>Final five-run cleared-hand area at $84:989D.</summary>
     internal const ushort Cleared = 0x989d;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -43,7 +43,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
         new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
         {

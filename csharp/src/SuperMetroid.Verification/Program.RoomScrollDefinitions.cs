@@ -128,7 +128,7 @@ internal static partial class Program
         public byte ReadWorkRamByte(int address) => ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) => throw new InvalidOperationException(
+        public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Compiled room-scroll construction read address ${address:X6}.");
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

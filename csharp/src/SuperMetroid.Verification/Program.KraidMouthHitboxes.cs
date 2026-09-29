@@ -169,7 +169,7 @@ internal static partial class Program
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address)
+        public static byte ReadByte(int address)
         {
             SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
             if (sourceAddress.Bank != 0xa7 || sourceAddress.IsUpperLoRomWindow)

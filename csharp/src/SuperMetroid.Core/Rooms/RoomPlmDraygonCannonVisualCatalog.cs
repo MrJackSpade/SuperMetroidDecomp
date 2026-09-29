@@ -10,7 +10,7 @@ public sealed record RoomPlmDraygonCannonVisualEntry(string Id, ushort[] Blocks)
 /// </summary>
 public sealed class RoomPlmDraygonCannonVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmDraygonCannonVisualCatalog(
         IEnumerable<RoomPlmDraygonCannonVisualEntry> entries)

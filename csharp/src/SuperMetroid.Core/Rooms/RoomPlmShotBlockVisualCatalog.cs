@@ -11,7 +11,7 @@ public sealed record RoomPlmShotBlockVisualEntry(ushort DrawPointer, ushort[][] 
 /// <summary>Complete, immutable presentation selection for the 19 ordinary shot-block lists.</summary>
 public sealed class RoomPlmShotBlockVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[][]> words;
+    private readonly Dictionary<ushort, ushort[][]> words;
 
     public RoomPlmShotBlockVisualCatalog(IEnumerable<RoomPlmShotBlockVisualEntry> entries)
     {

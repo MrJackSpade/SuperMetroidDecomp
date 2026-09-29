@@ -15,7 +15,7 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// <summary>Wrecked Ship statue's block-slope-access draw, $84:9D0F.</summary>
     internal const ushort BlockSlopeAccess = 0x9d0f;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -47,7 +47,7 @@ internal static class ChozoStatuePlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build() =>
         new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>
         {

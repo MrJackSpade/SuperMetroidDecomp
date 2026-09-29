@@ -23,7 +23,7 @@ internal static class NoobTubePlmDrawDefinitions
     /// <summary>Full broken-tube panel at $84:99E5.</summary>
     private const ushort BrokenFull = 0x99e5;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -60,7 +60,7 @@ internal static class NoobTubePlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(7);

@@ -66,7 +66,7 @@ internal static partial class Program
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) => throw new InvalidOperationException(
+        public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed gameplay-message title read cartridge address ${address:X6}.");
 
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(

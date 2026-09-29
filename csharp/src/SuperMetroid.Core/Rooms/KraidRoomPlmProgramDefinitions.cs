@@ -40,7 +40,7 @@ internal static class KraidRoomPlmProgramDefinitions
     /// <summary>Native duration of each Kraid crumble appearance.</summary>
     internal const ushort CrumbleFrameDuration = 3;
 
-    private static readonly IReadOnlyDictionary<ushort, ushort> Words = Build();
+    private static readonly Dictionary<ushort, ushort> Words = Build();
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
         Words.TryGetValue(address, out value);
@@ -58,7 +58,7 @@ internal static class KraidRoomPlmProgramDefinitions
 
     internal static IEnumerable<ushort> NativeWordAddresses() => Words.Keys.Order();
 
-    private static IReadOnlyDictionary<ushort, ushort> Build()
+    private static Dictionary<ushort, ushort> Build()
     {
         var words = new Dictionary<ushort, ushort>();
         Add(CrumbleCeilingBackground1,

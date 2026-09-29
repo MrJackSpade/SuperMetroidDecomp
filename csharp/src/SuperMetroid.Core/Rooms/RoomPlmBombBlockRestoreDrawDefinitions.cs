@@ -14,7 +14,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
     /// <summary>Four-block parent and child restoration at $84:A4D7.</summary>
     internal const ushort Square = 0xa4d7;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -23,7 +23,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>

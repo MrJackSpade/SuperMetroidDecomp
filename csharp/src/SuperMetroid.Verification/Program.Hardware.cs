@@ -567,7 +567,7 @@ static void VerifySuperMetroidAddressSpace()
     AssertEqual(0x80, bus.ReadByte(0x808000), "FastROM mirror first LoROM byte");
     AssertEqual(0x81, bus.ReadByte(0x818000), "next FastROM bank advances $8000 bytes");
     AssertEqual(0xc0, bus.ReadByte(0xc08000), "bank C0 maps to physical ROM $200000");
-    IImportCartridgeSource cartridge = bus;
+    var cartridge = bus;
     AssertEqual(0x80, cartridge.ReadCartridgeByte(0x808000),
         "import-only ROM reader returns the pinned upper-window byte");
     AssertThrows<ArgumentOutOfRangeException>(
@@ -584,7 +584,7 @@ static void VerifySuperMetroidAddressSpace()
     bus.WriteByte(0x7f1234, 0x66);
     AssertEqual(0x66, bus.ReadByte(0x7f1234), "second physical WRAM bank");
     AssertEqual(0x55, bus.ReadByte(0x7e1234), "WRAM banks remain independent");
-    ISnesMutableMemory mutable = bus;
+    var mutable = bus;
     AssertEqual(0x55, mutable.ReadWorkRamByte(0x7e1234),
         "typed WRAM read returns the physical first bank");
     AssertEqual(0x66, mutable.ReadWorkRamByte(0x7f1234),

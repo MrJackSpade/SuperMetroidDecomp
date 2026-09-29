@@ -99,7 +99,7 @@ internal static partial class Program
 
     private sealed class ForbiddenMapBus : ISnesAddressSpace
     {
-        public byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected map ROM read {address:X6}.");
+        public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected map ROM read {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected map bus write.");
     }
 
@@ -312,7 +312,7 @@ internal static partial class Program
     private sealed class PaletteReadForbiddenBus : ISnesAddressSpace
     {
         public Dictionary<int, byte> Writes { get; } = new();
-        public byte ReadByte(int address) => throw new InvalidOperationException(
+        public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.");
         public void WriteByte(int address, byte value)
         {

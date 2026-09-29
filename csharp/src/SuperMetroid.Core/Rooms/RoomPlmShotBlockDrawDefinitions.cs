@@ -32,14 +32,14 @@ internal static class RoomPlmShotBlockDrawDefinitions
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 
     private static readonly ushort[] BreakFrames = [0x0053, 0x0054, 0x0055, 0x00ff];
-    private static readonly IReadOnlyDictionary<ushort, DrawList> Lists = Build();
+    private static readonly Dictionary<ushort, DrawList> Lists = Build();
 
     internal static IEnumerable<DrawList> All => Lists.Values;
 
     internal static bool TryGet(ushort pointer, out DrawList list) =>
         Lists.TryGetValue(pointer, out list);
 
-    private static IReadOnlyDictionary<ushort, DrawList> Build()
+    private static Dictionary<ushort, DrawList> Build()
     {
         var lists = new Dictionary<ushort, DrawList>(19);
         for (int frame = 0; frame < BreakFrames.Length; frame++)

@@ -132,7 +132,7 @@ internal static partial class Program
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) => throw new InvalidOperationException(
+        public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Magdollite palette hook read ROM ${address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Magdollite palette hook wrote ROM ${address:X6}.");

@@ -50,7 +50,7 @@ public sealed class RoomVisualLayout
 /// <summary>Complete installed room-layout artwork selected by the room state's source.</summary>
 public sealed class RoomVisualLayoutCatalog
 {
-    private readonly IReadOnlyDictionary<int, RoomVisualLayout> layouts;
+    private readonly Dictionary<int, RoomVisualLayout> layouts;
 
     public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts)
     {

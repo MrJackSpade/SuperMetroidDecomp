@@ -62,7 +62,7 @@ internal static partial class Program
         internal void SetWorkRam(int address, byte value) => workRam.Add(address, value);
         internal void SetSaveRam(int address, byte value) => saveRam.Add(address, value);
 
-        public byte ReadByte(int address) => throw new InvalidOperationException(
+        public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"PPU DMA used an untyped CPU read at ${address:X6}.");
 
         public byte ReadCartridgeByte(int address)

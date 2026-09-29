@@ -9,7 +9,7 @@ public sealed record RoomPlmCollectibleVisualEntry(string Id, ushort VisualWord)
 /// </summary>
 public sealed class RoomPlmCollectibleVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort> words;
+    private readonly Dictionary<ushort, ushort> words;
 
     public RoomPlmCollectibleVisualCatalog(
         IEnumerable<RoomPlmCollectibleVisualEntry> entries)

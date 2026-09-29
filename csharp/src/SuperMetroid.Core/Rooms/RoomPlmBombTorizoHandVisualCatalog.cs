@@ -9,7 +9,7 @@ public sealed record RoomPlmBombTorizoHandVisualEntry(string Id, ushort[] Blocks
 /// </summary>
 public sealed class RoomPlmBombTorizoHandVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmBombTorizoHandVisualCatalog(
         IEnumerable<RoomPlmBombTorizoHandVisualEntry> entries)

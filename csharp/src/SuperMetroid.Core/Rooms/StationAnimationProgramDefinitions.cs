@@ -14,7 +14,7 @@ internal static class StationAnimationProgramDefinitions
 
     internal readonly record struct Frame(ushort Duration, ushort DrawPointer);
 
-    private static readonly IReadOnlyDictionary<ushort, Frame[]> Programs =
+    private static readonly Dictionary<ushort, Frame[]> Programs =
         new Dictionary<ushort, Frame[]>
         {
             [MapIdle] =

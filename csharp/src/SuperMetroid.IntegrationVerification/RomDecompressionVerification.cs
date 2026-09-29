@@ -90,7 +90,7 @@ internal static class RomDecompressionVerification
         public const int Start = 0x94fffc;
         private SnesAddress next = SnesAddress.FromBusAddress(Start);
         public int Reads { get; private set; }
-        public byte ReadByte(int address) => throw new InvalidOperationException("Decompression must use the typed cartridge source.");
+        public static byte ReadByte(int address) => throw new InvalidOperationException("Decompression must use the typed cartridge source.");
         public byte ReadCartridgeByte(int address)
         {
             if (address != (int)next || Reads >= bytes.Length)

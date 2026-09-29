@@ -15,7 +15,7 @@ internal static partial class RoomPlmPopulationDefinitions
 
     // Sources lives in a generated partial declaration; defer Build until all
     // static fields in both declarations have completed initialization.
-    private static readonly Lazy<IReadOnlyDictionary<ushort, ReadOnlyMemory<byte>>>
+    private static readonly Lazy<Dictionary<ushort, ReadOnlyMemory<byte>>>
         Populations = new(Build);
 
     internal static ReadOnlyMemory<byte> Get(ushort pointer) =>
@@ -26,7 +26,7 @@ internal static partial class RoomPlmPopulationDefinitions
 
     internal static IEnumerable<ushort> Pointers => Populations.Value.Keys;
 
-    private static IReadOnlyDictionary<ushort, ReadOnlyMemory<byte>> Build()
+    private static Dictionary<ushort, ReadOnlyMemory<byte>> Build()
     {
         var selected = new Dictionary<ushort, ReadOnlyMemory<byte>>(RetailPopulationCount);
         int records = 0;

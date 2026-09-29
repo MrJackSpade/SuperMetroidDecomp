@@ -9,7 +9,7 @@ public sealed record RoomPlmLinkedRestoreVisualEntry(string Id, ushort[] Blocks)
 /// </summary>
 public sealed class RoomPlmLinkedRestoreVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort[]> blocks;
+    private readonly Dictionary<ushort, ushort[]> blocks;
 
     public RoomPlmLinkedRestoreVisualCatalog(
         IEnumerable<RoomPlmLinkedRestoreVisualEntry> entries)

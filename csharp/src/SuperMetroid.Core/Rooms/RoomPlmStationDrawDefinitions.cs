@@ -35,9 +35,9 @@ internal static class RoomPlmStationDrawDefinitions
     /// <summary>Extended left-side resource access draw at $84:9FC7.</summary>
     private const ushort ResourceLeftExtended = 0x9fc7;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
-    private static readonly IReadOnlyDictionary<ushort, string> VisualIds = BuildVisualIds();
+    private static readonly Dictionary<ushort, string> VisualIds = BuildVisualIds();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
 
@@ -63,7 +63,7 @@ internal static class RoomPlmStationDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort, string> BuildVisualIds()
+    private static Dictionary<ushort, string> BuildVisualIds()
     {
         var ids = new Dictionary<ushort, string>();
         for (int frame = 0; frame < 3; frame++)
@@ -89,7 +89,7 @@ internal static class RoomPlmStationDrawDefinitions
         return ids;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>();

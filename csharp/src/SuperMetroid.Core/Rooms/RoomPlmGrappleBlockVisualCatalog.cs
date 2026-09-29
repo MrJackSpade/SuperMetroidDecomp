@@ -9,7 +9,7 @@ public sealed record RoomPlmGrappleBlockVisualEntry(ushort DrawPointer, ushort V
 /// </summary>
 public sealed class RoomPlmGrappleBlockVisualCatalog
 {
-    private readonly IReadOnlyDictionary<ushort, ushort> words;
+    private readonly Dictionary<ushort, ushort> words;
 
     public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmGrappleBlockVisualEntry> entries)
     {

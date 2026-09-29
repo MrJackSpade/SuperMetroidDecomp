@@ -30,7 +30,7 @@ internal static class MotherBrainGlassPlmDrawDefinitions
     /// <summary>Four-run empty-glass frame at $84:9817.</summary>
     private const ushort Cleared = 0x9817;
 
-    private static readonly IReadOnlyDictionary<ushort,
+    private static readonly Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Lists = Build();
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All => Lists.Values;
@@ -71,7 +71,7 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         return false;
     }
 
-    private static IReadOnlyDictionary<ushort,
+    private static Dictionary<ushort,
         RoomPlmShotBlockDrawDefinitions.DrawList> Build()
     {
         var lists = new Dictionary<ushort, RoomPlmShotBlockDrawDefinitions.DrawList>(11);

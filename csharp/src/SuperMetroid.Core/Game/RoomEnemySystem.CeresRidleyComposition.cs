@@ -730,7 +730,7 @@ public sealed partial class RoomEnemySystem
     /// active extended spritemap; the tiny 8x8 radius in Ridley's enemy header is not his
     /// body and must never be substituted for this data.
     /// </summary>
-    private bool ExtendedSpritemapOverlapsRectangle(
+    private static bool ExtendedSpritemapOverlapsRectangle(
         RoomEnemySlot slot,
         ushort subjectX,
         ushort subjectY,

@@ -77,7 +77,7 @@ internal static partial class Program
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        public byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected shape ROM read: {address:X6}.");
+        public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected shape ROM read: {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected shape bus write.");
     }
 }

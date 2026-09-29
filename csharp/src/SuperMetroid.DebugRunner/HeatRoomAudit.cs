@@ -132,22 +132,18 @@ internal static class HeatRoomAudit
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        ushort record = RoomFxRomData.SelectRecord(bus, room.State.FxPointer, doorPointer: 0);
+        ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer: 0);
         if (room.Identity != new RoomIdentity(AreaId.Norfair, 0x00) ||
             room.State.Pointer != HeatRoomAuditDefinitions.RoomState ||
             record != HeatRoomAuditDefinitions.FxRecord ||
-            RoomFxRomData.ReadRecordWord(
-                bus, record, RoomFxRomData.Record.BaseYPositionOffset) !=
+            RoomFxRecordDefinitions.Get(record).ReadWord(RoomFxRomData.Record.BaseYPositionOffset) !=
                     HeatRoomAuditDefinitions.SurfaceY ||
-            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset) !=
+            RoomFxRecordDefinitions.Get(record).ReadByte(RoomFxRomData.Record.TypeOffset) !=
                 (byte)RoomFxType.Lava ||
-            RoomFxRomData.ReadRecordByte(
-                bus, record, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset) !=
+            RoomFxRecordDefinitions.Get(record).ReadByte(RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset) !=
                     (byte)LayerBlendingConfiguration.LavaAcidAdditive ||
-            RoomFxRomData.ReadRecordByte(
-                bus, record, RoomFxRomData.Record.LiquidOptionsOffset) != 0x0b ||
-            RoomFxRomData.ReadRecordByte(
-                bus, record, RoomFxRomData.Record.PaletteFxBitsetOffset) != 0x1f)
+            RoomFxRecordDefinitions.Get(record).ReadByte(RoomFxRomData.Record.LiquidOptionsOffset) != 0x0b ||
+            RoomFxRecordDefinitions.Get(record).ReadByte(RoomFxRomData.Record.PaletteFxBitsetOffset) != 0x1f)
         {
             throw new InvalidDataException(
                 $"Business Center selected state/FX $8F:{room.State.Pointer:X4}/$83:{record:X4} " +
@@ -170,19 +166,16 @@ internal static class HeatRoomAudit
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
             if (room.AreaIndex != AreaId.Norfair || room.State.FxPointer == 0)
                 continue;
-            ushort record = RoomFxRomData.SelectRecord(bus, room.State.FxPointer, doorPointer: 0);
+            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer: 0);
             if (record == 0)
                 continue;
             RoomFxType type = RoomFxTypes.FromCartridge(
-                RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset),
+                RoomFxRecordDefinitions.Get(record).ReadByte(RoomFxRomData.Record.TypeOffset),
                 $"Norfair room {room.Identity} FX record $83:{record:X4}");
             if (type is not (RoomFxType.Lava or RoomFxType.Acid))
                 continue;
             lavaAcidRooms++;
-            byte options = RoomFxRomData.ReadRecordByte(
-                bus,
-                record,
-                RoomFxRomData.Record.LiquidOptionsOffset);
+            byte options = RoomFxRecordDefinitions.Get(record).ReadByte(RoomFxRomData.Record.LiquidOptionsOffset);
             optionCounts[options] = optionCounts.GetValueOrDefault(options) + 1;
             if ((options & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0)
                 verticallyDistortedRooms++;

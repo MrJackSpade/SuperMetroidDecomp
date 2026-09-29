@@ -23,9 +23,8 @@ internal static partial class Program
             runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(pointer);
             var room = runtime.ActiveRoom!;
-            ushort record = RoomFxRomData.SelectRecord(bus, room.State.FxPointer, 0);
-            byte bits = record == 0 ? (byte)0 : RoomFxRomData.ReadRecordByte(bus, record,
-                RoomFxRomData.Record.AnimatedTileBitsetOffset);
+            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, 0);
+            byte bits = record == 0 ? (byte)0 : RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
             Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
             if ((bits & 12) == 0) continue;
             var images = new HashSet<string>();

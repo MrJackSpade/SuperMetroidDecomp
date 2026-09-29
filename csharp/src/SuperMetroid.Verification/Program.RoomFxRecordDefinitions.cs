@@ -36,11 +36,11 @@ internal static partial class Program
         foreach (ushort fxPointer in RoomStateDefinitions.All.Select(state => state.FxPointer)
                      .Where(pointer => pointer != 0).Distinct())
         {
-            AssertEqual(RoomFxRomData.SelectRecord(bus, fxPointer, 0),
+            AssertEqual(SelectFxRecordIndependently(bus, fxPointer, 0),
                 RoomFxRecordDefinitions.Select(fxPointer, 0),
                 $"compiled room-FX list $83:{fxPointer:X4} default selection");
             foreach (ushort door in doors)
-                AssertEqual(RoomFxRomData.SelectRecord(bus, fxPointer, door),
+                AssertEqual(SelectFxRecordIndependently(bus, fxPointer, door),
                     RoomFxRecordDefinitions.Select(fxPointer, door),
                     $"compiled room-FX list $83:{fxPointer:X4} door $83:{door:X4} selection");
         }
@@ -48,6 +48,7 @@ internal static partial class Program
         string checkedIn = File.ReadAllText(RoomFxGeneratedPath).Replace("\r\n", "\n");
         AssertEqual(generated, checkedIn,
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
+        VerifyRoomFxRecordSelection();
         VerifyCompiledCeresRoomFxConsumers(bus);
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count} room states match every native field.");
     }

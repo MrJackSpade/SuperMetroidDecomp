@@ -64,30 +64,22 @@ internal static partial class Program
 
     private static void VerifyRoomFxRecordSelection()
     {
-        var bus = new TestAddressSpace();
-        const ushort list = 0x9000;
-        const ushort matchingDoor = 0x8123;
-        WriteTestWord(
-            bus,
-            RoomFxRomData.Banks.RoomDefinitions | list,
-            matchingDoor);
-        WriteTestWord(
-            bus,
-            RoomFxRomData.Banks.RoomDefinitions | (list + RoomFxRomData.Record.ByteCount),
-            0);
-
-        AssertEqual(list, RoomFxRomData.SelectRecord(bus, list, matchingDoor),
+        RoomFxRecordDefinition[] records = RoomFxRecordDefinitions.All.ToArray();
+        var pair = records.Zip(records.Skip(1))
+            .First(pair => pair.First.DoorPointer is not (0 or RoomFxRomData.Record.TerminatorDoorPointer) &&
+                pair.Second.Pointer == pair.First.Pointer + RoomFxRomData.Record.ByteCount &&
+                pair.Second.DoorPointer == 0);
+        ushort list = pair.First.Pointer;
+        ushort matchingDoor = pair.First.DoorPointer;
+        AssertEqual(list, RoomFxRecordDefinitions.Select(list, matchingDoor),
             "door-specific FX record wins");
-        AssertEqual(list + RoomFxRomData.Record.ByteCount,
-            RoomFxRomData.SelectRecord(bus, list, 0x8456),
+        AssertEqual(pair.Second.Pointer,
+            RoomFxRecordDefinitions.Select(list, 0),
             "default FX record follows nonmatching door record");
 
-        const ushort terminatedList = 0x9200;
-        WriteTestWord(
-            bus,
-            RoomFxRomData.Banks.RoomDefinitions | terminatedList,
-            RoomFxRomData.Record.TerminatorDoorPointer);
-        AssertEqual(0, RoomFxRomData.SelectRecord(bus, terminatedList, matchingDoor),
+        ushort terminatedList = records.First(record =>
+            record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer).Pointer;
+        AssertEqual(0, RoomFxRecordDefinitions.Select(terminatedList, matchingDoor),
             "FX terminator declines selection");
     }
 

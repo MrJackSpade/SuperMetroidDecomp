@@ -14,6 +14,17 @@ internal static partial class Program
     private const int RetailRoomFxStateCount = 323;
     private const int RetailRoomFxDoorCount = 597;
 
+    /// <summary>Supplies the production FX owner with import-time presentation assets.</summary>
+    private static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus) => new()
+    {
+        PaletteBlendColors = RoomFxPaletteBlendCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(bus))),
+        Layer3Tilemaps = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.RoomFxLayer3TilemapExtractor.Extract(bus))),
+        AnimatedTileArtwork = RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(bus))),
+    };
+
     /// <summary>
     /// Exhaustively compares every named retail room state and every physical entry door
     /// with the FX record selected by the production owner. The named-state and physical-
@@ -138,7 +149,7 @@ internal static partial class Program
                         room.State.FxPointer,
                         doorPointer);
                     if (selectedRecord != 0 &&
-                        (RoomFxRomData.ReadRecordByte(
+                        (ReadRetailFxRecordByte(
                             bus,
                             selectedRecord,
                             RoomFxRomData.Record.LiquidOptionsOffset) &
@@ -194,7 +205,7 @@ internal static partial class Program
             doorPointer);
         if (expectedRecord != 0)
         {
-            byte blend = RoomFxRomData.ReadRecordByte(bus, expectedRecord,
+            byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
                 RoomFxRomData.Record.PaletteBlendOffset);
             AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains(blend),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
@@ -203,7 +214,7 @@ internal static partial class Program
         RoomFxType expectedType = expectedRecord == 0
             ? RoomFxType.None
             : RoomFxTypes.FromCartridge(
-                RoomFxRomData.ReadRecordByte(
+                ReadRetailFxRecordByte(
                     bus,
                     expectedRecord,
                     RoomFxRomData.Record.TypeOffset),
@@ -211,19 +222,19 @@ internal static partial class Program
                 $"entry $83:{doorPointer:X4}");
         ushort expectedBase = expectedRecord == 0
             ? (ushort)0
-            : RoomFxRomData.ReadRecordWord(
+            : ReadRetailFxRecordWord(
                 bus,
                 expectedRecord,
                 RoomFxRomData.Record.BaseYPositionOffset);
         ushort expectedTarget = expectedRecord == 0
             ? (ushort)0
-            : RoomFxRomData.ReadRecordWord(
+            : ReadRetailFxRecordWord(
                 bus,
                 expectedRecord,
                 RoomFxRomData.Record.TargetYPositionOffset);
         ushort expectedVelocity = expectedRecord == 0
             ? (ushort)0
-            : RoomFxRomData.ReadRecordWord(
+            : ReadRetailFxRecordWord(
                 bus,
                 expectedRecord,
                 RoomFxRomData.Record.YVelocityOffset);
@@ -231,7 +242,7 @@ internal static partial class Program
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
-        var actual = new RoomLayer3FxState();
+        var actual = CreateRetailFxState(bus);
         actual.Load(
             bus,
             vram,
@@ -240,7 +251,7 @@ internal static partial class Program
             doorPointer,
             randomNumber: 0);
         AssertEqual(expectedRecord,
-            RoomFxRomData.SelectRecord(bus, room.State.FxPointer, doorPointer),
+            RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer),
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} record selection");
         AssertEqual(expectedType, actual.Type,
@@ -374,13 +385,10 @@ internal static partial class Program
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
-        ushort record = RoomFxRomData.SelectRecord(
-            bus,
-            room.State.FxPointer,
-            doorPointer: 0);
+        ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer: 0);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        var fx = new RoomLayer3FxState();
+        var fx = CreateRetailFxState(bus);
         fx.Load(bus, vram, cgram, room.State.FxPointer, doorPointer: 0, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
@@ -469,6 +477,24 @@ internal static partial class Program
             $"retail {name} animated-tile first source frame");
     }
 
+    /// <summary>Reads a native FX byte directly from the import-only cartridge source.</summary>
+    private static byte ReadRetailFxRecordByte(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
+    {
+        if ((uint)fieldOffset >= RoomFxRomData.Record.ByteCount)
+            throw new ArgumentOutOfRangeException(nameof(fieldOffset));
+        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
+            RoomFxRomData.Banks.RoomDefinitions | (record + fieldOffset));
+    }
+
+    /// <summary>Reads a native FX word directly from the import-only cartridge source.</summary>
+    private static ushort ReadRetailFxRecordWord(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
+    {
+        if ((uint)fieldOffset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
+            throw new ArgumentOutOfRangeException(nameof(fieldOffset));
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            RoomFxRomData.Banks.RoomDefinitions | (record + fieldOffset));
+    }
+
     /// <summary>
     /// Selects an FX record without calling the production selector, providing an
     /// independent expected value for every door path in the cartridge audit.
@@ -484,7 +510,7 @@ internal static partial class Program
         ushort cursor = listPointer;
         for (int guard = 0; guard < 256; guard++)
         {
-            ushort candidateDoor = RoomFxRomData.ReadRecordWord(
+            ushort candidateDoor = ReadRetailFxRecordWord(
                 bus,
                 cursor,
                 RoomFxRomData.Record.DoorPointerOffset);
@@ -509,7 +535,7 @@ internal static partial class Program
         ushort cursor = listPointer;
         for (int guard = 0; guard < 256; guard++)
         {
-            ushort doorPointer = RoomFxRomData.ReadRecordWord(
+            ushort doorPointer = ReadRetailFxRecordWord(
                 bus,
                 cursor,
                 RoomFxRomData.Record.DoorPointerOffset);
@@ -546,7 +572,7 @@ internal static partial class Program
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
-        var fx = new RoomLayer3FxState();
+        var fx = CreateRetailFxState(bus);
         fx.Load(
             bus,
             vram,
@@ -719,7 +745,7 @@ internal static partial class Program
         CartridgeRoomHeader room,
         ushort doorPointer)
     {
-        var fx = new RoomLayer3FxState();
+        var fx = CreateRetailFxState(bus);
         var vram = new SnesVram();
         fx.Load(
             bus,
@@ -771,7 +797,7 @@ internal static partial class Program
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
-        var fx = new RoomLayer3FxState();
+        var fx = CreateRetailFxState(bus);
         fx.Load(bus, vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
         fx.PrimeViewport(cameraX: 0, cameraY: 0);
         fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false);

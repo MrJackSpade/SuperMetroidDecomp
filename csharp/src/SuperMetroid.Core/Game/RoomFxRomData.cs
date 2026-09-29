@@ -369,34 +369,4 @@ public static class RoomFxRomData
         }
     }
 
-    /// <summary>
-    /// Selects the first default or door-specific record using the cartridge's linear walk.
-    /// </summary>
-    /// <returns>The bank-local record pointer, or zero when the list terminator is reached.</returns>
-    public static ushort SelectRecord(
-        ISnesAddressSpace bus,
-        ushort fxPointer,
-        ushort doorPointer)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        return RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
-    }
-
-    /// <summary>Reads one byte from a selected bank-$83 FX record.</summary>
-    public static byte ReadRecordByte(ISnesAddressSpace bus, ushort record, int fieldOffset)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)fieldOffset >= Record.ByteCount)
-            throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return RoomFxRecordDefinitions.Get(record).ReadByte(fieldOffset);
-    }
-
-    /// <summary>Reads one little-endian word from a selected bank-$83 FX record.</summary>
-    public static ushort ReadRecordWord(ISnesAddressSpace bus, ushort record, int fieldOffset)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)fieldOffset > Record.ByteCount - sizeof(ushort))
-            throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return RoomFxRecordDefinitions.Get(record).ReadWord(fieldOffset);
-    }
 }

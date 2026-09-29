@@ -148,41 +148,26 @@ public sealed class RoomLayer3FxState
         if (fxPointer == 0)
             return;
 
-        var fxRecords = new RoomFxRecordReader();
-        ushort record = fxRecords.Select(fxPointer, doorPointer);
+        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
+        RoomFxRecordDefinition definition = RoomFxRecordDefinitions.Get(record);
 
-        BaseYPosition = fxRecords.ReadWord(
-            record,
-            RoomFxRomData.Record.BaseYPositionOffset);
-        TargetYPosition = fxRecords.ReadWord(
-            record,
-            RoomFxRomData.Record.TargetYPositionOffset);
-        PackedYVelocity = fxRecords.ReadWord(
-            record,
-            RoomFxRomData.Record.YVelocityOffset);
-        Timer = fxRecords.ReadByte(
-            record,
-            RoomFxRomData.Record.TimerOffset);
-        LiquidOptions = fxRecords.ReadByte(
-            record,
-            RoomFxRomData.Record.LiquidOptionsOffset);
+        BaseYPosition = definition.BaseYPosition;
+        TargetYPosition = definition.TargetYPosition;
+        PackedYVelocity = definition.PackedYVelocity;
+        Timer = definition.Timer;
+        LiquidOptions = definition.LiquidOptions;
         CurrentYPosition = BaseYPosition;
 
         Type = RoomFxTypes.FromCartridge(
-            fxRecords.ReadByte(record, RoomFxRomData.Record.TypeOffset),
+            definition.Type,
             $"bank-$83 FX record ${record:X4}");
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
-            fxRecords.ReadByte(
-                record,
-                RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset),
+            definition.Layer3LayerBlend,
             $"bank-$83 FX record ${record:X4}");
         animatedTiles.Load(bus, Type);
-        byte paletteBlend = fxRecords.ReadByte(
-            record,
-            RoomFxRomData.Record.PaletteBlendOffset);
-        ApplyPaletteBlend(bus, cgram, paletteBlend);
+        ApplyPaletteBlend(bus, cgram, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
             FirefleaRoomFx.Initialize(bus);
@@ -397,18 +382,17 @@ public sealed class RoomLayer3FxState
     internal LayerBlendingConfiguration ApplyEntry(ISnesAddressSpace bus, SnesCgram cgram,
         ushort record)
     {
-        var fxRecords = new RoomFxRecordReader();
-        BaseYPosition = fxRecords.ReadWord(record, RoomFxRomData.Record.BaseYPositionOffset);
-        TargetYPosition = fxRecords.ReadWord(record, RoomFxRomData.Record.TargetYPositionOffset);
-        PackedYVelocity = fxRecords.ReadWord(record, RoomFxRomData.Record.YVelocityOffset);
-        Timer = fxRecords.ReadByte(record, RoomFxRomData.Record.TimerOffset);
-        LiquidOptions = fxRecords.ReadByte(record, RoomFxRomData.Record.LiquidOptionsOffset);
+        RoomFxRecordDefinition definition = RoomFxRecordDefinitions.Get(record);
+        BaseYPosition = definition.BaseYPosition;
+        TargetYPosition = definition.TargetYPosition;
+        PackedYVelocity = definition.PackedYVelocity;
+        Timer = definition.Timer;
+        LiquidOptions = definition.LiquidOptions;
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
-            fxRecords.ReadByte(record, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset), "LoadFxEntry");
-        byte blend = fxRecords.ReadByte(record, RoomFxRomData.Record.PaletteBlendOffset);
-        ApplyPaletteBlend(bus, cgram, blend);
+            definition.Layer3LayerBlend, "LoadFxEntry");
+        ApplyPaletteBlend(bus, cgram, definition.PaletteBlend);
         return LayerBlendingConfigurations.FromCartridge(
-            fxRecords.ReadByte(record, RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset), "LoadFxEntry");
+            definition.DefaultLayerBlend, "LoadFxEntry");
     }
 
     private void ApplyPaletteBlend(ISnesAddressSpace bus, SnesCgram cgram, byte selection)

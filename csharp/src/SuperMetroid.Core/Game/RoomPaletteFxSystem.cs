@@ -121,15 +121,12 @@ public sealed class RoomPaletteFxSystem
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        var fxRecords = new RoomFxRecordReader();
-        ushort record = fxRecords.Select(fxPointer, doorPointer);
+        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
 
-        // FxDef offsets $0D/$0E are independent palette-FX and animtile bitsets. Reading
-        // only the former is deliberate; a separate bank-$87 owner must consume the latter.
-        byte paletteFxBits = fxRecords.ReadByte(record,
-            RoomFxRomData.Record.PaletteFxBitsetOffset);
+        // Palette FX and animated tiles have separate owners and bitsets.
+        byte paletteFxBits = RoomFxRecordDefinitions.Get(record).PaletteFxBitset;
         if (paletteFxBits == 0)
             return;
 

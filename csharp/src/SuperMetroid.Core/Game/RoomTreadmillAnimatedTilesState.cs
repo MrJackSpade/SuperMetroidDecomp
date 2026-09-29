@@ -18,10 +18,9 @@ public sealed class RoomTreadmillAnimatedTilesState
     {
         objects.Clear();
         if (fxPointer == 0) return;
-        var fxRecords = new RoomFxRecordReader();
-        ushort record = fxRecords.Select(fxPointer, doorPointer);
+        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
         if (record == 0) return;
-        byte bits = fxRecords.ReadByte(record, RoomFxRomData.Record.AnimatedTileBitsetOffset);
+        byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;

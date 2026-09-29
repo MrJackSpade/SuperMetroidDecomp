@@ -218,7 +218,8 @@ internal static partial class Program
             AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                 restored.VramWrites.Entries[quarter].AssetId,
                 $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
-        restored.VramWrites.DrainTo(restored.Vram, new KraidCompressedSourceGuard(rom), restored);
+        restored.VramWrites.DrainTo(restored.Vram,
+            ReferenceMutableMemory.From(new KraidCompressedSourceGuard(rom)), restored);
         AssertTrue(restored.Vram.Bytes.SequenceEqual(baselineQueued.Bytes),
             "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
 
@@ -265,6 +266,17 @@ internal static partial class Program
             HudTileArtwork = hud,
         };
         var vram = new SnesVram();
+        if (enemyArtwork is null)
+        {
+            // The expected image is import-only. Core no longer implements the
+            // old missing-artwork DMA path, even for diagnostic callers.
+            for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount; quarter++)
+                ImportedVramOracle.ExecuteQueued(vram, rom,
+                    KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
+                    KraidBackgroundRomData.StandardBg3TransferBytes,
+                    (ushort)(KraidBackgroundRomData.StandardBg3VramWord + quarter * KraidBackgroundRomData.StandardBg3TransferBytes / 2));
+            return vram;
+        }
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         var transfer = typeof(RoomEnemySystem)
@@ -287,7 +299,7 @@ internal static partial class Program
                     AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                         queue.Entries[0].AssetId,
                         $"Kraid BG3 quarter {quarter} queues installed art");
-                queue.DrainTo(vram, bus, map);
+                queue.DrainTo(vram, ReferenceMutableMemory.From(bus), map);
             }
             AssertEqual(quarter + 1, state.DeathBg3TransferCount,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
@@ -357,6 +369,14 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
+        if (artwork is null)
+        {
+            ImportedVramOracle.ExecuteQueued(vram, bus,
+                KraidBackgroundRomData.RoomBackgroundTileAddress,
+                KraidBackgroundRomData.RoomBackgroundTileBytes,
+                KraidBackgroundRomData.RoomBackgroundTileVramWord);
+            return vram;
+        }
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         var upload = typeof(RoomEnemySystem).GetMethod("UploadKraidRoomBackgroundTiles", flags)!

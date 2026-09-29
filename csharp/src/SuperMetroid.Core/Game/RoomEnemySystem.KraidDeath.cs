@@ -229,9 +229,6 @@ public sealed partial class RoomEnemySystem
         if ((uint)transferIndex >= KraidBackgroundRomData.StandardBg3TransferCount)
             throw new ArgumentOutOfRangeException(nameof(transferIndex));
 
-        int sourceAddress = checked(
-            KraidBackgroundRomData.StandardBg3TilesAddress +
-            transferIndex * KraidBackgroundRomData.StandardBg3TransferBytes);
         ushort destinationWord = checked((ushort)(
             KraidBackgroundRomData.StandardBg3VramWord +
             transferIndex * (KraidBackgroundRomData.StandardBg3TransferBytes / 2)));
@@ -241,33 +238,15 @@ public sealed partial class RoomEnemySystem
         // records so NMI owns visibility. Isolated enemy audits have no NMI/queue owner;
         // executing that one frame's transfer directly preserves the identical bytes and
         // keeps their per-frame sequencing observable without fabricating a host queue.
-        if (TileArtwork is not null)
-        {
-            HudTileAtlas hud = HudTileArtwork ?? throw new InvalidDataException(
-                "Installed Kraid death restoration has no standard BG3 artwork.");
-            if (vramWriteQueue is not null)
-                vramWriteQueue.EnqueueAsset(
-                    KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
-                    KraidBackgroundRomData.StandardBg3TransferBytes, destinationWord);
-            else
-                _vram!.ExecuteQueuedAssetWrite(hud.KraidRestoreQuarter(transferIndex).Span,
-                    destinationWord);
-        }
-        else if (vramWriteQueue is not null)
-        {
-            vramWriteQueue.Enqueue(
-                KraidBackgroundRomData.StandardBg3TransferBytes,
-                sourceAddress,
-                destinationWord);
-        }
+        HudTileAtlas hud = HudTileArtwork ?? throw new InvalidDataException(
+            "Installed Kraid death restoration has no standard BG3 artwork.");
+        if (vramWriteQueue is not null)
+            vramWriteQueue.EnqueueAsset(
+                KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
+                KraidBackgroundRomData.StandardBg3TransferBytes, destinationWord);
         else
-        {
-            _vram!.ExecuteQueuedWrite(
-                _bus!,
-                sourceAddress,
-                KraidBackgroundRomData.StandardBg3TransferBytes,
+            _vram!.ExecuteQueuedAssetWrite(hud.KraidRestoreQuarter(transferIndex).Span,
                 destinationWord);
-        }
 
         state.DeathBg3TransferCount++;
         body.VariableA = (ushort)next;

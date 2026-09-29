@@ -18,7 +18,7 @@ internal static class XrayFirstUseAudit
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.VramWrites.DrainTo(runtime.Vram, bus);
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus));
             runtime.LoadCartridgeRoomForDebug(XrayFirstUseFixtureData.RoomPointer);
             runtime.InitializeDebugGroundedSamus(128, 139, 12);
             var samus = runtime.Samus!;

@@ -30,7 +30,7 @@ internal static partial class Program
             runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
                 StandardObjectArtworkAddresses.Source,
                 StandardObjectArtworkFormat.EncodedVramDestination);
-            runtime.VramWrites.DrainTo(runtime.Vram, guard, runtime);
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guard), runtime);
             AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(baseline.Transfer.Span),
                 "actual queued gameplay DMA uses installed OBJ bytes without reading ROM");
@@ -56,7 +56,7 @@ internal static partial class Program
             editedRuntime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
                 StandardObjectArtworkAddresses.Source,
                 StandardObjectArtworkFormat.EncodedVramDestination);
-            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, guard, editedRuntime);
+            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, ReferenceMutableMemory.From(guard), editedRuntime);
             AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(edited.Transfer.Span),
                 "edited OBJ tile reaches live VRAM through production DMA queue");

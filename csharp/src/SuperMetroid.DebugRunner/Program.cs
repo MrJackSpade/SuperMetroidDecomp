@@ -4728,7 +4728,7 @@ var parlorRandom = new Bank80SystemState();
 // transparently decoding an empty private VRAM buffer. The default palette at $9A:8000 is
 // loaded for the same reason. RoomEnemySystem.Load then applies Parlor's enemy transfers on
 // top, preserving the native ordering in which room-specific art wins any overlap.
-parlorVram.ExecuteQueuedWrite(
+ImportedVramOracle.ExecuteQueued(parlorVram,
     bus,
     sourceAddress: 0x9ad200,
     sizeInBytes: 0x2e00,

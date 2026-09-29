@@ -90,10 +90,10 @@ public sealed class VramWriteQueue
     /// Executes every queued transfer in insertion order, then clears the table just as
     /// the NMI consumer does at <c>$80:8CC9</c>.
     /// </summary>
-    public void DrainTo(SnesVram vram, ISnesAddressSpace bus, IVramAssetProvider? assets = null)
+    public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
 
         // Use an index rather than foreach to make append-during-drain behavior explicit:
         // this object is single-threaded like the original main-loop/NMI handshake.
@@ -107,7 +107,7 @@ public sealed class VramWriteQueue
                         out ReadOnlyMemory<byte> selected))
                     vram.ExecuteQueuedAssetWrite(selected.Span, entry.EncodedVramDestination);
                 else
-                    vram.ExecuteQueuedWrite(bus, entry.SourceAddress, entry.SizeInBytes,
+                    vram.ExecuteQueuedMemoryWrite(memory, entry.SourceAddress, entry.SizeInBytes,
                         entry.EncodedVramDestination);
             }
             else

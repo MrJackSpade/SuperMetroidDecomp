@@ -233,7 +233,7 @@ internal static class DeadTorizoAudit
     {
         // NMI drains the records authored by the preceding main-loop frame before EnemyMain
         // appends this frame's alternating list.
-        loaded.VramWrites.DrainTo(loaded.Vram, bus);
+        loaded.VramWrites.DrainTo(loaded.Vram, ReferenceMutableMemory.From(bus));
         loaded.Enemies.StepFrame(
             cameraX: 0x0100,
             cameraY: 0,

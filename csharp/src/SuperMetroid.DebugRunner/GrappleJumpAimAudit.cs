@@ -18,7 +18,7 @@ internal static class GrappleJumpAimAudit
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.VramWrites.DrainTo(runtime.Vram, bus);
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus));
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, 672, 448);
             // A wide, flat synthetic floor leaves the jump trajectory independent
             // of retail obstacles. All pose and grapple tables remain retail data.

@@ -115,7 +115,7 @@ public sealed class SnesVram
     /// <summary>
     /// Performs the transfer produced by <c>$80:8C83</c>'s DMA channel 1 setup.
     /// </summary>
-    /// <param name="bus">CPU address space from which DMA channel 1 reads.</param>
+    /// <param name="memory">Live WRAM/SRAM from which DMA channel 1 reads. Artwork uses a separate transfer API.</param>
     /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
     /// <param name="sizeInBytes">Number of source bytes copied.</param>
     /// <param name="encodedDestination">
@@ -123,20 +123,20 @@ public sealed class SnesVram
     /// clear selects consecutive words (<c>VMAIN=$80</c>), set selects columns in steps of
     /// 32 words (<c>VMAIN=$81</c>).
     /// </param>
-    public void ExecuteQueuedWrite(
-        ISnesAddressSpace bus,
+    public void ExecuteQueuedMemoryWrite(
+        ISnesMutableMemory memory,
         int sourceAddress,
         ushort sizeInBytes,
         ushort encodedDestination)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         if ((uint)sourceAddress > 0x00ff_ffff)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "A zero size is the original queue terminator, not a transfer.");
 
         ExecuteDmaWrite(
-            bus,
+            memory,
             SnesAddress.FromBusAddress(sourceAddress),
             sizeInBytes,
             encodedDestination);
@@ -145,7 +145,7 @@ public sealed class SnesVram
     /// <summary>
     /// Executes a literal DMA channel transfer, including the SNES DAS-zero convention.
     /// </summary>
-    /// <param name="bus">CPU address space from which the DMA channel reads.</param>
+    /// <param name="memory">Live WRAM/SRAM from which the DMA channel reads; never a cartridge source.</param>
     /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
     /// <param name="dmaSize">
     /// Raw 16-bit DAS register. Values one through <c>$FFFF</c> transfer that many bytes;
@@ -155,19 +155,19 @@ public sealed class SnesVram
     /// <param name="encodedDestination">
     /// Initial VMADD word plus this model's VMAIN-column marker in bit 15.
     /// </param>
-    public void ExecuteHardwareDmaWrite(
-        ISnesAddressSpace bus,
+    public void ExecuteHardwareMemoryDmaWrite(
+        ISnesMutableMemory memory,
         int sourceAddress,
         ushort dmaSize,
         ushort encodedDestination)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(memory);
         if ((uint)sourceAddress > 0x00ff_ffff)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
 
         int effectiveSize = dmaSize == 0 ? 0x10000 : dmaSize;
         ExecuteDmaWrite(
-            bus,
+            memory,
             SnesAddress.FromBusAddress(sourceAddress),
             effectiveSize,
             encodedDestination);
@@ -177,7 +177,7 @@ public sealed class SnesVram
     /// Shared mode-$01 transfer loop after a caller has interpreted its own size encoding.
     /// </summary>
     private void ExecuteDmaWrite(
-        ISnesAddressSpace bus,
+        ISnesMutableMemory memory,
         SnesAddress sourceAddress,
         int sizeInBytes,
         ushort encodedDestination)
@@ -189,7 +189,6 @@ public sealed class SnesVram
         // harmless when written to VMADD because VRAM contains only 15 address bits.
         int destinationWord = encodedDestination & 0x7fff;
         int wordIncrement = (encodedDestination & 0x8000) == 0 ? 1 : 32;
-        ISnesMutableMemory? memory = bus as ISnesMutableMemory;
 
         for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
         {
@@ -203,10 +202,8 @@ public sealed class SnesVram
             SnesAddress currentSource = sourceAddress.AddWithinBank(byteIndex);
             _bytes[vramByteOffset] = SnesDmaSourceMap.Classify(currentSource) switch
             {
-                SnesDmaSourceKind.WorkRam => (memory ?? throw new InvalidOperationException(
-                    "VRAM DMA source requires WRAM.")).ReadWorkRamByte((int)currentSource),
-                SnesDmaSourceKind.SaveRam => (memory ?? throw new InvalidOperationException(
-                    "VRAM DMA source requires SRAM.")).ReadSaveRamByte((int)currentSource),
+                SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)currentSource),
+                SnesDmaSourceKind.SaveRam => memory.ReadSaveRamByte((int)currentSource),
                 SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
                     $"VRAM DMA source {currentSource} requires installed artwork bytes."),
                 _ => throw new InvalidOperationException(

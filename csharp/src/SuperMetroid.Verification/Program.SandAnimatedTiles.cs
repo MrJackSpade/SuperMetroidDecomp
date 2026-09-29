@@ -48,7 +48,7 @@ internal static partial class Program
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }
-            queue.DrainTo(vram, bus);
+            queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(

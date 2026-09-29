@@ -37,7 +37,7 @@ internal static partial class Program
                 var writes = new VramWriteQueue();
                 SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, writes, cgram, 0x000d);
                 AssertEqual(1, writes.Entries.Count, "Chainsaw queues one native graphics transfer");
-                writes.DrainTo(vram, bus);
+                writes.DrainTo(vram, ReferenceMutableMemory.From(bus));
             }
             else SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, 0x000d);
             for (int offset = 0; offset < 256; offset++)

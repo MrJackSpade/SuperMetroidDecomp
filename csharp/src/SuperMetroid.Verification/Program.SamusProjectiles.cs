@@ -251,7 +251,7 @@ static void VerifySamusPowerBeamProjectiles()
     var beamGraphics = new SamusProjectileSystem();
         SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram, equippedBeams: 0);
     AssertEqual(1, beamWrites.Entries.Count, "power beam queues one tile DMA");
-    beamWrites.DrainTo(beamVram, bus);
+    beamWrites.DrainTo(beamVram, ReferenceMutableMemory.From(bus));
     AssertEqual(0x5a, beamVram.ReadByte(0x6300 * 2),
         "power beam tiles begin at VRAM word $6300");
     AssertEqual(0xa5, beamVram.ReadByte(0x6300 * 2 + 0xff),

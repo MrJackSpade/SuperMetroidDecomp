@@ -56,7 +56,7 @@ internal static class PhantoonMaterializationAudit
         // Finish the bootstrap room's pending graphics transfer before loading another
         // room. Its $4000..$4FFF startup upload otherwise overwrites the new boss BG2 map
         // at the next NMI, a fixture artifact normal door loading has already drained.
-        runtime.VramWrites.DrainTo(runtime.Vram, runtime.AddressSpace);
+        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(runtime.AddressSpace));
         runtime.LoadCartridgeRoomForDebug(0xcd13);
         runtime.InitializeDebugGroundedSamus(64, 192, 12);
         runtime.Samus!.InputLocked = false;

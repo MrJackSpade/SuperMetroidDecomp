@@ -209,7 +209,7 @@ static void VerifyVramWriteQueue()
     bus.WriteByte(0x7e0000, 0xa1);
     queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x7effff, encodedVramDestination: 0x0100);
 
-    queue.DrainTo(vram, bus);
+    queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
 
     // The later column transfer intentionally overwrites the first pair at word one. This
     // proves insertion order is preserved, while word two retains the ordinary transfer.
@@ -243,7 +243,7 @@ static void VerifyVramWriteQueue()
     bus.WriteByte(0x7e0001, 0xa3);
     bus.WriteByte(0x7efffc, 0xfe);
     bus.WriteByte(0x7efffd, 0xff);
-    fullDmaVram.ExecuteHardwareDmaWrite(
+    fullDmaVram.ExecuteHardwareMemoryDmaWrite(
         bus,
         sourceAddress: 0x7efffe,
         dmaSize: 0,

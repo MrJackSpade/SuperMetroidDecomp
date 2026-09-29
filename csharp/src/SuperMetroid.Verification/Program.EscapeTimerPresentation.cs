@@ -43,7 +43,7 @@ internal static partial class Program
         AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].EncodedVramDestination,
             "timer PNG second record retains native destination");
         var timerVram = new SnesVram();
-        queued.DrainTo(timerVram, new ForbiddenMapBus(), original);
+        queued.DrainTo(timerVram, ReferenceMutableMemory.From(new ForbiddenMapBus()), original);
         AssertTrue(nativeFirstTiles.AsSpan().SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
             "typed first timer record publishes exact stock VRAM");

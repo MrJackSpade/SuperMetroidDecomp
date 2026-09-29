@@ -103,15 +103,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Uploads the fixed 4-bpp room backdrop characters at the native VRAM word.</summary>
     private void UploadKraidRoomBackgroundTiles()
     {
-        if (TileArtwork is null)
-        {
-            _vram!.ExecuteQueuedWrite(_bus!,
-                KraidBackgroundRomData.RoomBackgroundTileAddress,
-                KraidBackgroundRomData.RoomBackgroundTileBytes,
-                KraidBackgroundRomData.RoomBackgroundTileVramWord);
-            return;
-        }
-        KraidBackgroundArtwork art = TileArtwork.KraidBackground
+        KraidBackgroundArtwork art = TileArtwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
         art.RoomBackgroundTiles.LoadTo(_vram!,
             KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort));

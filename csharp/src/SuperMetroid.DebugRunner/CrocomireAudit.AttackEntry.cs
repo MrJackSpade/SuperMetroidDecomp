@@ -15,7 +15,7 @@ internal static partial class CrocomireAudit
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.VramWrites.DrainTo(runtime.Vram, bus);
+        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus));
         runtime.LoadCartridgeRoomForDebug(RoomHeader, 1024, 0);
         var samus = runtime.Samus!;
         samus.Pose = SamusPoseIds.FacingRightNormalPose;

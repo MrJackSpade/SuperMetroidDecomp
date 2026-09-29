@@ -30,8 +30,7 @@ public sealed partial class SuperMetroidRuntime
                 // not current VRAM: each page was read on a different setup call.
                 var captured = new SnesVram();
                 var bytes = new byte[XrayTilemapLayout.BufferWords * 2];
-                ISnesMutableMemory memory = _addressSpace as ISnesMutableMemory ??
-                    throw new InvalidOperationException("X-ray setup requires WRAM access.");
+                ISnesMutableMemory memory = MutableMemory;
                 for (int i = 0; i < bytes.Length; i++)
                     bytes[i] = memory.ReadWorkRamByte(XraySetupMemory.SavedBg1 + i);
                 captured.LoadBytes(SnesPpuLayout.GameplayBg1TilemapWord * 2, bytes);

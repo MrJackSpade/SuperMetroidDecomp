@@ -40,7 +40,7 @@ internal static partial class Program
         AssertEqual(5, installedQueue.Entries.Count,
             "Ceres production queues English title and four Japanese subtitle rows");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, guarded,
+        installedQueue.DrainTo(installedVram, ReferenceMutableMemory.From(guarded),
             new CeresEscapeOverlayProvider(stock));
 
         var nativeQueue = new VramWriteQueue();
@@ -63,7 +63,7 @@ internal static partial class Program
             nativeQueue.Enqueue(byteCount, source, destination);
         }
         var nativeVram = new SnesVram();
-        nativeQueue.DrainTo(nativeVram, rom);
+        ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
         AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes),
             "Ceres English/Japanese tilemap VRAM matches cartridge without source reads");
 
@@ -96,7 +96,7 @@ internal static partial class Program
         var editedQueue = new VramWriteQueue();
         emergency.Invoke(editedEnemies, [editedQueue]);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, guarded,
+        editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
             new CeresEscapeOverlayProvider(edited));
         AssertEqual((ushort)(nativeVram.ReadWord(
                 CeresEscapeOverlayTilemapDefinitions.EmergencyDestination) ^ 1),

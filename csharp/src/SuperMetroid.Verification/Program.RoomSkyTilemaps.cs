@@ -175,8 +175,8 @@ internal static partial class Program
             "scrolling-sky frame queues the four native row transfers");
         var nativeRowVram = new SnesVram();
         var installedRowVram = new SnesVram();
-        nativeRows.DrainTo(nativeRowVram, bus);
-        installedRows.DrainTo(installedRowVram, guard, new SkyPageProvider(stock));
+        ImportedVramOracle.Drain(nativeRows, nativeRowVram, bus);
+        installedRows.DrainTo(installedRowVram, ReferenceMutableMemory.From(guard), new SkyPageProvider(stock));
         AssertTrue(nativeRowVram.Bytes.SequenceEqual(installedRowVram.Bytes),
             "per-frame sky rows use installed pages without ROM visual reads");
         foreach (ushort cameraY in new ushort[] { 0x0000, 0x04f0 })
@@ -187,8 +187,8 @@ internal static partial class Program
             new ScrollingSkyState().ProcessFrame(cameraY, false, installedEdgeRows);
             var nativeEdgeVram = new SnesVram();
             var installedEdgeVram = new SnesVram();
-            nativeEdgeRows.DrainTo(nativeEdgeVram, bus);
-            installedEdgeRows.DrainTo(installedEdgeVram, guard,
+            ImportedVramOracle.Drain(nativeEdgeRows, nativeEdgeVram, bus);
+            installedEdgeRows.DrainTo(installedEdgeVram, ReferenceMutableMemory.From(guard),
                 new SkyPageProvider(stock));
             AssertTrue(nativeEdgeVram.Bytes.SequenceEqual(installedEdgeVram.Bytes),
                 $"camera Y=${cameraY:X4} preserves native sky-row overread and wrap parity");
@@ -206,8 +206,8 @@ internal static partial class Program
                 bus.WriteByte(0x7e0000 | (wrappedRow.SourceAddress & 0xffff), 0x5a);
             var nativeOceanVram = new SnesVram();
             var installedOceanVram = new SnesVram();
-            nativeOceanRows.DrainTo(nativeOceanVram, bus);
-            installedOceanRows.DrainTo(installedOceanVram, guard,
+            ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
+            installedOceanRows.DrainTo(installedOceanVram, ReferenceMutableMemory.From(guard),
                 new SkyPageProvider(stock));
             AssertTrue(nativeOceanVram.Bytes.SequenceEqual(installedOceanVram.Bytes),
                 $"ocean camera Y=${cameraY:X4} uses installed sky rows and live wrapped WRAM with exact native NMI output");
@@ -232,7 +232,7 @@ internal static partial class Program
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
             RoomSkyTilemapFormat.PageByteCount);
         var editedRowVram = new SnesVram();
-        editedQueue.DrainTo(editedRowVram, guard,
+        editedQueue.DrainTo(editedRowVram, ReferenceMutableMemory.From(guard),
             new SkyPageProvider(new RoomSkyTilemapCatalog(pages)));
         AssertTrue(editedRowVram.ReadWord(firstRow.EncodedVramDestination) !=
                 nativeRowVram.ReadWord(firstRow.EncodedVramDestination),

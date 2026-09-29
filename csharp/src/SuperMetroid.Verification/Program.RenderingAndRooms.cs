@@ -36,7 +36,7 @@ static void VerifyObjRendering()
     // A single palette-index-1 pixel at the tile's upper-left corner. SNES 4-bpp plane 0
     // uses bit 7 of byte 0 for (0,0); every omitted byte reads as zero in this fixture.
     bus.WriteByte(0x828000, 0x80);
-    vram.ExecuteQueuedWrite(bus, 0x828000, sizeInBytes: 32, encodedDestination: 0x0000);
+    ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, sizeInBytes: 32, encodedDestination: 0x0000);
 
     // One small tile-zero OBJ at (10,20), with caller-selected palette 2. Palette index
     // 128 + 2*16 + 1 is loaded with maximum red in native BGR555.
@@ -345,16 +345,16 @@ static void VerifyHudStateAndBg3Rendering()
     AssertEqual(HudState.MutableByteCount, (int)queue.Entries[0].SizeInBytes, "HUD queue transfer size");
     AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue WRAM source");
     AssertEqual(HudState.VramDestination, queue.Entries[0].EncodedVramDestination, "HUD queue VRAM destination");
-    queue.DrainTo(vram, bus);
+    queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
     AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
     AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
 
     // Isolate the BG3 renderer at a harmless tilemap base. Entry tile 2 / palette 1 points
     // at a tile whose upper-left plane-0 bit is set; CGRAM 5 is maximum green.
     bus.WriteBytes(0x818000, [0x02, 0x04]);
-    vram.ExecuteQueuedWrite(bus, 0x818000, 2, encodedDestination: 0x0100);
+    ImportedVramOracle.ExecuteQueued(vram, bus, 0x818000, 2, encodedDestination: 0x0100);
     bus.WriteByte(0x828000, 0x80);
-    vram.ExecuteQueuedWrite(bus, 0x828000, 16, encodedDestination: 0x0010);
+    ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, 16, encodedDestination: 0x0010);
     var cgram = new SnesCgram();
     cgram.SetColor(5, 0x03e0);
     var pixels = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, tilemapBaseWord: 0x0100, characterBaseWord: 0, rowCount: 1);

@@ -718,7 +718,7 @@ internal static class ShitroidAudit
         int frame,
         ushort cameraX = EncounterCameraX)
     {
-        loaded.VramWrites.DrainTo(loaded.Vram, bus);
+        loaded.VramWrites.DrainTo(loaded.Vram, ReferenceMutableMemory.From(bus));
         loaded.Enemies.StepFrame(
             cameraX,
             cameraY: 0,

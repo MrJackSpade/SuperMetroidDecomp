@@ -52,8 +52,8 @@ internal static partial class Program
         }
         var installedVram = new SnesVram();
         var nativeVram = new SnesVram();
-        stockQueue.DrainTo(installedVram, bus, runtime);
-        nativeQueue.DrainTo(nativeVram, bus);
+        stockQueue.DrainTo(installedVram, ReferenceMutableMemory.From(bus), runtime);
+        ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
         AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
             "all five installed takeoff uploads match the native VRAM image");
 
@@ -75,7 +75,7 @@ internal static partial class Program
         runtime.Enemies.TileArtwork = edited;
         VramWriteQueue pending = QueueAllTakeoffFrames(stock);
         var editedVram = new SnesVram();
-        pending.DrainTo(editedVram, bus, runtime);
+        pending.DrainTo(editedVram, ReferenceMutableMemory.From(bus), runtime);
         int firstDestinationByte = transfers[0].DestinationWord * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestinationByte) ^ 0x80),
             editedVram.ReadByte(firstDestinationByte),
@@ -89,7 +89,7 @@ internal static partial class Program
         legacyQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
             transfers[0].SourceAddress, transfers[0].DestinationWord);
         var legacyVram = new SnesVram();
-        legacyQueue.DrainTo(legacyVram, bus, runtime);
+        legacyQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(bus), runtime);
         AssertEqual(editedVram.ReadByte(firstDestinationByte),
             legacyVram.ReadByte(firstDestinationByte),
             "older pending cartridge-source takeoff upload rebinds to current art");

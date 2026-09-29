@@ -147,8 +147,8 @@ internal static class SandRoomAudit
                     // scene; moving enemies or palette effects cannot satisfy this check.
                     var frozenSand = new SnesVram();
                     frozenSand.LoadBytes(0, runtime.Vram.Bytes);
-                    frozenSand.ExecuteHardwareDmaWrite(bus, 0x8791e4, 0x40, 0x1000);
-                    frozenSand.ExecuteHardwareDmaWrite(bus, 0x879164, 0x20, 0x1020);
+                    ImportedVramOracle.ExecuteHardware(frozenSand, bus, 0x8791e4, 0x40, 0x1000);
+                    ImportedVramOracle.ExecuteHardware(frozenSand, bus, 0x879164, 0x20, 0x1020);
                     var ppu = runtime.DisplayedGameplayPpu;
                     Rgba32[] Render(SnesVram vram) => SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                         vram, runtime.Cgram, runtime.DisplayedOam, ppu.Bg1HorizontalScroll,

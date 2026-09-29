@@ -278,14 +278,14 @@ public static class LibraryBackgroundLoader
         FillWords(bus, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
         if (includeKraidPage)
         {
-            vram.ExecuteQueuedWrite(
-                bus,
+            vram.ExecuteQueuedMemoryWrite(
+                RequireWorkMemory(bus),
                 transfer.WorkRamSourceAddress,
                 transfer.ByteCount,
                 RoomAssetRomData.LibraryBackground.KraidBg2VramDestinationWord);
         }
-        vram.ExecuteQueuedWrite(
-            bus,
+        vram.ExecuteQueuedMemoryWrite(
+            RequireWorkMemory(bus),
             transfer.WorkRamSourceAddress,
             transfer.ByteCount,
             transfer.VramDestinationWord);
@@ -298,12 +298,16 @@ public static class LibraryBackgroundLoader
         RoomAssetRomData.TilemapTransfer transfer)
     {
         FillWords(bus, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
-        vram.ExecuteQueuedWrite(
-            bus,
+        vram.ExecuteQueuedMemoryWrite(
+            RequireWorkMemory(bus),
             transfer.WorkRamSourceAddress,
             transfer.ByteCount,
             transfer.VramDestinationWord);
     }
+
+    private static ISnesMutableMemory RequireWorkMemory(ISnesAddressSpace bus) =>
+        bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Library-background staging transfers require live WRAM.");
 
     private static void FillWords(
         ISnesAddressSpace bus,

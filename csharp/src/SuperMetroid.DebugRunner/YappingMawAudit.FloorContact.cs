@@ -15,7 +15,7 @@ internal static partial class YappingMawAudit
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.VramWrites.DrainTo(runtime.Vram, bus);
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus));
             runtime.LoadCartridgeRoomForDebug(MawFloorContactData.Room, 256, 0);
             if (openCeiling)
             {

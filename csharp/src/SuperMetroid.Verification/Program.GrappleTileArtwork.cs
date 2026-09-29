@@ -55,7 +55,7 @@ internal static partial class Program
             AssertTrue(SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(selected)) && SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
             var va = new SnesVram(); var vb = new SnesVram(); var vc = new SnesVram();
             va.LoadBytes(0, poison); vb.LoadBytes(0, poison); vc.LoadBytes(0, poison);
-            a.DrainTo(va, bus); b.DrainTo(vb, guard, stock); c.DrainTo(vc, guard, edited);
+            ImportedVramOracle.Drain(a, va, bus); b.DrainTo(vb, ReferenceMutableMemory.From(guard), stock); c.DrainTo(vc, ReferenceMutableMemory.From(guard), edited);
             AssertTrue(va.Bytes.SequenceEqual(vb.Bytes), "Actual Grapple stock producer/drain preserves all VRAM with pointer/tile ROM forbidden");
             byte[] expectedBytes = va.Bytes.ToArray();
             expectedBytes[GrappleTileDefinitions.PointDestination * 2] ^= 128;

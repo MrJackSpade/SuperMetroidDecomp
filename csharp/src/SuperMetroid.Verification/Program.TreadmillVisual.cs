@@ -53,7 +53,7 @@ internal static partial class Program
                 if (frame > 0)
                 {
                     var expected = new SnesVram();
-                    expected.ExecuteHardwareDmaWrite(bus, sources[(frame - 1) & 3],
+                    ImportedVramOracle.ExecuteHardware(expected, bus, sources[(frame - 1) & 3],
                         WreckedShipTreadmillRomData.TransferByteCount,
                         WreckedShipTreadmillRomData.EncodedVramDestination);
                     expected.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);

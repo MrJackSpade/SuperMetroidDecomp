@@ -24,7 +24,7 @@ internal static partial class Program
             { MapPresentation = original };
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, 0x5800);
-        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, guard, topRowRuntime);
+        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, ReferenceMutableMemory.From(guard), topRowRuntime);
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
             "queued immutable HUD row uses installed visual data without source reads");
@@ -100,7 +100,7 @@ internal static partial class Program
             { MapPresentation = edited };
         editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, 0x5800);
-        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, guard,
+        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, ReferenceMutableMemory.From(guard),
             editedTopRowRuntime);
         AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,
                 GameplayHudDefinitions.TopRowByteCount)

@@ -27,5 +27,17 @@ internal static partial class Program
         AssertTrue(!runtimeBus.Assembly.GetReferencedAssemblies().Any(
                 name => name.Name == "SuperMetroid.AssetExtraction"),
             "gameplay assembly must not reference the cartridge importer");
+        AssertTrue(typeof(SnesVram).GetMethod("ExecuteQueuedWrite") is null &&
+                typeof(SnesVram).GetMethod("ExecuteHardwareDmaWrite") is null,
+            "VRAM must not retain untyped CPU-bus DMA APIs");
+        AssertEqual(typeof(ISnesMutableMemory), typeof(SnesVram)
+            .GetMethod(nameof(SnesVram.ExecuteQueuedMemoryWrite))!.GetParameters()[0].ParameterType,
+            "queued memory DMA requires a compile-time mutable-memory source");
+        AssertEqual(typeof(ISnesMutableMemory), typeof(SnesVram)
+            .GetMethod(nameof(SnesVram.ExecuteHardwareMemoryDmaWrite))!.GetParameters()[0].ParameterType,
+            "hardware memory DMA requires a compile-time mutable-memory source");
+        AssertEqual(typeof(ISnesMutableMemory), typeof(VramWriteQueue)
+            .GetMethod(nameof(VramWriteQueue.DrainTo))!.GetParameters()[1].ParameterType,
+            "NMI queue drainage requires a compile-time mutable-memory source");
     }
 }

@@ -48,12 +48,12 @@ internal static partial class Program
             state.Position = 0;
             var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
             var stockVram = new SnesVram();
-            queue.DrainTo(stockVram, new ProjectileCompositionForbiddenBus(), catalog);
+            queue.DrainTo(stockVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(stockVram.Bytes.SequenceEqual(native.Bytes), "Queued PNG publishes native pixels only at drain");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(selection)] = editedPng.ToArray() };
             var editedCatalog = BeamTileCatalog.Load(replacements);
             var reboundVram = new SnesVram();
-            restored.DrainTo(reboundVram, new ProjectileCompositionForbiddenBus(), editedCatalog);
+            restored.DrainTo(reboundVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), editedCatalog);
             AssertTrue(reboundVram.Bytes.SequenceEqual(extracted.Bytes), "Restored pending transfer resolves current PNG, not serialized stock bytes");
             AssertEqual(0, restored.TailInBytes, "NMI clears restored asset queue");
         }

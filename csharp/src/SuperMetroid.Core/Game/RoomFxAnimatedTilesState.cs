@@ -111,7 +111,8 @@ internal sealed class RoomFxAnimatedTilesState
                 else if (artwork is not null)
                     artwork.LoadFrame(vram, sourceAddress, transferByteCount, encodedVramDestination);
                 else
-                    vram.ExecuteHardwareDmaWrite(bus, sourceAddress, transferByteCount, encodedVramDestination);
+                    throw new InvalidOperationException(
+                        "Room-FX character transfers require installed animation artwork or a deferred artwork queue.");
                 return;
             }
 

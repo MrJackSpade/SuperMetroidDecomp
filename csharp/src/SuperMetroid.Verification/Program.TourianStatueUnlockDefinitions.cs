@@ -127,14 +127,14 @@ internal static partial class Program
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
         var provider = new RoomFxArtworkTestProvider(artwork);
-        runtime.VramWrites.DrainTo(runtime.Vram, guarded, provider);
+        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), provider);
         guarded.ForbidArtworkReads = true;
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
         {
             runtime.TourianStatues.StepTiles(runtime);
-            runtime.VramWrites.DrainTo(runtime.Vram, guarded, provider);
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), provider);
         }
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),

@@ -2265,6 +2265,12 @@ if (args is ["--dma-source-routing"])
 {
     VerifyVramWriteQueue();
     VerifyDmaSourceRouting();
+    VerifyQueuedVramAssets();
+    return 0;
+}
+if (args is ["--dma-artwork-boundary", var dmaArtworkRom])
+{
+    VerifyDmaArtworkBoundary(dmaArtworkRom);
     return 0;
 }
 if (args is ["--file-select-map-entry"])

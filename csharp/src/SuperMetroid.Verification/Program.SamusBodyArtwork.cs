@@ -242,7 +242,7 @@ internal static partial class Program
                 Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
                     .Select(offset => bus.ReadByte(segment.SourceAddress + offset)).ToArray(),
                 segment.EncodedVramDestination);
-            installedQueue.DrainTo(installedDeathVram, guardedBus,
+            installedQueue.DrainTo(installedDeathVram, ReferenceMutableMemory.From(guardedBus),
                 new DeathTileAssetProvider(stock.DeathTiles));
             AssertTrue(nativeDeathVram.Bytes.SequenceEqual(installedDeathVram.Bytes),
                 $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
@@ -568,9 +568,9 @@ internal static partial class Program
             firstDeathSegment.SourceAddress, firstDeathSegment.EncodedVramDestination);
         var stockDeathTilesVram = new SnesVram();
         var editedDeathTilesVram = new SnesVram();
-        stockDeathTransfer.DrainTo(stockDeathTilesVram, guardedBus,
+        stockDeathTransfer.DrainTo(stockDeathTilesVram, ReferenceMutableMemory.From(guardedBus),
             new DeathTileAssetProvider(stock.DeathTiles));
-        editedDeathTransfer.DrainTo(editedDeathTilesVram, guardedBus,
+        editedDeathTransfer.DrainTo(editedDeathTilesVram, ReferenceMutableMemory.From(guardedBus),
             new DeathTileAssetProvider(replacement.DeathTiles));
         AssertTrue(!stockDeathTilesVram.Bytes.SequenceEqual(editedDeathTilesVram.Bytes),
             "edited death explosion PNG reaches the queued production VRAM transfer");

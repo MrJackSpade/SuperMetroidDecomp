@@ -26,11 +26,14 @@ public sealed partial class SuperMetroidRuntime
     private ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>
-    /// Cartridge bus used by render-time ROM tables such as the shared angular tangent
-    /// table. This remains assembly-internal so frontend callers cannot bypass runtime
-    /// ownership to mutate emulated state.
+    /// Mutable-state write boundary. Immutable gameplay definitions and installed
+    /// presentation data are separate from the emulated memory owner.
     /// </summary>
     internal ISnesAddressSpace AddressSpace => _addressSpace;
+
+    /// <summary>Explicit live-memory source for NMI DMA and captured tilemap reads.</summary>
+    private ISnesMutableMemory MutableMemory => _addressSpace as ISnesMutableMemory ??
+        throw new InvalidOperationException("The runtime requires live WRAM/SRAM access.");
 
     public SuperMetroidRuntime(
         ISnesAddressSpace addressSpace,
@@ -4213,7 +4216,7 @@ public sealed partial class SuperMetroidRuntime
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             PublishReboundHudArtwork();
-            VramWrites.DrainTo(Vram, _addressSpace, this);
+            VramWrites.DrainTo(Vram, MutableMemory, this);
             // A rebound snapshot may retain old VRAM and legacy queued transfers.
             // Apply current content only at this accepted NMI, after those writes.
             PublishReboundBeamArtwork();

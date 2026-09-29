@@ -54,7 +54,7 @@ internal static partial class Program
         AssertEqual(15, installedQueue.Entries.Count,
             "Ceres escape production queues both complete timer lists");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, guarded,
+        installedQueue.DrainTo(installedVram, ReferenceMutableMemory.From(guarded),
             new CeresEscapeArtworkProvider(stock, timer));
 
         var nativeQueue = new VramWriteQueue();
@@ -72,7 +72,7 @@ internal static partial class Program
             nativeQueue.Enqueue(byteCount, source, destination);
         }
         var nativeVram = new SnesVram();
-        nativeQueue.DrainTo(nativeVram, rom);
+        ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
         AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes),
             "all Ceres timer and door VRAM bytes match the cartridge without source reads");
 
@@ -124,7 +124,7 @@ internal static partial class Program
         var editedQueue = new VramWriteQueue();
         _ = next.Invoke(editedEnemies, [editedState, editedQueue]);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, guarded,
+        editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
             new CeresEscapeArtworkProvider(edited, timer));
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,

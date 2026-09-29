@@ -47,7 +47,8 @@ public sealed class EnemyTileArtworkCatalog
         CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
         TorizoInstructionVramArtwork? torizoInstructionVram = null,
         CeresEscapeTileArtwork? ceresEscapeTiles = null,
-        CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null)
+        CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
+        EnemyAuxiliaryColorCatalog? auxiliaryColors = null)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -106,6 +107,7 @@ public sealed class EnemyTileArtworkCatalog
         TorizoInstructionVram = torizoInstructionVram;
         CeresEscapeTiles = ceresEscapeTiles;
         CeresEscapeOverlayTilemaps = ceresEscapeOverlayTilemaps;
+        AuxiliaryColors = auxiliaryColors;
     }
 
     /// <summary>Optional only for constructed fixtures; installed retail catalogs include both melts.</summary>
@@ -116,6 +118,9 @@ public sealed class EnemyTileArtworkCatalog
 
     /// <summary>Editable tile pages for Bomb/Golden Torizo instruction-time VRAM uploads.</summary>
     public TorizoInstructionVramArtwork? TorizoInstructionVram { get; }
+
+    /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
+    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
 
     /// <summary>Editable warning-text and door character pages for Ceres escape.</summary>
     public CeresEscapeTileArtwork? CeresEscapeTiles { get; }
@@ -248,7 +253,7 @@ public sealed class EnemyTileArtworkCatalog
 public static class EnemyTileArtworkFormat
 {
     public const string ManifestFileName = "enemy-tiles.json";
-    public const int Version = 62;
+    public const int Version = 63;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

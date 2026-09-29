@@ -57,7 +57,10 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int PreTorizoJumpBackLeftFrameCount = 406;
     internal const int PreGoldenTorizoLeftOrbVersion = 23;
     internal const int PreGoldenTorizoLeftOrbFrameCount = 408;
-    internal const int Version = 24;
+    internal const int PreCompleteTorizoVersion = 24;
+    internal const int PreCompleteTorizoFrameCount = 420;
+    internal const int CompleteTorizoAdditionalFrameCount = 27;
+    internal const int Version = 25;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;
@@ -96,7 +99,8 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
         TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
-        TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount;
+        TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
+        CompleteTorizoAdditionalFrameCount;
 
     // Every bank-$A5 Draygon extended frame selected by a compiled instruction
     // that contains ordinary OAM components. The other 34 selected frames carry
@@ -517,6 +521,22 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Golden Torizo left-orb selects {leftOrbPointers.Count} " +
                 $"visual frames, expected {GoldenTorizoLeftOrbFrameCount}.");
+        if (frames.Count != PreCompleteTorizoFrameCount)
+            throw new InvalidDataException("Complete Torizo extended-frame prefix changed.");
+        var torizoFrames = frames.Where(frame => frame.Bank == TorizoInstructionProgramDefinitions.Bank)
+            .Select(frame => frame.Pointer).ToHashSet();
+        for (int index = 0; index < TorizoInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort operand = TorizoInstructionProgramDefinitions.PresentationWordAddress(index);
+            if (!CompiledEnemyVisualSelectors.TryGet(TorizoInstructionProgramDefinitions.Bank,
+                    operand, out ushort pointer))
+                throw new InvalidDataException($"Torizo frame operand $AA:{operand:X4} is not compiled.");
+            if (torizoFrames.Add(pointer))
+                frames.Add(new EnemyExtendedFrameDefinition(TorizoInstructionProgramDefinitions.Bank,
+                    pointer, $"torizo_combat_{pointer:X4}"));
+        }
+        if (frames.Count != ExpectedFrameCount)
+            throw new InvalidDataException("Complete Torizo artwork coverage changed.");
         return frames.ToArray();
     }
 }

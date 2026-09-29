@@ -154,9 +154,9 @@ internal static partial class Program
                     Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
             }
         }
-        AssertEqual(152, discovered, "instruction catalogs with visual operands");
-        AssertEqual(4641, operands, "counted native sprite-selector occurrences");
-        AssertEqual(4640, keyed.Count, "distinct native sprite-selector addresses");
+        AssertEqual(153, discovered, "instruction catalogs with visual operands");
+        AssertEqual(5205, operands, "counted native sprite-selector occurrences");
+        AssertEqual(5060, keyed.Count, "distinct native sprite-selector addresses");
         if (generateCatalog)
             GenerateCompiledEnemyVisualSelectorCatalog(keyed);
         else
@@ -192,7 +192,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(4640, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(5060, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
         int previousAddress = -1;
         for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)

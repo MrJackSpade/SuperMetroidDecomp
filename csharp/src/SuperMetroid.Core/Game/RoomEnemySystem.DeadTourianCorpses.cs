@@ -285,10 +285,8 @@ public sealed partial class RoomEnemySystem
         ushort yOffset,
         bool move)
     {
-        int rotationEntryAddress = 0xa90000 |
-            unchecked((ushort)(state.RotationTablePointer + (yOffset >> 3) * 2));
         ushort sourceOffset = unchecked((ushort)(
-            ReadWord(_bus!, rotationEntryAddress) + (yOffset & 7) * 2));
+            DeadMonsterRottingDefinitions.RotationOffset(state.RotationTablePointer, yOffset) + (yOffset & 7) * 2));
         ushort destinationOffset = (yOffset & 7) >= 6
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
@@ -331,26 +329,10 @@ public sealed partial class RoomEnemySystem
 
     private void AppendDeadMonsterVramTransfers(ushort vramTablePointer)
     {
-        ushort cursor = vramTablePointer;
-        for (int recordIndex = 0; recordIndex < 64; recordIndex++, cursor += 8)
-        {
-            int address = 0xa90000 | cursor;
-            ushort size = ReadWord(_bus!, address);
-            if (size == 0)
-                return;
-
-            ushort sourceBankWord = ReadWord(_bus!, address + 2);
-            ushort sourceOffset = ReadWord(_bus!, address + 4);
-            ushort vramDestination = ReadWord(_bus!, address + 6);
-            int sourceAddress = ((sourceBankWord & 0xff00) << 8) | sourceOffset;
+        foreach (DeadMonsterVramTransferDefinition record in
+                 DeadMonsterRottingDefinitions.ForTransferTable(vramTablePointer))
             _deadSidehopperFrameVramTransfers.Add(new VramWriteEntry(
-                size,
-                sourceAddress,
-                vramDestination));
-        }
-
-        throw new InvalidDataException(
-            $"Dead-monster VRAM table $A9:{vramTablePointer:X4} has no terminator.");
+                record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
     private DeadTourianCorpseEnemyState RequireDeadTourianCorpseState(RoomEnemySlot slot)

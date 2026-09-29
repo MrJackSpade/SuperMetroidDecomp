@@ -166,9 +166,8 @@ public sealed partial class RoomEnemySystem
         // while retaining the independent target copy above.
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            ushort value = TileArtwork?.SporeSpawnColors is { } colors
-                ? colors.ResolveSpore(color)
-                : ReadWord(_bus!, SporeSpawnColorRomData.SporeSource + color * sizeof(ushort));
+            ushort value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
+                "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
             state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
             _cgram!.SetColor(SporeSpawnColorRomData.SporeDestination + color, value);
         }

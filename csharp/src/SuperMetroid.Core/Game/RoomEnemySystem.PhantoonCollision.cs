@@ -289,8 +289,6 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
     private ushort ReadPhantoonHealthColor(int healthBand, int color) =>
-        TileArtwork?.PhantoonColors?.ResolveHealth(healthBand, color) ??
-        ReadWord(_bus!, PhantoonColorRomData.HealthBandsSource +
-            (healthBand * PhantoonColorRomData.HealthBandColorCount + color) *
-                sizeof(ushort));
+        (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
+            "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
 }

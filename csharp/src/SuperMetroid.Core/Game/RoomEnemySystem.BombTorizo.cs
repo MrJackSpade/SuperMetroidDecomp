@@ -366,20 +366,18 @@ public sealed partial class RoomEnemySystem
         if ((selector & 0x40) != 0)
             selector = 56;
         int sourceWord = selector * 2;
+        var colors = TileArtwork?.AuxiliaryColors ?? throw new InvalidDataException(
+            "Golden Torizo health palettes require installed artwork.");
         for (int color = 0; color < 16; color++)
         {
             _cgram!.SetColor(
                 144 + color,
-                ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.Torizo.BodyPaletteFxColors +
-                        (sourceWord + color) * 2));
+                colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.GoldenTorizoBody,
+                    sourceWord / 16, color));
             _cgram.SetColor(
                 160 + color,
-                ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.Torizo.BellyPaletteFxColors +
-                        (sourceWord + color) * 2));
+                colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.GoldenTorizoBelly,
+                    sourceWord / 16, color));
         }
     }
 

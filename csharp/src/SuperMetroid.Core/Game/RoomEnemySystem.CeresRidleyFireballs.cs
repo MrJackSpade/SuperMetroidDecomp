@@ -1738,9 +1738,8 @@ public sealed partial class RoomEnemySystem
                         projectile.XPosition,
                         projectile.XSubposition,
                         projectile.XVelocity);
-                    cursor = ReadWord(
-                        _bus!,
-                        0x860000 | unchecked((ushort)(cursor +
+                    cursor = ReadEnemyProjectileInstructionMechanicsWord(projectile,
+                        unchecked((ushort)(cursor +
                             (unchecked((short)projectile.XVelocity) < 0 ? 2 : 4))));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched:
@@ -1937,7 +1936,7 @@ public sealed partial class RoomEnemySystem
     /// gameplay data. The placeholder map preserves a drawable native slot; OAM resolves
     /// the exact installed operand on the corresponding draw pass.
     /// </summary>
-    private void SetEnemyProjectileVisualOperand(RoomEnemyProjectileSlot projectile,
+    private static void SetEnemyProjectileVisualOperand(RoomEnemyProjectileSlot projectile,
         ushort operandAddress)
     {
         if (EnemyProjectilePresentationFrameDefinitions.Contains(operandAddress))
@@ -1951,7 +1950,11 @@ public sealed partial class RoomEnemySystem
         projectile.SpritemapPointer =
             SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind)
                 ? SkreeMetareeParticleVisualDefinitions.Resolve(operandAddress)
-                : ReadWord(_bus!, EnemyProjectileCodePointers.BankBase | operandAddress);
+                : CompiledEnemyVisualSelectors.TryGet((byte)(EnemyProjectileCodePointers.BankBase >> 16),
+                    operandAddress, out ushort selector)
+                    ? selector
+                    : throw new InvalidDataException(
+                        $"Enemy projectile visual operand $86:{operandAddress:X4} has no compiled selector.");
     }
 
     private static ushort ReadEnemyProjectileInstructionMechanicsWord(

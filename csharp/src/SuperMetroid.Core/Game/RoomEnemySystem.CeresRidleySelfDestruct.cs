@@ -207,69 +207,17 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>
     private bool StepCeresEscapeTypewriter(RidleyEnemyState state)
     {
-        if (state.CeresEscapeTypewriter is { } installed)
-        {
-            bool completed = installed.Step(_bus!, _vram!);
-            state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
-            state.CeresEscapeTextDestination = installed.Destination;
-            state.CeresEscapeTextDelayTimer = installed.DelayTimer;
-            state.CeresEscapeTextDelay = installed.Delay;
-            state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
-            if (installed.ClickRequested)
-                QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
-            return completed;
-        }
-
-        if (state.CeresEscapeTextDelayTimer != 0)
-        {
-            state.CeresEscapeTextDelayTimer--;
-            return false;
-        }
-        state.CeresEscapeTextDelayTimer = state.CeresEscapeTextDelay;
-
-        ushort pointer = state.CeresEscapeTextPointer;
-        while (true)
-        {
-            ushort command = ReadWord(_bus!, CeresEscapeVramTransferDefinitions.Bank | pointer);
-            if (command == 0)
-                return true;
-            if (command == 1)
-            {
-                state.CeresEscapeTextDelay = ReadWord(
-                    _bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
-                pointer = unchecked((ushort)(pointer + 4));
-                continue;
-            }
-            if (command == 13)
-            {
-                state.CeresEscapeTextDestination = ReadWord(
-                    _bus!, CeresEscapeVramTransferDefinitions.Bank | unchecked((ushort)(pointer + 2)));
-                pointer = unchecked((ushort)(pointer + 4));
-                continue;
-            }
-
-            byte character = unchecked((byte)command);
-            state.CeresEscapeTextPointer = unchecked((ushort)(pointer + 1));
-            if (character == 32)
-            {
-                state.CeresEscapeTextDestination++;
-                return false;
-            }
-            if (character == 33)
-                character = 91;
-
-            ushort tile = unchecked((ushort)(CeresTypewriterTileBase + character - 65));
-            _vram!.ExecuteWordTransfer([tile], state.CeresEscapeTextDestination, 1);
-            state.CeresEscapeTextDestination++;
-            state.CeresEscapeTextSoundCounter = unchecked((ushort)(
-                (state.CeresEscapeTextSoundCounter + 1) % 2));
-            // Ridley_Func_61 emits one key click for every second visible character.
-            // Ceres is area six, selecting QueueSfx2_Max3($45); the alternate library-three
-            // call belongs to the non-Ceres reuse of this shared native routine.
-            if (state.CeresEscapeTextSoundCounter == 0)
-                QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
-            return false;
-        }
+        var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
+            "Ceres warning text requires installed typewriter artwork.");
+        bool completed = installed.Step(_bus!, _vram!);
+        state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
+        state.CeresEscapeTextDestination = installed.Destination;
+        state.CeresEscapeTextDelayTimer = installed.DelayTimer;
+        state.CeresEscapeTextDelay = installed.Delay;
+        state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
+        if (installed.ClickRequested)
+            QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
+        return completed;
     }
 
     /// <summary>Ports the three-color alarm palette cycle at $A6:C19C.</summary>

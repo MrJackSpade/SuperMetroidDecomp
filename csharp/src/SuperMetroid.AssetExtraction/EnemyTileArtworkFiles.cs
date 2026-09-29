@@ -273,6 +273,8 @@ public static class EnemyTileArtworkFiles
         (string ceresDoorTilesHash, string ceresDoorColorsHash) =
             CeresDoorVisualFiles.Extract(bus, directory);
         byte[] magdollitePaletteCycle = MagdollitePaletteCycleExtractor.Extract(bus);
+        byte[] auxiliaryColors = EnemyAuxiliaryColorFiles.Extract(bus);
+        File.WriteAllBytes(Path.Combine(directory, EnemyAuxiliaryColorFormat.FileName), auxiliaryColors);
         File.WriteAllBytes(Path.Combine(directory, MagdollitePaletteCycleFormat.FileName),
             magdollitePaletteCycle);
         byte[] workRobotPaletteCycle = WorkRobotPaletteCycleExtractor.Extract(bus);
@@ -358,7 +360,8 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(zebetiteColors)),
             Convert.ToHexString(SHA256.HashData(norfairRidleyColors)),
             Convert.ToHexString(SHA256.HashData(tourianStatueColors)),
-            Convert.ToHexString(SHA256.HashData(skeletonPng)));
+            Convert.ToHexString(SHA256.HashData(skeletonPng)),
+            Convert.ToHexString(SHA256.HashData(auxiliaryColors)));
         File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -417,6 +420,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.CeresDoorTilesSha256) ||
             string.IsNullOrWhiteSpace(manifest.CeresDoorColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.MagdollitePaletteCycleSha256) ||
+            string.IsNullOrWhiteSpace(manifest.AuxiliaryColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.WorkRobotPaletteCycleSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.DraygonColorsSha256) ||
@@ -1071,6 +1075,8 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Tourian statue colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
+        var auxiliaryColors = EnemyAuxiliaryColorCatalog.Load(new MemoryStream(
+            ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName, manifest.AuxiliaryColorsSha256), writable: false));
         return new EnemyTileArtworkCatalog(sheets, palettes, crocomire,
             spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
                 kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
@@ -1082,7 +1088,7 @@ public static class EnemyTileArtworkFiles
             phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
             motherBrainEscapeText, motherBrainSpecialSprites, skeleton,
             crocomireBg2Frames, torizoInstructionVram, ceresEscapeTiles,
-            ceresEscapeOverlay);
+            ceresEscapeOverlay, auxiliaryColors);
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {
@@ -1312,7 +1318,8 @@ public static class EnemyTileArtworkFiles
         string ZebetiteColorsSha256,
         string NorfairRidleyColorsSha256,
         string TourianStatueColorsSha256,
-        string CrocomireSkeletonSha256);
+        string CrocomireSkeletonSha256,
+        string AuxiliaryColorsSha256);
 
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

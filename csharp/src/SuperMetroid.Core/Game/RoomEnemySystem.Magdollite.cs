@@ -627,20 +627,9 @@ public sealed partial class RoomEnemySystem
             (MagdollitePaletteRomData.FrameCount - 1);
         int destination = (_magdollitePaletteBaseByteOffset >> 1) +
             MagdollitePaletteRomData.FirstAnimatedColor;
-        if (TileArtwork?.MagdollitePaletteCycle is { } installedCycle)
-        {
-            installedCycle.ApplyFrame(_cgram!, paletteFrame, destination);
-            return;
-        }
-
-        // Constructed fixtures without installed artwork still use the native
-        // source. A normal game installation always binds the extracted cycle.
-        int source = MagdollitePaletteRomData.Source +
-            (paletteFrame * MagdollitePaletteRomData.SourceColorsPerFrame +
-             MagdollitePaletteRomData.FirstAnimatedColor) * sizeof(ushort);
-        for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
-            _cgram!.SetColor(destination + color,
-                ReadWord(_bus!, source + color * sizeof(ushort)));
+        (TileArtwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
+            "Magdollite palette animation requires installed artwork."))
+            .ApplyFrame(_cgram!, paletteFrame, destination);
     }
 
     /// <summary>

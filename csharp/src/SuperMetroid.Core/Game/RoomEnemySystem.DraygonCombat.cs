@@ -130,16 +130,8 @@ public sealed partial class RoomEnemySystem
 
     private void CopyDraygonHealthColors(DraygonEnemyState state)
     {
-        if (TileArtwork?.DraygonColors is { } colors)
-        {
-            colors.ApplyHealthBand(_cgram!, state.HealthPaletteTableByteIndex);
-            return;
-        }
-        int source = DraygonColorRomData.HealthBandsSource +
-            state.HealthPaletteTableByteIndex *
-                DraygonColorRomData.HealthBandColorCount;
-        for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
-            _cgram!.SetColor(DraygonColorRomData.HealthDestination + color,
-                ReadWord(_bus!, source + color * sizeof(ushort)));
+        (TileArtwork?.DraygonColors ?? throw new InvalidDataException(
+            "Draygon health colors require installed artwork."))
+            .ApplyHealthBand(_cgram!, state.HealthPaletteTableByteIndex);
     }
 }

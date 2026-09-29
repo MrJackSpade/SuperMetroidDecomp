@@ -144,16 +144,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void InitializeN00bTubeCracks()
     {
-        if (TileArtwork?.ChozoAndTubeColors is { } colors)
-        {
-            colors.ApplyTubeCracks(_cgram!);
-            return;
-        }
-        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-            _cgram!.SetColor(
-                ChozoAndTubeColorRomData.Destination + color,
-                ReadWord(_bus!, ChozoAndTubeColorRomData.TubeCracksSource +
-                    color * sizeof(ushort)));
+        (TileArtwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
+            "Tube crack colors require installed artwork.")).ApplyTubeCracks(_cgram!);
     }
 
     /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
@@ -207,18 +199,10 @@ public sealed partial class RoomEnemySystem
 
     private void LoadChozoStatuePalette(bool wreckedShip)
     {
-        if (TileArtwork?.ChozoAndTubeColors is { } colors)
-        {
-            if (wreckedShip) colors.ApplyWreckedShip(_cgram!);
-            else colors.ApplyLowerNorfair(_cgram!);
-            return;
-        }
-        int source = wreckedShip
-            ? ChozoAndTubeColorRomData.WreckedShipSource
-            : ChozoAndTubeColorRomData.LowerNorfairSource;
-        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-            _cgram!.SetColor(ChozoAndTubeColorRomData.Destination + color,
-                ReadWord(_bus!, source + color * sizeof(ushort)));
+        var colors = TileArtwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
+            "Chozo statue colors require installed artwork.");
+        if (wreckedShip) colors.ApplyWreckedShip(_cgram!);
+        else colors.ApplyLowerNorfair(_cgram!);
     }
 
     /// <summary>

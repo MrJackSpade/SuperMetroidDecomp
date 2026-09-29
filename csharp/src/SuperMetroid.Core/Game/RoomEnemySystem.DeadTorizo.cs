@@ -14,7 +14,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadTorizoPreRotFunction = 0xd3c8;
     private const ushort DeadTorizoRottingFunction = 0xd3e6;
     private const ushort DeadTorizoNoOperationFunction = 0xd3c7;
-    private const ushort DeadTorizoHitbox = 0xd77c;
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
     private const int DeadTorizoWorkBufferSize = 0x1000;
     private const int DeadTorizoSandBufferAddress = 0x7e9500;
@@ -203,26 +202,22 @@ public sealed partial class RoomEnemySystem
             TriggerDeadTorizoRotting(slot);
     }
 
-    private bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
+    private static bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
     {
         SamusKinematicsState kinematics = samus.Kinematics;
-        int cursor = 0xa90000 | DeadTorizoHitbox;
-        ushort hitboxCount = ReadWord(_bus!, cursor);
-        cursor += 2;
-
-        for (int hitboxIndex = 0; hitboxIndex < hitboxCount; hitboxIndex++, cursor += 8)
+        foreach (DeadCorpseTouchHitbox hitbox in DeadMonsterRottingDefinitions.TorizoTouchHitboxes)
         {
             ushort verticalDistance;
             ushort verticalRadius;
             if (unchecked((short)(kinematics.YPosition - slot.YPosition)) >= 0)
             {
                 verticalDistance = unchecked((ushort)(kinematics.YPosition - slot.YPosition));
-                verticalRadius = ReadWord(_bus!, cursor + 6);
+                verticalRadius = hitbox.Bottom;
             }
             else
             {
                 verticalDistance = unchecked((ushort)(slot.YPosition - kinematics.YPosition));
-                verticalRadius = ReadWord(_bus!, cursor + 2);
+                verticalRadius = hitbox.Top;
             }
 
             ushort verticalOverlap = unchecked((ushort)(
@@ -235,12 +230,12 @@ public sealed partial class RoomEnemySystem
             if (unchecked((short)(kinematics.XPosition - slot.XPosition)) >= 0)
             {
                 horizontalDistance = unchecked((ushort)(kinematics.XPosition - slot.XPosition));
-                horizontalRadius = ReadWord(_bus!, cursor + 4);
+                horizontalRadius = hitbox.Right;
             }
             else
             {
                 horizontalDistance = unchecked((ushort)(slot.XPosition - kinematics.XPosition));
-                horizontalRadius = ReadWord(_bus!, cursor);
+                horizontalRadius = hitbox.Left;
             }
 
             short overlap = unchecked((short)(
@@ -299,10 +294,8 @@ public sealed partial class RoomEnemySystem
         ushort yOffset,
         bool move)
     {
-        int rotationEntryAddress = 0xa90000 |
-            unchecked((ushort)(state.RotationTablePointer + (yOffset >> 3) * 2));
         ushort sourceOffset = unchecked((ushort)(
-            ReadWord(_bus!, rotationEntryAddress) + (yOffset & 7) * 2));
+            DeadMonsterRottingDefinitions.RotationOffset(state.RotationTablePointer, yOffset) + (yOffset & 7) * 2));
         ushort destinationOffset = (yOffset & 7) >= 6
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
@@ -347,21 +340,15 @@ public sealed partial class RoomEnemySystem
     private void CopyDeadTorizoSandLine(ushort lineIndex)
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
-        ushort destinationOffset = ReadWord(
-            _bus!,
-            0xa9d67c + lineIndex * 2);
-        ushort sourceOffset = ReadWord(
-            _bus!,
-            0xa9d69c + lineIndex * 2);
+        ushort destinationOffset = DeadMonsterRottingDefinitions.SandDestination(lineIndex);
+        ushort sourceOffset = DeadMonsterRottingDefinitions.SandSource(lineIndex);
 
         // Eighteen tile rows are sixteen bytes apart in both the source sheet and the WRAM
         // heap surface. Only the first 16-bit bitplane word of each row is replaced.
         for (int row = 0; row < 18; row++)
         {
             int tileOffset = sourceOffset + row * 16;
-            ushort value = installedTiles.IsEmpty
-                ? ReadWord(_bus!, DeadTorizoArtworkDefinitions.SourceAddress + tileOffset)
-                : BinaryPrimitives.ReadUInt16LittleEndian(installedTiles.Slice(tileOffset, 2));
+            ushort value = BinaryPrimitives.ReadUInt16LittleEndian(installedTiles.Slice(tileOffset, 2));
             WriteWord(
                 _bus!,
                 DeadTorizoSandBufferAddress + destinationOffset + row * 16,
@@ -392,47 +379,11 @@ public sealed partial class RoomEnemySystem
     private void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
         state.VramTransferPhase = unchecked((ushort)(state.VramTransferPhase + 1));
-        if (TileArtwork?.Spritemaps is not null)
-        {
-            // The descriptor table is immutable cartridge control, while its
-            // $7E sources are the live corpse/sand staging buffers. Keep the
-            // native queue entries so the later DMA still reads current WRAM.
-            foreach (DeadTorizoVramTransferDefinition record in
-                     DeadTorizoVramTransferDefinitions.ForPhase(state.VramTransferPhase))
-            {
-                _deadTorizoFrameVramTransfers.Add(new VramWriteEntry(
-                    record.SizeInBytes, record.SourceAddress,
-                    record.EncodedVramDestination));
-            }
-            return;
-        }
-
-        // Constructed no-art fixtures may provide their own bank-$A9 table.
-        ushort cursor = (state.VramTransferPhase & 1) != 0
-            ? DeadTorizoVramTransferDefinitions.OddTable
-            : DeadTorizoVramTransferDefinitions.EvenTable;
-
-        for (int recordIndex = 0;
-             recordIndex < DeadTorizoVramTransferDefinitions.MaximumNativeRecords;
-             recordIndex++, cursor += DeadTorizoVramTransferDefinitions.RecordByteCount)
-        {
-            int address = 0xa90000 | cursor;
-            ushort size = ReadWord(_bus!, address);
-            if (size == 0)
-                return;
-
-            ushort sourceBankWord = ReadWord(_bus!, address + 2);
-            ushort sourceOffset = ReadWord(_bus!, address + 4);
-            ushort vramDestination = ReadWord(_bus!, address + 6);
-            int sourceAddress = ((sourceBankWord & 0xff00) << 8) | sourceOffset;
+        // Immutable descriptors point at live WRAM corpse/sand staging surfaces.
+        foreach (DeadTorizoVramTransferDefinition record in
+                 DeadTorizoVramTransferDefinitions.ForPhase(state.VramTransferPhase))
             _deadTorizoFrameVramTransfers.Add(new VramWriteEntry(
-                size,
-                sourceAddress,
-                vramDestination));
-        }
-
-        throw new InvalidDataException(
-            $"Dead Torizo VRAM table $A9:{cursor:X4} has no zero-size terminator.");
+                record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
     private void QueueDeadTorizoFrameVramTransfers(VramWriteQueue? queue)
@@ -477,7 +428,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadWorkWord(int wordOffset) =>
-        ReadWord(_bus!, DeadTorizoWorkBufferAddress + wordOffset * 2);
+        SnesWorkRam.ReadWord(EnemyWorkMemory, DeadTorizoWorkBufferAddress + wordOffset * 2);
 
     private void WriteWorkWord(int wordOffset, ushort value) =>
         WriteWord(_bus!, DeadTorizoWorkBufferAddress + wordOffset * 2, value);

@@ -364,13 +364,14 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.PaletteFrameCounter = 0;
-        ushort sourcePointer = unchecked((ushort)(
-            32 * (state.PaletteStage - 1) - 0x1434));
+        var colors = TileArtwork?.AuxiliaryColors ?? throw new InvalidDataException(
+            "Dead-sidehopper palette transformation requires installed artwork.");
         for (int color = 0; color < 15; color++)
         {
             _cgram!.SetColor(
                 0x91 + color,
-                ReadWord(_bus!, 0xa90000 | unchecked((ushort)(sourcePointer + color * 2))));
+                colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.DeadSidehopper,
+                    state.PaletteStage - 1, color));
         }
 
         state.PaletteStage = unchecked((ushort)(state.PaletteStage + 1));
@@ -507,10 +508,8 @@ public sealed partial class RoomEnemySystem
         ushort yOffset,
         bool move)
     {
-        int rotationEntryAddress = 0xa90000 |
-            unchecked((ushort)(state.RotationTablePointer + (yOffset >> 3) * 2));
         ushort sourceOffset = unchecked((ushort)(
-            ReadWord(_bus!, rotationEntryAddress) + (yOffset & 7) * 2));
+            DeadMonsterRottingDefinitions.RotationOffset(state.RotationTablePointer, yOffset) + (yOffset & 7) * 2));
         ushort destinationOffset = (yOffset & 7) >= 6
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
@@ -561,29 +560,8 @@ public sealed partial class RoomEnemySystem
             LastDeadSidehopperSoundEffect = 0x0010;
     }
 
-    private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state)
-    {
-        ushort cursor = state.VramTablePointer;
-        for (int recordIndex = 0; recordIndex < 64; recordIndex++, cursor += 8)
-        {
-            int address = 0xa90000 | cursor;
-            ushort size = ReadWord(_bus!, address);
-            if (size == 0)
-                return;
-
-            ushort sourceBankWord = ReadWord(_bus!, address + 2);
-            ushort sourceOffset = ReadWord(_bus!, address + 4);
-            ushort vramDestination = ReadWord(_bus!, address + 6);
-            int sourceAddress = ((sourceBankWord & 0xff00) << 8) | sourceOffset;
-            _deadSidehopperFrameVramTransfers.Add(new VramWriteEntry(
-                size,
-                sourceAddress,
-                vramDestination));
-        }
-
-        throw new InvalidDataException(
-            $"Dead sidehopper VRAM table $A9:{state.VramTablePointer:X4} has no terminator.");
-    }
+    private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state) =>
+        AppendDeadMonsterVramTransfers(state.VramTablePointer);
 
     private void QueueDeadSidehopperFrameVramTransfers(VramWriteQueue? queue)
     {
@@ -616,7 +594,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadDeadMonsterWorkWord(int wordOffset) =>
-        ReadWord(_bus!, DeadMonsterWorkBufferAddress + wordOffset * 2);
+        SnesWorkRam.ReadWord(EnemyWorkMemory, DeadMonsterWorkBufferAddress + wordOffset * 2);
 
     private void WriteDeadMonsterWorkWord(int wordOffset, ushort value) =>
         WriteWord(_bus!, DeadMonsterWorkBufferAddress + wordOffset * 2, value);

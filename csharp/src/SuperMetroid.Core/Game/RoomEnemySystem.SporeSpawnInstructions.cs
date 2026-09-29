@@ -106,10 +106,8 @@ public sealed partial class RoomEnemySystem
         {
             _cgram!.SetColor(
                 SporeSpawnColorRomData.SpriteDestination + color,
-                TileArtwork?.SporeSpawnColors is { } colors
-                    ? colors.ResolveHealth(frame, color)
-                    : ReadWord(_bus!, SporeSpawnColorRomData.HealthSource +
-                        sourceByteOffset + color * sizeof(ushort)));
+                (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
+                    "Spore Spawn health palette requires installed artwork.")).ResolveHealth(frame, color));
         }
     }
 
@@ -147,10 +145,8 @@ public sealed partial class RoomEnemySystem
         int destination = SporeSpawnColorRomData.DeathDestination(layer);
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            ushort value = TileArtwork?.SporeSpawnColors is { } colors
-                ? colors.ResolveDeath(layer, frame, color)
-                : ReadWord(_bus!, SporeSpawnColorRomData.DeathSource(layer) +
-                    sourceByteOffset + color * sizeof(ushort));
+            ushort value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
+                "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);
             if (targetOnly)
                 state.WriteTargetColor(destination + color, value);
             else

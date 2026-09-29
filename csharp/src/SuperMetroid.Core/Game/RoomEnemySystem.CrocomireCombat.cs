@@ -155,23 +155,8 @@ public sealed partial class RoomEnemySystem
     /// Selects the fully-open/part-open/closed reaction list by scanning the ordinary
     /// spritemap pointers embedded in the current extended map, exactly as $A4:B9D8 does.
     /// </summary>
-    private ushort SelectCrocomirePowerBombInstructionList(RoomEnemySlot body)
-    {
-        if ((body.SpritemapPointer & 0x8000) == 0)
-            return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen;
-
-        int map = (body.Definition.Bank << 16) | body.SpritemapPointer;
-        int count = ReadWord(_bus!, map);
-        for (int component = 0; component < count; component++)
-        {
-            ushort ordinarySpritemap = ReadWord(
-                _bus!,
-                map + 6 + component * 8);
-            if (ordinarySpritemap == 0xd600)
-                return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthFullyOpen;
-            if (ordinarySpritemap == 0xd51c)
-                return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthPartiallyOpen;
-        }
-        return CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen;
-    }
+    private static ushort SelectCrocomirePowerBombInstructionList(RoomEnemySlot body) =>
+        (body.SpritemapPointer & 0x8000) == 0
+            ? CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen
+            : CrocomirePowerBombReactionDefinitions.ForFrame(body.SpritemapPointer);
 }

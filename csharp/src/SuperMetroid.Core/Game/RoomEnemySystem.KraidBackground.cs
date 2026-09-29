@@ -79,9 +79,9 @@ public sealed partial class RoomEnemySystem
     private void TransferKraidHeadTilemap(KraidEnemyState state, ushort sourcePointer)
     {
         Span<ushort> working = state.BackgroundTilemapWords;
-        if (TileArtwork is not null && sourcePointer >= KraidBackgroundRomData.HeadRomWindowStart)
+        if (sourcePointer >= KraidBackgroundRomData.HeadRomWindowStart)
         {
-            KraidBackgroundArtwork art = TileArtwork.KraidBackground
+            KraidBackgroundArtwork art = TileArtwork?.KraidBackground
                 ?? throw new InvalidDataException("Installed enemy artwork has no Kraid BG2 tilemaps.");
             art.HeadWords(sourcePointer).CopyTo(working);
         }
@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
             // head art. Preserve that exceptional cartridge behavior exactly.
             int sourceAddress = KraidBackgroundRomData.NativeBank | sourcePointer;
             for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
-                working[word] = ReadWord(_bus!, sourceAddress + word * 2);
+                working[word] = SnesWorkRam.ReadWord(EnemyWorkMemory, sourceAddress + word * 2);
         }
         _vram!.ExecuteWordTransfer(
             working[..KraidBackgroundRomData.HeadTilemapWords],

@@ -9,13 +9,9 @@ public sealed partial class RoomEnemySystem
     {
         if ((uint)index >= KraidPaletteRomData.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
-        if (TileArtwork is not null)
-        {
-            KraidColorCatalog colors = TileArtwork.KraidColors ?? throw new InvalidDataException(
-                "Installed enemy artwork has no Kraid RGB5 palette catalog.");
-            return colors.Resolve(source, index);
-        }
-        return ReadWord(_bus!, KraidPaletteRomData.SourceAddress(source) + index * sizeof(ushort));
+        KraidColorCatalog colors = TileArtwork?.KraidColors ?? throw new InvalidDataException(
+            "Installed enemy artwork has no Kraid RGB5 palette catalog.");
+        return colors.Resolve(source, index);
     }
 
     private void LoadKraidColorBand(KraidPaletteSource source, int cgramDestination)

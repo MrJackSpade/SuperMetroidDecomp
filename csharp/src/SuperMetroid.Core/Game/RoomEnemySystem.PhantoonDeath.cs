@@ -218,9 +218,8 @@ public sealed partial class RoomEnemySystem
         for (int color = 0; color < 112; color++)
         {
             ushort current = _cgram!.Colors[color];
-            ushort target = TileArtwork?.PhantoonColors?.ResolvePowerOn(color) ??
-                ReadWord(_bus!, PhantoonColorRomData.PowerOnSource +
-                    color * sizeof(ushort));
+            ushort target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
+                "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(color);
             _cgram.SetColor(
                 color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));

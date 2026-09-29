@@ -304,15 +304,15 @@ public sealed partial class RoomEnemySystem
     private void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
         bool white = body.FlashTimer != 0 && (_randomEnemyCounter & 2) != 0;
-        if (!white && TileArtwork?.CrocomireColors is { } colors)
+        if (!white)
         {
-            colors.ApplyFightBody(_cgram!);
+            (TileArtwork?.CrocomireColors ?? throw new InvalidDataException(
+                "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_cgram!);
             return;
         }
         for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
             _cgram!.SetColor(CrocomirePaletteRomData.FightBodyDestination + color,
-                white ? (ushort)0x7fff : ReadWord(_bus!,
-                    CrocomirePaletteRomData.FightBodySource + color * sizeof(ushort)));
+                (ushort)0x7fff);
     }
 
     private static void InstallCrocomireInstructionList(RoomEnemySlot slot, ushort pointer)

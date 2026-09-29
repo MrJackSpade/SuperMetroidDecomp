@@ -212,14 +212,14 @@ public sealed partial class RoomEnemySystem
             return;
 
         _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
-        int source = BlueBrinstarFaceBlockPaletteTable +
-            (_blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1)) *
-            BlueBrinstarFaceBlockAnimatedColorCount * 2;
+        int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
+        var colors = TileArtwork?.AuxiliaryColors ?? throw new InvalidDataException(
+            "Face-block palette animation requires installed artwork.");
         for (int color = 0; color < BlueBrinstarFaceBlockAnimatedColorCount; color++)
         {
             _cgram!.SetColor(
                 _blueBrinstarFaceBlockPaletteDestination + color,
-                ReadWord(_bus!, source + color * 2));
+                colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.FaceBlock, frame, color));
         }
 
         // Native masks only the low byte after incrementing. Because the value is already

@@ -221,9 +221,8 @@ public sealed partial class RoomEnemySystem
     {
         for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
         {
-            ushort value = TileArtwork?.ShitroidColors is { } colors
-                ? colors.TargetColor(target, color)
-                : ReadWord(_bus!, sourceAddress + color * sizeof(ushort));
+            ushort value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
+                "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
             state.MutableTargetPalette[destinationColor + color] = value;
 
             // This runtime currently presents completed room fades directly in CGRAM.
@@ -916,13 +915,10 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        int source = ShitroidColorRomData.NormalCycle +
-            phase * ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort);
         for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
         {
-            ushort value = TileArtwork?.ShitroidColors is { } colors
-                ? colors.NormalColor(phase, color)
-                : ReadWord(_bus!, source + color * sizeof(ushort));
+            ushort value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
+                "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
             _cgram!.SetColor(165 + color, value);
         }
     }

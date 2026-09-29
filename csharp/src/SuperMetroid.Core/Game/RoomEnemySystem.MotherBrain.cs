@@ -644,18 +644,16 @@ public sealed partial class RoomEnemySystem
             case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib2_Max6:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
-                state.LastSoundEffect = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                state.LastSoundEffect = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
             case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib3_Max6:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
-                state.LastSoundEffectLibrary3 = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                state.LastSoundEffectLibrary3 = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                    unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
@@ -785,9 +783,8 @@ public sealed partial class RoomEnemySystem
             case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnBombProjectileWithParamX:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
-                ushort afterburnCount = ReadWord(
-                    _bus!,
-                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                ushort afterburnCount = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
+                    unchecked((ushort)(cursor + 2)));
                 SpawnMotherBrainBomb(state, afterburnCount);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;

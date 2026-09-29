@@ -29,6 +29,11 @@ try
 VerifyRuntimeAddressSpaceHasNoCartridgeApi();
 VerifyDebuggerVersionCompatibility();
 VerifyCpuOperandOpenBus();
+if (args is ["--enemy-definition-boundary", string enemyDefinitionRom])
+{
+    VerifyEnemyDefinitionBoundary(enemyDefinitionRom);
+    return 0;
+}
 if (args is ["--normal-suit-catalog-boundary"])
 {
     VerifyNormalSuitCatalogBoundary();

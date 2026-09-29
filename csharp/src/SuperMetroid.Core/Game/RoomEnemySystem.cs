@@ -945,49 +945,9 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                // Extended spritemaps begin with a low-byte component count followed by
-                // eight-byte {X,Y,spritemap,hitbox} records. Steam uses one component, but
-                // retaining the native list format is necessary for bosses and composite
-                // enemies that share this bank-$A0 draw path.
-                int extendedAddress = (slot.Definition.Bank << 16) | slot.SpritemapPointer;
-                int componentCount = ReadEnemySourceByte(_bus!, extendedAddress);
-                ushort componentPointer = unchecked((ushort)(slot.SpritemapPointer + 2));
-                for (int component = 0; component < componentCount; component++)
-                {
-                    int componentAddress = (slot.Definition.Bank << 16) | componentPointer;
-                    ushort componentX = unchecked((ushort)(originX + ReadWord(_bus!, componentAddress)));
-                    ushort componentY = unchecked((ushort)(originY + ReadWord(_bus!, AddWithinBank(componentAddress, 2))));
-                    ushort ordinarySpritemap = ReadWord(_bus!, AddWithinBank(componentAddress, 4));
-
-                    // $FFFE names ProcessExtendedTilemap's command stream. Extra-property
-                    // $8000 is the native producer gate: Crocomire clears it while sinking
-                    // so the last BG2 image can be erased row-by-row without being restored
-                    // by the still-current extended spritemap on every draw pass.
-                    ushort componentMarker = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | ordinarySpritemap);
-                    if (componentMarker == 0xfffe)
-                    {
-                        if (slot.ExtraProperties.HasAny(
-                            EnemyExtraProperties.NewInstructionFrame))
-                            ProcessExtendedEnemyBg2Tilemap(slot.Definition.Bank, ordinarySpritemap);
-                    }
-                    else if (
-                        ((componentX + 128) & 0xfe00) == 0 &&
-                        ((componentY + 128) & 0xfe00) == 0)
-                    {
-                        DrawEnemySpritemap(oam, slot.Definition.Bank,
-                            ordinarySpritemap,
-                            componentX,
-                            componentY,
-                            drawPaletteIndex,
-                            slot.VramTilesIndex,
-                            clipVerticalWrap: true,
-                            originYIsOnScreen: (componentY >> 8) == 0);
-                    }
-
-                    componentPointer = unchecked((ushort)(componentPointer + 8));
-                }
+                throw new InvalidDataException(
+                    $"Enemy ${slot.EnemyDefinitionPointer:X4} extended frame " +
+                    $"${slot.Definition.Bank:X2}:{slot.SpritemapPointer:X4} has no installed presentation.");
             }
 
             // EnemyGraphicsDrawnHook runs after the complete ordinary enemy queue. Mother
@@ -1055,7 +1015,7 @@ public sealed partial class RoomEnemySystem
 
             ushort vramDestination = source.VramDestination;
             // Retail enemy headers are immutable gameplay definitions. Graphics uploads
-            // still use the selected extracted artwork (or diagnostic ROM fallback), but
+            // use the selected extracted artwork, but
             // the header itself must not be re-read from the cartridge on room entry.
             RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(bus, definitionPointer);
 
@@ -1080,16 +1040,7 @@ public sealed partial class RoomEnemySystem
                     $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
             }
 
-            if (TileArtwork is { } installed)
-                installed.LoadTo(definitionPointer, byteCount, vram, vramByteOffset);
-            else
-            {
-                var tileBytes = new byte[byteCount];
-                for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                    tileBytes[byteIndex] = ReadEnemySourceByte(bus,
-                        AddWithinBank(definition.TileDataAddress, byteIndex));
-                vram.LoadBytes(vramByteOffset, tileBytes);
-            }
+            TileArtwork!.LoadTo(definitionPointer, byteCount, vram, vramByteOffset);
 
             _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,
@@ -2594,6 +2545,8 @@ public sealed partial class RoomEnemySystem
             $"Enemy sprite ${bank:X2}:{pointer:X4} requires an installed display composition.");
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "The instance interpreter selector is a reflection seam for existing focused fixtures.")]
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
         if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
@@ -2617,40 +2570,12 @@ public sealed partial class RoomEnemySystem
         if (EnemySpritemapDefinitions.TryFrameAt(
                 slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
             return frame;
-        // A complete installed enemy presentation carries the fixed selector catalog
-        // for every authored instruction frame. Constructed/native fixtures without it
-        // retain their live bus operands so mutable diagnostic streams still work.
-        if (TileArtwork?.Spritemaps is not null)
-        {
-            if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
-                    operandAddress, out ushort installedSelector))
-                return installedSelector;
-            if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
-            {
-                // The later combat lists have not yet been extracted. Stock
-                // cartridge-backed play must use their real selector words until
-                // both the selected art and mechanics have installed owners.
-                return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
-            }
-            throw new InvalidDataException(
-                $"Installed enemy ${slot.EnemyDefinitionPointer:X4} has no compiled visual selector " +
-                $"${slot.Definition.Bank:X2}:{operandAddress:X4}.");
-        }
-        // Space Pirate frame operands are fixed definitions. Keep
-        // the selected spritemap payload on the ordinary artwork path below;
-        // only this instruction-stream pointer read has been compiled.
-        if (IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer) ||
-            IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer) ||
-            IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer))
-        {
-            if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
-                    operandAddress, out ushort selected))
-                return selected;
-            throw new InvalidDataException(
-                $"Space Pirate has no compiled visual selector " +
-                $"${slot.Definition.Bank:X2}:{operandAddress:X4}.");
-        }
-        return ReadWord(_bus!, (slot.Definition.Bank << 16) | operandAddress);
+        if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
+                operandAddress, out ushort selected))
+            return selected;
+        throw new InvalidDataException(
+            $"Enemy ${slot.EnemyDefinitionPointer:X4} has no compiled visual selector " +
+            $"${slot.Definition.Bank:X2}:${operandAddress:X4}.");
     }
 
     private void ProcessInstructions(
@@ -3646,48 +3571,29 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>
     /// Applies the bank-$A0 common $814B command. Installed Torizo tile art
-    /// resolves by the compiled descriptor; cartridge-backed diagnostics and
-    /// other enemy families retain the native packed-descriptor reader.
+    /// resolves by its compiled descriptor. Unknown transfers cannot fall back
+    /// to an address-based cartridge decoder.
     /// </summary>
     private void ApplyEnemyInstructionVramTransfer(RoomEnemySlot slot,
         ushort instruction)
     {
-        if (TileArtwork is { } installed &&
-            slot.EnemyDefinitionPointer is
-                BombTorizoDefinition or GoldenTorizoDefinition)
-        {
-            if (!TorizoInstructionVramTransferDefinitions.TryGet(
-                    instruction, out TorizoInstructionVramTransferDefinition transfer))
-                throw new InvalidDataException(
-                    $"Torizo tile transfer $AA:{instruction:X4} has no compiled descriptor.");
-            if (installed.TorizoInstructionVram is null ||
-                !installed.TorizoInstructionVram.TryResolve(
-                    transfer.SourceAddress, transfer.ByteCount,
-                    out ReadOnlyMemory<byte> characters))
-                throw new InvalidDataException(
-                    $"Torizo tile transfer $AA:{instruction:X4} has no installed art.");
-            _vram!.LoadBytes(transfer.DestinationWord * 2, characters.Span);
-            return;
-        }
-
-        int descriptor = (slot.Definition.Bank << 16) |
-            unchecked((ushort)(instruction + 2));
-        ushort byteCount = ReadWord(_bus!, descriptor);
-        int sourceAddress = ReadEnemySourceByte(_bus!, descriptor + 2) |
-            (ReadEnemySourceByte(_bus!, descriptor + 3) << 8) |
-            (ReadEnemySourceByte(_bus!, descriptor + 4) << 16);
-        ushort vramDestination = unchecked((ushort)(
-            ReadEnemySourceByte(_bus!, descriptor + 5) |
-            (ReadEnemySourceByte(_bus!, descriptor + 6) << 8)));
-        var bytes = new byte[byteCount];
-        for (int byteIndex = 0; byteIndex < bytes.Length; byteIndex++)
-            bytes[byteIndex] = ReadEnemySourceByte(_bus!, sourceAddress + byteIndex);
-        _vram!.LoadBytes(vramDestination * 2, bytes);
+        if (slot.EnemyDefinitionPointer is not (BombTorizoDefinition or GoldenTorizoDefinition) ||
+            !TorizoInstructionVramTransferDefinitions.TryGet(
+                instruction, out TorizoInstructionVramTransferDefinition transfer))
+            throw new InvalidDataException(
+                $"Enemy tile transfer ${slot.Definition.Bank:X2}:${instruction:X4} has no compiled descriptor.");
+        var installed = TileArtwork?.TorizoInstructionVram ?? throw new InvalidDataException(
+            "Torizo instruction-time tile transfers require installed artwork.");
+        if (!installed.TryResolve(transfer.SourceAddress, transfer.ByteCount,
+                out ReadOnlyMemory<byte> characters))
+            throw new InvalidDataException(
+                $"Torizo tile transfer $AA:${instruction:X4} has no installed art.");
+        _vram!.LoadBytes(transfer.DestinationWord * 2, characters.Span);
     }
 
     /// <summary>
-    /// Resolves simulation-owned enemy instruction words from compiled definitions while
-    /// leaving frame spritemap operands on their explicit cartridge read path.
+    /// Resolves simulation-owned enemy instruction words from compiled definitions.
+    /// Presentation selectors resolve separately to installed artwork identities.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Performance",
@@ -3695,79 +3601,8 @@ public sealed partial class RoomEnemySystem
         Justification = "The instance interpreter owns this dispatcher and tests replace it by reflection.")]
     private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        // Initial, wake-up, and both walking directions have bounded owners;
-        // other combat lists still use the cartridge until migrated.
-        if (slot.EnemyDefinitionPointer == BombTorizoDefinition &&
-            BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort dormantWord))
-            return dormantWord;
-        if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
-            TorizoJumpBackInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort sharedJumpBackWord))
-            return sharedJumpBackWord;
-        if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
-            TorizoJumpBackLeftInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort sharedLeftJumpBackWord))
-            return sharedLeftJumpBackWord;
-        if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
-            TorizoFallingLeftInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort fallingLeftWord))
-            return fallingLeftWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoJumpLandingInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenJumpLandingWord))
-            return goldenJumpLandingWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoRightOrbInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenRightOrbWord))
-            return goldenRightOrbWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoLeftOrbInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenLeftOrbWord))
-            return goldenLeftOrbWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoLeftFootOrbInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenLeftFootOrbWord))
-            return goldenLeftFootOrbWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoRightSonicInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenRightSonicWord))
-            return goldenRightSonicWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenEyeBeamAttackWord))
-            return goldenEyeBeamAttackWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoStunnedInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenStunnedWord))
-            return goldenStunnedWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoLeftTurnInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenLeftTurnWord))
-            return goldenLeftTurnWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenInitialWord))
-            return goldenInitialWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoAwakeningInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenAwakeningWord))
-            return goldenAwakeningWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoWalkingInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenWalkingWord))
-            return goldenWalkingWord;
-        if (slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
-            GoldenTorizoRightwardInstructionProgramDefinitions.TryReadMechanicsWord(
-                address, out ushort goldenRightwardWord))
-            return goldenRightwardWord;
         if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
-        {
-            // The cartridge-backed host must remain playable while the other Torizo
-            // lists are migrated. A zero-ROM installation still fails at this exact
-            // source read, keeping the missing owner visible to ROM-free verification.
-            return ReadWord(_bus!, (slot.Definition.Bank << 16) | address);
-        }
+            return TorizoInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer is
             GunshipEnemyDefinitions.Top or
@@ -4203,46 +4038,14 @@ public sealed partial class RoomEnemySystem
         if (definition.NamePointer == 0)
             return default;
 
-        // Constructed verifier buses deliberately retain their own name-record bytes.
-        // Retail loads use the compiled engine definition and never read bank-$B4 here.
-        if (_bus is not IRoomEnemyFixtureSource)
-            return RoomEnemySpawnNameDefinitions.Get(definition.NamePointer);
-
-        int address = RoomEnemyRomLayout.TilesetBank | definition.NamePointer;
-        return new RoomEnemySpawnNameWords(
-            ReadWord(_bus!, address),
-            ReadWord(_bus!, AddWithinBank(address, 2)),
-            ReadWord(_bus!, AddWithinBank(address, 4)),
-            ReadWord(_bus!, AddWithinBank(address, 6)),
-            ReadWord(_bus!, AddWithinBank(address, 8)),
-            ReadWord(_bus!, AddWithinBank(address, 12)));
+        return _bus is IRoomEnemyFixtureSource fixture
+            ? fixture.ReadEnemySpawnNameWords(definition.NamePointer)
+            : RoomEnemySpawnNameDefinitions.Get(definition.NamePointer);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(ReadEnemySourceByte(bus, address) |
-            (ReadEnemySourceByte(bus, AddWithinBank(address, 1)) << 8));
-
-    private static int ReadLong(ISnesAddressSpace bus, int address) =>
-        ReadEnemySourceByte(bus, address) |
-        (ReadEnemySourceByte(bus, AddWithinBank(address, 1)) << 8) |
-        (ReadEnemySourceByte(bus, AddWithinBank(address, 2)) << 16);
-
-    private static byte ReadEnemySourceByte(ISnesAddressSpace bus, int address) =>
-        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
-        {
-            SnesDmaSourceKind.WorkRam =>
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "Enemy data in a WRAM window requires mutable memory."))
-                .ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam =>
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "Enemy data in an SRAM window requires mutable memory."))
-                .ReadSaveRamByte(address),
-            SnesDmaSourceKind.Cartridge => throw new InvalidDataException(
-                $"Enemy data ${address:X6} has no compiled definition."),
-            _ => throw new InvalidDataException(
-                $"Enemy data read ${address:X6} is outside mapped cartridge/WRAM/SRAM data."),
-        };
-
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
+
+    /// <summary>Live enemy staging memory; no cartridge reader can satisfy this dependency.</summary>
+    private ISnesMutableMemory EnemyWorkMemory => _bus as ISnesMutableMemory
+        ?? throw new InvalidOperationException("Enemy staging requires live WRAM.");
 }

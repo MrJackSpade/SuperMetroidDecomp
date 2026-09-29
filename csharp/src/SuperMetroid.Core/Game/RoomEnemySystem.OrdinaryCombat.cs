@@ -3027,94 +3027,15 @@ public sealed partial class RoomEnemySystem
         }
 
         if (enemy.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
-            enemy.Definition.Bank == BombTorizoDormantFrameDefinitions.Bank &&
-            enemy.SpritemapPointer == BombTorizoDormantFrameDefinitions.Frame)
+            enemy.Definition.Bank == TorizoCollisionDefinitions.Bank)
         {
-            // The shared initial extended frame has one visual component, but
-            // its $AA:87C7 hitbox list is empty. Do not read the art payload
-            // or invent a touch/shot callback for a dormant boss.
-            return false;
-        }
-
-        if ((enemy.EnemyDefinitionPointer == GoldenTorizoDefinition ||
-             (enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
-              enemy.SpritemapPointer == TorizoFallingLeftCollisionDefinitions.Frame)) &&
-            enemy.Definition.Bank == GoldenTorizoAwakeningCollisionDefinitions.Bank &&
-            (GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out var goldenComponents) ||
-             GoldenTorizoWalkingCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             GoldenTorizoRightwardCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             TorizoJumpBackCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             TorizoJumpBackLeftCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             GoldenTorizoRightOrbCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             GoldenTorizoLeftOrbCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             GoldenTorizoLeftFootOrbCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             GoldenTorizoRightSonicCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents) ||
-             TorizoFallingLeftCollisionDefinitions.TryGetComponents(
-                 enemy.SpritemapPointer, out goldenComponents)))
-        {
-            // Keep the cartridge's component and hitbox order. Empty belly/face
-            // lists are real physical no-ops even when both art components draw.
-            bool walkingFrame = GoldenTorizoWalkingCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool rightwardFrame = GoldenTorizoRightwardCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool jumpBackFrame = TorizoJumpBackCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool leftJumpBackFrame = TorizoJumpBackLeftCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool rightOrbFrame = GoldenTorizoRightOrbCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool leftOrbFrame = GoldenTorizoLeftOrbCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool leftFootOrbFrame = GoldenTorizoLeftFootOrbCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool rightSonicFrame = GoldenTorizoRightSonicCollisionDefinitions.HasFrame(
-                enemy.SpritemapPointer);
-            bool fallingLeftFrame = enemy.SpritemapPointer ==
-                TorizoFallingLeftCollisionDefinitions.Frame;
-            foreach (GoldenTorizoCollisionComponent component in goldenComponents.Span)
+            foreach (GoldenTorizoCollisionComponent component in
+                     TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
                 ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
                 ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
                 foreach (GoldenTorizoCollisionHitbox hitbox in
-                         walkingFrame
-                             ? GoldenTorizoWalkingCollisionDefinitions.HitboxesAt(
-                                 component.HitboxList)
-                             : rightwardFrame
-                                 ? GoldenTorizoRightwardCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : jumpBackFrame
-                                 ? TorizoJumpBackCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : leftJumpBackFrame
-                                 ? TorizoJumpBackLeftCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : rightOrbFrame
-                                 ? GoldenTorizoRightOrbCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : leftOrbFrame
-                                 ? GoldenTorizoLeftOrbCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : leftFootOrbFrame
-                                 ? GoldenTorizoLeftFootOrbCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : rightSonicFrame
-                                 ? GoldenTorizoRightSonicCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : fallingLeftFrame
-                                 ? TorizoFallingLeftCollisionDefinitions.HitboxesAt(
-                                     component.HitboxList)
-                             : GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(
-                                 component.HitboxList))
+                         TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));

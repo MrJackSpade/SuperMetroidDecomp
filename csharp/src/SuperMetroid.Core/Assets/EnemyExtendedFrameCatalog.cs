@@ -88,6 +88,9 @@ public sealed class EnemyExtendedFrameCatalog
         }
         int expectedCount = document.Version switch
         {
+            EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
+                when stockForLegacyOverride is not null =>
+                EnemyExtendedFrameDefinitions.PreCompleteTorizoFrameCount,
             EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
                 when stockForLegacyOverride is not null =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount,
@@ -258,7 +261,8 @@ public sealed class EnemyExtendedFrameCatalog
             or EnemyExtendedFrameDefinitions.PreTorizoFallingLeftVersion
             or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbVersion
             or EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion)
+            or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
+            or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
@@ -279,6 +283,8 @@ public sealed class EnemyExtendedFrameCatalog
 
         static bool SameFrameFamily(string left, string right)
         {
+            if (left.StartsWith("torizo_combat_", StringComparison.Ordinal))
+                return right.StartsWith("torizo_combat_", StringComparison.Ordinal);
             if (left.StartsWith("kraid_arm_oam_", StringComparison.Ordinal))
                 return right.StartsWith("kraid_arm_oam_", StringComparison.Ordinal);
             if (left.StartsWith("golden_torizo_", StringComparison.Ordinal))

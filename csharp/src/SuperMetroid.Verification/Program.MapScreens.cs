@@ -17,20 +17,19 @@ internal static partial class Program
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {
-            var native = new FileSelectAreaMapGraphics(bus, index);
+            var native = World(bus, original, index);
             var installed = World(guard, original, index);
             byte[] usedNativeVram = native.Vram.Bytes.ToArray();
-            // The world view never references the initial BG2 page. Installed
-            // maps intentionally omit it; every other byte must remain exact.
-            usedNativeVram.AsSpan(MenuPpuState.Bg2TilemapWord * 2, MapScreenDefinitions.PageBytes).Clear();
-            AssertTrue(usedNativeVram.AsSpan().SequenceEqual(installed.Vram.Bytes), "stock world resources reproduce native VRAM except the unused initial BG2 template");
+            AssertTrue(usedNativeVram.AsSpan().SequenceEqual(installed.Vram.Bytes),
+                "stock world resources reproduce native VRAM");
             foreach (bool backdropMath in new[] { false, true })
                 AssertTrue(native.RenderBackgrounds(backdropMath).AsSpan().SequenceEqual(installed.RenderBackgrounds(backdropMath)), "all six world layers preserve native additive pixels");
             installed.SelectArea((index + 1) % MapScreenDefinitions.ZebesAreas);
             installed.SelectArea(index);
             AssertTrue(native.RenderBackgrounds().AsSpan().SequenceEqual(installed.RenderBackgrounds()), "reselection reloads authored world background without ROM reads");
             var area = (AreaId)index;
-            var nativeRoom = new FileSelectRoomMapGraphics(bus, system, area);
+            var nativeRoom = new FileSelectRoomMapGraphics(bus, system, area,
+                mapPresentation: original);
             var installedRoom = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
             AssertTrue(nativeRoom.Vram.Bytes.SequenceEqual(installedRoom.Vram.Bytes), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().AsSpan().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
@@ -130,7 +129,8 @@ internal static partial class Program
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog catalog, int area) =>
-            new(addressSpace, area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork);
+            new(addressSpace, area, catalog.Tiles, catalog.Palettes, catalog.Screens,
+                catalog.WorldArtwork, catalog.Sprites);
     }
 
     private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, ISnesAddressSpace guard, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)

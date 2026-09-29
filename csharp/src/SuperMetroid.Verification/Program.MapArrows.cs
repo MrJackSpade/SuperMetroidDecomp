@@ -12,7 +12,7 @@ internal static partial class Program
     private static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new MapArrowReadGuard(bus);
-        var native = new FileSelectMapAnimations(bus);
+        var native = new FileSelectMapAnimations(bus, original.Arrows);
         var installed = new FileSelectMapAnimations(guard, original.Arrows);
         for (int tick = 0; tick < 600; tick++)
         {
@@ -55,13 +55,10 @@ internal static partial class Program
         AssertEqual(before[0], Counters(installed)[0], "shorter replacement retains pending delay");
         AssertEqual(before[1] % 2, Counters(installed)[1], "shorter replacement normalizes phase");
         installed.StepArrows(_ => true);
-        // Diagnostic unbinding must rebuild native metadata, not retain the bound
-        // branch's deliberately absent program pointer or custom coordinates.
+        // Active gameplay no longer has a cartridge fallback for unbinding.
         var rebound = new FileSelectMapAnimations(bus, edited.Arrows);
-        rebound.BindPresentation(null);
-        var unbound = new FileSelectMapAnimations(bus);
-        rebound.StepArrows(_ => true); unbound.StepArrows(_ => true);
-        AssertTrue(Draw(unbound).AsSpan().SequenceEqual(Draw(rebound)), "unbinding restores native arrow metadata");
+        AssertThrows<InvalidOperationException>(() => rebound.BindPresentation(null),
+            "unbinding arrows without installed presentation fails loudly");
         foreach (int duration in new[] { 0, 255, -1 })
         {
             entries["Left"] = entries["Left"] with { DurationTicks = [duration] };
@@ -83,9 +80,11 @@ internal static partial class Program
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Map arrows: 600 native phase/OAM ticks, guarded whole-menu transitions, editable positions/durations, restore/rebind and validation pass.");
 
-        static byte[] Draw(FileSelectMapAnimations animation)
+        byte[] Draw(FileSelectMapAnimations animation)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); animation.DrawArrows(oam); oam.FinalizeFrame();
+            var oam = new OamBuffer(); oam.BeginFrame();
+            animation.DrawArrows(oam, original.Sprites);
+            oam.FinalizeFrame();
             return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }
         static int[] Counters(FileSelectMapAnimations animation)

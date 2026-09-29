@@ -21,7 +21,12 @@ internal static partial class Program
                     if ((mask & (1 << i)) != 0) system.MarkExploredMapTile(area, rules[i].CellX, rules[i].CellY);
                 var native = new FileSelectMapIcons(system, area);
                 var installed = new FileSelectMapIcons(system, area);
+                native.BindStations(original.Stations);
+                native.BindLandmarks(original.Landmarks);
+                native.BindSprites(original.Sprites);
                 installed.BindStations(original.Stations);
+                installed.BindLandmarks(original.Landmarks);
+                installed.BindSprites(original.Sprites);
                 AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), $"station OAM stock parity {area}/{mask}");
                 combinations++;
             }
@@ -43,12 +48,19 @@ internal static partial class Program
         state.MarkExploredMapTile(AreaId.Brinstar, 10, 8); // Edited visual cell, not native discovery cell.
         var baseIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
         var editIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
+        baseIcons.BindStations(original.Stations);
+        baseIcons.BindLandmarks(original.Landmarks);
+        baseIcons.BindSprites(original.Sprites);
         editIcons.BindStations(edited.Stations);
+        editIcons.BindLandmarks(edited.Landmarks);
+        editIcons.BindSprites(edited.Sprites);
         AssertTrue(Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
         state.MarkExploredMapTile(AreaId.Brinstar, 5, 8);
         AssertTrue(!Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
-        var marker = new FileSelectStationMarker(bus, AreaId.Brinstar, 0);
-        var nativeGraphics = new FileSelectRoomMapGraphics(bus, state, AreaId.Brinstar);
+        var marker = new FileSelectStationMarker(bus, AreaId.Brinstar, 0,
+            original.SaveMarkers);
+        var nativeGraphics = new FileSelectRoomMapGraphics(bus, state, AreaId.Brinstar,
+            mapPresentation: original);
         var graphics = new FileSelectRoomMapGraphics(guard, state, AreaId.Brinstar, mapPresentation: original);
         var nativePixels = nativeGraphics.Render(0, 0, marker);
         AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(0, 0, marker)), "stock station full-menu pixels with ROM layout blocked");

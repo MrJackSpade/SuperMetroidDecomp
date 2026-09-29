@@ -34,11 +34,13 @@ internal static partial class Program
             var typedArea = (AreaId)area;
             if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(index))
             {
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, typedArea, index), "cartridge rejects unused marker index");
+                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus,
+                    typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
                 AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
                 continue;
             }
-            var native = new FileSelectStationMarker(bus, typedArea, index);
+            var native = new FileSelectStationMarker(bus, typedArea, index,
+                original.SaveMarkers);
             var installed = new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers);
             AssertEqual((native.MapX, native.MapY), (installed.MapX, installed.MapY), "stock selected marker coordinates");
             for (int frame = 0; frame < 128; frame++)
@@ -112,7 +114,9 @@ internal static partial class Program
 
         byte[] Draw(FileSelectStationMarker marker)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); marker.Draw(guard, oam, 24, 8); oam.FinalizeFrame();
+            var oam = new OamBuffer(); oam.BeginFrame();
+            marker.Draw(guard, oam, 24, 8, original.Sprites);
+            oam.FinalizeFrame();
             return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }
     }

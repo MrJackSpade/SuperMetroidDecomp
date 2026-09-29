@@ -27,12 +27,33 @@ internal static partial class Program
                     native.AddRawSmallSprite(12, 34, 56);
                     installed.AddRawSmallSprite(12, 34, 56);
                 }
-                native.AddOnScreenSpritemap(bus, pointer, x, y, (ushort)(palette << 9));
+                DrawImportedSpritemap(native, pointer, x, y, (ushort)(palette << 9));
                 original.Sprites.Draw(frame.NativeId, installed, x, y, (ushort)(palette << 9));
                 AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) && native.HighTable.SequenceEqual(installed.HighTable),
                     $"{frame.Name} preserves native order, coordinates, attributes and clipping");
+            }
+        }
+        // The gameplay OAM path deliberately cannot fetch immutable spritemap bytes
+        // from the cartridge. Keep the independent import oracle inside verification,
+        // then feed its decoded parts through the same hardware OAM packing path.
+        void DrawImportedSpritemap(OamBuffer oam, int address, ushort x, ushort y,
+            ushort paletteBits)
+        {
+            IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+            int BankOffset(int offset) => (address & 0xff0000) | ((address + offset) & 0xffff);
+            byte Byte(int offset) => cartridge.ReadCartridgeByte(BankOffset(offset));
+            ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+            ushort count = Word(0);
+            for (int part = 0; part < count && oam.NextByteOffset < OamBuffer.LowTableByteCount;
+                part++)
+            {
+                int offset = 2 + part * 5;
+                oam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(offset)),
+                    Byte(offset + 2),
+                    new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits),
+                    x, y);
             }
         }
         // Independent coordinate oracle: the native carry/sign test parks wrapped
@@ -114,9 +135,11 @@ internal static partial class Program
             var guard = new MapSpriteReadGuard(bus);
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-            var marker = new FileSelectStationMarker(bus, AreaId.WreckedShip, 0);
+            var marker = new FileSelectStationMarker(bus, AreaId.WreckedShip, 0,
+                original.SaveMarkers);
             var room = new FileSelectRoomMapGraphics(guard, system, AreaId.WreckedShip, mapPresentation: original);
-            var nativeRoom = new FileSelectRoomMapGraphics(bus, system, AreaId.WreckedShip);
+            var nativeRoom = new FileSelectRoomMapGraphics(bus, system,
+                AreaId.WreckedShip, mapPresentation: original);
             var before = nativeRoom.Render(0, 0, marker);
             AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "stock map sprite pixels match with source reads blocked");
             room.BindMapPresentation(replacement);
@@ -125,7 +148,8 @@ internal static partial class Program
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindMapPresentation(original);
             AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "restored sprite resources bind current content");
-            var pauseNative = new PauseMenuState(bus, new SamusState(), system, AreaId.WreckedShip, 19, 20);
+            var pauseNative = new PauseMenuState(bus, new SamusState(), system,
+                AreaId.WreckedShip, 19, 20, mapPresentation: original);
             var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.WreckedShip, 19, 20, mapPresentation: original);
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");

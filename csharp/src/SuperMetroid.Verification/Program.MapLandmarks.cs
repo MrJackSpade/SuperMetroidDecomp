@@ -26,7 +26,10 @@ internal static partial class Program
             if (downloaded) system.SetAreaMapAcquired(area);
             var native = new FileSelectMapIcons(system, area);
             var installed = new FileSelectMapIcons(system, area);
+            native.BindLandmarks(original.Landmarks);
+            native.BindSprites(original.Sprites);
             installed.BindLandmarks(original.Landmarks);
+            installed.BindSprites(original.Sprites);
             AssertTrue(Draw(native, area).AsSpan().SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
             AssertEqual((byte)bits, system.GetBossBitsRaw(area), "landmark drawing preserves boss state");
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");
@@ -44,6 +47,7 @@ internal static partial class Program
         // An undiscovered living boss remains invisible even after its visual is moved.
         var unknown = new Bank80SystemState();
         var hidden = new FileSelectMapIcons(unknown, AreaId.WreckedShip);
+        hidden.BindSprites(original.Sprites);
         hidden.BindLandmarks(original.Landmarks); byte[] hiddenBefore = Draw(hidden, AreaId.WreckedShip);
         hidden.BindLandmarks(edited.Landmarks);
         AssertTrue(hiddenBefore.AsSpan().SequenceEqual(Draw(hidden, AreaId.WreckedShip)), "landmark edit cannot reveal living boss/elevators without map download");
@@ -53,8 +57,9 @@ internal static partial class Program
         {
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-            var marker = new FileSelectStationMarker(bus, area, 0);
-            var native = new FileSelectRoomMapGraphics(bus, system, area);
+            var marker = new FileSelectStationMarker(bus, area, 0, original.SaveMarkers);
+            var native = new FileSelectRoomMapGraphics(bus, system, area,
+                mapPresentation: original);
             var room = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
             var before = native.Render(0, 0, marker);
             AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "full file-select landmark stock pixel parity");
@@ -65,7 +70,8 @@ internal static partial class Program
             room.BindMapPresentation(original);
             AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "restored file-select uses current landmark content");
             if (area != AreaId.WreckedShip) continue;
-            var pauseNative = new PauseMenuState(bus, new SamusState(), system, area, 19, 20);
+            var pauseNative = new PauseMenuState(bus, new SamusState(), system, area,
+                19, 20, mapPresentation: original);
             var pause = new PauseMenuState(guard, new SamusState(), system, area, 19, 20, mapPresentation: original);
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");

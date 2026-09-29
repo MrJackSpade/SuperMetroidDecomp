@@ -1,5 +1,17 @@
 # Remaining lookup migration inventory (#547)
 
+## Projectile-trail bank-straddle operand (2026-09-29)
+
+The compiled bank-`$9B` trail coordinate reader no longer delegates a mixed
+compiled/live word to the generic CPU operand reader. At `$9B:FFFF`, its low
+byte belongs to the compiled catalog while the high byte comes from mirrored
+WRAM at `$9C:0000`; the old adapter asked Core for the cartridge byte and
+failed under the ROM-free boundary. The domain reader now resolves each byte
+in native order, retaining operand-MDR/open-bus behavior and rejecting any
+uncompiled upper-ROM address. Its verifier uses an explicit import-only native
+reference, checks the mixed bank-end word, 196,608 operand combinations, and
+6,600 physical trail spawns without restoring a gameplay ROM reader.
+
 ## Samus atmospheric direct-OBJ source boundary (2026-09-29)
 
 The four authored small-sprite types (one, four, six, and seven) now require the

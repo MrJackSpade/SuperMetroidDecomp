@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -24,6 +25,20 @@ internal static partial class Program
         }
         AssertEqual(3857, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations and the empty-family wrapped byte cover the reachable native region");
         VerifyCoordinateSpawn(bus);
+        AssertTrue(ProjectileTrailCoordinateDefinitions.TryReadByte(0x9bffff, out byte boundaryLow),
+            "bank-end trail operand has a compiled low byte");
+        byte originalBoundaryHigh = ((ISnesMutableMemory)bus).ReadWorkRamByte(0x9c0000);
+        try
+        {
+            bus.WriteByte(0x9c0000, 0x34);
+            AssertEqual((ushort)(boundaryLow | 0x3400),
+                ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, 0, 0xffff),
+                "bank-end trail word combines compiled ROM byte with live next-bank WRAM");
+        }
+        finally
+        {
+            bus.WriteByte(0x9c0000, originalBoundaryHigh);
+        }
         for (int index = 0; index <= ushort.MaxValue; index++)
         foreach (ushort operand in new ushort[] { 0, 1, 2 })
         {
@@ -38,17 +53,18 @@ internal static partial class Program
             {
                 // An earlier low-half access can hit strict, unimplemented hardware before
                 // the CPU reaches the following ROM byte. Preserve that ordering.
-                try { _ = SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, operand, (ushort)index); }
+                try { _ = ReadNativeTrailOperandWord(bus, operand, (ushort)index); }
                 catch (InvalidOperationException)
                 {
                     AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Unknown hardware still fails before a following unrelated ROM byte");
                     continue;
                 }
-                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Coordinate operand rejects unrelated upper-ROM data");
+                AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index),
+                    "runtime CPU boundary rejects unrelated upper-ROM data without reading the cartridge");
                 continue;
             }
             ushort expected;
-            try { expected = SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, operand, (ushort)index); }
+            try { expected = ReadNativeTrailOperandWord(bus, operand, (ushort)index); }
             catch (InvalidOperationException)
             {
                 AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Unknown hardware must still fail loudly");
@@ -80,7 +96,7 @@ internal static partial class Program
             ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), family + (type & 15) * 2);
             ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
             ushort y = unchecked((ushort)(offsets + frame * 4));
-            byte Read(ushort operand, ushort index) => (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, operand, index) >> 8);
+            byte Read(ushort operand, ushort index) => (byte)(ReadNativeTrailOperandWord(bus, operand, index) >> 8);
             ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
             var expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
             system.Reset();
@@ -99,6 +115,44 @@ internal static partial class Program
             cases++;
         }
         Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions without coordinate ROM reads.");
+    }
+
+    // Import-only reference for the actual $9B absolute-indexed operand. The
+    // production CPU reader intentionally rejects ROM, so native expectations
+    // must resolve cartridge bytes through the asset-import boundary instead.
+    private static ushort ReadNativeTrailOperandWord(
+        ISnesAddressSpace bus, ushort operand, ushort index)
+    {
+        int address = (0x9b0000 + operand + index) & SnesCpuAddressLayout.AddressMask;
+        byte ReadData(int source, byte memoryDataRegister)
+        {
+            int bank = source >> 16;
+            int offset = source & 0xffff;
+            if ((bank & 0x40) == 0 &&
+                (offset >= SnesCpuOpenBusWindows.ReservedBBusStart &&
+                 offset <= SnesCpuOpenBusWindows.ReservedBBusEnd ||
+                 offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart &&
+                 offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd))
+                return memoryDataRegister;
+
+            return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(source)) switch
+            {
+                SnesDmaSourceKind.Cartridge =>
+                    CartridgeImportSource.Require(bus).ReadCartridgeByte(source),
+                SnesDmaSourceKind.WorkRam =>
+                    ((ISnesMutableMemory)bus).ReadWorkRamByte(source),
+                SnesDmaSourceKind.SaveRam =>
+                    ((ISnesMutableMemory)bus).ReadSaveRamByte(source),
+                _ => bus is ISnesCpuPeripheralSource peripheral
+                    ? peripheral.ReadPeripheralByte(source)
+                    : throw new InvalidOperationException(
+                        $"Native trail operand ${source:X6} addresses unmodeled hardware."),
+            };
+        }
+
+        byte low = ReadData(address, (byte)(operand >> 8));
+        byte high = ReadData((address + 1) & SnesCpuAddressLayout.AddressMask, low);
+        return (ushort)(low | high << 8);
     }
 
     private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace,

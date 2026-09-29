@@ -804,35 +804,34 @@ internal static class ProjectileTrailCoordinateDefinitions
     internal static ushort ReadCoordinateWord(ISnesAddressSpace bus, ushort operand, ushort index)
     {
         int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
-        bool hasLow = TryReadByte(address, out byte low);
-        bool hasHigh = TryReadByte((address + 1) & SnesCpuAddressLayout.AddressMask, out byte high);
-        if (hasLow && hasHigh) return (ushort)(low | high << 8);
-        // Only a live-memory boundary read needs an adapter. Unknown hardware still uses
-        // native operand-driven MDR/open-bus rules; normal compiled reads allocate nothing.
-        // The adapter rejects uncompiled upper-ROM addresses rather than treating unrelated
-        // cartridge bytes as physical trail coordinates.
-        return SnesCpuOperandRead.ReadAbsoluteIndexedWord(new BoundaryBus(bus),
-            (byte)(SamusProjectileRomData.Banks.PaletteAndTrailData >> 16), operand, index);
+        int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
+        if (TryReadByte(address, out byte compiledLow) &&
+            TryReadByte(next, out byte compiledHigh))
+            return (ushort)(compiledLow | compiledHigh << 8);
+
+        // A native absolute-indexed word may straddle compiled bank-$9B data and
+        // the following bank's mutable mirror. Resolve each byte separately; the
+        // low byte drives MDR for an undriven high-byte read.
+        byte low = ReadCoordinateOperandByte(bus, address, (byte)(operand >> 8));
+        byte high = ReadCoordinateOperandByte(bus, next, low);
+        return (ushort)(low | high << 8);
     }
 
-    private sealed class BoundaryBus(ISnesAddressSpace bus) : ISnesAddressSpace,
-        ISnesMutableMemory, ISnesCpuPeripheralSource
+    private static byte ReadCoordinateOperandByte(
+        ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
-        public byte ReadWorkRamByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
-        public byte ReadSaveRamByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
-        public byte ReadPeripheralByte(int address) => SnesCpuMappedData.ReadByte(bus, address);
-        public byte ReadByte(int address)
-        {
-            if (TryReadByte(address, out byte value))
-                return value;
+        if (TryReadByte(address, out byte compiled))
+            return compiled;
 
-            SnesAddress source = SnesAddress.FromBusAddress(address);
-            if (source.IsUpperLoRomWindow)
-                throw new InvalidDataException(
-                    $"Projectile trail coordinate read reached uncompiled cartridge address {source}.");
-            return SnesCpuMappedData.ReadByte(bus, address);
-        }
+        int bank = address >> 16;
+        int offset = address & 0xffff;
+        if ((bank & 0x40) == 0 &&
+            (offset >= SnesCpuOpenBusWindows.ReservedBBusStart &&
+             offset <= SnesCpuOpenBusWindows.ReservedBBusEnd ||
+             offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart &&
+             offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd))
+            return memoryDataRegister;
 
-        public void WriteByte(int address, byte value) => bus.WriteByte(address, value);
+        return SnesCpuMappedData.ReadByte(bus, address);
     }
 }

@@ -757,28 +757,27 @@ public static partial class SnesGameplayFrameRenderer
     /// route uses the same table with a red selector and is retained as an explicit argument
     /// rather than hiding boss-state policy in this renderer.
     /// </remarks>
-    public static void ApplyCeresHaze(Span<Rgba32> frame, bool ridleyIsDead, int intensity = CeresHazeRenderDefinitions.MaximumComponent)
+    public static void ApplyCeresHaze(Span<Rgba32> frame, bool ridleyIsDead,
+        int intensity = CeresHazeRenderDefinitions.MaximumComponent,
+        RoomFxPaletteBlendCatalog? colors = null)
     {
         if (frame.Length != Width * Height)
             throw new ArgumentException("Ceres haze requires one complete 256x224 frame.", nameof(frame));
 
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            int component = screenY < CeresHazeRenderDefinitions.RampFirstLine
-                ? CeresHazeRenderDefinitions.InitialComponent
-                : Math.Min(CeresHazeRenderDefinitions.MaximumComponent,
-                    CeresHazeRenderDefinitions.RampFirstComponent +
-                    (screenY - CeresHazeRenderDefinitions.RampFirstLine) / CeresHazeRenderDefinitions.BandHeight);
-            component = Math.Max(0, component + intensity - CeresHazeRenderDefinitions.MaximumComponent);
-            byte addition = ExpandFiveBit((byte)component);
+            (byte red, byte green, byte blue) = CeresHazeRenderDefinitions.ResolveComponents(
+                screenY, intensity, ridleyIsDead, colors);
+            byte addRed = ExpandFiveBit(red);
+            byte addGreen = ExpandFiveBit(green);
+            byte addBlue = ExpandFiveBit(blue);
             int row = screenY * Width;
             for (int screenX = 0; screenX < Width; screenX++)
             {
                 int pixel = row + screenX;
                 Rgba32 source = frame[pixel];
-                frame[pixel] = ridleyIsDead
-                    ? new Rgba32(SaturatingAdd(source.R, addition), source.G, source.B, source.A)
-                    : new Rgba32(source.R, source.G, SaturatingAdd(source.B, addition), source.A);
+                frame[pixel] = new Rgba32(SaturatingAdd(source.R, addRed),
+                    SaturatingAdd(source.G, addGreen), SaturatingAdd(source.B, addBlue), source.A);
             }
         }
     }

@@ -31,7 +31,8 @@ public static partial class GameplayDisplayCapture
             if (runtime.Enemies.MotherBrain?.RainbowBeamHdma.Active != true && runtime.DisplayedRoomLayer3Fx is { } fx)
                 AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
             if (runtime.CeresHaze.Enabled)
-                AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed, runtime.CeresHaze.Intensity));
+                AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed,
+                    runtime.CeresHaze.Intensity, runtime.MapPresentation?.RoomFxPaletteBlends));
             if (runtime.DisplayedMorphBallEyeBeam is { } eye)
                 AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1XPosition, ppu.Layer1YPosition));
             if (runtime.Enemies.MotherBrain is { } motherBrain)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -6,21 +7,18 @@ namespace SuperMetroid.Core.Rendering;
 public static partial class SnesGameplayFrameRenderer
 {
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
-    public static ScanlineColorAddRenderLayer CaptureCeresHaze(bool ridleyIsDead, int intensity = CeresHazeRenderDefinitions.MaximumComponent)
+    public static ScanlineColorAddRenderLayer CaptureCeresHaze(bool ridleyIsDead,
+        int intensity = CeresHazeRenderDefinitions.MaximumComponent,
+        RoomFxPaletteBlendCatalog? colors = null)
     {
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
         for (int y = HudHeight; y < Height; y++)
         {
-            int component = y < CeresHazeRenderDefinitions.RampFirstLine
-                ? CeresHazeRenderDefinitions.InitialComponent
-                : Math.Min(CeresHazeRenderDefinitions.MaximumComponent,
-                    CeresHazeRenderDefinitions.RampFirstComponent +
-                    (y - CeresHazeRenderDefinitions.RampFirstLine) / CeresHazeRenderDefinitions.BandHeight);
-            component = Math.Max(0, component + intensity - CeresHazeRenderDefinitions.MaximumComponent);
-            byte addition = ExpandFiveBit((byte)component);
-            windows[y] = new(0, Width - 1, ridleyIsDead ? addition : (byte)0,
-                0, ridleyIsDead ? (byte)0 : addition);
+            (byte red, byte green, byte blue) = CeresHazeRenderDefinitions.ResolveComponents(
+                y, intensity, ridleyIsDead, colors);
+            windows[y] = new(0, Width - 1, ExpandFiveBit(red),
+                ExpandFiveBit(green), ExpandFiveBit(blue));
         }
         return new(windows);
     }

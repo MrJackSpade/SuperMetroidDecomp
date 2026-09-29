@@ -200,7 +200,8 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (!doorIrqOwnsDisplay && runtime.CeresHaze.Enabled)
         {
             // The HDMA object retains its spawn-time channel while the boss bit changes.
-            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, runtime.CeresHaze.IsRed, runtime.CeresHaze.Intensity);
+            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, runtime.CeresHaze.IsRed,
+                runtime.CeresHaze.Intensity, runtime.MapPresentation?.RoomFxPaletteBlends);
         }
 
         if (!doorIrqOwnsDisplay && runtime.DisplayedMorphBallEyeBeam is { } eyeBeam)

@@ -10,7 +10,19 @@ public sealed class RoomFxPaletteBlendCatalog
 {
     private readonly Dictionary<byte, ushort[]> blends;
 
-    private RoomFxPaletteBlendCatalog(Dictionary<byte, ushort[]> blends) => this.blends = blends;
+    private RoomFxPaletteBlendCatalog(Dictionary<byte, ushort[]> blends,
+        PaletteRgb5 ceresHazeBlue, PaletteRgb5 ceresHazeRed)
+    {
+        this.blends = blends;
+        CeresHazeBlue = ceresHazeBlue;
+        CeresHazeRed = ceresHazeRed;
+    }
+
+    /// <summary>Cosmetic fixed-color tint selected when Ceres Ridley is alive.</summary>
+    public PaletteRgb5 CeresHazeBlue { get; }
+
+    /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
+    public PaletteRgb5 CeresHazeRed { get; }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -55,7 +67,11 @@ public sealed class RoomFxPaletteBlendCatalog
             }
             blends.Add(id, words);
         }
-        return new(blends);
+        return new(blends,
+            ValidateHazeTint(document.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
+                nameof(document.CeresHazeBlue)),
+            ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
+                nameof(document.CeresHazeRed)));
     }
 
     public static byte[] Write(RoomFxPaletteBlendDocument document)
@@ -83,6 +99,13 @@ public sealed class RoomFxPaletteBlendCatalog
     public ReadOnlySpan<ushort> Resolve(byte selection) => blends.TryGetValue(selection, out ushort[]? colors)
         ? colors : throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection.");
 
+    private static PaletteRgb5 ValidateHazeTint(PaletteRgb5 color, string name)
+    {
+        if ((uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
+            throw new InvalidDataException($"{name} requires RGB components from zero through 31.");
+        return color;
+    }
+
     private static void RejectDuplicates(JsonElement value)
     {
         if (value.ValueKind == JsonValueKind.Object)
@@ -104,6 +127,10 @@ public sealed record RoomFxPaletteBlendDocument
 {
     public required int Version { get; init; }
     public required Dictionary<string, PaletteRgb5[]> Blends { get; init; }
+    /// <summary>Optional for older version-one overrides; missing means the cartridge blue tint.</summary>
+    public PaletteRgb5? CeresHazeBlue { get; init; }
+    /// <summary>Optional for older version-one overrides; missing means the cartridge red tint.</summary>
+    public PaletteRgb5? CeresHazeRed { get; init; }
 }
 
 /// <summary>Native bank-$89 room-FX blend selectors, distinct from editable colors.</summary>
@@ -111,6 +138,11 @@ public static class RoomFxPaletteBlendDefinitions
 {
     public const string FileName = "room-fx-blend-palettes.json";
     public const int Version = 1;
+
+    /// <summary>Stock blue-channel fixed-color amplitude for Ceres haze.</summary>
+    public static PaletteRgb5 StockCeresHazeBlue { get; } = new() { Red = 0, Green = 0, Blue = 15 };
+    /// <summary>Stock red-channel fixed-color amplitude after Ceres Ridley.</summary>
+    public static PaletteRgb5 StockCeresHazeRed { get; } = new() { Red = 15, Green = 0, Blue = 0 };
 
     /// <summary>FX-record selector $02, used primarily for lava/acid.</summary>
     public const byte Lava = 0x02;

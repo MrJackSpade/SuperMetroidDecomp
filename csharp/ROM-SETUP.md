@@ -354,6 +354,13 @@ or source-pointer operands from bank $87. An older 89-tile override still
 loads: its edited pixels are retained and the new treadmill frames come from
 current checked stock content. Malformed PNGs fail loudly.
 
+`game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors and the
+`ceresHazeBlue`/`ceresHazeRed` RGB5 tints. Copy it to `overrides/maps/` to recolor
+the Ceres haze before or after Ridley's defeat. The tint affects both software
+and hardware rendering; haze activation, scanline bands, and fade timing remain
+compiled. Each channel must be 0–31. Older overrides without the two tint
+fields keep the stock blue/red colors.
+
 ## Room-character PNG overrides
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

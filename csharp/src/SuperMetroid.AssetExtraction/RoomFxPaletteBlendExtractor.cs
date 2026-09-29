@@ -35,6 +35,8 @@ public static class RoomFxPaletteBlendExtractor
         {
             Version = RoomFxPaletteBlendDefinitions.Version,
             Blends = blends,
+            CeresHazeBlue = RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
+            CeresHazeRed = RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
         });
     }
 }

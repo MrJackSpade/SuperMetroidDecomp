@@ -280,7 +280,8 @@ internal static partial class Program
         VerifyPauseEquipmentLabelAssets(bus, stock, Path.Combine(root, "pause-equipment-label-overrides"), original);
         VerifyEscapeTimerPresentationAssets(bus, stock,
             Path.Combine(root, "escape-timer-overrides"), original, initialPalettes);
-        VerifyGameplayHudPresentationAssets(bus, stock, Path.Combine(root, "gameplay-hud-overrides"), original);
+        VerifyGameplayHudPresentationAssets(bus, stock,
+            Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes);
         VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original);
         VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original);
         VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original);

@@ -62,10 +62,14 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapAreaOrder.Get(6), "invalid display index not clamped");
         VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog);
-        VerifyLegacyClosure();
+        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(bus,
+            new CartridgeAudioState(), new SuperMetroidSaveRam(bus).ReadSlot(0)!, 0),
+            "file-select map cannot construct a cartridge-backed fallback graph");
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            var native = new FileSelectAreaMapGraphics(bus, area);
+            var native = new FileSelectAreaMapGraphics(bus, area, catalog.Tiles, catalog.Palettes,
+                catalog.Screens, catalog.WorldArtwork, catalog.Sprites);
+            native.BindLabels(catalog.Labels);
             var compiled = new FileSelectAreaMapGraphics(guard, area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork, catalog.Sprites);
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
@@ -75,7 +79,7 @@ internal static partial class Program
                 AssertTrue(native.Render(stations).AsSpan().SequenceEqual(compiled.Render(stations)), "compiled area order retains label layering and visibility for every area combination");
             }
         }
-        Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry and 384 display-order frames pass with every bus access forbidden; legacy metadata rebind also passes.");
+        Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry and 384 display-order frames pass with every bus access forbidden; unbound cartridge fallback is rejected.");
 
         FileSelectMapAnchor ReadNativeAnchor(AreaId area, int station)
         {
@@ -99,7 +103,7 @@ internal static partial class Program
             saves.SaveSlot(0, snapshot);
             byte[] before = ReadSram();
             var slot = saves.ReadSlot(0)!;
-            var native = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0);
+            var native = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, catalog);
             var compiled = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, catalog);
             // Area-specific expanding-window durations differ. Compare every
             // native phase and stop on its actual endpoint, with a bounded guard.
@@ -116,55 +120,6 @@ internal static partial class Program
         }
         byte[] ReadSram() => Enumerable.Range(0, SaveRamLayout.SramOffsetMask + 1)
             .Select(offset => bus.ReadByte((SaveRamLayout.SramBank << 16) | offset)).ToArray();
-        void VerifyLegacyClosure()
-        {
-            var gates = new MapLoadMetadataReadGuard(bus) { BlockReads = false };
-            var saves = new SuperMetroidSaveRam(bus);
-            var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 3, Health = 99, MaxHealth = 99 };
-            data.MapStationBytes[(int)AreaId.Maridia] = 1;
-            data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 8;
-            saves.SaveSlot(0, data);
-            var slot = saves.ReadSlot(0)!;
-            var native = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0);
-            // The unbound constructor still creates the legacy delegate graph with
-            // real room/station captures. Test a nonzero index so a lost identity
-            // cannot accidentally pass by falling back to station zero.
-            var oldStyle = new FileSelectMapMenuState(gates, new CartridgeAudioState(), slot, 0);
-            for (int tick = 0; tick < 104; tick++)
-            {
-                ushort input = tick == 48 ? (ushort)SnesButton.Start : (ushort)0;
-                native.Step(input); oldStyle.Step(input);
-            }
-            var closure = (Delegate)typeof(FileSelectMapMenuState).GetField("createScroll", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(oldStyle)!;
-            AssertTrue(closure.Target!.GetType().GetField("station")!.GetValue(closure.Target) is not null, "legacy graph fixture really contains a native station capture");
-            AssertTrue(closure.Target.GetType().GetField("room")!.GetValue(closure.Target) is not null, "legacy graph fixture really contains native room metadata");
-            gates.BlockReads = true;
-            using var snapshot = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(snapshot, oldStyle); snapshot.Position = 0;
-            oldStyle = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(snapshot);
-            oldStyle.BindMapPresentation(catalog);
-            AssertTrue(native.Render().AsSpan().SequenceEqual(oldStyle.Render()), "legacy captured metadata rebind retains selected station and pixels");
-            for (int tick = 0; tick < 120; tick++)
-            {
-                ushort input = tick == 0 ? (ushort)SnesButton.B : tick == 62 ? (ushort)SnesButton.Start : (ushort)0;
-                native.Step(input); oldStyle.Step(input);
-                AssertEqual(native.Phase, oldStyle.Phase, "legacy graph retains return/reentry timing");
-                AssertTrue(native.Render().AsSpan().SequenceEqual(oldStyle.Render()), "legacy graph reentry does not invoke its native room closure");
-            }
-            AssertEqual(FileSelectMapNavigationPhase.Room, oldStyle.Phase, "legacy graph actually reenters the room map");
-            // Explicitly returning a freshly installed menu to native diagnostics
-            // also works despite its deliberately empty legacy baseline capture.
-            var unbound = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, catalog);
-            unbound.BindMapPresentation(null);
-            var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0);
-            for (int tick = 0; tick < 224; tick++)
-            {
-                ushort input = tick is 48 or 166 ? (ushort)SnesButton.Start : tick == 104 ? (ushort)SnesButton.B : (ushort)0;
-                unbound.Step(input); control.Step(input);
-                AssertEqual(control.Phase, unbound.Phase, "diagnostic unbinding preserves navigation");
-            }
-            AssertEqual(FileSelectMapNavigationPhase.Room, unbound.Phase, "diagnostic unbinding actually reenters");
-            AssertTrue(control.Render().AsSpan().SequenceEqual(unbound.Render()), "diagnostic unbinding safely rebuilds native scroll metadata");
-        }
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => (FileSelectMapScroll)typeof(FileSelectMapMenuState)
             .GetField("scroll", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(menu)!;
         static (ushort, ushort, ushort, ushort, ushort, ushort, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>

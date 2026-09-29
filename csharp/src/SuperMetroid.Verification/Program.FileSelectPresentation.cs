@@ -32,7 +32,7 @@ internal static partial class Program
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new FileSelectMenuState(bus, nativeAudio);
+        var native = new FileSelectMenuState(bus, nativeAudio, original);
         var installed = new FileSelectMenuState(
             new FileSelectPresentationGuard(bus), installedAudio, original);
         int comparedFrames = 0;

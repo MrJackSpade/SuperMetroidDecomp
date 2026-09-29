@@ -21,7 +21,8 @@ internal static partial class Program
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new GameOptionsMenuState(bus, nativeAudio);
+        var native = new GameOptionsMenuState(bus, nativeAudio,
+            mapPresentation: original);
         var installed = new GameOptionsMenuState(
             new ForbiddenMapBus(), installedAudio, mapPresentation: original);
         int comparedFrames = 0;

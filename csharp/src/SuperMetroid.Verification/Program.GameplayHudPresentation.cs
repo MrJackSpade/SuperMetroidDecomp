@@ -7,7 +7,8 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     private static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentationCatalog original)
+        string overrides, AreaMapPresentationCatalog original,
+        GameplayBasePaletteCatalog initialPalettes)
     {
         string stockPath = Path.Combine(stock, GameplayHudDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.GameplayHudPresentationExtractor.Extract(bus);
@@ -18,7 +19,8 @@ internal static partial class Program
             AssertEqual(bus.ReadByte(GameplayHudDefinitions.TopRowAddress + index),
                 presentation.TopRowTransfer.Span[index], $"stock immutable HUD row byte {index}");
         var guard = new GameplayHudReadGuard(bus);
-        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard)
+        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard,
+            initialPaletteArt: initialPalettes)
             { MapPresentation = original };
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, 0x5800);
@@ -36,6 +38,7 @@ internal static partial class Program
             ReserveHealth: 50, ReserveMode: 1);
         var native = new HudState();
         var installed = new HudState();
+        native.BindPresentation(presentation);
         installed.BindPresentation(presentation);
         native.Initialize(bus, snapshot);
         installed.Initialize(guard, snapshot);
@@ -92,7 +95,8 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard)
+        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard,
+            initialPaletteArt: initialPalettes)
             { MapPresentation = edited };
         editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, 0x5800);

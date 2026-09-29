@@ -23,7 +23,7 @@ internal static partial class Program
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new GameOverMenuState(bus, nativeAudio);
+        var native = new GameOverMenuState(bus, nativeAudio, original);
         var installed = new GameOverMenuState(new ForbiddenMapBus(), installedAudio, original);
         bool choseNo = false;
         bool released = false;

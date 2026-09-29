@@ -178,7 +178,7 @@ internal static partial class Program
 
     private sealed class CeresEscapeArtworkProvider(
         EnemyTileArtworkCatalog tiles, EscapeTimerTileAtlas timer)
-        : IVramAssetProvider, IRomArtworkSource
+        : IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => timer.Resolve(asset);
 

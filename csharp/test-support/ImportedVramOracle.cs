@@ -56,7 +56,7 @@ internal static class ImportedVramOracle
         return bytes;
     }
 
-    private sealed class ImportedTransfers(ISnesAddressSpace source) : IVramAssetProvider, IRomArtworkSource
+    private sealed class ImportedTransfers(ISnesAddressSpace source) : IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Reference DMA has no installed asset {asset}.");

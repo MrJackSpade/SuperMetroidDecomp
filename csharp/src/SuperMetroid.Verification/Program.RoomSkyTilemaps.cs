@@ -285,7 +285,7 @@ internal static partial class Program
     }
 
     private sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
-        : IVramAssetProvider, IRomArtworkSource
+        : IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Unexpected queued asset {asset}.");

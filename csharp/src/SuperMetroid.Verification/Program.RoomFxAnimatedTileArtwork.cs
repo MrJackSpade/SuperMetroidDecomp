@@ -282,7 +282,7 @@ internal static partial class Program
     }
 
     private sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
-        IVramAssetProvider, IRomArtworkSource
+        IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");

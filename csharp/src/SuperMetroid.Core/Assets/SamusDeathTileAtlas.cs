@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable four-bit OBJ characters for Samus's five death-explosion transfers.</summary>
-public sealed class SamusDeathTileAtlas : IRomArtworkSource
+public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
 {
     private readonly byte[] planar;
 

@@ -1,0 +1,19 @@
+<Project>
+  <!-- A compile-boundary fixture, not an executable or gameplay probe. -->
+  <ItemGroup Condition="'$(BoundaryCase)' == 'ImporterAssembly'">
+    <ReferencePath Include="SuperMetroid.AssetExtraction.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'DiagnosticAssembly'">
+    <ReferencePath Include="SuperMetroid.Verification.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'BusReadShim'">
+    <Compile Include="ReferenceBusReadExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'VramOracle'">
+    <Compile Include="ImportedVramOracle.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BoundaryCase)' == 'SpritemapOracle'">
+    <Compile Include="ImportedSpritemapOracle.cs" />
+  </ItemGroup>
+  <Import Project="../../tools/RuntimeCartridgeBoundary.targets" />
+</Project>

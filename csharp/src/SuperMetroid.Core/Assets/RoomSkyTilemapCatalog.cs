@@ -4,7 +4,7 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
-public sealed class RoomSkyTilemapCatalog : IRomArtworkSource
+public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
 {
     private readonly byte[] pages;
 

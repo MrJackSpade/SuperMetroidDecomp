@@ -102,7 +102,7 @@ public sealed class VramWriteQueue
             VramWriteEntry entry = _entries[index];
             if (entry.AssetId == VramAssetId.None)
             {
-                if (assets is IRomArtworkSource artwork &&
+                if (assets is IInstalledArtworkTransferSource artwork &&
                     artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes,
                         out ReadOnlyMemory<byte> selected))
                     vram.ExecuteQueuedAssetWrite(selected.Span, entry.EncodedVramDestination);

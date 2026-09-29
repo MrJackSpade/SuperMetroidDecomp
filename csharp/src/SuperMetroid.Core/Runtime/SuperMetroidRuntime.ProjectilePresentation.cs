@@ -3,9 +3,9 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Runtime;
 
-public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IRomArtworkSource
+public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalledArtworkTransferSource
 {
-    bool IRomArtworkSource.TryResolve(int sourceAddress, int byteCount,
+    bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
         if (MapPresentation is not null &&

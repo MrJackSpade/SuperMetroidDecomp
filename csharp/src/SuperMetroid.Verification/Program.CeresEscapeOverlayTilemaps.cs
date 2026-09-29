@@ -151,7 +151,7 @@ internal static partial class Program
     }
 
     private sealed class CeresEscapeOverlayProvider(EnemyTileArtworkCatalog art)
-        : IVramAssetProvider, IRomArtworkSource
+        : IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException(

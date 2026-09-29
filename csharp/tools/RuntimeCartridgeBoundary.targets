@@ -1,0 +1,21 @@
+<Project>
+  <!-- Imported only by Core. Cartridge/reference readers belong to import tooling,
+       so adding either an assembly reference or a linked diagnostic shim is a build error. -->
+  <Target Name="EnforceRuntimeCartridgeBoundary" BeforeTargets="CoreCompile" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <ForbiddenCartridgeReference Include="@(ReferencePath)"
+        Condition="'%(ReferencePath.Filename)' == 'SuperMetroid.AssetExtraction' or
+                   '%(ReferencePath.Filename)' == 'SuperMetroid.Verification' or
+                   '%(ReferencePath.Filename)' == 'SuperMetroid.DebugRunner' or
+                   '%(ReferencePath.Filename)' == 'SuperMetroid.AssetExtractor'" />
+      <ForbiddenCartridgeShim Include="@(Compile)"
+        Condition="'%(Compile.Filename)' == 'ReferenceBusReadExtensions' or
+                   '%(Compile.Filename)' == 'ImportedVramOracle' or
+                   '%(Compile.Filename)' == 'ImportedSpritemapOracle'" />
+    </ItemGroup>
+    <Error Code="SMROM001" Condition="'@(ForbiddenCartridgeReference)' != ''"
+      Text="Core cannot reference cartridge-import or reference-diagnostic assemblies: @(ForbiddenCartridgeReference). Convert immutable data to compiled definitions or installed resources; do not restore a ROM reader." />
+    <Error Code="SMROM002" Condition="'@(ForbiddenCartridgeShim)' != ''"
+      Text="Core cannot compile diagnostic cartridge-reader shims: @(ForbiddenCartridgeShim). Keep these sources in import/reference tooling only." />
+  </Target>
+</Project>

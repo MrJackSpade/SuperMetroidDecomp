@@ -61,8 +61,8 @@ public static class GameAssetInstaller
 
     /// <summary>
     /// Opens a complete extracted-content installation without requiring the private ROM copy.
-    /// This validates presentation assets and their source-revision receipt. Hosts can start
-    /// from these assets, although later gameplay paths may still require untranslated ROM data.
+    /// This validates presentation assets and their source-revision receipt. Hosts bind
+    /// these resources to a mutable-memory-only runtime; no gameplay ROM reader exists.
     /// </summary>
     public static GameInstallation? TryOpenExtractedContent(string root)
     {

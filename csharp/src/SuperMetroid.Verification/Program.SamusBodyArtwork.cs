@@ -771,7 +771,7 @@ internal static partial class Program
     }
 
     private sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
-        IVramAssetProvider, IRomArtworkSource
+        IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
